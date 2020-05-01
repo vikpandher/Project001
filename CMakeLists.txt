@@ -9,20 +9,27 @@ project("Project001" # ${PROJECT_NAME}
     LANGUAGES C CXX
 )
 
+set_property(DIRECTORY "."
+    PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}"
+)
+
 set("EXECUTABLE_NAME" "${PROJECT_NAME}")
 
 add_executable("${EXECUTABLE_NAME}"
+    "Src/glad.c"
     "Src/Main.cpp"
 )
 
-# target_link_libraries
-# (
-# )
+target_link_directories("${EXECUTABLE_NAME}"
+    PUBLIC
+    "Lib"
+)
 
-# target_include_directories(
-#     PUBLIC
-# )
+target_link_libraries("${EXECUTABLE_NAME}"
+    "glfw3.lib"
+)
 
-set_property(DIRECTORY "."
-    PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}"
+target_include_directories("${EXECUTABLE_NAME}"
+    PUBLIC 
+    "Include"
 )
