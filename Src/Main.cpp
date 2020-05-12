@@ -6,6 +6,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp""
+
 #include <iostream>
 
 #include "Shaders.h"
@@ -123,10 +127,6 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    //copy the index array in the element buffer then bind the buffer and set it's data
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     // configure position attribute
     // (index, size, type, normalized, stride, pointer)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
@@ -139,6 +139,10 @@ int main(int argc, char** argv)
     // configure texture coordinate attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    //copy the index array in the element buffer then bind the buffer and set it's data
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // unbind the array buffer and the vertex array
     // glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -214,7 +218,10 @@ int main(int argc, char** argv)
     }
     stbi_image_free(data2);
 
+    // set the shader program
     glUseProgram(shaderProgram);
+
+    // set texture uniforms
     glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 
@@ -235,8 +242,15 @@ int main(int argc, char** argv)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
+        // create transformations with glm
+        glm::mat4 transform = glm::mat4(1.0f); // start with an identity matrix
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // set the transform unifrom
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, glm::value_ptr(transform));
+
         // render
-        glUseProgram(shaderProgram);
         glBindVertexArray(vertexArrayObject); // only a single vertex array object, but bind it every time anyways
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
