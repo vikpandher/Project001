@@ -16,14 +16,34 @@
 
 
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+
+void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+
 
 
 // window dimensions
 const unsigned int WINDOW_WIDTH = 800;
 const unsigned int WINDOW_HEIGHT = 600;
 
+// camera
+glm::vec3 g_cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+bool g_mouseControlledCamera = false;
+float g_yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float g_pitch = 0.0f;
+float g_lastX = 800.0f / 2.0;
+float g_lastY = 600.0 / 2.0;
+float g_fov = 45.0f;
+
+// timing
+float g_deltaTime = 0.0f; // time between current frame and last frame
+float g_lastFrame = 0.0f;
 
 // =============================================================================
 int main(int argc, char** argv)
@@ -49,7 +69,14 @@ int main(int argc, char** argv)
         return -1;
     }
     glfwMakeContextCurrent(window);
+    
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+
+    // Need to do this to implement mouse motion based camera controls???
+    /// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // load all OpenGL function pointers with glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -244,14 +271,19 @@ int main(int argc, char** argv)
     glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 
     // render loop
-    // -------------------------------------------------------------------------
+    // =========================================================================
     while (!glfwWindowShouldClose(window))
     {
+        // per-frame time logic
+        float currentFrame = glfwGetTime();
+        g_deltaTime = currentFrame - g_lastFrame;
+        g_lastFrame = currentFrame;
+
         // input
         processInput(window);
 
         // render
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // bind textures on corresponding texture units
@@ -268,9 +300,24 @@ int main(int argc, char** argv)
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
+        // spinning model
         model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        
+        // rotating camera view
+        /// float radius = 5.0f;
+        /// float camX = sin(glfwGetTime()) * radius;
+        /// float camZ = cos(glfwGetTime()) * radius;
+        /// view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        
+        // camera view
+        view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
+
+        // perspective projection
+        projection = glm::perspective(glm::radians(g_fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
+        // orthographic projection
+        /// view = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        /// projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
 
         // retrieve the matrix uniform locations
         unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
@@ -304,10 +351,110 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    float cameraSpeed = 2.5 * g_deltaTime;
+    
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        g_cameraPos += cameraSpeed * g_cameraFront;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        g_cameraPos -= cameraSpeed * g_cameraFront;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        g_cameraPos -= glm::normalize(glm::cross(g_cameraFront, g_cameraUp)) * cameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        g_cameraPos += glm::normalize(glm::cross(g_cameraFront, g_cameraUp)) * cameraSpeed;
+    }
 }
 
+// glfw: whenever the mouse moves, this callback is called
+// =============================================================================
+void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos)
+{
+    if (g_mouseControlledCamera)
+    {
+        float xoffset = xPos - g_lastX;
+        float yoffset = g_lastY - yPos; // reversed since y-coordinates go from bottom to top
+        g_lastX = xPos;
+        g_lastY = yPos;
+
+        float sensitivity = 0.1f; // variable
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        g_yaw += xoffset;
+        g_pitch += yoffset;
+
+        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (g_pitch > 89.0f)
+        {
+            g_pitch = 89.0f;
+        }
+
+        if (g_pitch < -89.0f)
+        {
+            g_pitch = -89.0f;
+        }
+
+        glm::vec3 front;
+        front.x = cos(glm::radians(g_yaw)) * cos(glm::radians(g_pitch));
+        front.y = sin(glm::radians(g_pitch));
+        front.z = sin(glm::radians(g_yaw)) * cos(glm::radians(g_pitch));
+        g_cameraFront = glm::normalize(front);
+    }
+    else
+    {
+        g_lastX = xPos;
+        g_lastY = yPos;
+    }
+}
+
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // =============================================================================
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+//
+// =============================================================================
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        g_mouseControlledCamera = true;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+    {
+        g_mouseControlledCamera = false;
+    }
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// =============================================================================
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+   if (g_fov >= 1.0f && g_fov <= 45.0f)
+   {
+      g_fov -= yOffset;
+   }
+
+   if (g_fov <= 1.0f)
+   {
+      g_fov = 1.0f;
+   }
+
+   if (g_fov >= 45.0f)
+   {
+      g_fov = 45.0f;
+   }
 }
