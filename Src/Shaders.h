@@ -28,12 +28,11 @@ in vec2 textureCoord;
 out vec4 fragmentColor;
 
 uniform sampler2D texture1;
-uniform sampler2D texture2;
 
 void main()
 {
 	// linearly interpolate between both textures
-	fragmentColor = mix(texture(texture1, textureCoord), texture(texture2, textureCoord), 0.5);
+	fragmentColor = texture(texture1, textureCoord);
 	// fragmentColor = vec4(vertexColor, 1.0); //texture(texture1, inTexCoord);
 }
 )";

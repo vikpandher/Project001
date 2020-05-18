@@ -133,37 +133,67 @@ int main(int argc, char** argv)
     // verticies and indicies that describe a square
     float vertices[] = {
         // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // close top right
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // close top left 
-        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // close bottom left
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // close bottom right
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // far top right
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // far top left 
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // far bottom left
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 0.0f  // far bottom right
-    };
-    unsigned int indices[] = {
-        0, 1, 2, // front face
-        2, 3, 0, // front face
-        4, 0, 3, // right face
-        3, 7, 4, // right face
-        5, 4, 7, // back face
-        7, 6, 5, // back face
-        1, 5, 6, // left face
-        6, 2, 1, // left face
-        4, 5, 1, // top face
-        1, 0, 4, // top face
-        3, 2, 6, // bottom face
-        6, 7, 3  // bottom face
+
+        // front face
+         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 1.0f, // close top right
+        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 1.0f, // close top left
+        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
+
+        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
+         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
+         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 1.0f, // close top right
+
+        // right face
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 0.5f, // far top right
+         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.75f, // close top right
+         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
+
+         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 0.5f, // far top right
+
+        // back face
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top left
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.25f, // far top right
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f,  // far bottom right
+
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top left
+
+        // left face
+        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.75f, // close top left
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.0f, 0.5f, // far top left
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
+
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
+        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
+        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.75f, // close top left
+
+        // tpp face
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top right
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.0f, // far top left
+        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.0f, // close top left
+
+        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.0f, // close top left
+         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.25f, // close top right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top right
+
+         // bottom face
+         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
+        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
+
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
+         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f // close bottom right
     };
 
     // create the vertex array object, vertex buffer object, and element buffer object
     unsigned int vertexArrayObject;
     unsigned int vertexBufferObject;
-    unsigned int elementBufferObject;
     glGenVertexArrays(1, &vertexArrayObject);
     glGenBuffers(1, &vertexBufferObject);
-    glGenBuffers(1, &elementBufferObject);
     
     // bind the vertex array object and then the vertex buffer
     glBindVertexArray(vertexArrayObject);
@@ -185,19 +215,12 @@ int main(int argc, char** argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //copy the index array in the element buffer then bind the buffer and set it's data
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     // unbind the array buffer and the vertex array
     // glBindBuffer(GL_ARRAY_BUFFER, 0);
     // glBindVertexArray(0);
 
     // draw as wireframe
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // single shader program so just activate it before the loop
-    // glUseProgram(shaderProgram);
 
     // load and create textures
 
@@ -218,10 +241,13 @@ int main(int argc, char** argv)
     int height1;
     int nrChannels1;
 
-    unsigned char* data1 = stbi_load("../Textures/container.jpg", &width1, &height1, &nrChannels1, 0);
+    // tell stb_image.h to flip loaded texture's on the y-axis.
+    stbi_set_flip_vertically_on_load(true);
+
+    unsigned char* data1 = stbi_load("../Textures/thonkCube.png", &width1, &height1, &nrChannels1, 0);
     if (data1)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width1, height1, 0, GL_RGB, GL_UNSIGNED_BYTE, data1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width1, height1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data1);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
@@ -230,45 +256,14 @@ int main(int argc, char** argv)
     }
     stbi_image_free(data1);
 
-    unsigned int texture2;
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // load image, create texture and generate mipmaps
-    int width2;
-    int height2;
-    int nrChannels2;
-
-    // tell stb_image.h to flip loaded texture's on the y-axis.
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data2 = stbi_load("../Textures/thonk.png", &width2, &height2, &nrChannels2, 0);
-    if (data2)
-    {
-        // note that this texture has transparency
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width2, height2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data2);
+    // enable writing to the depth buffer
+    glDepthMask(GL_TRUE);
 
     // set the shader program
     glUseProgram(shaderProgram);
 
     // set texture uniforms
     glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 
     // render loop
     // =========================================================================
@@ -289,8 +284,6 @@ int main(int argc, char** argv)
         // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
 
         // only a single vertex array object, but bind it every time anyways
         /// glBindVertexArray(vertexArrayObject);
@@ -329,7 +322,7 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         // render
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / 8);
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -339,7 +332,6 @@ int main(int argc, char** argv)
     // de-allocate resources
     glDeleteVertexArrays(1, &vertexArrayObject);
     glDeleteBuffers(1, &vertexBufferObject);
-    glDeleteBuffers(1, &elementBufferObject);
 
     // terminate, clear all previously allocated glfw resources
     glfwTerminate();
