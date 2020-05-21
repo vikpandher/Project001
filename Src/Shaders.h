@@ -1,4 +1,5 @@
-
+// textures
+// -----------------------------------------------------------------------------
 const char* g_vertexShaderSource01 = R"(#version 330 core
 
 layout(location = 0) in vec3 inPos;
@@ -33,5 +34,60 @@ uniform sampler2D texture1;
 void main()
 {
 	fragmentColor = texture(texture1, textureCoord);
+}
+)";
+
+// colors
+// -----------------------------------------------------------------------------
+const char* g_vertexShaderSource02 = R"(#version 330 core
+
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+)";
+
+const char* g_fragmentShaderSource02 = R"(#version 330 core
+
+out vec4 FragColor;
+  
+uniform vec3 objectColor;
+uniform vec3 lightColor;
+
+void main()
+{
+    FragColor = vec4(lightColor * objectColor, 1.0);
+}
+)";
+
+// lamp
+// -----------------------------------------------------------------------------
+const char* g_vertexShaderSource03 = R"(#version 330 core
+
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+)";
+
+const char* g_fragmentShaderSource03 = R"(#version 330 core
+
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0); // set alle 4 vector values to 1.0
 }
 )";

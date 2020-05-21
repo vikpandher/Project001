@@ -115,28 +115,42 @@ int main(int argc, char** argv)
     GLuint vertexShaderId01 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource01);
     GLuint fragmentShaderId01 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource01);
 
+	GLuint vertexShaderId02 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource02);
+	GLuint fragmentShaderId02 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource02);
+
+	GLuint vertexShaderId03 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource03);
+	GLuint fragmentShaderId03 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource03);
+
     // create programs to attach and link the shaders
     GLuint shaderProgramId01 = createShaderProgram(vertexShaderId01, fragmentShaderId01);
+	GLuint shaderProgramId02 = createShaderProgram(vertexShaderId02, fragmentShaderId02);
+	GLuint shaderProgramId03 = createShaderProgram(vertexShaderId03, fragmentShaderId03);
 
     // flag the shaders for deletion
     glDeleteShader(vertexShaderId01);
     glDeleteShader(fragmentShaderId01);
 
+	glDeleteShader(vertexShaderId02);
+	glDeleteShader(fragmentShaderId02);
+
+	glDeleteShader(vertexShaderId03);
+	glDeleteShader(fragmentShaderId03);
 
 
-    // create the vertex buffers and vertex array objectrs
+
+    // create the vertex buffers and vertex array objects
     // -------------------------------------------------------------------------
-    unsigned int vertexArrayIds[1];
-    glGenVertexArrays(1, vertexArrayIds);
+    GLuint vertexArrayIds[2];
+    glGenVertexArrays(2, vertexArrayIds);
 
-    // bind the vertex array object
-    glBindVertexArray(vertexArrayIds[0]);
-
-    unsigned int vertexBufferIds[1];
-    glGenBuffers(1, vertexBufferIds);
+	GLuint vertexBufferIds[2];
+	glGenBuffers(2, vertexBufferIds);
 
     // bind an array buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
+
+	// bind the vertex array object
+	glBindVertexArray(vertexArrayIds[0]);
 
     // copy vertex data into the bound array buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices01), g_vertices01, GL_STATIC_DRAW);
@@ -154,15 +168,22 @@ int main(int argc, char** argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // unbind the array buffer and the vertex array
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+	// similar steps for other buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
+	glBindVertexArray(vertexArrayIds[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices02), g_vertices02, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// unbind the array buffer and the vertex array
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 
 
     // load and create textures
     // -------------------------------------------------------------------------
-    unsigned int texture1;
+	GLuint texture1;
     glGenTextures(1, &texture1);
 
     glBindTexture(GL_TEXTURE_2D, texture1);
@@ -207,7 +228,11 @@ int main(int argc, char** argv)
     // other stuff
     // -------------------------------------------------------------------------
     // create the transformations
-    glm::mat4 model01 = glm::mat4(1.0f);
+	glm::mat4 model01 = glm::mat4(1.0f);
+    glm::mat4 model02 = glm::mat4(1.0f);
+	glm::mat4 model03 = glm::mat4(1.0f);
+	model03 = glm::translate(model03, glm::vec3(1.2f, 1.0f, 2.0f));
+	model03 = glm::scale(model03, glm::vec3(0.2f));
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -217,7 +242,16 @@ int main(int argc, char** argv)
     unsigned int shaderProgram01viewLoc = glGetUniformLocation(shaderProgramId01, "view");
     unsigned int shaderProgram01projectionLoc = glGetUniformLocation(shaderProgramId01, "projection");
 
+	unsigned int shaderProgram02modelLoc = glGetUniformLocation(shaderProgramId02, "model");
+	unsigned int shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
+	unsigned int shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
 
+	unsigned int shaderProgram02objectColorLoc = glGetUniformLocation(shaderProgramId02, "objectColor");
+	unsigned int shaderProgram02lightColorLoc = glGetUniformLocation(shaderProgramId02, "lightColor");
+
+	unsigned int shaderProgram03modelLoc = glGetUniformLocation(shaderProgramId03, "model");
+	unsigned int shaderProgram03viewLoc = glGetUniformLocation(shaderProgramId03, "view");
+	unsigned int shaderProgram03projectionLoc = glGetUniformLocation(shaderProgramId03, "projection");
 
     // render loop
     // =========================================================================
@@ -231,14 +265,55 @@ int main(int argc, char** argv)
         // input
         processInput(window);
 
+		// camera view
+		view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
+
+		// perspective projection
+		projection = glm::perspective(glm::radians(g_fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
         // render
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// ---------------------------------------------------------------------------
+		model01 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+		model01 = glm::rotate(model01, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
+		glUseProgram(shaderProgramId01);
 
+		glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model01));
+		glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
+		glBindVertexArray(vertexArrayIds[0]);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
+
+		// ---------------------------------------------------------------------------
+		glUseProgram(shaderProgramId02);
+
+		glUniform3f(shaderProgram02objectColorLoc, 1.0f, 0.5f, 0.3f);
+		glUniform3f(shaderProgram02lightColorLoc, 1.0f, 1.0f, 1.0f);
+
+		glUniformMatrix4fv(shaderProgram02modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
+		glUniformMatrix4fv(shaderProgram02viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(shaderProgram02projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
+		glBindVertexArray(vertexArrayIds[1]);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 3);
+
+		glUseProgram(shaderProgramId03);
+
+		glUniformMatrix4fv(shaderProgram03modelLoc, 1, GL_FALSE, glm::value_ptr(model03));
+		glUniformMatrix4fv(shaderProgram03viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(shaderProgram03projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 3);
+
+		/*
         // spinning model
-        model01 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+        model02 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
         // camera view
         view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
@@ -251,7 +326,7 @@ int main(int argc, char** argv)
         /// projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
 
         // set unifroms
-        glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model01));
+        glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
         glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -264,6 +339,7 @@ int main(int argc, char** argv)
 
         // render
         glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
+		*/
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
