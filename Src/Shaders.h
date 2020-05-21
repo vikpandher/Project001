@@ -1,5 +1,5 @@
 
-const char* vertexShaderSource = R"(#version 330 core
+const char* g_vertexShaderSource01 = R"(#version 330 core
 
 layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec3 inColor;
@@ -20,19 +20,18 @@ void main()
 }
 )";
 
-const char* fragmentShaderSource = R"(#version 330 core
+const char* g_fragmentShaderSource01 = R"(#version 330 core
 
 in vec3 vertexColor;
 in vec2 textureCoord;
 
 out vec4 fragmentColor;
 
+// The type of sample corresponds to the type of texture
 uniform sampler2D texture1;
 
 void main()
 {
-	// linearly interpolate between both textures
 	fragmentColor = texture(texture1, textureCoord);
-	// fragmentColor = vec4(vertexColor, 1.0); //texture(texture1, inTexCoord);
 }
 )";

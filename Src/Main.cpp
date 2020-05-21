@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "Shaders.h"
+#include "Vertices.h"
 
 
 
@@ -22,6 +23,9 @@ void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+
+GLuint createShader(GLenum shaderType, const GLchar** shaderSource);
+GLuint createShaderProgram(GLenum vertexShaderId, GLenum fragmentShaderId);
 
 
 
@@ -45,6 +49,9 @@ float g_fov = 45.0f;
 float g_deltaTime = 0.0f; // time between current frame and last frame
 float g_lastFrame = 0.0f;
 
+// lighting
+glm::vec3 g_lightPos(1.2f, 1.0f, 2.0f);
+
 // =============================================================================
 int main(int argc, char** argv)
 {
@@ -58,6 +65,8 @@ int main(int argc, char** argv)
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+
 
     // create glfw window
     // -------------------------------------------------------------------------
@@ -85,124 +94,54 @@ int main(int argc, char** argv)
         return -1;
     }
 
+
+
     // configure global opengl state
-    // -----------------------------
+    // -------------------------------------------------------------------------
+    // enable using the z buffer
     glEnable(GL_DEPTH_TEST);
 
-    // build and compile a shader program
+    // enable writing to the depth buffer
+    glDepthMask(GL_TRUE);
 
-    // create and compile the vertex shader
-    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+    // draw as wireframe
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // create the compile the fragment shader
-    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
 
-    // create a program to attach and link the shaders
-    int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
+
+    // build and compile a shader programs
+    // -------------------------------------------------------------------------
+    // create and compile the vertex shaders
+    GLuint vertexShaderId01 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource01);
+    GLuint fragmentShaderId01 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource01);
+
+    // create programs to attach and link the shaders
+    GLuint shaderProgramId01 = createShaderProgram(vertexShaderId01, fragmentShaderId01);
 
     // flag the shaders for deletion
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShaderId01);
+    glDeleteShader(fragmentShaderId01);
 
-    // verticies and indicies that describe a square
-    float vertices[] = {
-        // positions          // colors           // texture coords
 
-        // front face
-         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 1.0f, // close top right
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 1.0f, // close top left
-        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
 
-        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
-         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 1.0f, // close top right
+    // create the vertex buffers and vertex array objectrs
+    // -------------------------------------------------------------------------
+    unsigned int vertexArrayIds[1];
+    glGenVertexArrays(1, vertexArrayIds);
 
-        // right face
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 0.5f, // far top right
-         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.75f, // close top right
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
+    // bind the vertex array object
+    glBindVertexArray(vertexArrayIds[0]);
 
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 0.5f, // far top right
+    unsigned int vertexBufferIds[1];
+    glGenBuffers(1, vertexBufferIds);
 
-        // back face
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top left
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.25f, // far top right
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f,  // far bottom right
+    // bind an array buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
 
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top left
+    // copy vertex data into the bound array buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices01), g_vertices01, GL_STATIC_DRAW);
 
-        // left face
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.75f, // close top left
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.0f, 0.5f, // far top left
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
-
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
-        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.75f, // close top left
-
-        // tpp face
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top right
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.0f, // far top left
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.0f, // close top left
-
-        -0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.0f, // close top left
-         0.5f,  0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.25f, // close top right
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.25f, // far top right
-
-         // bottom face
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f, // close bottom right
-        -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.333f, 0.75f, // close bottom left
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
-
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.333f, 0.5f, // far bottom left
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   0.666f, 0.5f, // far bottom right
-         0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   0.666f, 0.75f // close bottom right
-    };
-
-    // create the vertex array object, vertex buffer object, and element buffer object
-    unsigned int vertexArrayObject;
-    unsigned int vertexBufferObject;
-    glGenVertexArrays(1, &vertexArrayObject);
-    glGenBuffers(1, &vertexBufferObject);
-    
-    // bind the vertex array object and then the vertex buffer
-    glBindVertexArray(vertexArrayObject);
-
-    // copy the vertex array in the vertex buffer then bind the buffer and set it's data
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // configure position attribute
+    // configure position attribute for the bound vertex array object
     // (index, size, type, normalized, stride, pointer)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -216,16 +155,16 @@ int main(int argc, char** argv)
     glEnableVertexAttribArray(2);
 
     // unbind the array buffer and the vertex array
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
-    // draw as wireframe
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
     // load and create textures
-
+    // -------------------------------------------------------------------------
     unsigned int texture1;
     glGenTextures(1, &texture1);
+
     glBindTexture(GL_TEXTURE_2D, texture1);
 
     // set the texture wrapping parameters
@@ -233,8 +172,8 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // load image, create texture and generate mipmaps
     int width1;
@@ -256,14 +195,29 @@ int main(int argc, char** argv)
     }
     stbi_image_free(data1);
 
-    // enable writing to the depth buffer
-    glDepthMask(GL_TRUE);
+    // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
-    // set the shader program
-    glUseProgram(shaderProgram);
+    // set texture uniforms (the parameter 0 referes to GL_TEXTURE0)
+    glUniform1i(glGetUniformLocation(shaderProgramId01, "texture1"), 0);
 
-    // set texture uniforms
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+
+
+    // other stuff
+    // -------------------------------------------------------------------------
+    // create the transformations
+    glm::mat4 model01 = glm::mat4(1.0f);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
+    // retrieve the matrix uniform locations
+    unsigned int shaderProgram01modelLoc = glGetUniformLocation(shaderProgramId01, "model");
+    unsigned int shaderProgram01viewLoc = glGetUniformLocation(shaderProgramId01, "view");
+    unsigned int shaderProgram01projectionLoc = glGetUniformLocation(shaderProgramId01, "projection");
+
+
 
     // render loop
     // =========================================================================
@@ -281,27 +235,11 @@ int main(int argc, char** argv)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
 
-        // only a single vertex array object, but bind it every time anyways
-        /// glBindVertexArray(vertexArrayObject);
-
-        // create the transformations
-        glm::mat4 model = glm::mat4(1.0f); // always initialize the matrix to identity matrix first
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
 
         // spinning model
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-        
-        // rotating camera view
-        /// float radius = 5.0f;
-        /// float camX = sin(glfwGetTime()) * radius;
-        /// float camZ = cos(glfwGetTime()) * radius;
-        /// view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        
+        model01 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+
         // camera view
         view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
 
@@ -312,17 +250,20 @@ int main(int argc, char** argv)
         /// view = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         /// projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
 
-        // retrieve the matrix uniform locations
-        unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
-        unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        // set unifroms
+        glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model01));
+        glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        // set the shader program
+        glUseProgram(shaderProgramId01);
+
+        // bind the VAO and VBO being rendered with
+        glBindVertexArray(vertexArrayIds[0]);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
 
         // render
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / 8);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -330,8 +271,8 @@ int main(int argc, char** argv)
     }
 
     // de-allocate resources
-    glDeleteVertexArrays(1, &vertexArrayObject);
-    glDeleteBuffers(1, &vertexBufferObject);
+    glDeleteVertexArrays(1, vertexArrayIds);
+    glDeleteBuffers(1, vertexBufferIds);
 
     // terminate, clear all previously allocated glfw resources
     glfwTerminate();
@@ -449,4 +390,53 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
    {
       g_fov = 45.0f;
    }
+}
+
+//
+// =============================================================================
+GLuint createShader(GLenum shaderType, const GLchar** shaderSource)
+{
+    GLuint shaderId = glCreateShader(shaderType);
+    glShaderSource(shaderId, 1, shaderSource, NULL);
+    glCompileShader(shaderId);
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
+        if (shaderType == GL_VERTEX_SHADER)
+        {
+            std::cout << "VERTEX";
+        }
+        else if (shaderType == GL_FRAGMENT_SHADER)
+        {
+            std::cout << "FRAG<MET";
+        }
+        else
+        {
+            std::cout << "UNKNOWN";
+        }
+        std::cout << "::COMPILATION_FAILED" << std::endl << infoLog << std::endl;
+    }
+    return shaderId;
+}
+
+//
+// =============================================================================
+GLuint createShaderProgram(GLenum vertexShaderId, GLenum fragmentShaderId)
+{
+    GLuint programId = glCreateProgram();
+    glAttachShader(programId, vertexShaderId);
+    glAttachShader(programId, fragmentShaderId);
+    glLinkProgram(programId);
+    GLint success;
+    GLchar infoLog[512];
+    glGetProgramiv(programId, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(programId, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+    return programId;
 }

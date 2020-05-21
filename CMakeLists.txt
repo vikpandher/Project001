@@ -24,6 +24,7 @@ add_executable("${EXECUTABLE_NAME}"
     "Src/glad.c"
     "Src/Main.cpp"
     "Src/Shaders.h"
+    "Src/Vertices.h"
 )
 
 target_link_directories("${EXECUTABLE_NAME}"
