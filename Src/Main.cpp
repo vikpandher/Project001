@@ -8,7 +8,9 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp""
+#include "glm/gtc/type_ptr.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/matrix_decompose.hpp"
 
 #include <iostream>
 
@@ -34,7 +36,7 @@ const unsigned int WINDOW_WIDTH = 800;
 const unsigned int WINDOW_HEIGHT = 600;
 
 // camera
-glm::vec3 g_cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 g_cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
 glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -49,8 +51,6 @@ float g_fov = 45.0f;
 float g_deltaTime = 0.0f; // time between current frame and last frame
 float g_lastFrame = 0.0f;
 
-// lighting
-glm::vec3 g_lightPos(1.2f, 1.0f, 2.0f);
 
 // =============================================================================
 int main(int argc, char** argv)
@@ -140,11 +140,11 @@ int main(int argc, char** argv)
 
     // create the vertex buffers and vertex array objects
     // -------------------------------------------------------------------------
-    GLuint vertexArrayIds[2];
-    glGenVertexArrays(2, vertexArrayIds);
+    GLuint vertexArrayIds[3];
+    glGenVertexArrays(3, vertexArrayIds);
 
-	GLuint vertexBufferIds[2];
-	glGenBuffers(2, vertexBufferIds);
+	GLuint vertexBufferIds[3];
+	glGenBuffers(3, vertexBufferIds);
 
     // bind an array buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
@@ -172,6 +172,18 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
 	glBindVertexArray(vertexArrayIds[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices02), g_vertices02, GL_STATIC_DRAW);
+	
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// and another one
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[2]);
+	glBindVertexArray(vertexArrayIds[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices03), g_vertices03, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -231,8 +243,6 @@ int main(int argc, char** argv)
 	glm::mat4 model01 = glm::mat4(1.0f);
     glm::mat4 model02 = glm::mat4(1.0f);
 	glm::mat4 model03 = glm::mat4(1.0f);
-	model03 = glm::translate(model03, glm::vec3(1.2f, 1.0f, 2.0f));
-	model03 = glm::scale(model03, glm::vec3(0.2f));
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -246,6 +256,7 @@ int main(int argc, char** argv)
 	unsigned int shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
 	unsigned int shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
 
+	unsigned int shaderProgram02lightPosLoc = glGetUniformLocation(shaderProgramId02, "lightPos");
 	unsigned int shaderProgram02objectColorLoc = glGetUniformLocation(shaderProgramId02, "objectColor");
 	unsigned int shaderProgram02lightColorLoc = glGetUniformLocation(shaderProgramId02, "lightColor");
 
@@ -276,7 +287,7 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// ---------------------------------------------------------------------------
-		model01 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+		model01 = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 0.0f, -5.0f));
 		model01 = glm::rotate(model01, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
 		glUseProgram(shaderProgramId01);
@@ -290,8 +301,22 @@ int main(int argc, char** argv)
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
 
 		// ---------------------------------------------------------------------------
+		model02 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+
+		model03 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+		model03 = glm::translate(model03, glm::vec3(1.0f, 1.0f, 3.0f));
+		model03 = glm::scale(model03, glm::vec3(0.2f));
+
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(model03, scale, rotation, translation, skew, perspective);
+
 		glUseProgram(shaderProgramId02);
 
+		glUniform3f(shaderProgram02lightPosLoc, translation.x, translation.y, translation.z);
 		glUniform3f(shaderProgram02objectColorLoc, 1.0f, 0.5f, 0.3f);
 		glUniform3f(shaderProgram02lightColorLoc, 1.0f, 1.0f, 1.0f);
 
@@ -301,7 +326,7 @@ int main(int argc, char** argv)
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
 		glBindVertexArray(vertexArrayIds[1]);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 3);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 6);
 
 		glUseProgram(shaderProgramId03);
 
@@ -309,7 +334,7 @@ int main(int argc, char** argv)
 		glUniformMatrix4fv(shaderProgram03viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(shaderProgram03projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 3);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices03) / 3);
 
 		/*
         // spinning model
