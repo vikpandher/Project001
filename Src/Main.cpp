@@ -248,22 +248,27 @@ int main(int argc, char** argv)
     glm::mat4 projection = glm::mat4(1.0f);
 
     // retrieve the matrix uniform locations
-    unsigned int shaderProgram01modelLoc = glGetUniformLocation(shaderProgramId01, "model");
-    unsigned int shaderProgram01viewLoc = glGetUniformLocation(shaderProgramId01, "view");
-    unsigned int shaderProgram01projectionLoc = glGetUniformLocation(shaderProgramId01, "projection");
+    GLint shaderProgram01modelLoc = glGetUniformLocation(shaderProgramId01, "model");
+    GLint shaderProgram01viewLoc = glGetUniformLocation(shaderProgramId01, "view");
+    GLint shaderProgram01projectionLoc = glGetUniformLocation(shaderProgramId01, "projection");
 
-    unsigned int shaderProgram02modelLoc = glGetUniformLocation(shaderProgramId02, "model");
-    unsigned int shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
-    unsigned int shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
+    GLint shaderProgram02modelLoc = glGetUniformLocation(shaderProgramId02, "model");
+    GLint shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
+    GLint shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
 
-    unsigned int shaderProgram02lightPosLoc = glGetUniformLocation(shaderProgramId02, "lightPos");
-    unsigned int shaderProgram02viewPosLoc = glGetUniformLocation(shaderProgramId02, "viewPos");
-    unsigned int shaderProgram02lightColorLoc = glGetUniformLocation(shaderProgramId02, "lightColor");
-    unsigned int shaderProgram02objectColorLoc = glGetUniformLocation(shaderProgramId02, "objectColor");
+    GLint shaderProgram02materialAmbientLoc = glGetUniformLocation(shaderProgramId02, "material.ambient");
+    GLint shaderProgram02materialDiffuseLoc = glGetUniformLocation(shaderProgramId02, "material.diffuse");
+    GLint shaderProgram02materialSpecularLoc = glGetUniformLocation(shaderProgramId02, "material.specular");
+    GLint shaderProgram02materialShininessLoc = glGetUniformLocation(shaderProgramId02, "material.shininess");
 
-    unsigned int shaderProgram03modelLoc = glGetUniformLocation(shaderProgramId03, "model");
-    unsigned int shaderProgram03viewLoc = glGetUniformLocation(shaderProgramId03, "view");
-    unsigned int shaderProgram03projectionLoc = glGetUniformLocation(shaderProgramId03, "projection");
+    GLint shaderProgram02lightPositionLoc = glGetUniformLocation(shaderProgramId02, "light.position");
+    GLint shaderProgram02lightAmbientLoc = glGetUniformLocation(shaderProgramId02, "light.ambient");
+    GLint shaderProgram02lightDiffuseLoc = glGetUniformLocation(shaderProgramId02, "light.diffuse");
+    GLint shaderProgram02lightSpecularLoc = glGetUniformLocation(shaderProgramId02, "light.specular");
+
+    GLint shaderProgram03modelLoc = glGetUniformLocation(shaderProgramId03, "model");
+    GLint shaderProgram03viewLoc = glGetUniformLocation(shaderProgramId03, "view");
+    GLint shaderProgram03projectionLoc = glGetUniformLocation(shaderProgramId03, "projection");
 
     // render loop
     // =========================================================================
@@ -317,10 +322,16 @@ int main(int argc, char** argv)
 
         glUseProgram(shaderProgramId02);
 
-        glUniform3f(shaderProgram02lightPosLoc, translation.x, translation.y, translation.z);
-        glUniform3f(shaderProgram02viewPosLoc, g_cameraPos.x, g_cameraPos.y, g_cameraPos.z);
-        glUniform3f(shaderProgram02lightColorLoc, 1.0f, 1.0f, 1.0f);
-        glUniform3f(shaderProgram02objectColorLoc, 1.0f, 0.5f, 0.3f);
+        glUniform3f(shaderProgram02lightPositionLoc, translation.x, translation.y, translation.z);
+
+        glUniform3f(shaderProgram02lightAmbientLoc, 0.1f, 0.1f, 0.1f);
+        glUniform3f(shaderProgram02lightDiffuseLoc, 0.6f, 0.6f, 0.6f);
+        glUniform3f(shaderProgram02lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+        
+        glUniform3f(shaderProgram02materialAmbientLoc, 0.25725, 0.1995, 0.0745);
+        glUniform3f(shaderProgram02materialDiffuseLoc, 0.76164, 0.60648, 0.22648);
+        glUniform3f(shaderProgram02materialSpecularLoc, 0.638281, 0.555802, 0.366065);
+        glUniform1f(shaderProgram02materialShininessLoc, 64.0f);
 
         glUniformMatrix4fv(shaderProgram02modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
         glUniformMatrix4fv(shaderProgram02viewLoc, 1, GL_FALSE, glm::value_ptr(view));
