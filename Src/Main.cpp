@@ -41,7 +41,7 @@ glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 bool g_mouseControlledCamera = false;
-float g_yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float g_yaw = -90.0f;   // yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
 float g_pitch = 0.0f;
 float g_lastX = 800.0f / 2.0;
 float g_lastY = 600.0 / 2.0;
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
         return -1;
     }
     glfwMakeContextCurrent(window);
-    
+
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
@@ -115,26 +115,26 @@ int main(int argc, char** argv)
     GLuint vertexShaderId01 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource01);
     GLuint fragmentShaderId01 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource01);
 
-	GLuint vertexShaderId02 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource02);
-	GLuint fragmentShaderId02 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource02);
+    GLuint vertexShaderId02 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource02);
+    GLuint fragmentShaderId02 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource02);
 
-	GLuint vertexShaderId03 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource03);
-	GLuint fragmentShaderId03 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource03);
+    GLuint vertexShaderId03 = createShader(GL_VERTEX_SHADER, &g_vertexShaderSource03);
+    GLuint fragmentShaderId03 = createShader(GL_FRAGMENT_SHADER, &g_fragmentShaderSource03);
 
     // create programs to attach and link the shaders
     GLuint shaderProgramId01 = createShaderProgram(vertexShaderId01, fragmentShaderId01);
-	GLuint shaderProgramId02 = createShaderProgram(vertexShaderId02, fragmentShaderId02);
-	GLuint shaderProgramId03 = createShaderProgram(vertexShaderId03, fragmentShaderId03);
+    GLuint shaderProgramId02 = createShaderProgram(vertexShaderId02, fragmentShaderId02);
+    GLuint shaderProgramId03 = createShaderProgram(vertexShaderId03, fragmentShaderId03);
 
     // flag the shaders for deletion
     glDeleteShader(vertexShaderId01);
     glDeleteShader(fragmentShaderId01);
 
-	glDeleteShader(vertexShaderId02);
-	glDeleteShader(fragmentShaderId02);
+    glDeleteShader(vertexShaderId02);
+    glDeleteShader(fragmentShaderId02);
 
-	glDeleteShader(vertexShaderId03);
-	glDeleteShader(fragmentShaderId03);
+    glDeleteShader(vertexShaderId03);
+    glDeleteShader(fragmentShaderId03);
 
 
 
@@ -143,14 +143,14 @@ int main(int argc, char** argv)
     GLuint vertexArrayIds[3];
     glGenVertexArrays(3, vertexArrayIds);
 
-	GLuint vertexBufferIds[3];
-	glGenBuffers(3, vertexBufferIds);
+    GLuint vertexBufferIds[3];
+    glGenBuffers(3, vertexBufferIds);
 
     // bind an array buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
 
-	// bind the vertex array object
-	glBindVertexArray(vertexArrayIds[0]);
+    // bind the vertex array object
+    glBindVertexArray(vertexArrayIds[0]);
 
     // copy vertex data into the bound array buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices01), g_vertices01, GL_STATIC_DRAW);
@@ -168,34 +168,34 @@ int main(int argc, char** argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-	// similar steps for other buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
-	glBindVertexArray(vertexArrayIds[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices02), g_vertices02, GL_STATIC_DRAW);
-	
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+    // similar steps for other buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
+    glBindVertexArray(vertexArrayIds[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices02), g_vertices02, GL_STATIC_DRAW);
 
-	// and another one
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[2]);
-	glBindVertexArray(vertexArrayIds[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices03), g_vertices03, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-	// unbind the array buffer and the vertex array
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    // and another one
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[2]);
+    glBindVertexArray(vertexArrayIds[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertices03), g_vertices03, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // unbind the array buffer and the vertex array
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
 
 
     // load and create textures
     // -------------------------------------------------------------------------
-	GLuint texture1;
+    GLuint texture1;
     glGenTextures(1, &texture1);
 
     glBindTexture(GL_TEXTURE_2D, texture1);
@@ -240,9 +240,9 @@ int main(int argc, char** argv)
     // other stuff
     // -------------------------------------------------------------------------
     // create the transformations
-	glm::mat4 model01 = glm::mat4(1.0f);
+    glm::mat4 model01 = glm::mat4(1.0f);
     glm::mat4 model02 = glm::mat4(1.0f);
-	glm::mat4 model03 = glm::mat4(1.0f);
+    glm::mat4 model03 = glm::mat4(1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -252,17 +252,18 @@ int main(int argc, char** argv)
     unsigned int shaderProgram01viewLoc = glGetUniformLocation(shaderProgramId01, "view");
     unsigned int shaderProgram01projectionLoc = glGetUniformLocation(shaderProgramId01, "projection");
 
-	unsigned int shaderProgram02modelLoc = glGetUniformLocation(shaderProgramId02, "model");
-	unsigned int shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
-	unsigned int shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
+    unsigned int shaderProgram02modelLoc = glGetUniformLocation(shaderProgramId02, "model");
+    unsigned int shaderProgram02viewLoc = glGetUniformLocation(shaderProgramId02, "view");
+    unsigned int shaderProgram02projectionLoc = glGetUniformLocation(shaderProgramId02, "projection");
 
-	unsigned int shaderProgram02lightPosLoc = glGetUniformLocation(shaderProgramId02, "lightPos");
-	unsigned int shaderProgram02objectColorLoc = glGetUniformLocation(shaderProgramId02, "objectColor");
-	unsigned int shaderProgram02lightColorLoc = glGetUniformLocation(shaderProgramId02, "lightColor");
+    unsigned int shaderProgram02lightPosLoc = glGetUniformLocation(shaderProgramId02, "lightPos");
+    unsigned int shaderProgram02viewPosLoc = glGetUniformLocation(shaderProgramId02, "viewPos");
+    unsigned int shaderProgram02lightColorLoc = glGetUniformLocation(shaderProgramId02, "lightColor");
+    unsigned int shaderProgram02objectColorLoc = glGetUniformLocation(shaderProgramId02, "objectColor");
 
-	unsigned int shaderProgram03modelLoc = glGetUniformLocation(shaderProgramId03, "model");
-	unsigned int shaderProgram03viewLoc = glGetUniformLocation(shaderProgramId03, "view");
-	unsigned int shaderProgram03projectionLoc = glGetUniformLocation(shaderProgramId03, "projection");
+    unsigned int shaderProgram03modelLoc = glGetUniformLocation(shaderProgramId03, "model");
+    unsigned int shaderProgram03viewLoc = glGetUniformLocation(shaderProgramId03, "view");
+    unsigned int shaderProgram03projectionLoc = glGetUniformLocation(shaderProgramId03, "projection");
 
     // render loop
     // =========================================================================
@@ -276,95 +277,66 @@ int main(int argc, char** argv)
         // input
         processInput(window);
 
-		// camera view
-		view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
-
-		// perspective projection
-		projection = glm::perspective(glm::radians(g_fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
-
-        // render
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// ---------------------------------------------------------------------------
-		model01 = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 0.0f, -5.0f));
-		model01 = glm::rotate(model01, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-
-		glUseProgram(shaderProgramId01);
-
-		glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model01));
-		glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
-		glBindVertexArray(vertexArrayIds[0]);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
-
-		// ---------------------------------------------------------------------------
-		model02 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-
-		model03 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		model03 = glm::translate(model03, glm::vec3(1.0f, 1.0f, 3.0f));
-		model03 = glm::scale(model03, glm::vec3(0.2f));
-
-		glm::vec3 scale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(model03, scale, rotation, translation, skew, perspective);
-
-		glUseProgram(shaderProgramId02);
-
-		glUniform3f(shaderProgram02lightPosLoc, translation.x, translation.y, translation.z);
-		glUniform3f(shaderProgram02objectColorLoc, 1.0f, 0.5f, 0.3f);
-		glUniform3f(shaderProgram02lightColorLoc, 1.0f, 1.0f, 1.0f);
-
-		glUniformMatrix4fv(shaderProgram02modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
-		glUniformMatrix4fv(shaderProgram02viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(shaderProgram02projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
-		glBindVertexArray(vertexArrayIds[1]);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 6);
-
-		glUseProgram(shaderProgramId03);
-
-		glUniformMatrix4fv(shaderProgram03modelLoc, 1, GL_FALSE, glm::value_ptr(model03));
-		glUniformMatrix4fv(shaderProgram03viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(shaderProgram03projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices03) / 3);
-
-		/*
-        // spinning model
-        model02 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-
         // camera view
         view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraFront, g_cameraUp);
 
         // perspective projection
         projection = glm::perspective(glm::radians(g_fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
-        // orthographic projection
-        /// view = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-        /// projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
+        // render
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // set unifroms
-        glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
-        glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, &view[0][0]);
-        glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        // ---------------------------------------------------------------------------
+        model01 = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 0.0f, -5.0f));
+        model01 = glm::rotate(model01, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
-        // set the shader program
         glUseProgram(shaderProgramId01);
 
-        // bind the VAO and VBO being rendered with
-        glBindVertexArray(vertexArrayIds[0]);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
+        glUniformMatrix4fv(shaderProgram01modelLoc, 1, GL_FALSE, glm::value_ptr(model01));
+        glUniformMatrix4fv(shaderProgram01viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(shaderProgram01projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        // render
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[0]);
+        glBindVertexArray(vertexArrayIds[0]);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices01) / 8);
-		*/
+
+        // ---------------------------------------------------------------------------
+        model02 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+
+        model03 = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+        model03 = glm::translate(model03, glm::vec3(1.0f, 1.0f, 3.0f));
+        model03 = glm::scale(model03, glm::vec3(0.2f));
+
+        glm::vec3 scale;
+        glm::quat rotation;
+        glm::vec3 translation;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(model03, scale, rotation, translation, skew, perspective);
+
+        glUseProgram(shaderProgramId02);
+
+        glUniform3f(shaderProgram02lightPosLoc, translation.x, translation.y, translation.z);
+        glUniform3f(shaderProgram02viewPosLoc, g_cameraPos.x, g_cameraPos.y, g_cameraPos.z);
+        glUniform3f(shaderProgram02lightColorLoc, 1.0f, 1.0f, 1.0f);
+        glUniform3f(shaderProgram02objectColorLoc, 1.0f, 0.5f, 0.3f);
+
+        glUniformMatrix4fv(shaderProgram02modelLoc, 1, GL_FALSE, glm::value_ptr(model02));
+        glUniformMatrix4fv(shaderProgram02viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(shaderProgram02projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[1]);
+        glBindVertexArray(vertexArrayIds[1]);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices02) / 6);
+
+        glUseProgram(shaderProgramId03);
+
+        glUniformMatrix4fv(shaderProgram03modelLoc, 1, GL_FALSE, glm::value_ptr(model03));
+        glUniformMatrix4fv(shaderProgram03viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(shaderProgram03projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertices03) / 3);
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -387,7 +359,7 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     float cameraSpeed = 2.5 * g_deltaTime;
-    
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         g_cameraPos += cameraSpeed * g_cameraFront;

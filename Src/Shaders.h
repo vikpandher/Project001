@@ -15,9 +15,9 @@ uniform mat4 projection;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(inPos, 1.0);
-	vertexColor = inColor;
-	textureCoord = vec2(inTexCoord.x, inTexCoord.y);
+    gl_Position = projection * view * model * vec4(inPos, 1.0);
+    vertexColor = inColor;
+    textureCoord = vec2(inTexCoord.x, inTexCoord.y);
 }
 )";
 
@@ -33,7 +33,7 @@ uniform sampler2D texture1;
 
 void main()
 {
-	fragmentColor = texture(texture1, textureCoord);
+    fragmentColor = texture(texture1, textureCoord);
 }
 )";
 
@@ -53,9 +53,9 @@ uniform mat4 projection;
 
 void main()
 {
-	FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = aNormal;  
-    
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    Normal = mat3(transpose(inverse(model))) * aNormal;
+
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
 )";
@@ -64,10 +64,11 @@ const char* g_fragmentShaderSource02 = R"(#version 330 core
 
 out vec4 FragColor;
 
-in vec3 Normal;  
-in vec3 FragPos;  
-  
-uniform vec3 lightPos; 
+in vec3 Normal;
+in vec3 FragPos;
+
+uniform vec3 lightPos;
+uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
 
@@ -76,16 +77,23 @@ void main()
     // ambient
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
-  	
-    // diffuse 
+
+    // diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
-            
-    vec3 result = (ambient + diffuse) * objectColor;
+
+    // specular
+    float specularStrength = 0.5;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;
+
+    vec3 result = (ambient + diffuse + specular) * objectColor;
     FragColor = vec4(result, 1.0);
-} 
+}
 )";
 
 // lamp
@@ -100,7 +108,7 @@ uniform mat4 projection;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 )";
 
