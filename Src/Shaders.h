@@ -118,19 +118,44 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec3 bPos;
+
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
+    bPos = aPos;
 }
 )";
 
 const char* g_fragmentShaderSource03 = R"(#version 330 core
 
+in vec3 bPos;
+
 out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(1.0); // set alle 4 vector values to 1.0
+    vec3 result = vec3(1.0, 1.0, 1.0);
+    if (bPos.z > 0)
+    {
+        if (bPos.x > 0 && bPos.y > 0)
+        {
+            result = vec3(0.498, 0.729, 0);
+        }
+        else if (bPos.x > 0 && bPos.y < 0)
+        {
+            result = vec3(1.0, 0.725, 0);
+        }
+        else if (bPos.x < 0 && bPos.y < 0)
+        {
+            result = vec3(0, 0.643, 0.937);
+        }
+        else if (bPos.x < 0 && bPos.y > 0)
+        {
+            result = vec3(0.949, 0.314, 0.133);
+        }
+    }
+    FragColor = vec4(result, 1.0);
 }
 )";
 
