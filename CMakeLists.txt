@@ -15,17 +15,13 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
-set(FRAMEWORK_FILES
-    "Src/Framework/Application.cpp"
-    "Src/Framework/Application.h"
-    "Src/Framework/Project001.h"
-)
-
-source_group("Src\\Framework" FILES ${FRAMEWORK_FILES})
-
 set(SOURCE_FILES
+    "Src/Application.cpp"
+    "Src/Application.h"
     "Src/glad.c"
     "Src/LearnOpenGL.cpp"
+    "Src/Logger.cpp"
+    "Src/Logger.h"
     "Src/Main.cpp"
     "Src/Shaders.h"
     "Src/Vertices.h"
@@ -34,7 +30,6 @@ set(SOURCE_FILES
 source_group("Src" FILES ${SOURCE_FILES})
 
 add_executable("${PROJECT_NAME}"
-    ${FRAMEWORK_FILES}
     ${SOURCE_FILES}
 )
 

@@ -14,9 +14,4 @@ namespace Project001
 	{
 
 	}
-
-	void Application::Run()
-	{
-
-	}
 }

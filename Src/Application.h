@@ -8,9 +8,7 @@ namespace Project001
 	{
 	public:
 		Application();
-		virtual ~Application();
-
-		void Run();
+		~Application();
 
 	protected:
 

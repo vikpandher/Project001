@@ -1,16 +1,14 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Sandbox.h"
+#include "Logger.h"
 
 
 
 int main(int argc, char** argv)
 {
-    Sandbox* sandbox = new Sandbox();
-    sandbox->Run();
-
-    delete sandbox;
+    Project001::Logger* loggerPtr = new Project001::Logger();
+    loggerPtr->message("Decimals: %d %ld", 1977, 650000L);
     
     return 0;
 }
