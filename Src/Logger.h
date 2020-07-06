@@ -20,6 +20,6 @@ namespace Project001
 		Logger(const Logger& rhs);
 		Logger& operator=(const Logger& rhs) { return *this; }
 
-		char charBuffer_[LOGGER_CHAR_BUFFER_SIZE];
+		char m_charBuffer[LOGGER_CHAR_BUFFER_SIZE];
 	};
 }

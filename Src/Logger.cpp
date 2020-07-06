@@ -10,7 +10,7 @@ namespace Project001
 {
 	Logger::Logger()
 	{
-		memset(charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
+		memset(m_charBuffer, 0, LOGGER_CHAR_BUFFER_SIZE);
 	}
 
 	Logger::~Logger()
@@ -22,9 +22,12 @@ namespace Project001
 	{		
 		va_list args;
 		va_start(args, format);
-		vsnprintf(charBuffer_, sizeof(charBuffer_), format, args);
+		vsnprintf(m_charBuffer, sizeof(m_charBuffer), format, args);
 
+		// NOTES:
 		// ANSI escape color codes :
+		// ---------------------------------------------------------------------------
+		// https://en.wikipedia.org/wiki/ANSI_escape_code
 		// Name            BG  FG
 		// Black           30  40
 		// Red             31  41
@@ -44,6 +47,6 @@ namespace Project001
 		// Bright White    97  107
 		// Reset                    0
 
-		printf("\033[30;47mMESSAGE:\033[0m %s\n", charBuffer_);
+		printf("\033[30;47mMESSAGE:\033[0m %s\n", m_charBuffer);
 	}
 }

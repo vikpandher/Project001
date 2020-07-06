@@ -18,13 +18,18 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 set(SOURCE_FILES
     "Src/Application.cpp"
     "Src/Application.h"
+    "Src/Event.cpp"
+    "Src/Event.h"
     "Src/glad.c"
     "Src/LearnOpenGL.cpp"
     "Src/Logger.cpp"
     "Src/Logger.h"
     "Src/Main.cpp"
     "Src/Shaders.h"
+    "Src/Utilities.h"
     "Src/Vertices.h"
+    "Src/Window.cpp"
+    "Src/Window.h"
 )
 
 source_group("Src" FILES ${SOURCE_FILES})
