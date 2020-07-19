@@ -15,11 +15,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
-set(SOURCE_FILES
+set(ENGINE_FILES
     "Src/Application.cpp"
     "Src/Application.h"
-    "Src/Event.cpp"
-    "Src/Event.h"
+    "Src/EventUtilities.h"
     "Src/glad.c"
     "Src/LearnOpenGL.cpp"
     "Src/Logger.cpp"
@@ -30,12 +29,21 @@ set(SOURCE_FILES
     "Src/Vertices.h"
     "Src/Window.cpp"
     "Src/Window.h"
+    "Src/WindowData.h"
 )
 
-source_group("Src" FILES ${SOURCE_FILES})
+source_group("Src" FILES ${ENGINE_FILES})
+
+set(WINDOWS_PLATFORM_FILES
+    "Src/Windows/WindowsWindow.cpp"
+    "Src/Windows/WindowsWindow.h"
+)
+
+source_group("Src/Windows" FILES ${WINDOWS_PLATFORM_FILES})
 
 add_executable("${PROJECT_NAME}"
-    ${SOURCE_FILES}
+    ${ENGINE_FILES}
+    ${WINDOWS_PLATFORM_FILES}
 )
 
 target_include_directories("${PROJECT_NAME}"

@@ -9,17 +9,17 @@ namespace Project001
 	class Logger
 	{
 	public:
-		Logger();
-		~Logger();
+		Logger() = delete;
+		Logger(const Logger& rhs) = delete;
+		Logger& operator=(const Logger& rhs) = delete;
 
-		void message(const char* format, ...);
+		static void Error(const char* format, ...);
+
+		static void Message(const char* format, ...);
 
 	protected:
 
 	private:
-		Logger(const Logger& rhs);
-		Logger& operator=(const Logger& rhs) { return *this; }
-
-		char m_charBuffer[LOGGER_CHAR_BUFFER_SIZE];
+		static char s_charBuffer_[LOGGER_CHAR_BUFFER_SIZE];
 	};
 }
