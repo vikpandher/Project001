@@ -1,19 +1,7 @@
 #pragma once
 
 #include <string>
-
-
-
-#ifdef _WIN32
-/* Windows x64/x86 */
-#ifdef _WIN64
-	/* Windows x64  */
-#define _PLATFORM_WINDOWS
-#else
-	/* Windows x86 */
-#error "x86 Builds are not supported!"
-#endif
-#endif
+#include <vector>
 
 
 
@@ -22,6 +10,7 @@ struct GLFWwindow;
 namespace Project001
 {	
 	struct Event;
+	class Layer;
 	class Logger;
 	class Window;
 	
@@ -29,7 +18,7 @@ namespace Project001
 	class Application
 	{
 	public:
-		Application();
+		Application(Window* windowPtr);
 		virtual ~Application();
 
 		Application(Application& other) = delete;
@@ -49,6 +38,8 @@ namespace Project001
 		unsigned int windowHeight_;
 
 		bool running_;
+
+		std::vector<Layer*> layerStack_;
 
 	private:
 

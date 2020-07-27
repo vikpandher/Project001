@@ -1,8 +1,8 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "WindowsWindow.h"
-#include "../Logger.h"
+#include "WindowImplementation.h"
+#include "../Engine/Logger.h"
 
 
 
@@ -10,7 +10,7 @@ namespace Project001
 {	
 	// public ------------------------------------------------------------------
 
-	WindowsWindow::WindowsWindow(const char* title, int width, int height)
+	WindowImplementation::WindowImplementation(const char* title, int width, int height)
 		: glfwWindow_(nullptr)
 	{
 		windowData_.title = title;
@@ -40,6 +40,17 @@ namespace Project001
 		glfwSetWindowUserPointer(glfwWindow_, &windowData_);
 
 		glfwMakeContextCurrent(glfwWindow_);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			Logger::Error("Failed to initialize Glad!");
+		}
+
+		Logger::Message("OpenGL Info:");
+		Logger::Message("    Vendor: %s", glGetString(GL_VENDOR));
+		Logger::Message("    Renderer: %s", glGetString(GL_RENDERER));
+		Logger::Message("    Version: %s", glGetString(GL_VERSION));
+
 		SetVSync(true);
 
 		glfwSetKeyCallback(glfwWindow_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -99,7 +110,7 @@ namespace Project001
 			});
 	}
 
-	WindowsWindow::~WindowsWindow()
+	WindowImplementation::~WindowImplementation()
 	{
 		glfwDestroyWindow(glfwWindow_);
 
@@ -109,7 +120,7 @@ namespace Project001
 		}
 	}
 
-	void WindowsWindow::OnUpdate()
+	void WindowImplementation::OnUpdate()
 	{		
 		// make current context again incase it was changed by another window
 		glfwMakeContextCurrent(glfwWindow_);
@@ -119,7 +130,7 @@ namespace Project001
 		glfwPollEvents();
 	}
 
-	void WindowsWindow::SetVSync(bool enabled)
+	void WindowImplementation::SetVSync(bool enabled)
 	{
 		if (enabled)
 		{
@@ -134,5 +145,5 @@ namespace Project001
 	}
 
 	// private -----------------------------------------------------------------
-	int WindowsWindow::s_glfwWindowCount_ = 0;
+	int WindowImplementation::s_glfwWindowCount_ = 0;
 }

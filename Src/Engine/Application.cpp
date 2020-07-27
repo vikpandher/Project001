@@ -1,13 +1,10 @@
 #include <functional>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
 #include "Application.h"
 #include "EventUtilities.h"
+#include "Layer.h"
 #include "Logger.h"
-
-#include "Windows/WindowsWindow.h"
+#include "Window.h"
 
 
 
@@ -15,36 +12,53 @@ namespace Project001
 {
 	// public ------------------------------------------------------------------
 
-	Application::Application()
-		: windowPtr_(nullptr)
+	Application::Application(Window* windowPtr)
+		: windowPtr_(windowPtr)
 		, windowTitle_("Project001")
 		, windowWidth_(800)
 		, windowHeight_(600)
 		, running_(false)
 	{
-#ifdef _PLATFORM_WINDOWS
-		windowPtr_ = new WindowsWindow("Project001", 800, 600);
-#else
-		Logger::Error("Unknown Platform!");
-#endif
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 	}
 
 	Application::~Application()
 	{
-
 	}
 
 	void Application::OnEvent(Event& event)
 	{
-		Logger::Message("%s\n", EventToString(event).c_str());
+		Logger::Message("%s", EventToString(event).c_str());
+
+		for (std::vector<Layer*>::reverse_iterator layerIterator = layerStack_.rbegin(); layerIterator != layerStack_.rend(); ++layerIterator)
+		{
+			if (event.handled)
+			{
+				break;
+			}
+
+			Layer* currentLayer = *layerIterator;
+			currentLayer->OnEvent(event);
+		}
 	}
 
 	void Application::Run()
 	{
+		float lastFrameTime = 0.0f; //(float)glfwGetTime();
+
 		running_ = true;
 		while (running_)
 		{
+			float currentFrameTime = 0.0f; //(float)glfwGetTime();
+			float frameTimestep = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
+
+			for (std::vector<Layer*>::iterator layerIterator = layerStack_.begin(); layerIterator != layerStack_.end(); ++layerIterator)
+			{
+				Layer* currentLayer = *layerIterator;
+				currentLayer->OnUpdate(frameTimestep);
+			}
+
 			windowPtr_->OnUpdate();
 		}
 	}

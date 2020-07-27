@@ -15,35 +15,38 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
-set(ENGINE_FILES
-    "Src/Application.cpp"
-    "Src/Application.h"
-    "Src/EventUtilities.h"
-    "Src/glad.c"
-    "Src/LearnOpenGL.cpp"
-    "Src/Logger.cpp"
-    "Src/Logger.h"
+set(SOURCE_FILES
     "Src/Main.cpp"
-    "Src/Shaders.h"
-    "Src/Utilities.h"
-    "Src/Vertices.h"
-    "Src/Window.cpp"
-    "Src/Window.h"
-    "Src/WindowData.h"
 )
 
-source_group("Src" FILES ${ENGINE_FILES})
+source_group("Src" FILES ${SOURCE_FILES})
 
-set(WINDOWS_PLATFORM_FILES
-    "Src/Windows/WindowsWindow.cpp"
-    "Src/Windows/WindowsWindow.h"
+set(ENGINE_FILES
+    "Src/Engine/Application.cpp"
+    "Src/Engine/Application.h"
+    "Src/Engine/EventUtilities.h"
+    "Src/Engine/Layer.cpp"
+    "Src/Engine/Layer.h"
+    "Src/Engine/Logger.cpp"
+    "Src/Engine/Logger.h"
+    "Src/Engine/Window.cpp"
+    "Src/Engine/Window.h"
 )
 
-source_group("Src/Windows" FILES ${WINDOWS_PLATFORM_FILES})
+source_group("Src/Engine" FILES ${ENGINE_FILES})
+
+set(PLATFORM_FILES
+    "Src/Platform/glad.c"
+    "Src/Platform/WindowImplementation.cpp"
+    "Src/Platform/WindowImplementation.h"
+)
+
+source_group("Src/Platform" FILES ${PLATFORM_FILES})
 
 add_executable("${PROJECT_NAME}"
+    ${SOURCE_FILES}
     ${ENGINE_FILES}
-    ${WINDOWS_PLATFORM_FILES}
+    ${PLATFORM_FILES}
 )
 
 target_include_directories("${PROJECT_NAME}"

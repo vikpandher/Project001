@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../Window.h"
+#include "../Engine/Window.h"
 
 
 
@@ -10,14 +10,14 @@ struct GLFWwindow;
 
 namespace Project001
 {
-	class WindowsWindow : public Window
+	class WindowImplementation : public Window
 	{
 	public:
-		WindowsWindow(const char* title, int width, int height);
-		~WindowsWindow() override;
+		WindowImplementation(const char* title, int width, int height);
+		~WindowImplementation() override;
 
-		WindowsWindow(WindowsWindow& other) = delete;
-		void operator=(const WindowsWindow&) = delete;
+		WindowImplementation(WindowImplementation& other) = delete;
+		void operator=(const WindowImplementation&) = delete;
 
 		void OnUpdate() override;
 
@@ -53,12 +53,12 @@ namespace Project001
 
 	// public: -----------------------------------------------------------------
 
-	inline void WindowsWindow::SetEventCallback(const std::function<void(Event&)>& callback)
+	inline void WindowImplementation::SetEventCallback(const std::function<void(Event&)>& callback)
 	{
 		windowData_.EventCallback = callback;
 	}
 
-	inline bool WindowsWindow::IsVSync() const
+	inline bool WindowImplementation::IsVSync() const
 	{
 		return windowData_.vSyncEnabled;
 	}
