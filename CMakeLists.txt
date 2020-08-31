@@ -31,6 +31,8 @@ set(ENGINE_FILES
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
     "Src/Engine/Renderer.h"
+    "Src/Engine/ScopeTimer.cpp"
+    "Src/Engine/ScopeTimer.h"
     "Src/Engine/Window.h"
 )
 
