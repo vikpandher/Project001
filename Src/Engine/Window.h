@@ -11,15 +11,12 @@ namespace Project001
 	class Window
 	{
 	public:
-		Window();
-		virtual ~Window();
-
-		Window(Window& other) = delete;
-		void operator=(const Window&) = delete;
-
 		virtual void OnUpdate() = 0;
 
 		virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
+
+		virtual void SetTime(const double time) = 0;
+		virtual double GetTime() const = 0;
 
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;

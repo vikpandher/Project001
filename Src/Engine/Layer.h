@@ -9,14 +9,8 @@ namespace Project001
 	class Layer
 	{
 	public:
-		Layer();
-		virtual ~Layer();
-
-		Layer(Layer& other) = delete;
-		void operator=(const Layer&) = delete;
-
 		virtual void OnEvent(Event& event) = 0;
-		virtual void OnUpdate(float frameTimestep) = 0;
+		virtual void OnUpdate(double frameTimestep) = 0;
 
 	protected:
 

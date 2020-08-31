@@ -1,7 +1,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "WindowImplementation.h"
+#include "OpenGLWindow.h"
 #include "../Engine/Logger.h"
 
 
@@ -10,7 +10,7 @@ namespace Project001
 {	
 	// public ------------------------------------------------------------------
 
-	WindowImplementation::WindowImplementation(const char* title, int width, int height)
+	OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
 		: glfwWindow_(nullptr)
 	{
 		windowData_.title = title;
@@ -110,7 +110,7 @@ namespace Project001
 			});
 	}
 
-	WindowImplementation::~WindowImplementation()
+	OpenGLWindow::~OpenGLWindow()
 	{
 		glfwDestroyWindow(glfwWindow_);
 
@@ -120,7 +120,7 @@ namespace Project001
 		}
 	}
 
-	void WindowImplementation::OnUpdate()
+	void OpenGLWindow::OnUpdate()
 	{		
 		// make current context again incase it was changed by another window
 		glfwMakeContextCurrent(glfwWindow_);
@@ -130,7 +130,17 @@ namespace Project001
 		glfwPollEvents();
 	}
 
-	void WindowImplementation::SetVSync(bool enabled)
+	inline void OpenGLWindow::SetTime(const double time)
+	{
+		glfwSetTime(time);
+	}
+
+	inline double OpenGLWindow::GetTime() const
+	{
+		return glfwGetTime();
+	}
+
+	void OpenGLWindow::SetVSync(bool enabled)
 	{
 		if (enabled)
 		{
@@ -145,5 +155,5 @@ namespace Project001
 	}
 
 	// private -----------------------------------------------------------------
-	int WindowImplementation::s_glfwWindowCount_ = 0;
+	int OpenGLWindow::s_glfwWindowCount_ = 0;
 }

@@ -16,6 +16,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 set(SOURCE_FILES
+    "Src/DebugLayer.cpp"
+    "Src/DebugLayer.h"
     "Src/Main.cpp"
 )
 
@@ -25,11 +27,10 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/EventUtilities.h"
-    "Src/Engine/Layer.cpp"
     "Src/Engine/Layer.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
-    "Src/Engine/Window.cpp"
+    "Src/Engine/Renderer.h"
     "Src/Engine/Window.h"
 )
 
@@ -37,13 +38,16 @@ source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set(PLATFORM_FILES
     "Src/Platform/glad.c"
-    "Src/Platform/WindowImplementation.cpp"
-    "Src/Platform/WindowImplementation.h"
+    "Src/Platform/OpenGLRenderer.cpp"
+    "Src/Platform/OpenGLRenderer.h"
+    "Src/Platform/OpenGLWindow.cpp"
+    "Src/Platform/OpenGLWindow.h"
 )
 
 source_group("Src/Platform" FILES ${PLATFORM_FILES})
 
-add_executable("${PROJECT_NAME}"
+# adding WIN32 makes WinMain() the entry point and so no conole appears
+add_executable("${PROJECT_NAME}" # WIN32
     ${SOURCE_FILES}
     ${ENGINE_FILES}
     ${PLATFORM_FILES}

@@ -24,33 +24,27 @@ namespace Project001
 
 	Application::~Application()
 	{
+		for (std::vector<Layer*>::iterator iterator = layerStack_.begin(); iterator != layerStack_.end(); ++iterator)
+		{
+			delete *iterator;
+		}
+		layerStack_.clear();
 	}
 
-	void Application::OnEvent(Event& event)
+	void Application::AddLayer(Layer* layer)
 	{
-		Logger::Message("%s", EventToString(event).c_str());
-
-		for (std::vector<Layer*>::reverse_iterator layerIterator = layerStack_.rbegin(); layerIterator != layerStack_.rend(); ++layerIterator)
-		{
-			if (event.handled)
-			{
-				break;
-			}
-
-			Layer* currentLayer = *layerIterator;
-			currentLayer->OnEvent(event);
-		}
+		layerStack_.push_back(layer);
 	}
 
 	void Application::Run()
 	{
-		float lastFrameTime = 0.0f; //(float)glfwGetTime();
+		double lastFrameTime = windowPtr_->GetTime();
 
 		running_ = true;
 		while (running_)
 		{
-			float currentFrameTime = 0.0f; //(float)glfwGetTime();
-			float frameTimestep = currentFrameTime - lastFrameTime;
+			double currentFrameTime = windowPtr_->GetTime();
+			double frameTimestep = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 
 			for (std::vector<Layer*>::iterator layerIterator = layerStack_.begin(); layerIterator != layerStack_.end(); ++layerIterator)
@@ -65,66 +59,17 @@ namespace Project001
 
 	// protected ---------------------------------------------------------------
 
-	std::string Application::EventToString(Event& event) const
+	void Application::OnEvent(Event& event)
 	{
-		std::string messageString;
-		messageString += EventTypeToString(event.GetEventType());
-		if (event.GetEventType() == EventType::EVENT_TYPE_KEY)
+		for (std::vector<Layer*>::reverse_iterator layerIterator = layerStack_.rbegin(); layerIterator != layerStack_.rend(); ++layerIterator)
 		{
-			KeyEvent keyEvent = dynamic_cast<KeyEvent&>(event);
-			messageString += " : KeyCode = ";
-			messageString += KeyCodeToString(keyEvent.keyCode);
-			messageString += ", ButtonAction = ";
-			messageString += ButtonActionToString(keyEvent.buttonAction);
-			messageString += ", KeyModifier = ";
-			messageString += KeyModifierToString(keyEvent.keyModifier);
+			if (event.handled)
+			{
+				break;
+			}
+
+			Layer* currentLayer = *layerIterator;
+			currentLayer->OnEvent(event);
 		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_MOUSE_BUTTON)
-		{
-			MouseButtonEvent mouseButtonEvent = dynamic_cast<MouseButtonEvent&>(event);
-			messageString += " : MouseButton = ";
-			messageString += MouseButtonToString(mouseButtonEvent.mouseButton);
-			messageString += ", ButtonAction = ";
-			messageString += ButtonActionToString(mouseButtonEvent.buttonAction);
-			messageString += ", KeyModifier = ";
-			messageString += KeyModifierToString(mouseButtonEvent.keyModifier);
-		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_CURSOR_POS)
-		{
-			CursorPosEvent cursorPosEvent = dynamic_cast<CursorPosEvent&>(event);
-			messageString += " : xPos = ";
-			messageString += std::to_string(cursorPosEvent.xPos);
-			messageString += " : yPos = ";
-			messageString += std::to_string(cursorPosEvent.yPos);
-		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_CURSOR_ENTER)
-		{
-			CursorEnterEvent cursorEnterEvent = dynamic_cast<CursorEnterEvent&>(event);
-			messageString += " : entered = ";
-			messageString += std::to_string(cursorEnterEvent.entered);
-		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_SCROLL)
-		{
-			ScrollEvent scrollEvent = dynamic_cast<ScrollEvent&>(event);
-			messageString += " : xOffset = ";
-			messageString += std::to_string(scrollEvent.xOffset);
-			messageString += " : yOffset = ";
-			messageString += std::to_string(scrollEvent.yOffset);
-		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_WINDOW_FOCUS)
-		{
-			WindowFocusEvent windowFocusEvent = dynamic_cast<WindowFocusEvent&>(event);
-			messageString += " : focused = ";
-			messageString += std::to_string(windowFocusEvent.focused);
-		}
-		else if (event.GetEventType() == EventType::EVENT_TYPE_FRAMEBUFFER_SIZE)
-		{
-			FrameBufferSizeEvent frameBufferSizeEvent = dynamic_cast<FrameBufferSizeEvent&>(event);
-			messageString += " : width = ";
-			messageString += std::to_string(frameBufferSizeEvent.width);
-			messageString += " : height = ";
-			messageString += std::to_string(frameBufferSizeEvent.height);
-		}
-		return messageString;
 	}
 }

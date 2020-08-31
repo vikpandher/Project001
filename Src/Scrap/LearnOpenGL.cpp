@@ -563,7 +563,7 @@ GLuint createShader(GLenum shaderType, const GLchar** shaderSource)
         }
         else if (shaderType == GL_FRAGMENT_SHADER)
         {
-            std::cout << "FRAG<MET";
+            std::cout << "FRAGMET";
         }
         else
         {

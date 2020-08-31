@@ -10,18 +10,21 @@ struct GLFWwindow;
 
 namespace Project001
 {
-	class WindowImplementation : public Window
+	class OpenGLWindow : public Window
 	{
 	public:
-		WindowImplementation(const char* title, int width, int height);
-		~WindowImplementation() override;
+		OpenGLWindow(const char* title, int width, int height);
+		~OpenGLWindow();
 
-		WindowImplementation(WindowImplementation& other) = delete;
-		void operator=(const WindowImplementation&) = delete;
+		OpenGLWindow(OpenGLWindow& other) = delete;
+		void operator=(const OpenGLWindow&) = delete;
 
 		void OnUpdate() override;
 
 		void SetEventCallback(const std::function<void(Event&)>& callback) override;
+
+		void SetTime(const double time) override;
+		double GetTime() const override;
 
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
@@ -53,12 +56,12 @@ namespace Project001
 
 	// public: -----------------------------------------------------------------
 
-	inline void WindowImplementation::SetEventCallback(const std::function<void(Event&)>& callback)
+	inline void OpenGLWindow::SetEventCallback(const std::function<void(Event&)>& callback)
 	{
 		windowData_.EventCallback = callback;
 	}
 
-	inline bool WindowImplementation::IsVSync() const
+	inline bool OpenGLWindow::IsVSync() const
 	{
 		return windowData_.vSyncEnabled;
 	}

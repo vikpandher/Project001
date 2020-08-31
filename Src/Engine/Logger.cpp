@@ -10,6 +10,7 @@ namespace Project001
 {
 	// NOTES:
 	// ANSI escape color codes :
+	// *these don't work on windows (only in visual studio console)
 	// ---------------------------------------------------------------------------
 	// https://en.wikipedia.org/wiki/ANSI_escape_code
 	// Name            FG  BG
@@ -30,6 +31,10 @@ namespace Project001
 	// Bright Cyan     96  106
 	// Bright White    97  107
 	// Reset                    0
+	// 
+	// ex:
+	// printf("\033[30;42mERROR:\033[32;40m %s\033[0m\n", s_charBuffer_);
+	// printf("\033[30;47mMESSAGE:\033[0m %s\n", s_charBuffer_);
 
 	// public ------------------------------------------------------------------
 
@@ -39,7 +44,7 @@ namespace Project001
 		va_start(args, format);
 		vsnprintf(s_charBuffer_, sizeof(s_charBuffer_), format, args);
 
-		printf("\033[30;42mERROR:\033[32;40m %s\033[0m\n", s_charBuffer_);
+		printf("ERROR:      %s\n", s_charBuffer_);
 	}
 
 	void Logger::Message(const char* format, ...)
@@ -48,7 +53,7 @@ namespace Project001
 		va_start(args, format);
 		vsnprintf(s_charBuffer_, sizeof(s_charBuffer_), format, args);
 
-		printf("\033[30;47mMESSAGE:\033[0m %s\n", s_charBuffer_);
+		printf("MESSAGE:    %s\n", s_charBuffer_);
 	}
 
 	// private -----------------------------------------------------------------

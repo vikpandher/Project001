@@ -14,7 +14,6 @@ namespace Project001
 	class Logger;
 	class Window;
 	
-	// singleton class for Application
 	class Application
 	{
 	public:
@@ -24,12 +23,13 @@ namespace Project001
 		Application(Application& other) = delete;
 		void operator=(const Application&) = delete;
 
-		void OnEvent(Event& event);
+		void AddLayer(Layer* layer);
 
 		void Run();
 
 	protected:
-		std::string EventToString(Event& event) const;
+
+		void OnEvent(Event& event);
 
 		Window* windowPtr_;
 
