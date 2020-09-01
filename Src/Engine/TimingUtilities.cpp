@@ -20,7 +20,7 @@ namespace Project001
 		if (!instance.inSession_)
 		{
 			instance.outputStream_.open(outputFilePath);
-			instance.outputStream_ << "{\"otherData\": {},\"traceEvents\":[";
+			instance.outputStream_ << "{\"otherData\": {},\"traceEvents\":[" << std::endl;
 			instance.outputStream_.flush();
 			instance.inSession_ = true;
 		}
@@ -33,7 +33,8 @@ namespace Project001
 
 		if (instance.inSession_)
 		{
-			instance.outputStream_ << "]}";
+			instance.outputStream_ << std::endl;
+			instance.outputStream_ << "]}" << std::endl;
 			instance.outputStream_.flush();
 			instance.inSession_ = false;
 		}
@@ -48,20 +49,21 @@ namespace Project001
 		{
 			if (instance.entryCount_ > 0)
 			{
-				instance.entryCount_++;
-				instance.outputStream_ << ",";
+				instance.outputStream_ << "," << std::endl;
 			}
 
-			instance.outputStream_ << "{";
-			instance.outputStream_ << "\"cat\":\"function\",";
-			instance.outputStream_ << "\"dur\":" << (timeRecord.stop_ns - timeRecord.start_ns) / 1000 << ',';
-			instance.outputStream_ << "\"name\":\"" << timeRecord.label << "\",";
-			instance.outputStream_ << "\"ph\":\"X\",";
-			instance.outputStream_ << "\"pid\":0,";
-			instance.outputStream_ << "\"tid\":" << timeRecord.threadID << ",";
-			instance.outputStream_ << "\"ts\":" << timeRecord.start_ns / 1000;
+			instance.outputStream_ << "{" << std::endl;
+			instance.outputStream_ << "\"cat\":\"function\"," << std::endl;
+			instance.outputStream_ << "\"dur\":" << (timeRecord.stop_ns - timeRecord.start_ns) / 1000 << ',' << std::endl;
+			instance.outputStream_ << "\"name\":\"" << timeRecord.label << "\"," << std::endl;
+			instance.outputStream_ << "\"ph\":\"X\"," << std::endl;
+			instance.outputStream_ << "\"pid\":0," << std::endl;
+			instance.outputStream_ << "\"tid\":" << timeRecord.threadID << "," << std::endl;
+			instance.outputStream_ << "\"ts\":" << timeRecord.start_ns / 1000 << std::endl;
 			instance.outputStream_ << "}";
 			instance.outputStream_.flush();
+
+			instance.entryCount_++;
 		}
 	}
 
