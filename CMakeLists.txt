@@ -31,8 +31,8 @@ set(ENGINE_FILES
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
     "Src/Engine/Renderer.h"
-    "Src/Engine/ScopeTimer.cpp"
-    "Src/Engine/ScopeTimer.h"
+    "Src/Engine/TimingUtilities.cpp"
+    "Src/Engine/TimingUtilities.h"
     "Src/Engine/Window.h"
 )
 
@@ -71,6 +71,7 @@ target_link_libraries("${PROJECT_NAME}"
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
 set_target_properties("${PROJECT_NAME}" PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}"
     OUTPUT_NAME_DEBUG "${PROJECT_NAME}_debug"
@@ -129,6 +130,9 @@ if(${PRINT_DEBUG_OUTPUT})
     endforeach()
     
     message("OUTPUT_DIR: ${OUTPUT_DIR}")
+
+    get_property(_VS_DEBUGGER_WORKING_DIRECTORY TARGET "${PROJECT_NAME}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY)
+    message("VS_DEBUGGER_WORKING_DIRECTORY: ${_VS_DEBUGGER_WORKING_DIRECTORY}")
     
     get_property(_RUNTIME_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG)
     message("RUNTIME_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")

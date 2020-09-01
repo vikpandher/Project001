@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 
 
 namespace Project001
@@ -9,9 +11,10 @@ namespace Project001
 	class Logger
 	{
 	public:
-		Logger() = delete;
-		Logger(const Logger& rhs) = delete;
-		Logger& operator=(const Logger& rhs) = delete;
+		~Logger();
+
+		Logger(const Logger&) = delete;
+		void operator=(const Logger&) = delete;
 
 		static void Error(const char* format, ...);
 
@@ -20,6 +23,13 @@ namespace Project001
 	protected:
 
 	private:
-		static char s_charBuffer_[LOGGER_CHAR_BUFFER_SIZE];
+		static Logger& GetInstance();
+
+		Logger();
+		//Logger(const Logger&);
+		//void operator=(const Logger&);
+
+		std::mutex lock_;
+		char charBuffer_[LOGGER_CHAR_BUFFER_SIZE];
 	};
 }

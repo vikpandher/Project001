@@ -38,25 +38,46 @@ namespace Project001
 
 	// public ------------------------------------------------------------------
 
+	Logger::~Logger()
+	{
+	}
+
 	void Logger::Error(const char* format, ...)
 	{
+		Logger& instance = GetInstance();
+		std::lock_guard<std::mutex> lock(instance.lock_);
+		
 		va_list args;
 		va_start(args, format);
-		vsnprintf(s_charBuffer_, sizeof(s_charBuffer_), format, args);
+		memset(instance.charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
+		vsnprintf(instance.charBuffer_, LOGGER_CHAR_BUFFER_SIZE, format, args);
 
-		printf("ERROR:      %s\n", s_charBuffer_);
+		printf("ERROR:      %s\n", instance.charBuffer_);
 	}
 
 	void Logger::Message(const char* format, ...)
 	{		
+		Logger& instance = GetInstance();
+		std::lock_guard<std::mutex> lock(instance.lock_);
+
 		va_list args;
 		va_start(args, format);
-		vsnprintf(s_charBuffer_, sizeof(s_charBuffer_), format, args);
+		memset(instance.charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
+		vsnprintf(instance.charBuffer_, LOGGER_CHAR_BUFFER_SIZE, format, args);
 
-		printf("MESSAGE:    %s\n", s_charBuffer_);
+		printf("MESSAGE:    %s\n", instance.charBuffer_);
 	}
 
 	// private -----------------------------------------------------------------
 
-	char Logger::s_charBuffer_[LOGGER_CHAR_BUFFER_SIZE] = { 0 };
+	Logger& Logger::GetInstance()
+	{
+		static Logger instance;
+		return instance;
+	}
+
+	Logger::Logger()
+	{
+		memset(charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
+	}
 }
