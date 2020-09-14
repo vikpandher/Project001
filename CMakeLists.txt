@@ -40,6 +40,8 @@ source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set(PLATFORM_FILES
     "Src/Platform/glad.c"
+    "Src/Platform/OpenGLShader.cpp"
+    "Src/Platform/OpenGLShader.h"
     "Src/Platform/OpenGLRenderer.cpp"
     "Src/Platform/OpenGLRenderer.h"
     "Src/Platform/OpenGLWindow.cpp"

@@ -14,8 +14,10 @@ namespace Project001
 	struct VertexDataStruct
 	{
 		glm::vec3 position;
+		glm::vec3 normal;
 		glm::vec4 color;
-		glm::vec2 texture;
+		glm::vec2 textureCoordinte;
+		float textureIndex;
 	};
 
 	struct MeshDataStruct
@@ -34,9 +36,10 @@ namespace Project001
 	///	void LoadModel(std::string modelName, std::vector<VertexDataStruct> vertexData, )
 
 	protected:
-	///	std::vector<VertexDataStruct> vertexData_;
 
 	private:
+		static const char* s_vertexShaderSource01_;
+		static const char* s_fragmentShaderSource01_;
 		
 	};
 }
