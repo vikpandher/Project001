@@ -25,91 +25,94 @@ namespace Project001
 		// draw as wireframe
 		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		OpenGLShader shader01(s_vertexShaderSource01_, s_fragmentShaderSource01_);
+		shaderPtr_ = new OpenGLShader(s_vertexShaderSource01_, s_fragmentShaderSource01_);
 
-		GLuint vertexArrayId01;
-		glGenVertexArrays(1, &vertexArrayId01);
+		vertexBuffer_.reserve(3);
+		vertexBuffer_.push_back(VertexDataStruct());
+		vertexBuffer_[0].position.data = { 0.5f, 0.5f, 0.5f };
+		vertexBuffer_.push_back(VertexDataStruct());
+		vertexBuffer_[1].position.data = { -0.5f, 0.5f, 0.5f };
+		vertexBuffer_.push_back(VertexDataStruct());
+		vertexBuffer_[2].position.data = { -0.5f, -0.5f, 0.5f };
 
-		GLuint vertexBufferId01;
-		glGenBuffers(1, &vertexBufferId01);
+		// generate an id (name) for a new buffer
+		glGenBuffers(1, &vertexBufferId_);
 
+		// make the buffer the active array buffer, creating it if necessary
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
 
+		// upload the data into the active array buffer
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * vertexBuffer_.size(), &vertexBuffer_[0], GL_STATIC_DRAW);
 
+		// generate an id (name) for a new array
+		glGenVertexArrays(1, &vertexArrayId_);
+
+		// make the array avtive, create it if necessary
+		glBindVertexArray(vertexArrayId_);
+
+		// attach the active buffer to the active array with the given attributes
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexBuffer_.size() * sizeof(float), (void*)0);
+
+		// enable the vertex attribute
+		glEnableVertexAttribArray(0);
+
+		// unbind the array buffer and the vertex array
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	OpenGLRenderer::~OpenGLRenderer()
+	{
+		glDeleteBuffers(1, &vertexBufferId_);
+		glDeleteVertexArrays(1, &vertexArrayId_);
+	}
+
+	void OpenGLRenderer::Render()
+	{
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		shaderPtr_->Use();
+
+		glBindVertexArray(vertexArrayId_);
+		glDrawArrays(GL_TRIANGLES, 0, vertexBuffer_.size());
+
+		// glfwSwapBuffers happens in OpenGLWindow::OnUpdate()
 	}
 
 	// protected ---------------------------------------------------------------
 
 	// private -----------------------------------------------------------------
 
+	// Notes:
+	// gl_Position is intended for writing the homogenous vertex position. It
+	// can be written at any time durring vertex shader execution. This value
+	// will be used by primitive assembly, clipping, culling and other fixed
+	// function operations, if preset, that operate on primitives after vertex
+	// processing has occured.
+
 	const char* OpenGLRenderer::s_vertexShaderSource01_ = R"(#version 330 core
 
-	layout (location = 0) in vec3 aPos;
-	layout (location = 1) in vec3 aNormal;
-	layout (location = 2) in vec2 aTexCoords;
+	layout (location = 0) in vec3 in_Position;
 
-	out vec3 FragPos;
-	out vec3 Normal;
-	out vec2 TexCoords;
-
-	uniform mat4 model;
-	uniform mat4 view;
-	uniform mat4 projection;
+	out vec4 v_Color;
 
 	void main()
-	{
-		FragPos = vec3(model * vec4(aPos, 1.0));
-		Normal = mat3(transpose(inverse(model))) * aNormal;  
-		TexCoords = aTexCoords;
-    
-		gl_Position = projection * view * vec4(FragPos, 1.0);
+	{   
+		gl_Position = vec4(in_Position, 1.0);
+		v_Color = vec4(in_Position, 1.0);
 	}
 	)";
 
 	const char* OpenGLRenderer::s_fragmentShaderSource01_ = R"(#version 330 core
 
-	out vec4 FragColor;
+	in vec4 v_Color;
 
-	struct Material {
-		sampler2D diffuse;
-		sampler2D specular;    
-		float shininess;
-	}; 
-
-	struct Light {
-		vec3 position;
-
-		vec3 ambient;
-		vec3 diffuse;
-		vec3 specular;
-	};
-
-	in vec3 FragPos;  
-	in vec3 Normal;  
-	in vec2 TexCoords;
-  
-	uniform vec3 viewPos;
-	uniform Material material;
-	uniform Light light;
+	layout (location = 0) out vec4 f_Color;
 
 	void main()
 	{
-		// ambient
-		vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
-  	
-		// diffuse 
-		vec3 norm = normalize(Normal);
-		vec3 lightDir = normalize(light.position - FragPos);
-		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;  
-    
-		// specular
-		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);  
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
-        
-		vec3 result = ambient + diffuse + specular;
-		FragColor = vec4(result, 1.0);
+		f_Color = v_Color;
 	} 
 	)";
 }

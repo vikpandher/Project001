@@ -2,9 +2,13 @@
 
 #include "Application.h"
 #include "EventUtilities.h"
-#include "Layer.h"
+#include "Widget.h"
 #include "Logger.h"
+#include "Renderer.h"
 #include "Window.h"
+
+#include "../Platform/OpenGLRenderer.h"
+#include "../Platform/OpenGLWindow.h"
 
 
 
@@ -12,28 +16,31 @@ namespace Project001
 {
 	// public ------------------------------------------------------------------
 
-	Application::Application(Window* windowPtr)
-		: windowPtr_(windowPtr)
-		, windowTitle_("Project001")
-		, windowWidth_(800)
-		, windowHeight_(600)
+	Application::Application(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight)
+		: windowTitle_(windowTitle)
+		, windowWidth_(windowWidth)
+		, windowHeight_(windowHeight)
 		, running_(false)
 	{
+		windowPtr_ = new OpenGLWindow(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+
+		rendererPtr_ = new OpenGLRenderer();
 	}
 
 	Application::~Application()
 	{
-		for (std::vector<Layer*>::iterator iterator = layerStack_.begin(); iterator != layerStack_.end(); ++iterator)
+		for (std::map<std::string, Widget*>::iterator iterator = widgetContainer_.begin(); iterator != widgetContainer_.end(); ++iterator)
 		{
-			delete *iterator;
+			delete iterator->second;
 		}
-		layerStack_.clear();
+		widgetContainer_.clear();
 	}
 
-	void Application::AddLayer(Layer* layer)
+	void Application::AddWidget(std::string widgetName, Widget* widgetPtr)
 	{
-		layerStack_.push_back(layer);
+		widgetContainer_.insert(std::make_pair(widgetName, widgetPtr));
+		widgetPtr->Initialize(this);
 	}
 
 	void Application::Run()
@@ -47,29 +54,36 @@ namespace Project001
 			double frameTimestep = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 
-			for (std::vector<Layer*>::iterator layerIterator = layerStack_.begin(); layerIterator != layerStack_.end(); ++layerIterator)
+			for (std::map<std::string, Widget*>::iterator widgetIterator = widgetContainer_.begin(); widgetIterator != widgetContainer_.end(); ++widgetIterator)
 			{
-				Layer* currentLayer = *layerIterator;
-				currentLayer->OnUpdate(frameTimestep);
+				Widget* currentWidget = widgetIterator->second;
+				currentWidget->OnUpdate(frameTimestep);
 			}
 
 			windowPtr_->OnUpdate();
 		}
 	}
 
-	// protected ---------------------------------------------------------------
+	// private --------------------------------------------------------------------
 
 	void Application::OnEvent(Event& event)
-	{
-		for (std::vector<Layer*>::reverse_iterator layerIterator = layerStack_.rbegin(); layerIterator != layerStack_.rend(); ++layerIterator)
+	{		
+		for (std::map<std::string, Widget*>::reverse_iterator widgetIterator = widgetContainer_.rbegin(); widgetIterator != widgetContainer_.rend(); ++widgetIterator)
 		{
+			Widget* currentWidget = widgetIterator->second;
+			currentWidget->OnEvent(event);
+
 			if (event.handled)
 			{
 				break;
 			}
+		}
 
-			Layer* currentLayer = *layerIterator;
-			currentLayer->OnEvent(event);
+		if (event.GetEventType() == EventType::EVENT_TYPE_WINDOW_CLOSE)
+		{
+			WindowCloseEvent windowFocusEvent = dynamic_cast<WindowCloseEvent&>(event);
+			running_ = false;
+			windowFocusEvent.handled = true;
 		}
 	}
 }

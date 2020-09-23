@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <map>
 
 
 
@@ -10,28 +10,24 @@ struct GLFWwindow;
 namespace Project001
 {	
 	struct Event;
-	class Layer;
-	class Logger;
+	class Renderer;
+	class Widget;
 	class Window;
 	
 	class Application
 	{
 	public:
-		Application(Window* windowPtr);
+		Application(const char* windowTitile, unsigned int windowWidth, unsigned int windowHeight);
 		virtual ~Application();
 
 		Application(Application& other) = delete;
 		void operator=(const Application&) = delete;
 
-		void AddLayer(Layer* layer);
+		void AddWidget(std::string widgetName, Widget* widgetPtr);
 
 		void Run();
 
-	protected:
-
 		void OnEvent(Event& event);
-
-		Window* windowPtr_;
 
 		std::string windowTitle_;
 		unsigned int windowWidth_;
@@ -39,7 +35,13 @@ namespace Project001
 
 		bool running_;
 
-		std::vector<Layer*> layerStack_;
+		Window* windowPtr_;
+
+		Renderer* rendererPtr_;
+
+		std::map<std::string, Widget*> widgetContainer_;
+
+	protected:
 
 	private:
 

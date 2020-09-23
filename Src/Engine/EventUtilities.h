@@ -981,6 +981,7 @@ namespace Project001
 		return std::string("UNKNOWN");
 	}
 
+	// Maybe I'll use this...
 #define EVENT_TYPE_FUNCTIONS(eventType)\
 	static EventType GetStaticEventType()\
 	{\

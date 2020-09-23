@@ -30,7 +30,7 @@ namespace Project001
 		bool IsVSync() const override;
 
 	protected:
-		GLFWwindow* glfwWindow_;
+		GLFWwindow* glfwWindowPtr_;
 
 		struct WindowData
 		{

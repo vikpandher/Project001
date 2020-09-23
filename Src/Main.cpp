@@ -8,9 +8,8 @@
 #include "Engine/Logger.h"
 #include "Engine/TimingUtilities.h"
 
-#include "Platform/OpenGLWindow.h"
-
-#include "DebugLayer.h"
+#include "DebugOutputWidget.h"
+#include "RendererTestWidget.h"
 
 
 
@@ -28,11 +27,13 @@ int main(int argc, char** argv)
 
     Project001::Logger::Message("HELLO WORLD");
 
-    Project001::Window* windowPtr = new Project001::OpenGLWindow("Project001", 800, 600);
-    Project001::Application* applicationPtr = new Project001::Application(windowPtr);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 800, 600);
 
-    Project001::Layer* debugLayerPtr = new Project001::DebugLayer();
-    applicationPtr->AddLayer(debugLayerPtr);
+    Project001::Widget* debugOutputWidgetPtr = new Project001::DebugOutputWidget();
+    applicationPtr->AddWidget("DebugOutputWidget", debugOutputWidgetPtr);
+
+    Project001::Widget* rendererTestWidgetPtr = new Project001::RendererTestWidget();
+    applicationPtr->AddWidget("RendererTestWidget", rendererTestWidgetPtr);
 
     applicationPtr->Run();
     

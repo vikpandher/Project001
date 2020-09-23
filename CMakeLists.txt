@@ -16,8 +16,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 set(SOURCE_FILES
-    "Src/DebugLayer.cpp"
-    "Src/DebugLayer.h"
+    "Src/DebugOutputWidget.cpp"
+    "Src/DebugOutputWidget.h"
+    "Src/RendererTestWidget.cpp"
+    "Src/RendererTestWidget.h"
     "Src/Main.cpp"
 )
 
@@ -27,7 +29,7 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/EventUtilities.h"
-    "Src/Engine/Layer.h"
+    "Src/Engine/Widget.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
     "Src/Engine/Renderer.h"

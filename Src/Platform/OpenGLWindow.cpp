@@ -11,7 +11,7 @@ namespace Project001
 	// public ------------------------------------------------------------------
 
 	OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
-		: glfwWindow_(nullptr)
+		: glfwWindowPtr_(nullptr)
 	{
 		windowData_.title = title;
 		windowData_.width = width;
@@ -34,12 +34,12 @@ namespace Project001
 				});
 		}
 
-		glfwWindow_ = glfwCreateWindow(width, height, title, NULL, NULL);
+		glfwWindowPtr_ = glfwCreateWindow(width, height, title, NULL, NULL);
 		s_glfwWindowCount_++;
 
-		glfwSetWindowUserPointer(glfwWindow_, &windowData_);
+		glfwSetWindowUserPointer(glfwWindowPtr_, &windowData_);
 
-		glfwMakeContextCurrent(glfwWindow_);
+		glfwMakeContextCurrent(glfwWindowPtr_);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
@@ -53,56 +53,56 @@ namespace Project001
 
 		SetVSync(true);
 
-		glfwSetKeyCallback(glfwWindow_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(glfwWindowPtr_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				KeyEvent event((KeyCode)key, (ButtonAction)action, (KeyModifier)mods);
 				data.EventCallback(event);
 			});
 
-		glfwSetMouseButtonCallback(glfwWindow_, [](GLFWwindow* window, int button, int action, int mods)
+		glfwSetMouseButtonCallback(glfwWindowPtr_, [](GLFWwindow* window, int button, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				MouseButtonEvent event((MouseButton)button, (ButtonAction)action, (KeyModifier)mods);
 				data.EventCallback(event);
 			});
 
-		glfwSetCursorPosCallback(glfwWindow_, [](GLFWwindow* window, double xpos, double ypos)
+		glfwSetCursorPosCallback(glfwWindowPtr_, [](GLFWwindow* window, double xpos, double ypos)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				CursorPosEvent event((float)xpos, (float)ypos);
 				data.EventCallback(event);
 			});
 
-		glfwSetCursorEnterCallback(glfwWindow_, [](GLFWwindow* window, int entered)
+		glfwSetCursorEnterCallback(glfwWindowPtr_, [](GLFWwindow* window, int entered)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				CursorEnterEvent event((bool)entered);
 				data.EventCallback(event);
 			});
 
-		glfwSetScrollCallback(glfwWindow_, [](GLFWwindow* window, double xoffset, double yoffset)
+		glfwSetScrollCallback(glfwWindowPtr_, [](GLFWwindow* window, double xoffset, double yoffset)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				ScrollEvent event((float)xoffset, (float)yoffset);
 				data.EventCallback(event);
 			});
 
-		glfwSetWindowCloseCallback(glfwWindow_, [](GLFWwindow* window)
+		glfwSetWindowCloseCallback(glfwWindowPtr_, [](GLFWwindow* window)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				WindowCloseEvent event;
 				data.EventCallback(event);
 			});
 
-		glfwSetWindowFocusCallback(glfwWindow_, [](GLFWwindow* window, int focused)
+		glfwSetWindowFocusCallback(glfwWindowPtr_, [](GLFWwindow* window, int focused)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				WindowFocusEvent event((bool)focused);
 				data.EventCallback(event);
 			});
 
-		glfwSetFramebufferSizeCallback(glfwWindow_, [](GLFWwindow* window, int width, int height)
+		glfwSetFramebufferSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				FrameBufferSizeEvent event(width, height);
@@ -112,7 +112,7 @@ namespace Project001
 
 	OpenGLWindow::~OpenGLWindow()
 	{
-		glfwDestroyWindow(glfwWindow_);
+		glfwDestroyWindow(glfwWindowPtr_);
 
 		if (s_glfwWindowCount_ == 0)
 		{
@@ -123,9 +123,9 @@ namespace Project001
 	void OpenGLWindow::OnUpdate()
 	{		
 		// make current context again incase it was changed by another window
-		glfwMakeContextCurrent(glfwWindow_);
+		glfwMakeContextCurrent(glfwWindowPtr_);
 		
-		glfwSwapBuffers(glfwWindow_);
+		glfwSwapBuffers(glfwWindowPtr_);
 
 		glfwPollEvents();
 	}

@@ -1,5 +1,5 @@
 
-#include "DebugLayer.h"
+#include "DebugOutputWidget.h"
 
 #include "Engine/EventUtilities.h"
 #include "Engine/Logger.h"
@@ -10,29 +10,34 @@ namespace Project001
 {
 	// public ------------------------------------------------------------------
 	
-	DebugLayer::DebugLayer()
+	DebugOutputWidget::DebugOutputWidget()
 	{
 
 	}
 
-	DebugLayer::~DebugLayer()
+	DebugOutputWidget::~DebugOutputWidget()
 	{
 
 	}
 
-	void DebugLayer::OnEvent(Event& event)
+	void DebugOutputWidget::Initialize(Application* applicationPtr)
+	{
+
+	}
+
+	void DebugOutputWidget::OnEvent(Event& event)
 	{
 		Logger::Message("%s", EventToString(event).c_str());
 	}
 
-	void DebugLayer::OnUpdate(double frameTimestep)
+	void DebugOutputWidget::OnUpdate(double frameTimestep)
 	{
 
 	}
 
 	// protected ---------------------------------------------------------------
 
-	std::string DebugLayer::EventToString(Event& event) const
+	std::string DebugOutputWidget::EventToString(Event& event) const
 	{
 		std::string messageString;
 		messageString += EventTypeToString(event.GetEventType());
