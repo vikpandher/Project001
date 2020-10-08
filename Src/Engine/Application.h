@@ -11,6 +11,7 @@ namespace Project001
 {	
 	struct Event;
 	class Renderer;
+	class Stores;
 	class Widget;
 	class Window;
 	
@@ -37,9 +38,11 @@ namespace Project001
 
 		Window* windowPtr_;
 
+		Stores* storesPtr_;
+
 		Renderer* rendererPtr_;
 
-		std::map<std::string, Widget*> widgetContainer_;
+		std::map<std::string, Widget*> widgetMap_;
 
 	protected:
 

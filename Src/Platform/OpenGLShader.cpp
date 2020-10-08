@@ -12,8 +12,8 @@ namespace Project001
 	
 	OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* fragmentShaderCode)
 	{
-		GLuint vertexShaderId = createShader(GL_VERTEX_SHADER, &vertexShaderCode);
-		GLuint fragmentShaderId = createShader(GL_FRAGMENT_SHADER, &fragmentShaderCode);
+		GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
+		GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
 		programId_ = glCreateProgram();
 		glAttachShader(programId_, vertexShaderId);
@@ -35,9 +35,9 @@ namespace Project001
 
 	OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
 	{
-		GLuint vertexShaderId = createShader(GL_VERTEX_SHADER, &vertexShaderCode);
-		GLuint geometryShaderId = createShader(GL_GEOMETRY_SHADER, &geometryShaderCode);
-		GLuint fragmentShaderId = createShader(GL_FRAGMENT_SHADER, &fragmentShaderCode);
+		GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
+		GLuint geometryShaderId = CreateShader(GL_GEOMETRY_SHADER, geometryShaderCode);
+		GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
 		programId_ = glCreateProgram();
 		glAttachShader(programId_, vertexShaderId);
@@ -133,10 +133,10 @@ namespace Project001
 
 	// private -----------------------------------------------------------------
 
-	glm::uint OpenGLShader::createShader(glm::uint shaderType, const char** shaderSource)
+	glm::uint OpenGLShader::CreateShader(glm::uint shaderType, const char* shaderSource)
 	{
 		GLuint shaderId = glCreateShader(shaderType);
-		glShaderSource(shaderId, 1, shaderSource, NULL);
+		glShaderSource(shaderId, 1, &shaderSource, NULL);
 		glCompileShader(shaderId);
 		GLint success;
 		GLchar infoLog[512];

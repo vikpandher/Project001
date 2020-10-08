@@ -3,14 +3,17 @@
 #include "Engine/Widget.h"
 
 #include <string>
-
+#include <map>
 
 
 namespace Project001
 {
 	class Application;
 	struct Event;
-	
+	class Renderer;
+	class Stores;
+	class Window;
+
 	class RendererTestWidget : public Widget
 	{
 	public:
@@ -27,6 +30,14 @@ namespace Project001
 
 	protected:
 		Application* applicationPtr_;
+
+		Window* windowPtr_;
+
+		Stores* storesPtr_;
+
+		Renderer* rendererPtr_;
+
+		std::map<std::string, Widget*>* widgetContainerPtr_;
         
 	private:
 		

@@ -13,6 +13,8 @@ namespace Project001
 	// public ------------------------------------------------------------------
 	
 	OpenGLRenderer::OpenGLRenderer()
+		: vertexBufferSize_(0)
+		, indexBufferSize_(0)
 	{
 		// configure global opengl state
 		// ---------------------------------------------------------------------
@@ -27,64 +29,127 @@ namespace Project001
 
 		shaderPtr_ = new OpenGLShader(s_vertexShaderSource01_, s_fragmentShaderSource01_);
 
-		vertexBuffer_.reserve(3);
-		vertexBuffer_.push_back(VertexDataStruct());
-		vertexBuffer_[0].position.data = { 0.5f, 0.5f, 0.5f };
-		vertexBuffer_.push_back(VertexDataStruct());
-		vertexBuffer_[1].position.data = { -0.5f, 0.5f, 0.5f };
-		vertexBuffer_.push_back(VertexDataStruct());
-		vertexBuffer_[2].position.data = { -0.5f, -0.5f, 0.5f };
+		vertexBufferPtr_ = new VertexDataStruct[s_vertexBufferCapacity_];
+		indexBufferPtr_ = new glm::uint[s_indexBufferCapacity_];
 
-		// generate an id (name) for a new buffer
+		// NOTE:
+		// glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
+		// but there are situations when it does.
+		// 
+		// OpenGL calls are executred in the order they are issued. So
+		// glVertexArrtribPointer interprets parameters relative to the
+		// currenlty bound buffer.
+		// 
+		// There is an exception to this. Binding the GL_ELEMENT_ARRAY_BUFFER is
+		// saved to the current Vertex Array Object at the time it is bound. The
+		// VAO must be bound first.
+
+
+		// ---------------------------------------------------------------------
+		// generate an id (name) for a new vertex array object
+		glGenVertexArrays(1, &vertexArrayId_);
+		
+		// generate an id (name) for a vertex buffer object
 		glGenBuffers(1, &vertexBufferId_);
+
+		// generate an id (name) for the index buffer
+		glGenBuffers(1, &indexBufferId_);
+
+		// make the vertex arrat object active, create it if necessary
+		glBindVertexArray(vertexArrayId_);
 
 		// make the buffer the active array buffer, creating it if necessary
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
 
-		// upload the data into the active array buffer
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * vertexBuffer_.size(), &vertexBuffer_[0], GL_STATIC_DRAW);
+		// set the size of the active array buffer
+		// (target, size, data, usage)
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_vertexBufferCapacity_, 0, GL_DYNAMIC_DRAW);
 
-		// generate an id (name) for a new array
-		glGenVertexArrays(1, &vertexArrayId_);
-
-		// make the array avtive, create it if necessary
-		glBindVertexArray(vertexArrayId_);
+		int positionAttributeIndex = 0;
 
 		// attach the active buffer to the active array with the given attributes
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexBuffer_.size() * sizeof(float), (void*)0);
+		// index, size, type, normalized, stride, pointer)
+		glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)0);
 
-		// enable the vertex attribute
-		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(positionAttributeIndex);
+
+		// make the buffer the active element array buffer, create it if necessary
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+
+		// set the size of the active element array buffer
+		// (target, size, data, usage)
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, 0, GL_DYNAMIC_DRAW);
+
 
 		// unbind the array buffer and the vertex array
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		///glBindBuffer(GL_ARRAY_BUFFER, 0);
+		///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		///glBindVertexArray(0);
 	}
 
 	OpenGLRenderer::~OpenGLRenderer()
 	{
 		glDeleteBuffers(1, &vertexBufferId_);
 		glDeleteVertexArrays(1, &vertexArrayId_);
+		glDeleteVertexArrays(1, &indexBufferId_);
+
+		delete[] vertexBufferPtr_;
+		delete[] indexBufferPtr_;
+	}
+
+	void OpenGLRenderer::AddMesh(const Mesh* mesh)
+	{
+		glm::uint currentIndex = vertexBufferSize_;
+		
+		const std::vector<glm::vec3>& positions = mesh->positions;
+		
+		for (int i = 0; i < positions.size(); ++i)
+		{
+			VertexDataStruct newVertexData;
+			newVertexData.position.x = positions[i].x;
+			newVertexData.position.y = positions[i].y;
+			newVertexData.position.z = positions[i].z;
+			AddVertex(newVertexData);
+		}
+
+		const std::vector<std::vector<IndexGroup>>& faces = mesh->faces;
+
+		for (int i = 0; i < faces.size(); ++i)
+		{
+			for (int j = 0; j < faces[i].size(); ++j)
+			{
+				glm::uint indexValue = currentIndex + faces[i][j].positonIndex;
+				AddIndex(indexValue);
+			}
+		}
 	}
 
 	void OpenGLRenderer::Render()
 	{
+		// Bind buffers to make them active
+		///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
+		///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+
+		// upload the vertex data and index data into their respective buffers
+		// (target, offset, size, data)
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexDataStruct) * vertexBufferSize_, vertexBufferPtr_);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBufferSize_, indexBufferPtr_);
+		
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaderPtr_->Use();
 
-		glBindVertexArray(vertexArrayId_);
-		glDrawArrays(GL_TRIANGLES, 0, vertexBuffer_.size());
-
-		// glfwSwapBuffers happens in OpenGLWindow::OnUpdate()
+		/// glBindVertexArray(vertexArrayId_);
+		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
 	}
 
 	// protected ---------------------------------------------------------------
 
-	// private -----------------------------------------------------------------
+	const unsigned int OpenGLRenderer::s_vertexBufferCapacity_ = 99;
+	const unsigned int OpenGLRenderer::s_indexBufferCapacity_ = 99;
 
-	// Notes:
+	// NOTE:
 	// gl_Position is intended for writing the homogenous vertex position. It
 	// can be written at any time durring vertex shader execution. This value
 	// will be used by primitive assembly, clipping, culling and other fixed

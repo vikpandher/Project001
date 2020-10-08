@@ -5,6 +5,7 @@
 #include "Widget.h"
 #include "Logger.h"
 #include "Renderer.h"
+#include "Stores.h"
 #include "Window.h"
 
 #include "../Platform/OpenGLRenderer.h"
@@ -25,21 +26,23 @@ namespace Project001
 		windowPtr_ = new OpenGLWindow(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
+		storesPtr_ = new Stores();
+
 		rendererPtr_ = new OpenGLRenderer();
 	}
 
 	Application::~Application()
 	{
-		for (std::map<std::string, Widget*>::iterator iterator = widgetContainer_.begin(); iterator != widgetContainer_.end(); ++iterator)
+		for (std::map<std::string, Widget*>::iterator iterator = widgetMap_.begin(); iterator != widgetMap_.end(); ++iterator)
 		{
 			delete iterator->second;
 		}
-		widgetContainer_.clear();
+		widgetMap_.clear();
 	}
 
 	void Application::AddWidget(std::string widgetName, Widget* widgetPtr)
 	{
-		widgetContainer_.insert(std::make_pair(widgetName, widgetPtr));
+		widgetMap_.insert(std::make_pair(widgetName, widgetPtr));
 		widgetPtr->Initialize(this);
 	}
 
@@ -54,7 +57,7 @@ namespace Project001
 			double frameTimestep = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 
-			for (std::map<std::string, Widget*>::iterator widgetIterator = widgetContainer_.begin(); widgetIterator != widgetContainer_.end(); ++widgetIterator)
+			for (std::map<std::string, Widget*>::iterator widgetIterator = widgetMap_.begin(); widgetIterator != widgetMap_.end(); ++widgetIterator)
 			{
 				Widget* currentWidget = widgetIterator->second;
 				currentWidget->OnUpdate(frameTimestep);
@@ -68,7 +71,7 @@ namespace Project001
 
 	void Application::OnEvent(Event& event)
 	{		
-		for (std::map<std::string, Widget*>::reverse_iterator widgetIterator = widgetContainer_.rbegin(); widgetIterator != widgetContainer_.rend(); ++widgetIterator)
+		for (std::map<std::string, Widget*>::reverse_iterator widgetIterator = widgetMap_.rbegin(); widgetIterator != widgetMap_.rend(); ++widgetIterator)
 		{
 			Widget* currentWidget = widgetIterator->second;
 			currentWidget->OnEvent(event);

@@ -29,12 +29,15 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/EventUtilities.h"
-    "Src/Engine/Widget.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
+    "Src/Engine/ModelUtilities.h"
     "Src/Engine/Renderer.h"
+    "Src/Engine/Stores.cpp"
+    "Src/Engine/Stores.h"
     "Src/Engine/TimingUtilities.cpp"
     "Src/Engine/TimingUtilities.h"
+    "Src/Engine/Widget.h"
     "Src/Engine/Window.h"
 )
 

@@ -45,7 +45,7 @@ namespace Project001
 		glm::uint programId_;
 
 	private:
-		glm::uint createShader(glm::uint shaderType, const char** shaderSource);
+		glm::uint CreateShader(glm::uint shaderType, const char* shaderSource);
 		
 	};
 }
