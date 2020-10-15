@@ -178,9 +178,9 @@ namespace Project001
 						}
 
 						IndexGroup newindexGroup;
-						newindexGroup.positonIndex = std::stoi(indexGroupValues[0]);
-						newindexGroup.textureCoordinateIndex = std::stoi(indexGroupValues[1]);
-						newindexGroup.normalIndex = std::stoi(indexGroupValues[2]);
+						newindexGroup.positonIndex = std::stoi(indexGroupValues[0]) - 1; // indicies start at 1
+						newindexGroup.textureCoordinateIndex = std::stoi(indexGroupValues[1]) - 1;
+						newindexGroup.normalIndex = std::stoi(indexGroupValues[2]) - 1;
 
 						newFace.push_back(newindexGroup);
 					}

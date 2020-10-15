@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ModelUtilities.h"
+#include "Mesh.h"
 
 #include <map>
 #include <string>

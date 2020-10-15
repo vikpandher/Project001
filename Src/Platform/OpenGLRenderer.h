@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Engine/Renderer.h"
+//^includes "Mesh.h"
 
 
 
@@ -28,14 +29,22 @@ namespace Project001
 
 		void Render() override;
 
+		void SetViewMatrix(const glm::mat4& viewMatrix) override;
+
+		void SetProjectionMatrix(const glm::mat4& projectionMatrix) override;
+
 	///	void LoadModel(std::string modelName, std::vector<VertexDataStruct> vertexData, )
 
 	protected:
-		void AddVertex(VertexDataStruct& vertex);
+		void AddVertex(const VertexDataStruct& vertex);
 
-		void AddIndex(glm::uint& index);
+		void AddIndex(const glm::uint& index);
 
 		OpenGLShader* shaderPtr_;
+
+		glm::mat4 modelMatrix_;
+		glm::mat4 viewMatrix_;
+		glm::mat4 projectionMatrix_;
 
 		// this holds the buffer's id
 		// the buffer holds the blob of data that will be displayed
@@ -66,12 +75,12 @@ namespace Project001
 
 	// protected ---------------------------------------------------------------
 
-	inline void OpenGLRenderer::AddVertex(VertexDataStruct& vertex)
+	inline void OpenGLRenderer::AddVertex(const VertexDataStruct& vertex)
 	{
 		vertexBufferPtr_[vertexBufferSize_++] = vertex;
 	}
 
-	inline void OpenGLRenderer::AddIndex(glm::uint& index)
+	inline void OpenGLRenderer::AddIndex(const glm::uint& index)
 	{
 		indexBufferPtr_[indexBufferSize_++] = index;
 	}

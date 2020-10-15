@@ -1,12 +1,16 @@
+#include "Application.h"
+
 #include <functional>
 
-#include "Application.h"
 #include "EventUtilities.h"
-#include "Widget.h"
 #include "Logger.h"
 #include "Renderer.h"
+//^includes "Mesh.h"
 #include "Stores.h"
+//^includes "Mesh.h"
+#include "Widget.h"
 #include "Window.h"
+//^includes "EventUtilities.h"
 
 #include "../Platform/OpenGLRenderer.h"
 #include "../Platform/OpenGLWindow.h"

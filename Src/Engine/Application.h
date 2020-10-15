@@ -5,8 +5,6 @@
 
 
 
-struct GLFWwindow;
-
 namespace Project001
 {	
 	struct Event;

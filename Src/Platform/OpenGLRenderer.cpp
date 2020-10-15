@@ -1,6 +1,11 @@
 #include "OpenGLRenderer.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 #include "OpenGLShader.h"
+//^includes "glm/glm.hpp"
+
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "glad/glad.h"
 
@@ -15,7 +20,10 @@ namespace Project001
 	OpenGLRenderer::OpenGLRenderer()
 		: vertexBufferSize_(0)
 		, indexBufferSize_(0)
-	{
+		, modelMatrix_(1.0f)
+		, viewMatrix_(1.0f)
+		, projectionMatrix_(1.0f)
+	{		
 		// configure global opengl state
 		// ---------------------------------------------------------------------
 		// enable using the z buffer
@@ -26,6 +34,10 @@ namespace Project001
 
 		// draw as wireframe
 		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		// cull backfaces
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		shaderPtr_ = new OpenGLShader(s_vertexShaderSource01_, s_fragmentShaderSource01_);
 
@@ -43,7 +55,6 @@ namespace Project001
 		// There is an exception to this. Binding the GL_ELEMENT_ARRAY_BUFFER is
 		// saved to the current Vertex Array Object at the time it is bound. The
 		// VAO must be bound first.
-
 
 		// ---------------------------------------------------------------------
 		// generate an id (name) for a new vertex array object
@@ -63,7 +74,7 @@ namespace Project001
 
 		// set the size of the active array buffer
 		// (target, size, data, usage)
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_vertexBufferCapacity_, 0, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
 		int positionAttributeIndex = 0;
 
@@ -78,7 +89,7 @@ namespace Project001
 
 		// set the size of the active element array buffer
 		// (target, size, data, usage)
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, 0, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
 
 		// unbind the array buffer and the vertex array
@@ -134,14 +145,28 @@ namespace Project001
 		// (target, offset, size, data)
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexDataStruct) * vertexBufferSize_, vertexBufferPtr_);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBufferSize_, indexBufferPtr_);
-		
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaderPtr_->Use();
 
+		shaderPtr_->SetMat4("model", modelMatrix_);
+		shaderPtr_->SetMat4("view", viewMatrix_);
+		shaderPtr_->SetMat4("projection", projectionMatrix_);
+
 		/// glBindVertexArray(vertexArrayId_);
 		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
+	}
+
+	void OpenGLRenderer::SetViewMatrix(const glm::mat4& viewMatrix)
+	{
+		viewMatrix_ = viewMatrix;
+	}
+
+	void OpenGLRenderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+	{
+		projectionMatrix_ = projectionMatrix;
 	}
 
 	// protected ---------------------------------------------------------------
@@ -160,11 +185,15 @@ namespace Project001
 
 	layout (location = 0) in vec3 in_Position;
 
+	uniform mat4 model;
+	uniform mat4 view;
+	uniform mat4 projection;
+
 	out vec4 v_Color;
 
 	void main()
 	{   
-		gl_Position = vec4(in_Position, 1.0);
+		gl_Position = projection * view * model * vec4(in_Position, 1.0);
 		v_Color = vec4(in_Position, 1.0);
 	}
 	)";

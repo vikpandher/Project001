@@ -1,6 +1,12 @@
 #pragma once
 
+#include "glm/glm.hpp"
+
+#include "glm/gtc/quaternion.hpp"
+
 #include "Engine/Widget.h"
+
+#include "Engine/EventUtilities.h"
 
 #include <string>
 #include <map>
@@ -38,6 +44,48 @@ namespace Project001
 		Renderer* rendererPtr_;
 
 		std::map<std::string, Widget*>* widgetContainerPtr_;
+
+		// Camera
+		// ---------------------------------------------------------------------
+		glm::vec3 cameraPosition_;
+
+		glm::quat cameraOrientation_;
+
+		float fieldOfVisionDegrees_;
+		float aspectRatio_;
+		float nearCutOff_;
+		float farCutOff_;
+
+		// Input
+		// ---------------------------------------------------------------------
+		KeyCode moveForwardKeyCode_;
+		KeyCode moveBackKeyCode_;
+		KeyCode moveLeftKeyCode_;
+		KeyCode moveRightKeyCode_;
+		KeyCode moveUpKeyCode_;
+		KeyCode moveDownKeyCode_;
+
+		bool movingForward_;
+		bool movingLeft_;
+		bool movingRight_;
+		bool movingBack_;
+		bool movingUp_;
+		bool movingDown_;
+
+		MouseButton mouseButton1_;
+
+		bool mouseButton1Down_;
+
+		float lastCursorPositionX_;
+		float lastCursorPositionY_;
+		float cursorPositionX_;
+		float cursorPositionY_;
+
+		// World Coordinate System
+		// ---------------------------------------------------------------------
+		static glm::vec3 s_worldForward_;
+		static glm::vec3 s_worldUp_;
+		static glm::vec3 s_worldRight_;
         
 	private:
 		

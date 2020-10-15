@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Engine/ModelUtilities.h"
+#include "Mesh.h"
 
 
 
@@ -12,6 +12,10 @@ namespace Project001
 		virtual void AddMesh(const Mesh* mesh) = 0;
 
 		virtual void Render() = 0;
+
+		virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
+
+		virtual void SetProjectionMatrix(const glm::mat4& projectionMatrix) = 0;
 
 	protected:
 

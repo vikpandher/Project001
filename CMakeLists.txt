@@ -31,7 +31,7 @@ set(ENGINE_FILES
     "Src/Engine/EventUtilities.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
-    "Src/Engine/ModelUtilities.h"
+    "Src/Engine/Mesh.h"
     "Src/Engine/Renderer.h"
     "Src/Engine/Stores.cpp"
     "Src/Engine/Stores.h"
