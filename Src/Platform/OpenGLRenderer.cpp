@@ -77,12 +77,19 @@ namespace Project001
 		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
 		int positionAttributeIndex = 0;
+		int textureCoordinateAttributeIndex = 1;
+		int normalAttributeIndex = 2;
 
 		// attach the active buffer to the active array with the given attributes
 		// index, size, type, normalized, stride, pointer)
 		glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)0);
-
 		glEnableVertexAttribArray(positionAttributeIndex);
+
+		glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)(sizeof(glm::vec3)));
+		glEnableVertexAttribArray(textureCoordinateAttributeIndex);
+
+		glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+		glEnableVertexAttribArray(normalAttributeIndex);
 
 		// make the buffer the active element array buffer, create it if necessary
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
@@ -110,27 +117,22 @@ namespace Project001
 
 	void OpenGLRenderer::AddMesh(const Mesh* mesh)
 	{
-		glm::uint currentIndex = vertexBufferSize_;
-		
 		const std::vector<glm::vec3>& positions = mesh->positions;
-		
-		for (int i = 0; i < positions.size(); ++i)
-		{
-			VertexDataStruct newVertexData;
-			newVertexData.position.x = positions[i].x;
-			newVertexData.position.y = positions[i].y;
-			newVertexData.position.z = positions[i].z;
-			AddVertex(newVertexData);
-		}
-
+		const std::vector<glm::vec2>& textureCoordinates = mesh->textureCoordinates;
+		const std::vector<glm::vec3>& normals = mesh->normals;
 		const std::vector<std::vector<IndexGroup>>& faces = mesh->faces;
-
+		
 		for (int i = 0; i < faces.size(); ++i)
 		{
 			for (int j = 0; j < faces[i].size(); ++j)
 			{
-				glm::uint indexValue = currentIndex + faces[i][j].positonIndex;
-				AddIndex(indexValue);
+				const IndexGroup& face = faces[i][j];
+				VertexDataStruct newVertexData;
+				newVertexData.position = positions[face.positonIndex];
+				newVertexData.textureCoordinte = textureCoordinates[face.textureCoordinateIndex];
+				newVertexData.normal = normals[face.normalIndex];
+				AddIndex(vertexBufferSize_);
+				AddVertex(newVertexData);
 			}
 		}
 	}
@@ -154,6 +156,10 @@ namespace Project001
 		shaderPtr_->SetMat4("model", modelMatrix_);
 		shaderPtr_->SetMat4("view", viewMatrix_);
 		shaderPtr_->SetMat4("projection", projectionMatrix_);
+
+		shaderPtr_->SetFloat("ambientStrength", 0.5f);
+		shaderPtr_->SetVec3("lightPosition", glm::vec3(1.2f, 1.0f, 2.0f));
+		shaderPtr_->SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		/// glBindVertexArray(vertexArrayId_);
 		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
@@ -184,29 +190,53 @@ namespace Project001
 	const char* OpenGLRenderer::s_vertexShaderSource01_ = R"(#version 330 core
 
 	layout (location = 0) in vec3 in_Position;
+	layout (location = 1) in vec2 in_TextureCoordinate;
+	layout (location = 2) in vec3 in_Normal;
 
 	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
 
-	out vec4 v_Color;
+	out vec3 v_FragmentPosition;
+	out vec3 v_Normal;
 
 	void main()
 	{   
-		gl_Position = projection * view * model * vec4(in_Position, 1.0);
-		v_Color = vec4(in_Position, 1.0);
+		v_FragmentPosition = vec3(model * vec4(in_Position, 1.0));
+		v_Normal = in_Normal;
+
+		gl_Position = projection * view * vec4(v_FragmentPosition, 1.0);
 	}
 	)";
 
 	const char* OpenGLRenderer::s_fragmentShaderSource01_ = R"(#version 330 core
 
-	in vec4 v_Color;
+	in vec3 v_FragmentPosition;
+	in vec3 v_Normal;
+
+	uniform float ambientStrength;
+	uniform vec3 lightPosition; 
+	uniform vec3 lightColor;
 
 	layout (location = 0) out vec4 f_Color;
 
 	void main()
 	{
-		f_Color = v_Color;
+		// ambient
+		// ---------------------------------------------------------------------
+		vec3 ambientColor = ambientStrength * lightColor;
+
+		// diffuse
+		// ---------------------------------------------------------------------
+		vec3 lightDirection = normalize(lightPosition - v_FragmentPosition);
+		float diffuseStrength = max(dot(v_Normal, lightDirection), 0.0);
+		vec3 diffuseColor = diffuseStrength * lightColor;
+		
+		// result
+		// ---------------------------------------------------------------------
+		vec3 finalColor = ambientColor + diffuseColor;
+
+		f_Color = vec4(finalColor, 1.0);
 	} 
 	)";
 }

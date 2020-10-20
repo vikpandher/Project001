@@ -12,10 +12,10 @@ namespace Project001
 	struct VertexDataStruct
 	{
 		glm::vec3 position;
+		glm::vec2 textureCoordinte;
+		glm::vec3 normal;
 
-		/// glm::vec3 normal;
 		/// glm::vec4 color;
-		/// glm::vec2 textureCoordinte;
 		/// float textureIndex;
 	};
 	
