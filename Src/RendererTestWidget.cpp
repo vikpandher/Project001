@@ -65,6 +65,9 @@ namespace Project001
 
 		storesPtr_->LoadOBJFile("Cube", "../Models/Cube.obj");
 		rendererPtr_->AddMesh(storesPtr_->GetMesh("Cube"));
+
+		storesPtr_->LoadTextureFile("Cube", "../Textures/Cube.png");
+		rendererPtr_->AddTexture(storesPtr_->GetTexture("Cube"));
 	}
 
 	void RendererTestWidget::OnEvent(Event& event)
@@ -170,7 +173,7 @@ namespace Project001
 		// glm::vec3 directionUp = directionMatrix[1]; // up
 		// glm::vec3 directionForward = directionMatrix[2] * -1.0f; // forward
 		
-		float cameraSpeed = 2.5 * frameTimestep;
+		float cameraSpeed = 2.5f * (float)frameTimestep;
 
 		if (movingForward_)
 		{

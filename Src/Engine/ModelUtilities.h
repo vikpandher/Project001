@@ -15,11 +15,19 @@ namespace Project001
 		 glm::uint normalIndex;
 	};
 	
-	struct Mesh
+	struct MeshData
 	{
 		std::vector<glm::vec3> positions;
 		std::vector<glm::vec2> textureCoordinates;
 		std::vector<glm::vec3> normals;
 		std::vector<std::vector<IndexGroup>> faces;
+	};
+
+	struct TextureData
+	{
+		unsigned char* data;
+		int width;
+		int height;
+		int numberOfComponents; // alternativly bytes per pixel
 	};
 }

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../Engine/Renderer.h"
-//^includes "Mesh.h"
+//^includes "ModelUtilities.h.h"
 
 
 
 namespace Project001
 {
 	class OpenGLShader;
+	class OpenGLTexture;
 
 	struct VertexDataStruct
 	{
@@ -25,7 +26,9 @@ namespace Project001
 		OpenGLRenderer();
 		virtual ~OpenGLRenderer();
 
-		void AddMesh(const Mesh* mesh) override;
+		void AddMesh(const MeshData* meshData) override;
+
+		void AddTexture(const TextureData* textureData) override;
 
 		void Render() override;
 
@@ -41,6 +44,8 @@ namespace Project001
 		void AddIndex(const glm::uint& index);
 
 		OpenGLShader* shaderPtr_;
+
+		OpenGLTexture* texturePtr_;
 
 		glm::mat4 modelMatrix_;
 		glm::mat4 viewMatrix_;

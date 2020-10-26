@@ -5,6 +5,9 @@
 #include "OpenGLShader.h"
 //^includes "glm/glm.hpp"
 
+#include "OpenGLTexture.h"
+//^includes "glm/glm.hpp"
+
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "glad/glad.h"
@@ -18,7 +21,9 @@ namespace Project001
 	// public ------------------------------------------------------------------
 	
 	OpenGLRenderer::OpenGLRenderer()
-		: vertexBufferSize_(0)
+		: shaderPtr_(nullptr)
+		, texturePtr_(nullptr)
+		, vertexBufferSize_(0)
 		, indexBufferSize_(0)
 		, modelMatrix_(1.0f)
 		, viewMatrix_(1.0f)
@@ -107,6 +112,9 @@ namespace Project001
 
 	OpenGLRenderer::~OpenGLRenderer()
 	{
+		delete shaderPtr_;
+		delete texturePtr_;
+		
 		glDeleteBuffers(1, &vertexBufferId_);
 		glDeleteVertexArrays(1, &vertexArrayId_);
 		glDeleteVertexArrays(1, &indexBufferId_);
@@ -115,7 +123,7 @@ namespace Project001
 		delete[] indexBufferPtr_;
 	}
 
-	void OpenGLRenderer::AddMesh(const Mesh* mesh)
+	void OpenGLRenderer::AddMesh(const MeshData* mesh)
 	{
 		const std::vector<glm::vec3>& positions = mesh->positions;
 		const std::vector<glm::vec2>& textureCoordinates = mesh->textureCoordinates;
@@ -135,6 +143,11 @@ namespace Project001
 				AddVertex(newVertexData);
 			}
 		}
+	}
+
+	void OpenGLRenderer::AddTexture(const TextureData* textureData)
+	{
+		texturePtr_ = new OpenGLTexture(textureData->data, textureData->width, textureData->height, textureData->numberOfComponents);
 	}
 
 	void OpenGLRenderer::Render()
@@ -160,6 +173,10 @@ namespace Project001
 		shaderPtr_->SetFloat("ambientStrength", 0.5f);
 		shaderPtr_->SetVec3("lightPosition", glm::vec3(1.2f, 1.0f, 2.0f));
 		shaderPtr_->SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+
+		shaderPtr_->SetInt("texture0", 0);
+
+		texturePtr_->Bind(0);
 
 		/// glBindVertexArray(vertexArrayId_);
 		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
@@ -198,11 +215,13 @@ namespace Project001
 	uniform mat4 projection;
 
 	out vec3 v_FragmentPosition;
+	out vec2 v_TextureCoordinate;
 	out vec3 v_Normal;
 
 	void main()
 	{   
 		v_FragmentPosition = vec3(model * vec4(in_Position, 1.0));
+		v_TextureCoordinate = in_TextureCoordinate;
 		v_Normal = in_Normal;
 
 		gl_Position = projection * view * vec4(v_FragmentPosition, 1.0);
@@ -212,11 +231,15 @@ namespace Project001
 	const char* OpenGLRenderer::s_fragmentShaderSource01_ = R"(#version 330 core
 
 	in vec3 v_FragmentPosition;
+	in vec2 v_TextureCoordinate;
 	in vec3 v_Normal;
 
 	uniform float ambientStrength;
 	uniform vec3 lightPosition; 
 	uniform vec3 lightColor;
+
+	// The type of sample corresponds to the type of texture
+	uniform sampler2D texture0;
 
 	layout (location = 0) out vec4 f_Color;
 
@@ -236,7 +259,7 @@ namespace Project001
 		// ---------------------------------------------------------------------
 		vec3 finalColor = ambientColor + diffuseColor;
 
-		f_Color = vec4(finalColor, 1.0);
+		f_Color = texture(texture0, v_TextureCoordinate) * vec4(finalColor, 1.0);
 	} 
 	)";
 }

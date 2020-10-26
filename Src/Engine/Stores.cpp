@@ -4,6 +4,9 @@
 
 #include <fstream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 
 
 namespace Project001
@@ -12,21 +15,34 @@ namespace Project001
 
 	Stores::Stores()
 	{
-
+		// tell stb_image.h to flip loaded texture's on the y-axis.
+		stbi_set_flip_vertically_on_load(true);
 	}
 
 	Stores::~Stores()
 	{
-		for (std::map<std::string, Mesh*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
+		for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
 		{
 			delete iterator->second;
 		}
 		meshMap_.clear();
+
+		for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
+		{
+			stbi_image_free(iterator->second->data);
+			delete iterator->second;
+		}
+		textureMap_.clear();
 	}
 
-	Mesh* Stores::GetMesh(std::string name)
+	MeshData* Stores::GetMesh(std::string name)
 	{
 		return meshMap_[name];
+	}
+
+	TextureData* Stores::GetTexture(std::string name)
+	{
+		return textureMap_[name];
 	}
 
 	bool Stores::LoadOBJFile(std::string name, std::string path)
@@ -44,7 +60,7 @@ namespace Project001
 			return false;
 		}
 
-		Mesh* newMeshPtr = new Mesh();
+		MeshData* newMeshPtr = new MeshData();
 
 		std::string currentLine;
 		while (std::getline(file, currentLine))
@@ -191,6 +207,20 @@ namespace Project001
 		}
 
 		meshMap_.insert(std::make_pair(name, newMeshPtr));
+
+		return true;
+	}
+
+	bool Stores::LoadTextureFile(std::string name, std::string path)
+	{
+		TextureData* newTexturePtr = new TextureData();
+		newTexturePtr->data = stbi_load(path.c_str(), &newTexturePtr->width, &newTexturePtr->height, &newTexturePtr->numberOfComponents, 0);
+		if (!newTexturePtr)
+		{
+			return false;
+		}
+		
+		textureMap_.insert(std::make_pair(name, newTexturePtr));
 
 		return true;
 	}

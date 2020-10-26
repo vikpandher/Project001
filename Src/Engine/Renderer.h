@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "ModelUtilities.h"
 
 
 
@@ -9,7 +9,9 @@ namespace Project001
 	class Renderer
 	{
 	public:
-		virtual void AddMesh(const Mesh* mesh) = 0;
+		virtual void AddMesh(const MeshData* meshData) = 0;
+
+		virtual void AddTexture(const TextureData* textureData) = 0;
 
 		virtual void Render() = 0;
 
