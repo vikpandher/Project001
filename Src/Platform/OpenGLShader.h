@@ -47,5 +47,7 @@ namespace Project001
 	private:
 		glm::uint CreateShader(glm::uint shaderType, const char* shaderSource);
 		
+		void OutputActiveAttributesAndUniforms();
+		
 	};
 }

@@ -31,6 +31,8 @@ namespace Project001
 
 		glDeleteShader(vertexShaderId);
 		glDeleteShader(fragmentShaderId);
+
+		OutputActiveAttributesAndUniforms();
 	}
 
 	OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
@@ -163,6 +165,41 @@ namespace Project001
 			Project001::Logger::Error(infoLog);
 		}
 		return shaderId;
+	}
+
+	void OpenGLShader::OutputActiveAttributesAndUniforms()
+	{
+		GLint i;
+		GLint count;
+
+		GLint size; // size of the variable
+		GLenum type; // type of the variable (float, vec3 or mat4, etc)
+
+		const GLsizei bufSize = 16; // maximum name length
+		GLchar name[bufSize]; // variable name in GLSL
+		GLsizei length; // name length
+
+		// ATTRIBUTES
+		glGetProgramiv(programId_, GL_ACTIVE_ATTRIBUTES, &count);
+		Project001::Logger::Message("Active Attributes: %d", count);
+
+		for (i = 0; i < count; i++)
+		{
+			glGetActiveAttrib(programId_, (GLuint)i, bufSize, &length, &size, &type, name);
+
+			Project001::Logger::Message("Attribute #%d Type: %u Name: %s", i, type, name);
+		}
+
+		// UNIFORMS
+		glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
+		Project001::Logger::Message("Active Uniforms: %d", count);
+
+		for (i = 0; i < count; i++)
+		{
+			glGetActiveUniform(programId_, (GLuint)i, bufSize, &length, &size, &type, name);
+
+			Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
+		}
 	}
 
 }
