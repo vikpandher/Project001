@@ -11,7 +11,7 @@ namespace Project001
 	public:
 		virtual void AddMesh(const MeshData* meshData) = 0;
 
-		virtual void AddTexture(const TextureData* textureData) = 0;
+		virtual void AddTexture(const TextureData* textureData, glm::u32 index) = 0;
 
 		virtual void Render() = 0;
 

@@ -9,7 +9,7 @@ namespace Project001
 	class OpenGLTexture
 	{
 	public:
-		OpenGLTexture(const unsigned char* data, int width, int height, unsigned int numberOfComponents);
+		OpenGLTexture(unsigned int index, const unsigned char* data, int width, int height, unsigned int numberOfComponents);
 
 		~OpenGLTexture();
 

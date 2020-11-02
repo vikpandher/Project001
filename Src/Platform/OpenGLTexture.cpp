@@ -8,9 +8,10 @@ namespace Project001
 {
 	// public ------------------------------------------------------------------
 	
-	OpenGLTexture::OpenGLTexture(const unsigned char* data, int width, int height, unsigned int numberOfComponents)
+	OpenGLTexture::OpenGLTexture(unsigned int index, const unsigned char* data, int width, int height, unsigned int numberOfComponents)
 	{
 		glGenTextures(1, &textureId_);
+		glActiveTexture(GL_TEXTURE0 + index);
 		glBindTexture(GL_TEXTURE_2D, textureId_);
 
 		glm::uint format = 0;

@@ -67,7 +67,16 @@ namespace Project001
 		rendererPtr_->AddMesh(storesPtr_->GetMesh("Cube"));
 
 		storesPtr_->LoadTextureFile("Cube", "../Textures/Cube.png");
-		rendererPtr_->AddTexture(storesPtr_->GetTexture("Cube"));
+		rendererPtr_->AddTexture(storesPtr_->GetTexture("Cube"), 0);
+
+		storesPtr_->LoadTextureFile("CounterclockwiseDie", "../Textures/CounterclockwiseDie.png");
+		rendererPtr_->AddTexture(storesPtr_->GetTexture("CounterclockwiseDie"), 1);
+
+		storesPtr_->LoadTextureFile("RubiksCube", "../Textures/RubiksCube.png");
+		rendererPtr_->AddTexture(storesPtr_->GetTexture("RubiksCube"), 2);
+
+		storesPtr_->LoadTextureFile("NumberDie", "../Textures/NumberDie.png");
+		rendererPtr_->AddTexture(storesPtr_->GetTexture("NumberDie"), 3);
 	}
 
 	void RendererTestWidget::OnEvent(Event& event)

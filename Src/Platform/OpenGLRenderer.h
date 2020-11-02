@@ -3,6 +3,9 @@
 #include "../Engine/Renderer.h"
 //^includes "ModelUtilities.h.h"
 
+#include <map>
+#include <string>
+
 
 
 namespace Project001
@@ -13,11 +16,10 @@ namespace Project001
 	struct VertexDataStruct
 	{
 		glm::vec3 position;
-		glm::vec2 textureCoordinte;
 		glm::vec3 normal;
 		glm::vec4 color;
-
-		/// float textureIndex;
+		glm::vec2 textureCoordinte;
+		glm::int32 textureIndex;
 	};
 	
 	class OpenGLRenderer : public Renderer
@@ -28,7 +30,7 @@ namespace Project001
 
 		void AddMesh(const MeshData* meshData) override;
 
-		void AddTexture(const TextureData* textureData) override;
+		void AddTexture(const TextureData* textureData, glm::u32 index) override;
 
 		void Render() override;
 
@@ -45,7 +47,7 @@ namespace Project001
 
 		OpenGLShader* shaderPtr_;
 
-		OpenGLTexture* texturePtr_;
+		OpenGLTexture* texturePtrs_[16];
 
 		glm::mat4 modelMatrix_;
 		glm::mat4 viewMatrix_;
