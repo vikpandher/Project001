@@ -19,7 +19,9 @@ namespace Project001
 		glm::vec3 normal;
 		glm::vec4 color;
 		glm::vec2 textureCoordinte;
-		glm::int32 textureIndex;
+		float textureIndex;
+		glm::vec3 translation;
+		glm::quat orientation;
 	};
 	
 	class OpenGLRenderer : public Renderer
@@ -29,6 +31,8 @@ namespace Project001
 		virtual ~OpenGLRenderer();
 
 		void AddMesh(const MeshData* meshData) override;
+
+		void AddModel(const ModelData* modelData) override;
 
 		void AddTexture(const TextureData* textureData, glm::u32 index) override;
 

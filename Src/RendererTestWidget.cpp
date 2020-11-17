@@ -2,7 +2,6 @@
 #include "RendererTestWidget.h"
 
 #include "glm/gtc/constants.hpp" // need for pi
-#include "glm/gtc/quaternion.hpp"
 
 #include "Engine/Application.h"
 #include "Engine/Logger.h"
@@ -21,24 +20,24 @@ namespace Project001
 		, storesPtr_(nullptr)
 		, rendererPtr_(nullptr)
 		, widgetContainerPtr_(nullptr)
-		, cameraPosition_(glm::vec3(0.0f, 0.0f, 3.0f))
+		, cameraPosition_(glm::vec3(0.0f, 0.0f, 5.0f))
 		, cameraOrientation_(1.0f, 0.0f, 0.0f, 0.0f)
 		, fieldOfVisionDegrees_(45.0f)
 		, aspectRatio_(1.0f)
 		, nearCutOff_(0.1f)
 		, farCutOff_(100.0f)
-		, moveForwardKeyCode_(KeyCode::KEY_CODE_Q)
-		, moveBackKeyCode_(KeyCode::KEY_CODE_E)
 		, moveLeftKeyCode_(KeyCode::KEY_CODE_A)
 		, moveRightKeyCode_(KeyCode::KEY_CODE_D)
 		, moveUpKeyCode_(KeyCode::KEY_CODE_W)
 		, moveDownKeyCode_(KeyCode::KEY_CODE_S)
-		, movingForward_(false)
+		, rollLeftKeyCode_(KeyCode::KEY_CODE_Q)
+		, rollRightKeyCode_(KeyCode::KEY_CODE_E)
 		, movingLeft_(false)
 		, movingRight_(false)
-		, movingBack_(false)
 		, movingUp_(false)
 		, movingDown_(false)
+		, rollingLeft_(false)
+		, rollingRight_(false)
 		, mouseButton1_(MouseButton::MOUSE_BUTTON_RIGHT)
 		, mouseButton1Down_(false)
 		, lastCursorPositionX_(0.0f)
@@ -64,7 +63,7 @@ namespace Project001
 		aspectRatio_ = (float)applicationPtr->windowWidth_ / (float)applicationPtr->windowHeight_;
 
 		storesPtr_->LoadOBJFile("Cube", "../Models/Cube.obj");
-		rendererPtr_->AddMesh(storesPtr_->GetMesh("Cube"));
+		//rendererPtr_->AddMesh(storesPtr_->GetMesh("Cube"));
 
 		storesPtr_->LoadTextureFile("Cube", "../Textures/Cube.png");
 		rendererPtr_->AddTexture(storesPtr_->GetTexture("Cube"), 0);
@@ -77,6 +76,34 @@ namespace Project001
 
 		storesPtr_->LoadTextureFile("NumberDie", "../Textures/NumberDie.png");
 		rendererPtr_->AddTexture(storesPtr_->GetTexture("NumberDie"), 3);
+
+		ModelData testModel;
+		testModel.meshDataPtr_ = storesPtr_->GetMesh("Cube");
+		testModel.color_ = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+		testModel.textureIndex_ = -1.0f;
+		testModel.position_ = glm::vec3(0.0f, 0.0f, 0.0f);
+		testModel.orientation_ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		rendererPtr_->AddModel(&testModel);
+
+		testModel.color_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		testModel.textureIndex_ = 0.0f;
+		testModel.position_ = glm::vec3(0.0f, 1.0f, 0.0f);
+		rendererPtr_->AddModel(&testModel);
+
+		testModel.textureIndex_ = 1.0f;
+		testModel.position_ = glm::vec3(1.0f, 0.0f, 0.0f);
+		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldUp_);
+		rendererPtr_->AddModel(&testModel);
+
+		testModel.textureIndex_ = 2.0f;
+		testModel.position_ = glm::vec3(0.0f, -1.0f, 0.0f);
+		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldRight_);
+		rendererPtr_->AddModel(&testModel);
+		
+		testModel.textureIndex_ = 3.0f;
+		testModel.position_ = glm::vec3(-1.0f, 0.0f, 0.0f);
+		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldForward_);
+		rendererPtr_->AddModel(&testModel);
 	}
 
 	void RendererTestWidget::OnEvent(Event& event)
@@ -95,9 +122,9 @@ namespace Project001
 				actionValue_ = true;
 			}
 
-			if (keyEvent.keyCode == moveForwardKeyCode_)
+			if (keyEvent.keyCode == rollLeftKeyCode_)
 			{
-				movingForward_ = actionValue_;
+				rollingLeft_ = actionValue_;
 			}
 			else if (keyEvent.keyCode == moveLeftKeyCode_)
 			{
@@ -107,9 +134,9 @@ namespace Project001
 			{
 				movingRight_ = actionValue_;
 			}
-			else if (keyEvent.keyCode == moveBackKeyCode_)
+			else if (keyEvent.keyCode == rollRightKeyCode_)
 			{
-				movingBack_ = actionValue_;
+				rollingRight_ = actionValue_;
 			}
 			else if (keyEvent.keyCode == moveUpKeyCode_)
 			{
@@ -148,15 +175,15 @@ namespace Project001
 
 			if (mouseButton1Down_)
 			{
-				float xoffset = cursorPositionX_ - lastCursorPositionX_;
-				float yoffset = lastCursorPositionY_ - cursorPositionY_; // reversed since y-coordinates go from bottom to top
+				float xOffset = cursorPositionX_ - lastCursorPositionX_;
+				float yOffset = lastCursorPositionY_ - cursorPositionY_; // reversed since y-coordinates go from bottom to top
 
 				float sensitivity = 0.005f;
-				xoffset *= sensitivity;
-				yoffset *= sensitivity;
+				xOffset *= sensitivity;
+				yOffset *= sensitivity;
 
-				float cameraYaw_ = xoffset;
-				float cameraPitch_ = yoffset;
+				float cameraYaw_ = xOffset;
+				float cameraPitch_ = yOffset;
 
 				glm::vec3 cameraUp = s_worldUp_ * cameraOrientation_;
 				glm::vec3 cameraRight = s_worldRight_ * cameraOrientation_;
@@ -166,6 +193,21 @@ namespace Project001
 			}
 			lastCursorPositionX_ = cursorPositionX_;
 			lastCursorPositionY_ = cursorPositionY_;
+		}
+		else if (event.GetEventType() == EventType::EVENT_TYPE_SCROLL)
+		{
+			ScrollEvent scrollEvent = dynamic_cast<ScrollEvent&>(event);
+
+			float xOffset = scrollEvent.xOffset;
+			float yOffset = scrollEvent.yOffset;
+				
+			float sensitivity = 0.25f;
+			xOffset *= sensitivity;
+			yOffset *= sensitivity;
+
+			glm::vec3 cameraForward = s_worldForward_ * cameraOrientation_;
+
+			cameraPosition_ += yOffset * cameraForward;
 		}
 	}
 
@@ -182,35 +224,36 @@ namespace Project001
 		// glm::vec3 directionUp = directionMatrix[1]; // up
 		// glm::vec3 directionForward = directionMatrix[2] * -1.0f; // forward
 		
-		float cameraSpeed = 2.5f * (float)frameTimestep;
-
-		if (movingForward_)
-		{
-			cameraPosition_ += cameraSpeed * directionForward;
-		}
-		if (movingBack_)
-		{
-			cameraPosition_ -= cameraSpeed * directionForward;
-		}
+		float cameraTranslationSpeed = 2.5f * (float)frameTimestep;
+		float cameraRotationSpeed = 2.5f * (float)frameTimestep;
 
 		if (movingLeft_)
 		{
-			cameraPosition_ -= cameraSpeed * directionRight;
+			cameraPosition_ -= cameraTranslationSpeed * directionRight;
 		}
 
 		if (movingRight_)
 		{
-			cameraPosition_ += cameraSpeed * directionRight;
+			cameraPosition_ += cameraTranslationSpeed * directionRight;
 		}
 
 		if (movingUp_)
 		{
-			cameraPosition_ += cameraSpeed * directionUp;
+			cameraPosition_ += cameraTranslationSpeed * directionUp;
 		}
 
 		if (movingDown_)
 		{
-			cameraPosition_ -= cameraSpeed * directionUp;
+			cameraPosition_ -= cameraTranslationSpeed * directionUp;
+		}
+
+		if (rollingLeft_)
+		{
+			cameraOrientation_ = glm::rotate(cameraOrientation_, cameraRotationSpeed, directionForward);
+		}
+		if (rollingRight_)
+		{
+			cameraOrientation_ = glm::rotate(cameraOrientation_, -1.0f * cameraRotationSpeed, directionForward);
 		}
 		
 		glm::mat4 viewMatrix = glm::mat4(rotationMatrix);

@@ -26,6 +26,10 @@ namespace Project001
 
 		bool LoadTextureFile(std::string name, std::string path);
 
+		void ClearMeshes();
+
+		void ClearTextures();
+
 	protected:
 		std::string GetFirstToken(const std::string& input) const;
 

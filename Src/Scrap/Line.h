@@ -2,6 +2,8 @@
 
 #include "glm/glm.hpp"
 
+#include "ModelUtilities.h"
+
 #include <vector>
 
 
@@ -17,11 +19,19 @@ namespace Project001
 		Line(Line& other) = delete;
 		void operator=(const Line&) = delete;
 
-		void addVertex(glm::vec3 vertex);
+		void AddVertex(glm::vec3 vertex);
+
+		void ClearVertices();
+
+		void SetColor(glm::vec4 color);
 
 	protected:
+		void GeneratreMesh();
+
 		std::vector<glm::vec3> verticies_;
-		std::vector<glm::vec3> triangleVerticies_;
+		glm::vec4 color_;
+
+		MeshData* meshDataPtr_;
 
 	private:
 		

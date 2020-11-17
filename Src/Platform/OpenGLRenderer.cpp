@@ -1,7 +1,5 @@
 #include "OpenGLRenderer.h"
 
-#include "glm/gtc/quaternion.hpp"
-
 #include "OpenGLShader.h"
 //^includes "glm/glm.hpp"
 
@@ -89,6 +87,8 @@ namespace Project001
 		GLuint colorAttributeIndex = 2;
 		GLuint textureCoordinateAttributeIndex = 3;
 		GLuint textureIndexAttributeIndex = 4;
+		GLuint translationAttributeIndex = 5;
+		GLuint orientationAttributeIndex = 6;
 
 		unsigned long long attributeOffset = 0;
 
@@ -108,9 +108,17 @@ namespace Project001
 		glEnableVertexAttribArray(textureCoordinateAttributeIndex);
 		attributeOffset += sizeof(glm::vec2);
 
-		glVertexAttribPointer(textureIndexAttributeIndex, 1, GL_INT, GL_FALSE, sizeof(VertexDataStruct), (void*)attributeOffset);
+		glVertexAttribPointer(textureIndexAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)attributeOffset);
 		glEnableVertexAttribArray(textureIndexAttributeIndex);
-		// attributeOffset += sizeof(glm::int32);
+		attributeOffset += sizeof(float);
+
+		glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)attributeOffset);
+		glEnableVertexAttribArray(translationAttributeIndex);
+		attributeOffset += sizeof(glm::vec3);
+
+		glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexDataStruct), (void*)attributeOffset);
+		glEnableVertexAttribArray(orientationAttributeIndex);
+		// attributeOffset += sizeof(glm::quat);
 
 		// make the buffer the active element array buffer, create it if necessary
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
@@ -157,12 +165,12 @@ namespace Project001
 		delete[] indexBufferPtr_;
 	}
 
-	void OpenGLRenderer::AddMesh(const MeshData* mesh)
+	void OpenGLRenderer::AddMesh(const MeshData* meshData)
 	{
-		const std::vector<glm::vec3>& positions = mesh->positions;
-		const std::vector<glm::vec2>& textureCoordinates = mesh->textureCoordinates;
-		const std::vector<glm::vec3>& normals = mesh->normals;
-		const std::vector<std::vector<IndexGroup>>& faces = mesh->faces;
+		const std::vector<glm::vec3>& positions = meshData->positions;
+		const std::vector<glm::vec2>& textureCoordinates = meshData->textureCoordinates;
+		const std::vector<glm::vec3>& normals = meshData->normals;
+		const std::vector<std::vector<IndexGroup>>& faces = meshData->faces;
 		
 		for (int i = 0; i < faces.size(); ++i)
 		{
@@ -174,6 +182,41 @@ namespace Project001
 				newVertexData.textureCoordinte = textureCoordinates[face.textureCoordinateIndex];
 				newVertexData.normal = normals[face.normalIndex];
 				newVertexData.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				newVertexData.textureIndex = -1.0f;
+				newVertexData.translation = glm::vec3(0.0f, 0.0f, 0.0f);
+				newVertexData.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+				AddIndex(vertexBufferSize_);
+				AddVertex(newVertexData);
+			}
+		}
+	}
+
+	void OpenGLRenderer::AddModel(const ModelData* modelData)
+	{
+		const MeshData* meshData = modelData->meshDataPtr_;
+		const std::vector<glm::vec3>& positions = meshData->positions;
+		const std::vector<glm::vec2>& textureCoordinates = meshData->textureCoordinates;
+		const std::vector<glm::vec3>& normals = meshData->normals;
+		const std::vector<std::vector<IndexGroup>>& faces = meshData->faces;
+
+		const glm::vec4 color = modelData->color_;
+		const float textureIndex = modelData->textureIndex_;
+		const glm::vec3 translation = modelData->position_;
+		const glm::quat orientation = modelData->orientation_;
+
+		for (int i = 0; i < faces.size(); ++i)
+		{
+			for (int j = 0; j < faces[i].size(); ++j)
+			{
+				const IndexGroup& face = faces[i][j];
+				VertexDataStruct newVertexData;
+				newVertexData.position = positions[face.positonIndex];
+				newVertexData.textureCoordinte = textureCoordinates[face.textureCoordinateIndex];
+				newVertexData.normal = normals[face.normalIndex];
+				newVertexData.color = color;
+				newVertexData.textureIndex = textureIndex;
+				newVertexData.translation = translation;
+				newVertexData.orientation = orientation;
 				AddIndex(vertexBufferSize_);
 				AddVertex(newVertexData);
 			}
@@ -211,8 +254,8 @@ namespace Project001
 		shaderPtr_->SetMat4("view", viewMatrix_);
 		shaderPtr_->SetMat4("projection", projectionMatrix_);
 
-		shaderPtr_->SetFloat("ambientStrength", 0.5f);
-		shaderPtr_->SetVec3("lightPosition", glm::vec3(1.2f, 1.0f, 2.0f));
+		shaderPtr_->SetFloat("ambientStrength", 0.05f);
+		shaderPtr_->SetVec3("lightPosition", glm::vec3(1.5f, 1.0f, 2.0f));
 		shaderPtr_->SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		/// glBindVertexArray(vertexArrayId_);
@@ -231,8 +274,8 @@ namespace Project001
 
 	// protected ---------------------------------------------------------------
 
-	const unsigned int OpenGLRenderer::s_vertexBufferCapacity_ = 99;
-	const unsigned int OpenGLRenderer::s_indexBufferCapacity_ = 99;
+	const unsigned int OpenGLRenderer::s_vertexBufferCapacity_ = 36 * 5;
+	const unsigned int OpenGLRenderer::s_indexBufferCapacity_ = 36 * 5;
 
 	// NOTE:
 	// gl_Position is intended for writing the homogenous vertex position. It
@@ -247,7 +290,9 @@ namespace Project001
 	layout (location = 1) in vec3 in_Normal;
 	layout (location = 2) in vec4 in_Color;
 	layout (location = 3) in vec2 in_TextureCoordinate;
-	layout (location = 4) in int in_TextureIndex;
+	layout (location = 4) in float in_TextureIndex;
+	layout (location = 5) in vec3 in_Translation;
+	layout (location = 6) in vec4 in_Orientation;
 
 	uniform mat4 model;
 	uniform mat4 view;
@@ -257,14 +302,21 @@ namespace Project001
 	out vec3 v_Normal;
 	out vec4 v_Color;
 	out vec2 v_TextureCoordinate;
-	out int v_TextureIndex;
+	flat out float v_TextureIndex;
 
 	void main()
 	{   
-		v_FragmentPosition = vec3(model * vec4(in_Position, 1.0));
-		v_Normal = in_Normal;
+		vec3 temp = 2 * cross(in_Orientation.xyz, in_Position);
+		v_FragmentPosition = in_Position + in_Orientation.q * temp + cross(in_Orientation.xyz, temp);
+		v_FragmentPosition += in_Translation;
+
+		temp = 2 * cross(in_Orientation.xyz, in_Normal);
+		v_Normal = in_Normal + in_Orientation.q * temp + cross(in_Orientation.xyz, temp);
+
 		v_Color = in_Color;
+
 		v_TextureCoordinate = in_TextureCoordinate;
+
 		v_TextureIndex = in_TextureIndex;
 
 		gl_Position = projection * view * vec4(v_FragmentPosition, 1.0);
@@ -277,7 +329,7 @@ namespace Project001
 	in vec3 v_Normal;
 	in vec4 v_Color;
 	in vec2 v_TextureCoordinate;
-	in int v_TextureIndex;
+	flat in float v_TextureIndex;
 
 	uniform float ambientStrength;
 	uniform vec3 lightPosition; 
@@ -314,26 +366,87 @@ namespace Project001
 		vec3 lightDirection = normalize(lightPosition - v_FragmentPosition);
 		float diffuseStrength = max(dot(v_Normal, lightDirection), 0.0);
 		vec3 diffuseColor = diffuseStrength * lightColor;
+
+		// texture
+		// ---------------------------------------------------------------------
+		vec4 textureColor;
+		if (v_TextureIndex < -0.5)
+		{
+			textureColor = vec4(1.0, 1.0, 1.0, 1.0);
+		}
+		else if (v_TextureIndex < 0.5)
+		{
+			textureColor = texture(texture00, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 1.5)
+		{
+			textureColor = texture(texture01, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 2.5)
+		{
+			textureColor = texture(texture02, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 3.5)
+		{
+			textureColor = texture(texture03, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 4.5)
+		{
+			textureColor = texture(texture04, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 5.5)
+		{
+			textureColor = texture(texture05, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 6.5)
+		{
+			textureColor = texture(texture06, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 7.5)
+		{
+			textureColor = texture(texture07, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex < 8.5)
+		{
+			textureColor = texture(texture08, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 9)
+		{
+			textureColor = texture(texture09, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 10)
+		{
+			textureColor = texture(texture10, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 11)
+		{
+			textureColor = texture(texture11, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 12)
+		{
+			textureColor = texture(texture12, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 13)
+		{
+			textureColor = texture(texture13, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 14)
+		{
+			textureColor = texture(texture14, v_TextureCoordinate);
+		}
+		else if (v_TextureIndex == 15)
+		{
+			textureColor = texture(texture15, v_TextureCoordinate);
+		}
+		else
+		{
+			textureColor = vec4(0.0, 0.0, 0.0, 1.0);
+		}
 		
 		// result
 		// ---------------------------------------------------------------------
-		vec3 finalColor = ambientColor + diffuseColor;
-		if (v_FragmentPosition.x >= 0 && v_FragmentPosition.y >= 0)
-		{
-			f_Color = texture(texture00, v_TextureCoordinate) * vec4(finalColor, 1.0) * v_Color;
-		}
-		else if (v_FragmentPosition.x < 0 && v_FragmentPosition.y >= 0)
-		{
-			f_Color = texture(texture01, v_TextureCoordinate) * vec4(finalColor, 1.0) * v_Color;
-		}
-		else if (v_FragmentPosition.x >= 0 && v_FragmentPosition.y < 0)
-		{
-			f_Color = texture(texture02, v_TextureCoordinate) * vec4(finalColor, 1.0) * v_Color;
-		}
-		else if (v_FragmentPosition.x < 0 && v_FragmentPosition.y < 0)
-		{
-			f_Color = texture(texture03, v_TextureCoordinate) * vec4(finalColor, 1.0) * v_Color;
-		}
+
+		f_Color = textureColor * vec4(ambientColor + diffuseColor, 1.0f) * v_Color;
 	} 
 	)";
 }

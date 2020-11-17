@@ -21,18 +21,9 @@ namespace Project001
 
 	Stores::~Stores()
 	{
-		for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
-		{
-			delete iterator->second;
-		}
-		meshMap_.clear();
+		ClearMeshes();
 
-		for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
-		{
-			stbi_image_free(iterator->second->data);
-			delete iterator->second;
-		}
-		textureMap_.clear();
+		ClearTextures();
 	}
 
 	MeshData* Stores::GetMesh(std::string name)
@@ -223,6 +214,25 @@ namespace Project001
 		textureMap_.insert(std::make_pair(name, newTexturePtr));
 
 		return true;
+	}
+
+	void Stores::ClearMeshes()
+	{
+		for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
+		{
+			delete iterator->second;
+		}
+		meshMap_.clear();
+	}
+
+	void Stores::ClearTextures()
+	{
+		for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
+		{
+			stbi_image_free(iterator->second->data);
+			delete iterator->second;
+		}
+		textureMap_.clear();
 	}
 
 	// protected: --------------------------------------------------------------

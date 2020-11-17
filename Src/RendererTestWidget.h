@@ -58,19 +58,19 @@ namespace Project001
 
 		// Input
 		// ---------------------------------------------------------------------
-		KeyCode moveForwardKeyCode_;
-		KeyCode moveBackKeyCode_;
 		KeyCode moveLeftKeyCode_;
 		KeyCode moveRightKeyCode_;
 		KeyCode moveUpKeyCode_;
 		KeyCode moveDownKeyCode_;
+		KeyCode rollLeftKeyCode_;
+		KeyCode rollRightKeyCode_;
 
-		bool movingForward_;
 		bool movingLeft_;
 		bool movingRight_;
-		bool movingBack_;
 		bool movingUp_;
 		bool movingDown_;
+		bool rollingLeft_;
+		bool rollingRight_;
 
 		MouseButton mouseButton1_;
 
