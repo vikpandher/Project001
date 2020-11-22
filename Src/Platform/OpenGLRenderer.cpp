@@ -20,12 +20,13 @@ namespace Project001
 	
 	OpenGLRenderer::OpenGLRenderer()
 		: shaderPtr_(nullptr)
-		, texturePtrs_{nullptr}
+		, texturePtrs_{ nullptr }
 		, vertexBufferSize_(0)
 		, indexBufferSize_(0)
-		, modelMatrix_(1.0f)
 		, viewMatrix_(1.0f)
 		, projectionMatrix_(1.0f)
+		, ambiantLightStrength_(0.05f)
+		, ambiantLightColor_(1.0f, 1.0f, 1.0f)
 	{		
 		// configure global opengl state
 		// ---------------------------------------------------------------------
@@ -134,22 +135,15 @@ namespace Project001
 
 		shaderPtr_->Use();
 
-		shaderPtr_->SetInt("texture00", 0);
-		shaderPtr_->SetInt("texture01", 1);
-		shaderPtr_->SetInt("texture02", 2);
-		shaderPtr_->SetInt("texture03", 3);
-		shaderPtr_->SetInt("texture04", 4);
-		shaderPtr_->SetInt("texture05", 5);
-		shaderPtr_->SetInt("texture06", 6);
-		shaderPtr_->SetInt("texture07", 7);
-		shaderPtr_->SetInt("texture08", 8);
-		shaderPtr_->SetInt("texture09", 9);
-		shaderPtr_->SetInt("texture10", 10);
-		shaderPtr_->SetInt("texture11", 11);
-		shaderPtr_->SetInt("texture12", 12);
-		shaderPtr_->SetInt("texture13", 13);
-		shaderPtr_->SetInt("texture14", 14);
-		shaderPtr_->SetInt("texture15", 15);
+
+		for (int i = 0; i < s_numberOfTextureSlots_; ++i)
+		{
+			std::string uniformName;
+			uniformName.append("textures[");
+			uniformName.append(std::to_string(i));
+			uniformName.append("]");
+			shaderPtr_->SetInt(uniformName.c_str(), i);
+		}
 	}
 
 	OpenGLRenderer::~OpenGLRenderer()
@@ -250,16 +244,26 @@ namespace Project001
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shaderPtr_->SetMat4("model", modelMatrix_);
 		shaderPtr_->SetMat4("view", viewMatrix_);
 		shaderPtr_->SetMat4("projection", projectionMatrix_);
 
-		shaderPtr_->SetFloat("ambientStrength", 0.05f);
-		shaderPtr_->SetVec3("lightPosition", glm::vec3(1.5f, 1.0f, 2.0f));
-		shaderPtr_->SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		shaderPtr_->SetVec3("ambientLightColor", ambiantLightColor_);
+		shaderPtr_->SetFloat("ambientLightStrength", ambiantLightStrength_);
+		shaderPtr_->SetVec3("pointLightPosition", glm::vec3(1.5f, 1.0f, 2.0f));
+		shaderPtr_->SetVec3("pointLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		/// glBindVertexArray(vertexArrayId_);
 		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
+	}
+
+	void OpenGLRenderer::SetAbiantLightColor(const glm::vec3& ambiantLightColor)
+	{
+		ambiantLightColor_ = ambiantLightColor;
+	}
+
+	void OpenGLRenderer::SetAmbiantLightStrength(float ambiantLightStrength)
+	{
+		ambiantLightStrength_ = ambiantLightStrength;
 	}
 
 	void OpenGLRenderer::SetViewMatrix(const glm::mat4& viewMatrix)
@@ -273,9 +277,6 @@ namespace Project001
 	}
 
 	// protected ---------------------------------------------------------------
-
-	const unsigned int OpenGLRenderer::s_vertexBufferCapacity_ = 36 * 5;
-	const unsigned int OpenGLRenderer::s_indexBufferCapacity_ = 36 * 5;
 
 	// NOTE:
 	// gl_Position is intended for writing the homogenous vertex position. It
@@ -294,7 +295,6 @@ namespace Project001
 	layout (location = 5) in vec3 in_Translation;
 	layout (location = 6) in vec4 in_Orientation;
 
-	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
 
@@ -330,28 +330,15 @@ namespace Project001
 	in vec4 v_Color;
 	in vec2 v_TextureCoordinate;
 	flat in float v_TextureIndex;
+	
+	uniform vec3 ambientLightColor;
+	uniform float ambientLightStrength;
 
-	uniform float ambientStrength;
-	uniform vec3 lightPosition; 
-	uniform vec3 lightColor;
+	uniform vec3 pointLightPosition; 
+	uniform vec3 pointLightColor;
 
 	// The type of sample corresponds to the type of texture
-	uniform sampler2D texture00;
-	uniform sampler2D texture01;
-	uniform sampler2D texture02;
-	uniform sampler2D texture03;
-	uniform sampler2D texture04;
-	uniform sampler2D texture05;
-	uniform sampler2D texture06;
-	uniform sampler2D texture07;
-	uniform sampler2D texture08;
-	uniform sampler2D texture09;
-	uniform sampler2D texture10;
-	uniform sampler2D texture11;
-	uniform sampler2D texture12;
-	uniform sampler2D texture13;
-	uniform sampler2D texture14;
-	uniform sampler2D texture15;
+	uniform sampler2D textures[16];
 
 	layout (location = 0) out vec4 f_Color;
 
@@ -359,13 +346,13 @@ namespace Project001
 	{
 		// ambient
 		// ---------------------------------------------------------------------
-		vec3 ambientColor = ambientStrength * lightColor;
+		vec3 ambientColor = ambientLightStrength * ambientLightColor;
 
 		// diffuse
 		// ---------------------------------------------------------------------
-		vec3 lightDirection = normalize(lightPosition - v_FragmentPosition);
-		float diffuseStrength = max(dot(v_Normal, lightDirection), 0.0);
-		vec3 diffuseColor = diffuseStrength * lightColor;
+		vec3 pointLightDirection = normalize(pointLightPosition - v_FragmentPosition);
+		float diffuseStrength = max(dot(v_Normal, pointLightDirection), 0.0);
+		vec3 diffuseColor = diffuseStrength * pointLightColor;
 
 		// texture
 		// ---------------------------------------------------------------------
@@ -376,67 +363,67 @@ namespace Project001
 		}
 		else if (v_TextureIndex < 0.5)
 		{
-			textureColor = texture(texture00, v_TextureCoordinate);
+			textureColor = texture(textures[0], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 1.5)
 		{
-			textureColor = texture(texture01, v_TextureCoordinate);
+			textureColor = texture(textures[1], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 2.5)
 		{
-			textureColor = texture(texture02, v_TextureCoordinate);
+			textureColor = texture(textures[2], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 3.5)
 		{
-			textureColor = texture(texture03, v_TextureCoordinate);
+			textureColor = texture(textures[3], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 4.5)
 		{
-			textureColor = texture(texture04, v_TextureCoordinate);
+			textureColor = texture(textures[4], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 5.5)
 		{
-			textureColor = texture(texture05, v_TextureCoordinate);
+			textureColor = texture(textures[5], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 6.5)
 		{
-			textureColor = texture(texture06, v_TextureCoordinate);
+			textureColor = texture(textures[6], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 7.5)
 		{
-			textureColor = texture(texture07, v_TextureCoordinate);
+			textureColor = texture(textures[7], v_TextureCoordinate);
 		}
 		else if (v_TextureIndex < 8.5)
 		{
-			textureColor = texture(texture08, v_TextureCoordinate);
+			textureColor = texture(textures[8], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 9)
+		else if (v_TextureIndex < 9.5)
 		{
-			textureColor = texture(texture09, v_TextureCoordinate);
+			textureColor = texture(textures[9], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 10)
+		else if (v_TextureIndex < 10.5)
 		{
-			textureColor = texture(texture10, v_TextureCoordinate);
+			textureColor = texture(textures[10], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 11)
+		else if (v_TextureIndex < 11.5)
 		{
-			textureColor = texture(texture11, v_TextureCoordinate);
+			textureColor = texture(textures[11], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 12)
+		else if (v_TextureIndex < 12.5)
 		{
-			textureColor = texture(texture12, v_TextureCoordinate);
+			textureColor = texture(textures[12], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 13)
+		else if (v_TextureIndex < 13.5)
 		{
-			textureColor = texture(texture13, v_TextureCoordinate);
+			textureColor = texture(textures[13], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 14)
+		else if (v_TextureIndex < 14.5)
 		{
-			textureColor = texture(texture14, v_TextureCoordinate);
+			textureColor = texture(textures[14], v_TextureCoordinate);
 		}
-		else if (v_TextureIndex == 15)
+		else if (v_TextureIndex < 15.5)
 		{
-			textureColor = texture(texture15, v_TextureCoordinate);
+			textureColor = texture(textures[15], v_TextureCoordinate);
 		}
 		else
 		{

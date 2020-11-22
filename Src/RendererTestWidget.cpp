@@ -7,6 +7,7 @@
 #include "Engine/Logger.h"
 #include "Engine/Renderer.h"
 #include "Engine/Stores.h"
+#include "Engine/Window.h"
 
 
 
@@ -60,6 +61,7 @@ namespace Project001
 		rendererPtr_ = applicationPtr->rendererPtr_;
 		widgetContainerPtr_ = &(applicationPtr->widgetMap_);
 
+		windowPtr_->SetAspectRatio(applicationPtr->windowWidth_, applicationPtr->windowHeight_);
 		aspectRatio_ = (float)applicationPtr->windowWidth_ / (float)applicationPtr->windowHeight_;
 
 		storesPtr_->LoadOBJFile("Cube", "../Models/Cube.obj");
@@ -208,6 +210,31 @@ namespace Project001
 			glm::vec3 cameraForward = s_worldForward_ * cameraOrientation_;
 
 			cameraPosition_ += yOffset * cameraForward;
+		}
+		else if (event.GetEventType() == EventType::EVENT_TYPE_FRAMEBUFFER_SIZE)
+		{
+			FrameBufferSizeEvent frameBufferSizeEvent = dynamic_cast<FrameBufferSizeEvent&>(event);
+			
+			int height = frameBufferSizeEvent.height;
+			int width = frameBufferSizeEvent.width;
+			
+			int adjustedHeight = width / aspectRatio_;
+			int adjustedWidth = height * aspectRatio_;
+
+			if (adjustedWidth > width)
+			{
+				adjustedWidth = width;
+			}
+
+			if (adjustedHeight > height)
+			{
+				adjustedHeight = height;
+			}
+
+			int lowerLeftX = (width - adjustedWidth) / 2;
+			int lowerLeftY = (height - adjustedHeight) / 2;
+			
+			windowPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
 		}
 	}
 

@@ -17,6 +17,10 @@ namespace Project001
 
 		virtual void Render() = 0;
 
+		virtual void SetAbiantLightColor(const glm::vec3& ambiantLightColor) = 0;
+
+		virtual void SetAmbiantLightStrength(float ambiantLightStrength) = 0;
+
 		virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
 
 		virtual void SetProjectionMatrix(const glm::mat4& projectionMatrix) = 0;

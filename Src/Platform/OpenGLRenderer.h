@@ -38,6 +38,10 @@ namespace Project001
 
 		void Render() override;
 
+		void SetAbiantLightColor(const glm::vec3& ambiantLightColor) override;
+
+		void SetAmbiantLightStrength(float ambiantLightStrength) override;
+
 		void SetViewMatrix(const glm::mat4& viewMatrix) override;
 
 		void SetProjectionMatrix(const glm::mat4& projectionMatrix) override;
@@ -51,11 +55,8 @@ namespace Project001
 
 		OpenGLShader* shaderPtr_;
 
-		OpenGLTexture* texturePtrs_[16];
-
-		glm::mat4 modelMatrix_;
-		glm::mat4 viewMatrix_;
-		glm::mat4 projectionMatrix_;
+		static const unsigned int s_numberOfTextureSlots_ = 16;
+		OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
 
 		// this holds the buffer's id
 		// the buffer holds the blob of data that will be displayed
@@ -68,14 +69,20 @@ namespace Project001
 		// the vertex array holds information about the size, shape, and type of array
 		glm::uint vertexArrayId_;
 
-		int vertexBufferSize_;
+		static const unsigned int s_vertexBufferCapacity_ = 36 * 5;
 		VertexDataStruct* vertexBufferPtr_;
+		int vertexBufferSize_;
 
-		int indexBufferSize_;
 		glm::uint* indexBufferPtr_;
+		int indexBufferSize_;
 
-		static const unsigned int s_vertexBufferCapacity_;
-		static const unsigned int s_indexBufferCapacity_;
+		static const unsigned int s_indexBufferCapacity_ = 36 * 5;
+
+		glm::mat4 viewMatrix_;
+		glm::mat4 projectionMatrix_;
+
+		glm::vec3 ambiantLightColor_;
+		float ambiantLightStrength_;
 
 		static const char* s_vertexShaderSource01_;
 		static const char* s_fragmentShaderSource01_;

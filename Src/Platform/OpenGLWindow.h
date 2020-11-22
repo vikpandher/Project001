@@ -22,7 +22,14 @@ namespace Project001
 
 		void OnUpdate() override;
 
+		void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) override;
+
 		void SetEventCallback(const std::function<void(Event&)>& callback) override;
+
+		// Setting numerator and denominator to -1 unlocks the aspect ratio.
+		void SetAspectRatio(int numerator, int denominator);
+
+		void SetSize(int width, int height) override;
 
 		void SetTime(const double time) override;
 		double GetTime() const override;

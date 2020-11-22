@@ -54,6 +54,10 @@ namespace Project001
 
 		SetVSync(true);
 
+		// This is enabled so when glViewport is used to set the viewportt size,
+		// glScissor can be used to limit drawing to within the viewport.
+		glEnable(GL_SCISSOR_TEST);
+
 		glfwSetKeyCallback(glfwWindowPtr_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -129,6 +133,22 @@ namespace Project001
 		glfwSwapBuffers(glfwWindowPtr_);
 
 		glfwPollEvents();
+	}
+
+	inline void OpenGLWindow::SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height)
+	{
+		glViewport(lowerLeftX, lowerLeftY, width, height);
+		glScissor(lowerLeftX, lowerLeftY, width, height);
+	}
+
+	inline void OpenGLWindow::SetAspectRatio(int numerator, int denominator)
+	{
+		glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
+	}
+
+	inline void OpenGLWindow::SetSize(int width, int height)
+	{
+		glfwSetWindowSize(glfwWindowPtr_, width, height);
 	}
 
 	inline void OpenGLWindow::SetTime(const double time)
