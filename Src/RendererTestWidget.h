@@ -35,6 +35,8 @@ namespace Project001
 		void OnUpdate(double frameTimestep) override;
 
 	protected:
+		void OutputTestValues();
+
 		Application* applicationPtr_;
 
 		Window* windowPtr_;
@@ -73,13 +75,18 @@ namespace Project001
 		bool rollingRight_;
 
 		MouseButton mouseButton1_;
+		MouseButton mouseButton2_;
 
 		bool mouseButton1Down_;
+		bool mouseButton2Down_;
 
 		float lastCursorPositionX_;
 		float lastCursorPositionY_;
 		float cursorPositionX_;
 		float cursorPositionY_;
+
+		float testValue00_;
+		float testValue01_;
 
 		// World Coordinate System
 		// ---------------------------------------------------------------------

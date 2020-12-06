@@ -17,13 +17,17 @@ namespace Project001
 
 		virtual void Render() = 0;
 
-		virtual void SetAbiantLightColor(const glm::vec3& ambiantLightColor) = 0;
-
-		virtual void SetAmbiantLightStrength(float ambiantLightStrength) = 0;
-
 		virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
 
+		virtual void SetViewPosition(const glm::vec3& viewPosition) = 0;
+
 		virtual void SetProjectionMatrix(const glm::mat4& projectionMatrix) = 0;
+
+		virtual void SetDirectionalLight(const DirectionalLight& light) = 0;
+
+		virtual void SetPointLight(const PointLight& light, glm::u32 index) = 0;
+
+		virtual void SetSpotLight(const SpotLight& light, glm::u32 index) = 0;
 
 	protected:
 

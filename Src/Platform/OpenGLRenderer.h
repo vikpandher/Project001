@@ -20,6 +20,8 @@ namespace Project001
 		glm::vec4 color;
 		glm::vec2 textureCoordinte;
 		float textureIndex;
+		float specularIndex;
+		float shininess;
 		glm::vec3 translation;
 		glm::quat orientation;
 	};
@@ -38,13 +40,17 @@ namespace Project001
 
 		void Render() override;
 
-		void SetAbiantLightColor(const glm::vec3& ambiantLightColor) override;
-
-		void SetAmbiantLightStrength(float ambiantLightStrength) override;
-
 		void SetViewMatrix(const glm::mat4& viewMatrix) override;
 
+		void SetViewPosition(const glm::vec3& viewPosition) override;
+
 		void SetProjectionMatrix(const glm::mat4& projectionMatrix) override;
+
+		void SetDirectionalLight(const DirectionalLight& light) override;
+
+		void SetPointLight(const PointLight& light, glm::u32 index) override;
+
+		void SetSpotLight(const SpotLight& light, glm::u32 index) override;
 
 	///	void LoadModel(std::string modelName, std::vector<VertexDataStruct> vertexData, )
 
@@ -79,10 +85,17 @@ namespace Project001
 		static const unsigned int s_indexBufferCapacity_ = 36 * 5;
 
 		glm::mat4 viewMatrix_;
+		glm::vec3 viewPosition_;
+
 		glm::mat4 projectionMatrix_;
 
-		glm::vec3 ambiantLightColor_;
-		float ambiantLightStrength_;
+		DirectionalLight directionalLight_;
+
+		static const unsigned int s_numberOfPointLights_ = 8;
+		PointLight pointLights_[s_numberOfPointLights_];
+
+		static const unsigned int s_numberOfSpotLights_ = 4;
+		SpotLight spotLights_[s_numberOfSpotLights_];
 
 		static const char* s_vertexShaderSource01_;
 		static const char* s_fragmentShaderSource01_;

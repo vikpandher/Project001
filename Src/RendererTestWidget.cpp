@@ -21,7 +21,7 @@ namespace Project001
 		, storesPtr_(nullptr)
 		, rendererPtr_(nullptr)
 		, widgetContainerPtr_(nullptr)
-		, cameraPosition_(glm::vec3(0.0f, 0.0f, 5.0f))
+		, cameraPosition_(glm::vec3(0.0f, 0.0f, 2.0f))
 		, cameraOrientation_(1.0f, 0.0f, 0.0f, 0.0f)
 		, fieldOfVisionDegrees_(45.0f)
 		, aspectRatio_(1.0f)
@@ -40,11 +40,15 @@ namespace Project001
 		, rollingLeft_(false)
 		, rollingRight_(false)
 		, mouseButton1_(MouseButton::MOUSE_BUTTON_RIGHT)
+		, mouseButton2_(MouseButton::MOUSE_BUTTON_LEFT)
 		, mouseButton1Down_(false)
+		, mouseButton2Down_(false)
 		, lastCursorPositionX_(0.0f)
 		, lastCursorPositionY_(0.0f)
 		, cursorPositionX_(0.0f)
 		, cursorPositionY_(0.0f)
+		, testValue00_(0.99f)
+		, testValue01_(0.97f)
 	{
 	}
 
@@ -83,6 +87,8 @@ namespace Project001
 		testModel.meshDataPtr_ = storesPtr_->GetMesh("Cube");
 		testModel.color_ = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
 		testModel.textureIndex_ = -1.0f;
+		testModel.specularIndex_ = -1.0f;
+		testModel.shininess_ = 32.0f;
 		testModel.position_ = glm::vec3(0.0f, 0.0f, 0.0f);
 		testModel.orientation_ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 		rendererPtr_->AddModel(&testModel);
@@ -106,6 +112,49 @@ namespace Project001
 		testModel.position_ = glm::vec3(-1.0f, 0.0f, 0.0f);
 		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldForward_);
 		rendererPtr_->AddModel(&testModel);
+
+		// DirectionalLight directionalLight = DirectionalLight();
+		// directionalLight.direction = glm::vec3(0.0f, 0.0f, 0.0f);
+		// directionalLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		// directionalLight.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		// directionalLight.specular = glm::vec3(0.25f, 0.25f, 0.25f);
+		// rendererPtr_->SetDirectionalLight(directionalLight);
+
+		// PointLight pointLight00 = PointLight();
+		// pointLight00.position = glm::vec3(1.0f, 0.0f, 1.0f);
+		// pointLight00.constant = 1.0f;
+		// pointLight00.linear = 0.1f;
+		// pointLight00.quadratic = 0.0f;
+		// pointLight00.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		// pointLight00.diffuse = glm::vec3(0.25f, 0.25f, 0.25f);
+		// pointLight00.specular = glm::vec3(0.5f, 0.0f, 0.0f);
+		// rendererPtr_->SetPointLight(pointLight00, 0);
+
+		// PointLight pointLight01 = PointLight();
+		// pointLight01.position = glm::vec3(-2.0f, 0.0f, -2.0f);
+		// pointLight01.constant = 1.0f;
+		// pointLight01.linear = 0.1f;
+		// pointLight01.quadratic = 0.0f;
+		// pointLight01.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		// pointLight01.diffuse = glm::vec3(0.25f, 0.25f, 0.25f);
+		// pointLight01.specular = glm::vec3(0.0f, 0.5f, 0.0f);
+		// rendererPtr_->SetPointLight(pointLight01, 1);
+
+		SpotLight spotLight00;
+		spotLight00.position = glm::vec3(0.0f, 0.0f, 5.0f);
+		spotLight00.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+		spotLight00.cutOff = 0.99f;
+		spotLight00.outerCutOff = 0.97f;
+
+		spotLight00.constant = 1.0f;
+		spotLight00.linear = 0.0f;
+		spotLight00.quadratic = 0.0f;
+
+		spotLight00.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+		spotLight00.diffuse = glm::vec3(0.25f, 0.25f, 0.25f);
+		spotLight00.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+
+		rendererPtr_->SetSpotLight(spotLight00, 0);
 	}
 
 	void RendererTestWidget::OnEvent(Event& event)
@@ -148,6 +197,26 @@ namespace Project001
 			{
 				movingDown_ = actionValue_;
 			}
+			else if (keyEvent.keyCode == KeyCode::KEY_CODE_1 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
+			{
+				testValue00_ += 0.01;
+				OutputTestValues();
+			}
+			else if (keyEvent.keyCode == KeyCode::KEY_CODE_2 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
+			{
+				testValue00_ -= 0.01;
+				OutputTestValues();
+			}
+			else if (keyEvent.keyCode == KeyCode::KEY_CODE_3 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
+			{
+				testValue01_ += 0.01;
+				OutputTestValues();
+			}
+			else if (keyEvent.keyCode == KeyCode::KEY_CODE_4 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
+			{
+				testValue01_ -= 0.01;
+				OutputTestValues();
+			}
 		}
 		else if (event.GetEventType() == EventType::EVENT_TYPE_MOUSE_BUTTON)
 		{
@@ -167,6 +236,10 @@ namespace Project001
 			{
 				mouseButton1Down_ = actionValue_;
 			}
+			else if (mouseButtonEvent.mouseButton == mouseButton2_)
+			{
+				mouseButton2Down_ = actionValue_;
+			}
 		}
 		else if (event.GetEventType() == EventType::EVENT_TYPE_CURSOR_POS)
 		{
@@ -184,15 +257,16 @@ namespace Project001
 				xOffset *= sensitivity;
 				yOffset *= sensitivity;
 
-				float cameraYaw_ = xOffset;
-				float cameraPitch_ = yOffset;
+				float cameraYaw = xOffset;
+				float cameraPitch = yOffset;
 
 				glm::vec3 cameraUp = s_worldUp_ * cameraOrientation_;
 				glm::vec3 cameraRight = s_worldRight_ * cameraOrientation_;
 
-				cameraOrientation_ = glm::rotate(cameraOrientation_, cameraYaw_, cameraUp);
-				cameraOrientation_ = glm::rotate(cameraOrientation_, -cameraPitch_, cameraRight);
+				cameraOrientation_ = glm::rotate(cameraOrientation_, cameraYaw, cameraUp);
+				cameraOrientation_ = glm::rotate(cameraOrientation_, -1.0f * cameraPitch, cameraRight);
 			}
+
 			lastCursorPositionX_ = cursorPositionX_;
 			lastCursorPositionY_ = cursorPositionY_;
 		}
@@ -245,11 +319,6 @@ namespace Project001
 		glm::vec3 directionRight = s_worldRight_ * cameraOrientation_;
 		glm::vec3 directionUp = s_worldUp_ * cameraOrientation_;
 		glm::vec3 directionForward = s_worldForward_ * cameraOrientation_;
-
-		// glm::mat3 directionMatrix = glm::transpose(rotationMatrix);
-		// glm::vec3 directionRight = directionMatrix[0]; // right
-		// glm::vec3 directionUp = directionMatrix[1]; // up
-		// glm::vec3 directionForward = directionMatrix[2] * -1.0f; // forward
 		
 		float cameraTranslationSpeed = 2.5f * (float)frameTimestep;
 		float cameraRotationSpeed = 2.5f * (float)frameTimestep;
@@ -288,11 +357,39 @@ namespace Project001
 
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(fieldOfVisionDegrees_), aspectRatio_, nearCutOff_, farCutOff_);
 
+		SpotLight spotLight01;
+		spotLight01.position = cameraPosition_;
+		spotLight01.direction = directionForward;
+		spotLight01.cutOff = testValue00_;
+		spotLight01.outerCutOff = testValue01_;
+
+		spotLight01.constant = 1.0f;
+		spotLight01.linear = 0.0f;
+		spotLight01.quadratic = 0.0f;
+
+		spotLight01.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+		spotLight01.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		spotLight01.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+
+		rendererPtr_->SetSpotLight(spotLight01, 1);
+
 		applicationPtr_->rendererPtr_->SetViewMatrix(viewMatrix);
+		applicationPtr_->rendererPtr_->SetViewPosition(cameraPosition_);
 		applicationPtr_->rendererPtr_->SetProjectionMatrix(projectionMatrix);
 		applicationPtr_->rendererPtr_->Render();
 	}
+
 	// protected: --------------------------------------------------------------
+
+	void RendererTestWidget::OutputTestValues()
+	{
+		Logger::Message("testValue00_ = %f", testValue00_);
+		Logger::Message("testValue01_ = %f", testValue01_);
+		Logger::Message("--------------------------------------------------------------------------------");
+	}
+
+	// NOTE:
+	// positive x is to the right, positive y is up, and positive z is out of the screen
 
 	glm::vec3 RendererTestWidget::s_worldForward_(0.0f, 0.0f, -1.0f); // used for Roll "right hand rule"
 	glm::vec3 RendererTestWidget::s_worldUp_(0.0f, 1.0f, 0.0f); // used for Yaw "right hand rule"
