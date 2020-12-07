@@ -86,7 +86,8 @@ namespace Project001
 		// flattened cone. 
 		// A value of 1.0 equals a 0 degree angle of light, an infinitly skinny
 		// cone.
-		// Light will dim from the cutOff to he outerCutOff.
+		// Light will dim from the cutOff to the outerCutOff. Valid values are
+		// from 0.0 to 1.0.
 		// 
 		// An example of some good values are:
 		// cutOff = 0.99 & outterCutOff = 0.97
