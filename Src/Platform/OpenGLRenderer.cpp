@@ -21,8 +21,6 @@ namespace Project001
 	OpenGLRenderer::OpenGLRenderer()
 		: shaderPtr_(nullptr)
 		, texturePtrs_{ nullptr }
-		, vertexBufferSize_(0)
-		, indexBufferSize_(0)
 		, viewMatrix_(1.0f)
 		, viewPosition_(0.0f)
 		, projectionMatrix_(1.0f)
@@ -44,9 +42,6 @@ namespace Project001
 		glCullFace(GL_BACK);
 
 		shaderPtr_ = new OpenGLShader(s_vertexShaderSource01_, s_fragmentShaderSource01_);
-
-		vertexBufferPtr_ = new VertexDataStruct[s_vertexBufferCapacity_];
-		indexBufferPtr_ = new glm::uint[s_indexBufferCapacity_];
 
 		// NOTE:
 		// glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
@@ -78,7 +73,7 @@ namespace Project001
 
 		// set the size of the active array buffer
 		// (target, size, data, usage)
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexDataStruct) * s_bufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
 		// attach the active buffer to the active array with the given attributes
 		// (index, size, type, normalized, stride, pointer)
@@ -136,7 +131,7 @@ namespace Project001
 
 		// set the size of the active element array buffer
 		// (target, size, data, usage)
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_bufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
 		// unbind the array buffer and the vertex array
 		///glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -164,9 +159,6 @@ namespace Project001
 		glDeleteBuffers(1, &vertexBufferId_);
 		glDeleteVertexArrays(1, &vertexArrayId_);
 		glDeleteVertexArrays(1, &indexBufferId_);
-
-		delete[] vertexBufferPtr_;
-		delete[] indexBufferPtr_;
 	}
 
 	void OpenGLRenderer::AddMesh(const MeshData* meshData)
@@ -191,8 +183,8 @@ namespace Project001
 				newVertexData.shininess = 0.0f;
 				newVertexData.translation = glm::vec3(0.0f, 0.0f, 0.0f);
 				newVertexData.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-				AddIndex(vertexBufferSize_);
-				AddVertex(newVertexData);
+				indexBuffer_.push_back(vertexBuffer_.size() % s_bufferCapacity_);
+				vertexBuffer_.push_back(newVertexData);
 			}
 		}
 	}
@@ -227,8 +219,8 @@ namespace Project001
 				newVertexData.shininess = shininess;
 				newVertexData.translation = translation;
 				newVertexData.orientation = orientation;
-				AddIndex(vertexBufferSize_);
-				AddVertex(newVertexData);
+				indexBuffer_.push_back(vertexBuffer_.size() % s_bufferCapacity_);
+				vertexBuffer_.push_back(newVertexData);
 			}
 		}
 	}
@@ -247,19 +239,7 @@ namespace Project001
 	}
 
 	void OpenGLRenderer::Render()
-	{
-		// Bind buffers to make them active
-		///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-		///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-		// upload the vertex data and index data into their respective buffers
-		// (target, offset, size, data)
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexDataStruct) * vertexBufferSize_, vertexBufferPtr_);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBufferSize_, indexBufferPtr_);
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	{	
 		shaderPtr_->SetMat4("view", viewMatrix_);
 		shaderPtr_->SetMat4("projection", projectionMatrix_);
 
@@ -305,14 +285,34 @@ namespace Project001
 			shaderPtr_->SetVec3((uniformName + ".diffuse").c_str(), spotLights_[i].diffuse);
 			shaderPtr_->SetVec3((uniformName + ".specular").c_str(), spotLights_[i].specular);
 		}
+		
+		// Bind buffers to make them active
+		///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
+		///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
-		/// shaderPtr_->SetVec3("ambientLightColor", ambiantLightColor_);
-		/// shaderPtr_->SetFloat("ambientLightStrength", ambiantLightStrength_);
-		/// shaderPtr_->SetVec3("pointLightPosition", glm::vec3(1.5f, 1.0f, 2.0f));
-		/// shaderPtr_->SetVec3("pointLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/// glBindVertexArray(vertexArrayId_);
-		glDrawElements(GL_TRIANGLES, indexBufferSize_, GL_UNSIGNED_INT, 0);
+		unsigned int numberOfVerticiesLeftToDraw = vertexBuffer_.size();
+		unsigned int numberOfVerticiesDrawn = 0;
+		while(numberOfVerticiesDrawn < vertexBuffer_.size())
+		{
+			int numberOfVerticiesThatWillBeDrawn = s_bufferCapacity_;
+			if (numberOfVerticiesLeftToDraw < numberOfVerticiesThatWillBeDrawn)
+			{
+				numberOfVerticiesThatWillBeDrawn = numberOfVerticiesLeftToDraw;
+			}
+
+			// upload the vertex data and index data into their respective buffers
+			// (target, offset, size, data)
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexDataStruct) * numberOfVerticiesThatWillBeDrawn, &vertexBuffer_[numberOfVerticiesDrawn]);
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * numberOfVerticiesThatWillBeDrawn, &indexBuffer_[numberOfVerticiesDrawn]);
+
+			/// glBindVertexArray(vertexArrayId_);
+			glDrawElements(GL_TRIANGLES, numberOfVerticiesThatWillBeDrawn, GL_UNSIGNED_INT, 0);
+
+			numberOfVerticiesDrawn += numberOfVerticiesThatWillBeDrawn;
+		}
 	}
 
 	void OpenGLRenderer::SetViewMatrix(const glm::mat4& viewMatrix)

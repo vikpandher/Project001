@@ -129,6 +129,9 @@ namespace Project001
 		float shininess_;
 		glm::vec3 position_;
 		glm::quat orientation_;
+		
+		// TODO:
+		//bool transparent_;
 	};
 
 	struct TextureData

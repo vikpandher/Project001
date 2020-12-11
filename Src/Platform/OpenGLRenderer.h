@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <tuple>
 
 
 
@@ -52,13 +53,7 @@ namespace Project001
 
 		void SetSpotLight(const SpotLight& light, glm::u32 index) override;
 
-	///	void LoadModel(std::string modelName, std::vector<VertexDataStruct> vertexData, )
-
 	protected:
-		void AddVertex(const VertexDataStruct& vertex);
-
-		void AddIndex(const glm::uint& index);
-
 		OpenGLShader* shaderPtr_;
 
 		static const unsigned int s_numberOfTextureSlots_ = 16;
@@ -75,14 +70,14 @@ namespace Project001
 		// the vertex array holds information about the size, shape, and type of array
 		glm::uint vertexArrayId_;
 
-		static const unsigned int s_vertexBufferCapacity_ = 36 * 5;
-		VertexDataStruct* vertexBufferPtr_;
-		int vertexBufferSize_;
+		static const unsigned int s_bufferCapacity_ = 36 * 5;
 
-		glm::uint* indexBufferPtr_;
-		int indexBufferSize_;
+		std::vector<VertexDataStruct> vertexBuffer_;
+		std::vector<glm::uint> indexBuffer_;
 
-		static const unsigned int s_indexBufferCapacity_ = 36 * 5;
+		// TODO:
+		//std::vector<const ModelData*> modelDataPointers_;
+		//std::vector<std::pair<const ModelData*, glm::uint>> modelDataPointersPendingSort_;
 
 		glm::mat4 viewMatrix_;
 		glm::vec3 viewPosition_;
@@ -103,17 +98,4 @@ namespace Project001
 	private:
 		
 	};
-
-	// protected ---------------------------------------------------------------
-
-	inline void OpenGLRenderer::AddVertex(const VertexDataStruct& vertex)
-	{
-		vertexBufferPtr_[vertexBufferSize_++] = vertex;
-	}
-
-	inline void OpenGLRenderer::AddIndex(const glm::uint& index)
-	{
-		indexBufferPtr_[indexBufferSize_++] = index;
-	}
-
 }

@@ -356,6 +356,7 @@ namespace Project001
 		viewMatrix = glm::translate(viewMatrix, cameraPosition_ * -1.0f);
 
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(fieldOfVisionDegrees_), aspectRatio_, nearCutOff_, farCutOff_);
+		//glm::mat4 projectionMatrix = glm::ortho(-5.f, 5.f, -5.f, 5.f, -5.f, 5.f);
 
 		SpotLight spotLight01;
 		spotLight01.position = cameraPosition_;
