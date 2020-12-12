@@ -39,6 +39,7 @@ namespace Project001
 
 	Logger::~Logger()
 	{
+		delete[] charBuffer_;
 	}
 
 	void Logger::Error(const char* format, ...)
@@ -48,8 +49,8 @@ namespace Project001
 		
 		va_list args;
 		va_start(args, format);
-		memset(instance.charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
-		vsnprintf(instance.charBuffer_, LOGGER_CHAR_BUFFER_SIZE, format, args);
+		memset(instance.charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
+		vsnprintf(instance.charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
 		printf("ERROR:      %s\n", instance.charBuffer_);
 	}
@@ -61,8 +62,8 @@ namespace Project001
 
 		va_list args;
 		va_start(args, format);
-		memset(instance.charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
-		vsnprintf(instance.charBuffer_, LOGGER_CHAR_BUFFER_SIZE, format, args);
+		memset(instance.charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
+		vsnprintf(instance.charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
 		printf("MESSAGE:    %s\n", instance.charBuffer_);
 	}
@@ -77,6 +78,6 @@ namespace Project001
 
 	Logger::Logger()
 	{
-		memset(charBuffer_, 0, LOGGER_CHAR_BUFFER_SIZE);
+		charBuffer_ = new char[s_charBufferCapacity_];
 	}
 }

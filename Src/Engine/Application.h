@@ -34,6 +34,8 @@ namespace Project001
 
 		bool running_;
 
+		double secondsPerFrame_;
+
 		Window* windowPtr_;
 
 		Stores* storesPtr_;

@@ -31,6 +31,7 @@ namespace Project001
 
 		void SetSize(int width, int height) override;
 
+		// Time measurements are in seconds
 		void SetTime(const double time) override;
 		double GetTime() const override;
 

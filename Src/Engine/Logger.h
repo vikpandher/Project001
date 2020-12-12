@@ -5,9 +5,7 @@
 
 
 namespace Project001
-{	
-	const unsigned int LOGGER_CHAR_BUFFER_SIZE = 512;
-	
+{		
 	class Logger
 	{
 	public:
@@ -30,6 +28,8 @@ namespace Project001
 		//void operator=(const Logger&);
 
 		std::mutex lock_;
-		char charBuffer_[LOGGER_CHAR_BUFFER_SIZE];
+
+		static const unsigned int s_charBufferCapacity_ = 128;
+		char* charBuffer_;
 	};
 }

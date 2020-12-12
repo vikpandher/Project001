@@ -128,7 +128,8 @@ namespace Project001
 	void OpenGLWindow::OnUpdate()
 	{		
 		// make current context again incase it was changed by another window
-		glfwMakeContextCurrent(glfwWindowPtr_);
+		// ... right now it wont be ...
+		// glfwMakeContextCurrent(glfwWindowPtr_);
 		
 		glfwSwapBuffers(glfwWindowPtr_);
 

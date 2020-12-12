@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include <functional>
+#include <thread> 
 
 #include "EventUtilities.h"
 #include "Logger.h"
@@ -26,6 +27,7 @@ namespace Project001
 		, windowWidth_(windowWidth)
 		, windowHeight_(windowHeight)
 		, running_(false)
+		, secondsPerFrame_(1.0 / 60.0)
 	{
 		windowPtr_ = new OpenGLWindow(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
@@ -37,6 +39,21 @@ namespace Project001
 
 	Application::~Application()
 	{
+		if (windowPtr_ != nullptr)
+		{
+			delete windowPtr_;
+		}
+
+		if (storesPtr_ != nullptr)
+		{
+			delete storesPtr_;
+		}
+
+		if (rendererPtr_ != nullptr)
+		{
+			delete rendererPtr_;
+		}
+		
 		for (std::map<std::string, Widget*>::iterator iterator = widgetMap_.begin(); iterator != widgetMap_.end(); ++iterator)
 		{
 			delete iterator->second;
@@ -52,22 +69,36 @@ namespace Project001
 
 	void Application::Run()
 	{
-		double lastFrameTime = windowPtr_->GetTime();
+		std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
+		std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
+		double timeStampDifference = 0.0;
+		double sleepTime = 0.0;
 
 		running_ = true;
 		while (running_)
-		{
-			double currentFrameTime = windowPtr_->GetTime();
-			double frameTimestep = currentFrameTime - lastFrameTime;
-			lastFrameTime = currentFrameTime;
+		{			
+			timeStampA = std::chrono::system_clock::now();
+			std::chrono::duration<double, std::milli> workTime_ms = timeStampA - timeStampB;
+
+			if (workTime_ms.count() < secondsPerFrame_)
+			{
+				std::chrono::duration<double, std::milli> delta_ms(200.0 - workTime_ms.count());
+				std::chrono::duration<long long, std::milli> deltaDuration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+				std::this_thread::sleep_for(std::chrono::milliseconds(deltaDuration_ms.count()));
+			}
+
+			timeStampB = std::chrono::system_clock::now();
+			std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
+			std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
 
 			for (std::map<std::string, Widget*>::iterator widgetIterator = widgetMap_.begin(); widgetIterator != widgetMap_.end(); ++widgetIterator)
 			{
-				Widget* currentWidget = widgetIterator->second;
-				currentWidget->OnUpdate(frameTimestep);
+				Widget * currentWidget = widgetIterator->second;
+				currentWidget->OnUpdate(totalTime_ms.count() / 1000.0);
 			}
 
 			windowPtr_->OnUpdate();
+			rendererPtr_->Render();
 		}
 	}
 

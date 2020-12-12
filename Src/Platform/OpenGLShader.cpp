@@ -175,8 +175,8 @@ namespace Project001
 		GLint size; // size of the variable
 		GLenum type; // type of the variable (float, vec3 or mat4, etc)
 
-		const GLsizei bufSize = 16; // maximum name length
-		GLchar name[bufSize]; // variable name in GLSL
+		const GLsizei bufferCapacity = 64; // maximum name length
+		GLchar name[bufferCapacity]; // variable name in GLSL
 		GLsizei length; // name length
 
 		// ATTRIBUTES
@@ -185,7 +185,7 @@ namespace Project001
 
 		for (i = 0; i < count; i++)
 		{
-			glGetActiveAttrib(programId_, (GLuint)i, bufSize, &length, &size, &type, name);
+			glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
 			Project001::Logger::Message("Attribute #%d Type: %u Name: %s", i, type, name);
 		}
@@ -196,7 +196,7 @@ namespace Project001
 
 		for (i = 0; i < count; i++)
 		{
-			glGetActiveUniform(programId_, (GLuint)i, bufSize, &length, &size, &type, name);
+			glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
 			Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
 		}

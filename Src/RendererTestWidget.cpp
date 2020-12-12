@@ -26,7 +26,7 @@ namespace Project001
 		, fieldOfVisionDegrees_(45.0f)
 		, aspectRatio_(1.0f)
 		, nearCutOff_(0.1f)
-		, farCutOff_(100.0f)
+		, farCutOff_(10.0f)
 		, moveLeftKeyCode_(KeyCode::KEY_CODE_A)
 		, moveRightKeyCode_(KeyCode::KEY_CODE_D)
 		, moveUpKeyCode_(KeyCode::KEY_CODE_W)
@@ -377,7 +377,6 @@ namespace Project001
 		applicationPtr_->rendererPtr_->SetViewMatrix(viewMatrix);
 		applicationPtr_->rendererPtr_->SetViewPosition(cameraPosition_);
 		applicationPtr_->rendererPtr_->SetProjectionMatrix(projectionMatrix);
-		applicationPtr_->rendererPtr_->Render();
 	}
 
 	// protected: --------------------------------------------------------------
