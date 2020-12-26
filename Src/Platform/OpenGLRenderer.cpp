@@ -351,6 +351,12 @@ namespace Project001
 		}
 	}
 
+	void OpenGLRenderer::SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height)
+	{
+		glViewport(lowerLeftX, lowerLeftY, width, height);
+		glScissor(lowerLeftX, lowerLeftY, width, height);
+	}
+
 	// protected ---------------------------------------------------------------
 
 	// NOTE:

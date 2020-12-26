@@ -53,6 +53,8 @@ namespace Project001
 
 		void SetSpotLight(const SpotLight& light, glm::u32 index) override;
 
+		void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) override;
+
 	protected:
 		OpenGLShader* shaderPtr_;
 

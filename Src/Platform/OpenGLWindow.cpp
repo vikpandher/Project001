@@ -128,18 +128,11 @@ namespace Project001
 	void OpenGLWindow::OnUpdate()
 	{		
 		// make current context again incase it was changed by another window
-		// ... right now it wont be ...
-		// glfwMakeContextCurrent(glfwWindowPtr_);
+		glfwMakeContextCurrent(glfwWindowPtr_);
 		
 		glfwSwapBuffers(glfwWindowPtr_);
 
 		glfwPollEvents();
-	}
-
-	inline void OpenGLWindow::SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height)
-	{
-		glViewport(lowerLeftX, lowerLeftY, width, height);
-		glScissor(lowerLeftX, lowerLeftY, width, height);
 	}
 
 	inline void OpenGLWindow::SetAspectRatio(int numerator, int denominator)

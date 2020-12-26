@@ -199,22 +199,22 @@ namespace Project001
 			}
 			else if (keyEvent.keyCode == KeyCode::KEY_CODE_1 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
 			{
-				testValue00_ += 0.01;
+				testValue00_ += 0.01f;
 				OutputTestValues();
 			}
 			else if (keyEvent.keyCode == KeyCode::KEY_CODE_2 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
 			{
-				testValue00_ -= 0.01;
+				testValue00_ -= 0.01f;
 				OutputTestValues();
 			}
 			else if (keyEvent.keyCode == KeyCode::KEY_CODE_3 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
 			{
-				testValue01_ += 0.01;
+				testValue01_ += 0.01f;
 				OutputTestValues();
 			}
 			else if (keyEvent.keyCode == KeyCode::KEY_CODE_4 && keyEvent.buttonAction == ButtonAction::KEY_ACTION_RELEASE)
 			{
-				testValue01_ -= 0.01;
+				testValue01_ -= 0.01f;
 				OutputTestValues();
 			}
 		}
@@ -292,8 +292,8 @@ namespace Project001
 			int height = frameBufferSizeEvent.height;
 			int width = frameBufferSizeEvent.width;
 			
-			int adjustedHeight = width / aspectRatio_;
-			int adjustedWidth = height * aspectRatio_;
+			int adjustedHeight = (int)(width / aspectRatio_);
+			int adjustedWidth = (int)(height * aspectRatio_);
 
 			if (adjustedWidth > width)
 			{
@@ -308,7 +308,7 @@ namespace Project001
 			int lowerLeftX = (width - adjustedWidth) / 2;
 			int lowerLeftY = (height - adjustedHeight) / 2;
 			
-			windowPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+			rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
 		}
 	}
 

@@ -13,8 +13,6 @@ namespace Project001
 	public:
 		virtual void OnUpdate() = 0;
 
-		virtual void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) = 0;
-
 		virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
 
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;

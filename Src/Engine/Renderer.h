@@ -29,6 +29,8 @@ namespace Project001
 
 		virtual void SetSpotLight(const SpotLight& light, glm::u32 index) = 0;
 
+		virtual void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) = 0;
+
 	protected:
 
 	private:
