@@ -9,25 +9,24 @@ namespace Project001
 	class Logger
 	{
 	public:
+		static void Error(const char* format, ...);
+
+		static void Message(const char* format, ...);
+
 		~Logger();
 
 		Logger(const Logger&) = delete;
 		void operator=(const Logger&) = delete;
 
-		static void Error(const char* format, ...);
-
-		static void Message(const char* format, ...);
-
 	protected:
 
 	private:
-		static Logger& GetInstance();
+		static Logger* GetInstance();
 
 		Logger();
-		//Logger(const Logger&);
-		//void operator=(const Logger&);
 
-		std::mutex lock_;
+		static Logger* s_instance_;
+		static std::mutex s_lock_;
 
 		static const unsigned int s_charBufferCapacity_ = 128;
 		char* charBuffer_;

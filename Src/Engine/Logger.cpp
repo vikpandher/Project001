@@ -37,43 +37,51 @@ namespace Project001
 
 	// public ------------------------------------------------------------------
 
-	Logger::~Logger()
-	{
-		delete[] charBuffer_;
-	}
-
 	void Logger::Error(const char* format, ...)
 	{
-		Logger& instance = GetInstance();
-		std::lock_guard<std::mutex> lock(instance.lock_);
-		
+		Logger* instance = GetInstance();
+		std::lock_guard<std::mutex> lock(s_lock_);
+
 		va_list args;
 		va_start(args, format);
-		memset(instance.charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
-		vsnprintf(instance.charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
+		memset(instance->charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
+		vsnprintf(instance->charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
-		printf("ERROR:      %s\n", instance.charBuffer_);
+		printf("ERROR:      %s\n", instance->charBuffer_);
 	}
 
 	void Logger::Message(const char* format, ...)
-	{		
-		Logger& instance = GetInstance();
-		std::lock_guard<std::mutex> lock(instance.lock_);
+	{
+		Logger* instance = GetInstance();
+		std::lock_guard<std::mutex> lock(s_lock_);
 
 		va_list args;
 		va_start(args, format);
-		memset(instance.charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
-		vsnprintf(instance.charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
+		memset(instance->charBuffer_, 0, sizeof(char) * s_charBufferCapacity_);
+		vsnprintf(instance->charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
-		printf("MESSAGE:    %s\n", instance.charBuffer_);
+		printf("MESSAGE:    %s\n", instance->charBuffer_);
+	}
+
+	Logger::~Logger()
+	{
+		std::lock_guard<std::mutex> lock(s_lock_);
+		delete[] charBuffer_;
 	}
 
 	// private -----------------------------------------------------------------
 
-	Logger& Logger::GetInstance()
+	Logger* Logger::s_instance_ = nullptr;
+	std::mutex Logger::s_lock_;
+
+	Logger* Logger::GetInstance()
 	{
-		static Logger instance;
-		return instance;
+		std::lock_guard<std::mutex> lock(s_lock_);
+		if (s_instance_ == nullptr)
+		{
+			s_instance_ = new Logger();
+		}
+		return s_instance_;
 	}
 
 	Logger::Logger()
