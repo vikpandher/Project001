@@ -34,7 +34,7 @@ namespace Project001
 
 		storesPtr_ = new Stores();
 
-		rendererPtr_ = OpenGLRenderer::GetInstance();
+		rendererPtr_ = new OpenGLRenderer();
 	}
 
 	Application::~Application()

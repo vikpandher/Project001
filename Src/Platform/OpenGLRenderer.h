@@ -30,8 +30,7 @@ namespace Project001
 	class OpenGLRenderer : public Renderer
 	{
 	public:
-		static OpenGLRenderer* GetInstance();
-
+		OpenGLRenderer();
 		virtual ~OpenGLRenderer();
 
 		void AddMesh(const MeshData* meshData) override;
@@ -56,28 +55,11 @@ namespace Project001
 
 		void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) override;
 
-		OpenGLRenderer(const OpenGLRenderer&) = delete;
-		void operator=(const OpenGLRenderer&) = delete;
-
-	private:
-		OpenGLRenderer();
-
-		static OpenGLRenderer* s_instance_;
+	protected:
+		OpenGLShader* shaderPtr_;
 
 		static const unsigned int s_numberOfTextureSlots_ = 16;
-		static const unsigned int s_numberOfPointLights_ = 8;
-		static const unsigned int s_numberOfSpotLights_ = 4;
-
-		static const char* s_vertexShaderSource01_;
-		static const char* s_fragmentShaderSource01_;
-
-		static const unsigned int s_bufferCapacity_ = 36 * 5;
-
 		OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
-		PointLight pointLights_[s_numberOfPointLights_];
-		SpotLight spotLights_[s_numberOfSpotLights_];
-
-		OpenGLShader* shaderPtr_;
 
 		// this holds the buffer's id
 		// the buffer holds the blob of data that will be displayed
@@ -89,6 +71,8 @@ namespace Project001
 		// this holds the vertex array's id
 		// the vertex array holds information about the size, shape, and type of array
 		glm::uint vertexArrayId_;
+
+		static const unsigned int s_bufferCapacity_ = 36 * 5;
 
 		std::vector<VertexDataStruct> vertexBuffer_;
 		std::vector<glm::uint> indexBuffer_;
@@ -103,5 +87,17 @@ namespace Project001
 		glm::mat4 projectionMatrix_;
 
 		DirectionalLight directionalLight_;
+
+		static const unsigned int s_numberOfPointLights_ = 8;
+		PointLight pointLights_[s_numberOfPointLights_];
+
+		static const unsigned int s_numberOfSpotLights_ = 4;
+		SpotLight spotLights_[s_numberOfSpotLights_];
+
+		static const char* s_vertexShaderSource01_;
+		static const char* s_fragmentShaderSource01_;
+
+	private:
+		
 	};
 }
