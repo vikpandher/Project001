@@ -5,7 +5,6 @@
 
 #include "Engine/Application.h"
 #include "Engine/Logger.h"
-#include "Engine/Renderer.h"
 #include "Engine/Stores.h"
 #include "Engine/Window.h"
 
@@ -19,7 +18,6 @@ namespace Project001
 		: applicationPtr_(nullptr)
 		, windowPtr_(nullptr)
 		, storesPtr_(nullptr)
-		, rendererPtr_(nullptr)
 		, widgetContainerPtr_(nullptr)
 		, cameraPosition_(glm::vec3(0.0f, 0.0f, 2.0f))
 		, cameraOrientation_(1.0f, 0.0f, 0.0f, 0.0f)
@@ -62,26 +60,24 @@ namespace Project001
 		applicationPtr_ = applicationPtr;
 		windowPtr_ = applicationPtr->windowPtr_;
 		storesPtr_ = applicationPtr->storesPtr_;
-		rendererPtr_ = applicationPtr->rendererPtr_;
 		widgetContainerPtr_ = &(applicationPtr->widgetMap_);
 
 		windowPtr_->SetAspectRatio(applicationPtr->windowWidth_, applicationPtr->windowHeight_);
 		aspectRatio_ = (float)applicationPtr->windowWidth_ / (float)applicationPtr->windowHeight_;
 
 		storesPtr_->LoadOBJFile("Cube", "../Models/Cube.obj");
-		//rendererPtr_->AddMesh(storesPtr_->GetMesh("Cube"));
 
 		storesPtr_->LoadTextureFile("Cube", "../Textures/Cube.png");
-		rendererPtr_->AddTexture(storesPtr_->GetTexture("Cube"), 0);
+		windowPtr_->AddTexture(storesPtr_->GetTexture("Cube"), 0);
 
 		storesPtr_->LoadTextureFile("CounterclockwiseDie", "../Textures/CounterclockwiseDie.png");
-		rendererPtr_->AddTexture(storesPtr_->GetTexture("CounterclockwiseDie"), 1);
+		windowPtr_->AddTexture(storesPtr_->GetTexture("CounterclockwiseDie"), 1);
 
 		storesPtr_->LoadTextureFile("RubiksCube", "../Textures/RubiksCube.png");
-		rendererPtr_->AddTexture(storesPtr_->GetTexture("RubiksCube"), 2);
+		windowPtr_->AddTexture(storesPtr_->GetTexture("RubiksCube"), 2);
 
 		storesPtr_->LoadTextureFile("NumberDie", "../Textures/NumberDie.png");
-		rendererPtr_->AddTexture(storesPtr_->GetTexture("NumberDie"), 3);
+		windowPtr_->AddTexture(storesPtr_->GetTexture("NumberDie"), 3);
 
 		ModelData testModel;
 		testModel.meshDataPtr_ = storesPtr_->GetMesh("Cube");
@@ -91,27 +87,27 @@ namespace Project001
 		testModel.shininess_ = 32.0f;
 		testModel.position_ = glm::vec3(0.0f, 0.0f, 0.0f);
 		testModel.orientation_ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		rendererPtr_->AddModel(&testModel);
+		//rendererPtr_->AddModel(&testModel);
 
 		testModel.color_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		testModel.textureIndex_ = 0.0f;
 		testModel.position_ = glm::vec3(0.0f, 1.0f, 0.0f);
-		rendererPtr_->AddModel(&testModel);
+		//rendererPtr_->AddModel(&testModel);
 
 		testModel.textureIndex_ = 1.0f;
 		testModel.position_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldUp_);
-		rendererPtr_->AddModel(&testModel);
+		//rendererPtr_->AddModel(&testModel);
 
 		testModel.textureIndex_ = 2.0f;
 		testModel.position_ = glm::vec3(0.0f, -1.0f, 0.0f);
 		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldRight_);
-		rendererPtr_->AddModel(&testModel);
+		//rendererPtr_->AddModel(&testModel);
 		
 		testModel.textureIndex_ = 3.0f;
 		testModel.position_ = glm::vec3(-1.0f, 0.0f, 0.0f);
 		testModel.orientation_ = glm::rotate(testModel.orientation_, glm::pi<float>() / 4.0f, s_worldForward_);
-		rendererPtr_->AddModel(&testModel);
+		//rendererPtr_->AddModel(&testModel);
 
 		// DirectionalLight directionalLight = DirectionalLight();
 		// directionalLight.direction = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -154,7 +150,7 @@ namespace Project001
 		spotLight00.diffuse = glm::vec3(0.25f, 0.25f, 0.25f);
 		spotLight00.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
-		rendererPtr_->SetSpotLight(spotLight00, 0);
+		//rendererPtr_->SetSpotLight(spotLight00, 0);
 	}
 
 	void RendererTestWidget::OnEvent(Event& event)
@@ -308,7 +304,7 @@ namespace Project001
 			int lowerLeftX = (width - adjustedWidth) / 2;
 			int lowerLeftY = (height - adjustedHeight) / 2;
 			
-			rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+			//rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
 		}
 	}
 
@@ -372,11 +368,11 @@ namespace Project001
 		spotLight01.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		spotLight01.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
-		rendererPtr_->SetSpotLight(spotLight01, 1);
+		//rendererPtr_->SetSpotLight(spotLight01, 1);
 
-		applicationPtr_->rendererPtr_->SetViewMatrix(viewMatrix);
-		applicationPtr_->rendererPtr_->SetViewPosition(cameraPosition_);
-		applicationPtr_->rendererPtr_->SetProjectionMatrix(projectionMatrix);
+		//applicationPtr_->rendererPtr_->SetViewMatrix(viewMatrix);
+		//applicationPtr_->rendererPtr_->SetViewPosition(cameraPosition_);
+		//applicationPtr_->rendererPtr_->SetProjectionMatrix(projectionMatrix);
 	}
 
 	// protected: --------------------------------------------------------------

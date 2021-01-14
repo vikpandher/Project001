@@ -1,11 +1,13 @@
-#include "Stores.h"
-
-#include "Logger.h"
+#include "ResourceStores.h"
 
 #include <fstream>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include "Engine/Logger.h"
+#include "Engine/ModelData.h"
+#include "Engine/TextureData.h"
 
 
 
@@ -13,30 +15,30 @@ namespace Project001
 {		
 	// public ------------------------------------------------------------------
 
-	Stores::Stores()
+	ResourceStores::ResourceStores()
 	{
 		// tell stb_image.h to flip loaded texture's on the y-axis.
 		stbi_set_flip_vertically_on_load(true);
 	}
 
-	Stores::~Stores()
+	ResourceStores::~ResourceStores()
 	{
 		ClearMeshes();
 
 		ClearTextures();
 	}
 
-	MeshData* Stores::GetMesh(std::string name)
+	const MeshData* ResourceStores::GetMesh(const std::string& name) const
 	{
-		return meshMap_[name];
+		return meshMap_.find(name)->second;
 	}
 
-	TextureData* Stores::GetTexture(std::string name)
+	const TextureData* ResourceStores::GetTexture(const std::string& name) const
 	{
-		return textureMap_[name];
+		return textureMap_.find(name)->second;
 	}
 
-	bool Stores::LoadOBJFile(std::string name, std::string path)
+	bool ResourceStores::LoadOBJFile(const std::string& name, const std::string& path)
 	{
 		// file path must have .obk extension
 		if (path.substr(path.size() - 4, 4) != ".obj")
@@ -202,7 +204,7 @@ namespace Project001
 		return true;
 	}
 
-	bool Stores::LoadTextureFile(std::string name, std::string path)
+	bool ResourceStores::LoadTextureFile(const std::string& name, const std::string& path)
 	{
 		TextureData* newTexturePtr = new TextureData();
 		newTexturePtr->data = stbi_load(path.c_str(), &newTexturePtr->width, &newTexturePtr->height, &newTexturePtr->numberOfComponents, 0);
@@ -216,7 +218,7 @@ namespace Project001
 		return true;
 	}
 
-	void Stores::ClearMeshes()
+	void ResourceStores::ClearMeshes()
 	{
 		for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
 		{
@@ -225,7 +227,7 @@ namespace Project001
 		meshMap_.clear();
 	}
 
-	void Stores::ClearTextures()
+	void ResourceStores::ClearTextures()
 	{
 		for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
 		{
@@ -237,7 +239,7 @@ namespace Project001
 
 	// protected: --------------------------------------------------------------
 
-	std::string Stores::GetFirstToken(const std::string& input) const
+	std::string ResourceStores::GetFirstToken(const std::string& input) const
 	{
 		if (input.empty())
 		{

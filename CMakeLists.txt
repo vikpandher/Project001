@@ -16,10 +16,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 set(SOURCE_FILES
-    "Src/DebugOutputWidget.cpp"
-    "Src/DebugOutputWidget.h"
-    "Src/RendererTestWidget.cpp"
-    "Src/RendererTestWidget.h"
     "Src/Main.cpp"
 )
 
@@ -28,16 +24,14 @@ source_group("Src" FILES ${SOURCE_FILES})
 set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
-    "Src/Engine/EventUtilities.h"
+    "Src/Engine/Event.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
-    "Src/Engine/ModelUtilities.h"
-    "Src/Engine/Renderer.h"
-    "Src/Engine/Stores.cpp"
-    "Src/Engine/Stores.h"
-    "Src/Engine/TimingUtilities.cpp"
-    "Src/Engine/TimingUtilities.h"
-    "Src/Engine/Widget.h"
+    "Src/Engine/ModelData.h"
+    "Src/Engine/RenderData.h"
+    "Src/Engine/ResourceStores.cpp"
+    "Src/Engine/ResourceStores.h"
+    "Src/Engine/TextureData.h"
     "Src/Engine/Window.h"
 )
 
@@ -49,10 +43,9 @@ set(PLATFORM_FILES
     "Src/Platform/OpenGLShader.h"
     "Src/Platform/OpenGLTexture.cpp"
     "Src/Platform/OpenGLTexture.h"
-    "Src/Platform/OpenGLRenderer.cpp"
-    "Src/Platform/OpenGLRenderer.h"
     "Src/Platform/OpenGLWindow.cpp"
     "Src/Platform/OpenGLWindow.h"
+    "Src/Platform/Shaders.h"
 )
 
 source_group("Src/Platform" FILES ${PLATFORM_FILES})
@@ -67,6 +60,7 @@ add_executable("${PROJECT_NAME}" # WIN32
 target_include_directories("${PROJECT_NAME}"
     PUBLIC 
     "Include"
+    "Src"
 )
 
 target_link_directories("${PROJECT_NAME}"

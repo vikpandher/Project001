@@ -9,6 +9,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 #include "../Engine/Logger.h"
 
@@ -26,6 +27,9 @@ namespace Project001
 		, projectionMatrix_(1.0f)
 		, directionalLight_()
 	{		
+		// This renderer will be associated with the current context.
+		glfwWindowPtr_ = glfwGetCurrentContext();
+		
 		// configure global opengl state
 		// ---------------------------------------------------------------------
 		// enable using the z buffer
@@ -153,6 +157,8 @@ namespace Project001
 
 	OpenGLRenderer::~OpenGLRenderer()
 	{
+		glfwMakeContextCurrent(glfwWindowPtr_);
+		
 		delete shaderPtr_;
 		delete[] texturePtrs_;
 		
@@ -240,6 +246,8 @@ namespace Project001
 
 	void OpenGLRenderer::Render()
 	{	
+		glfwMakeContextCurrent(glfwWindowPtr_);
+		
 		shaderPtr_->SetMat4("view", viewMatrix_);
 		shaderPtr_->SetMat4("projection", projectionMatrix_);
 
@@ -313,6 +321,8 @@ namespace Project001
 
 			numberOfVerticiesDrawn += numberOfVerticiesThatWillBeDrawn;
 		}
+
+		glfwSwapBuffers(glfwWindowPtr_);
 	}
 
 	void OpenGLRenderer::SetViewMatrix(const glm::mat4& viewMatrix)
@@ -353,6 +363,8 @@ namespace Project001
 
 	void OpenGLRenderer::SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height)
 	{
+		glfwMakeContextCurrent(glfwWindowPtr_);
+
 		glViewport(lowerLeftX, lowerLeftY, width, height);
 		glScissor(lowerLeftX, lowerLeftY, width, height);
 	}

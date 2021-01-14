@@ -1,16 +1,14 @@
 #pragma once
 
 #include <string>
-#include <map>
 
 
 
 namespace Project001
 {	
 	struct Event;
-	class Renderer;
-	class Stores;
-	class Widget;
+	class Scene;
+	class ResourceStores;
 	class Window;
 	
 	class Application
@@ -21,8 +19,6 @@ namespace Project001
 
 		Application(Application& other) = delete;
 		void operator=(const Application&) = delete;
-
-		void AddWidget(std::string widgetName, Widget* widgetPtr);
 
 		void Run();
 
@@ -38,11 +34,7 @@ namespace Project001
 
 		Window* windowPtr_;
 
-		Stores* storesPtr_;
-
-		Renderer* rendererPtr_;
-
-		std::map<std::string, Widget*> widgetMap_;
+		ResourceStores* storesPtr_;
 
 	protected:
 

@@ -3,18 +3,10 @@
 #include <functional>
 #include <thread> 
 
-#include "EventUtilities.h"
-#include "Logger.h"
-#include "Renderer.h"
-//^includes "Mesh.h"
-#include "Stores.h"
-//^includes "Mesh.h"
-#include "Widget.h"
-#include "Window.h"
-//^includes "EventUtilities.h"
+#include "Engine/Event.h"
+#include "Engine/ResourceStores.h"
 
-#include "../Platform/OpenGLRenderer.h"
-#include "../Platform/OpenGLWindow.h"
+#include "Platform/OpenGLWindow.h"
 
 
 
@@ -32,9 +24,7 @@ namespace Project001
 		windowPtr_ = new OpenGLWindow(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-		storesPtr_ = new Stores();
-
-		rendererPtr_ = new OpenGLRenderer();
+		storesPtr_ = new ResourceStores();
 	}
 
 	Application::~Application()
@@ -48,23 +38,6 @@ namespace Project001
 		{
 			delete storesPtr_;
 		}
-
-		if (rendererPtr_ != nullptr)
-		{
-			delete rendererPtr_;
-		}
-		
-		for (std::map<std::string, Widget*>::iterator iterator = widgetMap_.begin(); iterator != widgetMap_.end(); ++iterator)
-		{
-			delete iterator->second;
-		}
-		widgetMap_.clear();
-	}
-
-	void Application::AddWidget(std::string widgetName, Widget* widgetPtr)
-	{
-		widgetMap_.insert(std::make_pair(widgetName, widgetPtr));
-		widgetPtr->Initialize(this);
 	}
 
 	void Application::Run()
@@ -91,14 +64,8 @@ namespace Project001
 			std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
 			std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
 
-			for (std::map<std::string, Widget*>::iterator widgetIterator = widgetMap_.begin(); widgetIterator != widgetMap_.end(); ++widgetIterator)
-			{
-				Widget * currentWidget = widgetIterator->second;
-				currentWidget->OnUpdate(totalTime_ms.count() / 1000.0);
-			}
-
-			windowPtr_->OnUpdate();
-			rendererPtr_->Render();
+			windowPtr_->PollEvents();
+			OnEvent(UpdateEvent(totalTime_ms.count() / 1000.0));
 		}
 	}
 
@@ -106,17 +73,6 @@ namespace Project001
 
 	void Application::OnEvent(Event& event)
 	{		
-		for (std::map<std::string, Widget*>::reverse_iterator widgetIterator = widgetMap_.rbegin(); widgetIterator != widgetMap_.rend(); ++widgetIterator)
-		{
-			Widget* currentWidget = widgetIterator->second;
-			currentWidget->OnEvent(event);
-
-			if (event.handled)
-			{
-				break;
-			}
-		}
-
 		if (event.GetEventType() == EventType::EVENT_TYPE_WINDOW_CLOSE)
 		{
 			WindowCloseEvent windowFocusEvent = dynamic_cast<WindowCloseEvent&>(event);

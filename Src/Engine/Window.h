@@ -2,16 +2,23 @@
 
 #include <functional>
 
-#include "EventUtilities.h"
+#include "Engine/Event.h"
 
 
 
 namespace Project001
 {
+	class RenderData;
+	class TextureData;
+	
 	class Window
 	{
 	public:
-		virtual void OnUpdate() = 0;
+		virtual void Render(const RenderData* renderData) const = 0;
+
+		virtual void AddTexture(const TextureData* textureData, unsigned int index) = 0;
+
+		virtual void PollEvents() = 0;
 
 		virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
 

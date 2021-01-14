@@ -9,6 +9,8 @@
 
 
 
+struct GLFWwindow;
+
 namespace Project001
 {
 	class OpenGLShader;
@@ -56,6 +58,8 @@ namespace Project001
 		void SetViewportSize(int lowerLeftX, int lowerLeftY, int width, int height) override;
 
 	protected:
+		GLFWwindow* glfwWindowPtr_;
+
 		OpenGLShader* shaderPtr_;
 
 		static const unsigned int s_numberOfTextureSlots_ = 16;

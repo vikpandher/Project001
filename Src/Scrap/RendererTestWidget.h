@@ -16,7 +16,6 @@ namespace Project001
 {
 	class Application;
 	struct Event;
-	class Renderer;
 	class Stores;
 	class Window;
 
@@ -42,8 +41,6 @@ namespace Project001
 		Window* windowPtr_;
 
 		Stores* storesPtr_;
-
-		Renderer* rendererPtr_;
 
 		std::map<std::string, Widget*>* widgetContainerPtr_;
 

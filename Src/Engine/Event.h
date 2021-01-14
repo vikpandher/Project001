@@ -5,38 +5,7 @@
 
 
 namespace Project001
-{
-	// NOTES:
-	// GLFW Callback Functions:
-	// ----------------------------------------------------------------------------
-	// ERROR CALLBACKS: https://www.glfw.org/docs/3.3/group__init.html
-	// GLFWerrorfun glfwSetErrorCallback (GLFWerrorfun callback) ---implemented---
-	// 
-	// INPUT CALLBACKS: https://www.glfw.org/docs/3.3/group__input.html
-	// GLFWkeyfun glfwSetKeyCallback (GLFWwindow *window, GLFWkeyfun callback) ---implemented---
-	// GLFWcharfun glfwSetCharCallback (GLFWwindow *window, GLFWcharfun callback)
-	// GLFWcharmodsfun glfwSetCharModsCallback (GLFWwindow *window, GLFWcharmodsfun callback)
-	// GLFWmousebuttonfun glfwSetMouseButtonCallback (GLFWwindow *window, GLFWmousebuttonfun callback) ---implemented---
-	// GLFWcursorposfun glfwSetCursorPosCallback (GLFWwindow *window, GLFWcursorposfun callback) ---implemented---
-	// GLFWcursorenterfun glfwSetCursorEnterCallback (GLFWwindow *window, GLFWcursorenterfun callback) ---implemented---
-	// GLFWscrollfun glfwSetScrollCallback (GLFWwindow *window, GLFWscrollfun callback) ---implemented---
-	// GLFWdropfun glfwSetDropCallback (GLFWwindow *window, GLFWdropfun callback)
-	// GLFWjoystickfun glfwSetJoystickCallback (GLFWjoystickfun callback)
-	// 
-	// MONITOR CALLBACKS: https://www.glfw.org/docs/3.3/group__monitor.html
-	// GLFWmonitorfun glfwSetMonitorCallback (GLFWmonitorfun callback)
-	// 
-	// WINDOW CALLBACKS: https://www.glfw.org/docs/3.3/group__window.html
-	// GLFWwindowposfun glfwSetWindowPosCallback (GLFWwindow *window, GLFWwindowposfun callback)
-	// GLFWwindowsizefun glfwSetWindowSizeCallback (GLFWwindow *window, GLFWwindowsizefun callback)
-	// GLFWwindowclosefun glfwSetWindowCloseCallback (GLFWwindow *window, GLFWwindowclosefun callback) ---implemented---
-	// GLFWwindowrefreshfun glfwSetWindowRefreshCallback (GLFWwindow *window, GLFWwindowrefreshfun callback)
-	// GLFWwindowfocusfun glfwSetWindowFocusCallback (GLFWwindow *window, GLFWwindowfocusfun callback) ---implemented---
-	// GLFWwindowiconifyfun glfwSetWindowIconifyCallback (GLFWwindow *window, GLFWwindowiconifyfun callback)
-	// GLFWwindowmaximizefun glfwSetWindowMaximizeCallback (GLFWwindow *window, GLFWwindowmaximizefun callback)
-	// GLFWframebuffersizefun glfwSetFramebufferSizeCallback (GLFWwindow *window, GLFWframebuffersizefun callback) ---implemented---
-	// GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback (GLFWwindow *window, GLFWwindowcontentscalefun callback)
-	
+{	
 	enum class EventType
 	{
 		EVENT_TYPE_NONE = 0,
@@ -47,7 +16,9 @@ namespace Project001
 		EVENT_TYPE_SCROLL,
 		EVENT_TYPE_WINDOW_CLOSE,
 		EVENT_TYPE_WINDOW_FOCUS,
-		EVENT_TYPE_FRAMEBUFFER_SIZE
+		EVENT_TYPE_FRAMEBUFFER_SIZE,
+
+		EVENT_TYPE_UPDATE
 	};
 
 	static std::string EventTypeToString(EventType eventType)
@@ -97,6 +68,11 @@ namespace Project001
 		case EventType::EVENT_TYPE_FRAMEBUFFER_SIZE:
 		{
 			return std::string("EVENT_TYPE_FRAMEBUFFER_SIZE");
+			break;
+		}
+		case EventType::EVENT_TYPE_UPDATE:
+		{
+			return std::string("EVENT_TYPE_UPDATE");
 			break;
 		}
 		}
@@ -981,18 +957,6 @@ namespace Project001
 		return std::string("UNKNOWN");
 	}
 
-	// Maybe I'll use this...
-#define EVENT_TYPE_FUNCTIONS(eventType)\
-	static EventType GetStaticEventType()\
-	{\
-		return eventType;\
-	}\
-	\
-	EventType GetEventType() const override\
-	{\
-		return GetStaticEventType();\
-	}
-
 	struct Event
 	{
 		Event()
@@ -1016,6 +980,17 @@ namespace Project001
 		return false;
 	}
 
+#define EVENT_TYPE_FUNCTIONS(eventType)\
+	static EventType GetStaticEventType()\
+	{\
+		return eventType;\
+	}\
+	\
+	EventType GetEventType() const override\
+	{\
+		return GetStaticEventType();\
+	}
+
 	struct KeyEvent : Event
 	{
 		KeyEvent(KeyCode keyCode, ButtonAction buttonAction, KeyModifier keyModifier)
@@ -1025,15 +1000,7 @@ namespace Project001
 			, keyModifier(keyModifier)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_KEY;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_KEY;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_KEY)
 
 		KeyCode keyCode;
 		ButtonAction buttonAction;
@@ -1049,15 +1016,7 @@ namespace Project001
 			, keyModifier(keyModifier)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_MOUSE_BUTTON;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_MOUSE_BUTTON;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_MOUSE_BUTTON)
 
 		MouseButton mouseButton;
 		ButtonAction buttonAction;
@@ -1071,16 +1030,8 @@ namespace Project001
 			, xPos(xPos)
 			, yPos(yPos)
 		{}
-
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_CURSOR_POS;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_CURSOR_POS;
-		}
+		
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_POS)
 
 		// origin is at the top left
 		float xPos, yPos;
@@ -1093,15 +1044,7 @@ namespace Project001
 			, entered(entered)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_CURSOR_ENTER;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_CURSOR_ENTER;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_ENTER)
 
 		bool entered;
 	};
@@ -1114,15 +1057,7 @@ namespace Project001
 			, yOffset(yOffset)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_SCROLL;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_SCROLL;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SCROLL)
 
 		float xOffset, yOffset;
 	};
@@ -1133,15 +1068,7 @@ namespace Project001
 			: Event()
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_WINDOW_CLOSE;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_WINDOW_CLOSE;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_CLOSE)
 	};
 
 	struct WindowFocusEvent : Event
@@ -1151,15 +1078,7 @@ namespace Project001
 			, focused(focused)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_WINDOW_FOCUS;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_WINDOW_FOCUS;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_FOCUS)
 
 		bool focused;
 	};
@@ -1172,16 +1091,20 @@ namespace Project001
 			, height(height)
 		{}
 
-		EventType GetEventType() const override
-		{
-			return EventType::EVENT_TYPE_FRAMEBUFFER_SIZE;
-		}
-
-		static EventType GetStaticEventType()
-		{
-			return EventType::EVENT_TYPE_FRAMEBUFFER_SIZE;
-		}
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_FRAMEBUFFER_SIZE)
 
 		int width, height;
+	};
+
+	struct UpdateEvent : Event
+	{
+		UpdateEvent(double timestep_s)
+			: Event()
+			, timestep_s(timestep_s)
+		{}
+
+		EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_UPDATE)
+
+		double timestep_s;
 	};
 }

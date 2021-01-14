@@ -1,7 +1,6 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
 
 #include <vector>
 
@@ -104,41 +103,32 @@ namespace Project001
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	};
-	
-	struct IndexGroup
+
+	struct VertexData
 	{
-		 glm::uint positonIndex;
-		 glm::uint textureCoordinateIndex;
-		 glm::uint normalIndex;
-	};
-	
-	struct MeshData
-	{
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec2> textureCoordinates;
-		std::vector<glm::vec3> normals;
-		std::vector<std::vector<IndexGroup>> faces;
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec4 color;
+		glm::vec2 textureCoordinte;
+		float textureIndex;
+		float specularIndex;
+		float shininess;
+		glm::vec3 translation;
+		glm::vec4 orientation;
 	};
 
-	struct ModelData
+	struct RenderData
 	{
-		MeshData* meshDataPtr_;
-		glm::vec4 color_;
-		float textureIndex_;
-		float specularIndex_;
-		float shininess_;
-		glm::vec3 position_;
-		glm::quat orientation_;
-		
-		// TODO:
-		//bool transparent_;
-	};
+		glm::mat4 viewMatrix;
+		glm::vec3 viewPosition;
 
-	struct TextureData
-	{
-		unsigned char* data;
-		int width;
-		int height;
-		int numberOfComponents; // alternativly bytes per pixel
+		glm::mat4 projectionMatrix;
+
+		DirectionalLight directionalLight;
+		std::vector<PointLight> pointLights;
+		std::vector<SpotLight> spotLights;
+
+		std::vector<VertexData> vertexBuffer;
+		std::vector<glm::uint> indexBuffer;
 	};
 }

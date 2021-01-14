@@ -2,7 +2,7 @@
 
 #include "glad/glad.h"
 
-#include "../Engine/Logger.h"
+#include "Engine/Logger.h"
 
 
 

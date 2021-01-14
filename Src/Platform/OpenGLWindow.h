@@ -2,8 +2,7 @@
 
 #include <string>
 
-#include "../Engine/Window.h"
-//^includes "EventUtilities.h"
+#include "Engine/Window.h"
 
 
 
@@ -11,6 +10,9 @@ struct GLFWwindow;
 
 namespace Project001
 {
+	class OpenGLShader;
+	class OpenGLTexture;
+	
 	class OpenGLWindow : public Window
 	{
 	public:
@@ -20,7 +22,11 @@ namespace Project001
 		OpenGLWindow(OpenGLWindow& other) = delete;
 		void operator=(const OpenGLWindow&) = delete;
 
-		void OnUpdate() override;
+		void Render(const RenderData* renderData) const override;
+
+		void AddTexture(const TextureData* textureData, unsigned int index) override;
+
+		void PollEvents() override;
 
 		void SetEventCallback(const std::function<void(Event&)>& callback) override;
 
@@ -37,6 +43,15 @@ namespace Project001
 		bool IsVSync() const override;
 
 	protected:
+		static int s_glfwWindowCount_;
+
+		// determines the size of the index and vertex buffers
+		static const unsigned int s_bufferCapacity_ = 36 * 5;
+		static const unsigned int s_numberOfTextureSlots_ = 16;
+
+		static const unsigned int s_numberOfPointLights_ = 8;
+		static const unsigned int s_numberOfSpotLights_ = 4;
+
 		GLFWwindow* glfwWindowPtr_;
 
 		struct WindowData
@@ -57,8 +72,23 @@ namespace Project001
 
 		} windowData_;
 
+		OpenGLShader* shaderPtr_;
+
+		// this holds the buffer's id
+		// the buffer holds the blob of data that will be displayed
+		unsigned int vertexBufferId_;
+
+		// this holds the index buffer's id
+		unsigned int indexBufferId_;
+
+		// this holds the vertex array's id
+		// the vertex array holds information about the size, shape, and type of array
+		unsigned int vertexArrayId_;
+
+		OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
+
 	private:
-		static int s_glfwWindowCount_;
+
 	};
 
 	// public: -----------------------------------------------------------------
