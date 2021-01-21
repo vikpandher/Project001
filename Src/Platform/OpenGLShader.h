@@ -15,6 +15,9 @@ namespace Project001
 
 		~OpenGLShader();
 
+		OpenGLShader(OpenGLShader& other) = delete;
+		void operator=(const OpenGLShader&) = delete;
+
 		void Use() const;
 
 		void SetBool(const char* name, bool value) const;

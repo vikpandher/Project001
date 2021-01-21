@@ -13,6 +13,9 @@ namespace Project001
 
 		~OpenGLTexture();
 
+		OpenGLTexture(OpenGLTexture& other) = delete;
+		void operator=(const OpenGLTexture&) = delete;
+
 		void Bind(unsigned int index);
 
 		// Don't really need to unbind...

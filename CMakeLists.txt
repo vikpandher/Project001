@@ -68,6 +68,10 @@ target_link_directories("${PROJECT_NAME}"
     "Lib"
 )
 
+# Getting a linker warning when building debug only:
+	# LNK4098 defaultlib 'MSVCRT' confilics with use of other libs; use
+	# /NODEFAULTLIB:library
+
 target_link_libraries("${PROJECT_NAME}"
     "glfw3.lib" # This is a 64 bit library
 )

@@ -397,11 +397,11 @@ namespace Project001
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		unsigned int numberOfVerticiesLeftToDraw = vertexBuffer.size();
+		unsigned int numberOfVerticiesLeftToDraw = (unsigned int)vertexBuffer.size();
 		unsigned int numberOfVerticiesDrawn = 0;
 		while (numberOfVerticiesDrawn < vertexBuffer.size())
 		{
-			int numberOfVerticiesThatWillBeDrawn = s_bufferCapacity_;
+			unsigned int numberOfVerticiesThatWillBeDrawn = s_bufferCapacity_;
 			if (numberOfVerticiesLeftToDraw < numberOfVerticiesThatWillBeDrawn)
 			{
 				numberOfVerticiesThatWillBeDrawn = numberOfVerticiesLeftToDraw;

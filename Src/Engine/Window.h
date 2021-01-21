@@ -8,8 +8,8 @@
 
 namespace Project001
 {
-	class RenderData;
-	class TextureData;
+	struct RenderData;
+	struct TextureData;
 	
 	class Window
 	{

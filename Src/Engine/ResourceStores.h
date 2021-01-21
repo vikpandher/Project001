@@ -7,8 +7,8 @@
 
 namespace Project001
 {
-	class MeshData;
-	class TextureData;
+	struct MeshData;
+	struct TextureData;
 	
 	class ResourceStores
 	{
