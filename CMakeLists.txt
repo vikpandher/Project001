@@ -32,6 +32,7 @@ set(ENGINE_FILES
     "Src/Engine/ResourceStores.cpp"
     "Src/Engine/ResourceStores.h"
     "Src/Engine/TextureData.h"
+    "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
 )
 

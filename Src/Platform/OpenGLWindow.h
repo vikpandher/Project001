@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "Engine/Window.h"
 
 
@@ -62,7 +60,7 @@ namespace Project001
 				, vSyncEnabled(false)
 			{}
 
-			std::string title;
+			const char* title;
 			unsigned int width;
 			unsigned int height;
 

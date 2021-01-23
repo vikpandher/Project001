@@ -5,8 +5,7 @@
 
 #include "Engine/Event.h"
 #include "Engine/ResourceStores.h"
-
-#include "Platform/OpenGLWindow.h"
+#include "Engine/Window.h"
 
 
 
@@ -21,7 +20,7 @@ namespace Project001
 		, running_(false)
 		, secondsPerFrame_(1.0 / 60.0)
 	{
-		windowPtr_ = new OpenGLWindow(windowTitle, windowWidth, windowHeight);
+		windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
 		storesPtr_ = new ResourceStores();
