@@ -24,6 +24,9 @@ source_group("Src" FILES ${SOURCE_FILES})
 set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
+    "Src/Engine/Component.h"
+    "Src/Engine/ComponentContainer.h"
+	"Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"

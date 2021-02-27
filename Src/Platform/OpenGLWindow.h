@@ -55,7 +55,8 @@ namespace Project001
 		struct WindowData
 		{
 			WindowData()
-				: width(0)
+				: title(nullptr)
+				, width(0)
 				, height(0)
 				, vSyncEnabled(false)
 			{}

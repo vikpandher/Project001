@@ -9,6 +9,7 @@ namespace Project001
 	enum class EventType
 	{
 		EVENT_TYPE_NONE = 0,
+
 		EVENT_TYPE_KEY,
 		EVENT_TYPE_MOUSE_BUTTON,
 		EVENT_TYPE_CURSOR_POS,
@@ -969,12 +970,12 @@ namespace Project001
 	};
 
 	// Maybe I'll use this...
-	template<typename T, typename F>
+	template<typename Component, typename F>
 	static bool DispatchEvent(Event& event, const F& function)
 	{
-		if (event.GetEventType() == T::GetEventType())
+		if (event.GetEventType() == Component::GetEventType())
 		{
-			event.handled = function(static_cast<T>(event));
+			event.handled = function(static_cast<Component>(event));
 			return true;
 		}
 		return false;
@@ -990,6 +991,9 @@ namespace Project001
 	{\
 		return GetStaticEventType();\
 	}
+
+	// Events:
+	// ----------------------------------------------------------------------------
 
 	struct KeyEvent : Event
 	{
