@@ -1,8 +1,7 @@
 #pragma once
 
+#include <map>
 #include <vector>
-
-#include "glm/glm.hpp"
 
 
 
@@ -12,6 +11,7 @@ namespace Project001
 	{
 	public:
 		ComponentContainer()
+			: typeId_(0)
 		{
 		}
 
@@ -22,6 +22,15 @@ namespace Project001
 		template <typename Component, typename... Args>
 		bool CreateComponent(unsigned int entityId, Args... args)
 		{
+			if (componentMemory_.empty())
+			{
+				typeId_ = Component::typeId;
+			}
+			else if (!TypeIdValid(Component::typeId))
+			{
+				return false;
+			}
+
 			if (ComponentExists(entityId))
 			{
 				return false;
@@ -50,7 +59,7 @@ namespace Project001
 		template <typename Component>
 		bool GetComponent(unsigned int entityId, Component*& component)
 		{
-			if (!ComponentExists(entityId))
+			if (!TypeIdValid(Component::typeId) || !ComponentExists(entityId))
 			{
 				return false;
 			}
@@ -61,16 +70,23 @@ namespace Project001
 		}
 
 		template <typename Component>
-		inline void GetAllComponents(Component*& compoonents, size_t& count)
+		bool GetAllComponents(Component*& compoonents, size_t& count)
 		{
+			if (!TypeIdValid(Component::typeId))
+			{
+				return false;
+			}
+			
 			compoonents = (Component*)componentMemory_.data();
 			count = componentMemory_.size() / sizeof(Component);
+
+			return true;
 		}
 
 		template <typename Component>
 		bool DeleteComponent(unsigned int entityId)
 		{
-			if (!ComponentExists(entityId))
+			if (!TypeIdValid(Component::typeId) || !ComponentExists(entityId))
 			{
 				return false;
 			}
@@ -83,6 +99,7 @@ namespace Project001
 			Component* lastComponent = (Component*)&componentMemory_[lastIndex];
 			int lastIndexIndex = lastComponent->entityId;
 
+			deletedComponent->~Component();
 			*deletedComponent = *lastComponent;
 			componentIndicies_[entityId] = -1;
 			componentIndicies_[lastIndexIndex] = deletedIndex;
@@ -100,8 +117,18 @@ namespace Project001
 			return entityId < componentIndicies_.size() && componentIndicies_[entityId] >= 0;
 		}
 
+		inline bool TypeIdValid(int testTypeId) const
+		{
+			return typeId_ == testTypeId;
+		}
+
+		// This is the typeId of the components stored.
+		// It's used toensure the "ComponentContainer" only
+		// contains one type of component at a time.
+		int typeId_;
+
 		// Components are stored in "componentMemory_".
-		std::vector<glm::uint8> componentMemory_;
+		std::vector<unsigned char> componentMemory_;
 		
 		// The index of a component in "componentMemory_" is stored in
 		// "componentIndicies_".

@@ -970,12 +970,12 @@ namespace Project001
 	};
 
 	// Maybe I'll use this...
-	template<typename Component, typename F>
+	template<typename T, typename F>
 	static bool DispatchEvent(Event& event, const F& function)
 	{
-		if (event.GetEventType() == Component::GetEventType())
+		if (event.GetEventType() == T::GetEventType())
 		{
-			event.handled = function(static_cast<Component>(event));
+			event.handled = function(static_cast<T>(event));
 			return true;
 		}
 		return false;
