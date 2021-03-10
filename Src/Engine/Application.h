@@ -5,11 +5,13 @@
 
 
 namespace Project001
-{	
+{
+	class ComponentStores;
 	struct Event;
 	class Scene;
 	class ResourceStores;
 	class Window;
+	struct WindowCloseEvent;
 	
 	class Application
 	{
@@ -22,6 +24,9 @@ namespace Project001
 
 		void Run();
 
+	protected:
+		void Stop(WindowCloseEvent& windowCloseEvent);
+
 		void OnEvent(Event& event);
 
 		std::string windowTitle_;
@@ -32,11 +37,13 @@ namespace Project001
 
 		double secondsPerFrame_;
 
+		ComponentStores* componentStoresPtr_;
+
+		ResourceStores* resourceStoresPtr_;
+
 		Window* windowPtr_;
 
-		ResourceStores* storesPtr_;
-
-	protected:
+		Scene* activeScenePtr_;
 
 	private:
 

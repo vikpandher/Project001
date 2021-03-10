@@ -2,12 +2,11 @@
 
 #include <functional>
 
-#include "Engine/Event.h"
-
 
 
 namespace Project001
 {
+	struct Event;
 	struct RenderData;
 	struct TextureData;
 	

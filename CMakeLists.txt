@@ -34,6 +34,8 @@ set(ENGINE_FILES
     "Src/Engine/RenderData.h"
     "Src/Engine/ResourceStores.cpp"
     "Src/Engine/ResourceStores.h"
+	"Src/Engine/Scene.cpp"
+	"Src/Engine/Scene.h"
     "Src/Engine/TextureData.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"

@@ -3,15 +3,17 @@
 #include <functional>
 #include <thread> 
 
+#include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/ResourceStores.h"
+#include "Engine/Scene.h"
 #include "Engine/Window.h"
 
 
 
 namespace Project001
 {
-	// public ------------------------------------------------------------------
+	// public: -----------------------------------------------------------------
 
 	Application::Application(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight)
 		: windowTitle_(windowTitle)
@@ -20,10 +22,15 @@ namespace Project001
 		, running_(false)
 		, secondsPerFrame_(1.0 / 60.0)
 	{
+		componentStoresPtr_ = new ComponentStores();
+
+		resourceStoresPtr_ = new ResourceStores();
+
 		windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
 		windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-		storesPtr_ = new ResourceStores();
+		activeScenePtr_ = new Scene(componentStoresPtr_, resourceStoresPtr_, windowPtr_);
+		activeScenePtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 	}
 
 	Application::~Application()
@@ -33,9 +40,19 @@ namespace Project001
 			delete windowPtr_;
 		}
 
-		if (storesPtr_ != nullptr)
+		if (componentStoresPtr_ != nullptr)
 		{
-			delete storesPtr_;
+			delete componentStoresPtr_;
+		}
+
+		if (resourceStoresPtr_ != nullptr)
+		{
+			delete resourceStoresPtr_;
+		}
+
+		if (activeScenePtr_ != nullptr)
+		{
+			delete activeScenePtr_;
 		}
 	}
 
@@ -54,29 +71,36 @@ namespace Project001
 
 			if (workTime_ms.count() < secondsPerFrame_)
 			{
-				std::chrono::duration<double, std::milli> delta_ms(200.0 - workTime_ms.count());
+				std::chrono::duration<double, std::milli> delta_ms(secondsPerFrame_ - workTime_ms.count());
 				std::chrono::duration<long long, std::milli> deltaDuration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
 				std::this_thread::sleep_for(std::chrono::milliseconds(deltaDuration_ms.count()));
 			}
 
 			timeStampB = std::chrono::system_clock::now();
+			//std::chrono::duration<double> currentTime_s = timeStampB.time_since_epoch();
 			std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
 			std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
 
 			windowPtr_->PollEvents();
-			OnEvent(UpdateEvent(totalTime_ms.count() / 1000.0));
+			OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
 		}
 	}
 
-	// private --------------------------------------------------------------------
+	// protected: -----------------------------------------------------------------
+
+	void Application::Stop(WindowCloseEvent& windowCloseEvent)
+	{
+		running_ = false;
+		windowCloseEvent.handled = true;
+	}
 
 	void Application::OnEvent(Event& event)
-	{		
-		if (event.GetEventType() == EventType::EVENT_TYPE_WINDOW_CLOSE)
+	{
+		activeScenePtr_->OnEvent(event);
+
+		if (!event.handled)
 		{
-			WindowCloseEvent windowFocusEvent = dynamic_cast<WindowCloseEvent&>(event);
-			running_ = false;
-			windowFocusEvent.handled = true;
+			DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::Stop, this, std::placeholders::_1));
 		}
 	}
 }

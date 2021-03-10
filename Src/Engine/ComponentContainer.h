@@ -1,7 +1,8 @@
 #pragma once
 
-#include <map>
 #include <vector>
+
+#include "Component.h"
 
 
 
@@ -12,6 +13,8 @@ namespace Project001
 	public:
 		ComponentContainer()
 			: typeId_(0)
+			, componentSize_(0)
+			, ComponentDestructionFunction(nullptr)
 		{
 		}
 
@@ -25,6 +28,8 @@ namespace Project001
 			if (componentMemory_.empty())
 			{
 				typeId_ = Component::typeId;
+				componentSize_ = sizeof(Component);
+				ComponentDestructionFunction = [](void* componentPtr) { ((Component*)componentPtr)->~Component(); };
 			}
 			else if (!TypeIdValid(Component::typeId))
 			{
@@ -36,10 +41,9 @@ namespace Project001
 				return false;
 			}
 
-			size_t componentSize = sizeof(Component);
 			size_t componentIndex = componentMemory_.size();
 
-			componentMemory_.resize(componentIndex + componentSize);
+			componentMemory_.resize(componentIndex + componentSize_);
 
 			void* destination = componentMemory_.data() + componentIndex;
 
@@ -83,24 +87,22 @@ namespace Project001
 			return true;
 		}
 
-		template <typename Component>
 		bool DeleteComponent(unsigned int entityId)
 		{
-			if (!TypeIdValid(Component::typeId) || !ComponentExists(entityId))
+			if (!ComponentExists(entityId))
 			{
 				return false;
 			}
 
 			int deletedIndex = componentIndicies_[entityId];
-			Component* deletedComponent = (Component*)&componentMemory_[deletedIndex];
+			void* deletedComponent = (void*)&componentMemory_[deletedIndex];
 
-			size_t componentSize = sizeof(Component);
-			int lastIndex = (int)componentMemory_.size() - (int)componentSize;
-			Component* lastComponent = (Component*)&componentMemory_[lastIndex];
+			int lastIndex = (int)(componentMemory_.size() - componentSize_);
+			BaseComponent* lastComponent = (BaseComponent*)&componentMemory_[lastIndex];
 			int lastIndexIndex = lastComponent->entityId;
 
-			deletedComponent->~Component();
-			*deletedComponent = *lastComponent;
+			ComponentDestructionFunction(deletedComponent);
+			::memcpy(deletedComponent, lastComponent, componentSize_);
 			componentIndicies_[entityId] = -1;
 			componentIndicies_[lastIndexIndex] = deletedIndex;
 
@@ -125,7 +127,13 @@ namespace Project001
 		// This is the typeId of the components stored.
 		// It's used toensure the "ComponentContainer" only
 		// contains one type of component at a time.
-		int typeId_;
+		unsigned int typeId_;
+
+		// This is required when deleting components and not knowing the type.
+		size_t componentSize_;
+
+		// This is used to call the destructor when deleting components.
+		void (*ComponentDestructionFunction)(void* component);
 
 		// Components are stored in "componentMemory_".
 		std::vector<unsigned char> componentMemory_;

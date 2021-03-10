@@ -1,8 +1,7 @@
 #pragma once
 
-#include <bitset>
-#include <map>
 #include <queue>
+#include <map>
 
 #include "ComponentContainer.h"
 
@@ -39,7 +38,6 @@ namespace Project001
 				entityId = nextHighestEntityId_++;
 
 				entityDeletedFlags_.push_back(false);
-				entityBitmasks_.push_back(std::bitset<s_maxTypesOfComponents>());
 			}
 			else
 			{
@@ -47,24 +45,22 @@ namespace Project001
 				recycledEntityIds_.pop();
 
 				entityDeletedFlags_[entityId] = false;
-				entityBitmasks_[entityId].reset();
 			}
 
 			return true;
 		}
 
-		bool DeleteEntity(unsigned int& entityId)
+		bool DeleteEntity(unsigned int entityId)
 		{
 			if (!EntityExists(entityId))
 			{
 				return false;
 			}
 
-			// TODO: Delete all components that belong to the entity
-			////for (int i = 0; i < componentContainers_.size(); ++i)
-			////{
-			////	componentContainers_[i].DeleteComponent(entityId); // This won't work...
-			////}
+			for (int i = 0; i < componentContainers_.size(); ++i)
+			{
+				componentContainers_[i].DeleteComponent(entityId);
+			}
 
 			recycledEntityIds_.push(entityId);
 
@@ -78,19 +74,29 @@ namespace Project001
 		template <typename Component, typename... Args>
 		bool CreateComponent(unsigned int entityId, Args... args)
 		{
-			unsigned int componentTypeId = Component::typeId;
-			if (!ComponentTypeExists(componentTypeId))
+			if (!EntityExists(entityId))
 			{
-				RegisterNewComponent(componentTypeId);
+				return false;
+			}
+
+			unsigned int componentTypeId = Component::typeId;
+			if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent(componentTypeId))
+			{
+				return false;
 			}
 
 			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].CreateComponent(entityId, args...);
+			return componentContainers_[componentContainerIndex].CreateComponent<Component>(entityId, args...);
 		}
 
 		template <typename Component>
 		bool GetComponent(unsigned int entityId, Component*& component)
 		{
+			if (!EntityExists(entityId))
+			{
+				return false;
+			}
+
 			unsigned int componentTypeId = Component::typeId;
 			if (!ComponentTypeExists(componentTypeId))
 			{
@@ -98,12 +104,17 @@ namespace Project001
 			}
 
 			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].GetComponent(entityId, component);
+			return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, component);
 		}
 
 		template <typename Component>
 		bool GetAllComponents(Component*& compoonents, size_t& count)
 		{
+			if (!EntityExists(entityId))
+			{
+				return false;
+			}
+
 			unsigned int componentTypeId = Component::typeId;
 			if (!ComponentTypeExists(componentTypeId))
 			{
@@ -111,12 +122,17 @@ namespace Project001
 			}
 
 			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].GetAllComponents(compoonents, count);
+			return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonents, count);
 		}
 
 		template <typename Component>
 		bool DeleteComponent(unsigned int entityId)
 		{
+			if (!EntityExists(entityId))
+			{
+				return false;
+			}
+
 			unsigned int componentTypeId = Component::typeId;
 			if (!ComponentTypeExists(componentTypeId))
 			{
@@ -140,18 +156,23 @@ namespace Project001
 			return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
 		}
 
-		inline bool RegisterNewComponent(unsigned int componentTypeId)
+		bool RegisterNewComponent(unsigned int componentTypeId)
 		{
-			componentTypeIdToComponentContainersIndexMap_[componentTypeId] = (unsigned int)componentContainers_.size();
-			componentContainers_.resize(componentContainers_.size() + 1);
+			unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
 
-			return;
+			if (nextComponentContainerIndex > s_maxTypesOfComponents_)
+			{
+				return false;
+			}
+			
+			componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
+			componentContainers_.resize((size_t)nextComponentContainerIndex + 1);
+
+			return true;
 		}
 
 		static const unsigned int s_maxNumberOfEntities_ = 128;
-		static const unsigned int s_maxTypesOfComponents = 64;
-
-		static unsigned int s_numberOfRegisteredComponents_;
+		static const unsigned int s_maxTypesOfComponents_ = 32;
 
 		unsigned int nextHighestEntityId_;
 
@@ -159,12 +180,8 @@ namespace Project001
 
 		std::vector<bool> entityDeletedFlags_;
 
-		std::vector<std::bitset<s_maxTypesOfComponents>> entityBitmasks_;
-
 		std::map<unsigned int, unsigned int> componentTypeIdToComponentContainersIndexMap_;
 
 		std::vector<ComponentContainer> componentContainers_;
 	};
-
-	unsigned int ComponentStores::s_numberOfRegisteredComponents_ = 0;
 }

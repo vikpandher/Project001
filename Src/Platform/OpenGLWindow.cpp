@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "Engine/Event.h"
 #include "Engine/Logger.h"
 #include "Engine/RenderData.h"
 #include "Engine/TextureData.h"
