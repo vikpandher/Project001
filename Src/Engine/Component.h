@@ -4,38 +4,38 @@
 
 namespace Project001
 {
-	struct BaseComponent
-	{
-		BaseComponent()
-			: entityId(0)
-		{}
+    struct BaseComponent
+    {
+        BaseComponent()
+            : entityId(0)
+        {}
 
-		unsigned int entityId;
-	};
+        unsigned int entityId;
+    };
 
-	template <unsigned int uniqueComponentTypeId>
-	struct Component : BaseComponent
-	{
-		const static unsigned int typeId = uniqueComponentTypeId;
-	};
+    template <unsigned int uniqueComponentTypeId>
+    struct Component : BaseComponent
+    {
+        const static unsigned int typeId = uniqueComponentTypeId;
+    };
 
-	// Example:
-	// ----------------------------------------------------------------------------
-	// * Components must inherit from the Component class.
+    // Example:
+    // ----------------------------------------------------------------------------
+    // * Components must inherit from the Component class.
 
-	/// struct TestComponent : Component<0>
-	/// {
-	/// 	TestComponent(int a, int b, int c)
-	/// 		: a(a)
-	/// 		, b(b)
-	/// 		, c(c)
-	/// 	{}
-	/// 
-	/// 	~TestComponent()
-	/// 	{}
-	/// 
-	/// 	int a;
-	/// 	int b;
-	/// 	int c;
-	/// };
+    /// struct TestComponent : Component<0>
+    /// {
+    ///     TestComponent(int a, int b, int c)
+    ///         : a(a)
+    ///         , b(b)
+    ///         , c(c)
+    ///     {}
+    ///
+    ///     ~TestComponent()
+    ///     {}
+    ///
+    ///     int a;
+    ///     int b;
+    ///     int c;
+    /// };
 }

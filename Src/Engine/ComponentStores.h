@@ -9,179 +9,179 @@
 
 namespace Project001
 {
-	class ComponentStores
-	{
-	public:
-		ComponentStores()
-			: nextHighestEntityId_(0)
-		{
-		}
+    class ComponentStores
+    {
+    public:
+        ComponentStores()
+            : nextHighestEntityId_(0)
+        {
+        }
 
-		~ComponentStores()
-		{
-		}
+        ~ComponentStores()
+        {
+        }
 
-		ComponentStores(ComponentStores& other) = delete;
-		void operator=(const ComponentStores&) = delete;
+        ComponentStores(ComponentStores& other) = delete;
+        void operator=(const ComponentStores&) = delete;
 
-		// Entity Functions: ---------------------------------------------------
+        // Entity Functions: ---------------------------------------------------
 
-		bool CreateEntity(unsigned int& entityId)
-		{
-			if (recycledEntityIds_.empty())
-			{
-				if (nextHighestEntityId_ > s_maxNumberOfEntities_)
-				{
-					return false;
-				}
-				
-				entityId = nextHighestEntityId_++;
+        bool CreateEntity(unsigned int& entityId)
+        {
+            if (recycledEntityIds_.empty())
+            {
+                if (nextHighestEntityId_ > s_maxNumberOfEntities_)
+                {
+                    return false;
+                }
 
-				entityDeletedFlags_.push_back(false);
-			}
-			else
-			{
-				entityId = recycledEntityIds_.front();
-				recycledEntityIds_.pop();
+                entityId = nextHighestEntityId_++;
 
-				entityDeletedFlags_[entityId] = false;
-			}
+                entityDeletedFlags_.push_back(false);
+            }
+            else
+            {
+                entityId = recycledEntityIds_.front();
+                recycledEntityIds_.pop();
 
-			return true;
-		}
+                entityDeletedFlags_[entityId] = false;
+            }
 
-		bool DeleteEntity(unsigned int entityId)
-		{
-			if (!EntityExists(entityId))
-			{
-				return false;
-			}
+            return true;
+        }
 
-			for (int i = 0; i < componentContainers_.size(); ++i)
-			{
-				componentContainers_[i].DeleteComponent(entityId);
-			}
+        bool DeleteEntity(unsigned int entityId)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
 
-			recycledEntityIds_.push(entityId);
+            for (int i = 0; i < componentContainers_.size(); ++i)
+            {
+                componentContainers_[i].DeleteComponent(entityId);
+            }
 
-			entityDeletedFlags_[entityId] = true;
+            recycledEntityIds_.push(entityId);
 
-			return true;
-		}
+            entityDeletedFlags_[entityId] = true;
 
-		// Component Functions: ------------------------------------------------
+            return true;
+        }
 
-		template <typename Component, typename... Args>
-		bool CreateComponent(unsigned int entityId, Args... args)
-		{
-			if (!EntityExists(entityId))
-			{
-				return false;
-			}
+        // Component Functions: ------------------------------------------------
 
-			unsigned int componentTypeId = Component::typeId;
-			if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent(componentTypeId))
-			{
-				return false;
-			}
+        template <typename Component, typename... Args>
+        bool CreateComponent(unsigned int entityId, Args... args)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
 
-			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].CreateComponent<Component>(entityId, args...);
-		}
+            unsigned int componentTypeId = Component::typeId;
+            if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent(componentTypeId))
+            {
+                return false;
+            }
 
-		template <typename Component>
-		bool GetComponent(unsigned int entityId, Component*& component)
-		{
-			if (!EntityExists(entityId))
-			{
-				return false;
-			}
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].CreateComponent<Component>(entityId, args...);
+        }
 
-			unsigned int componentTypeId = Component::typeId;
-			if (!ComponentTypeExists(componentTypeId))
-			{
-				return false;
-			}
+        template <typename Component>
+        bool GetComponent(unsigned int entityId, Component*& component)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
 
-			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, component);
-		}
+            unsigned int componentTypeId = Component::typeId;
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
 
-		template <typename Component>
-		bool GetAllComponents(Component*& compoonents, size_t& count)
-		{
-			if (!EntityExists(entityId))
-			{
-				return false;
-			}
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, component);
+        }
 
-			unsigned int componentTypeId = Component::typeId;
-			if (!ComponentTypeExists(componentTypeId))
-			{
-				return false;
-			}
+        template <typename Component>
+        bool GetAllComponents(Component*& compoonents, size_t& count)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
 
-			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonents, count);
-		}
+            unsigned int componentTypeId = Component::typeId;
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
 
-		template <typename Component>
-		bool DeleteComponent(unsigned int entityId)
-		{
-			if (!EntityExists(entityId))
-			{
-				return false;
-			}
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonents, count);
+        }
 
-			unsigned int componentTypeId = Component::typeId;
-			if (!ComponentTypeExists(componentTypeId))
-			{
-				return false;
-			}
+        template <typename Component>
+        bool DeleteComponent(unsigned int entityId)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
 
-			unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-			return componentContainers_[componentContainerIndex].DeleteComponent(entityId);
-		}
+            unsigned int componentTypeId = Component::typeId;
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
 
-	protected:
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].DeleteComponent(entityId);
+        }
 
-	private:
-		inline bool EntityExists(unsigned int entityId) const
-		{
-			return entityId < nextHighestEntityId_ && !entityDeletedFlags_[entityId];
-		}
+    protected:
 
-		inline bool ComponentTypeExists(unsigned int componentTypeId) const
-		{
-			return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
-		}
+    private:
+        inline bool EntityExists(unsigned int entityId) const
+        {
+            return entityId < nextHighestEntityId_ && !entityDeletedFlags_[entityId];
+        }
 
-		bool RegisterNewComponent(unsigned int componentTypeId)
-		{
-			unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
+        inline bool ComponentTypeExists(unsigned int componentTypeId) const
+        {
+            return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
+        }
 
-			if (nextComponentContainerIndex > s_maxTypesOfComponents_)
-			{
-				return false;
-			}
-			
-			componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
-			componentContainers_.resize((size_t)nextComponentContainerIndex + 1);
+        bool RegisterNewComponent(unsigned int componentTypeId)
+        {
+            unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
 
-			return true;
-		}
+            if (nextComponentContainerIndex > s_maxTypesOfComponents_)
+            {
+                return false;
+            }
 
-		static const unsigned int s_maxNumberOfEntities_ = 128;
-		static const unsigned int s_maxTypesOfComponents_ = 32;
+            componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
+            componentContainers_.resize((size_t)nextComponentContainerIndex + 1);
 
-		unsigned int nextHighestEntityId_;
+            return true;
+        }
 
-		std::queue<unsigned int> recycledEntityIds_;
+        static const unsigned int s_maxNumberOfEntities_ = 128;
+        static const unsigned int s_maxTypesOfComponents_ = 32;
 
-		std::vector<bool> entityDeletedFlags_;
+        unsigned int nextHighestEntityId_;
 
-		std::map<unsigned int, unsigned int> componentTypeIdToComponentContainersIndexMap_;
+        std::queue<unsigned int> recycledEntityIds_;
 
-		std::vector<ComponentContainer> componentContainers_;
-	};
+        std::vector<bool> entityDeletedFlags_;
+
+        std::map<unsigned int, unsigned int> componentTypeIdToComponentContainersIndexMap_;
+
+        std::vector<ComponentContainer> componentContainers_;
+    };
 }

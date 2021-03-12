@@ -10,7 +10,17 @@
 
 namespace Project001
 {
-    const int COMPONENT_TYPE_ID_TEST = 100;
+    const int COMPONENT_TYPE_ID_DEATH_FLAG = 100;
+    const int COMPONENT_TYPE_ID_TEST = 101;
+
+    struct DeathFlagComponent : Component<COMPONENT_TYPE_ID_DEATH_FLAG>
+    {
+        DeathFlagComponent()
+            : dead(false)
+        {}
+
+        bool dead;
+    };
 
     struct TestComponent : Component<COMPONENT_TYPE_ID_TEST>
     {
@@ -30,19 +40,18 @@ namespace Project001
         int c;
     };
 
-	Scene::Scene(ComponentStores* componentStoresPtr, ResourceStores* resourceStoresPtr, Window* windowPtr)
+    Scene::Scene(ComponentStores* componentStoresPtr, ResourceStores* resourceStoresPtr, Window* windowPtr)
         : componentStoresPtr_(componentStoresPtr)
         , resourceStoresPtr_(resourceStoresPtr)
         , windowPtr_(windowPtr)
-	{
+    {
         ComponentContainerTest();
         ComponentStoresTest();
-	}
+    }
 
-	Scene::~Scene()
-	{
-
-	}
+    Scene::~Scene()
+    {
+    }
 
     void Scene::OnEvent(Event& event)
     {
@@ -51,6 +60,16 @@ namespace Project001
 
     void Scene::Update(UpdateEvent& updateEvent)
     {
+        double timestep = updateEvent.timestep_s;
+
+        // Update script components
+
+        // Delete all entities with marked for deletion component
+
+        // Render all renderable components
+
+        // Play all audio components???
+
         updateEvent.handled = true;
     }
 
@@ -94,7 +113,7 @@ namespace Project001
         unsigned int entity0;
         testBool = testComponentStores.CreateEntity(entity0);
         testBool = testComponentStores.CreateComponent<TestComponent>(entity0, 10, 10, 10);
-        
+
         unsigned int entity1;
         testBool = testComponentStores.CreateEntity(entity1);
         testBool = testComponentStores.CreateComponent<TestComponent>(entity1, 11, 11, 11);

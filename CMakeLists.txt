@@ -26,7 +26,7 @@ set(ENGINE_FILES
     "Src/Engine/Application.h"
     "Src/Engine/Component.h"
     "Src/Engine/ComponentContainer.h"
-	"Src/Engine/ComponentStores.h"
+    "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
@@ -34,8 +34,8 @@ set(ENGINE_FILES
     "Src/Engine/RenderData.h"
     "Src/Engine/ResourceStores.cpp"
     "Src/Engine/ResourceStores.h"
-	"Src/Engine/Scene.cpp"
-	"Src/Engine/Scene.h"
+    "Src/Engine/Scene.cpp"
+    "Src/Engine/Scene.h"
     "Src/Engine/TextureData.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
@@ -75,8 +75,8 @@ target_link_directories("${PROJECT_NAME}"
 )
 
 # Getting a linker warning when building debug only:
-	# LNK4098 defaultlib 'MSVCRT' confilics with use of other libs; use
-	# /NODEFAULTLIB:library
+    # LNK4098 defaultlib 'MSVCRT' confilics with use of other libs; use
+    # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
     "glfw3.lib" # This is a 64 bit library
@@ -146,16 +146,16 @@ if(${PRINT_DEBUG_OUTPUT})
 
     get_property(_VS_DEBUGGER_WORKING_DIRECTORY TARGET "${PROJECT_NAME}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY)
     message("VS_DEBUGGER_WORKING_DIRECTORY: ${_VS_DEBUGGER_WORKING_DIRECTORY}")
-    
+
     get_property(_RUNTIME_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG)
     message("RUNTIME_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
     
     get_property(_RUNTIME_OUTPUT_DIRECTORY_RELEASE TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE)
     message("RUNTIME_OUTPUT_DIRECTORY_RELEASE: ${_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
-    
+
     get_property(_OUTPUT_NAME_DEBUG TARGET "${PROJECT_NAME}" PROPERTY OUTPUT_NAME_DEBUG)
     message("OUTPUT_NAME_DEBUG: ${_OUTPUT_NAME_DEBUG}")
-    
+
     get_property(_OUTPUT_NAME_RELEASE TARGET "${PROJECT_NAME}" PROPERTY OUTPUT_NAME_RELEASE)
     message("OUTPUT_NAME_RELEASE: ${_OUTPUT_NAME_RELEASE}")
     message("--------------------------------------------------------------------------------")

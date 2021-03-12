@@ -6,47 +6,47 @@
 
 namespace Project001
 {
-	// public ------------------------------------------------------------------
-	
-	OpenGLTexture::OpenGLTexture(unsigned int index, const unsigned char* data, int width, int height, unsigned int numberOfComponents)
-	{
-		glGenTextures(1, &textureId_);
-		glActiveTexture(GL_TEXTURE0 + index);
-		glBindTexture(GL_TEXTURE_2D, textureId_);
+    // public ------------------------------------------------------------------
 
-		glm::uint format = 0;
-		if (numberOfComponents == 1)
-		{
-			format = GL_RED;
-		}
-		else if (numberOfComponents == 3)
-		{
-			format = GL_RGB;
-		}
-		else if (numberOfComponents == 4)
-		{
-			format = GL_RGBA;
-		}
+    OpenGLTexture::OpenGLTexture(unsigned int index, const unsigned char* data, int width, int height, unsigned int numberOfComponents)
+    {
+        glGenTextures(1, &textureId_);
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_2D, textureId_);
 
-		// set the texture wrapping parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glm::uint format = 0;
+        if (numberOfComponents == 1)
+        {
+            format = GL_RED;
+        }
+        else if (numberOfComponents == 3)
+        {
+            format = GL_RGB;
+        }
+        else if (numberOfComponents == 4)
+        {
+            format = GL_RGBA;
+        }
 
-		// set texture filtering parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-	}
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	OpenGLTexture::~OpenGLTexture()
-	{
-		glDeleteTextures(1, &textureId_);
-	}
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    }
 
-	void OpenGLTexture::Bind(unsigned int index)
-	{
-		glActiveTexture(GL_TEXTURE0 + index);
-		glBindTexture(GL_TEXTURE_2D, textureId_);
-	}
+    OpenGLTexture::~OpenGLTexture()
+    {
+        glDeleteTextures(1, &textureId_);
+    }
+
+    void OpenGLTexture::Bind(unsigned int index)
+    {
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_2D, textureId_);
+    }
 }

@@ -7,38 +7,37 @@
 
 namespace Project001
 {
-	struct MeshData;
-	struct TextureData;
-	
-	class ResourceStores
-	{
-	public:
-		ResourceStores();
-		~ResourceStores();
+    struct MeshData;
+    struct TextureData;
 
-		ResourceStores(ResourceStores& other) = delete;
-		void operator=(const ResourceStores&) = delete;
+    class ResourceStores
+    {
+    public:
+        ResourceStores();
+        ~ResourceStores();
 
-		const MeshData* GetMesh(const std::string& name) const;
+        ResourceStores(ResourceStores& other) = delete;
+        void operator=(const ResourceStores&) = delete;
 
-		const TextureData* GetTexture(const std::string& name) const;
+        const MeshData* GetMesh(const std::string& name) const;
 
-		bool LoadOBJFile(const std::string& name, const std::string& path);
+        const TextureData* GetTexture(const std::string& name) const;
 
-		bool LoadTextureFile(const std::string& name, const std::string& path);
+        bool LoadOBJFile(const std::string& name, const std::string& path);
 
-		void ClearMeshes();
+        bool LoadTextureFile(const std::string& name, const std::string& path);
 
-		void ClearTextures();
+        void ClearMeshes();
 
-	protected:
-		std::string GetFirstToken(const std::string& input) const;
+        void ClearTextures();
 
-		std::map<std::string, MeshData*> meshMap_;
+    protected:
+        std::string GetFirstToken(const std::string& input) const;
 
-		std::map<std::string, TextureData*> textureMap_;
+        std::map<std::string, MeshData*> meshMap_;
 
-	private:
-		
-	};
+        std::map<std::string, TextureData*> textureMap_;
+
+    private:
+    };
 }

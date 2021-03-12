@@ -8,198 +8,197 @@
 
 namespace Project001
 {
-	// public ------------------------------------------------------------------
-	
-	OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* fragmentShaderCode)
-	{
-		GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
-		GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
+    // public ------------------------------------------------------------------
 
-		programId_ = glCreateProgram();
-		glAttachShader(programId_, vertexShaderId);
-		glAttachShader(programId_, fragmentShaderId);
-		glLinkProgram(programId_);
-		GLint success;
-		GLchar infoLog[512];
-		glGetProgramiv(programId_, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-			Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
-			Project001::Logger::Error(infoLog);
-		}
+    OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* fragmentShaderCode)
+    {
+        GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
+        GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-		glDeleteShader(vertexShaderId);
-		glDeleteShader(fragmentShaderId);
+        programId_ = glCreateProgram();
+        glAttachShader(programId_, vertexShaderId);
+        glAttachShader(programId_, fragmentShaderId);
+        glLinkProgram(programId_);
+        GLint success;
+        GLchar infoLog[512];
+        glGetProgramiv(programId_, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(programId_, 512, NULL, infoLog);
+            Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+            Project001::Logger::Error(infoLog);
+        }
 
-		OutputActiveAttributesAndUniforms();
-	}
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
 
-	OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
-	{
-		GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
-		GLuint geometryShaderId = CreateShader(GL_GEOMETRY_SHADER, geometryShaderCode);
-		GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
+        OutputActiveAttributesAndUniforms();
+    }
 
-		programId_ = glCreateProgram();
-		glAttachShader(programId_, vertexShaderId);
-		glAttachShader(programId_, geometryShaderId);
-		glAttachShader(programId_, fragmentShaderId);
-		glLinkProgram(programId_);
-		GLint success;
-		GLchar infoLog[512];
-		glGetProgramiv(programId_, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-			Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
-			Project001::Logger::Error(infoLog);
-		}
+    OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
+    {
+        GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
+        GLuint geometryShaderId = CreateShader(GL_GEOMETRY_SHADER, geometryShaderCode);
+        GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-		glDeleteShader(vertexShaderId);
-		glDeleteShader(geometryShaderId);
-		glDeleteShader(fragmentShaderId);
-	}
+        programId_ = glCreateProgram();
+        glAttachShader(programId_, vertexShaderId);
+        glAttachShader(programId_, geometryShaderId);
+        glAttachShader(programId_, fragmentShaderId);
+        glLinkProgram(programId_);
+        GLint success;
+        GLchar infoLog[512];
+        glGetProgramiv(programId_, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(programId_, 512, NULL, infoLog);
+            Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+            Project001::Logger::Error(infoLog);
+        }
 
-	OpenGLShader::~OpenGLShader()
-	{
-		glDeleteProgram(programId_);
-	}
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(geometryShaderId);
+        glDeleteShader(fragmentShaderId);
+    }
 
-	void OpenGLShader::Use() const
-	{
-		glUseProgram(programId_);
-	}
+    OpenGLShader::~OpenGLShader()
+    {
+        glDeleteProgram(programId_);
+    }
 
-	void OpenGLShader::SetBool(const char* name, bool value) const
-	{
-		glUniform1i(glGetUniformLocation(programId_, name), (int)value);
-	}
+    void OpenGLShader::Use() const
+    {
+        glUseProgram(programId_);
+    }
 
-	void OpenGLShader::SetInt(const char* name, int value) const
-	{
-		glUniform1i(glGetUniformLocation(programId_, name), value);
-	}
+    void OpenGLShader::SetBool(const char* name, bool value) const
+    {
+        glUniform1i(glGetUniformLocation(programId_, name), (int)value);
+    }
 
-	void OpenGLShader::SetFloat(const char* name, float value) const
-	{
-		glUniform1f(glGetUniformLocation(programId_, name), value);
-	}
+    void OpenGLShader::SetInt(const char* name, int value) const
+    {
+        glUniform1i(glGetUniformLocation(programId_, name), value);
+    }
 
-	void OpenGLShader::SetVec2(const char* name, const glm::vec2& value) const
-	{
-		glUniform2fv(glGetUniformLocation(programId_, name), 1, &value[0]);
-	}
+    void OpenGLShader::SetFloat(const char* name, float value) const
+    {
+        glUniform1f(glGetUniformLocation(programId_, name), value);
+    }
 
-	void OpenGLShader::SetVec2(const char* name, float x, float y) const
-	{
-		glUniform2f(glGetUniformLocation(programId_, name), x, y);
-	}
+    void OpenGLShader::SetVec2(const char* name, const glm::vec2& value) const
+    {
+        glUniform2fv(glGetUniformLocation(programId_, name), 1, &value[0]);
+    }
 
-	void OpenGLShader::SetVec3(const char* name, const glm::vec3& value) const
-	{
-		glUniform3fv(glGetUniformLocation(programId_, name), 1, &value[0]);
-	}
+    void OpenGLShader::SetVec2(const char* name, float x, float y) const
+    {
+        glUniform2f(glGetUniformLocation(programId_, name), x, y);
+    }
 
-	void OpenGLShader::SetVec3(const char* name, float x, float y, float z) const
-	{
-		glUniform3f(glGetUniformLocation(programId_, name), x, y, z);
-	}
+    void OpenGLShader::SetVec3(const char* name, const glm::vec3& value) const
+    {
+        glUniform3fv(glGetUniformLocation(programId_, name), 1, &value[0]);
+    }
 
-	void OpenGLShader::SetVec4(const char* name, const glm::vec4& value) const
-	{
-		glUniform4fv(glGetUniformLocation(programId_, name), 1, &value[0]);
-	}
+    void OpenGLShader::SetVec3(const char* name, float x, float y, float z) const
+    {
+        glUniform3f(glGetUniformLocation(programId_, name), x, y, z);
+    }
 
-	void OpenGLShader::SetVec4(const char* name, float x, float y, float z, float w)
-	{
-		glUniform4f(glGetUniformLocation(programId_, name), x, y, z, w);
-	}
+    void OpenGLShader::SetVec4(const char* name, const glm::vec4& value) const
+    {
+        glUniform4fv(glGetUniformLocation(programId_, name), 1, &value[0]);
+    }
 
-	void OpenGLShader::SetMat2(const char* name, const glm::mat2& mat) const
-	{
-		glUniformMatrix2fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
-	}
+    void OpenGLShader::SetVec4(const char* name, float x, float y, float z, float w)
+    {
+        glUniform4f(glGetUniformLocation(programId_, name), x, y, z, w);
+    }
 
-	void OpenGLShader::SetMat3(const char* name, const glm::mat3& mat) const
-	{
-		glUniformMatrix3fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
-	}
+    void OpenGLShader::SetMat2(const char* name, const glm::mat2& mat) const
+    {
+        glUniformMatrix2fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
+    }
 
-	void OpenGLShader::SetMat4(const char* name, const glm::mat4& mat) const
-	{
-		glUniformMatrix4fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
-	}
+    void OpenGLShader::SetMat3(const char* name, const glm::mat3& mat) const
+    {
+        glUniformMatrix3fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
+    }
 
-	// protected ---------------------------------------------------------------
+    void OpenGLShader::SetMat4(const char* name, const glm::mat4& mat) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
+    }
 
-	// private -----------------------------------------------------------------
+    // protected ---------------------------------------------------------------
 
-	glm::uint OpenGLShader::CreateShader(glm::uint shaderType, const char* shaderSource)
-	{
-		GLuint shaderId = glCreateShader(shaderType);
-		glShaderSource(shaderId, 1, &shaderSource, NULL);
-		glCompileShader(shaderId);
-		GLint success;
-		GLchar infoLog[512];
-		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
-			if (shaderType == GL_VERTEX_SHADER)
-			{
-				Project001::Logger::Error("VERTEX_SHADER::COMPILATION_FAILED");
-			}
-			else if (shaderType == GL_GEOMETRY_SHADER)
-			{
-				Project001::Logger::Error("GEOMETRY_SHADER::COMPILATION_FAILED");
-			}
-			else if (shaderType == GL_FRAGMENT_SHADER)
-			{
-				Project001::Logger::Error("FRAGMET_SHADER::COMPILATION_FAILED");
-			}
-			else
-			{
-				Project001::Logger::Error("UNKNOWN_SHADER::COMPILATION_FAILED");
-			}
-			Project001::Logger::Error(infoLog);
-		}
-		return shaderId;
-	}
+    // private -----------------------------------------------------------------
 
-	void OpenGLShader::OutputActiveAttributesAndUniforms()
-	{
-		GLint i;
-		GLint count;
+    glm::uint OpenGLShader::CreateShader(glm::uint shaderType, const char* shaderSource)
+    {
+        GLuint shaderId = glCreateShader(shaderType);
+        glShaderSource(shaderId, 1, &shaderSource, NULL);
+        glCompileShader(shaderId);
+        GLint success;
+        GLchar infoLog[512];
+        glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
+            if (shaderType == GL_VERTEX_SHADER)
+            {
+                Project001::Logger::Error("VERTEX_SHADER::COMPILATION_FAILED");
+            }
+            else if (shaderType == GL_GEOMETRY_SHADER)
+            {
+                Project001::Logger::Error("GEOMETRY_SHADER::COMPILATION_FAILED");
+            }
+            else if (shaderType == GL_FRAGMENT_SHADER)
+            {
+                Project001::Logger::Error("FRAGMET_SHADER::COMPILATION_FAILED");
+            }
+            else
+            {
+                Project001::Logger::Error("UNKNOWN_SHADER::COMPILATION_FAILED");
+            }
+            Project001::Logger::Error(infoLog);
+        }
+        return shaderId;
+    }
 
-		GLint size; // size of the variable
-		GLenum type; // type of the variable (float, vec3 or mat4, etc)
+    void OpenGLShader::OutputActiveAttributesAndUniforms()
+    {
+        GLint i;
+        GLint count;
 
-		const GLsizei bufferCapacity = 64; // maximum name length
-		GLchar name[bufferCapacity]; // variable name in GLSL
-		GLsizei length; // name length
+        GLint size; // size of the variable
+        GLenum type; // type of the variable (float, vec3 or mat4, etc)
 
-		// ATTRIBUTES
-		glGetProgramiv(programId_, GL_ACTIVE_ATTRIBUTES, &count);
-		Project001::Logger::Message("Active Attributes: %d", count);
+        const GLsizei bufferCapacity = 64; // maximum name length
+        GLchar name[bufferCapacity]; // variable name in GLSL
+        GLsizei length; // name length
 
-		for (i = 0; i < count; i++)
-		{
-			glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
+        // ATTRIBUTES
+        glGetProgramiv(programId_, GL_ACTIVE_ATTRIBUTES, &count);
+        Project001::Logger::Message("Active Attributes: %d", count);
 
-			Project001::Logger::Message("Attribute #%d Type: %u Name: %s", i, type, name);
-		}
+        for (i = 0; i < count; i++)
+        {
+            glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
-		// UNIFORMS
-		glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
-		Project001::Logger::Message("Active Uniforms: %d", count);
+            Project001::Logger::Message("Attribute #%d Type: %u Name: %s", i, type, name);
+        }
 
-		for (i = 0; i < count; i++)
-		{
-			glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
+        // UNIFORMS
+        glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
+        Project001::Logger::Message("Active Uniforms: %d", count);
 
-			Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
-		}
-	}
+        for (i = 0; i < count; i++)
+        {
+            glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
+            Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
+        }
+    }
 }

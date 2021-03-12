@@ -6,46 +6,46 @@
 
 namespace Project001
 {
-	class ComponentStores;
-	struct Event;
-	class Scene;
-	class ResourceStores;
-	class Window;
-	struct WindowCloseEvent;
-	
-	class Application
-	{
-	public:
-		Application(const char* windowTitile, unsigned int windowWidth, unsigned int windowHeight);
-		virtual ~Application();
+    class ComponentStores;
+    class Scene;
+    class ResourceStores;
+    class Window;
 
-		Application(Application& other) = delete;
-		void operator=(const Application&) = delete;
+    struct Event;
+    struct WindowCloseEvent;
 
-		void Run();
+    class Application
+    {
+    public:
+        Application(const char* windowTitile, unsigned int windowWidth, unsigned int windowHeight);
+        virtual ~Application();
 
-	protected:
-		void Stop(WindowCloseEvent& windowCloseEvent);
+        Application(Application& other) = delete;
+        void operator=(const Application&) = delete;
 
-		void OnEvent(Event& event);
+        void Run();
 
-		std::string windowTitle_;
-		unsigned int windowWidth_;
-		unsigned int windowHeight_;
+    protected:
+        void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
 
-		bool running_;
+        void OnEvent(Event& event);
 
-		double secondsPerFrame_;
+        std::string windowTitle_;
+        unsigned int windowWidth_;
+        unsigned int windowHeight_;
 
-		ComponentStores* componentStoresPtr_;
+        bool running_;
 
-		ResourceStores* resourceStoresPtr_;
+        double secondsPerFrame_;
 
-		Window* windowPtr_;
+        ComponentStores* componentStoresPtr_;
 
-		Scene* activeScenePtr_;
+        ResourceStores* resourceStoresPtr_;
 
-	private:
+        Window* windowPtr_;
 
-	};
+        Scene* activeScenePtr_;
+
+    private:
+    };
 }

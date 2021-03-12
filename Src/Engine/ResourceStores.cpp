@@ -12,259 +12,259 @@
 
 
 namespace Project001
-{		
-	// public ------------------------------------------------------------------
+{
+    // public ------------------------------------------------------------------
 
-	ResourceStores::ResourceStores()
-	{
-		// tell stb_image.h to flip loaded texture's on the y-axis.
-		stbi_set_flip_vertically_on_load(true);
-	}
+    ResourceStores::ResourceStores()
+    {
+        // tell stb_image.h to flip loaded texture's on the y-axis.
+        stbi_set_flip_vertically_on_load(true);
+    }
 
-	ResourceStores::~ResourceStores()
-	{
-		ClearMeshes();
+    ResourceStores::~ResourceStores()
+    {
+        ClearMeshes();
 
-		ClearTextures();
-	}
+        ClearTextures();
+    }
 
-	const MeshData* ResourceStores::GetMesh(const std::string& name) const
-	{
-		return meshMap_.find(name)->second;
-	}
+    const MeshData* ResourceStores::GetMesh(const std::string& name) const
+    {
+        return meshMap_.find(name)->second;
+    }
 
-	const TextureData* ResourceStores::GetTexture(const std::string& name) const
-	{
-		return textureMap_.find(name)->second;
-	}
+    const TextureData* ResourceStores::GetTexture(const std::string& name) const
+    {
+        return textureMap_.find(name)->second;
+    }
 
-	bool ResourceStores::LoadOBJFile(const std::string& name, const std::string& path)
-	{
-		// file path must have .obk extension
-		if (path.substr(path.size() - 4, 4) != ".obj")
-		{
-			return false;
-		}
+    bool ResourceStores::LoadOBJFile(const std::string& name, const std::string& path)
+    {
+        // file path must have .obk extension
+        if (path.substr(path.size() - 4, 4) != ".obj")
+        {
+            return false;
+        }
 
-		std::ifstream file(path);
+        std::ifstream file(path);
 
-		if (!file.is_open())
-		{
-			return false;
-		}
+        if (!file.is_open())
+        {
+            return false;
+        }
 
-		MeshData* newMeshPtr = new MeshData();
+        MeshData* newMeshPtr = new MeshData();
 
-		std::string currentLine;
-		while (std::getline(file, currentLine))
-		{
-			if (currentLine.empty())
-			{
-				continue;
-			}
+        std::string currentLine;
+        while (std::getline(file, currentLine))
+        {
+            if (currentLine.empty())
+            {
+                continue;
+            }
 
-			std::string tag;
-			std::string values;
+            std::string tag;
+            std::string values;
 
-			size_t tagStart = currentLine.find_first_not_of(" \t");
-			size_t tagEnd = currentLine.find_first_of(" \t", tagStart);
+            size_t tagStart = currentLine.find_first_not_of(" \t");
+            size_t tagEnd = currentLine.find_first_of(" \t", tagStart);
 
-			size_t valuesStart = currentLine.find_first_not_of(" \t", tagEnd);
+            size_t valuesStart = currentLine.find_first_not_of(" \t", tagEnd);
 
-			if (tagStart != std::string::npos && tagEnd != std::string::npos)
-			{
-				tag = currentLine.substr(tagStart, tagEnd - tagStart);
-			}
-			else if (tagStart != std::string::npos)
-			{
-				continue;
-			}
-			else
-			{
-				continue;
-			}
+            if (tagStart != std::string::npos && tagEnd != std::string::npos)
+            {
+                tag = currentLine.substr(tagStart, tagEnd - tagStart);
+            }
+            else if (tagStart != std::string::npos)
+            {
+                continue;
+            }
+            else
+            {
+                continue;
+            }
 
-			if (valuesStart != std::string::npos)
-			{
-				values = currentLine.substr(valuesStart);
-			}
-			else
-			{
-				continue;
-			}
+            if (valuesStart != std::string::npos)
+            {
+                values = currentLine.substr(valuesStart);
+            }
+            else
+            {
+                continue;
+            }
 
-			std::vector<std::string> splitValues;
+            std::vector<std::string> splitValues;
 
-			size_t previousValueEnd = 0;
-			while (previousValueEnd != std::string::npos)
-			{
-				size_t valueStart = values.find_first_not_of(" \t", previousValueEnd);
-				size_t valueEnd = values.find_first_of(" \t", valueStart);
+            size_t previousValueEnd = 0;
+            while (previousValueEnd != std::string::npos)
+            {
+                size_t valueStart = values.find_first_not_of(" \t", previousValueEnd);
+                size_t valueEnd = values.find_first_of(" \t", valueStart);
 
-				if (valueStart != std::string::npos && valueEnd != std::string::npos)
-				{
-					splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
-				}
-				else if (tagStart != std::string::npos)
-				{
-					splitValues.push_back(values.substr(valueStart));
-				}
-				else
-				{
-					continue;
-				}
+                if (valueStart != std::string::npos && valueEnd != std::string::npos)
+                {
+                    splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
+                }
+                else if (tagStart != std::string::npos)
+                {
+                    splitValues.push_back(values.substr(valueStart));
+                }
+                else
+                {
+                    continue;
+                }
 
-				previousValueEnd = valueEnd;
-			}
+                previousValueEnd = valueEnd;
+            }
 
-			if (tag == "v")
-			{
-				if (splitValues.size() >= 3)
-				{
-					glm::vec3 newPosition;
-					newPosition.x = std::stof(splitValues[0]);
-					newPosition.y = std::stof(splitValues[1]);
-					newPosition.z = std::stof(splitValues[2]);
+            if (tag == "v")
+            {
+                if (splitValues.size() >= 3)
+                {
+                    glm::vec3 newPosition;
+                    newPosition.x = std::stof(splitValues[0]);
+                    newPosition.y = std::stof(splitValues[1]);
+                    newPosition.z = std::stof(splitValues[2]);
 
-					newMeshPtr->positions.push_back(newPosition);
-				}
-			}
-			else if (tag == "vt")
-			{
-				if (splitValues.size() >= 2)
-				{
-					glm::vec2 newTextureCoordinate;
-					newTextureCoordinate.x = std::stof(splitValues[0]);
-					newTextureCoordinate.y = std::stof(splitValues[1]);
+                    newMeshPtr->positions.push_back(newPosition);
+                }
+            }
+            else if (tag == "vt")
+            {
+                if (splitValues.size() >= 2)
+                {
+                    glm::vec2 newTextureCoordinate;
+                    newTextureCoordinate.x = std::stof(splitValues[0]);
+                    newTextureCoordinate.y = std::stof(splitValues[1]);
 
-					newMeshPtr->textureCoordinates.push_back(newTextureCoordinate);
-				}
-			}
-			else if (tag == "vn")
-			{
-				if (splitValues.size() >= 3)
-				{
-					glm::vec3 newNormal;
-					newNormal.x = std::stof(splitValues[0]);
-					newNormal.y = std::stof(splitValues[1]);
-					newNormal.z = std::stof(splitValues[2]);
+                    newMeshPtr->textureCoordinates.push_back(newTextureCoordinate);
+                }
+            }
+            else if (tag == "vn")
+            {
+                if (splitValues.size() >= 3)
+                {
+                    glm::vec3 newNormal;
+                    newNormal.x = std::stof(splitValues[0]);
+                    newNormal.y = std::stof(splitValues[1]);
+                    newNormal.z = std::stof(splitValues[2]);
 
-					newMeshPtr->normals.push_back(newNormal);
-				}
-			}
-			else if (tag == "f")
-			{				
-				if (splitValues.size() >= 3)
-				{
-					std::vector<IndexGroup> newFace;
+                    newMeshPtr->normals.push_back(newNormal);
+                }
+            }
+            else if (tag == "f")
+            {
+                if (splitValues.size() >= 3)
+                {
+                    std::vector<IndexGroup> newFace;
 
-					for (int i = 0; i < splitValues.size(); i++)
-					{
-						std::string indexGroup = splitValues[i];
+                    for (int i = 0; i < splitValues.size(); i++)
+                    {
+                        std::string indexGroup = splitValues[i];
 
-						std::vector<std::string> indexGroupValues;
+                        std::vector<std::string> indexGroupValues;
 
-						size_t previousindexGroupValueEnd = 0;
-						while (previousindexGroupValueEnd != std::string::npos)
-						{
-							size_t indexGroupValueStart = indexGroup.find_first_not_of("/", previousindexGroupValueEnd);
-							size_t indexGroupValueEnd = indexGroup.find_first_of("/", indexGroupValueStart);
+                        size_t previousindexGroupValueEnd = 0;
+                        while (previousindexGroupValueEnd != std::string::npos)
+                        {
+                            size_t indexGroupValueStart = indexGroup.find_first_not_of("/", previousindexGroupValueEnd);
+                            size_t indexGroupValueEnd = indexGroup.find_first_of("/", indexGroupValueStart);
 
-							if (indexGroupValueStart != std::string::npos && indexGroupValueEnd != std::string::npos)
-							{
-								indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart, indexGroupValueEnd - indexGroupValueStart));
-							}
-							else if (tagStart != std::string::npos)
-							{
-								indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart));
-							}
-							else
-							{
-								continue;
-							}
+                            if (indexGroupValueStart != std::string::npos && indexGroupValueEnd != std::string::npos)
+                            {
+                                indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart, indexGroupValueEnd - indexGroupValueStart));
+                            }
+                            else if (tagStart != std::string::npos)
+                            {
+                                indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart));
+                            }
+                            else
+                            {
+                                continue;
+                            }
 
-							previousindexGroupValueEnd = indexGroupValueEnd;
-						}
+                            previousindexGroupValueEnd = indexGroupValueEnd;
+                        }
 
-						IndexGroup newindexGroup;
-						newindexGroup.positonIndex = std::stoi(indexGroupValues[0]) - 1; // indicies start at 1
-						newindexGroup.textureCoordinateIndex = std::stoi(indexGroupValues[1]) - 1;
-						newindexGroup.normalIndex = std::stoi(indexGroupValues[2]) - 1;
+                        IndexGroup newindexGroup;
+                        newindexGroup.positonIndex = std::stoi(indexGroupValues[0]) - 1; // indicies start at 1
+                        newindexGroup.textureCoordinateIndex = std::stoi(indexGroupValues[1]) - 1;
+                        newindexGroup.normalIndex = std::stoi(indexGroupValues[2]) - 1;
 
-						newFace.push_back(newindexGroup);
-					}
+                        newFace.push_back(newindexGroup);
+                    }
 
-					newMeshPtr->faces.push_back(newFace);
-				}
-			}
-		}
+                    newMeshPtr->faces.push_back(newFace);
+                }
+            }
+        }
 
-		meshMap_.insert(std::make_pair(name, newMeshPtr));
+        meshMap_.insert(std::make_pair(name, newMeshPtr));
 
-		return true;
-	}
+        return true;
+    }
 
-	bool ResourceStores::LoadTextureFile(const std::string& name, const std::string& path)
-	{
-		TextureData* newTexturePtr = new TextureData();
-		newTexturePtr->data = stbi_load(path.c_str(), &newTexturePtr->width, &newTexturePtr->height, &newTexturePtr->numberOfComponents, 0);
-		if (!newTexturePtr)
-		{
-			return false;
-		}
-		
-		textureMap_.insert(std::make_pair(name, newTexturePtr));
+    bool ResourceStores::LoadTextureFile(const std::string& name, const std::string& path)
+    {
+        TextureData* newTexturePtr = new TextureData();
+        newTexturePtr->data = stbi_load(path.c_str(), &newTexturePtr->width, &newTexturePtr->height, &newTexturePtr->numberOfComponents, 0);
+        if (!newTexturePtr)
+        {
+            return false;
+        }
 
-		return true;
-	}
+        textureMap_.insert(std::make_pair(name, newTexturePtr));
 
-	void ResourceStores::ClearMeshes()
-	{
-		for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
-		{
-			delete iterator->second;
-		}
-		meshMap_.clear();
-	}
+        return true;
+    }
 
-	void ResourceStores::ClearTextures()
-	{
-		for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
-		{
-			stbi_image_free(iterator->second->data);
-			delete iterator->second;
-		}
-		textureMap_.clear();
-	}
+    void ResourceStores::ClearMeshes()
+    {
+        for (std::map<std::string, MeshData*>::iterator iterator = meshMap_.begin(); iterator != meshMap_.end(); ++iterator)
+        {
+            delete iterator->second;
+        }
+        meshMap_.clear();
+    }
 
-	// protected: --------------------------------------------------------------
+    void ResourceStores::ClearTextures()
+    {
+        for (std::map<std::string, TextureData*>::iterator iterator = textureMap_.begin(); iterator != textureMap_.end(); ++iterator)
+        {
+            stbi_image_free(iterator->second->data);
+            delete iterator->second;
+        }
+        textureMap_.clear();
+    }
 
-	std::string ResourceStores::GetFirstToken(const std::string& input) const
-	{
-		if (input.empty())
-		{
-			return "";
-		}
-		
-		// find the index of the first character that isn't a space or tab
-		size_t tokenStart = input.find_first_not_of(" \t");
-		// find the index of the first space, tab, or new line after
-		size_t tokenEnd = input.find_first_of(" \t\n", tokenStart);
+    // protected: --------------------------------------------------------------
 
-		// if start and and to a token has been found:
-		if (tokenStart != std::string::npos && tokenEnd != std::string::npos)
-		{
-			return input.substr(tokenStart, tokenEnd - tokenStart);
-		}
-		// if only the start of a token has been found:
-		else if (tokenStart != std::string::npos)
-		{
-			return input.substr(tokenStart);
-		}
-		// if no token was found
-		else
-		{
-			return "";
-		}
-	}
+    std::string ResourceStores::GetFirstToken(const std::string& input) const
+    {
+        if (input.empty())
+        {
+            return "";
+        }
+
+        // find the index of the first character that isn't a space or tab
+        size_t tokenStart = input.find_first_not_of(" \t");
+        // find the index of the first space, tab, or new line after
+        size_t tokenEnd = input.find_first_of(" \t\n", tokenStart);
+
+        // if start and and to a token has been found:
+        if (tokenStart != std::string::npos && tokenEnd != std::string::npos)
+        {
+            return input.substr(tokenStart, tokenEnd - tokenStart);
+        }
+        // if only the start of a token has been found:
+        else if (tokenStart != std::string::npos)
+        {
+            return input.substr(tokenStart);
+        }
+        // if no token was found
+        else
+        {
+            return "";
+        }
+    }
 }

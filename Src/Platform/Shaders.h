@@ -1,8 +1,10 @@
 #pragma once
 
+
+
 namespace Project001
 {
-	const char* g_vertexShaderSource01_ = R"(
+    const char* g_vertexShaderSource01_ = R"(
 #version 330 core
 
 layout (location = 0) in vec3 in_Position;
@@ -27,7 +29,7 @@ flat out float v_SpecularIndex;
 flat out float v_Shininess;
 
 void main()
-{       
+{
     vec3 temp = 2 * cross(in_Orientation.xyz, in_Position);
     v_FragmentPosition = in_Position + in_Orientation.q * temp + cross(in_Orientation.xyz, temp);
     v_FragmentPosition += in_Translation;
@@ -42,14 +44,14 @@ void main()
     v_TextureIndex = in_TextureIndex;
 
     v_SpecularIndex = in_SpecularIndex;
-    
+
     v_Shininess = in_Shininess;
 
     gl_Position = projection * view * vec4(v_FragmentPosition, 1.0);
 }
-	)";
+    )";
 
-	const char* g_fragmentShaderSource01_ = R"(
+    const char* g_fragmentShaderSource01_ = R"(
 #version 330 core
 
 #define NUMBER_OF_TEXTURES 16
@@ -60,7 +62,7 @@ void main()
 
 struct DirectionalLight {
     vec3 direction;
-	
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -68,11 +70,11 @@ struct DirectionalLight {
 
 struct PointLight {
     vec3 position;
-    
+
     float constant;
     float linear;
     float quadratic;
-	
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -83,14 +85,14 @@ struct SpotLight {
     vec3 direction;
     float cutOff;
     float outerCutOff;
-  
+
     float constant;
     float linear;
     float quadratic;
-  
+
     vec3 ambient;
     vec3 diffuse;
-    vec3 specular;       
+    vec3 specular;
 };
 
 in vec3 v_FragmentPosition;
@@ -116,137 +118,137 @@ vec4 GetTextureColor(float textureIndex);
 
 void main()
 {
-	vec3 normalizedNormal = normalize(v_Normal);
-	vec3 viewDirection = normalize(viewPosition - v_FragmentPosition);
+    vec3 normalizedNormal = normalize(v_Normal);
+    vec3 viewDirection = normalize(viewPosition - v_FragmentPosition);
 
-	vec4 textureColor = GetTextureColor(v_TextureIndex);
-	vec4 specularColor = GetTextureColor(v_SpecularIndex);
+    vec4 textureColor = GetTextureColor(v_TextureIndex);
+    vec4 specularColor = GetTextureColor(v_SpecularIndex);
 
-	vec3 totalAmbientAndDiffuseLightMultiplier = vec3(0.0, 0.0, 0.0);
-	vec3 totalSpecularLightMultiplier = vec3(0.0, 0.0, 0.0);
+    vec3 totalAmbientAndDiffuseLightMultiplier = vec3(0.0, 0.0, 0.0);
+    vec3 totalSpecularLightMultiplier = vec3(0.0, 0.0, 0.0);
 
-	// DirectionalLightColor
-	// -------------------------------------------------------------------------
-	{
-		vec3 normalizedLightDirection = normalize(-1 * directionalLight.direction);
+    // DirectionalLightColor
+    // -------------------------------------------------------------------------
+    {
+        vec3 normalizedLightDirection = normalize(-1 * directionalLight.direction);
 
-		float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
+        float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
 
-		vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
+        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
 
-		float specularMultiplier = 0.0;
-		if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
-		{
-			specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
-		}
+        float specularMultiplier = 0.0;
+        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+        {
+            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+        }
 
-		totalAmbientAndDiffuseLightMultiplier += directionalLight.ambient;
-		totalAmbientAndDiffuseLightMultiplier += directionalLight.diffuse * diffuseMultiplier;
-		totalSpecularLightMultiplier += directionalLight.specular * specularMultiplier;
-	}
+        totalAmbientAndDiffuseLightMultiplier += directionalLight.ambient;
+        totalAmbientAndDiffuseLightMultiplier += directionalLight.diffuse * diffuseMultiplier;
+        totalSpecularLightMultiplier += directionalLight.specular * specularMultiplier;
+    }
 
-	// PointLightColors
-	// -------------------------------------------------------------------------
-	for (int i = 0; i < NUMBER_OF_POINT_LIGHTS; ++i)
-	{
-		vec3 normalizedLightDirection = normalize(pointLights[i].position - v_FragmentPosition);
+    // PointLightColors
+    // -------------------------------------------------------------------------
+    for (int i = 0; i < NUMBER_OF_POINT_LIGHTS; ++i)
+    {
+        vec3 normalizedLightDirection = normalize(pointLights[i].position - v_FragmentPosition);
 
-		float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
+        float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
 
-		vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
+        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
 
-		float specularMultiplier = 0.0;
-		if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
-		{
-			specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
-		}
+        float specularMultiplier = 0.0;
+        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+        {
+            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+        }
 
-		float distanceToFragment = length(pointLights[i].position - v_FragmentPosition);
-		float attenuation = 1.0 / (pointLights[i].constant + pointLights[i].linear * distanceToFragment + pointLights[i].quadratic * (distanceToFragment * distanceToFragment));
+        float distanceToFragment = length(pointLights[i].position - v_FragmentPosition);
+        float attenuation = 1.0 / (pointLights[i].constant + pointLights[i].linear * distanceToFragment + pointLights[i].quadratic * (distanceToFragment * distanceToFragment));
 
-		totalAmbientAndDiffuseLightMultiplier += pointLights[i].ambient * attenuation;
-		totalAmbientAndDiffuseLightMultiplier += pointLights[i].diffuse * diffuseMultiplier* attenuation;
-		totalSpecularLightMultiplier += pointLights[i].specular * specularMultiplier * attenuation;
-	}
+        totalAmbientAndDiffuseLightMultiplier += pointLights[i].ambient * attenuation;
+        totalAmbientAndDiffuseLightMultiplier += pointLights[i].diffuse * diffuseMultiplier* attenuation;
+        totalSpecularLightMultiplier += pointLights[i].specular * specularMultiplier * attenuation;
+    }
 
-	// SpotLightColors
-	// -------------------------------------------------------------------------
-	for (int i = 0; i < NUMBER_OF_SPOT_LIGHTS; ++i)
-	{
-		vec3 normalizedLightDirection = normalize(spotLights[i].position - v_FragmentPosition);
+    // SpotLightColors
+    // -------------------------------------------------------------------------
+    for (int i = 0; i < NUMBER_OF_SPOT_LIGHTS; ++i)
+    {
+        vec3 normalizedLightDirection = normalize(spotLights[i].position - v_FragmentPosition);
 
-		float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
+        float diffuseMultiplier = max(dot(normalizedNormal, normalizedLightDirection), 0.0);
 
-		vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
+        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, normalizedNormal);
 
-		float specularMultiplier = 0.0;
-		if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
-		{
-			specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
-		}
+        float specularMultiplier = 0.0;
+        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+        {
+            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+        }
 
-		float distanceToFragment = length(pointLights[i].position - v_FragmentPosition);
-		float attenuation = 1.0 / (spotLights[i].constant + spotLights[i].linear * distanceToFragment + spotLights[i].quadratic * (distanceToFragment * distanceToFragment));
+        float distanceToFragment = length(pointLights[i].position - v_FragmentPosition);
+        float attenuation = 1.0 / (spotLights[i].constant + spotLights[i].linear * distanceToFragment + spotLights[i].quadratic * (distanceToFragment * distanceToFragment));
 
-		float theta = dot(normalizedLightDirection, normalize(-1 * spotLights[i].direction)); 
-		float epsilon = spotLights[i].cutOff - spotLights[i].outerCutOff;
+        float theta = dot(normalizedLightDirection, normalize(-1 * spotLights[i].direction));
+        float epsilon = spotLights[i].cutOff - spotLights[i].outerCutOff;
 
-		float intensity = 0.0;
-		if (epsilon > 0.0)
-		{
-			intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
-		}
-		else if (theta > spotLights[i].cutOff)
-		{
-			intensity = 1.0;
-		}
+        float intensity = 0.0;
+        if (epsilon > 0.0)
+        {
+            intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
+        }
+        else if (theta > spotLights[i].cutOff)
+        {
+            intensity = 1.0;
+        }
 
-		totalAmbientAndDiffuseLightMultiplier += spotLights[i].ambient * attenuation * intensity;
-		totalAmbientAndDiffuseLightMultiplier += spotLights[i].diffuse * diffuseMultiplier* attenuation * intensity;
-		totalSpecularLightMultiplier += spotLights[i].specular * specularMultiplier * attenuation * intensity;
-	}
+        totalAmbientAndDiffuseLightMultiplier += spotLights[i].ambient * attenuation * intensity;
+        totalAmbientAndDiffuseLightMultiplier += spotLights[i].diffuse * diffuseMultiplier* attenuation * intensity;
+        totalSpecularLightMultiplier += spotLights[i].specular * specularMultiplier * attenuation * intensity;
+    }
 
-	// result
-	// -------------------------------------------------------------------------
-	f_Color = textureColor * v_Color * vec4(totalAmbientAndDiffuseLightMultiplier, 1.0) + specularColor * vec4(totalSpecularLightMultiplier, 1.0);
+    // result
+    // -------------------------------------------------------------------------
+    f_Color = textureColor * v_Color * vec4(totalAmbientAndDiffuseLightMultiplier, 1.0) + specularColor * vec4(totalSpecularLightMultiplier, 1.0);
 }
 
 vec4 GetTextureColor(float textureIndex)
 {
-	int textureIndexInt = int(textureIndex);
-	if (textureIndexInt < 0)
-	{
-		return vec4(1.0, 1.0, 1.0, 1.0);
-	}
-	else if (textureIndex >= NUMBER_OF_TEXTURES)
-	{
-		return vec4(0.0, 0.0, 0.0, 1.0);
-	}
-	else
-	{
-		return texture(textures[textureIndexInt], v_TextureCoordinate);
-	}
+    int textureIndexInt = int(textureIndex);
+    if (textureIndexInt < 0)
+    {
+        return vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    else if (textureIndex >= NUMBER_OF_TEXTURES)
+    {
+        return vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    else
+    {
+        return texture(textures[textureIndexInt], v_TextureCoordinate);
+    }
 }
 
 vec4 GetTextureColorAlt(float textureIndex)
 {
-	vec4 textureColor = vec4(0.0, 0.0, 0.0, 1.0);
-	if (textureIndex > -0.5)
-	{
-		for (int i = 0; i < NUMBER_OF_TEXTURES; ++i)
-		{
-			if (textureIndex < float(i) + 0.5)
-			{
-				textureColor = texture(textures[i], v_TextureCoordinate);
-				break;
-			}
-		}	
-	}
-	else
-	{
-		textureColor = vec4(1.0, 1.0, 1.0, 1.0);
-	}
-	return textureColor;
+    vec4 textureColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if (textureIndex > -0.5)
+    {
+        for (int i = 0; i < NUMBER_OF_TEXTURES; ++i)
+        {
+            if (textureIndex < float(i) + 0.5)
+            {
+                textureColor = texture(textures[i], v_TextureCoordinate);
+                break;
+            }
+        }
+    }
+    else
+    {
+        textureColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    return textureColor;
 }
-	)";
+    )";
 }

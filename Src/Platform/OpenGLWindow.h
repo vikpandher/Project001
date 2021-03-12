@@ -8,97 +8,102 @@ struct GLFWwindow;
 
 namespace Project001
 {
-	class OpenGLShader;
-	class OpenGLTexture;
-	
-	class OpenGLWindow : public Window
-	{
-	public:
-		OpenGLWindow(const char* title, int width, int height);
-		~OpenGLWindow();
+    class OpenGLShader;
+    class OpenGLTexture;
 
-		OpenGLWindow(OpenGLWindow& other) = delete;
-		void operator=(const OpenGLWindow&) = delete;
+    class OpenGLWindow : public Window
+    {
+    public:
+        OpenGLWindow(const char* title, int width, int height);
+        ~OpenGLWindow();
 
-		void Render(const RenderData* renderData) const override;
+        OpenGLWindow(OpenGLWindow& other) = delete;
+        void operator=(const OpenGLWindow&) = delete;
 
-		void AddTexture(const TextureData* textureData, unsigned int index) override;
+        void Render(const RenderData* renderData) const override;
 
-		void PollEvents() override;
+        void AddTexture(const TextureData* textureData, unsigned int index) override;
 
-		void SetEventCallback(const std::function<void(Event&)>& callback) override;
+        void PollEvents() override;
 
-		// Setting numerator and denominator to -1 unlocks the aspect ratio.
-		void SetAspectRatio(int numerator, int denominator);
+        void SetEventCallback(const std::function<void(Event&)>& callback) override;
 
-		void SetSize(int width, int height) override;
+        // Setting numerator and denominator to -1 unlocks the aspect ratio.
+        void SetAspectRatio(int numerator, int denominator);
 
-		// Time measurements are in seconds
-		void SetTime(const double time) override;
-		double GetTime() const override;
+        void SetSize(int width, int height) override;
 
-		void SetVSync(bool enabled) override;
-		bool IsVSync() const override;
+        // Time measurements are in seconds
+        void SetTime(const double time) override;
+        double GetTime() const override;
 
-	protected:
-		static int s_glfwWindowCount_;
+        void SetVSync(bool enabled) override;
+        bool IsVSync() const override;
 
-		// determines the size of the index and vertex buffers
-		static const unsigned int s_bufferCapacity_ = 36 * 5;
-		static const unsigned int s_numberOfTextureSlots_ = 16;
+        bool GetKeyPressed(KeyCode key) const override;
+        bool GetMouseButtonPressed(MouseButton mouseButton) const override;
+        void GetCursorPosition(float& xPosition, float& yPosition) const override;
+        bool GetJoystickPresent(unsigned int index) const override;
+        void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const override;
+        void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const override;
 
-		static const unsigned int s_numberOfPointLights_ = 8;
-		static const unsigned int s_numberOfSpotLights_ = 4;
+    protected:
+        static int s_glfwWindowCount_;
 
-		GLFWwindow* glfwWindowPtr_;
+        // determines the size of the index and vertex buffers
+        static const unsigned int s_bufferCapacity_ = 36 * 5;
+        static const unsigned int s_numberOfTextureSlots_ = 16;
 
-		struct WindowData
-		{
-			WindowData()
-				: title(nullptr)
-				, width(0)
-				, height(0)
-				, vSyncEnabled(false)
-			{}
+        static const unsigned int s_numberOfPointLights_ = 8;
+        static const unsigned int s_numberOfSpotLights_ = 4;
 
-			const char* title;
-			unsigned int width;
-			unsigned int height;
+        GLFWwindow* glfwWindowPtr_;
 
-			std::function<void(Event&)> EventCallback;
+        struct WindowData
+        {
+            WindowData()
+                : title(nullptr)
+                , width(0)
+                , height(0)
+                , vSyncEnabled(false)
+            {}
 
-			bool vSyncEnabled;
+            const char* title;
+            unsigned int width;
+            unsigned int height;
 
-		} windowData_;
+            std::function<void(Event&)> EventCallback;
 
-		OpenGLShader* shaderPtr_;
+            bool vSyncEnabled;
+        } windowData_;
 
-		// this holds the buffer's id
-		// the buffer holds the blob of data that will be displayed
-		unsigned int vertexBufferId_;
+        OpenGLShader* shaderPtr_;
 
-		// this holds the index buffer's id
-		unsigned int indexBufferId_;
+        // this holds the buffer's id
+        // the buffer holds the blob of data that will be displayed
+        unsigned int vertexBufferId_;
 
-		// this holds the vertex array's id
-		// the vertex array holds information about the size, shape, and type of array
-		unsigned int vertexArrayId_;
+        // this holds the index buffer's id
+        unsigned int indexBufferId_;
 
-		OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
+        // this holds the vertex array's id
+        // the vertex array holds information about the size, shape, and type of array
+        unsigned int vertexArrayId_;
 
-	private:
+        OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
 
-	};
+    private:
+    };
 
-	// public: -----------------------------------------------------------------
+    // public: -----------------------------------------------------------------
 
-	inline void OpenGLWindow::SetEventCallback(const std::function<void(Event&)>& callback)
-	{
-		windowData_.EventCallback = callback;
-	}
+    inline void OpenGLWindow::SetEventCallback(const std::function<void(Event&)>& callback)
+    {
+        windowData_.EventCallback = callback;
+    }
 
-	inline bool OpenGLWindow::IsVSync() const
-	{
-		return windowData_.vSyncEnabled;
-	}
+    inline bool OpenGLWindow::IsVSync() const
+    {
+        return windowData_.vSyncEnabled;
+    }
 }
