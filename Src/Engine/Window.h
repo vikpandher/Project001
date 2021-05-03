@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include "Engine/RenderData.h"
+
 
 
 namespace Project001
@@ -9,8 +11,6 @@ namespace Project001
     struct Event;
     enum class KeyCode;
     enum class MouseButton;
-    struct RenderData;
-    struct TextureData;
 
     class Window
     {
@@ -19,7 +19,7 @@ namespace Project001
 
         virtual void Render(const RenderData* renderData) const = 0;
 
-        virtual void AddTexture(const TextureData* textureData, unsigned int index) = 0;
+        virtual void AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents) = 0;
 
         virtual void PollEvents() = 0;
 
@@ -27,13 +27,18 @@ namespace Project001
 
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
 
-        virtual void SetSize(int width, int height) = 0;
+        virtual void SetViewportSize(int x, int y, int width, int height) = 0;
+
+        virtual void SetWindowSize(int width, int height) = 0;
 
         virtual void SetTime(const double time) = 0;
         virtual double GetTime() const = 0;
 
         virtual void SetVSync(bool enabled) = 0;
         virtual bool IsVSync() const = 0;
+
+        virtual void GetFramebufferSize(int& width, int& height) const = 0;
+        virtual void GetWindowSize(int& width, int& height) const = 0;
 
         virtual bool GetKeyPressed(KeyCode key) const = 0;
         virtual bool GetMouseButtonPressed(MouseButton mouseButton) const = 0;

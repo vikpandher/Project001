@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 
 
@@ -8,11 +9,16 @@ namespace Project001
 {
     class ComponentStores;
     class Scene;
-    class ResourceStores;
+    class ModelStores;
+    class TextureStores;
     class Window;
 
     struct Event;
+    struct DeinitializeSceneEvent;
+    struct InitializeSceneEvent;
     struct WindowCloseEvent;
+    struct WindowSizeEvent;
+    struct SwitchSceneEvent;
 
     class Application
     {
@@ -23,10 +29,16 @@ namespace Project001
         Application(Application& other) = delete;
         void operator=(const Application&) = delete;
 
+        void AddScene(Scene* scenePtr);
+
         void Run();
 
     protected:
+        void ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent);
+        void ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent);
+        void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
+        void ProcessWindowSizeEvent(WindowSizeEvent& windowSizeEvent);
 
         void OnEvent(Event& event);
 
@@ -40,11 +52,14 @@ namespace Project001
 
         ComponentStores* componentStoresPtr_;
 
-        ResourceStores* resourceStoresPtr_;
+        ModelStores* modelStoresPtr_;
+
+        TextureStores* textureStoresPtr_;
 
         Window* windowPtr_;
 
         Scene* activeScenePtr_;
+        std::map<std::string, Scene*> sceneMap_;
 
     private:
     };

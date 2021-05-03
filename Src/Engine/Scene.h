@@ -7,36 +7,39 @@
 namespace Project001
 {
     class ComponentStores;
-    struct Event;
-    class ResourceStores;
-    struct UpdateEvent;
+    class ModelStores;
+    class TextureStores;
     class Window;
+
+    struct Event;
 
     class Scene
     {
     public:
-        Scene(ComponentStores* componentStoresPtr, ResourceStores* resourceStoresPtr, Window* windowPtr);
-        ~Scene();
+        Scene() = default;
 
         Scene(Scene& other) = delete;
         void operator=(const Scene&) = delete;
 
+        virtual const char* Name() = 0;
+
+        virtual void Initialize(
+            ComponentStores* componentStoresPtr,
+            ModelStores* modelStoresPtr,
+            TextureStores* textureStoresPtr,
+            Window* windowPtr) = 0;
+
+        virtual void Deinitialize() = 0;
+
+        virtual void OnEvent(Event& event) = 0;
+
         void SetEventCallback(const std::function<void(Event&)>& callback);
 
-        void OnEvent(Event& event);
-
     protected:
-        void Update(UpdateEvent& updateEvent);
-
         std::function<void(Event&)> EventCallback;
 
-        ComponentStores* componentStoresPtr_;
-        ResourceStores* resourceStoresPtr_;
-        Window* windowPtr_;
-
     private:
-        void ComponentContainerTest() const;
-        void ComponentStoresTest() const;
+
     };
 
     inline void Scene::SetEventCallback(const std::function<void(Event&)>& callback)

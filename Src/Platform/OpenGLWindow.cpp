@@ -5,8 +5,6 @@
 
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
-#include "Engine/RenderData.h"
-#include "Engine/TextureData.h"
 
 #include "Platform/OpenGLShader.h"
 #include "Platform/OpenGLTexture.h"
@@ -21,10 +19,6 @@ namespace Project001
     OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
         : glfwWindowPtr_(nullptr)
     {
-        windowData_.title = title;
-        windowData_.width = width;
-        windowData_.height = height;
-
         if (s_glfwWindowCount_ == 0)
         {
             if (!glfwInit())
@@ -60,10 +54,6 @@ namespace Project001
         Logger::Message("    Version: %s", glGetString(GL_VERSION));
 
         SetVSync(true);
-
-        // This is enabled so when glViewport is used to set the viewportt size,
-        // glScissor can be used to limit drawing to within the viewport.
-        glEnable(GL_SCISSOR_TEST);
 
         // NOTES:
         // GLFW Callback Functions:
@@ -145,6 +135,13 @@ namespace Project001
                 data.EventCallback(event);
             });
 
+        glfwSetWindowSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
+            {
+                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                WindowSizeEvent event(width, height);
+                data.EventCallback(event);
+            });
+
         glfwSetFramebufferSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
                 WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -154,6 +151,11 @@ namespace Project001
 
         // configure global opengl state
         // ---------------------------------------------------------------------
+
+        // This is enabled so when glViewport is used to set the viewportt size,
+        // glScissor can be used to limit drawing to within the viewport.
+        glEnable(GL_SCISSOR_TEST);
+
         // enable using the z buffer
         glEnable(GL_DEPTH_TEST);
 
@@ -205,20 +207,25 @@ namespace Project001
         // (index, size, type, normalized, stride, pointer)
 
         GLuint positionAttributeIndex = 0;
-        GLuint normalAttributeIndex = 1;
-        GLuint colorAttributeIndex = 2;
-        GLuint textureCoordinateAttributeIndex = 3;
+        GLuint textureCoordinateAttributeIndex = 1;
+        GLuint normalAttributeIndex = 2;
+        GLuint colorAttributeIndex = 3;
         GLuint textureIndexAttributeIndex = 4;
         GLuint specularIndexAttributeIndex = 5;
         GLuint shininessAttributeIndex = 6;
-        GLuint translationAttributeIndex = 7;
-        GLuint orientationAttributeIndex = 8;
+        GLuint scaleAttributeIndex = 7;
+        GLuint translationAttributeIndex = 8;
+        GLuint orientationAttributeIndex = 9;
 
         unsigned long long attributeOffset = 0;
 
         glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(positionAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
+
+        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
+        attributeOffset += sizeof(glm::vec2);
 
         glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(normalAttributeIndex);
@@ -227,10 +234,6 @@ namespace Project001
         glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(colorAttributeIndex);
         attributeOffset += sizeof(glm::vec4);
-
-        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
-        attributeOffset += sizeof(glm::vec2);
 
         glVertexAttribPointer(textureIndexAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(textureIndexAttributeIndex);
@@ -243,6 +246,10 @@ namespace Project001
         glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(shininessAttributeIndex);
         attributeOffset += sizeof(float);
+
+        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(scaleAttributeIndex);
+        attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
         glEnableVertexAttribArray(translationAttributeIndex);
@@ -312,6 +319,12 @@ namespace Project001
         const std::vector<VertexData>& vertexBuffer = renderData->vertexBuffer;
         const std::vector<glm::uint>& indexBuffer = renderData->indexBuffer;
 
+        std::vector<glm::uint> cappedIndexBuffer;
+        for (unsigned int i = 0; i < indexBuffer.size(); ++i)
+        {
+            cappedIndexBuffer.push_back(indexBuffer[i] % s_bufferCapacity_);
+        }
+
         shaderPtr_->SetMat4("view", viewMatrix);
         shaderPtr_->SetMat4("projection", projectionMatrix_);
 
@@ -367,8 +380,8 @@ namespace Project001
             {
                 shaderPtr_->SetVec3((uniformName + ".position").c_str(), spotLights[i].position);
                 shaderPtr_->SetVec3((uniformName + ".direction").c_str(), spotLights[i].direction);
-                shaderPtr_->SetFloat((uniformName + ".cutOff").c_str(), spotLights[i].cutOff);
-                shaderPtr_->SetFloat((uniformName + ".outerCutOff").c_str(), spotLights[i].outerCutOff);
+                shaderPtr_->SetFloat((uniformName + ".cutoff").c_str(), spotLights[i].cutoff);
+                shaderPtr_->SetFloat((uniformName + ".outerCutoff").c_str(), spotLights[i].outerCutoff);
                 shaderPtr_->SetFloat((uniformName + ".constant").c_str(), spotLights[i].constant);
                 shaderPtr_->SetFloat((uniformName + ".linear").c_str(), spotLights[i].linear);
                 shaderPtr_->SetFloat((uniformName + ".quadratic").c_str(), spotLights[i].quadratic);
@@ -380,8 +393,8 @@ namespace Project001
             {
                 shaderPtr_->SetVec3((uniformName + ".position").c_str(), emptySpotLight.position);
                 shaderPtr_->SetVec3((uniformName + ".direction").c_str(), emptySpotLight.direction);
-                shaderPtr_->SetFloat((uniformName + ".cutOff").c_str(), emptySpotLight.cutOff);
-                shaderPtr_->SetFloat((uniformName + ".outerCutOff").c_str(), emptySpotLight.outerCutOff);
+                shaderPtr_->SetFloat((uniformName + ".cutoff").c_str(), emptySpotLight.cutoff);
+                shaderPtr_->SetFloat((uniformName + ".outerCutoff").c_str(), emptySpotLight.outerCutoff);
                 shaderPtr_->SetFloat((uniformName + ".constant").c_str(), emptySpotLight.constant);
                 shaderPtr_->SetFloat((uniformName + ".linear").c_str(), emptySpotLight.linear);
                 shaderPtr_->SetFloat((uniformName + ".quadratic").c_str(), emptySpotLight.quadratic);
@@ -398,11 +411,12 @@ namespace Project001
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        unsigned int numberOfVerticiesLeftToDraw = (unsigned int)vertexBuffer.size();
+        unsigned int totalNumberOfVerticies = (unsigned int)vertexBuffer.size();
         unsigned int numberOfVerticiesDrawn = 0;
-        while (numberOfVerticiesDrawn < vertexBuffer.size())
+        while (numberOfVerticiesDrawn < totalNumberOfVerticies)
         {
             unsigned int numberOfVerticiesThatWillBeDrawn = s_bufferCapacity_;
+            unsigned int numberOfVerticiesLeftToDraw = totalNumberOfVerticies - numberOfVerticiesDrawn;
             if (numberOfVerticiesLeftToDraw < numberOfVerticiesThatWillBeDrawn)
             {
                 numberOfVerticiesThatWillBeDrawn = numberOfVerticiesLeftToDraw;
@@ -411,9 +425,11 @@ namespace Project001
             // upload the vertex data and index data into their respective buffers
             // (target, offset, size, data)
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesThatWillBeDrawn, &vertexBuffer[numberOfVerticiesDrawn]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * numberOfVerticiesThatWillBeDrawn, &indexBuffer[numberOfVerticiesDrawn]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * numberOfVerticiesThatWillBeDrawn, &cappedIndexBuffer[numberOfVerticiesDrawn]);
 
             /// glBindVertexArray(vertexArrayId_);
+
+            // TODO: go back to using glDrawArrays
             glDrawElements(GL_TRIANGLES, numberOfVerticiesThatWillBeDrawn, GL_UNSIGNED_INT, 0);
 
             numberOfVerticiesDrawn += numberOfVerticiesThatWillBeDrawn;
@@ -422,18 +438,19 @@ namespace Project001
         glfwSwapBuffers(glfwWindowPtr_);
     }
 
-    void OpenGLWindow::AddTexture(const TextureData* textureData, unsigned int index)
+    // TODO: Create some sort of texture LRU cache so I don't have to track texture slots.
+    void OpenGLWindow::AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents)
     {
         glfwMakeContextCurrent(glfwWindowPtr_);
 
-        if (index >= 0 && index < s_numberOfTextureSlots_)
+        if (textureSlot >= 0 && textureSlot < s_numberOfTextureSlots_)
         {
-            OpenGLTexture*& texturePtr = texturePtrs_[index];
+            OpenGLTexture*& texturePtr = texturePtrs_[textureSlot];
             if (texturePtr != nullptr)
             {
                 delete texturePtr;
             }
-            texturePtr = new OpenGLTexture(index, textureData->data, textureData->width, textureData->height, textureData->numberOfComponents);
+            texturePtr = new OpenGLTexture(textureSlot, data, width, height, numberOfComponents);
         }
     }
 
@@ -444,22 +461,30 @@ namespace Project001
         glfwPollEvents();
     }
 
-    inline void OpenGLWindow::SetAspectRatio(int numerator, int denominator)
+    void OpenGLWindow::SetAspectRatio(int numerator, int denominator)
     {
         glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
     }
 
-    inline void OpenGLWindow::SetSize(int width, int height)
+    void OpenGLWindow::SetViewportSize(int x, int y, int width, int height)
+    {
+        glfwMakeContextCurrent(glfwWindowPtr_);
+
+        glViewport(x, y, width, height);
+        glScissor(x, y, width, height);
+    }
+
+    void OpenGLWindow::SetWindowSize(int width, int height)
     {
         glfwSetWindowSize(glfwWindowPtr_, width, height);
     }
 
-    inline void OpenGLWindow::SetTime(const double time)
+    void OpenGLWindow::SetTime(const double time)
     {
         glfwSetTime(time);
     }
 
-    inline double OpenGLWindow::GetTime() const
+    double OpenGLWindow::GetTime() const
     {
         return glfwGetTime();
     }
@@ -478,6 +503,16 @@ namespace Project001
         }
 
         windowData_.vSyncEnabled = enabled;
+    }
+
+    void OpenGLWindow::GetFramebufferSize(int& width, int& height) const
+    {
+        glfwGetFramebufferSize(glfwWindowPtr_, &width, &height);
+    }
+
+    void OpenGLWindow::GetWindowSize(int& width, int& height) const
+    {
+        glfwGetWindowSize(glfwWindowPtr_, &width, &height);
     }
 
     bool OpenGLWindow::GetKeyPressed(KeyCode key) const
@@ -511,7 +546,7 @@ namespace Project001
         int countInt;
         const float* axes = glfwGetJoystickAxes(index, &countInt);
         count = (unsigned int)countInt;
-        for (unsigned int i = 0; i < countInt; ++i)
+        for (unsigned int i = 0; i < count; ++i)
         {
             values[i] = axes[i];
         }
@@ -522,7 +557,7 @@ namespace Project001
         int countInt;
         const unsigned char* buttons = glfwGetJoystickButtons(index, &countInt);
         count = (unsigned int)countInt;
-        for (unsigned int i = 0; i < countInt; ++i)
+        for (unsigned int i = 0; i < count; ++i)
         {
             values[i] = buttons[i] == GLFW_PRESS;
         }

@@ -17,8 +17,12 @@ namespace Project001
         EVENT_TYPE_SCROLL,
         EVENT_TYPE_WINDOW_CLOSE,
         EVENT_TYPE_WINDOW_FOCUS,
+        EVENT_TYPE_WINDOW_SIZE,
         EVENT_TYPE_FRAMEBUFFER_SIZE,
 
+        EVENT_TYPE_SWITCH_SCENE,
+        EVENT_TYPE_INITIALIZE_SCENE,
+        EVENT_TYPE_DEINITIALIZE_SCENE,
         EVENT_TYPE_UPDATE
     };
 
@@ -58,9 +62,25 @@ namespace Project001
         {
             return std::string("EVENT_TYPE_WINDOW_FOCUS");
         }
+        case EventType::EVENT_TYPE_WINDOW_SIZE:
+        {
+            return std::string("EVENT_TYPE_WINDOW_SIZE");
+        }
         case EventType::EVENT_TYPE_FRAMEBUFFER_SIZE:
         {
             return std::string("EVENT_TYPE_FRAMEBUFFER_SIZE");
+        }
+        case EventType::EVENT_TYPE_SWITCH_SCENE:
+        {
+            return std::string("EVENT_TYPE_SWITCH_SCENE");
+        }
+        case EventType::EVENT_TYPE_INITIALIZE_SCENE:
+        {
+            return std::string("EVENT_TYPE_INITIALIZE_SCENE");
+        }
+        case EventType::EVENT_TYPE_DEINITIALIZE_SCENE:
+        {
+            return std::string("EVENT_TYPE_DEINITIALIZE_SCENE");
         }
         case EventType::EVENT_TYPE_UPDATE:
         {
@@ -877,7 +897,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_KEY)
 
-            KeyCode keyCode;
+        KeyCode keyCode;
         ButtonAction buttonAction;
         KeyModifier keyModifier;
     };
@@ -893,7 +913,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_MOUSE_BUTTON)
 
-            MouseButton mouseButton;
+        MouseButton mouseButton;
         ButtonAction buttonAction;
         KeyModifier keyModifier;
     };
@@ -908,8 +928,10 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_POSITION)
 
-            // origin is at the top left
-            float xPosition, yPosition;
+        // origin is at the top left
+        // moving to the right is positive x
+        // moving down is positive y
+        float xPosition, yPosition;
     };
 
     struct CursorEnterEvent : Event
@@ -921,7 +943,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_ENTER)
 
-            bool entered;
+        bool entered;
     };
 
     struct ScrollEvent : Event
@@ -934,7 +956,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SCROLL)
 
-            float xOffset, yOffset;
+        float xOffset, yOffset;
     };
 
     struct WindowCloseEvent : Event
@@ -955,7 +977,20 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_FOCUS)
 
-            bool focused;
+        bool focused;
+    };
+
+    struct WindowSizeEvent : Event
+    {
+        WindowSizeEvent(int width, int height)
+            : Event()
+            , width(width)
+            , height(height)
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_SIZE)
+
+            int width, height;
     };
 
     struct FrameBufferSizeEvent : Event
@@ -968,7 +1003,46 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_FRAMEBUFFER_SIZE)
 
-            int width, height;
+        int width, height;
+    };
+
+    // Scene Events:
+    // -------------------------------------------------------------------------
+
+    struct SwitchSceneEvent : Event
+    {
+        SwitchSceneEvent(std::string sceneName)
+            : Event()
+            , sceneName(sceneName)
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SWITCH_SCENE)
+
+        std::string sceneName;
+    };
+
+    struct InitializeSceneEvent : Event
+    {
+        InitializeSceneEvent(std::string sceneName)
+            : Event()
+            , sceneName(sceneName)
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_INITIALIZE_SCENE)
+
+        std::string sceneName;
+    };
+
+    struct DeinitializeSceneEvent : Event
+    {
+        DeinitializeSceneEvent(std::string sceneName)
+            : Event()
+            , sceneName(sceneName)
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_DEINITIALIZE_SCENE)
+
+        std::string sceneName;
     };
 
     struct UpdateEvent : Event
@@ -981,7 +1055,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_UPDATE)
 
-            unsigned int threadId;
+        unsigned int threadId;
         double timestep_s;
     };
 }

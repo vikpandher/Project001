@@ -17,6 +17,8 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 set(SOURCE_FILES
     "Src/Main.cpp"
+    "Src/TestScene.cpp"
+    "Src/TestScene.h"
 )
 
 source_group("Src" FILES ${SOURCE_FILES})
@@ -25,18 +27,22 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/Component.h"
+    "Src/Engine/ComponentContainer.cpp"
     "Src/Engine/ComponentContainer.h"
+    "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
-    "Src/Engine/ModelData.h"
+    "Src/Engine/LRUArray.h"
+    "Src/Engine/ModelStores.cpp"
+    "Src/Engine/ModelStores.h"
     "Src/Engine/RenderData.h"
-    "Src/Engine/ResourceStores.cpp"
-    "Src/Engine/ResourceStores.h"
-    "Src/Engine/Scene.cpp"
     "Src/Engine/Scene.h"
-    "Src/Engine/TextureData.h"
+    "Src/Engine/SceneComponents.cpp"
+    "Src/Engine/SceneComponents.h"
+    "Src/Engine/TextureStores.cpp"
+    "Src/Engine/TextureStores.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
 )

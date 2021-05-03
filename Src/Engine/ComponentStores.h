@@ -12,62 +12,18 @@ namespace Project001
     class ComponentStores
     {
     public:
-        ComponentStores()
-            : nextHighestEntityId_(0)
-        {
-        }
+        ComponentStores();
 
-        ~ComponentStores()
-        {
-        }
+        ~ComponentStores();
 
         ComponentStores(ComponentStores& other) = delete;
         void operator=(const ComponentStores&) = delete;
 
         // Entity Functions: ---------------------------------------------------
 
-        bool CreateEntity(unsigned int& entityId)
-        {
-            if (recycledEntityIds_.empty())
-            {
-                if (nextHighestEntityId_ > s_maxNumberOfEntities_)
-                {
-                    return false;
-                }
+        bool CreateEntity(unsigned int& entityId);
 
-                entityId = nextHighestEntityId_++;
-
-                entityDeletedFlags_.push_back(false);
-            }
-            else
-            {
-                entityId = recycledEntityIds_.front();
-                recycledEntityIds_.pop();
-
-                entityDeletedFlags_[entityId] = false;
-            }
-
-            return true;
-        }
-
-        bool DeleteEntity(unsigned int entityId)
-        {
-            if (!EntityExists(entityId))
-            {
-                return false;
-            }
-
-            for (int i = 0; i < componentContainers_.size(); ++i)
-            {
-                componentContainers_[i].DeleteComponent(entityId);
-            }
-
-            recycledEntityIds_.push(entityId);
-
-            entityDeletedFlags_[entityId] = true;
-
-            return true;
-        }
+        bool DeleteEntity(unsigned int entityId);
 
         // Component Functions: ------------------------------------------------
 
@@ -90,7 +46,7 @@ namespace Project001
         }
 
         template <typename Component>
-        bool GetComponent(unsigned int entityId, Component*& component)
+        bool GetComponent(unsigned int entityId, Component*& componentPtr)
         {
             if (!EntityExists(entityId))
             {
@@ -104,25 +60,21 @@ namespace Project001
             }
 
             unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-            return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, component);
+            return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, componentPtr);
         }
 
         template <typename Component>
-        bool GetAllComponents(Component*& compoonents, size_t& count)
+        bool GetAllComponents(Component*& compoonentPtrs, size_t& count)
         {
-            if (!EntityExists(entityId))
-            {
-                return false;
-            }
-
             unsigned int componentTypeId = Component::typeId;
             if (!ComponentTypeExists(componentTypeId))
             {
+                count = 0;
                 return false;
             }
 
             unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-            return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonents, count);
+            return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonentPtrs, count);
         }
 
         template <typename Component>
@@ -156,20 +108,7 @@ namespace Project001
             return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
         }
 
-        bool RegisterNewComponent(unsigned int componentTypeId)
-        {
-            unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
-
-            if (nextComponentContainerIndex > s_maxTypesOfComponents_)
-            {
-                return false;
-            }
-
-            componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
-            componentContainers_.resize((size_t)nextComponentContainerIndex + 1);
-
-            return true;
-        }
+        bool RegisterNewComponent(unsigned int componentTypeId);
 
         static const unsigned int s_maxNumberOfEntities_ = 128;
         static const unsigned int s_maxTypesOfComponents_ = 32;

@@ -8,30 +8,32 @@ namespace Project001
 #version 330 core
 
 layout (location = 0) in vec3 in_Position;
-layout (location = 1) in vec3 in_Normal;
-layout (location = 2) in vec4 in_Color;
-layout (location = 3) in vec2 in_TextureCoordinate;
+layout (location = 1) in vec2 in_TextureCoordinate;
+layout (location = 2) in vec3 in_Normal;
+layout (location = 3) in vec4 in_Color;
 layout (location = 4) in float in_TextureIndex;
 layout (location = 5) in float in_SpecularIndex;
 layout (location = 6) in float in_Shininess;
-layout (location = 7) in vec3 in_Translation;
-layout (location = 8) in vec4 in_Orientation;
+layout (location = 7) in vec3 in_Scale;
+layout (location = 8) in vec3 in_Translation;
+layout (location = 9) in vec4 in_Orientation;
 
 uniform mat4 view;
 uniform mat4 projection;
 
 out vec3 v_FragmentPosition;
+out vec2 v_TextureCoordinate;
 out vec3 v_Normal;
 out vec4 v_Color;
-out vec2 v_TextureCoordinate;
 flat out float v_TextureIndex;
 flat out float v_SpecularIndex;
 flat out float v_Shininess;
 
 void main()
 {
-    vec3 temp = 2 * cross(in_Orientation.xyz, in_Position);
-    v_FragmentPosition = in_Position + in_Orientation.q * temp + cross(in_Orientation.xyz, temp);
+    vec3 scaledPosition = vec3(in_Position.x * in_Scale.x, in_Position.y * in_Scale.y, in_Position.z * in_Scale.z);
+    vec3 temp = 2 * cross(in_Orientation.xyz, scaledPosition);
+    v_FragmentPosition = scaledPosition + in_Orientation.q * temp + cross(in_Orientation.xyz, temp);
     v_FragmentPosition += in_Translation;
 
     temp = 2 * cross(in_Orientation.xyz, in_Normal);
@@ -83,8 +85,8 @@ struct PointLight {
 struct SpotLight {
     vec3 position;
     vec3 direction;
-    float cutOff;
-    float outerCutOff;
+    float cutoff;
+    float outercutoff;
 
     float constant;
     float linear;
@@ -96,9 +98,9 @@ struct SpotLight {
 };
 
 in vec3 v_FragmentPosition;
+in vec2 v_TextureCoordinate;
 in vec3 v_Normal;
 in vec4 v_Color;
-in vec2 v_TextureCoordinate;
 flat in float v_TextureIndex;
 flat in float v_SpecularIndex;
 flat in float v_Shininess;
@@ -191,14 +193,14 @@ void main()
         float attenuation = 1.0 / (spotLights[i].constant + spotLights[i].linear * distanceToFragment + spotLights[i].quadratic * (distanceToFragment * distanceToFragment));
 
         float theta = dot(normalizedLightDirection, normalize(-1 * spotLights[i].direction));
-        float epsilon = spotLights[i].cutOff - spotLights[i].outerCutOff;
+        float epsilon = spotLights[i].cutoff - spotLights[i].outercutoff;
 
         float intensity = 0.0;
         if (epsilon > 0.0)
         {
-            intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
+            intensity = clamp((theta - spotLights[i].outercutoff) / epsilon, 0.0, 1.0);
         }
-        else if (theta > spotLights[i].cutOff)
+        else if (theta > spotLights[i].cutoff)
         {
             intensity = 1.0;
         }
@@ -250,5 +252,75 @@ vec4 GetTextureColorAlt(float textureIndex)
     }
     return textureColor;
 }
+    )";
+
+        const char* g_fragmentShaderSource02_ = R"(
+#version 330 core
+
+#define NUMBER_OF_TEXTURES 16
+
+#define NUMBER_OF_POINT_LIGHTS 8
+
+#define NUMBER_OF_SPOT_LIGHTS 4
+
+struct DirectionalLight {
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight {
+    vec3 position;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    float cutoff;
+    float outercutoff;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+in vec3 v_FragmentPosition;
+in vec2 v_TextureCoordinate;
+in vec3 v_Normal;
+in vec4 v_Color;
+flat in float v_TextureIndex;
+flat in float v_SpecularIndex;
+flat in float v_Shininess;
+
+uniform vec3 viewPosition;
+
+uniform DirectionalLight directionalLight;
+uniform PointLight pointLights[NUMBER_OF_POINT_LIGHTS];
+uniform SpotLight spotLights[NUMBER_OF_SPOT_LIGHTS];
+
+// The type of sample corresponds to the type of texture
+uniform sampler2D textures[NUMBER_OF_TEXTURES];
+
+layout (location = 0) out vec4 f_Color;
+
+void main()
+{
+    f_Color = v_Color;
+}
+
     )";
 }

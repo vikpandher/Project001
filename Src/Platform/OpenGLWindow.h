@@ -22,7 +22,7 @@ namespace Project001
 
         void Render(const RenderData* renderData) const override;
 
-        void AddTexture(const TextureData* textureData, unsigned int index) override;
+        void AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents) override;
 
         void PollEvents() override;
 
@@ -31,7 +31,9 @@ namespace Project001
         // Setting numerator and denominator to -1 unlocks the aspect ratio.
         void SetAspectRatio(int numerator, int denominator);
 
-        void SetSize(int width, int height) override;
+        void SetViewportSize(int x, int y, int width, int height) override;
+
+        void SetWindowSize(int width, int height) override;
 
         // Time measurements are in seconds
         void SetTime(const double time) override;
@@ -39,6 +41,9 @@ namespace Project001
 
         void SetVSync(bool enabled) override;
         bool IsVSync() const override;
+
+        void GetFramebufferSize(int& width, int& height) const override;
+        void GetWindowSize(int& width, int& height) const override;
 
         bool GetKeyPressed(KeyCode key) const override;
         bool GetMouseButtonPressed(MouseButton mouseButton) const override;
@@ -62,15 +67,8 @@ namespace Project001
         struct WindowData
         {
             WindowData()
-                : title(nullptr)
-                , width(0)
-                , height(0)
-                , vSyncEnabled(false)
+                : vSyncEnabled(false)
             {}
-
-            const char* title;
-            unsigned int width;
-            unsigned int height;
 
             std::function<void(Event&)> EventCallback;
 

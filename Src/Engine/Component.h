@@ -7,7 +7,7 @@ namespace Project001
     struct BaseComponent
     {
         BaseComponent()
-            : entityId(0)
+            : entityId((unsigned int)-1)
         {}
 
         unsigned int entityId;

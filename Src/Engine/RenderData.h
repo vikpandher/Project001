@@ -19,7 +19,7 @@ namespace Project001
         // Direction the light is going
         glm::vec3 direction;
 
-        // Base light applied to everything from all directions evenly
+        // Ambient light applied to everything from all directions evenly
         glm::vec3 ambient;
 
         // Light comming from a direction
@@ -66,8 +66,8 @@ namespace Project001
         SpotLight()
             : position(0.0f, 0.0f, 0.0f)
             , direction(0.0f, 0.0f, 0.0f)
-            , cutOff(0.0f)
-            , outerCutOff(0.0f)
+            , cutoff(0.0f)
+            , outerCutoff(0.0f)
             , constant(1.0f)
             , linear(0.0f)
             , quadratic(0.0f)
@@ -85,13 +85,13 @@ namespace Project001
         // flattened cone.
         // A value of 1.0 equals a 0 degree angle of light, an infinitly skinny
         // cone.
-        // Light will dim from the cutOff to the outerCutOff. Valid values are
+        // Light will dim from the cutoff to the outerCutoff. Valid values are
         // from 0.0 to 1.0.
         //
         // An example of some good values are:
-        // cutOff = 0.99 & outterCutOff = 0.97
-        float cutOff;
-        float outerCutOff;
+        // cutoff = 0.99 & outterCutoff = 0.97
+        float cutoff;
+        float outerCutoff;
 
         float constant;
         float linear;
@@ -106,19 +106,40 @@ namespace Project001
 
     struct VertexData
     {
+        VertexData()
+            : position(0.0f, 0.0f, 0.0f)
+            , textureCoordinte(0.0f, 0.0f)
+            , normal(0.0f, 0.0f, 0.0f)
+            , color(1.0f, 1.0f, 1.0f, 1.0f)
+            , textureIndex(-1.0f)
+            , specularIndex(-1.0f)
+            , shininess(32.0f)
+            , scale(1.0f, 1.0f, 1.0f)
+            , translation(0.0f, 0.0f, 0.0f)
+            , orientation(0.0f, 0.0f, 0.0f, 1.0f)
+        {}
+
         glm::vec3 position;
+        glm::vec2 textureCoordinte;
         glm::vec3 normal;
         glm::vec4 color;
-        glm::vec2 textureCoordinte;
         float textureIndex;
         float specularIndex;
         float shininess;
+        glm::vec3 scale;
         glm::vec3 translation;
-        glm::vec4 orientation;
+        glm::vec4 orientation; // x, y, z, w
+        // add scale factor
     };
 
     struct RenderData
     {
+        RenderData()
+            : viewMatrix(1.0f)
+            , viewPosition(0.0f, 0.0f, 0.0f)
+            , projectionMatrix(1.0f)
+        {}
+        
         glm::mat4 viewMatrix;
         glm::vec3 viewPosition;
 
