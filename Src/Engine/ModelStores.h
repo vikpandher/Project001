@@ -13,6 +13,8 @@ namespace Project001
     {
         glm::uint vertexIndex;
         glm::uint vertexCount;
+        glm::uint indexIndex;
+        glm::uint indexCount;
     };
     
     struct ModelVertex
@@ -31,13 +33,14 @@ namespace Project001
 
         void ClearModels();
 
-        bool GetModel(unsigned int index, ModelVertex*& modelVerticies, glm::uint& vertexCount);
+        // If more models are added, the pointers returned are nolonger valid.
+        bool GetModel(unsigned int index, ModelVertex*& firstVertexPtr, glm::uint& vertexCount, glm::uint*& firstIndexPtr, glm::uint& indexCount);
 
-        bool LoadModel(const std::string& path, unsigned int& index);
+        bool LoadModel(const std::string& path, unsigned int& index, bool triangulate = false);
 
-        bool Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, unsigned int& index);
+        bool Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, unsigned int& index, bool triangulate = false);
 
-        bool Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, unsigned int& index);
+        bool Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, unsigned int& index, bool triangulate = false);
 
         bool Generate2DLine(const std::vector<glm::vec2>& vertices, float width, unsigned int& index);
 
@@ -45,6 +48,7 @@ namespace Project001
 
     private:
         std::vector<ModelVertex> modelVertexArray_;
+        std::vector<glm::uint> modelIndexArray_;
         std::vector<ModelData> modelDataArray_;
 
     };

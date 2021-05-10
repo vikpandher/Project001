@@ -18,6 +18,7 @@ namespace Project001
 
     OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
         : glfwWindowPtr_(nullptr)
+        , isCurrentContext_(true)
     {
         if (s_glfwWindowCount_ == 0)
         {
@@ -152,9 +153,9 @@ namespace Project001
         // configure global opengl state
         // ---------------------------------------------------------------------
 
-        // This is enabled so when glViewport is used to set the viewportt size,
+        // This is enabled so when glViewport is used to set the viewport size,
         // glScissor can be used to limit drawing to within the viewport.
-        glEnable(GL_SCISSOR_TEST);
+        // glEnable(GL_SCISSOR_TEST);
 
         // enable using the z buffer
         glEnable(GL_DEPTH_TEST);
@@ -168,6 +169,10 @@ namespace Project001
         // cull backfaces
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+
+        // blending
+        // glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         shaderPtr_ = new OpenGLShader(g_vertexShaderSource01_, g_fragmentShaderSource01_);
 
@@ -201,7 +206,7 @@ namespace Project001
 
         // set the size of the active array buffer
         // (target, size, data, usage)
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_bufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
         // attach the active buffer to the active array with the given attributes
         // (index, size, type, normalized, stride, pointer)
@@ -262,9 +267,14 @@ namespace Project001
         // make the buffer the active element array buffer, create it if necessary
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
+        if (s_indexBufferCapacity_ % 3 != 0)
+        {
+            Logger::Error("Index Buffer Size Not Multiple Of 3");
+        }
+
         // set the size of the active element array buffer
         // (target, size, data, usage)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_bufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
         // unbind the array buffer and the vertex array
         ///glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -306,9 +316,9 @@ namespace Project001
         }
     }
 
-    void OpenGLWindow::Render(const RenderData* renderData) const
+    void OpenGLWindow::Render(const RenderData* renderData)
     {
-        glfwMakeContextCurrent(glfwWindowPtr_);
+        CheckAndMakeContextCurrent();
 
         const glm::mat4& viewMatrix = renderData->viewMatrix;
         const glm::vec3& viewPosition = renderData->viewPosition;
@@ -319,15 +329,21 @@ namespace Project001
         const std::vector<VertexData>& vertexBuffer = renderData->vertexBuffer;
         const std::vector<glm::uint>& indexBuffer = renderData->indexBuffer;
 
-        std::vector<glm::uint> cappedIndexBuffer;
-        for (unsigned int i = 0; i < indexBuffer.size(); ++i)
+        size_t vertexBufferSize = vertexBuffer.size();
+        size_t indexBufferSize = indexBuffer.size();
+
+        if (vertexBufferSize > s_vertexBufferCapacity_)
         {
-            cappedIndexBuffer.push_back(indexBuffer[i] % s_bufferCapacity_);
+            Logger::Error("Vertex Buffer Capacity Exceeded: %d/%d", vertexBufferSize, s_vertexBufferCapacity_);
+        }
+
+        if (indexBufferSize > s_indexBufferCapacity_)
+        {
+            Logger::Error("Index Buffer Capacity Exceeded: %d/%d", indexBufferSize, s_indexBufferCapacity_);
         }
 
         shaderPtr_->SetMat4("view", viewMatrix);
         shaderPtr_->SetMat4("projection", projectionMatrix_);
-
         shaderPtr_->SetVec3("viewPosition", viewPosition);
 
         // DirectionalLight
@@ -404,35 +420,23 @@ namespace Project001
             }
         }
 
-        // Bind buffers to make them active
-        ///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-        ///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        unsigned int totalNumberOfVerticies = (unsigned int)vertexBuffer.size();
-        unsigned int numberOfVerticiesDrawn = 0;
-        while (numberOfVerticiesDrawn < totalNumberOfVerticies)
+        if (vertexBufferSize > 0 && indexBufferSize > 0)
         {
-            unsigned int numberOfVerticiesThatWillBeDrawn = s_bufferCapacity_;
-            unsigned int numberOfVerticiesLeftToDraw = totalNumberOfVerticies - numberOfVerticiesDrawn;
-            if (numberOfVerticiesLeftToDraw < numberOfVerticiesThatWillBeDrawn)
-            {
-                numberOfVerticiesThatWillBeDrawn = numberOfVerticiesLeftToDraw;
-            }
+            // Bind buffers to make them active
+            ///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
+            ///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+
+            //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // upload the vertex data and index data into their respective buffers
             // (target, offset, size, data)
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesThatWillBeDrawn, &vertexBuffer[numberOfVerticiesDrawn]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * numberOfVerticiesThatWillBeDrawn, &cappedIndexBuffer[numberOfVerticiesDrawn]);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer.size(), &vertexBuffer[0]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBuffer.size(), &indexBuffer[0]);
 
             /// glBindVertexArray(vertexArrayId_);
 
-            // TODO: go back to using glDrawArrays
-            glDrawElements(GL_TRIANGLES, numberOfVerticiesThatWillBeDrawn, GL_UNSIGNED_INT, 0);
-
-            numberOfVerticiesDrawn += numberOfVerticiesThatWillBeDrawn;
+            glDrawElements(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, 0);
         }
 
         glfwSwapBuffers(glfwWindowPtr_);
@@ -441,7 +445,7 @@ namespace Project001
     // TODO: Create some sort of texture LRU cache so I don't have to track texture slots.
     void OpenGLWindow::AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents)
     {
-        glfwMakeContextCurrent(glfwWindowPtr_);
+        CheckAndMakeContextCurrent();
 
         if (textureSlot >= 0 && textureSlot < s_numberOfTextureSlots_)
         {
@@ -456,7 +460,7 @@ namespace Project001
 
     void OpenGLWindow::PollEvents()
     {
-        glfwMakeContextCurrent(glfwWindowPtr_);
+        CheckAndMakeContextCurrent();
 
         glfwPollEvents();
     }
@@ -468,7 +472,7 @@ namespace Project001
 
     void OpenGLWindow::SetViewportSize(int x, int y, int width, int height)
     {
-        glfwMakeContextCurrent(glfwWindowPtr_);
+        CheckAndMakeContextCurrent();
 
         glViewport(x, y, width, height);
         glScissor(x, y, width, height);
@@ -491,7 +495,7 @@ namespace Project001
 
     void OpenGLWindow::SetVSync(bool enabled)
     {
-        glfwMakeContextCurrent(glfwWindowPtr_);
+        CheckAndMakeContextCurrent();
 
         if (enabled)
         {
@@ -564,6 +568,15 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
+
+    void OpenGLWindow::CheckAndMakeContextCurrent()
+    {
+        if (!isCurrentContext_)
+        {
+            glfwMakeContextCurrent(glfwWindowPtr_);
+            isCurrentContext_ = true;
+        }
+    }
 
     int OpenGLWindow::s_glfwWindowCount_ = 0;
 }

@@ -20,7 +20,7 @@ namespace Project001
         OpenGLWindow(OpenGLWindow& other) = delete;
         void operator=(const OpenGLWindow&) = delete;
 
-        void Render(const RenderData* renderData) const override;
+        void Render(const RenderData* renderData) override;
 
         void AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents) override;
 
@@ -52,17 +52,27 @@ namespace Project001
         void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const override;
         void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const override;
 
+        // NOTE:
+        // GLFW threading, timer, and joystick input are not window dependent.
+
     protected:
+        void CheckAndMakeContextCurrent();
+
         static int s_glfwWindowCount_;
 
         // determines the size of the index and vertex buffers
-        static const unsigned int s_bufferCapacity_ = 36 * 5;
+        // static const unsigned int s_bufferCapacity_ = 36 * 10;
+        static const unsigned int s_indexBufferCapacity_ = 36 * 10;
+        static const unsigned int s_vertexBufferCapacity_ = 36 * 8;
+
         static const unsigned int s_numberOfTextureSlots_ = 16;
 
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
 
         GLFWwindow* glfwWindowPtr_;
+
+        bool isCurrentContext_;
 
         struct WindowData
         {

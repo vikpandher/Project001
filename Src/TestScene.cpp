@@ -89,34 +89,34 @@ void TestScene::Initialize(
     modelStoresPtr->Generate2DTriangleStrip(stripVerticies, shape02Index_);
 
     textureStoresPtr->LoadTexture("../Textures/CounterclockwiseDie.png", diceTexture01Index_);
-    Project001::TextureData* diceTexture01DataPtr;
-    textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01DataPtr);
-    windowPtr_->AddTexture(diceTexture01Index_, diceTexture01DataPtr->data,
-        diceTexture01DataPtr->width, diceTexture01DataPtr->height, diceTexture01DataPtr->numberOfComponents);
+    Project001::TextureData diceTexture01Data;
+    textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01Data);
+    windowPtr_->AddTexture(diceTexture01Index_, diceTexture01Data.data,
+        diceTexture01Data.width, diceTexture01Data.height, diceTexture01Data.numberOfComponents);
 
-    textureStoresPtr->LoadTexture("../Textures/NumberDie.png", diceTexture02Index_);
-    Project001::TextureData* diceTexture02DataPtr;
-    textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02DataPtr);
-    windowPtr_->AddTexture(diceTexture02Index_, diceTexture02DataPtr->data,
-        diceTexture02DataPtr->width, diceTexture02DataPtr->height, diceTexture02DataPtr->numberOfComponents);
+    textureStoresPtr->LoadTexture("../Textures/HallowDie.png", diceTexture02Index_);
+    Project001::TextureData diceTexture02Data;
+    textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02Data);
+    windowPtr_->AddTexture(diceTexture02Index_, diceTexture02Data.data,
+        diceTexture02Data.width, diceTexture02Data.height, diceTexture02Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/Thonk.png", thonkTextureIndex_);
-    Project001::TextureData* thonkTextureDataPtr;
-    textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureDataPtr);
-    windowPtr_->AddTexture(thonkTextureIndex_, thonkTextureDataPtr->data,
-        thonkTextureDataPtr->width, thonkTextureDataPtr->height, thonkTextureDataPtr->numberOfComponents);
+    Project001::TextureData thonkTextureData;
+    textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureData);
+    windowPtr_->AddTexture(thonkTextureIndex_, thonkTextureData.data,
+        thonkTextureData.width, thonkTextureData.height, thonkTextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/Specular2.png", patternSpecularIndex_);
-    Project001::TextureData* patternSpecularDataPtr;
-    textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularDataPtr);
-    windowPtr_->AddTexture(patternSpecularIndex_, patternSpecularDataPtr->data,
-        patternSpecularDataPtr->width, patternSpecularDataPtr->height, patternSpecularDataPtr->numberOfComponents);
+    Project001::TextureData patternSpecularData;
+    textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
+    windowPtr_->AddTexture(patternSpecularIndex_, patternSpecularData.data,
+        patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/ThonkSpecular.png", thonkSpecularIndex_);
-    Project001::TextureData* thonkSpecularDataPtr;
-    textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularDataPtr);
-    windowPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularDataPtr->data,
-        thonkSpecularDataPtr->width, thonkSpecularDataPtr->height, thonkSpecularDataPtr->numberOfComponents);
+    Project001::TextureData thonkSpecularData;
+    textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
+    windowPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularData.data,
+        thonkSpecularData.width, thonkSpecularData.height, thonkSpecularData.numberOfComponents);
 
     // scene data entity
     // -------------------------------------------------------------------------
@@ -196,7 +196,7 @@ void TestScene::Initialize(
         renderedModelComponentPtr->position = glm::vec3(0.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = cubeModelIndex_;
         renderedModelComponentPtr->textureIndex = diceTexture02Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.8f, 1.0f, 0.8f, 1.0f);
+        renderedModelComponentPtr->color = glm::vec4(0.2f, 0.8f, 0.6f, 1.0f);
     }
 
     // cube entity 04
@@ -210,7 +210,7 @@ void TestScene::Initialize(
         renderedModelComponentPtr->position = glm::vec3(1.0f, 0.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = cubeModelIndex_;
         renderedModelComponentPtr->specularIndex = patternSpecularIndex_;
-        renderedModelComponentPtr->color = glm::vec4(0.5f, 0.25f, 0.35f, 1.0f);
+        renderedModelComponentPtr->color = glm::vec4(0.8f, 0.2f, 0.6f, 1.0f);
         renderedModelComponentPtr->scale = glm::vec3(0.5f, 0.75f, 1.0f);
         glm::quat rotationQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / 4.0f, glm::vec3(0.0f, 0.0f, 1.0f));
         renderedModelComponentPtr->orientation = rotationQuaternion * renderedModelComponentPtr->orientation;
@@ -226,7 +226,7 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape01EntityId_, renderedModelComponentPtr);
         renderedModelComponentPtr->position = glm::vec3(-1.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = shape01Index_;
-        renderedModelComponentPtr->color = glm::vec4(1.0f, 0.6f, 0.2f, 1.0f);
+        renderedModelComponentPtr->color = glm::vec4(0.8f, 0.6f, 0.2f, 1.0f);
     }
 
     // generated shape entity 02
@@ -239,7 +239,7 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape02EntityId_, renderedModelComponentPtr);
         renderedModelComponentPtr->position = glm::vec3(-1.0f, 0.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = shape02Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.2f, 0.6f, 1.0f, 1.0f);
+        renderedModelComponentPtr->color = glm::vec4(0.2f, 0.6f, 0.8f, 1.0f);
     }
 }
 
@@ -445,12 +445,6 @@ void TestScene::RenderRenderableEntities()
     std::vector<Project001::VertexData>& vertexBuffer = renderData.vertexBuffer;
     std::vector<glm::uint>& indexBuffer = renderData.indexBuffer;
 
-    // NOTE:
-    // Index buffer will be useful for when I decide to draw meshes with shapes
-    // other then triangles. Then I can reuse some verticies. Right now when an
-    // object with faces other than triangles is used, it's mesh is broken up
-    // into triangles by ModelStores when the file is read in.
-
     // Add light components to the renderData struct
     // -------------------------------------------------------------------------
     Project001::LightComponent* lightComponentPtrs = nullptr;
@@ -515,10 +509,12 @@ void TestScene::RenderRenderableEntities()
 
         Project001::ModelVertex* modelVerticies;
         glm::uint modelVertexCount;
-        Project001::TextureData* textureData;
-        Project001::TextureData* specularData;
+        glm::uint* modelIndicies;
+        glm::uint modelIndexCount;
+        Project001::TextureData textureData;
+        Project001::TextureData specularData;
 
-        if (modelStoresPtr_->GetModel(currentRenderedModelComponent.modelIndex, modelVerticies, modelVertexCount))
+        if (modelStoresPtr_->GetModel(currentRenderedModelComponent.modelIndex, modelVerticies, modelVertexCount, modelIndicies, modelIndexCount))
         {
             float textureIndex = -1.0f;
             if (textureStoresPtr_->GetTexture(currentRenderedModelComponent.textureIndex, textureData))
@@ -531,6 +527,8 @@ void TestScene::RenderRenderableEntities()
             {
                 specularIndex = (float)currentRenderedModelComponent.specularIndex;
             }
+
+            size_t vertexBufferOffset = vertexBuffer.size();
 
             for (unsigned int j = 0; j < modelVertexCount; ++j)
             {
@@ -552,7 +550,11 @@ void TestScene::RenderRenderableEntities()
                 newVertex.orientation.w = currentRenderedModelComponent.orientation.w;
 
                 vertexBuffer.push_back(newVertex);
-                indexBuffer.push_back((glm::uint)indexBuffer.size());
+            }
+
+            for (unsigned int j = 0; j < modelIndexCount; ++j)
+            {
+                indexBuffer.push_back(vertexBufferOffset + modelIndicies[j]);
             }
         }
     }
@@ -574,6 +576,9 @@ void TestScene::RenderRenderableEntities()
             projectionMatrix = currentCameraComponent.GetProjectionMatrix();
 
             windowPtr_->Render(&renderData);
+
+            // Only rendering with one camera for now...
+            break;
         }
     }
 }

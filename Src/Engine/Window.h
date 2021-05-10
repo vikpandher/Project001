@@ -17,7 +17,7 @@ namespace Project001
     public:
         static Window* Create(const char* title, int width, int height);
 
-        virtual void Render(const RenderData* renderData) const = 0;
+        virtual void Render(const RenderData* renderData) = 0;
 
         virtual void AddTexture(unsigned int textureSlot, unsigned char* data, int width, int height, int numberOfComponents) = 0;
 

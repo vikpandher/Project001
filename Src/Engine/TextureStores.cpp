@@ -17,10 +17,14 @@ namespace Project001
 
     void TextureStores::ClearTextures()
     {
+        for (unsigned int i; i < textureDataArray_.size(); ++i)
+        {
+            stbi_image_free(textureDataArray_[i].data);
+        }
         textureDataArray_.clear();
     }
 
-    bool TextureStores::GetTexture(unsigned int index, TextureData*& textureVertexPtr)
+    bool TextureStores::GetTexture(unsigned int index, TextureData& textureData)
     {
         if (index >= textureDataArray_.size())
         {
@@ -29,7 +33,7 @@ namespace Project001
 
         TextureData* textureDataArrayPtr = textureDataArray_.data();
 
-        textureVertexPtr = &textureDataArrayPtr[index];
+        textureData = textureDataArrayPtr[index];
 
         return true;
     }
