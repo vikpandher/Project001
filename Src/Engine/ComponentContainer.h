@@ -81,6 +81,9 @@ namespace Project001
             return true;
         }
 
+        // NEED TO TEST
+        void DeleteAllComponents();
+
         bool DeleteComponent(unsigned int entityId);
 
     protected:
@@ -97,7 +100,7 @@ namespace Project001
         }
 
         // This is the typeId of the components stored.
-        // It's used toensure the "ComponentContainer" only
+        // It's used to ensure the "ComponentContainer" only
         // contains one type of component at a time.
         unsigned int typeId_;
 

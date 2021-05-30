@@ -13,6 +13,18 @@ namespace Project001
     ComponentContainer::~ComponentContainer()
     {}
 
+    void ComponentContainer::DeleteAllComponents()
+    {
+        for (unsigned int i = 0; i < componentIndicies_.size(); ++i)
+        {
+            int deletedIndex = componentIndicies_[i];
+            void* deletedComponent = (void*)&componentMemory_[deletedIndex];
+            ComponentDestructionFunction(deletedComponent);
+            componentIndicies_[i] = -1;
+        }
+        componentMemory_.resize(0);
+    }
+
     bool ComponentContainer::DeleteComponent(unsigned int entityId)
     {
         if (!ComponentExists(entityId))

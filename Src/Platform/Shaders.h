@@ -11,8 +11,8 @@ layout (location = 0) in vec3 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
 layout (location = 2) in vec3 in_Normal;
 layout (location = 3) in vec4 in_Color;
-layout (location = 4) in float in_TextureIndex;
-layout (location = 5) in float in_SpecularIndex;
+layout (location = 4) in float in_TextureSlot;
+layout (location = 5) in float in_SpecularSlot;
 layout (location = 6) in float in_Shininess;
 layout (location = 7) in vec3 in_Scale;
 layout (location = 8) in vec3 in_Translation;
@@ -25,8 +25,8 @@ out vec3 v_FragmentPosition;
 out vec2 v_TextureCoordinate;
 out vec3 v_Normal;
 out vec4 v_Color;
-flat out float v_TextureIndex;
-flat out float v_SpecularIndex;
+flat out float v_TextureSlot;
+flat out float v_SpecularSlot;
 flat out float v_Shininess;
 
 void main()
@@ -43,9 +43,9 @@ void main()
 
     v_TextureCoordinate = in_TextureCoordinate;
 
-    v_TextureIndex = in_TextureIndex;
+    v_TextureSlot = in_TextureSlot;
 
-    v_SpecularIndex = in_SpecularIndex;
+    v_SpecularSlot = in_SpecularSlot;
 
     v_Shininess = in_Shininess;
 
@@ -101,8 +101,8 @@ in vec3 v_FragmentPosition;
 in vec2 v_TextureCoordinate;
 in vec3 v_Normal;
 in vec4 v_Color;
-flat in float v_TextureIndex;
-flat in float v_SpecularIndex;
+flat in float v_TextureSlot;
+flat in float v_SpecularSlot;
 flat in float v_Shininess;
 
 uniform vec3 viewPosition;
@@ -116,15 +116,15 @@ uniform sampler2D textures[NUMBER_OF_TEXTURES];
 
 layout (location = 0) out vec4 f_Color;
 
-vec4 GetTextureColor(float textureIndex);
+vec4 GetTextureColor(float textureSlot);
 
 void main()
 {
     vec3 normalizedNormal = normalize(v_Normal);
     vec3 viewDirection = normalize(viewPosition - v_FragmentPosition);
 
-    vec4 textureColor = GetTextureColor(v_TextureIndex);
-    vec4 specularColor = GetTextureColor(v_SpecularIndex);
+    vec4 textureColor = GetTextureColor(v_TextureSlot);
+    vec4 specularColor = GetTextureColor(v_SpecularSlot);
 
     vec3 totalAmbientAndDiffuseLightMultiplier = vec3(0.0, 0.0, 0.0);
     vec3 totalSpecularLightMultiplier = vec3(0.0, 0.0, 0.0);
@@ -220,31 +220,31 @@ void main()
     }
 }
 
-vec4 GetTextureColor(float textureIndex)
+vec4 GetTextureColor(float textureSlot)
 {
-    int textureIndexInt = int(textureIndex);
-    if (textureIndexInt < 0)
+    int textureSlotInt = int(textureSlot);
+    if (textureSlotInt < 0)
     {
         return vec4(1.0, 1.0, 1.0, 1.0);
     }
-    else if (textureIndex >= NUMBER_OF_TEXTURES)
+    else if (textureSlot >= NUMBER_OF_TEXTURES)
     {
         return vec4(0.0, 0.0, 0.0, 1.0);
     }
     else
     {
-        return texture(textures[textureIndexInt], v_TextureCoordinate);
+        return texture(textures[textureSlotInt], v_TextureCoordinate);
     }
 }
 
-vec4 GetTextureColorAlt(float textureIndex)
+vec4 GetTextureColorAlt(float textureSlot)
 {
     vec4 textureColor = vec4(0.0, 0.0, 0.0, 1.0);
-    if (textureIndex > -0.5)
+    if (textureSlot > -0.5)
     {
         for (int i = 0; i < NUMBER_OF_TEXTURES; ++i)
         {
-            if (textureIndex < float(i) + 0.5)
+            if (textureSlot < float(i) + 0.5)
             {
                 textureColor = texture(textures[i], v_TextureCoordinate);
                 break;
@@ -257,75 +257,5 @@ vec4 GetTextureColorAlt(float textureIndex)
     }
     return textureColor;
 }
-    )";
-
-        const char* g_fragmentShaderSource02_ = R"(
-#version 330 core
-
-#define NUMBER_OF_TEXTURES 16
-
-#define NUMBER_OF_POINT_LIGHTS 8
-
-#define NUMBER_OF_SPOT_LIGHTS 4
-
-struct DirectionalLight {
-    vec3 direction;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct PointLight {
-    vec3 position;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct SpotLight {
-    vec3 position;
-    vec3 direction;
-    float cutoff;
-    float outercutoff;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-in vec3 v_FragmentPosition;
-in vec2 v_TextureCoordinate;
-in vec3 v_Normal;
-in vec4 v_Color;
-flat in float v_TextureIndex;
-flat in float v_SpecularIndex;
-flat in float v_Shininess;
-
-uniform vec3 viewPosition;
-
-uniform DirectionalLight directionalLight;
-uniform PointLight pointLights[NUMBER_OF_POINT_LIGHTS];
-uniform SpotLight spotLights[NUMBER_OF_SPOT_LIGHTS];
-
-// The type of sample corresponds to the type of texture
-uniform sampler2D textures[NUMBER_OF_TEXTURES];
-
-layout (location = 0) out vec4 f_Color;
-
-void main()
-{
-    f_Color = v_Color;
-}
-
     )";
 }

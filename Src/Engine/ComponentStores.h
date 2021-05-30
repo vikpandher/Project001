@@ -23,6 +23,9 @@ namespace Project001
 
         bool CreateEntity(unsigned int& entityId);
 
+        // NEED TO TEST
+        void DeleteAllEntities();
+
         bool DeleteEntity(unsigned int entityId);
 
         // Component Functions: ------------------------------------------------
@@ -75,6 +78,22 @@ namespace Project001
 
             unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
             return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonentPtrs, count);
+        }
+
+        // NEED TO TEST
+        template <typename Component>
+        bool DeleteAllComponents()
+        {
+            unsigned int componentTypeId = Component::typeId;
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
+
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            componentContainers_[componentContainerIndex].DeleteAllComponents();
+
+            return true;
         }
 
         template <typename Component>

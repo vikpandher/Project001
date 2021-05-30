@@ -17,7 +17,7 @@ namespace Project001
 
     void TextureStores::ClearTextures()
     {
-        for (unsigned int i; i < textureDataArray_.size(); ++i)
+        for (unsigned int i = 0; i < textureDataArray_.size(); ++i)
         {
             stbi_image_free(textureDataArray_[i].data);
         }

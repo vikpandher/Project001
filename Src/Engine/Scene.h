@@ -8,6 +8,7 @@ namespace Project001
 {
     class ComponentStores;
     class ModelStores;
+    class Renderer;
     class TextureStores;
     class Window;
 
@@ -27,6 +28,7 @@ namespace Project001
             ComponentStores* componentStoresPtr,
             ModelStores* modelStoresPtr,
             TextureStores* textureStoresPtr,
+            Renderer* rendererPtr,
             Window* windowPtr) = 0;
 
         virtual void Deinitialize() = 0;
@@ -39,7 +41,6 @@ namespace Project001
         std::function<void(Event&)> EventCallback;
 
     private:
-
     };
 
     inline void Scene::SetEventCallback(const std::function<void(Event&)>& callback)

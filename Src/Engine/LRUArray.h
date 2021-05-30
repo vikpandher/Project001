@@ -12,7 +12,7 @@ namespace Project001
     public:
         LRUArray(size_t capacity)
         {
-            if (capacity < 0)
+            if (capacity <= 0)
             {
                 capacity = 1;
             }
@@ -109,10 +109,10 @@ namespace Project001
         }
 
     protected:
-
-    private:
-        unsigned int capacity_;
+        size_t capacity_;
         T* dataPtr_;
         unsigned int* lastRecentlyUsedValuesPtr_;
+
+    private:
     };
 }

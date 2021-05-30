@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 #include <vector>
 
@@ -10,10 +10,21 @@ namespace Project001
 {
     struct DirectionalLight {
         DirectionalLight()
-            : direction(0.0f, 0.0f, 0.0f)
+            : direction(0.0f, 0.0f, -1.0f)
             , ambient(0.0f, 0.0f, 0.0f)
             , diffuse(0.0f, 0.0f, 0.0f)
             , specular(0.0f, 0.0f, 0.0f)
+        {}
+
+        DirectionalLight(
+            const glm::vec3& direction,
+            const glm::vec3& ambient,
+            const glm::vec3& diffuse,
+            const glm::vec3& specular)
+            : direction(direction)
+            , ambient(ambient)
+            , diffuse(diffuse)
+            , specular(specular)
         {}
 
         // Direction the light is going
@@ -38,6 +49,23 @@ namespace Project001
             , ambient(0.0f, 0.0f, 0.0f)
             , diffuse(0.0f, 0.0f, 0.0f)
             , specular(0.0f, 0.0f, 0.0f)
+        {}
+
+        PointLight(
+            const glm::vec3& position,
+            const float& constant,
+            const float& linear,
+            const float& quadratic,
+            const glm::vec3& ambient,
+            const glm::vec3& diffuse,
+            const glm::vec3& specular)
+            : position(position)
+            , constant(constant)
+            , linear(linear)
+            , quadratic(quadratic)
+            , ambient(ambient)
+            , diffuse(diffuse)
+            , specular(specular)
         {}
 
         // Position of the light's source
@@ -65,7 +93,7 @@ namespace Project001
     struct SpotLight {
         SpotLight()
             : position(0.0f, 0.0f, 0.0f)
-            , direction(0.0f, 0.0f, 0.0f)
+            , direction(0.0f, 0.0f, -1.0f)
             , cutoff(0.0f)
             , outerCutoff(0.0f)
             , constant(1.0f)
@@ -74,6 +102,29 @@ namespace Project001
             , ambient(0.0f, 0.0f, 0.0f)
             , diffuse(0.0f, 0.0f, 0.0f)
             , specular(0.0f, 0.0f, 0.0f)
+        {}
+
+        SpotLight(
+            const glm::vec3& position,
+            const glm::vec3& direction,
+            const float& cutoff,
+            const float& outerCutoff,
+            const float& constant,
+            const float& linear,
+            const float& quadratic,
+            const glm::vec3& ambient,
+            const glm::vec3& diffuse,
+            const glm::vec3& specular)
+            : position(position)
+            , direction(direction)
+            , cutoff(cutoff)
+            , outerCutoff(outerCutoff)
+            , constant(constant)
+            , linear(linear)
+            , quadratic(quadratic)
+            , ambient(ambient)
+            , diffuse(diffuse)
+            , specular(specular)
         {}
 
         glm::vec3 position;
@@ -111,8 +162,8 @@ namespace Project001
             , textureCoordinte(0.0f, 0.0f)
             , normal(0.0f, 0.0f, 0.0f)
             , color(1.0f, 1.0f, 1.0f, 1.0f)
-            , textureIndex(-1.0f)
-            , specularIndex(-1.0f)
+            , textureSlot(-1.0f)
+            , specularSlot(99.0f)
             , shininess(32.0f)
             , scale(1.0f, 1.0f, 1.0f)
             , translation(0.0f, 0.0f, 0.0f)
@@ -123,8 +174,8 @@ namespace Project001
         glm::vec2 textureCoordinte;
         glm::vec3 normal;
         glm::vec4 color;
-        float textureIndex;
-        float specularIndex;
+        float textureSlot;
+        float specularSlot;
         float shininess;
         glm::vec3 scale;
         glm::vec3 translation;

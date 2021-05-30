@@ -26,6 +26,7 @@ public:
         Project001::ComponentStores* componentStoresPtr,
         Project001::ModelStores* modelStoresPtr,
         Project001::TextureStores* textureStoresPtr,
+        Project001::Renderer* rendererPtr,
         Project001::Window* windowPtr) override;
 
     void Deinitialize() override;
@@ -62,6 +63,7 @@ protected:
 
     Project001::ComponentStores* componentStoresPtr_;
     Project001::ModelStores* modelStoresPtr_;
+    Project001::Renderer* rendererPtr_;
     Project001::TextureStores* textureStoresPtr_;
     Project001::Window* windowPtr_;
 
@@ -80,6 +82,7 @@ protected:
     unsigned int sceneDataEntityId_;
     unsigned int mainCameraEntityId_;
     unsigned int lightSourceEntityId_;
+
     unsigned int cubeEntity01Id_;
     unsigned int cubeEntity02Id_;
     unsigned int cubeEntity03Id_;

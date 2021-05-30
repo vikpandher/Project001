@@ -232,8 +232,8 @@ namespace Project001
                                 modelIndexArray_.push_back(newModelData.vertexCount + i + 1);
                             }
 
-                            newModelData.vertexCount += face.size();
-                            newModelData.indexCount += (face.size() - 2) * 3;
+                            newModelData.vertexCount += (glm::uint)face.size();
+                            newModelData.indexCount += (glm::uint)((face.size() - 2) * 3);
                         }
                         else
                         {
@@ -264,7 +264,7 @@ namespace Project001
                                 modelIndexArray_.push_back(newModelData.indexCount++);
                             }
 
-                            newModelData.vertexCount += (face.size() - 2) * 3;
+                            newModelData.vertexCount += (glm::uint)((face.size() - 2) * 3);
                         }
                     }
                 }
@@ -313,8 +313,8 @@ namespace Project001
                 modelIndexArray_.push_back(i_plus_1);
             }
 
-            newModelData.vertexCount = vertices.size();
-            newModelData.indexCount += (vertices.size() - 2) * 3;
+            newModelData.vertexCount = (glm::uint)vertices.size();
+            newModelData.indexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
         else
         {
@@ -343,7 +343,7 @@ namespace Project001
                 modelIndexArray_.push_back(newModelData.indexCount++);
             }
 
-            newModelData.vertexCount += (vertices.size() - 2) * 3;
+            newModelData.vertexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
 
         modelDataArray_.push_back(newModelData);
@@ -397,8 +397,8 @@ namespace Project001
                 }
             }
 
-            newModelData.vertexCount = vertices.size();
-            newModelData.indexCount += (vertices.size() - 2) * 3;
+            newModelData.vertexCount = (glm::uint)vertices.size();
+            newModelData.indexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
         else
         {
@@ -439,7 +439,7 @@ namespace Project001
                 modelIndexArray_.push_back(newModelData.indexCount++);
             }
 
-            newModelData.vertexCount += (vertices.size() - 2) * 3;
+            newModelData.vertexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
 
         modelDataArray_.push_back(newModelData);

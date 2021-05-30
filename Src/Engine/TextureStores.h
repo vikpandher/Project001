@@ -29,9 +29,8 @@ namespace Project001
         bool LoadTexture(const std::string& path, unsigned int& index);
 
     protected:
-
-    private:
         std::vector<TextureData> textureDataArray_;
 
+    private:
     };
 }

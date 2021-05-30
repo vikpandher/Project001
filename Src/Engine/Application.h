@@ -8,8 +8,9 @@
 namespace Project001
 {
     class ComponentStores;
-    class Scene;
     class ModelStores;
+    class Renderer;
+    class Scene;
     class TextureStores;
     class Window;
 
@@ -52,11 +53,12 @@ namespace Project001
 
         ComponentStores* componentStoresPtr_;
 
-        ModelStores* modelStoresPtr_;
+        Window* windowPtr_;
 
+        ModelStores* modelStoresPtr_;
         TextureStores* textureStoresPtr_;
 
-        Window* windowPtr_;
+        Renderer* rendererPtr_;
 
         Scene* activeScenePtr_;
         std::map<std::string, Scene*> sceneMap_;

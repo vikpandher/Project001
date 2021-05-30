@@ -35,6 +35,26 @@ namespace Project001
         return true;
     }
 
+    void ComponentStores::DeleteAllEntities()
+    {
+        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
+        {
+            componentContainers_[i].DeleteAllComponents();
+        }
+
+        for (unsigned int i = 0; i < entityDeletedFlags_.size(); ++i)
+        {
+            const bool& currentEntityAlreadyDeleted = entityDeletedFlags_[i];
+
+            if (!currentEntityAlreadyDeleted)
+            {
+                recycledEntityIds_.push(i);
+
+                entityDeletedFlags_[i] = true;
+            }
+        }
+    }
+
     bool ComponentStores::DeleteEntity(unsigned int entityId)
     {
         if (!EntityExists(entityId))
@@ -42,7 +62,7 @@ namespace Project001
             return false;
         }
 
-        for (int i = 0; i < componentContainers_.size(); ++i)
+        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
         {
             componentContainers_[i].DeleteComponent(entityId);
         }

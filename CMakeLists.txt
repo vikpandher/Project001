@@ -38,6 +38,8 @@ set(ENGINE_FILES
     "Src/Engine/ModelStores.cpp"
     "Src/Engine/ModelStores.h"
     "Src/Engine/RenderData.h"
+    "Src/Engine/Renderer.cpp"
+    "Src/Engine/Renderer.h"
     "Src/Engine/Scene.h"
     "Src/Engine/SceneComponents.cpp"
     "Src/Engine/SceneComponents.h"
@@ -51,6 +53,8 @@ source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set(PLATFORM_FILES
     "Src/Platform/glad.c"
+    "Src/Platform/OpenGLRenderer.cpp"
+    "Src/Platform/OpenGLRenderer.h"
     "Src/Platform/OpenGLShader.cpp"
     "Src/Platform/OpenGLShader.h"
     "Src/Platform/OpenGLTexture.cpp"

@@ -5,6 +5,7 @@
 #include "Engine/Logger.h"
 #include "Engine/LRUArray.h"
 #include "Engine/ModelStores.h"
+#include "Engine/Renderer.h"
 #include "Engine/SceneComponents.h"
 #include "Engine/TextureStores.h"
 #include "Engine/Window.h"
@@ -16,6 +17,7 @@
 TestScene::TestScene()
     : componentStoresPtr_(nullptr)
     , modelStoresPtr_(nullptr)
+    , rendererPtr_(nullptr)
     , textureStoresPtr_(nullptr)
     , windowPtr_(nullptr)
     , cubeModelIndex_((unsigned int)-1)
@@ -49,9 +51,11 @@ void TestScene::Initialize(
     Project001::ComponentStores* componentStoresPtr,
     Project001::ModelStores* modelStoresPtr,
     Project001::TextureStores* textureStoresPtr,
+    Project001::Renderer* rendererPtr,
     Project001::Window* windowPtr)
 {
     componentStoresPtr_ = componentStoresPtr;
+    rendererPtr_ = rendererPtr;
     modelStoresPtr_ = modelStoresPtr;
     textureStoresPtr_ = textureStoresPtr;
     windowPtr_ = windowPtr;
@@ -86,36 +90,36 @@ void TestScene::Initialize(
     stripVerticies.push_back(glm::vec2(0.08f, 0.08f));
     stripVerticies.push_back(glm::vec2(0.16f, -0.16f));
     stripVerticies.push_back(glm::vec2(0.08f, -0.08f));
-    modelStoresPtr->Generate2DTriangleStrip(stripVerticies, shape02Index_);
+    modelStoresPtr_->Generate2DTriangleStrip(stripVerticies, shape02Index_);
 
-    textureStoresPtr->LoadTexture("../Textures/CounterclockwiseDie.png", diceTexture01Index_);
+    textureStoresPtr_->LoadTexture("../Textures/CounterclockwiseDie.png", diceTexture01Index_);
     Project001::TextureData diceTexture01Data;
     textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01Data);
-    windowPtr_->AddTexture(diceTexture01Index_, diceTexture01Data.data,
+    rendererPtr_->AddTexture(diceTexture01Index_, diceTexture01Data.data,
         diceTexture01Data.width, diceTexture01Data.height, diceTexture01Data.numberOfComponents);
 
-    textureStoresPtr->LoadTexture("../Textures/HallowDie.png", diceTexture02Index_);
+    textureStoresPtr_->LoadTexture("../Textures/HallowDie.png", diceTexture02Index_);
     Project001::TextureData diceTexture02Data;
     textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02Data);
-    windowPtr_->AddTexture(diceTexture02Index_, diceTexture02Data.data,
+    rendererPtr_->AddTexture(diceTexture02Index_, diceTexture02Data.data,
         diceTexture02Data.width, diceTexture02Data.height, diceTexture02Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/Thonk.png", thonkTextureIndex_);
     Project001::TextureData thonkTextureData;
     textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureData);
-    windowPtr_->AddTexture(thonkTextureIndex_, thonkTextureData.data,
+    rendererPtr_->AddTexture(thonkTextureIndex_, thonkTextureData.data,
         thonkTextureData.width, thonkTextureData.height, thonkTextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/Specular2.png", patternSpecularIndex_);
     Project001::TextureData patternSpecularData;
     textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
-    windowPtr_->AddTexture(patternSpecularIndex_, patternSpecularData.data,
+    rendererPtr_->AddTexture(patternSpecularIndex_, patternSpecularData.data,
         patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture("../Textures/ThonkSpecular.png", thonkSpecularIndex_);
     Project001::TextureData thonkSpecularData;
     textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
-    windowPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularData.data,
+    rendererPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularData.data,
         thonkSpecularData.width, thonkSpecularData.height, thonkSpecularData.numberOfComponents);
 
     // scene data entity
@@ -245,7 +249,17 @@ void TestScene::Initialize(
 
 void TestScene::Deinitialize()
 {
+    componentStoresPtr_->DeleteEntity(sceneDataEntityId_);
+    componentStoresPtr_->DeleteEntity(mainCameraEntityId_);
+    componentStoresPtr_->DeleteEntity(lightSourceEntityId_);
 
+    componentStoresPtr_->DeleteEntity(cubeEntity01Id_);
+    componentStoresPtr_->DeleteEntity(cubeEntity02Id_);
+    componentStoresPtr_->DeleteEntity(cubeEntity03Id_);
+    componentStoresPtr_->DeleteEntity(cubeEntity04Id_);
+
+    componentStoresPtr_->DeleteEntity(shape01EntityId_);
+    componentStoresPtr_->DeleteEntity(shape02EntityId_);
 }
 
 void TestScene::OnEvent(Project001::Event& event)
@@ -435,148 +449,100 @@ void TestScene::DeleteDeadEntities()
 
 void TestScene::RenderRenderableEntities()
 {
-    Project001::RenderData renderData;
-    glm::mat4& viewMatrix = renderData.viewMatrix;
-    glm::vec3& viewPosition = renderData.viewPosition;
-    glm::mat4& projectionMatrix = renderData.projectionMatrix;
-    Project001::DirectionalLight& directionalLight = renderData.directionalLight;
-    std::vector<Project001::PointLight>& pointLights = renderData.pointLights;
-    std::vector<Project001::SpotLight>& spotLights = renderData.spotLights;
-    std::vector<Project001::VertexData>& vertexBuffer = renderData.vertexBuffer;
-    std::vector<glm::uint>& indexBuffer = renderData.indexBuffer;
+    rendererPtr_->ClearDirectionalLight();
+    rendererPtr_->ClearPointLights();
+    rendererPtr_->ClearSpotLights();
 
-    // Add light components to the renderData struct
-    // -------------------------------------------------------------------------
+    rendererPtr_->ClearBuffers();
+
     Project001::LightComponent* lightComponentPtrs = nullptr;
     size_t lightComponentCount = 0;
-
+    
     componentStoresPtr_->GetAllComponents<Project001::LightComponent>(lightComponentPtrs, lightComponentCount);
-
+    
     for (unsigned int i = 0; i < lightComponentCount; ++i)
     {
         Project001::LightComponent& currentLightComponent = lightComponentPtrs[i];
         if (currentLightComponent.turnedOn)
         {
             Project001::LightComponent::LightType lightType = currentLightComponent.lightType;
-
+    
             if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_DIRECTIONAL_LIGHT)
             {
-                directionalLight.direction = currentLightComponent.direction;
-                directionalLight.ambient = currentLightComponent.ambient;
-                directionalLight.diffuse = currentLightComponent.diffuse;
-                directionalLight.specular = currentLightComponent.specular;
+                rendererPtr_->SetDirectionalLight(
+                    currentLightComponent.direction,
+                    currentLightComponent.ambient,
+                    currentLightComponent.diffuse,
+                    currentLightComponent.specular
+                );
             }
             else if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_POINT_LIGHT)
             {
-                Project001::PointLight newPointLight;
-                newPointLight.position = currentLightComponent.position;
-                newPointLight.constant = currentLightComponent.constant;
-                newPointLight.linear = currentLightComponent.linear;
-                newPointLight.quadratic = currentLightComponent.quadratic;
-                newPointLight.ambient = currentLightComponent.ambient;
-                newPointLight.diffuse = currentLightComponent.diffuse;
-                newPointLight.specular = currentLightComponent.specular;
-                pointLights.push_back(newPointLight);
+                rendererPtr_->AddPointLight(
+                    currentLightComponent.position,
+                    currentLightComponent.constant,
+                    currentLightComponent.linear,
+                    currentLightComponent.quadratic,
+                    currentLightComponent.ambient,
+                    currentLightComponent.diffuse,
+                    currentLightComponent.specular
+                );
             }
             else if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_SPOT_LIGHT)
             {
-                Project001::SpotLight newSpotLight;
-                newSpotLight.position = currentLightComponent.position;
-                newSpotLight.direction = currentLightComponent.direction;
-                newSpotLight.cutoff = currentLightComponent.cutoff;
-                newSpotLight.outerCutoff = currentLightComponent.outerCutoff;
-                newSpotLight.constant = currentLightComponent.constant;
-                newSpotLight.linear = currentLightComponent.linear;
-                newSpotLight.quadratic = currentLightComponent.quadratic;
-                newSpotLight.ambient = currentLightComponent.ambient;
-                newSpotLight.diffuse = currentLightComponent.diffuse;
-                newSpotLight.specular = currentLightComponent.specular;
-                spotLights.push_back(newSpotLight);
+                rendererPtr_->AddSpotLight(
+                    currentLightComponent.position,
+                    currentLightComponent.direction,
+                    currentLightComponent.cutoff,
+                    currentLightComponent.outerCutoff,
+                    currentLightComponent.constant,
+                    currentLightComponent.linear,
+                    currentLightComponent.quadratic,
+                    currentLightComponent.ambient,
+                    currentLightComponent.diffuse,
+                    currentLightComponent.specular
+                );
             }
         }
     }
 
-    // Add model verticies and indicies to the renderData struct
-    // -------------------------------------------------------------------------
     Project001::RenderedModelComponent* renderedModelComponentPtrs = nullptr;
     size_t renderedModelComponentCount = 0;
-
+    
     componentStoresPtr_->GetAllComponents<Project001::RenderedModelComponent>(renderedModelComponentPtrs, renderedModelComponentCount);
-
+    
     for (unsigned int i = 0; i < renderedModelComponentCount; ++i)
     {
         Project001::RenderedModelComponent& currentRenderedModelComponent = renderedModelComponentPtrs[i];
 
-        Project001::ModelVertex* modelVerticies;
-        glm::uint modelVertexCount;
-        glm::uint* modelIndicies;
-        glm::uint modelIndexCount;
-        Project001::TextureData textureData;
-        Project001::TextureData specularData;
-
-        if (modelStoresPtr_->GetModel(currentRenderedModelComponent.modelIndex, modelVerticies, modelVertexCount, modelIndicies, modelIndexCount))
-        {
-            float textureIndex = -1.0f;
-            if (textureStoresPtr_->GetTexture(currentRenderedModelComponent.textureIndex, textureData))
-            {
-                textureIndex = (float)currentRenderedModelComponent.textureIndex;
-            }
-
-            float specularIndex = 99.0f;
-            if (textureStoresPtr_->GetTexture(currentRenderedModelComponent.specularIndex, specularData))
-            {
-                specularIndex = (float)currentRenderedModelComponent.specularIndex;
-            }
-
-            size_t vertexBufferOffset = vertexBuffer.size();
-
-            for (unsigned int j = 0; j < modelVertexCount; ++j)
-            {
-                Project001::ModelVertex& currentModelVertex = modelVerticies[j];
-
-                Project001::VertexData newVertex;
-                newVertex.position = currentModelVertex.position;
-                newVertex.textureCoordinte = currentModelVertex.textureCoordinte;
-                newVertex.normal = currentModelVertex.normal;
-                newVertex.color = currentRenderedModelComponent.color;
-                newVertex.textureIndex = textureIndex;
-                newVertex.specularIndex = specularIndex;
-                newVertex.shininess = currentRenderedModelComponent.shininess;
-                newVertex.scale = currentRenderedModelComponent.scale;
-                newVertex.translation = currentRenderedModelComponent.position;
-                newVertex.orientation.x = currentRenderedModelComponent.orientation.x;
-                newVertex.orientation.y = currentRenderedModelComponent.orientation.y;
-                newVertex.orientation.z = currentRenderedModelComponent.orientation.z;
-                newVertex.orientation.w = currentRenderedModelComponent.orientation.w;
-
-                vertexBuffer.push_back(newVertex);
-            }
-
-            for (unsigned int j = 0; j < modelIndexCount; ++j)
-            {
-                indexBuffer.push_back(vertexBufferOffset + modelIndicies[j]);
-            }
-        }
+        rendererPtr_->AddModel(
+            currentRenderedModelComponent.modelIndex,
+            currentRenderedModelComponent.textureIndex,
+            currentRenderedModelComponent.specularIndex,
+            currentRenderedModelComponent.shininess,
+            currentRenderedModelComponent.color,
+            currentRenderedModelComponent.scale,
+            currentRenderedModelComponent.position,
+            currentRenderedModelComponent.orientation
+        );
     }
 
-    // Render once for every camera component turned on
-    // -------------------------------------------------------------------------
     Project001::CameraComponent* cameraComponentPtrs = nullptr;
     size_t cameraComponentCount = 0;
-
+    
     componentStoresPtr_->GetAllComponents<Project001::CameraComponent>(cameraComponentPtrs, cameraComponentCount);
-
+    
     for (unsigned int i = 0; i < cameraComponentCount; ++i)
     {
         Project001::CameraComponent& currentCameraComponent = cameraComponentPtrs[i];
         if (currentCameraComponent.turnedOn)
         {
-            viewMatrix = currentCameraComponent.GetViewMatrix();
-            viewPosition = currentCameraComponent.position;
-            projectionMatrix = currentCameraComponent.GetProjectionMatrix();
+            rendererPtr_->SetViewMatrix(currentCameraComponent.GetViewMatrix());
+            rendererPtr_->SetViewPosition(currentCameraComponent.position);
+            rendererPtr_->SetProjectionMatrix(currentCameraComponent.GetProjectionMatrix());
 
-            windowPtr_->Render(&renderData);
-
+            rendererPtr_->Render();
+    
             // Only rendering with one camera for now...
             break;
         }
@@ -690,52 +656,7 @@ void TestScene::ModelStoresTest() const
 
 void TestScene::RendererTest() const
 {
-    Project001::RenderData testRenderData;
-    glm::mat4& viewMatrix = testRenderData.viewMatrix;
-    glm::vec3& viewPosition = testRenderData.viewPosition;
-    glm::mat4& projectionMatrix = testRenderData.projectionMatrix;
-    Project001::DirectionalLight& directionalLight = testRenderData.directionalLight;
-    std::vector<Project001::PointLight>& pointLights = testRenderData.pointLights;
-    std::vector<Project001::SpotLight>& spotLights = testRenderData.spotLights;
-    std::vector<Project001::VertexData>& vertexBuffer = testRenderData.vertexBuffer;
-    std::vector<glm::uint>& indexBuffer = testRenderData.indexBuffer;
-
-    Project001::CameraComponent cameraComponent;
-    cameraComponent.position.z = 5.0f;
-
-    int framebufferWidth;
-    int framebufferHeight;
-    windowPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
-
-    cameraComponent.aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
-
-    viewMatrix = cameraComponent.GetViewMatrix();
-    viewPosition = cameraComponent.position;
-    projectionMatrix = cameraComponent.GetProjectionMatrix();
-
-    glm::quat rotation(1.0f, 0.0f, 0.0f, 0.0f);
-    //rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / 2.0f, cameraComponent.s_worldForward);
-    glm::vec4 rotationAsVec(rotation.x, rotation.y, rotation.z, rotation.w);
-
-    Project001::VertexData v01;
-    v01.orientation = rotationAsVec;
-    Project001::VertexData v02;
-    v02.position.x = 1.0f;
-    v02.orientation = rotationAsVec;
-
-    Project001::VertexData v03;
-    v03.position.y = 0.5f;
-    v03.orientation = rotationAsVec;
-
-    vertexBuffer.push_back(v01);
-    vertexBuffer.push_back(v02);
-    vertexBuffer.push_back(v03);
-
-    indexBuffer.push_back(0);
-    indexBuffer.push_back(1);
-    indexBuffer.push_back(2);
-
-    windowPtr_->Render(&testRenderData);
+    // ...
 }
 
 void TestScene::TextureStoresTest() const

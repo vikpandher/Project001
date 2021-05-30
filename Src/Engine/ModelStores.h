@@ -9,14 +9,6 @@
 
 namespace Project001
 {
-    struct ModelData
-    {
-        glm::uint vertexIndex;
-        glm::uint vertexCount;
-        glm::uint indexIndex;
-        glm::uint indexCount;
-    };
-    
     struct ModelVertex
     {
         glm::vec3 position;
@@ -45,11 +37,18 @@ namespace Project001
         bool Generate2DLine(const std::vector<glm::vec2>& vertices, float width, unsigned int& index);
 
     protected:
+        struct ModelData
+        {
+            glm::uint vertexIndex;
+            glm::uint vertexCount;
+            glm::uint indexIndex;
+            glm::uint indexCount;
+        };
 
-    private:
         std::vector<ModelVertex> modelVertexArray_;
         std::vector<glm::uint> modelIndexArray_;
         std::vector<ModelData> modelDataArray_;
 
+    private:
     };
 }
