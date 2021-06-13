@@ -2,12 +2,18 @@
 
 #include <fstream>
 
+#include "Engine/MathFunctions.h"
+
 
 
 namespace Project001
 {
+    // public: -----------------------------------------------------------------
+
     ModelStores::ModelStores()
-    {}
+    {
+        TestGet2DVectorAngle();
+    }
 
     ModelStores::~ModelStores()
     {}
@@ -19,7 +25,7 @@ namespace Project001
         modelDataArray_.clear();
     }
 
-    bool ModelStores::GetModel(unsigned int index, ModelVertex*& firstVertexPtr, glm::uint& vertexCount, glm::uint*& firstIndexPtr, glm::uint& indexCount)
+    bool ModelStores::GetModel(glm::uint index, ModelVertex*& firstVertexPtr, glm::uint& vertexCount, glm::uint*& firstIndexPtr, glm::uint& indexCount)
     {
         if (index >= modelDataArray_.size())
         {
@@ -40,7 +46,7 @@ namespace Project001
         return true;
     }
 
-    bool ModelStores::LoadModel(const std::string& path, unsigned int& index, bool triangulate)
+    bool ModelStores::LoadModel(const std::string& path, glm::uint& index, bool triangulate)
     {
         // file path must have .obj extension
         if (path.size() < 4 || path.substr(path.size() - 4, 4) != ".obj")
@@ -175,7 +181,7 @@ namespace Project001
 
                     std::vector<FaceVertex> face;
 
-                    for (unsigned int i = 0; i < splitValues.size(); ++i)
+                    for (glm::uint i = 0; i < splitValues.size(); ++i)
                     {
                         std::string indexGroup = splitValues[i];
 
@@ -215,7 +221,7 @@ namespace Project001
                     {
                         if (!triangulate)
                         {
-                            for (unsigned int i = 0; i < face.size(); ++i)
+                            for (glm::uint i = 0; i < face.size(); ++i)
                             {
                                 FaceVertex& faceVertex = face[i];
                                 ModelVertex modelVertex;
@@ -225,7 +231,7 @@ namespace Project001
                                 modelVertexArray_.push_back(modelVertex);
                             }
 
-                            for (unsigned int i = 1; i < face.size() - 1; ++i)
+                            for (glm::uint i = 1; i < face.size() - 1; ++i)
                             {
                                 modelIndexArray_.push_back(newModelData.vertexCount);
                                 modelIndexArray_.push_back(newModelData.vertexCount + i);
@@ -237,11 +243,11 @@ namespace Project001
                         }
                         else
                         {
-                            for (unsigned int i = 1; i < face.size() - 1; ++i)
+                            for (glm::uint i = 1; i < face.size() - 1; ++i)
                             {
                                 FaceVertex& face0 = face[0];
                                 FaceVertex& face1 = face[i];
-                                unsigned int i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
+                                glm::uint i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
                                 FaceVertex& face2 = face[i_plus_1];
 
                                 ModelVertex modelVertex;
@@ -272,12 +278,12 @@ namespace Project001
         }
 
         modelDataArray_.push_back(newModelData);
-        index = (unsigned int)(modelDataArray_.size() - 1);
+        index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, unsigned int& index, bool triangulate)
+    bool ModelStores::Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, glm::uint& index, bool triangulate)
     {
         if (vertices.size() < 3)
         {
@@ -294,7 +300,7 @@ namespace Project001
 
         if (!triangulate)
         {
-            for (unsigned int i = 0; i < vertices.size(); ++i)
+            for (glm::uint i = 0; i < vertices.size(); ++i)
             {
                 ModelVertex modelVertex;
                 modelVertex.position = glm::vec3(vertices[i], 0.0f);
@@ -303,13 +309,13 @@ namespace Project001
                 modelVertexArray_.push_back(modelVertex);
             }
 
-            for (unsigned int i = 1; i < vertices.size() - 1; ++i)
+            for (glm::uint i = 1; i < vertices.size() - 1; ++i)
             {
                 modelIndexArray_.push_back(0);
 
                 modelIndexArray_.push_back(i);
 
-                unsigned int i_plus_1 = i + 1;
+                glm::uint i_plus_1 = i + 1;
                 modelIndexArray_.push_back(i_plus_1);
             }
 
@@ -318,7 +324,7 @@ namespace Project001
         }
         else
         {
-            for (unsigned int i = 1; i < vertices.size() - 1; ++i)
+            for (glm::uint i = 1; i < vertices.size() - 1; ++i)
             {
                 ModelVertex centerModelVertex;
                 centerModelVertex.position = glm::vec3(vertices[0], 0.0f);
@@ -335,7 +341,7 @@ namespace Project001
                 modelIndexArray_.push_back(newModelData.indexCount++);
 
                 ModelVertex modelVertexB;
-                unsigned int i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
+                glm::uint i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
                 modelVertexB.position = glm::vec3(vertices[i_plus_1], 0.0f);
                 modelVertexB.textureCoordinte = glm::vec2(0.0f, 0.0f);
                 modelVertexB.normal = normal;
@@ -347,12 +353,44 @@ namespace Project001
         }
 
         modelDataArray_.push_back(newModelData);
-        index = (unsigned int)(modelDataArray_.size() - 1);
+        index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, unsigned int& index, bool triangulate)
+    bool ModelStores::GenerateTriangles(const std::vector<glm::vec2>& vertices, glm::uint& index)
+    {
+        if (vertices.size() == 0 || vertices.size() % 3 != 0)
+        {
+            return false;
+        }
+
+        ModelData newModelData;
+        newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
+        newModelData.vertexCount = (glm::uint)vertices.size();
+        newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
+        newModelData.indexCount = (glm::uint)vertices.size();
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        for (glm::uint i = 0; i < vertices.size(); ++i)
+        {
+            ModelVertex modelVertex;
+            modelVertex.position = glm::vec3(vertices[i], 0.0f);
+            modelVertex.textureCoordinte = glm::vec2(0.0f, 0.0f);
+            modelVertex.normal = normal;
+
+            modelVertexArray_.push_back(modelVertex);
+            modelIndexArray_.push_back(i);
+        }
+
+        modelDataArray_.push_back(newModelData);
+        index = (glm::uint)(modelDataArray_.size() - 1);
+
+        return true;
+    }
+
+    bool ModelStores::Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, glm::uint& index, bool triangulate)
     {
         if (vertices.size() < 3)
         {
@@ -369,7 +407,7 @@ namespace Project001
 
         if (!triangulate)
         {
-            for (unsigned int i = 0; i < vertices.size(); ++i)
+            for (glm::uint i = 0; i < vertices.size(); ++i)
             {
                 ModelVertex modelVertex;
                 modelVertex.position = glm::vec3(vertices[i], 0.0f);
@@ -378,10 +416,10 @@ namespace Project001
                 modelVertexArray_.push_back(modelVertex);
             }
 
-            for (unsigned int i = 0; i < vertices.size() - 2; ++i)
+            for (glm::uint i = 0; i < vertices.size() - 2; ++i)
             {
-                unsigned int i_plus_1 = i + 1;
-                unsigned int i_plus_2 = i + 2;
+                glm::uint i_plus_1 = i + 1;
+                glm::uint i_plus_2 = i + 2;
 
                 if (i % 2 == 0)
                 {
@@ -402,7 +440,7 @@ namespace Project001
         }
         else
         {
-            for (unsigned int i = 0; i < vertices.size() - 2; ++i)
+            for (glm::uint i = 0; i < vertices.size() - 2; ++i)
             {
                 ModelVertex modelVertexA;
                 modelVertexA.position = glm::vec3(vertices[i], 0.0f);
@@ -410,13 +448,13 @@ namespace Project001
                 modelVertexA.normal = normal;
 
                 ModelVertex modelVertexB;
-                unsigned int i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
+                glm::uint i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
                 modelVertexB.position = glm::vec3(vertices[i_plus_1], 0.0f);
                 modelVertexB.textureCoordinte = glm::vec2(0.0f, 0.0f);
                 modelVertexB.normal = normal;
 
                 ModelVertex modelVertexC;
-                unsigned int i_plus_2 = i + 2; // Doing this suppresses the C26451 warning in visual studio
+                glm::uint i_plus_2 = i + 2; // Doing this suppresses the C26451 warning in visual studio
                 modelVertexC.position = glm::vec3(vertices[i_plus_2], 0.0f);
                 modelVertexC.textureCoordinte = glm::vec2(0.0f, 0.0f);
                 modelVertexC.normal = normal;
@@ -443,20 +481,348 @@ namespace Project001
         }
 
         modelDataArray_.push_back(newModelData);
-        index = (unsigned int)(modelDataArray_.size() - 1);
+        index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DLine(const std::vector<glm::vec2>& vertices, float width, unsigned int& index)
+    bool ModelStores::Generate2DLine(const std::vector<glm::vec2>& vertices, float width, glm::uint& index, bool triangulate)
     {
         if (vertices.size() < 2)
         {
             return false;
         }
 
-        // TODO:
+        ModelData newModelData;
+        newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
+        newModelData.vertexCount = 0;
+        newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
+        newModelData.indexCount = 0;
 
-        return false;
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        glm::vec2 vertex1 = vertices[0];
+        glm::vec2 vertex2 = vertices[1];
+
+        glm::vec2 direction1 = vertex2 - vertex1;
+
+        float sin90 = std::sinf((float)M_PI_2);
+        float cos90 = std::cosf((float)M_PI_2);
+
+        glm::vec2 offset01(direction1.x * cos90 - direction1.y * sin90, direction1.x * sin90 + direction1.y * cos90);
+        float magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+        glm::vec2 scaled1 = offset01 / magnitude01 * width / 2.0f;
+
+        glm::vec2 scaled2 = scaled1;
+
+        glm::vec2 vertexA = vertex1 + scaled1;
+        glm::vec2 vertexB = vertex1 - scaled1;
+        glm::vec2 vertexC;
+        glm::vec2 vertexD;
+
+        float slope1 = direction1.y / direction1.x;
+
+        ModelVertex modelVertexA;
+        modelVertexA.textureCoordinte = glm::vec2(0.0f, 0.0f);
+        modelVertexA.normal = normal;
+        ModelVertex modelVertexB;
+        modelVertexB.textureCoordinte = glm::vec2(0.0f, 0.0f);
+        modelVertexB.normal = normal;
+        ModelVertex modelVertexC;
+        modelVertexC.textureCoordinte = glm::vec2(0.0f, 0.0f);
+        modelVertexC.normal = normal;
+        ModelVertex modelVertexD;
+        modelVertexD.textureCoordinte = glm::vec2(0.0f, 0.0f);
+        modelVertexD.normal = normal;
+
+        for (int i = 2; i < vertices.size(); ++i)
+        {
+            glm::vec2 vertex3 = vertices[i];
+            glm::vec2 direction2 = vertex3 - vertex2;
+            float slope2 = direction2.y / direction2.x;
+
+            if (slope1 != slope2)
+            {
+                bool sharpCorner = false;
+                float angle = Get2DVectorAngle(direction1, direction2);
+                if (angle > M_PI / 1.9999999f || angle < M_PI / -1.9999999f)
+                {
+                    sharpCorner = true;
+                }
+
+                glm::vec2 offset02 = glm::vec2(direction2.x * cos90 - direction2.y * sin90, direction2.x * sin90 + direction2.y * cos90);
+                float magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+                scaled2 = offset02 / magnitude02 * width / 2.0f;
+
+                glm::vec2 vertexE = vertex2 + scaled2;
+                glm::vec2 vertexF = vertex2 - scaled2;
+
+                if (sharpCorner)
+                {
+                    offset01 = glm::vec2(direction1.x * cos90 - direction1.y * sin90, direction1.x * sin90 + direction1.y * cos90);
+                    magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+                    scaled1 = offset01 / magnitude01 * width / 2.0f;
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        vertexC = Get2DLineIntersection(vertexA, slope1, vertexE, slope2);
+                        vertexD = vertex2 - scaled1;
+                    }
+                    else
+                    {
+                        vertexC = vertex2 + scaled1;
+                        vertexD = Get2DLineIntersection(vertexB, slope1, vertexF, slope2);
+                    }
+                }
+                else
+                {
+                    vertexC = Get2DLineIntersection(vertexA, slope1, vertexE, slope2);
+                    vertexD = Get2DLineIntersection(vertexB, slope1, vertexF, slope2);
+                }
+
+                modelVertexA.position = glm::vec3(vertexA, 0.0f);
+                modelVertexB.position = glm::vec3(vertexB, 0.0f);
+                modelVertexC.position = glm::vec3(vertexC, 0.0f);
+                modelVertexD.position = glm::vec3(vertexD, 0.0f);
+
+                glm::vec3 normalABC = glm::cross(modelVertexB.position - modelVertexA.position, modelVertexC.position - modelVertexA.position);
+                glm::vec3 normalDCB = glm::cross(modelVertexC.position - modelVertexD.position, modelVertexB.position - modelVertexD.position);
+
+                float dotABC = glm::dot(normal, normalABC);
+                float dotDCB = glm::dot(normal, normalDCB);
+
+                if (!triangulate)
+                {
+                    modelVertexArray_.push_back(modelVertexA);
+                    modelVertexArray_.push_back(modelVertexB);
+                    modelVertexArray_.push_back(modelVertexC);
+                    modelVertexArray_.push_back(modelVertexD);
+
+                    if (dotABC > 0.0f)
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                    }
+                    else
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                        modelIndexArray_.push_back(newModelData.vertexCount);
+                    }
+
+                    if (dotDCB > 0.0f)
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount + 3);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                    }
+                    else
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 3);
+                    }
+
+                    newModelData.vertexCount += 4;
+                    newModelData.indexCount += 6;
+                }
+                else
+                {
+                    if (dotABC > 0.0f)
+                    {
+                        modelVertexArray_.push_back(modelVertexA);
+                        modelVertexArray_.push_back(modelVertexB);
+                        modelVertexArray_.push_back(modelVertexC);
+                    }
+                    // When the width of the line is too large, triangles can 
+                    // flip.
+                    else
+                    {
+                        modelVertexArray_.push_back(modelVertexC);
+                        modelVertexArray_.push_back(modelVertexB);
+                        modelVertexArray_.push_back(modelVertexA);
+                    }
+
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+
+                    if (dotDCB > 0.0f)
+                    {
+                        modelVertexArray_.push_back(modelVertexD);
+                        modelVertexArray_.push_back(modelVertexC);
+                        modelVertexArray_.push_back(modelVertexB);
+                    }
+                    else
+                    {
+                        modelVertexArray_.push_back(modelVertexB);
+                        modelVertexArray_.push_back(modelVertexC);
+                        modelVertexArray_.push_back(modelVertexD);
+                    }
+
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+                    modelIndexArray_.push_back(newModelData.indexCount++);
+
+                    newModelData.vertexCount += 6;
+                }
+
+                if (sharpCorner)
+                {
+                    modelVertexA.position = glm::vec3(vertexC, 0.0f);
+                    modelVertexB.position = glm::vec3(vertexD, 0.0f);
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        modelVertexC.position = glm::vec3(vertexF, 0.0f);
+                    }
+                    else
+                    {
+                        modelVertexC.position = glm::vec3(vertexE, 0.0f);
+                    }
+
+                    glm::vec3 normalABC = glm::cross(modelVertexB.position - modelVertexA.position, modelVertexC.position - modelVertexA.position);
+
+                    float dotABC = glm::dot(normal, normalABC);
+
+                    modelVertexArray_.push_back(modelVertexA);
+                    modelVertexArray_.push_back(modelVertexB);
+                    modelVertexArray_.push_back(modelVertexC);
+
+                    if (dotABC > 0.0f)
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                    }
+                    else
+                    {
+                        modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                        modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                        modelIndexArray_.push_back(newModelData.vertexCount);
+                    }
+
+                    newModelData.vertexCount += 3;
+                    newModelData.indexCount += 3;
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        vertexA = vertexC;
+                        vertexB = vertexF;
+                    }
+                    else
+                    {
+                        vertexA = vertexE;
+                        vertexB = vertexD;
+                    }
+                }
+                else
+                {
+                    vertexA = vertexC;
+                    vertexB = vertexD;
+                }
+
+                vertex1 = vertex2;
+                direction1 = direction2;
+                slope1 = slope2;
+            }
+
+            vertex2 = vertex3;
+        }
+
+        vertexC = vertex2 + scaled2;
+        vertexD = vertex2 - scaled2;
+
+        modelVertexA.position = glm::vec3(vertexA, 0.0f);
+        modelVertexB.position = glm::vec3(vertexB, 0.0f);
+        modelVertexC.position = glm::vec3(vertexC, 0.0f);
+        modelVertexD.position = glm::vec3(vertexD, 0.0f);
+
+        glm::vec3 normalABC = glm::cross(modelVertexB.position - modelVertexA.position, modelVertexC.position - modelVertexA.position);
+        glm::vec3 normalDCB = glm::cross(modelVertexC.position - modelVertexD.position, modelVertexB.position - modelVertexD.position);
+
+        float dotABC = glm::dot(normal, normalABC);
+        float dotDCB = glm::dot(normal, normalDCB);
+
+        if (!triangulate)
+        {
+            modelVertexArray_.push_back(modelVertexA);
+            modelVertexArray_.push_back(modelVertexB);
+            modelVertexArray_.push_back(modelVertexC);
+            modelVertexArray_.push_back(modelVertexD);
+
+            if (dotABC > 0.0f)
+            {
+                modelIndexArray_.push_back(newModelData.vertexCount);
+                modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                modelIndexArray_.push_back(newModelData.vertexCount + 2);
+            }
+            else
+            {
+                modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                modelIndexArray_.push_back(newModelData.vertexCount);
+            }
+
+            if (dotDCB > 0.0f)
+            {
+                modelIndexArray_.push_back(newModelData.vertexCount + 3);
+                modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                modelIndexArray_.push_back(newModelData.vertexCount + 1);
+            }
+            else
+            {
+                modelIndexArray_.push_back(newModelData.vertexCount + 1);
+                modelIndexArray_.push_back(newModelData.vertexCount + 2);
+                modelIndexArray_.push_back(newModelData.vertexCount + 3);
+            }
+
+            newModelData.vertexCount += 4;
+            newModelData.indexCount += 6;
+        }
+        else
+        {
+            if (dotABC > 0.0f)
+            {
+                modelVertexArray_.push_back(modelVertexA);
+                modelVertexArray_.push_back(modelVertexB);
+                modelVertexArray_.push_back(modelVertexC);
+            }
+            else
+            {
+                modelVertexArray_.push_back(modelVertexC);
+                modelVertexArray_.push_back(modelVertexB);
+                modelVertexArray_.push_back(modelVertexA);
+            }
+
+            modelIndexArray_.push_back(newModelData.indexCount++);
+            modelIndexArray_.push_back(newModelData.indexCount++);
+            modelIndexArray_.push_back(newModelData.indexCount++);
+
+            if (dotDCB > 0.0f)
+            {
+                modelVertexArray_.push_back(modelVertexD);
+                modelVertexArray_.push_back(modelVertexC);
+                modelVertexArray_.push_back(modelVertexB);
+            }
+            else
+            {
+                modelVertexArray_.push_back(modelVertexB);
+                modelVertexArray_.push_back(modelVertexC);
+                modelVertexArray_.push_back(modelVertexD);
+            }
+
+            modelIndexArray_.push_back(newModelData.indexCount++);
+            modelIndexArray_.push_back(newModelData.indexCount++);
+            modelIndexArray_.push_back(newModelData.indexCount++);
+
+            newModelData.vertexCount += 6;
+        }
+
+        modelDataArray_.push_back(newModelData);
+        index = (glm::uint)(modelDataArray_.size() - 1);
+
+        return true;
     }
 }

@@ -79,8 +79,8 @@ namespace Project001
 
         // determines the size of the index and vertex buffers
         // static const unsigned int s_bufferCapacity_ = 36 * 10;
-        static const unsigned int s_indexBufferCapacity_ = 36 * 10;
-        static const unsigned int s_vertexBufferCapacity_ = 36 * 8;
+        static const unsigned int s_indexBufferCapacity_ = 36 * 20;
+        static const unsigned int s_vertexBufferCapacity_ = 36 * 16;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
 

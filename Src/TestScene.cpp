@@ -12,7 +12,7 @@
 
 
 
-// public: -----------------------------------------------------------------
+// public: ---------------------------------------------------------------------
 
 TestScene::TestScene()
     : componentStoresPtr_(nullptr)
@@ -28,6 +28,9 @@ TestScene::TestScene()
     , thonkSpecularIndex_((unsigned int)-1)
     , shape01Index_((unsigned int)-1)
     , shape02Index_((unsigned int)-1)
+    , shape03Index_((unsigned int)-1)
+    , shape04Index_((unsigned int)-1)
+    , shape05Index_((unsigned int)-1)
     , sceneDataEntityId_((unsigned int)-1)
     , mainCameraEntityId_((unsigned int)-1)
     , lightSourceEntityId_((unsigned int)-1)
@@ -37,6 +40,9 @@ TestScene::TestScene()
     , cubeEntity04Id_((unsigned int)-1)
     , shape01EntityId_((unsigned int)-1)
     , shape02EntityId_((unsigned int)-1)
+    , shape03EntityId_((unsigned int)-1)
+    , shape04EntityId_((unsigned int)-1)
+    , shape05EntityId_((unsigned int)-1)
 {}
 
 TestScene::~TestScene()
@@ -63,34 +69,93 @@ void TestScene::Initialize(
     modelStoresPtr_->LoadModel("../Models/Cube.obj", cubeModelIndex_);
 
     std::vector<glm::vec2> fanVerticies;
-    fanVerticies.push_back(glm::vec2(0.32f, 0.0f));
-    fanVerticies.push_back(glm::vec2(0.24f, 0.24f));
-    fanVerticies.push_back(glm::vec2(0.0f, 0.32f));
-    fanVerticies.push_back(glm::vec2(-0.24f, 0.24f));
-    fanVerticies.push_back(glm::vec2(-0.32f, 0.0f));
-    fanVerticies.push_back(glm::vec2(-0.24f, -0.24f));
-    fanVerticies.push_back(glm::vec2(0.0f, -0.32f));
-    fanVerticies.push_back(glm::vec2(0.24f, -0.24f));
+    fanVerticies.emplace_back(0.32f, 0.0f);
+    fanVerticies.emplace_back(0.24f, 0.24f);
+    fanVerticies.emplace_back(0.0f, 0.32f);
+    fanVerticies.emplace_back(-0.24f, 0.24f);
+    fanVerticies.emplace_back(-0.32f, 0.0f);
+    fanVerticies.emplace_back(-0.24f, -0.24f);
+    fanVerticies.emplace_back(0.0f, -0.32f);
+    fanVerticies.emplace_back(0.24f, -0.24f);
     modelStoresPtr_->Generate2DTriangleFan(fanVerticies, shape01Index_);
 
     std::vector<glm::vec2> stripVerticies;
-    stripVerticies.push_back(glm::vec2(-0.32f, -0.32f));
-    stripVerticies.push_back(glm::vec2(-0.24f, -0.24f));
-    stripVerticies.push_back(glm::vec2(-0.32f, 0.32f));
-    stripVerticies.push_back(glm::vec2(-0.24f, 0.24f));
-    stripVerticies.push_back(glm::vec2(0.32f, 0.32f));
-    stripVerticies.push_back(glm::vec2(0.24f, 0.24f));
-    stripVerticies.push_back(glm::vec2(0.32f, -0.32f));
-    stripVerticies.push_back(glm::vec2(0.24f, -0.24f));
-    stripVerticies.push_back(glm::vec2(-0.16f, -0.32f));
-    stripVerticies.push_back(glm::vec2(-0.08f, -0.24f));
-    stripVerticies.push_back(glm::vec2(-0.16f, 0.16f));
-    stripVerticies.push_back(glm::vec2(-0.08f, 0.08f));
-    stripVerticies.push_back(glm::vec2(0.16f, 0.16f));
-    stripVerticies.push_back(glm::vec2(0.08f, 0.08f));
-    stripVerticies.push_back(glm::vec2(0.16f, -0.16f));
-    stripVerticies.push_back(glm::vec2(0.08f, -0.08f));
+    stripVerticies.emplace_back(-0.32f, -0.32f);
+    stripVerticies.emplace_back(-0.24f, -0.24f);
+    stripVerticies.emplace_back(-0.32f, 0.32f);
+    stripVerticies.emplace_back(-0.24f, 0.24f);
+    stripVerticies.emplace_back(0.32f, 0.32f);
+    stripVerticies.emplace_back(0.24f, 0.24f);
+    stripVerticies.emplace_back(0.32f, -0.32f);
+    stripVerticies.emplace_back(0.24f, -0.24f);
+    stripVerticies.emplace_back(-0.16f, -0.32f);
+    stripVerticies.emplace_back(-0.08f, -0.24f);
+    stripVerticies.emplace_back(-0.16f, 0.16f);
+    stripVerticies.emplace_back(-0.08f, 0.08f);
+    stripVerticies.emplace_back(0.16f, 0.16f);
+    stripVerticies.emplace_back(0.08f, 0.08f);
+    stripVerticies.emplace_back(0.16f, -0.16f);
+    stripVerticies.emplace_back(0.08f, -0.08f);
     modelStoresPtr_->Generate2DTriangleStrip(stripVerticies, shape02Index_);
+
+    std::vector<glm::vec2> triVerticies;
+    triVerticies.emplace_back(0.0f, 0.08f);
+    triVerticies.emplace_back(0.24f, 0.32f);
+    triVerticies.emplace_back(-0.24f, 0.32f);
+    triVerticies.emplace_back(0.08f, 0.0f);
+    triVerticies.emplace_back(0.32f, -0.24f);
+    triVerticies.emplace_back(0.32f, 0.24f);
+    triVerticies.emplace_back(0.0f, -0.08f);
+    triVerticies.emplace_back(-0.24f, -0.32f);
+    triVerticies.emplace_back(0.24f, -0.32f);
+    triVerticies.emplace_back(-0.08f, 0.0f);
+    triVerticies.emplace_back(-0.32f, 0.24f);
+    triVerticies.emplace_back(-0.32f, -0.24f);
+    modelStoresPtr_->GenerateTriangles(triVerticies, shape03Index_);
+
+    std::vector<glm::vec2> lineVerticies;
+    lineVerticies.emplace_back(-0.24f, -0.16f);
+    lineVerticies.emplace_back(-0.24f, 0.0f);
+    lineVerticies.emplace_back(-0.24f, 0.16f);
+    lineVerticies.emplace_back(-0.16f, 0.24f);
+    lineVerticies.emplace_back(0.0f, 0.24f);
+    lineVerticies.emplace_back(0.16f, 0.24f);
+    lineVerticies.emplace_back(0.24f, 0.16f);
+    lineVerticies.emplace_back(0.24f, 0.0f);
+    lineVerticies.emplace_back(0.24f, -0.16f);
+    lineVerticies.emplace_back(0.16f, -0.24f);
+    lineVerticies.emplace_back(0.0f, -0.24f);
+    lineVerticies.emplace_back(-0.06f, -0.24f);
+    lineVerticies.emplace_back(-0.12f, -0.16f);
+    lineVerticies.emplace_back(-0.12f, 0.0f);
+    lineVerticies.emplace_back(-0.12f, 0.08f);
+    lineVerticies.emplace_back(0.0f, 0.08f);
+    lineVerticies.emplace_back(0.12f, 0.08f);
+    lineVerticies.emplace_back(0.12f, 0.0f);
+    lineVerticies.emplace_back(0.12f, -0.08f);
+    lineVerticies.emplace_back(0.0f, -0.08f);
+    lineVerticies.emplace_back(0.0f, 0.0f);
+    modelStoresPtr_->Generate2DLine(lineVerticies, 0.08f, shape04Index_);
+
+    std::vector<glm::vec2> lineVerticies2;
+    lineVerticies2.emplace_back(0.08f, 0.0f);
+    lineVerticies2.emplace_back(0.24f, 0.16f);
+    lineVerticies2.emplace_back(0.08f, 0.08f);
+    lineVerticies2.emplace_back(0.08f, 0.24f);
+    lineVerticies2.emplace_back(0.0f, 0.08f);
+    lineVerticies2.emplace_back(-0.08f, 0.24f);
+    lineVerticies2.emplace_back(-0.08f, 0.08f);
+    lineVerticies2.emplace_back(-0.24f, 0.16f);
+    lineVerticies2.emplace_back(-0.08f, 0.0f);
+    lineVerticies2.emplace_back(-0.24f, -0.16f);
+    lineVerticies2.emplace_back(-0.08f, -0.16f);
+    lineVerticies2.emplace_back(-0.08f, -0.24f);
+    lineVerticies2.emplace_back(0.0f, -0.16f);
+    lineVerticies2.emplace_back(0.08f, -0.24f);
+    lineVerticies2.emplace_back(0.08f, -0.16f);
+    lineVerticies2.emplace_back(0.24f, -0.16f);
+    lineVerticies2.emplace_back(0.16f, -0.08f);
+    modelStoresPtr_->Generate2DLine(lineVerticies2, 0.04f, shape05Index_);
 
     textureStoresPtr_->LoadTexture("../Textures/CounterclockwiseDie.png", diceTexture01Index_);
     Project001::TextureData diceTexture01Data;
@@ -171,6 +236,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModelComponent* renderedModelComponentPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity01Id_, renderedModelComponentPtr);
+        renderedModelComponentPtr->position = glm::vec3(-2.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = cubeModelIndex_;
         renderedModelComponentPtr->textureIndex = thonkTextureIndex_;
         renderedModelComponentPtr->specularIndex = thonkSpecularIndex_;
@@ -184,7 +250,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModelComponent* renderedModelComponentPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity02Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(1.0f, 1.0f, 0.0f);
+        renderedModelComponentPtr->position = glm::vec3(-1.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = cubeModelIndex_;
         renderedModelComponentPtr->textureIndex = diceTexture01Index_;
     }
@@ -211,7 +277,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModelComponent* renderedModelComponentPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity04Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(1.0f, 0.0f, 0.0f);
+        renderedModelComponentPtr->position = glm::vec3(1.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = cubeModelIndex_;
         renderedModelComponentPtr->specularIndex = patternSpecularIndex_;
         renderedModelComponentPtr->color = glm::vec4(0.8f, 0.2f, 0.6f, 1.0f);
@@ -228,7 +294,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModelComponent* renderedModelComponentPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape01EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-1.0f, 1.0f, 0.0f);
+        renderedModelComponentPtr->position = glm::vec3(2.0f, 1.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = shape01Index_;
         renderedModelComponentPtr->color = glm::vec4(0.8f, 0.6f, 0.2f, 1.0f);
     }
@@ -241,9 +307,45 @@ void TestScene::Initialize(
 
         Project001::RenderedModelComponent* renderedModelComponentPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape02EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        renderedModelComponentPtr->position = glm::vec3(-2.0f, 0.0f, 0.0f);
         renderedModelComponentPtr->modelIndex = shape02Index_;
         renderedModelComponentPtr->color = glm::vec4(0.2f, 0.6f, 0.8f, 1.0f);
+    }
+
+    // generated shape entity 03
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape03EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape03EntityId_);
+        Project001::RenderedModelComponent* renderedModelComponentPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape03EntityId_, renderedModelComponentPtr);
+        renderedModelComponentPtr->position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        renderedModelComponentPtr->modelIndex = shape03Index_;
+        renderedModelComponentPtr->color = glm::vec4(0.6f, 0.2f, 0.8f, 1.0f);
+    }
+
+    // generated shape entity 04
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape04EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape04EntityId_);
+        Project001::RenderedModelComponent* renderedModelComponentPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape04EntityId_, renderedModelComponentPtr);
+        //renderedModelComponentPtr->position = glm::vec3(0.0f, 0.0f, 0.0f);
+        renderedModelComponentPtr->modelIndex = shape04Index_;
+        renderedModelComponentPtr->color = glm::vec4(0.6f, 0.8f, 0.2f, 1.0f);
+    }
+
+    // generated shape entity 04
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape05EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape05EntityId_);
+        Project001::RenderedModelComponent* renderedModelComponentPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape05EntityId_, renderedModelComponentPtr);
+        renderedModelComponentPtr->position = glm::vec3(1.0f, 0.0f, 0.0f);
+        renderedModelComponentPtr->modelIndex = shape05Index_;
+        renderedModelComponentPtr->color = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
     }
 }
 
@@ -260,6 +362,7 @@ void TestScene::Deinitialize()
 
     componentStoresPtr_->DeleteEntity(shape01EntityId_);
     componentStoresPtr_->DeleteEntity(shape02EntityId_);
+    componentStoresPtr_->DeleteEntity(shape03EntityId_);
 }
 
 void TestScene::OnEvent(Project001::Event& event)
@@ -270,7 +373,7 @@ void TestScene::OnEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene::Update, this, std::placeholders::_1));
 }
 
-// protected: --------------------------------------------------------------
+// protected: ------------------------------------------------------------------
 
 void TestScene::ProcessCursorPosition(Project001::CursorPositionEvent& cursorButtonEvent)
 {
@@ -549,7 +652,7 @@ void TestScene::RenderRenderableEntities()
     }
 }
 
-// private: ----------------------------------------------------------------
+// private: --------------------------------------------------------------------
 
 void TestScene::ComponentContainerTest() const
 {

@@ -221,8 +221,6 @@ namespace Project001
         glm::uint modelVertexCount;
         glm::uint* modelIndicies;
         glm::uint modelIndexCount;
-        TextureData textureData;
-        TextureData specularData;
 
         if (modelStoresPtr_->GetModel(modelIndex, modelVerticies, modelVertexCount, modelIndicies, modelIndexCount))
         {

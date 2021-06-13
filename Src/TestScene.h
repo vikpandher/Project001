@@ -78,6 +78,9 @@ protected:
 
     unsigned int shape01Index_;
     unsigned int shape02Index_;
+    unsigned int shape03Index_;
+    unsigned int shape04Index_;
+    unsigned int shape05Index_;
 
     unsigned int sceneDataEntityId_;
     unsigned int mainCameraEntityId_;
@@ -90,6 +93,9 @@ protected:
 
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;
+    unsigned int shape03EntityId_;
+    unsigned int shape04EntityId_;
+    unsigned int shape05EntityId_;
 
 private:
     void ComponentContainerTest() const;

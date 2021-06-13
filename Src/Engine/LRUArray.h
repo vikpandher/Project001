@@ -66,7 +66,7 @@ namespace Project001
             {
                 if (lastRecentlyUsedValuesPtr_[i] == 0)
                 {
-                    lastRecentlyUsedValuesPtr_[i] = capacity_;
+                    lastRecentlyUsedValuesPtr_[i] = (unsigned int)capacity_;
                     nextIndex = i;
                 }
                 lastRecentlyUsedValuesPtr_[i]--;
@@ -92,7 +92,7 @@ namespace Project001
         T& Get(unsigned int index)
         {
             unsigned int indexValue = lastRecentlyUsedValuesPtr_[index];
-            lastRecentlyUsedValuesPtr_[index] = capacity_;
+            lastRecentlyUsedValuesPtr_[index] = (unsigned int)capacity_;
             for (unsigned int i = 0; i < capacity_; ++i)
             {
                 if (lastRecentlyUsedValuesPtr_[i] > indexValue)
