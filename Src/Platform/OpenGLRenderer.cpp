@@ -48,8 +48,6 @@ namespace Project001
         // glEnable(GL_BLEND);
         // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        shaderPtr_ = new OpenGLShader(g_vertexShaderSource01_, g_fragmentShaderSource01_);
-
         // NOTE:
         // glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
         // but there are situations when it does.
@@ -69,9 +67,6 @@ namespace Project001
         // generate an id (name) for a vertex buffer object
         glGenBuffers(1, &vertexBufferId_);
 
-        // generate an id (name) for the index buffer
-        glGenBuffers(1, &indexBufferId_);
-
         // make the vertex arrat object active, create it if necessary
         glBindVertexArray(vertexArrayId_);
 
@@ -80,7 +75,7 @@ namespace Project001
 
         // set the size of the active array buffer
         // (target, size, data, usage)
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_bufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
         // attach the active buffer to the active array with the given attributes
         // (index, size, type, normalized, stride, pointer)
@@ -138,38 +133,29 @@ namespace Project001
         glEnableVertexAttribArray(orientationAttributeIndex);
         // attributeOffset += sizeof(glm::quat);
 
-        // make the buffer the active element array buffer, create it if necessary
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-        if (s_indexBufferCapacity_ % 3 != 0)
-        {
-            Logger::Error("Index Buffer Size Not Multiple Of 3");
-        }
-
-        // set the size of the active element array buffer
-        // (target, size, data, usage)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
-
         // unbind the array buffer and the vertex array
         ///glBindBuffer(GL_ARRAY_BUFFER, 0);
-        ///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         ///glBindVertexArray(0);
-
-        shaderPtr_->Use();
 
         for (int i = 0; i < s_numberOfTextureSlots_; ++i)
         {
             texturePtrs_[i] = nullptr;
-
-            std::string uniformName;
-            uniformName.append("textures[");
-            uniformName.append(std::to_string(i));
-            uniformName.append("]");
-            shaderPtr_->SetInt(uniformName.c_str(), i);
         }
 
         pointLights_.reserve(s_numberOfPointLights_);
         spotLights_.reserve(s_numberOfSpotLights_);
+
+        shaderPtr_ = new OpenGLShader(g_vertexShaderSource01_, g_fragmentShaderSource01_);
+        shaderPtr_->Use();
+
+        for (int i = 0; i < s_numberOfTextureSlots_; ++i)
+        {
+            std::string uniformName;
+            uniformName.append("u_Textures[");
+            uniformName.append(std::to_string(i));
+            uniformName.append("]");
+            shaderPtr_->SetInt(uniformName.c_str(), i);
+        }
     }
 
     OpenGLRenderer::~OpenGLRenderer()
@@ -183,7 +169,6 @@ namespace Project001
 
         glDeleteBuffers(1, &vertexBufferId_);
         glDeleteVertexArrays(1, &vertexArrayId_);
-        glDeleteVertexArrays(1, &indexBufferId_);
     }
 
     // TODO: Create some sort of texture LRU cache so I don't have to track texture slots.
@@ -259,11 +244,6 @@ namespace Project001
 
                 vertexBuffer_.push_back(newVertex);
             }
-
-            for (unsigned int j = 0; j < modelIndexCount; ++j)
-            {
-                indexBuffer_.push_back(vertexBufferOffset + modelIndicies[j]);
-            }
         }
     }
 
@@ -274,22 +254,22 @@ namespace Project001
         // Camera
         // ---------------------------------------------------------------------
 
-        shaderPtr_->SetMat4("view", viewMatrix_);
-        shaderPtr_->SetMat4("projection", projectionMatrix_);
-        shaderPtr_->SetVec3("viewPosition", viewPosition_);
+        shaderPtr_->SetMat4("u_View", viewMatrix_);
+        shaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+        shaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
 
         // Directional Light
         // ---------------------------------------------------------------------
 
-        shaderPtr_->SetVec3("directionalLight.direction", directionalLight_.direction);
-        shaderPtr_->SetVec3("directionalLight.ambient", directionalLight_.ambient);
-        shaderPtr_->SetVec3("directionalLight.diffuse", directionalLight_.diffuse);
-        shaderPtr_->SetVec3("directionalLight.specular", directionalLight_.specular);
+        shaderPtr_->SetVec3("u_DirectionalLight.direction", directionalLight_.direction);
+        shaderPtr_->SetVec3("u_DirectionalLight.ambient", directionalLight_.ambient);
+        shaderPtr_->SetVec3("u_DirectionalLight.diffuse", directionalLight_.diffuse);
+        shaderPtr_->SetVec3("u_DirectionalLight.specular", directionalLight_.specular);
 
         // Point Lights
         // ---------------------------------------------------------------------
 
-        std::string stringPrefix = "pointLights[";
+        std::string stringPrefix = "u_PointLights[";
         unsigned int i = 0;
         while (i < pointLights_.size())
         {
@@ -320,7 +300,7 @@ namespace Project001
         // Spot Lights
         // ---------------------------------------------------------------------
 
-        stringPrefix = "spotLights[";
+        stringPrefix = "u_SpotLights[";
         i = 0;
         while (i < spotLights_.size())
         {
@@ -357,36 +337,32 @@ namespace Project001
         // Render
         // ---------------------------------------------------------------------
 
-        size_t vertexBufferSize = vertexBuffer_.size();
-        size_t indexBufferSize = indexBuffer_.size();
+        // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (vertexBufferSize > s_vertexBufferCapacity_)
+        size_t numberOfVerticiesLeft = vertexBuffer_.size();
+        while (numberOfVerticiesLeft > 0)
         {
-            Logger::Error("Vertex Buffer Capacity Exceeded: %d/%d", vertexBufferSize, s_vertexBufferCapacity_);
-        }
+            size_t numberOfVerticiesDrawnThisDrawCall;
+            if (numberOfVerticiesLeft > s_bufferCapacity_)
+            {
+                numberOfVerticiesDrawnThisDrawCall = s_bufferCapacity_;
+            }
+            else
+            {
+                numberOfVerticiesDrawnThisDrawCall = numberOfVerticiesLeft;
+            }
 
-        if (indexBufferSize > s_indexBufferCapacity_)
-        {
-            Logger::Error("Index Buffer Capacity Exceeded: %d/%d", indexBufferSize, s_indexBufferCapacity_);
-        }
-
-        if (vertexBufferSize > 0 && indexBufferSize > 0)
-        {
-            // Bind buffers to make them active
-            ///glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-            ///glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-            //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            size_t verticiesOffset = vertexBuffer_.size() - numberOfVerticiesLeft;
 
             // upload the vertex data and index data into their respective buffers
             // (target, offset, size, data)
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBuffer_.size(), &indexBuffer_[0]);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesDrawnThisDrawCall, &vertexBuffer_[verticiesOffset]);
 
             /// glBindVertexArray(vertexArrayId_);
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)numberOfVerticiesDrawnThisDrawCall);
 
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+            numberOfVerticiesLeft -= numberOfVerticiesDrawnThisDrawCall;
         }
 
         glfwSwapBuffers(glfwWindowPtr_);

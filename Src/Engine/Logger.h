@@ -4,6 +4,16 @@
 
 
 
+#ifdef _DEBUG
+#define LogError(...) Project001::Logger::Error(__VA_ARGS__)
+#define LogMessage(...) Project001::Logger::Message(__VA_ARGS__)
+#else
+#define LogError(...)
+#define LogMessage(...)
+#endif
+
+
+
 namespace Project001
 {
     class Logger

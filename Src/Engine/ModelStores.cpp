@@ -3,17 +3,16 @@
 #include <fstream>
 
 #include "Engine/MathFunctions.h"
+#include "Engine/MathConstants.h"
 
 
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     ModelStores::ModelStores()
-    {
-        TestGet2DVectorAngle();
-    }
+    {}
 
     ModelStores::~ModelStores()
     {}
@@ -46,13 +45,13 @@ namespace Project001
         return true;
     }
 
-    bool ModelStores::LoadModel(const std::string& path, glm::uint& index, bool triangulate)
+    bool ModelStores::LoadModel(const std::string& path, glm::uint& index, bool normalizeSize, bool recenter, bool triangulate)
     {
-        // file path must have .obj extension
-        if (path.size() < 4 || path.substr(path.size() - 4, 4) != ".obj")
-        {
-            return false;
-        }
+        // Should the file path be required to have the .obj extension?
+        // if (path.size() < 4 || path.substr(path.size() - 4, 4) != ".obj")
+        // {
+        //     return false;
+        // }
 
         std::ifstream file(path);
 
@@ -63,9 +62,7 @@ namespace Project001
 
         ModelData newModelData;
         newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
-        newModelData.vertexCount = 0;
         newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
-        newModelData.indexCount = 0;
 
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> textureCoordinates;
@@ -91,10 +88,6 @@ namespace Project001
             {
                 tag = currentLine.substr(tagStart, tagEnd - tagStart);
             }
-            else if (tagStart != std::string::npos)
-            {
-                continue;
-            }
             else
             {
                 continue;
@@ -117,17 +110,16 @@ namespace Project001
                 size_t valueStart = values.find_first_not_of(" \t", previousValueEnd);
                 size_t valueEnd = values.find_first_of(" \t", valueStart);
 
-                if (valueStart != std::string::npos && valueEnd != std::string::npos)
+                if (valueStart != std::string::npos)
                 {
-                    splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
-                }
-                else if (tagStart != std::string::npos)
-                {
-                    splitValues.push_back(values.substr(valueStart));
-                }
-                else
-                {
-                    continue;
+                    if (valueEnd != std::string::npos)
+                    {
+                        splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
+                    }
+                    else
+                    {
+                        splitValues.push_back(values.substr(valueStart));
+                    }
                 }
 
                 previousValueEnd = valueEnd;
@@ -141,6 +133,14 @@ namespace Project001
                     newPosition.x = std::stof(splitValues[0]);
                     newPosition.y = std::stof(splitValues[1]);
                     newPosition.z = std::stof(splitValues[2]);
+
+                    newModelData.maxVertexPosition.x = std::max(newModelData.maxVertexPosition.x, newPosition.x);
+                    newModelData.maxVertexPosition.y = std::max(newModelData.maxVertexPosition.y, newPosition.y);
+                    newModelData.maxVertexPosition.z = std::max(newModelData.maxVertexPosition.z, newPosition.z);
+
+                    newModelData.minVertexPosition.x = std::min(newModelData.minVertexPosition.x, newPosition.x);
+                    newModelData.minVertexPosition.y = std::min(newModelData.minVertexPosition.y, newPosition.y);
+                    newModelData.minVertexPosition.z = std::min(newModelData.minVertexPosition.z, newPosition.z);
 
                     positions.push_back(newPosition);
                 }
@@ -172,49 +172,48 @@ namespace Project001
             {
                 if (splitValues.size() >= 3)
                 {
-                    struct FaceVertex
-                    {
-                        glm::uint positonIndex;
-                        glm::uint textureCoordinateIndex;
-                        glm::uint normalIndex;
-                    };
-
                     std::vector<FaceVertex> face;
 
                     for (glm::uint i = 0; i < splitValues.size(); ++i)
                     {
-                        std::string indexGroup = splitValues[i];
+                        std::string& indexGroup = splitValues[i];
 
-                        std::vector<std::string> indexGroupValues;
-
-                        size_t previousindexGroupValueEnd = 0;
-                        while (previousindexGroupValueEnd != std::string::npos)
+                        std::vector<size_t> slashIndicies;
+                        for (size_t j = 0; j < indexGroup.size(); ++j)
                         {
-                            size_t indexGroupValueStart = indexGroup.find_first_not_of("/", previousindexGroupValueEnd);
-                            size_t indexGroupValueEnd = indexGroup.find_first_of("/", indexGroupValueStart);
-
-                            if (indexGroupValueStart != std::string::npos && indexGroupValueEnd != std::string::npos)
+                            if (indexGroup[j] == '/')
                             {
-                                indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart, indexGroupValueEnd - indexGroupValueStart));
+                                slashIndicies.push_back(j);
                             }
-                            else if (tagStart != std::string::npos)
-                            {
-                                indexGroupValues.push_back(indexGroup.substr(indexGroupValueStart));
-                            }
-                            else
-                            {
-                                continue;
-                            }
-
-                            previousindexGroupValueEnd = indexGroupValueEnd;
                         }
 
-                        FaceVertex newFaceVertex;
-                        newFaceVertex.positonIndex = std::stoi(indexGroupValues[0]) - 1; // indicies start at 1
-                        newFaceVertex.textureCoordinateIndex = std::stoi(indexGroupValues[1]) - 1;
-                        newFaceVertex.normalIndex = std::stoi(indexGroupValues[2]) - 1;
+                        if (slashIndicies.size() == 2)
+                        {
+                            const size_t& firstSlashIndex = slashIndicies[0];
+                            const size_t& secondSlashIndex = slashIndicies[1];
 
-                        face.push_back(newFaceVertex);
+                            FaceVertex newFaceVertex;
+
+                            if (firstSlashIndex > 0)
+                            {
+                                std::string positionIndexString = indexGroup.substr(0, firstSlashIndex);
+                                newFaceVertex.positionIndex = std::stoi(positionIndexString);
+                            }
+
+                            if (secondSlashIndex > firstSlashIndex + 1)
+                            {
+                                std::string textureCoordinateIndexString = indexGroup.substr(firstSlashIndex + 1, secondSlashIndex - firstSlashIndex - 1);
+                                newFaceVertex.textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
+                            }
+
+                            if (indexGroup.size() > secondSlashIndex + 1)
+                            {
+                                std::string normalIndexString = indexGroup.substr(secondSlashIndex + 1);
+                                newFaceVertex.normalIndex = std::stoi(normalIndexString);
+                            }
+
+                            face.push_back(newFaceVertex);
+                        }
                     }
 
                     if (face.size() >= 3)
@@ -224,10 +223,7 @@ namespace Project001
                             for (glm::uint i = 0; i < face.size(); ++i)
                             {
                                 FaceVertex& faceVertex = face[i];
-                                ModelVertex modelVertex;
-                                modelVertex.position = positions[faceVertex.positonIndex];
-                                modelVertex.textureCoordinte = textureCoordinates[faceVertex.textureCoordinateIndex];
-                                modelVertex.normal = normals[faceVertex.normalIndex];
+                                ModelVertex modelVertex = GetModelVertexFromFaceVertex(faceVertex, positions, textureCoordinates, normals);
                                 modelVertexArray_.push_back(modelVertex);
                             }
 
@@ -250,22 +246,15 @@ namespace Project001
                                 glm::uint i_plus_1 = i + 1; // Doing this suppresses the C26451 warning in visual studio
                                 FaceVertex& face2 = face[i_plus_1];
 
-                                ModelVertex modelVertex;
-                                modelVertex.position = positions[face0.positonIndex];
-                                modelVertex.textureCoordinte = textureCoordinates[face0.textureCoordinateIndex];
-                                modelVertex.normal = normals[face0.normalIndex];
+                                ModelVertex modelVertex = GetModelVertexFromFaceVertex(face0, positions, textureCoordinates, normals);
                                 modelVertexArray_.push_back(modelVertex);
                                 modelIndexArray_.push_back(newModelData.indexCount++);
 
-                                modelVertex.position = positions[face1.positonIndex];
-                                modelVertex.textureCoordinte = textureCoordinates[face1.textureCoordinateIndex];
-                                modelVertex.normal = normals[face1.normalIndex];
+                                modelVertex = GetModelVertexFromFaceVertex(face1, positions, textureCoordinates, normals);
                                 modelVertexArray_.push_back(modelVertex);
                                 modelIndexArray_.push_back(newModelData.indexCount++);
 
-                                modelVertex.position = positions[face2.positonIndex];
-                                modelVertex.textureCoordinte = textureCoordinates[face2.textureCoordinateIndex];
-                                modelVertex.normal = normals[face2.normalIndex];
+                                modelVertex = GetModelVertexFromFaceVertex(face2, positions, textureCoordinates, normals);
                                 modelVertexArray_.push_back(modelVertex);
                                 modelIndexArray_.push_back(newModelData.indexCount++);
                             }
@@ -277,13 +266,50 @@ namespace Project001
             }
         }
 
+        if (recenter)
+        {
+            glm::vec3 center = (newModelData.maxVertexPosition + newModelData.minVertexPosition) / 2.0f;
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position -= center;
+            }
+            newModelData.maxVertexPosition -= center;
+            newModelData.minVertexPosition -= center;
+        }
+
+        if (normalizeSize)
+        {
+            glm::vec3 size = newModelData.maxVertexPosition - newModelData.minVertexPosition;
+            float biggestDimension = size.x;
+            if (size.y > size.x && size.y > size.z)
+            {
+                biggestDimension = size.y;
+            }
+            else if (size.z > size.x && size.z > size.y)
+            {
+                biggestDimension = size.z;
+            }
+            
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position /= biggestDimension;
+            }
+        }
+
+        if (newModelData.vertexCount == 0 && newModelData.indexCount == 0)
+        {
+            return false;
+        }
+
         modelDataArray_.push_back(newModelData);
         index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, glm::uint& index, bool triangulate)
+    bool ModelStores::Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter, bool triangulate)
     {
         if (vertices.size() < 3)
         {
@@ -292,9 +318,9 @@ namespace Project001
 
         ModelData newModelData;
         newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
-        newModelData.vertexCount = 0;
         newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
-        newModelData.indexCount = 0;
+        newModelData.maxVertexPosition.z = 0.0f;
+        newModelData.minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -352,13 +378,34 @@ namespace Project001
             newModelData.vertexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
 
+        for (glm::uint i = 0; i < vertices.size(); ++i)
+        {
+            newModelData.maxVertexPosition.x = std::max(newModelData.maxVertexPosition.x, vertices[i].x);
+            newModelData.maxVertexPosition.y = std::max(newModelData.maxVertexPosition.y, vertices[i].y);
+
+            newModelData.minVertexPosition.x = std::min(newModelData.minVertexPosition.x, vertices[i].x);
+            newModelData.minVertexPosition.y = std::min(newModelData.minVertexPosition.y, vertices[i].y);
+        }
+
+        if (recenter)
+        {
+            glm::vec3 center = (newModelData.maxVertexPosition + newModelData.minVertexPosition) / 2.0f;
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position -= center;
+            }
+            newModelData.maxVertexPosition -= center;
+            newModelData.minVertexPosition -= center;
+        }
+
         modelDataArray_.push_back(newModelData);
         index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::GenerateTriangles(const std::vector<glm::vec2>& vertices, glm::uint& index)
+    bool ModelStores::Generate2DTriangles(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter)
     {
         if (vertices.size() == 0 || vertices.size() % 3 != 0)
         {
@@ -370,6 +417,8 @@ namespace Project001
         newModelData.vertexCount = (glm::uint)vertices.size();
         newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
         newModelData.indexCount = (glm::uint)vertices.size();
+        newModelData.maxVertexPosition.z = 0.0f;
+        newModelData.minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -384,13 +433,34 @@ namespace Project001
             modelIndexArray_.push_back(i);
         }
 
+        for (glm::uint i = 0; i < vertices.size(); ++i)
+        {
+            newModelData.maxVertexPosition.x = std::max(newModelData.maxVertexPosition.x, vertices[i].x);
+            newModelData.maxVertexPosition.y = std::max(newModelData.maxVertexPosition.y, vertices[i].y);
+
+            newModelData.minVertexPosition.x = std::min(newModelData.minVertexPosition.x, vertices[i].x);
+            newModelData.minVertexPosition.y = std::min(newModelData.minVertexPosition.y, vertices[i].y);
+        }
+
+        if (recenter)
+        {
+            glm::vec3 center = (newModelData.maxVertexPosition + newModelData.minVertexPosition) / 2.0f;
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position -= center;
+            }
+            newModelData.maxVertexPosition -= center;
+            newModelData.minVertexPosition -= center;
+        }
+
         modelDataArray_.push_back(newModelData);
         index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, glm::uint& index, bool triangulate)
+    bool ModelStores::Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter, bool triangulate)
     {
         if (vertices.size() < 3)
         {
@@ -399,9 +469,9 @@ namespace Project001
 
         ModelData newModelData;
         newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
-        newModelData.vertexCount = 0;
         newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
-        newModelData.indexCount = 0;
+        newModelData.maxVertexPosition.z = 0.0f;
+        newModelData.minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -480,13 +550,34 @@ namespace Project001
             newModelData.vertexCount += (glm::uint)((vertices.size() - 2) * 3);
         }
 
+        for (glm::uint i = 0; i < vertices.size(); ++i)
+        {
+            newModelData.maxVertexPosition.x = std::max(newModelData.maxVertexPosition.x, vertices[i].x);
+            newModelData.maxVertexPosition.y = std::max(newModelData.maxVertexPosition.y, vertices[i].y);
+
+            newModelData.minVertexPosition.x = std::min(newModelData.minVertexPosition.x, vertices[i].x);
+            newModelData.minVertexPosition.y = std::min(newModelData.minVertexPosition.y, vertices[i].y);
+        }
+
+        if (recenter)
+        {
+            glm::vec3 center = (newModelData.maxVertexPosition + newModelData.minVertexPosition) / 2.0f;
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position -= center;
+            }
+            newModelData.maxVertexPosition -= center;
+            newModelData.minVertexPosition -= center;
+        }
+
         modelDataArray_.push_back(newModelData);
         index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
     }
 
-    bool ModelStores::Generate2DLine(const std::vector<glm::vec2>& vertices, float width, glm::uint& index, bool triangulate)
+    bool ModelStores::Generate2DLine(const std::vector<glm::vec2>& vertices, float width, glm::uint& index, bool recenter, bool triangulate)
     {
         if (vertices.size() < 2)
         {
@@ -495,9 +586,9 @@ namespace Project001
 
         ModelData newModelData;
         newModelData.vertexIndex = (glm::uint)modelVertexArray_.size();
-        newModelData.vertexCount = 0;
         newModelData.indexIndex = (glm::uint)modelIndexArray_.size();
-        newModelData.indexCount = 0;
+        newModelData.maxVertexPosition.z = 0.0f;
+        newModelData.minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -820,9 +911,79 @@ namespace Project001
             newModelData.vertexCount += 6;
         }
 
+        for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+        {
+            glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+            const ModelVertex& currentModelVertex = modelVertexArray_[modelVeretxArrayIndex];
+
+            newModelData.maxVertexPosition.x = std::max(newModelData.maxVertexPosition.x, currentModelVertex.position.x);
+            newModelData.maxVertexPosition.y = std::max(newModelData.maxVertexPosition.y, currentModelVertex.position.y);
+
+            newModelData.minVertexPosition.x = std::min(newModelData.minVertexPosition.x, currentModelVertex.position.x);
+            newModelData.minVertexPosition.y = std::min(newModelData.minVertexPosition.y, currentModelVertex.position.y);
+        }
+
+        if (recenter)
+        {
+            glm::vec3 center = (newModelData.maxVertexPosition + newModelData.minVertexPosition) / 2.0f;
+            for (glm::uint i = 0; i < newModelData.vertexCount; ++i)
+            {
+                glm::uint modelVeretxArrayIndex = newModelData.vertexIndex + i;
+                modelVertexArray_[modelVeretxArrayIndex].position -= center;
+            }
+            newModelData.maxVertexPosition -= center;
+            newModelData.minVertexPosition -= center;
+        }
+
         modelDataArray_.push_back(newModelData);
         index = (glm::uint)(modelDataArray_.size() - 1);
 
         return true;
+    }
+
+    // protected ---------------------------------------------------------------
+
+    ModelVertex ModelStores::GetModelVertexFromFaceVertex(
+        const FaceVertex& faceVertex,
+        const std::vector<glm::vec3>& positions,
+        const std::vector<glm::vec2>& textureCoordinates,
+        const std::vector<glm::vec3>& normals)
+    {
+        ModelVertex modelVertex;
+
+        if (faceVertex.positionIndex > 0 && faceVertex.positionIndex <= positions.size())
+        {
+            int positionIndex = faceVertex.positionIndex - 1;
+            modelVertex.position = positions[positionIndex];
+        }
+        else if (faceVertex.positionIndex < 0 && faceVertex.positionIndex >= positions.size() * -1)
+        {
+            int positionIndex = (int)(faceVertex.positionIndex + positions.size());
+            modelVertex.position = positions[positionIndex];
+        }
+
+        if (faceVertex.textureCoordinateIndex > 0 && faceVertex.textureCoordinateIndex <= textureCoordinates.size())
+        {
+            int textureCoordinateIndex = faceVertex.textureCoordinateIndex - 1;
+            modelVertex.textureCoordinte = textureCoordinates[textureCoordinateIndex];
+        }
+        else if (faceVertex.textureCoordinateIndex < 0 && faceVertex.textureCoordinateIndex >= textureCoordinates.size() * -1)
+        {
+            int textureCoordinateIndex = (int)(faceVertex.textureCoordinateIndex + textureCoordinates.size());
+            modelVertex.textureCoordinte = textureCoordinates[textureCoordinateIndex];
+        }
+
+        if (faceVertex.normalIndex > 0 && faceVertex.normalIndex <= normals.size())
+        {
+            int normalIndex = faceVertex.normalIndex - 1;
+            modelVertex.normal = normals[normalIndex];
+        }
+        else if (faceVertex.normalIndex < 0 && faceVertex.normalIndex >= normals.size() * -1)
+        {
+            int normalIndex = (int)(faceVertex.normalIndex + normals.size());
+            modelVertex.normal = normals[normalIndex];
+        }
+
+        return modelVertex;
     }
 }

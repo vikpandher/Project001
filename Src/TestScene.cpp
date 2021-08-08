@@ -1,12 +1,18 @@
 #include "TestScene.h"
 
+#include "DeathFlag.h"
+#include "TestComponents.h"
+#include "TestSceneData.h"
+
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/LightSource.h"
+#include "Engine/Components/RenderedModel.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
 #include "Engine/LRUArray.h"
 #include "Engine/ModelStores.h"
 #include "Engine/Renderer.h"
-#include "Engine/SceneComponents.h"
 #include "Engine/TextureStores.h"
 #include "Engine/Window.h"
 
@@ -43,7 +49,10 @@ TestScene::TestScene()
     , shape03EntityId_((unsigned int)-1)
     , shape04EntityId_((unsigned int)-1)
     , shape05EntityId_((unsigned int)-1)
-{}
+{
+    ComponentContainerTest();
+    ComponentStoresTest();
+}
 
 TestScene::~TestScene()
 {}
@@ -66,7 +75,7 @@ void TestScene::Initialize(
     textureStoresPtr_ = textureStoresPtr;
     windowPtr_ = windowPtr;
 
-    modelStoresPtr_->LoadModel("../Models/Cube.obj", cubeModelIndex_);
+    modelStoresPtr_->LoadModel("../Models/CubeQ.obj", cubeModelIndex_, false);
 
     std::vector<glm::vec2> fanVerticies;
     fanVerticies.emplace_back(0.32f, 0.0f);
@@ -111,7 +120,7 @@ void TestScene::Initialize(
     triVerticies.emplace_back(-0.08f, 0.0f);
     triVerticies.emplace_back(-0.32f, 0.24f);
     triVerticies.emplace_back(-0.32f, -0.24f);
-    modelStoresPtr_->GenerateTriangles(triVerticies, shape03Index_);
+    modelStoresPtr_->Generate2DTriangles(triVerticies, shape03Index_);
 
     std::vector<glm::vec2> lineVerticies;
     lineVerticies.emplace_back(-0.24f, -0.16f);
@@ -191,161 +200,158 @@ void TestScene::Initialize(
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(sceneDataEntityId_);
-        componentStoresPtr_->CreateComponent<Project001::SceneDataComponent>(sceneDataEntityId_);
+        componentStoresPtr_->CreateComponent<TestSceneData>(sceneDataEntityId_);
     }
 
     // main camera entity
     // -------------------------------------------------------------------------
     {
-        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
-        componentStoresPtr_->CreateComponent<Project001::CameraComponent>(mainCameraEntityId_);
+        componentStoresPtr->CreateEntity(mainCameraEntityId_);
+        componentStoresPtr->CreateComponent<Project001::Camera>(mainCameraEntityId_);
 
-        Project001::CameraComponent* cameraComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::CameraComponent>(mainCameraEntityId_, cameraComponentPtr);
-        cameraComponentPtr->position.z = 3.0f;
-        //cameraComponentPtr->position.x = 3.0f;
+        Project001::Camera* cameraPtr;
+        componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
         int framebufferWidth;
         int framebufferHeight;
         windowPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
-        cameraComponentPtr->aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
-        //cameraComponentPtr->orthographicProjection = true;
-        //cameraComponentPtr->leftCutOff = -3.0f;
-        //cameraComponentPtr->rightCutOff = 3.0f;
-        //cameraComponentPtr->bottomCutOff = cameraComponentPtr->leftCutOff / cameraComponentPtr->aspectRatio;
-        //cameraComponentPtr->topCutOff = cameraComponentPtr->rightCutOff / cameraComponentPtr->aspectRatio;
-        //glm::quat rotationQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, cameraComponentPtr->s_worldUp);
-        //cameraComponentPtr->orientation = rotationQuaternion * cameraComponentPtr->orientation;
+        float aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
+        cameraPtr->SetAspectRatio(aspectRatio);
+        cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
+        // cameraPtr->SetProjectionToOrthographic();
+        // cameraPtr->SetLeftCutoff(aspectRatio * -5.0f);
+        // cameraPtr->SetRightCutoff(aspectRatio * 5.0f);
+        cameraPtr->TurnOn();
     }
 
     // light source entity
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(lightSourceEntityId_);
-        componentStoresPtr_->CreateComponent<Project001::LightComponent>(lightSourceEntityId_);
+        componentStoresPtr_->CreateComponent<Project001::LightSource>(lightSourceEntityId_);
 
-        Project001::LightComponent* lightComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::LightComponent>(lightSourceEntityId_, lightComponentPtr);
-        lightComponentPtr->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+        Project001::LightSource* lightSourcePtr;
+        componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr);
+        lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
+        lightSourcePtr->TurnOn();
     }
 
     // cube entity 01
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cubeEntity01Id_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(cubeEntity01Id_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cubeEntity01Id_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity01Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-2.0f, 1.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = cubeModelIndex_;
-        renderedModelComponentPtr->textureIndex = thonkTextureIndex_;
-        renderedModelComponentPtr->specularIndex = thonkSpecularIndex_;
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity01Id_, renderedModelPtr);
+        renderedModelPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(cubeModelIndex_);
+        renderedModelPtr->SetTextureIndex(thonkTextureIndex_);
+        renderedModelPtr->SetSpecularIndex(thonkSpecularIndex_);
     }
 
     // cube entity 02
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cubeEntity02Id_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(cubeEntity02Id_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cubeEntity02Id_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity02Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-1.0f, 1.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = cubeModelIndex_;
-        renderedModelComponentPtr->textureIndex = diceTexture01Index_;
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity02Id_, renderedModelPtr);
+        renderedModelPtr->SetPosition(-1.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(cubeModelIndex_);
+        renderedModelPtr->SetTextureIndex(diceTexture01Index_);
     }
 
     // cube entity 03
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cubeEntity03Id_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(cubeEntity03Id_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cubeEntity03Id_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity03Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(0.0f, 1.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = cubeModelIndex_;
-        renderedModelComponentPtr->textureIndex = diceTexture02Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.2f, 0.8f, 0.6f, 1.0f);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity03Id_, renderedModelPtr);
+        renderedModelPtr->SetPosition(0.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(cubeModelIndex_);
+        renderedModelPtr->SetTextureIndex(diceTexture02Index_);
+        renderedModelPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
     }
 
     // cube entity 04
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cubeEntity04Id_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(cubeEntity04Id_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cubeEntity04Id_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(cubeEntity04Id_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(1.0f, 1.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = cubeModelIndex_;
-        renderedModelComponentPtr->specularIndex = patternSpecularIndex_;
-        renderedModelComponentPtr->color = glm::vec4(0.8f, 0.2f, 0.6f, 1.0f);
-        renderedModelComponentPtr->scale = glm::vec3(0.5f, 0.75f, 1.0f);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity04Id_, renderedModelPtr);
+        renderedModelPtr->SetPosition(1.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(cubeModelIndex_);
+        renderedModelPtr->SetSpecularIndex(patternSpecularIndex_);
+        renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
+        renderedModelPtr->SetScale(0.5f, 0.75f, 1.0f);
         glm::quat rotationQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / 4.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-        renderedModelComponentPtr->orientation = rotationQuaternion * renderedModelComponentPtr->orientation;
+        renderedModelPtr->AddRoll(glm::pi<float>() / 4.0f);
     }
 
     // generated shape entity 01
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape01EntityId_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape01EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape01EntityId_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape01EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(2.0f, 1.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = shape01Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.8f, 0.6f, 0.2f, 1.0f);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(2.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(shape01Index_);
+        renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
     }
 
     // generated shape entity 02
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape02EntityId_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape02EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape02EntityId_);
 
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape02EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-2.0f, 0.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = shape02Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.2f, 0.6f, 0.8f, 1.0f);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(-2.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(shape02Index_);
+        renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
     }
 
     // generated shape entity 03
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape03EntityId_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape03EntityId_);
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape03EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = shape03Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.6f, 0.2f, 0.8f, 1.0f);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape03EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(-1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(shape03Index_);
+        renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
     }
 
     // generated shape entity 04
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape04EntityId_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape04EntityId_);
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape04EntityId_, renderedModelComponentPtr);
-        //renderedModelComponentPtr->position = glm::vec3(0.0f, 0.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = shape04Index_;
-        renderedModelComponentPtr->color = glm::vec4(0.6f, 0.8f, 0.2f, 1.0f);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape04EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr);
+        renderedModelPtr->SetModelIndex(shape04Index_);
+        renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
     }
 
     // generated shape entity 04
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape05EntityId_);
-        componentStoresPtr_->CreateComponent<Project001::RenderedModelComponent>(shape05EntityId_);
-        Project001::RenderedModelComponent* renderedModelComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModelComponent>(shape05EntityId_, renderedModelComponentPtr);
-        renderedModelComponentPtr->position = glm::vec3(1.0f, 0.0f, 0.0f);
-        renderedModelComponentPtr->modelIndex = shape05Index_;
-        renderedModelComponentPtr->color = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape05EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetModelIndex(shape05Index_);
+        renderedModelPtr->SetColorRGB(1.0f, 0.5f, 0.5f);
     }
 }
 
@@ -384,16 +390,14 @@ void TestScene::ProcessCursorPosition(Project001::CursorPositionEvent& cursorBut
         float& currentXPosition = cursorButtonEvent.xPosition;
         float& currentYPosition = cursorButtonEvent.yPosition;
 
-        Project001::SceneDataComponent* sceneDataComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::SceneDataComponent>(sceneDataEntityId_, sceneDataComponentPtr);
+        TestSceneData* testSceneDataPtr;
+        componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, testSceneDataPtr);
 
-        float& prevousXPosition = sceneDataComponentPtr->previousCursorDownPosition.x;
-        float& prevousYPosition = sceneDataComponentPtr->previousCursorDownPosition.y;
+        float& prevousXPosition = testSceneDataPtr->previousCursorDownPosition.x;
+        float& prevousYPosition = testSceneDataPtr->previousCursorDownPosition.y;
 
-        Project001::CameraComponent* cameraComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::CameraComponent>(mainCameraEntityId_, cameraComponentPtr);
-
-        glm::quat& orientation = cameraComponentPtr->orientation;
+        Project001::Camera* cameraPtr;
+        componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
 
         float speedConstant = 0.005f;
 
@@ -403,13 +407,9 @@ void TestScene::ProcessCursorPosition(Project001::CursorPositionEvent& cursorBut
         float cameraYaw = -1.0f * xOffset * speedConstant;
         float cameraPitch = -1.0f * yOffset * speedConstant;
 
-        glm::vec3 directionRight = cameraComponentPtr->GetRightVector();
-        glm::vec3 directionUp = cameraComponentPtr->GetUpVector();
-
-        glm::quat yawQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), cameraYaw, directionUp);
-        glm::quat pitchQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), cameraPitch, directionRight);
-
-        orientation = pitchQuaternion * yawQuaternion * orientation;
+        cameraPtr->AddYaw(cameraYaw);
+        // cameraPtr->AddWorldRotationY(cameraYaw); // for fps camera
+        cameraPtr->AddPitch(cameraPitch);
 
         prevousXPosition = currentXPosition;
         prevousYPosition = currentYPosition;
@@ -424,11 +424,11 @@ void TestScene::ProcessMouseButton(Project001::MouseButtonEvent& mouseButtonEven
     if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1 &&
         buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
     {
-        Project001::SceneDataComponent* sceneDataComponentPtr;
-        componentStoresPtr_->GetComponent<Project001::SceneDataComponent>(sceneDataEntityId_, sceneDataComponentPtr);
+        TestSceneData* testSceneDataPtr;
+        componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, testSceneDataPtr);
 
-        float& prevousXPosition = sceneDataComponentPtr->previousCursorDownPosition.x;
-        float& prevousYPosition = sceneDataComponentPtr->previousCursorDownPosition.y;
+        float& prevousXPosition = testSceneDataPtr->previousCursorDownPosition.x;
+        float& prevousYPosition = testSceneDataPtr->previousCursorDownPosition.y;
 
         windowPtr_->GetCursorPosition(prevousXPosition, prevousYPosition);
     }
@@ -439,12 +439,11 @@ void TestScene::ProcessScroll(Project001::ScrollEvent& scrollEvent)
     float& yOffset = scrollEvent.yOffset;
 
     float speedConstant = 0.25f;
-    float cameraTranslationSpeed = speedConstant * yOffset;
+    float cameraTranslation = speedConstant * yOffset;
 
-    Project001::CameraComponent* cameraComponentPtr;
-    componentStoresPtr_->GetComponent<Project001::CameraComponent>(mainCameraEntityId_, cameraComponentPtr);
-
-    cameraComponentPtr->position += cameraTranslationSpeed * cameraComponentPtr->GetForwardVector();
+    Project001::Camera* cameraPtr;
+    componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
+    cameraPtr->MoveForward(cameraTranslation);
 }
 
 void TestScene::Update(Project001::UpdateEvent& updateEvent)
@@ -480,72 +479,70 @@ void TestScene::UpdateMainCameraEntityPositionAndRoll(double timestep)
     bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
     bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
-    Project001::CameraComponent* cameraComponentPtr;
-    componentStoresPtr_->GetComponent<Project001::CameraComponent>(mainCameraEntityId_, cameraComponentPtr);
-
-    glm::vec3 directionRight = cameraComponentPtr->GetRightVector();
-    glm::vec3 directionUp = cameraComponentPtr->GetUpVector();
-    glm::vec3 directionForward = cameraComponentPtr->GetForwardVector();
-
-    glm::vec3& cameraPosition = cameraComponentPtr->position;
-    glm::quat& cameraOrientation = cameraComponentPtr->orientation;
+    Project001::Camera* cameraPtr;
+    componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
 
     if (movingLeft)
     {
-        cameraPosition -= cameraTranslationSpeed * directionRight;
+        cameraPtr->MoveLeft(cameraTranslationSpeed);
+        // cameraPtr->RevolveAroundHorizontally(glm::vec3(0.0f, 0.0f, 0.0f), -1.0f * cameraRotationSpeed); // add to orbit
     }
 
     if (movingRight)
     {
-        cameraPosition += cameraTranslationSpeed * directionRight;
+        cameraPtr->MoveRight(cameraTranslationSpeed);
+        // cameraPtr->RevolveAroundHorizontally(glm::vec3(0.0f, 0.0f, 0.0f), cameraRotationSpeed); // add to orbit
     }
 
     if (movingUp)
     {
-        cameraPosition += cameraTranslationSpeed * directionUp;
+        cameraPtr->MoveUp(cameraTranslationSpeed);
     }
 
     if (movingDown)
     {
-        cameraPosition -= cameraTranslationSpeed * directionUp;
+        cameraPtr->MoveDown(cameraTranslationSpeed);
     }
 
     if (rollingLeft)
     {
-        glm::quat rollQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), -1.0f * cameraRotationSpeed, directionForward);
-        cameraOrientation = rollQuaternion * cameraOrientation;
+        cameraPtr->AddRoll(-1.0f * cameraRotationSpeed);
     }
+
     if (rollingRight)
     {
-        glm::quat rollQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), cameraRotationSpeed, directionForward);
-        cameraOrientation = rollQuaternion * cameraOrientation;
+        cameraPtr->AddRoll(cameraRotationSpeed);
     }
+
+    // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add to orbit
 }
 
 void TestScene::UpdateLightEntityPosition()
 {
-    Project001::LightComponent* lightComponentPtr;
-    componentStoresPtr_->GetComponent<Project001::LightComponent>(lightSourceEntityId_, lightComponentPtr);
+    Project001::LightSource* lightSourcePtr;
+    componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr);
 
-    Project001::CameraComponent* cameraComponentPtr;
-    componentStoresPtr_->GetComponent<Project001::CameraComponent>(mainCameraEntityId_, cameraComponentPtr);
+    Project001::Camera* cameraPtr;
+    componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
 
-    lightComponentPtr->position = cameraComponentPtr->position;
+    lightSourcePtr->SetPosition(cameraPtr->GetPosition());
 }
 
 void TestScene::DeleteDeadEntities()
 {
-    Project001::DeathFlagComponent* deathFlagComponentPtrs = nullptr;
-    size_t deathFlagComponentCount = 0;
+    DeathFlag* deathFlagArray = nullptr;
+    size_t deathFlagCount = 0;
 
-    componentStoresPtr_->GetAllComponents<Project001::DeathFlagComponent>(deathFlagComponentPtrs, deathFlagComponentCount);
+    componentStoresPtr_->GetAllComponents<DeathFlag>(deathFlagArray, deathFlagCount);
 
-    for (unsigned int i = 0; i < deathFlagComponentCount; ++i)
+    for (unsigned int i = 0; i < deathFlagCount; ++i)
     {
-        Project001::DeathFlagComponent& currentDeathFlagComponent = deathFlagComponentPtrs[i];
-        if (currentDeathFlagComponent.dead)
+        DeathFlag& currentDeathFlag = deathFlagArray[i];
+        if (currentDeathFlag.dead)
         {
-            componentStoresPtr_->DeleteEntity(currentDeathFlagComponent.entityId);
+            unsigned int entityId = (unsigned int)-1;
+            componentStoresPtr_->GetComponentEntityId<DeathFlag>(&currentDeathFlag, entityId);
+            componentStoresPtr_->DeleteEntity(entityId);
         }
     }
 }
@@ -558,97 +555,85 @@ void TestScene::RenderRenderableEntities()
 
     rendererPtr_->ClearBuffers();
 
-    Project001::LightComponent* lightComponentPtrs = nullptr;
-    size_t lightComponentCount = 0;
+    Project001::LightSource* lightSourceArray = nullptr;
+    size_t lightSourceCount = 0;
     
-    componentStoresPtr_->GetAllComponents<Project001::LightComponent>(lightComponentPtrs, lightComponentCount);
+    componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount);
     
-    for (unsigned int i = 0; i < lightComponentCount; ++i)
+    for (unsigned int i = 0; i < lightSourceCount; ++i)
     {
-        Project001::LightComponent& currentLightComponent = lightComponentPtrs[i];
-        if (currentLightComponent.turnedOn)
+        Project001::LightSource& currentLightSource = lightSourceArray[i];
+        if (currentLightSource.IsTurnedOn())
         {
-            Project001::LightComponent::LightType lightType = currentLightComponent.lightType;
-    
-            if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_DIRECTIONAL_LIGHT)
+            if (currentLightSource.IsLightTypeDirectional())
             {
                 rendererPtr_->SetDirectionalLight(
-                    currentLightComponent.direction,
-                    currentLightComponent.ambient,
-                    currentLightComponent.diffuse,
-                    currentLightComponent.specular
+                    currentLightSource.GetDirection(),
+                    currentLightSource.GetAmbientColor(),
+                    currentLightSource.GetDiffuseColor(),
+                    currentLightSource.GetSpecularColor()
                 );
             }
-            else if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_POINT_LIGHT)
+            else if (currentLightSource.IsLightTypePoint())
             {
                 rendererPtr_->AddPointLight(
-                    currentLightComponent.position,
-                    currentLightComponent.constant,
-                    currentLightComponent.linear,
-                    currentLightComponent.quadratic,
-                    currentLightComponent.ambient,
-                    currentLightComponent.diffuse,
-                    currentLightComponent.specular
+                    currentLightSource.GetPosition(),
+                    currentLightSource.GetAttenuationConstant(),
+                    currentLightSource.GetLinearAttenuation(),
+                    currentLightSource.GetQuadraticAttenuation(),
+                    currentLightSource.GetAmbientColor(),
+                    currentLightSource.GetDiffuseColor(),
+                    currentLightSource.GetSpecularColor()
                 );
             }
-            else if (lightType == Project001::LightComponent::LightType::LIGHT_TYPE_SPOT_LIGHT)
+            else if (currentLightSource.IsLightTypeSpot())
             {
                 rendererPtr_->AddSpotLight(
-                    currentLightComponent.position,
-                    currentLightComponent.direction,
-                    currentLightComponent.cutoff,
-                    currentLightComponent.outerCutoff,
-                    currentLightComponent.constant,
-                    currentLightComponent.linear,
-                    currentLightComponent.quadratic,
-                    currentLightComponent.ambient,
-                    currentLightComponent.diffuse,
-                    currentLightComponent.specular
+                    currentLightSource.GetPosition(),
+                    currentLightSource.GetDirection(),
+                    currentLightSource.GetCutoff(),
+                    currentLightSource.GetOuterCutoff(),
+                    currentLightSource.GetAttenuationConstant(),
+                    currentLightSource.GetLinearAttenuation(),
+                    currentLightSource.GetQuadraticAttenuation(),
+                    currentLightSource.GetAmbientColor(),
+                    currentLightSource.GetDiffuseColor(),
+                    currentLightSource.GetSpecularColor()
                 );
             }
         }
     }
 
-    Project001::RenderedModelComponent* renderedModelComponentPtrs = nullptr;
-    size_t renderedModelComponentCount = 0;
+    Project001::RenderedModel* renderedModelArray = nullptr;
+    size_t renderedModelCount = 0;
     
-    componentStoresPtr_->GetAllComponents<Project001::RenderedModelComponent>(renderedModelComponentPtrs, renderedModelComponentCount);
+    componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
     
-    for (unsigned int i = 0; i < renderedModelComponentCount; ++i)
+    for (unsigned int i = 0; i < renderedModelCount; ++i)
     {
-        Project001::RenderedModelComponent& currentRenderedModelComponent = renderedModelComponentPtrs[i];
+        Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
 
         rendererPtr_->AddModel(
-            currentRenderedModelComponent.modelIndex,
-            currentRenderedModelComponent.textureIndex,
-            currentRenderedModelComponent.specularIndex,
-            currentRenderedModelComponent.shininess,
-            currentRenderedModelComponent.color,
-            currentRenderedModelComponent.scale,
-            currentRenderedModelComponent.position,
-            currentRenderedModelComponent.orientation
+            currentRenderedModel.GetModelIndex(),
+            currentRenderedModel.GetTextureIndex(),
+            currentRenderedModel.GetSpecularIndex(),
+            currentRenderedModel.GetShininess(),
+            currentRenderedModel.GetColor(),
+            currentRenderedModel.GetScale(),
+            currentRenderedModel.GetPosition(),
+            currentRenderedModel.GetOrientation()
         );
     }
 
-    Project001::CameraComponent* cameraComponentPtrs = nullptr;
-    size_t cameraComponentCount = 0;
-    
-    componentStoresPtr_->GetAllComponents<Project001::CameraComponent>(cameraComponentPtrs, cameraComponentCount);
-    
-    for (unsigned int i = 0; i < cameraComponentCount; ++i)
-    {
-        Project001::CameraComponent& currentCameraComponent = cameraComponentPtrs[i];
-        if (currentCameraComponent.turnedOn)
-        {
-            rendererPtr_->SetViewMatrix(currentCameraComponent.GetViewMatrix());
-            rendererPtr_->SetViewPosition(currentCameraComponent.position);
-            rendererPtr_->SetProjectionMatrix(currentCameraComponent.GetProjectionMatrix());
+    Project001::Camera* cameraPtr;
+    componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
 
-            rendererPtr_->Render();
-    
-            // Only rendering with one camera for now...
-            break;
-        }
+    if (cameraPtr->IsTurnedOn())
+    {
+        rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
+        rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
+        rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
+        rendererPtr_->Render();
     }
 }
 
@@ -660,27 +645,53 @@ void TestScene::ComponentContainerTest() const
 
     Project001::ComponentContainer testComponentContainer;
 
-    testBool = testComponentContainer.CreateComponent<Project001::TestComponent>(0, 10, 10, 10);
-    testBool = testComponentContainer.CreateComponent<Project001::TestComponent>(0, 10, 10, 10);
-    testBool = testComponentContainer.CreateComponent<Project001::TestComponent>(1, 20, 20, 20);
-    testBool = testComponentContainer.CreateComponent<Project001::TestComponent>(2, 30, 30, 30);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(0, 10, 10, 10);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(0, 10, 10, 10);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(1, 20, 20, 20);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(2, 30, 30, 30);
 
-    Project001::TestComponent* testComponent0 = nullptr;
-    Project001::TestComponent* testComponent1 = nullptr;
-    Project001::TestComponent* testComponent2 = nullptr;
+    TestComponent00* testComponent0 = nullptr;
+    TestComponent00* testComponent1 = nullptr;
+    TestComponent00* testComponent2 = nullptr;
 
-    testBool = testComponentContainer.GetComponent<Project001::TestComponent>(0, testComponent0);
-    testBool = testComponentContainer.GetComponent<Project001::TestComponent>(1, testComponent1);
-    testBool = testComponentContainer.GetComponent<Project001::TestComponent>(2, testComponent2);
+    testBool = testComponentContainer.GetComponent<TestComponent00>(0, testComponent0);
+    testBool = testComponentContainer.GetComponent<TestComponent00>(1, testComponent1);
+    testBool = testComponentContainer.GetComponent<TestComponent00>(2, testComponent2);
 
-    Project001::TestComponent* allTestComponents = nullptr;
+    TestComponent00* allTestComponents = nullptr;
     size_t count = 0;
 
-    testBool = testComponentContainer.GetAllComponents<Project001::TestComponent>(allTestComponents, count);
+    testBool = testComponentContainer.GetAllComponents<TestComponent00>(allTestComponents, count);
 
     testBool = testComponentContainer.DeleteComponent(0);
     testBool = testComponentContainer.DeleteComponent(0);
-    testBool = testComponentContainer.GetComponent<Project001::TestComponent>(0, testComponent0);
+    testBool = testComponentContainer.GetComponent<TestComponent00>(0, testComponent0);
+
+    testBool = testComponentContainer.GetAllComponents<TestComponent00>(allTestComponents, count);
+
+    testComponentContainer.DeleteAllComponents();
+
+    testBool = testComponentContainer.GetAllComponents<TestComponent00>(allTestComponents, count);
+
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(0, 11, 11, 11);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(0, 11, 11, 11);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(1, 22, 22, 22);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(2, 33, 33, 33);
+    testBool = testComponentContainer.CreateComponent<TestComponent00>(3, 44, 44, 44);
+
+    testBool = testComponentContainer.GetComponent<TestComponent00>(0, testComponent0);
+    testBool = testComponentContainer.GetComponent<TestComponent00>(1, testComponent1);
+
+    unsigned int returnedEntityId0 = (unsigned int)-1;
+    unsigned int returnedEntityId1 = (unsigned int)-1;
+    unsigned int returnedEntityId2 = (unsigned int)-1;
+    testBool = testComponentContainer.GetComponentEntityId<TestComponent00>(testComponent0, returnedEntityId0);
+    testBool = testComponentContainer.GetComponentEntityId<TestComponent00>(testComponent1, returnedEntityId1);
+    testBool = testComponentContainer.GetComponentEntityId<TestComponent00>(testComponent2, returnedEntityId2);
+
+    testComponentContainer.DeleteAllComponents();
+
+    testBool = testComponentContainer.GetAllComponents<TestComponent00>(allTestComponents, count);
 }
 
 void TestScene::ComponentStoresTest() const
@@ -689,19 +700,19 @@ void TestScene::ComponentStoresTest() const
 
     Project001::ComponentStores testComponentStores;
 
-    testBool = testComponentStores.CreateComponent<Project001::TestComponent>(0, 0, 0, 0);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(0, 0, 0, 0);
 
     unsigned int entity0;
     testBool = testComponentStores.CreateEntity(entity0);
-    testBool = testComponentStores.CreateComponent<Project001::TestComponent>(entity0, 10, 10, 10);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity0, 10, 10, 10);
 
     unsigned int entity1;
     testBool = testComponentStores.CreateEntity(entity1);
-    testBool = testComponentStores.CreateComponent<Project001::TestComponent>(entity1, 11, 11, 11);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity1, 11, 11, 11);
 
     unsigned int entity2;
     testBool = testComponentStores.CreateEntity(entity2);
-    testBool = testComponentStores.CreateComponent<Project001::TestComponent>(entity2, 12, 12, 12);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity2, 12, 12, 12);
 
     testBool = testComponentStores.DeleteEntity(9);
     testBool = testComponentStores.DeleteEntity(entity0);
@@ -709,11 +720,55 @@ void TestScene::ComponentStoresTest() const
 
     unsigned int entity3;
     testBool = testComponentStores.CreateEntity(entity3);
-    testBool = testComponentStores.CreateComponent<Project001::TestComponent>(entity3, 13, 13, 13);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity3, 13, 13, 13);
 
-    Project001::TestComponent* testComponent0 = nullptr;
-    testBool = testComponentStores.GetComponent<Project001::TestComponent>(entity1, testComponent0);
+    TestComponent00* testComponent0 = nullptr;
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity1, testComponent0);
     int sum = testComponent0->GetSum();
+
+    testBool = testComponentStores.DeleteAllComponents<TestComponent00>();
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity0, testComponent0);
+
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity0, 20, 20, 20);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity1, 21, 21, 21);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity2, 22, 22, 22);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity3, 23, 23, 23);
+
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity0, testComponent0);
+
+    testComponentStores.DeleteAllEntities();
+
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity0, testComponent0);
+
+    testBool = testComponentStores.CreateEntity(entity0);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity0, 20, 20, 20);
+    testBool = testComponentStores.CreateEntity(entity1);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity1, 21, 21, 21);
+    testBool = testComponentStores.CreateEntity(entity2);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity2, 22, 22, 22);
+    testBool = testComponentStores.CreateEntity(entity3);
+    testBool = testComponentStores.CreateComponent<TestComponent00>(entity3, 23, 23, 23);
+
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity0, testComponent0);
+
+    TestComponent00* testComponent1 = nullptr;
+    testBool = testComponentStores.GetComponent<TestComponent00>(entity1, testComponent1);
+
+    TestComponent00* testComponent2 = nullptr;
+
+    unsigned int testEntityId0 = (unsigned int)-1;
+    testBool = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0, testEntityId0);
+    unsigned int testEntityId1 = (unsigned int)-1;
+    testBool = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent1, testEntityId1);
+    unsigned int testEntityId2 = (unsigned int)-1;
+    testBool = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent2, testEntityId2);
+
+    TestComponent00* allTestComponents = nullptr;
+    size_t count = 0;
+
+    testBool = testComponentStores.GetAllComponents<TestComponent00>(allTestComponents, count);
+
+    testBool = testComponentStores.GetComponentEntityId<TestComponent00>(&allTestComponents[2], testEntityId2);
 }
 
 void TestScene::LRUArrayTest() const

@@ -15,36 +15,46 @@ namespace Project001
 
     void ComponentContainer::DeleteAllComponents()
     {
-        for (unsigned int i = 0; i < componentIndicies_.size(); ++i)
+        for (unsigned int i = 0; i < entityIdToComponentMemoryIndicies_.size(); ++i)
         {
-            int deletedIndex = componentIndicies_[i];
-            void* deletedComponent = (void*)&componentMemory_[deletedIndex];
-            ComponentDestructionFunction(deletedComponent);
-            componentIndicies_[i] = -1;
+            int deletedComponentMemoryIndex = entityIdToComponentMemoryIndicies_[i];
+            if (deletedComponentMemoryIndex >= 0)
+            {
+                void* deletedComponent = (void*)&componentMemory_[deletedComponentMemoryIndex];
+                ComponentDestructionFunction(deletedComponent);
+                entityIdToComponentMemoryIndicies_[i] = -1;
+            }
         }
         componentMemory_.resize(0);
+        componentEntityIds_.resize(0);
     }
 
-    bool ComponentContainer::DeleteComponent(unsigned int entityId)
+    bool ComponentContainer::DeleteComponent(const unsigned int entityId)
     {
         if (!ComponentExists(entityId))
         {
             return false;
         }
 
-        int deletedIndex = componentIndicies_[entityId];
-        void* deletedComponent = (void*)&componentMemory_[deletedIndex];
+        int deletedComponentMemoryIndex = entityIdToComponentMemoryIndicies_[entityId];
+        void* deletedComponentPtr = (void*)&componentMemory_[deletedComponentMemoryIndex];
 
-        int lastIndex = (int)(componentMemory_.size() - componentSize_);
-        BaseComponent* lastComponent = (BaseComponent*)&componentMemory_[lastIndex];
-        int lastIndexIndex = lastComponent->entityId;
+        int lastComponentMemoryIndex = (int)(componentMemory_.size() - componentSize_);
+        void* lastComponentPtr = (void*)&componentMemory_[lastComponentMemoryIndex];
 
-        ComponentDestructionFunction(deletedComponent);
-        ::memcpy(deletedComponent, lastComponent, componentSize_);
-        componentIndicies_[entityId] = -1;
-        componentIndicies_[lastIndexIndex] = deletedIndex;
+        int lastComponentEntityIdIndex = lastComponentMemoryIndex / (int)componentSize_;
+        unsigned int lastComponentEntityId = componentEntityIds_[lastComponentEntityIdIndex];
 
-        componentMemory_.resize(lastIndex);
+        ComponentDestructionFunction(deletedComponentPtr);
+        ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
+        entityIdToComponentMemoryIndicies_[entityId] = -1;
+        entityIdToComponentMemoryIndicies_[lastComponentEntityId] = deletedComponentMemoryIndex;
+
+        int deletedComponentEntityIdIndex = deletedComponentMemoryIndex / (int)componentSize_;
+        componentEntityIds_[deletedComponentEntityIdIndex] = lastComponentEntityId;
+
+        componentMemory_.resize(lastComponentMemoryIndex);
+        componentEntityIds_.resize(lastComponentEntityIdIndex);
 
         return true;
     }

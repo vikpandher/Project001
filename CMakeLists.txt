@@ -17,8 +17,14 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 set(SOURCE_FILES
     "Src/Main.cpp"
+    "Src/DeathFlag.cpp"
+    "Src/DeathFlag.h"
+    "Src/TestComponents.cpp"
+    "Src/TestComponents.h"
     "Src/TestScene.cpp"
     "Src/TestScene.h"
+    "Src/TestSceneData.cpp"
+    "Src/TestSceneData.h"
 )
 
 source_group("Src" FILES ${SOURCE_FILES})
@@ -26,7 +32,6 @@ source_group("Src" FILES ${SOURCE_FILES})
 set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
-    "Src/Engine/Component.h"
     "Src/Engine/ComponentContainer.cpp"
     "Src/Engine/ComponentContainer.h"
     "Src/Engine/ComponentStores.cpp"
@@ -44,8 +49,6 @@ set(ENGINE_FILES
     "Src/Engine/Renderer.cpp"
     "Src/Engine/Renderer.h"
     "Src/Engine/Scene.h"
-    "Src/Engine/SceneComponents.cpp"
-    "Src/Engine/SceneComponents.h"
     "Src/Engine/TextureStores.cpp"
     "Src/Engine/TextureStores.h"
     "Src/Engine/Window.cpp"
@@ -54,10 +57,30 @@ set(ENGINE_FILES
 
 source_group("Src/Engine" FILES ${ENGINE_FILES})
 
+set (ENGINE_COMPONENTS_FILES
+    "Src/Engine/Components/Camera.cpp"
+    "Src/Engine/Components/Camera.h"
+    "Src/Engine/Components/LightSource.cpp"
+    "Src/Engine/Components/LightSource.h"
+    "Src/Engine/Components/Model.cpp"
+    "Src/Engine/Components/Model.h"
+    "Src/Engine/Components/Placement.cpp"
+    "Src/Engine/Components/Placement.h"
+    "Src/Engine/Components/Position.cpp"
+    "Src/Engine/Components/Position.h"
+    "Src/Engine/Components/RenderedModel.cpp"
+    "Src/Engine/Components/RenderedModel.h"
+)
+
+source_group("Src/Engine/Components" FILES ${ENGINE_COMPONENTS_FILES})
+
 set(PLATFORM_FILES
     "Src/Platform/glad.c"
+    "Src/Platform/OpenGLError.h"
     "Src/Platform/OpenGLRenderer.cpp"
     "Src/Platform/OpenGLRenderer.h"
+    #"Src/Platform/OpenGLRendererAlt.cpp"
+    #"Src/Platform/OpenGLRendererAlt.h"
     "Src/Platform/OpenGLShader.cpp"
     "Src/Platform/OpenGLShader.h"
     "Src/Platform/OpenGLTexture.cpp"
@@ -73,6 +96,7 @@ source_group("Src/Platform" FILES ${PLATFORM_FILES})
 add_executable("${PROJECT_NAME}" # WIN32
     ${SOURCE_FILES}
     ${ENGINE_FILES}
+    ${ENGINE_COMPONENTS_FILES}
     ${PLATFORM_FILES}
 )
 
@@ -96,6 +120,7 @@ target_link_libraries("${PROJECT_NAME}"
 )
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
+
 set_target_properties("${PROJECT_NAME}" PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}"

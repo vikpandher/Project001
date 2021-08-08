@@ -25,9 +25,20 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+            Project001::Logger::Error("SHADER::PROGRAM::LINKING_FAILED");
             Project001::Logger::Error(infoLog);
         }
+        glValidateProgram(programId_);
+        glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(programId_, 512, NULL, infoLog);
+            Project001::Logger::Error("SHADER::PROGRAM::VALIDATE_FAILED");
+            Project001::Logger::Error(infoLog);
+        }
+
+        glDetachShader(programId_, vertexShaderId);
+        glDetachShader(programId_, fragmentShaderId);
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
@@ -52,9 +63,21 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+            Project001::Logger::Error("SHADER::PROGRAM::LINKING_FAILED");
             Project001::Logger::Error(infoLog);
         }
+        glValidateProgram(programId_);
+        glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(programId_, 512, NULL, infoLog);
+            Project001::Logger::Error("SHADER::PROGRAM::VALIDATE_FAILED");
+            Project001::Logger::Error(infoLog);
+        }
+
+        glDetachShader(programId_, vertexShaderId);
+        glDetachShader(programId_, geometryShaderId);
+        glDetachShader(programId_, fragmentShaderId);
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(geometryShaderId);

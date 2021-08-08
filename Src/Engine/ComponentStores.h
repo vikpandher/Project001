@@ -23,7 +23,6 @@ namespace Project001
 
         bool CreateEntity(unsigned int& entityId);
 
-        // NEED TO TEST
         void DeleteAllEntities();
 
         bool DeleteEntity(unsigned int entityId);
@@ -38,7 +37,7 @@ namespace Project001
                 return false;
             }
 
-            unsigned int componentTypeId = Component::typeId;
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
             if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent(componentTypeId))
             {
                 return false;
@@ -49,27 +48,9 @@ namespace Project001
         }
 
         template <typename Component>
-        bool GetComponent(unsigned int entityId, Component*& componentPtr)
-        {
-            if (!EntityExists(entityId))
-            {
-                return false;
-            }
-
-            unsigned int componentTypeId = Component::typeId;
-            if (!ComponentTypeExists(componentTypeId))
-            {
-                return false;
-            }
-
-            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-            return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, componentPtr);
-        }
-
-        template <typename Component>
         bool GetAllComponents(Component*& compoonentPtrs, size_t& count)
         {
-            unsigned int componentTypeId = Component::typeId;
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
             if (!ComponentTypeExists(componentTypeId))
             {
                 count = 0;
@@ -80,11 +61,41 @@ namespace Project001
             return componentContainers_[componentContainerIndex].GetAllComponents<Component>(compoonentPtrs, count);
         }
 
-        // NEED TO TEST
+        template <typename Component>
+        bool GetComponent(unsigned int entityId, Component*& componentPtr)
+        {
+            if (!EntityExists(entityId))
+            {
+                return false;
+            }
+
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
+
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].GetComponent<Component>(entityId, componentPtr);
+        }
+
+        template <typename Component>
+        bool GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId)
+        {
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+            if (!ComponentTypeExists(componentTypeId))
+            {
+                return false;
+            }
+
+            unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+            return componentContainers_[componentContainerIndex].GetComponentEntityId<Component>(componentPtr, entityId);
+        }
+
         template <typename Component>
         bool DeleteAllComponents()
         {
-            unsigned int componentTypeId = Component::typeId;
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
             if (!ComponentTypeExists(componentTypeId))
             {
                 return false;
@@ -104,7 +115,7 @@ namespace Project001
                 return false;
             }
 
-            unsigned int componentTypeId = Component::typeId;
+            unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
             if (!ComponentTypeExists(componentTypeId))
             {
                 return false;
@@ -119,7 +130,7 @@ namespace Project001
     private:
         inline bool EntityExists(unsigned int entityId) const
         {
-            return entityId < nextHighestEntityId_ && !entityDeletedFlags_[entityId];
+            return entityId < entityDeletedFlags_.size() && !entityDeletedFlags_[entityId];
         }
 
         inline bool ComponentTypeExists(unsigned int componentTypeId) const
@@ -131,8 +142,6 @@ namespace Project001
 
         static const unsigned int s_maxNumberOfEntities_ = 128;
         static const unsigned int s_maxTypesOfComponents_ = 32;
-
-        unsigned int nextHighestEntityId_;
 
         std::queue<unsigned int> recycledEntityIds_;
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine/MathConstants.h"
-
 #include "glm/glm.hpp"
 
 

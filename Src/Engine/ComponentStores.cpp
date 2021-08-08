@@ -5,7 +5,6 @@
 namespace Project001
 {
     ComponentStores::ComponentStores()
-        : nextHighestEntityId_(0)
     {}
 
     ComponentStores::~ComponentStores()
@@ -15,12 +14,14 @@ namespace Project001
     {
         if (recycledEntityIds_.empty())
         {
-            if (nextHighestEntityId_ > s_maxNumberOfEntities_)
+            unsigned int numberOfEntities = (unsigned int)entityDeletedFlags_.size();
+
+            if (numberOfEntities > s_maxNumberOfEntities_)
             {
                 return false;
             }
 
-            entityId = nextHighestEntityId_++;
+            entityId = numberOfEntities;
 
             entityDeletedFlags_.push_back(false);
         }

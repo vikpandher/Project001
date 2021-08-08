@@ -1,8 +1,7 @@
 #pragma once
 
+#include <typeinfo>
 #include <vector>
-
-#include "Component.h"
 
 
 
@@ -16,15 +15,16 @@ namespace Project001
         ~ComponentContainer();
 
         template <typename Component, typename... Args>
-        bool CreateComponent(unsigned int entityId, Args... args)
+        bool CreateComponent(const unsigned int entityId, Args... args)
         {
+            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
             if (componentMemory_.empty())
             {
-                typeId_ = Component::typeId;
+                typeId_ = componentTypeId;
                 componentSize_ = sizeof(Component);
                 ComponentDestructionFunction = [](void* componentPtr) { ((Component*)componentPtr)->~Component(); };
             }
-            else if (!TypeIdValid(Component::typeId))
+            else if (!TypeIdValid(componentTypeId))
             {
                 return false;
             }
@@ -34,64 +34,93 @@ namespace Project001
                 return false;
             }
 
-            size_t componentIndex = componentMemory_.size();
+            size_t componentMemoryIndex = componentMemory_.size();
 
-            componentMemory_.resize(componentIndex + componentSize_);
+            componentMemory_.resize(componentMemoryIndex + componentSize_);
 
-            void* destination = componentMemory_.data() + componentIndex;
+            Component* newComponentPtr = new(&componentMemory_[componentMemoryIndex]) Component(args...);
+            componentEntityIds_.push_back(entityId);
 
-            Component* newComponent = new(&componentMemory_[componentIndex]) Component(args...);
-            newComponent->entityId = entityId;
-
-            if (entityId >= componentIndicies_.size())
+            if (entityId >= entityIdToComponentMemoryIndicies_.size())
             {
-                componentIndicies_.resize((size_t)entityId + 1, -1);
+                entityIdToComponentMemoryIndicies_.resize((size_t)entityId + 1, -1);
             }
 
-            componentIndicies_[entityId] = (int)componentIndex;
+            entityIdToComponentMemoryIndicies_[entityId] = (int)componentMemoryIndex;
 
             return true;
         }
 
         template <typename Component>
-        bool GetComponent(unsigned int entityId, Component*& componentPtr)
+        bool GetAllComponents(Component*& componentPtrs, size_t& count)
         {
-            if (!TypeIdValid(Component::typeId) || !ComponentExists(entityId))
-            {
-                return false;
-            }
-
-            componentPtr = (Component*)&componentMemory_[componentIndicies_[entityId]];
-
-            return true;
-        }
-
-        template <typename Component>
-        bool GetAllComponents(Component*& compoonentPtrs, size_t& count)
-        {
-            if (!TypeIdValid(Component::typeId))
+            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            if (!TypeIdValid(componentTypeId))
             {
                 count = 0;
                 return false;
             }
 
-            compoonentPtrs = (Component*)componentMemory_.data();
+            componentPtrs = (Component*)componentMemory_.data();
             count = componentMemory_.size() / sizeof(Component);
 
             return true;
         }
 
-        // NEED TO TEST
+        template <typename Component>
+        bool GetComponent(const unsigned int entityId, Component*& componentPtr)
+        {
+            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            if (!TypeIdValid(componentTypeId) || !ComponentExists(entityId))
+            {
+                return false;
+            }
+
+            componentPtr = (Component*)&componentMemory_[entityIdToComponentMemoryIndicies_[entityId]];
+
+            return true;
+        }
+
+        template <typename Component>
+        bool GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId)
+        {
+            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            if (!TypeIdValid(componentTypeId))
+            {
+                return false;
+            }
+
+            Component* firstComponentPtr = (Component*)componentMemory_.data();
+            Component* lastComponentPtr = firstComponentPtr + componentEntityIds_.size() - 1;
+
+            if (componentPtr < firstComponentPtr || componentPtr > lastComponentPtr)
+            {
+                return false;
+            }
+
+            size_t componentOffset = (size_t)componentPtr - (size_t)firstComponentPtr;
+
+            if (componentOffset % componentSize_ != 0)
+            {
+                return false;
+            }
+
+            size_t componentEntityIdIndex = componentOffset / componentSize_;
+            entityId = componentEntityIds_[componentEntityIdIndex];
+
+            return true;
+        }
+
         void DeleteAllComponents();
 
-        bool DeleteComponent(unsigned int entityId);
+        bool DeleteComponent(const unsigned int entityId);
 
     protected:
 
     private:
         inline bool ComponentExists(unsigned int entityId) const
         {
-            return entityId < componentIndicies_.size() && componentIndicies_[entityId] >= 0;
+            return entityId < entityIdToComponentMemoryIndicies_.size() && entityIdToComponentMemoryIndicies_[entityId] >= 0;
         }
 
         inline bool TypeIdValid(int testTypeId) const
@@ -108,14 +137,22 @@ namespace Project001
         size_t componentSize_;
 
         // This is used to call the destructor when deleting components.
-        void (*ComponentDestructionFunction)(void* component);
+        void (*ComponentDestructionFunction)(void* componentPtr);
 
         // Components are stored in "componentMemory_".
         std::vector<unsigned char> componentMemory_;
 
-        // The index of a component in "componentMemory_" is stored in
-        // "componentIndicies_".
-        // The indicies of "componentIndicies_" correspond with entityIds.
-        std::vector<int> componentIndicies_;
+        // The EntityIds of the components in "componentMemory_" are stored in
+        // "componentEntityIds_".
+        // 
+        // The indicies of components in "componentMemory_" are in the same
+        // order as the indicies of those components' EntityIds in 
+        // "componentEntityIds_".
+        std::vector<unsigned int> componentEntityIds_;
+
+        // The indicies of "entityIdToComponentMemoryIndicies_" correspond with
+        // entityIds and the values correspond with indicies into 
+        // "componentMemory_".
+        std::vector<int> entityIdToComponentMemoryIndicies_;
     };
 }

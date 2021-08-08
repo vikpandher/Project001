@@ -78,9 +78,7 @@ namespace Project001
         void CheckAndMakeContextCurrent();
 
         // determines the size of the index and vertex buffers
-        // static const unsigned int s_bufferCapacity_ = 36 * 10;
-        static const unsigned int s_indexBufferCapacity_ = 36 * 20;
-        static const unsigned int s_vertexBufferCapacity_ = 36 * 16;
+        static const unsigned int s_bufferCapacity_ = 36 * 10;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
 
@@ -100,11 +98,9 @@ namespace Project001
         // the buffer holds the blob of data that will be displayed
         unsigned int vertexBufferId_;
 
-        // this holds the index buffer's id
-        unsigned int indexBufferId_;
-
         // this holds the vertex array's id
-        // the vertex array holds information about the size, shape, and type of array
+        // the vertex array holds information about the vertex attribute
+        // locations
         unsigned int vertexArrayId_;
 
         OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
@@ -118,7 +114,6 @@ namespace Project001
         std::vector<SpotLight> spotLights_;
 
         std::vector<VertexData> vertexBuffer_;
-        std::vector<glm::uint> indexBuffer_;
 
     private:
     };
@@ -231,6 +226,5 @@ namespace Project001
     inline void OpenGLRenderer::ClearBuffers()
     {
         vertexBuffer_.clear();
-        indexBuffer_.clear();
     }
 }
