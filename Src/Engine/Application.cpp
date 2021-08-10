@@ -5,7 +5,7 @@
 
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
-#include "Engine/ModelStores.h"
+#include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
 #include "Engine/Scene.h"
 #include "Engine/TextureStores.h"
@@ -30,10 +30,10 @@ namespace Project001
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-        modelStoresPtr_ = new ModelStores();
+        meshStoresPtr_ = new MeshStores();
         textureStoresPtr_ = new TextureStores();
 
-        rendererPtr_ = Renderer::Create(modelStoresPtr_, textureStoresPtr_);
+        rendererPtr_ = Renderer::Create(meshStoresPtr_, textureStoresPtr_);
     }
 
     Application::~Application()
@@ -43,9 +43,9 @@ namespace Project001
             delete componentStoresPtr_;
         }
 
-        if (modelStoresPtr_ != nullptr)
+        if (meshStoresPtr_ != nullptr)
         {
-            delete modelStoresPtr_;
+            delete meshStoresPtr_;
         }
 
         if (textureStoresPtr_ != nullptr)
@@ -88,7 +88,7 @@ namespace Project001
 
         if (activeScenePtr_ != nullptr)
         {
-            activeScenePtr_->Initialize(componentStoresPtr_, modelStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
+            activeScenePtr_->Initialize(componentStoresPtr_, meshStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
             running_ = true;
         }
 
@@ -133,7 +133,7 @@ namespace Project001
         if (sceneMap_.find(name) != sceneMap_.end())
         {
             Scene* currentScenePtr_ = sceneMap_[name];
-            currentScenePtr_->Initialize(componentStoresPtr_,modelStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
+            currentScenePtr_->Initialize(componentStoresPtr_,meshStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
         }
         initializeSceneEvent.handled = true;
     }

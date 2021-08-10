@@ -43,8 +43,8 @@ set(ENGINE_FILES
     "Src/Engine/MathConstants.h"
     "Src/Engine/MathFunctions.cpp"
     "Src/Engine/MathFunctions.h"
-    "Src/Engine/ModelStores.cpp"
-    "Src/Engine/ModelStores.h"
+    "Src/Engine/MeshStores.cpp"
+    "Src/Engine/MeshStores.h"
     "Src/Engine/RenderData.h"
     "Src/Engine/Renderer.cpp"
     "Src/Engine/Renderer.h"
@@ -75,22 +75,22 @@ set (ENGINE_COMPONENTS_FILES
 source_group("Src/Engine/Components" FILES ${ENGINE_COMPONENTS_FILES})
 
 set(PLATFORM_FILES
-    "Src/Platform/glad.c"
-    "Src/Platform/OpenGLError.h"
-    "Src/Platform/OpenGLRenderer.cpp"
-    "Src/Platform/OpenGLRenderer.h"
-    #"Src/Platform/OpenGLRendererAlt.cpp"
-    #"Src/Platform/OpenGLRendererAlt.h"
-    "Src/Platform/OpenGLShader.cpp"
-    "Src/Platform/OpenGLShader.h"
-    "Src/Platform/OpenGLTexture.cpp"
-    "Src/Platform/OpenGLTexture.h"
-    "Src/Platform/OpenGLWindow.cpp"
-    "Src/Platform/OpenGLWindow.h"
-    "Src/Platform/Shaders.h"
+    "Src/Engine/Platform/glad.c"
+    "Src/Engine/Platform/OpenGLError.h"
+    "Src/Engine/Platform/OpenGLRenderer.cpp"
+    "Src/Engine/Platform/OpenGLRenderer.h"
+    #"Src/Engine/Platform/OpenGLRendererAlt.cpp"
+    #"Src/Engine/Platform/OpenGLRendererAlt.h"
+    "Src/Engine/Platform/OpenGLShader.cpp"
+    "Src/Engine/Platform/OpenGLShader.h"
+    "Src/Engine/Platform/OpenGLTexture.cpp"
+    "Src/Engine/Platform/OpenGLTexture.h"
+    "Src/Engine/Platform/OpenGLWindow.cpp"
+    "Src/Engine/Platform/OpenGLWindow.h"
+    "Src/Engine/Platform/Shaders.h"
 )
 
-source_group("Src/Platform" FILES ${PLATFORM_FILES})
+source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
 
 # adding WIN32 makes WinMain() the entry point and so no conole appears
 add_executable("${PROJECT_NAME}" # WIN32

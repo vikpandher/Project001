@@ -1,13 +1,13 @@
 #include "Engine/Renderer.h"
 
-#include "Platform/OpenGLRenderer.h"
+#include "Engine/Platform/OpenGLRenderer.h"
 
 
 
 namespace Project001
 {
-    Renderer* Renderer::Create(ModelStores* modelStoresPtr, TextureStores* textureStoresPtr)
+    Renderer* Renderer::Create(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr)
     {
-        return new OpenGLRenderer(modelStoresPtr, textureStoresPtr);
+        return new OpenGLRenderer(meshStoresPtr, textureStoresPtr);
     }
 }

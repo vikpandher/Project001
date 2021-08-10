@@ -8,7 +8,7 @@
 namespace Project001
 {
     class ComponentStores;
-    class ModelStores;
+    class MeshStores;
     class Renderer;
     class Scene;
     class TextureStores;
@@ -55,7 +55,7 @@ namespace Project001
 
         Window* windowPtr_;
 
-        ModelStores* modelStoresPtr_;
+        MeshStores* meshStoresPtr_;
         TextureStores* textureStoresPtr_;
 
         Renderer* rendererPtr_;

@@ -12,8 +12,8 @@ namespace Project001
         Model();
         ~Model();
 
-        void SetModelIndex(unsigned int modelIndex);
-        unsigned int GetModelIndex() const;
+        void SetMeshIndex(unsigned int meshIndex);
+        unsigned int GetMeshIndex() const;
 
         void SetScale(const glm::vec3& scale);
         void SetScale(float x, float y, float z);
@@ -23,21 +23,21 @@ namespace Project001
         const glm::vec3& GetScale() const;
 
     protected:
-        unsigned int modelIndex_;
+        unsigned int meshIndex_;
 
         glm::vec3 scale_;
 
     private:
     };
 
-    inline void Model::SetModelIndex(unsigned int modelIndex)
+    inline void Model::SetMeshIndex(unsigned int meshIndex)
     {
-        modelIndex_ = modelIndex;
+        meshIndex_ = meshIndex;
     }
 
-    inline unsigned int Model::GetModelIndex() const
+    inline unsigned int Model::GetMeshIndex() const
     {
-        return modelIndex_;
+        return meshIndex_;
     }
 
     inline void Model::SetScale(const glm::vec3& scale)

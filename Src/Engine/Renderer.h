@@ -6,13 +6,13 @@
 
 namespace Project001
 {
-    class ModelStores;
+    class MeshStores;
     class TextureStores;
 
     class Renderer
     {
     public:
-        static Renderer* Create(ModelStores* modelStoresPtr, TextureStores* textureStoresPtr);
+        static Renderer* Create(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr);
 
         virtual void AddTexture(
             unsigned int textureSlot,
@@ -21,7 +21,7 @@ namespace Project001
             int height,
             int numberOfComponents) = 0;
 
-        virtual void SetModelStoresPtr(ModelStores* modelStoresPtr) = 0;
+        virtual void SetmeshStoresPtr(MeshStores* meshStoresPtr) = 0;
         virtual void SetTextureStoresPtr(TextureStores* textureStoresPtr) = 0;
 
         virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
@@ -58,7 +58,7 @@ namespace Project001
         virtual void ClearSpotLights() = 0;
 
         virtual void AddModel(
-            const unsigned int& modelIndex,
+            const unsigned int& meshIndex,
             const unsigned int& textureIndex,
             const unsigned int& specularIndex,
             const float& shininess,

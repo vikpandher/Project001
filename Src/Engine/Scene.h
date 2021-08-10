@@ -7,7 +7,7 @@
 namespace Project001
 {
     class ComponentStores;
-    class ModelStores;
+    class MeshStores;
     class Renderer;
     class TextureStores;
     class Window;
@@ -26,7 +26,7 @@ namespace Project001
 
         virtual void Initialize(
             ComponentStores* componentStoresPtr,
-            ModelStores* modelStoresPtr,
+            MeshStores* meshStoresPtr,
             TextureStores* textureStoresPtr,
             Renderer* rendererPtr,
             Window* windowPtr) = 0;

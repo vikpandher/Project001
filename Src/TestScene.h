@@ -24,7 +24,7 @@ public:
 
     void Initialize(
         Project001::ComponentStores* componentStoresPtr,
-        Project001::ModelStores* modelStoresPtr,
+        Project001::MeshStores* meshStoresPtr,
         Project001::TextureStores* textureStoresPtr,
         Project001::Renderer* rendererPtr,
         Project001::Window* windowPtr) override;
@@ -62,14 +62,14 @@ protected:
     // Pointers from Application: ----------------------------------------------
 
     Project001::ComponentStores* componentStoresPtr_;
-    Project001::ModelStores* modelStoresPtr_;
+    Project001::MeshStores* meshStoresPtr_;
     Project001::Renderer* rendererPtr_;
     Project001::TextureStores* textureStoresPtr_;
     Project001::Window* windowPtr_;
 
     // EntityIds: --------------------------------------------------------------
 
-    unsigned int cubeModelIndex_;
+    unsigned int cubeMeshIndex_;
     unsigned int diceTexture01Index_;
     unsigned int diceTexture02Index_;
     unsigned int thonkTextureIndex_;
@@ -101,7 +101,7 @@ private:
     void ComponentContainerTest() const;
     void ComponentStoresTest() const;
     void LRUArrayTest() const;
-    void ModelStoresTest() const;
+    void MeshStoresTest() const;
     void RendererTest() const;
     void TextureStoresTest() const;
 };
