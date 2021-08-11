@@ -1,5 +1,7 @@
 #include "OpenGLRenderer.h"
 
+#include <algorithm>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -45,8 +47,8 @@ namespace Project001
         glCullFace(GL_BACK);
 
         // blending
-        // glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // NOTE:
         // glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
@@ -198,6 +200,7 @@ namespace Project001
         const unsigned int& specularIndex,
         const float& shininess,
         const glm::vec4& color,
+        const bool& translucent,
         const glm::vec3& scale,
         const glm::vec3& position,
         const glm::quat& orientation)
@@ -215,7 +218,7 @@ namespace Project001
                 textureSlot = (float)textureIndex;
             }
 
-            float specularSlot = 99.0f;
+            float specularSlot = -1.0f;
             if (specularIndex != (unsigned int)-1) // convert specularIndex to specularSlot
             {
                 specularSlot = (float)specularIndex;
@@ -223,7 +226,7 @@ namespace Project001
 
             glm::uint vertexBufferOffset = (glm::uint)vertexBuffer_.size();
 
-            for (unsigned int j = 0; j < meshVertexCount; ++j)
+            for (size_t j = 0; j < meshVertexCount; ++j)
             {
                 Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
 
@@ -242,7 +245,14 @@ namespace Project001
                 newVertex.orientation.z = orientation.z;
                 newVertex.orientation.w = orientation.w;
 
-                vertexBuffer_.push_back(newVertex);
+                if (translucent)
+                {
+                    translucentVertexBuffer_.push_back(newVertex);
+                }
+                else
+                {
+                    vertexBuffer_.push_back(newVertex);
+                }
             }
         }
     }
@@ -334,13 +344,77 @@ namespace Project001
             ++i;
         }
 
+        // Sort Translucent Faces' Verticies
+        // ---------------------------------------------------------------------
+        // Note that faces are sorted based on the average distance of their 3
+        // verticies from the camera.
+        // 
+        // There are cases when translucency may not be rendered correctly:
+        // * If triangles intersect.
+        // * If trangles overlap in a way that some fragments of a closer
+        //   triangle are farther from the camera then a farther triangle's
+        //   fragments.
+        // 
+        // The second case makes it difficult to draw 3d models at certain
+        // angles. Enabling backface culling avoids the second case.
+
+        std::vector<std::pair<size_t, float>> faceDistances;
+        for (size_t i = 2; i < translucentVertexBuffer_.size(); i += 3)
+        {
+            const VertexData& vertex1 = translucentVertexBuffer_[i - 2];
+            const glm::vec3& position1 = vertex1.position;
+            const glm::vec3& translation1 = vertex1.translation;
+
+            const VertexData& vertex2 = translucentVertexBuffer_[i - 1];
+            const glm::vec3& position2 = vertex2.position;
+            const glm::vec3& translation2 = vertex2.translation;
+
+            const VertexData& vertex3 = translucentVertexBuffer_[i];
+            const glm::vec3& position3 = vertex3.position;
+            const glm::vec3& translation3 = vertex3.translation;
+
+            glm::vec3 facePosition = (position1 + translation1 + position2 + translation2 + position3 + translation3) / 3.0f;
+            glm::vec3 viewToFace = facePosition - viewPosition_;
+            float faceDistance = std::sqrtf(viewToFace.x * viewToFace.x + viewToFace.y * viewToFace.y + viewToFace.z * viewToFace.z);
+
+            faceDistances.push_back(std::pair<size_t, float>(i / 3, faceDistance));
+        }
+
+        struct
+        {
+            bool operator()(std::pair<size_t, float> a, std::pair<size_t, float> b) const
+            {
+                return a.second > b.second;
+            }
+        } comparitor;
+
+        std::sort(faceDistances.begin(), faceDistances.end(), comparitor);
+
+        std::vector<VertexData> sortedTranslucentVertexBuffer;
+        for (size_t i = 0; i < faceDistances.size(); ++i)
+        {
+            size_t currentVertexIndex = faceDistances[i].first * 3;
+            sortedTranslucentVertexBuffer.push_back(translucentVertexBuffer_[currentVertexIndex]);
+            sortedTranslucentVertexBuffer.push_back(translucentVertexBuffer_[currentVertexIndex + 1]);
+            sortedTranslucentVertexBuffer.push_back(translucentVertexBuffer_[currentVertexIndex + 2]);
+        }
+
         // Render
         // ---------------------------------------------------------------------
 
         // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        size_t numberOfVerticiesLeft = vertexBuffer_.size();
+        RenderTriangles(vertexBuffer_);
+
+        RenderTriangles(sortedTranslucentVertexBuffer);
+
+        glfwSwapBuffers(glfwWindowPtr_);
+    }
+
+    void OpenGLRenderer::RenderTriangles(const std::vector<VertexData>& vertexBuffer)
+    {
+        size_t numberOfVerticiesLeft = vertexBuffer.size();
         while (numberOfVerticiesLeft > 0)
         {
             size_t numberOfVerticiesDrawnThisDrawCall;
@@ -353,19 +427,17 @@ namespace Project001
                 numberOfVerticiesDrawnThisDrawCall = numberOfVerticiesLeft;
             }
 
-            size_t verticiesOffset = vertexBuffer_.size() - numberOfVerticiesLeft;
+            size_t verticiesOffset = vertexBuffer.size() - numberOfVerticiesLeft;
 
             // upload the vertex data and index data into their respective buffers
             // (target, offset, size, data)
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesDrawnThisDrawCall, &vertexBuffer_[verticiesOffset]);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesDrawnThisDrawCall, &vertexBuffer[verticiesOffset]);
 
             /// glBindVertexArray(vertexArrayId_);
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)numberOfVerticiesDrawnThisDrawCall);
 
             numberOfVerticiesLeft -= numberOfVerticiesDrawnThisDrawCall;
         }
-
-        glfwSwapBuffers(glfwWindowPtr_);
     }
 
     // protected ---------------------------------------------------------------

@@ -63,6 +63,7 @@ namespace Project001
             const unsigned int& specularIndex,
             const float& shininess,
             const glm::vec4& color,
+            const bool& translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
             const glm::quat& orientation) = 0;

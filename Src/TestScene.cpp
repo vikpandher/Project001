@@ -44,6 +44,7 @@ TestScene::TestScene()
     , cubeEntity02Id_((unsigned int)-1)
     , cubeEntity03Id_((unsigned int)-1)
     , cubeEntity04Id_((unsigned int)-1)
+    , cubeEntity05Id_((unsigned int)-1)
     , shape01EntityId_((unsigned int)-1)
     , shape02EntityId_((unsigned int)-1)
     , shape03EntityId_((unsigned int)-1)
@@ -75,7 +76,7 @@ void TestScene::Initialize(
     textureStoresPtr_ = textureStoresPtr;
     windowPtr_ = windowPtr;
 
-    meshStoresPtr_->LoadMesh("../Models/CubeQ.obj", cubeMeshIndex_, false);
+    meshStoresPtr_->LoadMeshOBJ("../Models/CubeQ.obj", cubeMeshIndex_, false);
 
     std::vector<glm::vec2> fanVerticies;
     fanVerticies.emplace_back(0.32f, 0.0f);
@@ -231,9 +232,25 @@ void TestScene::Initialize(
 
         Project001::LightSource* lightSourcePtr;
         componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr);
+        // lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
         lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
         lightSourcePtr->TurnOn();
     }
+
+    // Rendered Models
+    // -------------------------------------------------------------------------
+
+    std::vector<glm::vec3> modelEntityPositions;
+    modelEntityPositions.emplace_back(-2.0f, 1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f, 1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f, 1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f, 1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f, 1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-2.0f, 0.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f, 0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f, 0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f, 0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f, 0.0f, 0.0f);
 
     // cube entity 01
     // -------------------------------------------------------------------------
@@ -243,10 +260,11 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity01Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[0]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(thonkTextureIndex_);
         renderedModelPtr->SetSpecularIndex(thonkSpecularIndex_);
+        renderedModelPtr->SetShininess(32.0f);
     }
 
     // cube entity 02
@@ -257,9 +275,10 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity02Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(-1.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[1]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(diceTexture01Index_);
+        renderedModelPtr->SetShininess(32.0f);
     }
 
     // cube entity 03
@@ -270,13 +289,28 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity03Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(0.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[2]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(diceTexture02Index_);
+        renderedModelPtr->SetShininess(32.0f);
         renderedModelPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
     }
 
     // cube entity 04
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(cubeEntity05Id_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cubeEntity05Id_);
+
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity05Id_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[3]);
+        renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
+        renderedModelPtr->SetColor(1.0f, 1.0f, 1.0f, 0.30f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // cube entity 05
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cubeEntity04Id_);
@@ -284,9 +318,10 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity04Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(1.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[4]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetSpecularIndex(patternSpecularIndex_);
+        renderedModelPtr->SetShininess(32.0f);
         renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
         renderedModelPtr->SetScale(0.5f, 0.75f, 1.0f);
         glm::quat rotationQuaternion = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / 4.0f, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -301,7 +336,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(2.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[5]);
         renderedModelPtr->SetMeshIndex(shape01Index_);
         renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
     }
@@ -314,7 +349,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(-2.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[6]);
         renderedModelPtr->SetMeshIndex(shape02Index_);
         renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
     }
@@ -326,7 +361,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape03EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(-1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[7]);
         renderedModelPtr->SetMeshIndex(shape03Index_);
         renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
     }
@@ -338,18 +373,19 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape04EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[8]);
         renderedModelPtr->SetMeshIndex(shape04Index_);
         renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
     }
 
-    // generated shape entity 04
+    // generated shape entity 05
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(shape05EntityId_);
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape05EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetPosition(modelEntityPositions[9]);
         renderedModelPtr->SetMeshIndex(shape05Index_);
         renderedModelPtr->SetColorRGB(1.0f, 0.5f, 0.5f);
     }
@@ -619,6 +655,7 @@ void TestScene::RenderRenderableEntities()
             currentRenderedModel.GetSpecularIndex(),
             currentRenderedModel.GetShininess(),
             currentRenderedModel.GetColor(),
+            currentRenderedModel.GetTranslucent(),
             currentRenderedModel.GetScale(),
             currentRenderedModel.GetPosition(),
             currentRenderedModel.GetOrientation()
@@ -808,8 +845,8 @@ void TestScene::MeshStoresTest() const
     Project001::MeshStores testMeshStores;
 
     unsigned int model0;
-    testBool = testMeshStores.LoadMesh("", model0);
-    testBool = testMeshStores.LoadMesh("../Models/CubeQ.obj", model0);
+    testBool = testMeshStores.LoadMeshOBJ("", model0);
+    testBool = testMeshStores.LoadMeshOBJ("../Models/CubeQ.obj", model0);
 }
 
 void TestScene::RendererTest() const

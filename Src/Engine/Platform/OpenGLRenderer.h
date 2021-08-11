@@ -66,6 +66,7 @@ namespace Project001
             const unsigned int& specularIndex,
             const float& shininess,
             const glm::vec4& color,
+            const bool& translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
             const glm::quat& orientation) override;
@@ -76,6 +77,8 @@ namespace Project001
 
     protected:
         void CheckAndMakeContextCurrent();
+
+        void RenderTriangles(const std::vector<VertexData>& vertexBuffer);
 
         // determines the size of the index and vertex buffers
         static const unsigned int s_bufferCapacity_ = 36 * 10;
@@ -114,6 +117,7 @@ namespace Project001
         std::vector<SpotLight> spotLights_;
 
         std::vector<VertexData> vertexBuffer_;
+        std::vector<VertexData> translucentVertexBuffer_;
 
     private:
     };
@@ -226,5 +230,6 @@ namespace Project001
     inline void OpenGLRenderer::ClearBuffers()
     {
         vertexBuffer_.clear();
+        translucentVertexBuffer_.clear();
     }
 }

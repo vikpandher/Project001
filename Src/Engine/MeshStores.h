@@ -34,7 +34,7 @@ namespace Project001
         // If more meshes are added, the pointers returned are nolonger valid.
         bool GetMesh(glm::uint index, MeshVertex*& firstVertexPtr, glm::uint& vertexCount, glm::uint*& firstIndexPtr, glm::uint& indexCount);
 
-        bool LoadMesh(const std::string& path, glm::uint& index, bool normalizeSize = true, bool recenter = true, bool triangulate = true);
+        bool LoadMeshOBJ(const std::string& path, glm::uint& index, bool normalizeSize = true, bool recenter = true, bool triangulate = true);
 
         bool Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter = true, bool triangulate = true);
 

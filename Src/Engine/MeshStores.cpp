@@ -45,7 +45,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshStores::LoadMesh(const std::string& path, glm::uint& index, bool normalizeSize, bool recenter, bool triangulate)
+    bool MeshStores::LoadMeshOBJ(const std::string& path, glm::uint& index, bool normalizeSize, bool recenter, bool triangulate)
     {
         // Should the file path be required to have the .obj extension?
         // if (path.size() < 4 || path.substr(path.size() - 4, 4) != ".obj")
@@ -186,8 +186,15 @@ namespace Project001
                                 slashIndicies.push_back(j);
                             }
                         }
+                        
+                        if (slashIndicies.size() == 0)
+                        {
+                            FaceVertex newFaceVertex;
+                            newFaceVertex.positionIndex = std::stoi(indexGroup);
 
-                        if (slashIndicies.size() == 2)
+                            face.push_back(newFaceVertex);
+                        }
+                        else if (slashIndicies.size() == 2)
                         {
                             const size_t& firstSlashIndex = slashIndicies[0];
                             const size_t& secondSlashIndex = slashIndicies[1];

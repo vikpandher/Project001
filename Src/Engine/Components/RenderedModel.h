@@ -26,11 +26,15 @@ namespace Project001
         void SetColorRGB(float r, float g, float b);
         const glm::vec4& GetColor() const;
 
+        void SetTranslucent(bool translucent);
+        bool GetTranslucent() const;
+
     protected:
         unsigned int textureIndex_;
         unsigned int specularIndex_;
-        float shininess_;
+        float shininess_; // 32.0f looks good
         glm::vec4 color_;
+        bool translucent_;
 
     private:
     };
@@ -88,5 +92,15 @@ namespace Project001
     inline const glm::vec4& RenderedModel::GetColor() const
     {
         return color_;
+    }
+
+    inline void RenderedModel::SetTranslucent(bool translucent)
+    {
+        translucent_ = translucent;
+    }
+
+    inline bool RenderedModel::GetTranslucent() const
+    {
+        return translucent_;
     }
 }

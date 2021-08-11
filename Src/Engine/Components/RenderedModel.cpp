@@ -9,8 +9,9 @@ namespace Project001
     RenderedModel::RenderedModel()
         : textureIndex_((unsigned int)-1)
         , specularIndex_((unsigned int)-1)
-        , shininess_(32.0f)
+        , shininess_(0.0f)
         , color_(1.0f, 1.0f, 1.0f, 1.0f)
+        , translucent_(false)
     {}
 
     RenderedModel::~RenderedModel()

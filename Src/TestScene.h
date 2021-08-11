@@ -90,6 +90,7 @@ protected:
     unsigned int cubeEntity02Id_;
     unsigned int cubeEntity03Id_;
     unsigned int cubeEntity04Id_;
+    unsigned int cubeEntity05Id_;
 
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;

@@ -119,6 +119,8 @@ uniform sampler2D u_Textures[NUMBER_OF_TEXTURES];
 layout (location = 0) out vec4 f_Color;
 
 vec4 GetTextureColor(float textureSlot);
+vec4 GetTextureColorAlt(float textureSlot);
+float GetDiffuseMultiplier(vec3 normal, vec3 normalizedLightDirection, bool lightingBackFaces);
 
 void main()
 {
@@ -257,6 +259,23 @@ vec4 GetTextureColorAlt(float textureSlot)
         textureColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
     return textureColor;
+}
+
+float GetDiffuseMultiplier(vec3 normal, vec3 normalizedLightDirection, bool lightingBackFaces)
+{
+    float diffuseMultiplier = dot(normal, normalizedLightDirection);
+    if (lightingBackFaces)
+    {
+        if (diffuseMultiplier < 0.0)
+        {
+            diffuseMultiplier *= -1.0;
+        }
+    }
+    else
+    {
+        diffuseMultiplier = max(diffuseMultiplier, 0.0);
+    }
+    return diffuseMultiplier;
 }
     )";
 }
