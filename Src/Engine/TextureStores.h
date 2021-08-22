@@ -26,7 +26,7 @@ namespace Project001
 
         bool GetTexture(unsigned int index, TextureData& textureData);
 
-        bool LoadTexture(const std::string& path, unsigned int& index);
+        bool LoadTexture(unsigned int& index, const std::string& path);
 
     protected:
         std::vector<TextureData> textureDataArray_;

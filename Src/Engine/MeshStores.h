@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 
 
@@ -22,6 +22,35 @@ namespace Project001
         glm::vec3 normal;
     };
 
+    struct MeshData
+    {
+        MeshData()
+            : vertexIndex(0)
+            , vertexCount(0)
+            , indexIndex(0)
+            , indexCount(0)
+        {
+            maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
+            maxVertexPosition.y = -1.0f * std::numeric_limits<float>::infinity();
+            maxVertexPosition.z = -1.0f * std::numeric_limits<float>::infinity();
+            minVertexPosition.x = std::numeric_limits<float>::infinity();
+            minVertexPosition.y = std::numeric_limits<float>::infinity();
+            minVertexPosition.z = std::numeric_limits<float>::infinity();
+        }
+
+        glm::vec3 GetSize() const
+        {
+            return maxVertexPosition - minVertexPosition;
+        }
+
+        glm::uint vertexIndex;
+        glm::uint vertexCount;
+        glm::uint indexIndex;
+        glm::uint indexCount;
+        glm::vec3 maxVertexPosition;
+        glm::vec3 minVertexPosition;
+    };
+
     class MeshStores
     {
     public:
@@ -32,17 +61,172 @@ namespace Project001
         void ClearMeshes();
 
         // If more meshes are added, the pointers returned are nolonger valid.
-        bool GetMesh(glm::uint index, MeshVertex*& firstVertexPtr, glm::uint& vertexCount, glm::uint*& firstIndexPtr, glm::uint& indexCount);
+        bool GetMesh(
+            glm::uint index,
+            MeshVertex*& firstVertexPtr,
+            glm::uint& vertexCount,
+            glm::uint*& firstIndexPtr,
+            glm::uint& indexCount);
 
-        bool LoadMeshOBJ(const std::string& path, glm::uint& index, bool normalizeSize = true, bool recenter = true, bool triangulate = true);
+        bool GetMeshData(
+            glm::uint index,
+            MeshData& meshData);
 
-        bool Generate2DTriangleFan(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter = true, bool triangulate = true);
+        bool LoadMeshOBJ(
+            glm::uint& index,
+            const std::string& path,
+            bool normalizeSize = true,
+            bool recenter = true,
+            bool triangulate = true);
 
-        bool Generate2DTriangles(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter = true);
+        bool Generate2DTriangleFan(
+            glm::uint& index,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true,
+            bool triangulate = true);
 
-        bool Generate2DTriangleStrip(const std::vector<glm::vec2>& vertices, glm::uint& index, bool recenter = true, bool triangulate = true);
+        bool Generate2DTriangles(
+            glm::uint& index,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true);
 
-        bool Generate2DLine(const std::vector<glm::vec2>&vertices, float width, glm::uint & index, bool recenter = true, bool triangulate = true);
+        bool Generate2DTriangleStrip(
+            glm::uint& index,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true,
+            bool triangulate = true);
+
+        bool Generate2DLine(
+            glm::uint& index,
+            const std::vector<glm::vec2>& positions,
+            float width,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        bool Generate2DRegularPolygon(
+            glm::uint& index,
+            float radius,
+            glm::uint sides,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        // Arc grows according to right hand rule
+        bool Generate2DArc(
+            glm::uint& index,
+            float innerRadius,
+            float outerRadius,
+            glm::uint subdivisions,
+            float startAngle,
+            float endAngle,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        bool NormalizeMeshSize(glm::uint& index);
+
+        bool RecenterMesh(glm::uint& index);
+
+        bool TranslateMesh(glm::uint& index, glm::vec3 translation);
+
+        bool RotateMesh(glm::uint& index, glm::quat rotation);
+
+        bool ScaleMesh(glm::uint& index, glm::vec3 scale);
+
+        static bool LoadMeshOBJ(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            const std::string& path,
+            bool normalizeSize = true,
+            bool recenter = true,
+            bool triangulate = true);
+
+        static bool Generate2DTriangleFan(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true,
+            bool triangulate = true);
+
+        static bool Generate2DTriangles(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true);
+
+        static bool Generate2DTriangleStrip(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            const std::vector<glm::vec2>& positions,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool recenter = true,
+            bool triangulate = true);
+
+        static bool Generate2DLine(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            const std::vector<glm::vec2>& positions,
+            float width,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        static bool Generate2DRegularPolygon(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            float radius,
+            glm::uint sides,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        static bool Generate2DArc(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            float innerRadius,
+            float outerRadius,
+            glm::uint subdivisions,
+            float startAngle,
+            float endAngle,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        static void NormalizeMeshSize(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray);
+
+        static void RecenterMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray);
+
+        static void TranslateMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::vec3 translation);
+
+        static void RotateMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::quat rotation);
+
+        static void ScaleMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::vec3 scale);
 
     protected:
         struct FaceVertex
@@ -58,36 +242,9 @@ namespace Project001
             int normalIndex;
         };
 
-        struct MeshData
-        {
-            MeshData()
-                : vertexIndex(0)
-                , vertexCount(0)
-                , indexIndex(0)
-                , indexCount(0)
-            {
-                maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
-                maxVertexPosition.y = -1.0f * std::numeric_limits<float>::infinity();
-                maxVertexPosition.z = -1.0f * std::numeric_limits<float>::infinity();
-                minVertexPosition.x = std::numeric_limits<float>::infinity();
-                minVertexPosition.y = std::numeric_limits<float>::infinity();
-                minVertexPosition.z = std::numeric_limits<float>::infinity();
-            }
-
-            glm::vec3 GetSize() const
-            {
-                return maxVertexPosition - minVertexPosition;
-            }
-
-            glm::uint vertexIndex;
-            glm::uint vertexCount;
-            glm::uint indexIndex;
-            glm::uint indexCount;
-            glm::vec3 maxVertexPosition;
-            glm::vec3 minVertexPosition;
-        };
-
-        MeshVertex GetMeshVertexFromFaceVertex(
+        // used by LoadMeshOBJ
+        static bool GetMeshVertexFromFaceVertex(
+            MeshVertex& meshVertex,
             const FaceVertex& faceVertex,
             const std::vector<glm::vec3>& positions,
             const std::vector<glm::vec2>& textureCoordinates,

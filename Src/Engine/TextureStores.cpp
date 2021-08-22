@@ -38,7 +38,7 @@ namespace Project001
         return true;
     }
 
-    bool TextureStores::LoadTexture(const std::string& path, unsigned int& index)
+    bool TextureStores::LoadTexture(unsigned int& index, const std::string& path)
     {
         TextureData newTextureData;
         newTextureData.data = stbi_load(path.c_str(), &newTextureData.width, &newTextureData.height, &newTextureData.numberOfComponents, 0);

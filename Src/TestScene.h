@@ -73,6 +73,7 @@ protected:
     unsigned int diceTexture01Index_;
     unsigned int diceTexture02Index_;
     unsigned int thonkTextureIndex_;
+    unsigned int _100x100TextureIndex_;
     unsigned int patternSpecularIndex_;
     unsigned int thonkSpecularIndex_;
 
@@ -81,6 +82,16 @@ protected:
     unsigned int shape03Index_;
     unsigned int shape04Index_;
     unsigned int shape05Index_;
+    unsigned int shape06Index_;
+    unsigned int shape07Index_;
+    unsigned int shape08Index_;
+    unsigned int shape09Index_;
+    unsigned int shape10Index_;
+    unsigned int shape11Index_;
+    unsigned int shape12Index_;
+    unsigned int shape13Index_;
+    unsigned int shape14Index_;
+    unsigned int shape15Index_;
 
     unsigned int sceneDataEntityId_;
     unsigned int mainCameraEntityId_;
@@ -97,6 +108,16 @@ protected:
     unsigned int shape03EntityId_;
     unsigned int shape04EntityId_;
     unsigned int shape05EntityId_;
+    unsigned int shape06EntityId_;
+    unsigned int shape07EntityId_;
+    unsigned int shape08EntityId_;
+    unsigned int shape09EntityId_;
+    unsigned int shape10EntityId_;
+    unsigned int shape11EntityId_;
+    unsigned int shape12EntityId_;
+    unsigned int shape13EntityId_;
+    unsigned int shape14EntityId_;
+    unsigned int shape15EntityId_;
 
 private:
     void ComponentContainerTest() const;

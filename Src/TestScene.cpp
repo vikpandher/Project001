@@ -9,7 +9,6 @@
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
-#include "Engine/Logger.h"
 #include "Engine/LRUArray.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
@@ -30,6 +29,7 @@ TestScene::TestScene()
     , diceTexture01Index_((unsigned int)-1)
     , diceTexture02Index_((unsigned int)-1)
     , thonkTextureIndex_((unsigned int)-1)
+    , _100x100TextureIndex_((unsigned int)-1)
     , patternSpecularIndex_((unsigned int)-1)
     , thonkSpecularIndex_((unsigned int)-1)
     , shape01Index_((unsigned int)-1)
@@ -37,6 +37,16 @@ TestScene::TestScene()
     , shape03Index_((unsigned int)-1)
     , shape04Index_((unsigned int)-1)
     , shape05Index_((unsigned int)-1)
+    , shape06Index_((unsigned int)-1)
+    , shape07Index_((unsigned int)-1)
+    , shape08Index_((unsigned int)-1)
+    , shape09Index_((unsigned int)-1)
+    , shape10Index_((unsigned int)-1)
+    , shape11Index_((unsigned int)-1)
+    , shape12Index_((unsigned int)-1)
+    , shape13Index_((unsigned int)-1)
+    , shape14Index_((unsigned int)-1)
+    , shape15Index_((unsigned int)-1)
     , sceneDataEntityId_((unsigned int)-1)
     , mainCameraEntityId_((unsigned int)-1)
     , lightSourceEntityId_((unsigned int)-1)
@@ -50,6 +60,16 @@ TestScene::TestScene()
     , shape03EntityId_((unsigned int)-1)
     , shape04EntityId_((unsigned int)-1)
     , shape05EntityId_((unsigned int)-1)
+    , shape06EntityId_((unsigned int)-1)
+    , shape07EntityId_((unsigned int)-1)
+    , shape08EntityId_((unsigned int)-1)
+    , shape09EntityId_((unsigned int)-1)
+    , shape10EntityId_((unsigned int)-1)
+    , shape11EntityId_((unsigned int)-1)
+    , shape12EntityId_((unsigned int)-1)
+    , shape13EntityId_((unsigned int)-1)
+    , shape14EntityId_((unsigned int)-1)
+    , shape15EntityId_((unsigned int)-1)
 {
     ComponentContainerTest();
     ComponentStoresTest();
@@ -76,122 +96,169 @@ void TestScene::Initialize(
     textureStoresPtr_ = textureStoresPtr;
     windowPtr_ = windowPtr;
 
-    meshStoresPtr_->LoadMeshOBJ("../Models/CubeQ.obj", cubeMeshIndex_, false);
+    meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Cube.obj", false);
 
-    std::vector<glm::vec2> fanVerticies;
-    fanVerticies.emplace_back(0.32f, 0.0f);
-    fanVerticies.emplace_back(0.24f, 0.24f);
-    fanVerticies.emplace_back(0.0f, 0.32f);
-    fanVerticies.emplace_back(-0.24f, 0.24f);
-    fanVerticies.emplace_back(-0.32f, 0.0f);
-    fanVerticies.emplace_back(-0.24f, -0.24f);
-    fanVerticies.emplace_back(0.0f, -0.32f);
-    fanVerticies.emplace_back(0.24f, -0.24f);
-    meshStoresPtr_->Generate2DTriangleFan(fanVerticies, shape01Index_);
+    std::vector<glm::vec2> fanPositions;
+    fanPositions.emplace_back(0.32f, 0.0f);
+    fanPositions.emplace_back(0.24f, 0.24f);
+    fanPositions.emplace_back(0.0f, 0.32f);
+    fanPositions.emplace_back(-0.24f, 0.24f);
+    fanPositions.emplace_back(-0.32f, 0.0f);
+    fanPositions.emplace_back(-0.24f, -0.24f);
+    fanPositions.emplace_back(0.0f, -0.32f);
+    fanPositions.emplace_back(0.24f, -0.24f);
+    for (size_t i = 0; i < fanPositions.size(); ++i)
+    {
+        fanPositions[i] += glm::vec2(0.5f, 0.5f);
+    }
+    meshStoresPtr_->Generate2DTriangleFan(shape01Index_, fanPositions, fanPositions);
 
-    std::vector<glm::vec2> stripVerticies;
-    stripVerticies.emplace_back(-0.32f, -0.32f);
-    stripVerticies.emplace_back(-0.24f, -0.24f);
-    stripVerticies.emplace_back(-0.32f, 0.32f);
-    stripVerticies.emplace_back(-0.24f, 0.24f);
-    stripVerticies.emplace_back(0.32f, 0.32f);
-    stripVerticies.emplace_back(0.24f, 0.24f);
-    stripVerticies.emplace_back(0.32f, -0.32f);
-    stripVerticies.emplace_back(0.24f, -0.24f);
-    stripVerticies.emplace_back(-0.16f, -0.32f);
-    stripVerticies.emplace_back(-0.08f, -0.24f);
-    stripVerticies.emplace_back(-0.16f, 0.16f);
-    stripVerticies.emplace_back(-0.08f, 0.08f);
-    stripVerticies.emplace_back(0.16f, 0.16f);
-    stripVerticies.emplace_back(0.08f, 0.08f);
-    stripVerticies.emplace_back(0.16f, -0.16f);
-    stripVerticies.emplace_back(0.08f, -0.08f);
-    meshStoresPtr_->Generate2DTriangleStrip(stripVerticies, shape02Index_);
+    std::vector<glm::vec2> stripPositions;
+    stripPositions.emplace_back(-0.32f, -0.32f);
+    stripPositions.emplace_back(-0.24f, -0.24f);
+    stripPositions.emplace_back(-0.32f, 0.32f);
+    stripPositions.emplace_back(-0.24f, 0.24f);
+    stripPositions.emplace_back(0.32f, 0.32f);
+    stripPositions.emplace_back(0.24f, 0.24f);
+    stripPositions.emplace_back(0.32f, -0.32f);
+    stripPositions.emplace_back(0.24f, -0.24f);
+    stripPositions.emplace_back(-0.16f, -0.32f);
+    stripPositions.emplace_back(-0.08f, -0.24f);
+    stripPositions.emplace_back(-0.16f, 0.16f);
+    stripPositions.emplace_back(-0.08f, 0.08f);
+    stripPositions.emplace_back(0.16f, 0.16f);
+    stripPositions.emplace_back(0.08f, 0.08f);
+    stripPositions.emplace_back(0.16f, -0.16f);
+    stripPositions.emplace_back(0.08f, -0.08f);
+    for (size_t i = 0; i < stripPositions.size(); ++i)
+    {
+        stripPositions[i] += glm::vec2(0.5f, 0.5f);
+    }
+    meshStoresPtr_->Generate2DTriangleStrip(shape02Index_, stripPositions, stripPositions);
 
-    std::vector<glm::vec2> triVerticies;
-    triVerticies.emplace_back(0.0f, 0.08f);
-    triVerticies.emplace_back(0.24f, 0.32f);
-    triVerticies.emplace_back(-0.24f, 0.32f);
-    triVerticies.emplace_back(0.08f, 0.0f);
-    triVerticies.emplace_back(0.32f, -0.24f);
-    triVerticies.emplace_back(0.32f, 0.24f);
-    triVerticies.emplace_back(0.0f, -0.08f);
-    triVerticies.emplace_back(-0.24f, -0.32f);
-    triVerticies.emplace_back(0.24f, -0.32f);
-    triVerticies.emplace_back(-0.08f, 0.0f);
-    triVerticies.emplace_back(-0.32f, 0.24f);
-    triVerticies.emplace_back(-0.32f, -0.24f);
-    meshStoresPtr_->Generate2DTriangles(triVerticies, shape03Index_);
+    std::vector<glm::vec2> triPositions;
+    triPositions.emplace_back(0.0f, 0.08f);
+    triPositions.emplace_back(0.24f, 0.32f);
+    triPositions.emplace_back(-0.24f, 0.32f);
+    triPositions.emplace_back(0.08f, 0.0f);
+    triPositions.emplace_back(0.32f, -0.24f);
+    triPositions.emplace_back(0.32f, 0.24f);
+    triPositions.emplace_back(0.0f, -0.08f);
+    triPositions.emplace_back(-0.24f, -0.32f);
+    triPositions.emplace_back(0.24f, -0.32f);
+    triPositions.emplace_back(-0.08f, 0.0f);
+    triPositions.emplace_back(-0.32f, 0.24f);
+    triPositions.emplace_back(-0.32f, -0.24f);
+    for (size_t i = 0; i < triPositions.size(); ++i)
+    {
+        triPositions[i] += glm::vec2(0.5f, 0.5f);
+    }
+    meshStoresPtr_->Generate2DTriangles(shape03Index_, triPositions, triPositions);
 
-    std::vector<glm::vec2> lineVerticies;
-    lineVerticies.emplace_back(-0.24f, -0.16f);
-    lineVerticies.emplace_back(-0.24f, 0.0f);
-    lineVerticies.emplace_back(-0.24f, 0.16f);
-    lineVerticies.emplace_back(-0.16f, 0.24f);
-    lineVerticies.emplace_back(0.0f, 0.24f);
-    lineVerticies.emplace_back(0.16f, 0.24f);
-    lineVerticies.emplace_back(0.24f, 0.16f);
-    lineVerticies.emplace_back(0.24f, 0.0f);
-    lineVerticies.emplace_back(0.24f, -0.16f);
-    lineVerticies.emplace_back(0.16f, -0.24f);
-    lineVerticies.emplace_back(0.0f, -0.24f);
-    lineVerticies.emplace_back(-0.06f, -0.24f);
-    lineVerticies.emplace_back(-0.12f, -0.16f);
-    lineVerticies.emplace_back(-0.12f, 0.0f);
-    lineVerticies.emplace_back(-0.12f, 0.08f);
-    lineVerticies.emplace_back(0.0f, 0.08f);
-    lineVerticies.emplace_back(0.12f, 0.08f);
-    lineVerticies.emplace_back(0.12f, 0.0f);
-    lineVerticies.emplace_back(0.12f, -0.08f);
-    lineVerticies.emplace_back(0.0f, -0.08f);
-    lineVerticies.emplace_back(0.0f, 0.0f);
-    meshStoresPtr_->Generate2DLine(lineVerticies, 0.08f, shape04Index_);
+    std::vector<glm::vec2> linePositions;
+    linePositions.emplace_back(-0.24f, -0.16f);
+    linePositions.emplace_back(-0.24f, 0.0f);
+    linePositions.emplace_back(-0.24f, 0.16f);
+    linePositions.emplace_back(-0.16f, 0.24f);
+    linePositions.emplace_back(0.0f, 0.24f);
+    linePositions.emplace_back(0.16f, 0.24f);
+    linePositions.emplace_back(0.24f, 0.16f);
+    linePositions.emplace_back(0.24f, 0.0f);
+    linePositions.emplace_back(0.24f, -0.16f);
+    linePositions.emplace_back(0.16f, -0.24f);
+    linePositions.emplace_back(0.0f, -0.24f);
+    linePositions.emplace_back(-0.06f, -0.24f);
+    linePositions.emplace_back(-0.12f, -0.16f);
+    linePositions.emplace_back(-0.12f, 0.0f);
+    linePositions.emplace_back(-0.12f, 0.08f);
+    linePositions.emplace_back(0.0f, 0.08f);
+    linePositions.emplace_back(0.12f, 0.08f);
+    linePositions.emplace_back(0.12f, 0.0f);
+    linePositions.emplace_back(0.12f, -0.08f);
+    linePositions.emplace_back(0.0f, -0.08f);
+    linePositions.emplace_back(0.0f, 0.0f);
+    for (size_t i = 0; i < linePositions.size(); ++i)
+    {
+        linePositions[i] += glm::vec2(0.5f, 0.5f);
+    }
+    meshStoresPtr_->Generate2DLine(shape04Index_, linePositions, 0.08f);
 
-    std::vector<glm::vec2> lineVerticies2;
-    lineVerticies2.emplace_back(0.08f, 0.0f);
-    lineVerticies2.emplace_back(0.24f, 0.16f);
-    lineVerticies2.emplace_back(0.08f, 0.08f);
-    lineVerticies2.emplace_back(0.08f, 0.24f);
-    lineVerticies2.emplace_back(0.0f, 0.08f);
-    lineVerticies2.emplace_back(-0.08f, 0.24f);
-    lineVerticies2.emplace_back(-0.08f, 0.08f);
-    lineVerticies2.emplace_back(-0.24f, 0.16f);
-    lineVerticies2.emplace_back(-0.08f, 0.0f);
-    lineVerticies2.emplace_back(-0.24f, -0.16f);
-    lineVerticies2.emplace_back(-0.08f, -0.16f);
-    lineVerticies2.emplace_back(-0.08f, -0.24f);
-    lineVerticies2.emplace_back(0.0f, -0.16f);
-    lineVerticies2.emplace_back(0.08f, -0.24f);
-    lineVerticies2.emplace_back(0.08f, -0.16f);
-    lineVerticies2.emplace_back(0.24f, -0.16f);
-    lineVerticies2.emplace_back(0.16f, -0.08f);
-    meshStoresPtr_->Generate2DLine(lineVerticies2, 0.04f, shape05Index_);
+    std::vector<glm::vec2> linePositions2;
+    linePositions2.emplace_back(0.08f, 0.0f);
+    linePositions2.emplace_back(0.24f, 0.16f);
+    linePositions2.emplace_back(0.08f, 0.08f);
+    linePositions2.emplace_back(0.08f, 0.24f);
+    linePositions2.emplace_back(0.0f, 0.08f);
+    linePositions2.emplace_back(-0.08f, 0.24f);
+    linePositions2.emplace_back(-0.08f, 0.08f);
+    linePositions2.emplace_back(-0.24f, 0.16f);
+    linePositions2.emplace_back(-0.08f, 0.0f);
+    linePositions2.emplace_back(-0.24f, -0.16f);
+    linePositions2.emplace_back(-0.08f, -0.16f);
+    linePositions2.emplace_back(-0.08f, -0.24f);
+    linePositions2.emplace_back(0.0f, -0.16f);
+    linePositions2.emplace_back(0.08f, -0.24f);
+    linePositions2.emplace_back(0.08f, -0.16f);
+    linePositions2.emplace_back(0.24f, -0.16f);
+    linePositions2.emplace_back(0.16f, -0.08f);
+    for (size_t i = 0; i < linePositions2.size(); ++i)
+    {
+        linePositions2[i] += glm::vec2(0.5f, 0.5f);
+    }
+    meshStoresPtr_->Generate2DLine(shape05Index_, linePositions2, 0.04f);
 
-    textureStoresPtr_->LoadTexture("../Textures/CounterclockwiseDie.png", diceTexture01Index_);
+    meshStoresPtr_->Generate2DRegularPolygon(shape06Index_, 0.32f, 3);
+    meshStoresPtr_->Generate2DRegularPolygon(shape07Index_, 0.32f, 4);
+    meshStoresPtr_->Generate2DRegularPolygon(shape08Index_, 0.32f, 5);
+    meshStoresPtr_->Generate2DRegularPolygon(shape09Index_, 0.32f, 6);
+    meshStoresPtr_->Generate2DRegularPolygon(shape10Index_, 0.32f, 24);
+    meshStoresPtr_->ScaleMesh(shape10Index_, glm::vec3(2.0f, 1.5f, 1.0f));
+    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
+    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(1.0f, 0.0f, 0.0f)));
+    meshStoresPtr_->TranslateMesh(shape10Index_, glm::vec3(0.16f, 0.0f, 0.0f));
+
+    meshStoresPtr_->Generate2DArc(shape11Index_, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>());
+
+    meshStoresPtr_->Generate2DArc(shape12Index_, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>());
+
+    meshStoresPtr_->Generate2DArc(shape13Index_, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>());
+
+    meshStoresPtr_->Generate2DArc(shape14Index_, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>());
+
+    meshStoresPtr_->Generate2DArc(shape15Index_, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>());
+
+    textureStoresPtr_->LoadTexture(diceTexture01Index_, "../Textures/CounterclockwiseDie.png");
     Project001::TextureData diceTexture01Data;
     textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01Data);
     rendererPtr_->AddTexture(diceTexture01Index_, diceTexture01Data.data,
         diceTexture01Data.width, diceTexture01Data.height, diceTexture01Data.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture("../Textures/HallowDie.png", diceTexture02Index_);
+    textureStoresPtr_->LoadTexture(diceTexture02Index_, "../Textures/HallowDie.png");
     Project001::TextureData diceTexture02Data;
     textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02Data);
     rendererPtr_->AddTexture(diceTexture02Index_, diceTexture02Data.data,
         diceTexture02Data.width, diceTexture02Data.height, diceTexture02Data.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture("../Textures/Thonk.png", thonkTextureIndex_);
+    textureStoresPtr_->LoadTexture(thonkTextureIndex_, "../Textures/Thonk.png");
     Project001::TextureData thonkTextureData;
     textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureData);
     rendererPtr_->AddTexture(thonkTextureIndex_, thonkTextureData.data,
         thonkTextureData.width, thonkTextureData.height, thonkTextureData.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture("../Textures/Specular2.png", patternSpecularIndex_);
+    textureStoresPtr_->LoadTexture(_100x100TextureIndex_, "../Textures/100x100.png");
+    Project001::TextureData _100x100TextureData;
+    textureStoresPtr->GetTexture(_100x100TextureIndex_, _100x100TextureData);
+    rendererPtr->AddTexture(_100x100TextureIndex_, _100x100TextureData.data,
+        _100x100TextureData.width, _100x100TextureData.height, _100x100TextureData.numberOfComponents);
+
+    textureStoresPtr_->LoadTexture(patternSpecularIndex_, "../Textures/Specular2.png");
     Project001::TextureData patternSpecularData;
     textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
     rendererPtr_->AddTexture(patternSpecularIndex_, patternSpecularData.data,
         patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture("../Textures/ThonkSpecular.png", thonkSpecularIndex_);
+    textureStoresPtr_->LoadTexture(thonkSpecularIndex_, "../Textures/ThonkSpecular.png");
     Project001::TextureData thonkSpecularData;
     textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
     rendererPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularData.data,
@@ -232,7 +299,7 @@ void TestScene::Initialize(
 
         Project001::LightSource* lightSourcePtr;
         componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr);
-        // lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
+        lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
         lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
         lightSourcePtr->TurnOn();
     }
@@ -241,16 +308,26 @@ void TestScene::Initialize(
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
-    modelEntityPositions.emplace_back(-2.0f, 1.0f, 0.0f);
-    modelEntityPositions.emplace_back(-1.0f, 1.0f, 0.0f);
-    modelEntityPositions.emplace_back( 0.0f, 1.0f, 0.0f);
-    modelEntityPositions.emplace_back( 1.0f, 1.0f, 0.0f);
-    modelEntityPositions.emplace_back( 2.0f, 1.0f, 0.0f);
-    modelEntityPositions.emplace_back(-2.0f, 0.0f, 0.0f);
-    modelEntityPositions.emplace_back(-1.0f, 0.0f, 0.0f);
-    modelEntityPositions.emplace_back( 0.0f, 0.0f, 0.0f);
-    modelEntityPositions.emplace_back( 1.0f, 0.0f, 0.0f);
-    modelEntityPositions.emplace_back( 2.0f, 0.0f, 0.0f);
+    modelEntityPositions.emplace_back(-2.0f,  1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f,  1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f,  1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f,  1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f,  1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-2.0f,  0.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f,  0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f,  0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f,  0.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f,  0.0f, 0.0f);
+    modelEntityPositions.emplace_back(-2.0f, -1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f, -1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f, -1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f, -1.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f, -1.0f, 0.0f);
+    modelEntityPositions.emplace_back(-2.0f, -2.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f, -2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f, -2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f, -2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f, -2.0f, 0.0f);
 
     // cube entity 01
     // -------------------------------------------------------------------------
@@ -338,7 +415,9 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[5]);
         renderedModelPtr->SetMeshIndex(shape01Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 02
@@ -351,7 +430,9 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[6]);
         renderedModelPtr->SetMeshIndex(shape02Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 03
@@ -363,7 +444,9 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[7]);
         renderedModelPtr->SetMeshIndex(shape03Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 04
@@ -375,7 +458,9 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[8]);
         renderedModelPtr->SetMeshIndex(shape04Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 05
@@ -387,7 +472,150 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[9]);
         renderedModelPtr->SetMeshIndex(shape05Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.5f, 0.5f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 06
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape06EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape06EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape06EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[10]);
+        renderedModelPtr->SetMeshIndex(shape06Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 07
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape07EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape07EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape07EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[11]);
+        renderedModelPtr->SetMeshIndex(shape07Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 08
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape08EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape08EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape08EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[12]);
+        renderedModelPtr->SetMeshIndex(shape08Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 09
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape09EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape09EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape09EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[13]);
+        renderedModelPtr->SetMeshIndex(shape09Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 10
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape10EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape10EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape10EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[14]);
+        renderedModelPtr->SetMeshIndex(shape10Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.5f, 0.5f, 0.5f);
+        renderedModelPtr->SetTranslucent(true);
+        renderedModelPtr->SetShininess(32.0f);
+    }
+
+    // generated shape entity 11
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape11EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape11EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape11EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[15]);
+        renderedModelPtr->SetMeshIndex(shape11Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 12
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape12EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape12EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape12EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[16]);
+        renderedModelPtr->SetMeshIndex(shape12Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 13
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape13EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape13EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape13EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[17]);
+        renderedModelPtr->SetMeshIndex(shape13Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 14
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape14EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape14EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape14EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[18]);
+        renderedModelPtr->SetMeshIndex(shape14Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 15
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape15EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape15EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape15EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[19]);
+        renderedModelPtr->SetMeshIndex(shape15Index_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
+        renderedModelPtr->SetTranslucent(true);
     }
 }
 
@@ -845,8 +1073,8 @@ void TestScene::MeshStoresTest() const
     Project001::MeshStores testMeshStores;
 
     unsigned int model0;
-    testBool = testMeshStores.LoadMeshOBJ("", model0);
-    testBool = testMeshStores.LoadMeshOBJ("../Models/CubeQ.obj", model0);
+    testBool = testMeshStores.LoadMeshOBJ(model0, "");
+    testBool = testMeshStores.LoadMeshOBJ(model0, "../Models/CubeQ.obj");
 }
 
 void TestScene::RendererTest() const
@@ -861,12 +1089,12 @@ void TestScene::TextureStoresTest() const
     Project001::TextureStores testTextureStores;
 
     unsigned int texture0;
-    testBool = testTextureStores.LoadTexture("", texture0);
-    testBool = testTextureStores.LoadTexture("../Textures/rgb.png", texture0);
+    testBool = testTextureStores.LoadTexture(texture0, "");
+    testBool = testTextureStores.LoadTexture(texture0, "../Textures/rgb.png");
 
     unsigned int texture1;
-    testBool = testTextureStores.LoadTexture("../Textures/Cube.png", texture1);
+    testBool = testTextureStores.LoadTexture(texture1, "../Textures/Cube.png");
 
     unsigned int texture2;
-    testBool = testTextureStores.LoadTexture("../Textures/CubeSpecular.png", texture2);
+    testBool = testTextureStores.LoadTexture(texture2, "../Textures/CubeSpecular.png");
 }
