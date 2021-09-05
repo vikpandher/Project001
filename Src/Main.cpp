@@ -9,12 +9,15 @@
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 800, 600);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240*4, 160*4);
 
     TestScene* testScenePtr = new TestScene();
 
     applicationPtr->AddScene(testScenePtr);
     applicationPtr->Run();
+
+    delete testScenePtr;
+    delete applicationPtr;
 
     return 0;
 }

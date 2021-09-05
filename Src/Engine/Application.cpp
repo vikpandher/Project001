@@ -28,12 +28,13 @@ namespace Project001
         componentStoresPtr_ = new ComponentStores();
 
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
+        windowPtr_->SetAspectRatio(windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
         meshStoresPtr_ = new MeshStores();
         textureStoresPtr_ = new TextureStores();
 
-        rendererPtr_ = Renderer::Create(meshStoresPtr_, textureStoresPtr_);
+        rendererPtr_ = Renderer::Create();
     }
 
     Application::~Application()
@@ -97,9 +98,10 @@ namespace Project001
             timeStampA = std::chrono::system_clock::now();
             std::chrono::duration<double, std::milli> workTime_ms = timeStampA - timeStampB;
 
-            if (workTime_ms.count() < secondsPerFrame_)
+            double millisecondsPerFrame = secondsPerFrame_ * 1000.0f;
+            if (workTime_ms.count() < millisecondsPerFrame)
             {
-                std::chrono::duration<double, std::milli> delta_ms(secondsPerFrame_ - workTime_ms.count());
+                std::chrono::duration<double, std::milli> delta_ms(millisecondsPerFrame - workTime_ms.count());
                 std::chrono::duration<long long, std::milli> deltaDuration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
                 std::this_thread::sleep_for(std::chrono::milliseconds(deltaDuration_ms.count()));
             }

@@ -12,6 +12,9 @@ namespace Project001
         RenderedModel();
         ~RenderedModel();
 
+        void SetVisibility(bool visible);
+        bool IsVisible() const;
+
         void SetTextureIndex(unsigned int textureIndex);
         unsigned int GetTextureIndex() const;
 
@@ -30,6 +33,7 @@ namespace Project001
         bool GetTranslucent() const;
 
     protected:
+        bool visible_;
         unsigned int textureIndex_;
         unsigned int specularIndex_;
         float shininess_; // 32.0f looks good
@@ -38,6 +42,16 @@ namespace Project001
 
     private:
     };
+
+    inline void RenderedModel::SetVisibility(bool visible)
+    {
+        visible_ = visible;
+    }
+
+    inline bool RenderedModel::IsVisible() const
+    {
+        return visible_;
+    }
 
     inline void RenderedModel::SetTextureIndex(unsigned int textureIndex)
     {

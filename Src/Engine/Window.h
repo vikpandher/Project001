@@ -15,6 +15,8 @@ namespace Project001
     public:
         static Window* Create(const char* title, int width, int height);
 
+        virtual ~Window();
+
         virtual void PollEvents() = 0;
 
         virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;

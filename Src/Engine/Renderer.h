@@ -7,22 +7,27 @@
 namespace Project001
 {
     class MeshStores;
-    class TextureStores;
 
     class Renderer
     {
     public:
-        static Renderer* Create(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr);
+        static Renderer* Create();
 
-        virtual void AddTexture(
-            unsigned int textureSlot,
+        virtual ~Renderer();
+
+        virtual bool AddTexture(
+            unsigned int textureIndex,
+            unsigned int textureUnit,
             unsigned char* data,
             int width,
             int height,
             int numberOfComponents) = 0;
 
-        virtual void SetmeshStoresPtr(MeshStores* meshStoresPtr) = 0;
-        virtual void SetTextureStoresPtr(TextureStores* textureStoresPtr) = 0;
+        virtual bool BindTexture(
+            unsigned int textureIndex,
+            unsigned int textureSlot) = 0;
+
+        virtual void ClearTextures() = 0;
 
         virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
         virtual void SetViewPosition(const glm::vec3& viewPosition) = 0;
@@ -35,20 +40,20 @@ namespace Project001
             const glm::vec3& specular) = 0;
         virtual void AddPointLight(
             const glm::vec3& position,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) = 0;
         virtual void AddSpotLight(
             const glm::vec3& position,
             const glm::vec3& direction,
-            const float& cutoff,
-            const float& outerCutoff,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float cutoff,
+            float outerCutoff,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) = 0;
@@ -58,12 +63,13 @@ namespace Project001
         virtual void ClearSpotLights() = 0;
 
         virtual void AddModel(
-            const unsigned int& meshIndex,
-            const unsigned int& textureIndex,
-            const unsigned int& specularIndex,
-            const float& shininess,
+            MeshStores* meshStoresPtr,
+            unsigned int meshIndex,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
             const glm::vec4& color,
-            const bool& translucent,
+            bool translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
             const glm::quat& orientation) = 0;

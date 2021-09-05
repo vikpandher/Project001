@@ -1,5 +1,7 @@
 #include "TestScene.h"
 
+#include <chrono>
+
 #include "DeathFlag.h"
 #include "TestComponents.h"
 #include "TestSceneData.h"
@@ -7,8 +9,10 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedModel.h"
+#include "Engine/BiMap.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
+#include "Engine/Logger.h"
 #include "Engine/LRUArray.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
@@ -71,8 +75,13 @@ TestScene::TestScene()
     , shape14EntityId_((unsigned int)-1)
     , shape15EntityId_((unsigned int)-1)
 {
+    BiMapTest();
     ComponentContainerTest();
     ComponentStoresTest();
+    LRUArrayTest();
+    MeshStoresTest();
+    RendererTest();
+    TextureStoresTest();
 }
 
 TestScene::~TestScene()
@@ -97,6 +106,7 @@ void TestScene::Initialize(
     windowPtr_ = windowPtr;
 
     meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Cube.obj", false);
+    // meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Assault Arwing/arwing.obj");
 
     std::vector<glm::vec2> fanPositions;
     fanPositions.emplace_back(0.32f, 0.0f);
@@ -231,37 +241,37 @@ void TestScene::Initialize(
     textureStoresPtr_->LoadTexture(diceTexture01Index_, "../Textures/CounterclockwiseDie.png");
     Project001::TextureData diceTexture01Data;
     textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01Data);
-    rendererPtr_->AddTexture(diceTexture01Index_, diceTexture01Data.data,
+    rendererPtr_->AddTexture(diceTexture01Index_, 0, diceTexture01Data.data,
         diceTexture01Data.width, diceTexture01Data.height, diceTexture01Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(diceTexture02Index_, "../Textures/HallowDie.png");
     Project001::TextureData diceTexture02Data;
     textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02Data);
-    rendererPtr_->AddTexture(diceTexture02Index_, diceTexture02Data.data,
+    rendererPtr_->AddTexture(diceTexture02Index_, 1, diceTexture02Data.data,
         diceTexture02Data.width, diceTexture02Data.height, diceTexture02Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(thonkTextureIndex_, "../Textures/Thonk.png");
     Project001::TextureData thonkTextureData;
     textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureData);
-    rendererPtr_->AddTexture(thonkTextureIndex_, thonkTextureData.data,
+    rendererPtr_->AddTexture(thonkTextureIndex_, 2, thonkTextureData.data,
         thonkTextureData.width, thonkTextureData.height, thonkTextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(_100x100TextureIndex_, "../Textures/100x100.png");
     Project001::TextureData _100x100TextureData;
     textureStoresPtr->GetTexture(_100x100TextureIndex_, _100x100TextureData);
-    rendererPtr->AddTexture(_100x100TextureIndex_, _100x100TextureData.data,
+    rendererPtr->AddTexture(_100x100TextureIndex_, 3, _100x100TextureData.data,
         _100x100TextureData.width, _100x100TextureData.height, _100x100TextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(patternSpecularIndex_, "../Textures/Specular2.png");
     Project001::TextureData patternSpecularData;
     textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
-    rendererPtr_->AddTexture(patternSpecularIndex_, patternSpecularData.data,
+    rendererPtr_->AddTexture(patternSpecularIndex_, 4, patternSpecularData.data,
         patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(thonkSpecularIndex_, "../Textures/ThonkSpecular.png");
     Project001::TextureData thonkSpecularData;
     textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
-    rendererPtr_->AddTexture(thonkSpecularIndex_, thonkSpecularData.data,
+    rendererPtr_->AddTexture(thonkSpecularIndex_, 5, thonkSpecularData.data,
         thonkSpecularData.width, thonkSpecularData.height, thonkSpecularData.numberOfComponents);
 
     // scene data entity
@@ -308,6 +318,11 @@ void TestScene::Initialize(
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
+    modelEntityPositions.emplace_back(-2.0f,  2.0f, 0.0f);
+    modelEntityPositions.emplace_back(-1.0f,  2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 0.0f,  2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 1.0f,  2.0f, 0.0f);
+    modelEntityPositions.emplace_back( 2.0f,  2.0f, 0.0f);
     modelEntityPositions.emplace_back(-2.0f,  1.0f, 0.0f);
     modelEntityPositions.emplace_back(-1.0f,  1.0f, 0.0f);
     modelEntityPositions.emplace_back( 0.0f,  1.0f, 0.0f);
@@ -328,6 +343,7 @@ void TestScene::Initialize(
     modelEntityPositions.emplace_back( 0.0f, -2.0f, 0.0f);
     modelEntityPositions.emplace_back( 1.0f, -2.0f, 0.0f);
     modelEntityPositions.emplace_back( 2.0f, -2.0f, 0.0f);
+    size_t positionPosition = 0;
 
     // cube entity 01
     // -------------------------------------------------------------------------
@@ -337,7 +353,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity01Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[0]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(thonkTextureIndex_);
         renderedModelPtr->SetSpecularIndex(thonkSpecularIndex_);
@@ -352,7 +368,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity02Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[1]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(diceTexture01Index_);
         renderedModelPtr->SetShininess(32.0f);
@@ -366,7 +382,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity03Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[2]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(diceTexture02Index_);
         renderedModelPtr->SetShininess(32.0f);
@@ -381,7 +397,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity05Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[3]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetColor(1.0f, 1.0f, 1.0f, 0.30f);
         renderedModelPtr->SetTranslucent(true);
@@ -395,7 +411,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity04Id_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[4]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetSpecularIndex(patternSpecularIndex_);
         renderedModelPtr->SetShininess(32.0f);
@@ -413,13 +429,13 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[5]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape01Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
         renderedModelPtr->SetTranslucent(true);
     }
-
+ 
     // generated shape entity 02
     // -------------------------------------------------------------------------
     {
@@ -428,7 +444,7 @@ void TestScene::Initialize(
 
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[6]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape02Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
@@ -442,7 +458,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape03EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[7]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape03Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
@@ -456,7 +472,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape04EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[8]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape04Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
@@ -470,7 +486,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape05EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[9]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape05Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.5f, 0.5f);
@@ -484,7 +500,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape06EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape06EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[10]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape06Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
@@ -498,7 +514,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape07EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape07EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[11]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape07Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
@@ -512,7 +528,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape08EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape08EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[12]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape08Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
@@ -526,7 +542,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape09EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape09EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[13]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape09Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
@@ -540,7 +556,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape10EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape10EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[14]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape10Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.5f, 0.5f, 0.5f);
@@ -555,7 +571,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape11EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape11EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[15]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape11Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
@@ -569,7 +585,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape12EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape12EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[16]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape12Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
@@ -583,7 +599,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape13EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape13EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[17]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape13Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
@@ -597,7 +613,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape14EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape14EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[18]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape14Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
@@ -611,7 +627,7 @@ void TestScene::Initialize(
         componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape15EntityId_);
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape15EntityId_, renderedModelPtr);
-        renderedModelPtr->SetPosition(modelEntityPositions[19]);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape15Index_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
@@ -722,8 +738,14 @@ void TestScene::Update(Project001::UpdateEvent& updateEvent)
     // Delete all entities with marked for deletion component
     DeleteDeadEntities();
 
+    // std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
+
     // Render all renderable components
     RenderRenderableEntities();
+
+    // std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
+    // std::chrono::duration<double, std::milli> workTime_ms = timeStampB - timeStampA;
+    // Project001::Logger::Message("RenderTime = %f", workTime_ms.count());
 
     // Play all audio components???
 
@@ -877,17 +899,21 @@ void TestScene::RenderRenderableEntities()
     {
         Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
 
-        rendererPtr_->AddModel(
-            currentRenderedModel.GetMeshIndex(),
-            currentRenderedModel.GetTextureIndex(),
-            currentRenderedModel.GetSpecularIndex(),
-            currentRenderedModel.GetShininess(),
-            currentRenderedModel.GetColor(),
-            currentRenderedModel.GetTranslucent(),
-            currentRenderedModel.GetScale(),
-            currentRenderedModel.GetPosition(),
-            currentRenderedModel.GetOrientation()
-        );
+        if (currentRenderedModel.IsVisible())
+        {
+            rendererPtr_->AddModel(
+                meshStoresPtr_,
+                currentRenderedModel.GetMeshIndex(),
+                currentRenderedModel.GetTextureIndex(),
+                currentRenderedModel.GetSpecularIndex(),
+                currentRenderedModel.GetShininess(),
+                currentRenderedModel.GetColor(),
+                currentRenderedModel.GetTranslucent(),
+                currentRenderedModel.GetScale(),
+                currentRenderedModel.GetPosition(),
+                currentRenderedModel.GetOrientation()
+            );
+        }
     }
 
     Project001::Camera* cameraPtr;
@@ -903,6 +929,59 @@ void TestScene::RenderRenderableEntities()
 }
 
 // private: --------------------------------------------------------------------
+
+void TestScene::BiMapTest() const
+{
+    Project001::BiMap<unsigned int, std::string> testBiMap;
+
+    testBiMap.Add(0, "ZERO");
+    testBiMap.Add(1, "ONE");
+    testBiMap.Add(2, "TWO");
+    testBiMap.Add(3, "THREE");
+
+    size_t size = testBiMap.Size();
+
+    unsigned int x00;
+    std::string y00;
+    if (testBiMap.Find_X(0))
+    {
+        y00 = testBiMap.Get_Using_X(0);
+    }
+    if (testBiMap.Find_Y("ZERO"))
+    {
+        x00 = testBiMap.Get_Using_Y("ZERO");
+    }
+
+    unsigned int x01;
+    std::string y01;
+    if (testBiMap.Find_X(1))
+    {
+        y01 = testBiMap.Get_Using_X(1);
+    }
+    if (testBiMap.Find_Y("ONE"))
+    {
+        x01 = testBiMap.Get_Using_Y("ONE");
+    }
+
+    unsigned int x02;
+    std::string y02;
+    if (testBiMap.Find_X(2))
+    {
+        y02 = testBiMap.Get_Using_X(2);
+    }
+    if (testBiMap.Find_Y("TWO"))
+    {
+        x02 = testBiMap.Get_Using_Y("TWO");
+    }
+
+    testBiMap.Remove_Using_X(0);
+    testBiMap.Remove_Using_Y("ONE");
+
+    testBiMap.Add(2, "TWENTY");
+    testBiMap.Add(30, "THREE");
+
+    testBiMap.Clear();
+}
 
 void TestScene::ComponentContainerTest() const
 {

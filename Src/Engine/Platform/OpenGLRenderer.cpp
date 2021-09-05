@@ -7,7 +7,6 @@
 
 #include "Engine/Logger.h"
 #include "Engine/MeshStores.h"
-#include "Engine/TextureStores.h"
 
 #include "Engine/Platform/OpenGLShader.h"
 #include "Engine/Platform/OpenGLTexture.h"
@@ -19,10 +18,8 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLRenderer::OpenGLRenderer(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr)
-        : meshStoresPtr_(meshStoresPtr)
-        , textureStoresPtr_(textureStoresPtr)
-        , isCurrentContext_(true)
+    OpenGLRenderer::OpenGLRenderer()
+        : isCurrentContext_(true)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
@@ -139,11 +136,6 @@ namespace Project001
         ///glBindBuffer(GL_ARRAY_BUFFER, 0);
         ///glBindVertexArray(0);
 
-        for (int i = 0; i < s_numberOfTextureSlots_; ++i)
-        {
-            texturePtrs_[i] = nullptr;
-        }
-
         pointLights_.reserve(s_numberOfPointLights_);
         spotLights_.reserve(s_numberOfSpotLights_);
 
@@ -164,43 +156,83 @@ namespace Project001
     {
         delete shaderPtr_;
 
-        for (int i = 0; i < s_numberOfTextureSlots_; ++i)
-        {
-            delete texturePtrs_[i];
-        }
+        ClearTextures();
 
         glDeleteBuffers(1, &vertexBufferId_);
         glDeleteVertexArrays(1, &vertexArrayId_);
     }
 
-    // TODO: Create some sort of texture LRU cache so I don't have to track texture slots.
-    void OpenGLRenderer::AddTexture(
-        unsigned int textureSlot,
+    bool OpenGLRenderer::AddTexture(
+        unsigned int textureIndex,
+        unsigned int textureUnit,
         unsigned char* data,
         int width,
         int height,
         int numberOfComponents)
     {
-        CheckAndMakeContextCurrent();
-
-        if (textureSlot >= 0 && textureSlot < s_numberOfTextureSlots_)
+        if (textureUnit < s_numberOfTextureSlots_)
         {
-            OpenGLTexture*& texturePtr = texturePtrs_[textureSlot];
-            if (texturePtr != nullptr)
+            CheckAndMakeContextCurrent();
+
+            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
             {
-                delete texturePtr;
+                delete texturePtrMap_[textureIndex];
             }
-            texturePtr = new OpenGLTexture(textureSlot, data, width, height, numberOfComponents);
+
+            texturePtrMap_[textureIndex] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
+            textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
+    bool OpenGLRenderer::BindTexture(
+        unsigned int textureIndex,
+        unsigned int textureUnit)
+    {
+        if (textureUnit < s_numberOfTextureSlots_)
+        {
+
+            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
+            {
+                texturePtrMap_[textureIndex]->Bind(textureUnit);
+                textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void OpenGLRenderer::ClearTextures()
+    {
+        for (std::map<unsigned int, OpenGLTexture*>::iterator iter = texturePtrMap_.begin();
+            iter != texturePtrMap_.end(); ++iter)
+        {
+            delete iter->second;
+        }
+        texturePtrMap_.clear();
+        textureIndexToUnitBiMap_.Clear();
+    }
+
     void OpenGLRenderer::AddModel(
-        const unsigned int& meshIndex,
-        const unsigned int& textureIndex,
-        const unsigned int& specularIndex,
-        const float& shininess,
+        MeshStores* meshStoresPtr,
+        unsigned int meshIndex,
+        unsigned int textureIndex,
+        unsigned int specularIndex,
+        float shininess,
         const glm::vec4& color,
-        const bool& translucent,
+        bool translucent,
         const glm::vec3& scale,
         const glm::vec3& position,
         const glm::quat& orientation)
@@ -210,18 +242,18 @@ namespace Project001
         glm::uint* meshIndicies;
         glm::uint meshIndexCount;
 
-        if (meshStoresPtr_->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount))
+        if (meshStoresPtr->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount))
         {
             float textureSlot = -1.0f;
-            if (textureIndex != (unsigned int)-1) // convert textureIndex to textureSlot
+            if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureSlot
             {
-                textureSlot = (float)textureIndex;
+                textureSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
             }
 
             float specularSlot = -1.0f;
-            if (specularIndex != (unsigned int)-1) // convert specularIndex to specularSlot
+            if (textureIndexToUnitBiMap_.Find_X(specularIndex)) // convert specularIndex to textureSlot
             {
-                specularSlot = (float)specularIndex;
+                specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
             }
 
             glm::uint vertexBufferOffset = (glm::uint)vertexBuffer_.size();
@@ -409,6 +441,10 @@ namespace Project001
 
         RenderTriangles(sortedTranslucentVertexBuffer);
 
+        // Swap imediatly for debugging
+        // glfwSwapInterval(0);
+
+        // Uses default platform swap interval, usually 60 fps
         glfwSwapBuffers(glfwWindowPtr_);
     }
 

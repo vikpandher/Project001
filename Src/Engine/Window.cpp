@@ -10,4 +10,7 @@ namespace Project001
     {
         return new OpenGLWindow(title, width, height);
     }
+
+    Window::~Window()
+    {}
 }

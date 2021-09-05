@@ -12,7 +12,7 @@ namespace Project001
     {
     public:
         OpenGLWindow(const char* title, int width, int height);
-        ~OpenGLWindow();
+        virtual ~OpenGLWindow() override;
 
         OpenGLWindow(OpenGLWindow& other) = delete;
         void operator=(const OpenGLWindow&) = delete;

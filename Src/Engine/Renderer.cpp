@@ -6,8 +6,11 @@
 
 namespace Project001
 {
-    Renderer* Renderer::Create(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr)
+    Renderer* Renderer::Create()
     {
-        return new OpenGLRenderer(meshStoresPtr, textureStoresPtr);
+        return new OpenGLRenderer();
     }
+
+    Renderer::~Renderer()
+    {}
 }

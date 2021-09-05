@@ -32,6 +32,7 @@ source_group("Src" FILES ${SOURCE_FILES})
 set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
+    "Src/Engine/BiMap.h"
     "Src/Engine/ComponentContainer.cpp"
     "Src/Engine/ComponentContainer.h"
     "Src/Engine/ComponentStores.cpp"

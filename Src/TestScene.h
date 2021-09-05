@@ -120,6 +120,7 @@ protected:
     unsigned int shape15EntityId_;
 
 private:
+    void BiMapTest() const;
     void ComponentContainerTest() const;
     void ComponentStoresTest() const;
     void LRUArrayTest() const;

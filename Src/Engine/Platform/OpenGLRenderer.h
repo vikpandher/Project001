@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/BiMap.h"
 #include "Engine/Renderer.h"
 
 
@@ -14,18 +15,22 @@ namespace Project001
     class OpenGLRenderer : public Renderer
     {
     public:
-        OpenGLRenderer(MeshStores* meshStoresPtr, TextureStores* textureStoresPtr);
-        ~OpenGLRenderer();
+        OpenGLRenderer();
+        virtual ~OpenGLRenderer() override;
 
-        void AddTexture(
-            unsigned int textureSlot,
+        bool AddTexture(
+            unsigned int textureIndex,
+            unsigned int textureUnit,
             unsigned char* data,
             int width,
             int height,
             int numberOfComponents) override;
 
-        void SetmeshStoresPtr(MeshStores* meshStoresPtr) override;
-        void SetTextureStoresPtr(TextureStores* textureStoresPtr) override;
+        bool BindTexture(
+            unsigned int textureIndex,
+            unsigned int textureUnit) override;
+
+        void ClearTextures() override;
 
         void SetViewMatrix(const glm::mat4& viewMatrix) override;
         void SetViewPosition(const glm::vec3& viewPosition) override;
@@ -38,20 +43,20 @@ namespace Project001
             const glm::vec3& specular) override;
         void AddPointLight(
             const glm::vec3& position,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) override;
         void AddSpotLight(
             const glm::vec3& position,
             const glm::vec3& direction,
-            const float& cutoff,
-            const float& outerCutoff,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float cutoff,
+            float outerCutoff,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) override;
@@ -61,12 +66,13 @@ namespace Project001
         void ClearSpotLights() override;
 
         void AddModel(
-            const unsigned int& meshIndex,
-            const unsigned int& textureIndex,
-            const unsigned int& specularIndex,
-            const float& shininess,
+            MeshStores* meshStoresPtr,
+            unsigned int meshIndex,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
             const glm::vec4& color,
-            const bool& translucent,
+            bool translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
             const glm::quat& orientation) override;
@@ -88,9 +94,6 @@ namespace Project001
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
 
-        MeshStores* meshStoresPtr_;
-        TextureStores* textureStoresPtr_;
-
         GLFWwindow* glfwWindowPtr_;
 
         bool isCurrentContext_;
@@ -106,7 +109,8 @@ namespace Project001
         // locations
         unsigned int vertexArrayId_;
 
-        OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
+        std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
+        BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
@@ -121,16 +125,6 @@ namespace Project001
 
     private:
     };
-
-    inline void OpenGLRenderer::SetmeshStoresPtr(MeshStores* meshStoresPtr)
-    {
-        meshStoresPtr_ = meshStoresPtr;
-    }
-
-    inline void OpenGLRenderer::SetTextureStoresPtr(TextureStores* textureStoresPtr)
-    {
-        textureStoresPtr_ = textureStoresPtr;
-    }
 
     inline void OpenGLRenderer::SetViewMatrix(const glm::mat4& viewMatrix)
     {
@@ -161,9 +155,9 @@ namespace Project001
 
     inline void OpenGLRenderer::AddPointLight(
         const glm::vec3& position,
-        const float& constant,
-        const float& linear,
-        const float& quadratic,
+        float constant,
+        float linear,
+        float quadratic,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
         const glm::vec3& specular)
@@ -184,11 +178,11 @@ namespace Project001
     inline void OpenGLRenderer::AddSpotLight(
         const glm::vec3& position,
         const glm::vec3& direction,
-        const float& cutoff,
-        const float& outerCutoff,
-        const float& constant,
-        const float& linear,
-        const float& quadratic,
+        float cutoff,
+        float outerCutoff,
+        float constant,
+        float linear,
+        float quadratic,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
         const glm::vec3& specular)
