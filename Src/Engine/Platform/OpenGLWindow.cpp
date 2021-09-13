@@ -168,14 +168,6 @@ namespace Project001
         glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
     }
 
-    void OpenGLWindow::SetViewportSize(int x, int y, int width, int height)
-    {
-        CheckAndMakeContextCurrent();
-
-        glViewport(x, y, width, height);
-        glScissor(x, y, width, height);
-    }
-
     void OpenGLWindow::SetWindowSize(int width, int height)
     {
         glfwSetWindowSize(glfwWindowPtr_, width, height);

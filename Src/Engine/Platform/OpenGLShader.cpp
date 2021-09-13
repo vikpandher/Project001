@@ -223,5 +223,7 @@ namespace Project001
 
             Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
         }
+
+        Project001::Logger::Message("");
     }
 }

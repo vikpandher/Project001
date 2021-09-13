@@ -8,7 +8,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLTexture::OpenGLTexture(unsigned int textureUnit, const unsigned char* data, int width, int height, unsigned int numberOfComponents)
+    OpenGLTexture::OpenGLTexture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int numberOfComponents)
     {
         glGenTextures(1, &textureId_);
         glActiveTexture(GL_TEXTURE0 + textureUnit);

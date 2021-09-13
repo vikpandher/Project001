@@ -1,6 +1,6 @@
 #include "TestScene.h"
 
-#include <chrono>
+// #include <chrono>
 
 #include "DeathFlag.h"
 #include "TestComponents.h"
@@ -241,37 +241,37 @@ void TestScene::Initialize(
     textureStoresPtr_->LoadTexture(diceTexture01Index_, "../Textures/CounterclockwiseDie.png");
     Project001::TextureData diceTexture01Data;
     textureStoresPtr_->GetTexture(diceTexture01Index_, diceTexture01Data);
-    rendererPtr_->AddTexture(diceTexture01Index_, 0, diceTexture01Data.data,
+    rendererPtr_->AddTexture(diceTexture01Index_, 1, diceTexture01Data.data,
         diceTexture01Data.width, diceTexture01Data.height, diceTexture01Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(diceTexture02Index_, "../Textures/HallowDie.png");
     Project001::TextureData diceTexture02Data;
     textureStoresPtr_->GetTexture(diceTexture02Index_, diceTexture02Data);
-    rendererPtr_->AddTexture(diceTexture02Index_, 1, diceTexture02Data.data,
+    rendererPtr_->AddTexture(diceTexture02Index_, 2, diceTexture02Data.data,
         diceTexture02Data.width, diceTexture02Data.height, diceTexture02Data.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(thonkTextureIndex_, "../Textures/Thonk.png");
     Project001::TextureData thonkTextureData;
     textureStoresPtr_->GetTexture(thonkTextureIndex_, thonkTextureData);
-    rendererPtr_->AddTexture(thonkTextureIndex_, 2, thonkTextureData.data,
+    rendererPtr_->AddTexture(thonkTextureIndex_, 3, thonkTextureData.data,
         thonkTextureData.width, thonkTextureData.height, thonkTextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(_100x100TextureIndex_, "../Textures/100x100.png");
     Project001::TextureData _100x100TextureData;
     textureStoresPtr->GetTexture(_100x100TextureIndex_, _100x100TextureData);
-    rendererPtr->AddTexture(_100x100TextureIndex_, 3, _100x100TextureData.data,
+    rendererPtr->AddTexture(_100x100TextureIndex_, 4, _100x100TextureData.data,
         _100x100TextureData.width, _100x100TextureData.height, _100x100TextureData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(patternSpecularIndex_, "../Textures/Specular2.png");
     Project001::TextureData patternSpecularData;
     textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
-    rendererPtr_->AddTexture(patternSpecularIndex_, 4, patternSpecularData.data,
+    rendererPtr_->AddTexture(patternSpecularIndex_, 5, patternSpecularData.data,
         patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
     textureStoresPtr_->LoadTexture(thonkSpecularIndex_, "../Textures/ThonkSpecular.png");
     Project001::TextureData thonkSpecularData;
     textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
-    rendererPtr_->AddTexture(thonkSpecularIndex_, 5, thonkSpecularData.data,
+    rendererPtr_->AddTexture(thonkSpecularIndex_, 6, thonkSpecularData.data,
         thonkSpecularData.width, thonkSpecularData.height, thonkSpecularData.numberOfComponents);
 
     // scene data entity
@@ -911,7 +911,8 @@ void TestScene::RenderRenderableEntities()
                 currentRenderedModel.GetTranslucent(),
                 currentRenderedModel.GetScale(),
                 currentRenderedModel.GetPosition(),
-                currentRenderedModel.GetOrientation()
+                currentRenderedModel.GetOrientation(),
+                currentRenderedModel.GetLit()
             );
         }
     }

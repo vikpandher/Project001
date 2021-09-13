@@ -23,8 +23,6 @@ namespace Project001
 
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
 
-        virtual void SetViewportSize(int x, int y, int width, int height) = 0;
-
         virtual void SetWindowSize(int width, int height) = 0;
 
         virtual void SetTime(const double time) = 0;

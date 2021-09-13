@@ -15,16 +15,26 @@ namespace Project001
     class OpenGLRenderer : public Renderer
     {
     public:
-        OpenGLRenderer();
+        OpenGLRenderer(unsigned int width, unsigned int height);
         virtual ~OpenGLRenderer() override;
+
+        void SetFramebufferSize(
+            unsigned int width,
+            unsigned int height) override;
+
+        void SetViewportSize(
+            unsigned int x,
+            unsigned int y,
+            unsigned int width,
+            unsigned int height) override;
 
         bool AddTexture(
             unsigned int textureIndex,
             unsigned int textureUnit,
             unsigned char* data,
-            int width,
-            int height,
-            int numberOfComponents) override;
+            unsigned int width,
+            unsigned int height,
+            unsigned int numberOfComponents) override;
 
         bool BindTexture(
             unsigned int textureIndex,
@@ -75,7 +85,8 @@ namespace Project001
             bool translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
-            const glm::quat& orientation) override;
+            const glm::quat& orientation,
+            bool lit) override;
 
         void ClearBuffers() override;
 
@@ -83,6 +94,8 @@ namespace Project001
 
     protected:
         void CheckAndMakeContextCurrent();
+
+        void CreateFramebuffer();
 
         void RenderTriangles(const std::vector<VertexData>& vertexBuffer);
 
@@ -98,7 +111,8 @@ namespace Project001
 
         bool isCurrentContext_;
 
-        OpenGLShader* shaderPtr_;
+        OpenGLShader* primaryShaderPtr_;
+        OpenGLShader* screenShaderPtr_;
 
         // this holds the buffer's id
         // the buffer holds the blob of data that will be displayed
@@ -108,6 +122,22 @@ namespace Project001
         // the vertex array holds information about the vertex attribute
         // locations
         unsigned int vertexArrayId_;
+
+        unsigned int screenVertexBufferId_;
+        unsigned int screenVertexArrayId_;
+
+        unsigned int frameBufferWidth_;
+        unsigned int frameBufferHeight_;
+
+        unsigned int viewportX_;
+        unsigned int viewportY_;
+        unsigned int viewportWidth_;
+        unsigned int viewportHeight_;
+
+        unsigned int frameBufferId_;
+        unsigned int screenTextureColorBufferId_;
+
+        unsigned int renderBufferId_;
 
         std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;

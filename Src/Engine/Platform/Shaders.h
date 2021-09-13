@@ -18,6 +18,7 @@ layout (location = 6) in float in_Shininess;
 layout (location = 7) in vec3 in_Scale;
 layout (location = 8) in vec3 in_Translation;
 layout (location = 9) in vec4 in_Orientation;
+layout (location = 10) in float in_Lit;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;
@@ -29,6 +30,7 @@ out vec4 v_Color;
 flat out float v_TextureSlot;
 flat out float v_SpecularSlot;
 flat out float v_Shininess;
+flat out float v_Lit;
 
 void main()
 {
@@ -50,6 +52,8 @@ void main()
     v_SpecularSlot = in_SpecularSlot;
 
     v_Shininess = in_Shininess;
+
+    v_Lit = in_Lit;
 
     gl_Position = u_Projection * u_View * vec4(v_FragmentPosition, 1.0);
 }
@@ -106,6 +110,7 @@ in vec4 v_Color;
 flat in float v_TextureSlot;
 flat in float v_SpecularSlot;
 flat in float v_Shininess;
+flat in float v_Lit;
 
 uniform vec3 u_ViewPosition;
 
@@ -132,85 +137,92 @@ void main()
     vec3 totalAmbientAndDiffuseLightMultiplier = vec3(0.0, 0.0, 0.0);
     vec3 totalSpecularLightMultiplier = vec3(0.0, 0.0, 0.0);
 
-    // DirectionalLightColor
-    // -------------------------------------------------------------------------
+    if (v_Lit > 0.5)
     {
-        vec3 normalizedLightDirection = normalize(-1 * u_DirectionalLight.direction);
-
-        float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
-
-        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
-
-        float specularMultiplier = 0.0;
-        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+        // DirectionalLightColor
+        // -------------------------------------------------------------------------
         {
-            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+            vec3 normalizedLightDirection = normalize(-1 * u_DirectionalLight.direction);
+
+            float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
+
+            vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
+
+            float specularMultiplier = 0.0;
+            if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+            {
+                specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+            }
+
+            totalAmbientAndDiffuseLightMultiplier += u_DirectionalLight.ambient;
+            totalAmbientAndDiffuseLightMultiplier += u_DirectionalLight.diffuse * diffuseMultiplier;
+            totalSpecularLightMultiplier += u_DirectionalLight.specular * specularMultiplier;
         }
 
-        totalAmbientAndDiffuseLightMultiplier += u_DirectionalLight.ambient;
-        totalAmbientAndDiffuseLightMultiplier += u_DirectionalLight.diffuse * diffuseMultiplier;
-        totalSpecularLightMultiplier += u_DirectionalLight.specular * specularMultiplier;
+        // PointLightColors
+        // -------------------------------------------------------------------------
+        for (int i = 0; i < NUMBER_OF_POINT_LIGHTS; ++i)
+        {
+            vec3 normalizedLightDirection = normalize(u_PointLights[i].position - v_FragmentPosition);
+
+            float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
+
+            vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
+
+            float specularMultiplier = 0.0;
+            if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+            {
+                specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+            }
+
+            float distanceToFragment = length(u_PointLights[i].position - v_FragmentPosition);
+            float attenuation = 1.0 / (u_PointLights[i].constant + u_PointLights[i].linear * distanceToFragment + u_PointLights[i].quadratic * (distanceToFragment * distanceToFragment));
+
+            totalAmbientAndDiffuseLightMultiplier += u_PointLights[i].ambient * attenuation;
+            totalAmbientAndDiffuseLightMultiplier += u_PointLights[i].diffuse * diffuseMultiplier* attenuation;
+            totalSpecularLightMultiplier += u_PointLights[i].specular * specularMultiplier * attenuation;
+        }
+
+        // SpotLightColors
+        // -------------------------------------------------------------------------
+        for (int i = 0; i < NUMBER_OF_SPOT_LIGHTS; ++i)
+        {
+            vec3 normalizedLightDirection = normalize(u_SpotLights[i].position - v_FragmentPosition);
+
+            float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
+
+            vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
+
+            float specularMultiplier = 0.0;
+            if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
+            {
+                specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
+            }
+
+            float distanceToFragment = length(u_SpotLights[i].position - v_FragmentPosition);
+            float attenuation = 1.0 / (u_SpotLights[i].constant + u_SpotLights[i].linear * distanceToFragment + u_SpotLights[i].quadratic * (distanceToFragment * distanceToFragment));
+
+            float theta = dot(normalizedLightDirection, normalize(-1 * u_SpotLights[i].direction));
+            float epsilon = u_SpotLights[i].cutoff - u_SpotLights[i].outercutoff;
+
+            float intensity = 0.0;
+            if (epsilon > 0.0)
+            {
+                intensity = clamp((theta - u_SpotLights[i].outercutoff) / epsilon, 0.0, 1.0);
+            }
+            else if (theta > u_SpotLights[i].cutoff)
+            {
+                intensity = 1.0;
+            }
+
+            totalAmbientAndDiffuseLightMultiplier += u_SpotLights[i].ambient * attenuation * intensity;
+            totalAmbientAndDiffuseLightMultiplier += u_SpotLights[i].diffuse * diffuseMultiplier* attenuation * intensity;
+            totalSpecularLightMultiplier += u_SpotLights[i].specular * specularMultiplier * attenuation * intensity;
+        }
     }
-
-    // PointLightColors
-    // -------------------------------------------------------------------------
-    for (int i = 0; i < NUMBER_OF_POINT_LIGHTS; ++i)
+    else
     {
-        vec3 normalizedLightDirection = normalize(u_PointLights[i].position - v_FragmentPosition);
-
-        float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
-
-        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
-
-        float specularMultiplier = 0.0;
-        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
-        {
-            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
-        }
-
-        float distanceToFragment = length(u_PointLights[i].position - v_FragmentPosition);
-        float attenuation = 1.0 / (u_PointLights[i].constant + u_PointLights[i].linear * distanceToFragment + u_PointLights[i].quadratic * (distanceToFragment * distanceToFragment));
-
-        totalAmbientAndDiffuseLightMultiplier += u_PointLights[i].ambient * attenuation;
-        totalAmbientAndDiffuseLightMultiplier += u_PointLights[i].diffuse * diffuseMultiplier* attenuation;
-        totalSpecularLightMultiplier += u_PointLights[i].specular * specularMultiplier * attenuation;
-    }
-
-    // SpotLightColors
-    // -------------------------------------------------------------------------
-    for (int i = 0; i < NUMBER_OF_SPOT_LIGHTS; ++i)
-    {
-        vec3 normalizedLightDirection = normalize(u_SpotLights[i].position - v_FragmentPosition);
-
-        float diffuseMultiplier = max(dot(v_Normal, normalizedLightDirection), 0.0);
-
-        vec3 reflectedLightDirection = reflect(-1 * normalizedLightDirection, v_Normal);
-
-        float specularMultiplier = 0.0;
-        if (diffuseMultiplier > 0.0 && v_Shininess > 0.0)
-        {
-            specularMultiplier = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), v_Shininess);
-        }
-
-        float distanceToFragment = length(u_SpotLights[i].position - v_FragmentPosition);
-        float attenuation = 1.0 / (u_SpotLights[i].constant + u_SpotLights[i].linear * distanceToFragment + u_SpotLights[i].quadratic * (distanceToFragment * distanceToFragment));
-
-        float theta = dot(normalizedLightDirection, normalize(-1 * u_SpotLights[i].direction));
-        float epsilon = u_SpotLights[i].cutoff - u_SpotLights[i].outercutoff;
-
-        float intensity = 0.0;
-        if (epsilon > 0.0)
-        {
-            intensity = clamp((theta - u_SpotLights[i].outercutoff) / epsilon, 0.0, 1.0);
-        }
-        else if (theta > u_SpotLights[i].cutoff)
-        {
-            intensity = 1.0;
-        }
-
-        totalAmbientAndDiffuseLightMultiplier += u_SpotLights[i].ambient * attenuation * intensity;
-        totalAmbientAndDiffuseLightMultiplier += u_SpotLights[i].diffuse * diffuseMultiplier* attenuation * intensity;
-        totalSpecularLightMultiplier += u_SpotLights[i].specular * specularMultiplier * attenuation * intensity;
+        totalAmbientAndDiffuseLightMultiplier = vec3(1.0, 1.0, 1.0);
     }
 
     // result
@@ -230,7 +242,7 @@ vec4 GetTextureColor(float textureSlot)
     {
         return vec4(1.0, 1.0, 1.0, 1.0);
     }
-    else if (textureSlot >= NUMBER_OF_TEXTURES)
+    else if (textureSlotInt >= NUMBER_OF_TEXTURES)
     {
         return vec4(0.0, 0.0, 0.0, 1.0);
     }
@@ -276,6 +288,42 @@ float GetDiffuseMultiplier(vec3 normal, vec3 normalizedLightDirection, bool ligh
         diffuseMultiplier = max(diffuseMultiplier, 0.0);
     }
     return diffuseMultiplier;
+}
+    )";
+
+    static const char* g_vertexShaderSource02_ = R"(
+#version 330 core
+
+layout (location = 0) in vec2 in_Position;
+layout (location = 1) in vec2 in_TextureCoordinate;
+
+out vec2 v_TextureCoordinate;
+
+void main()
+{
+    v_TextureCoordinate = in_TextureCoordinate;
+
+    gl_Position = vec4(in_Position.x, in_Position.y, 0.0, 1.0); 
+}
+    )";
+
+    static const char* g_fragmentShaderSource02_ = R"(
+#version 330 core
+
+in vec2 v_TextureCoordinate;
+
+uniform sampler2D u_ScreenTexture;
+
+layout (location = 0) out vec4 f_Color;
+
+void main()
+{
+    vec3 color = texture(u_ScreenTexture, v_TextureCoordinate).rgb;
+    f_Color = vec4(color, 1.0);
+
+    // Gray Scale
+    // float averageColor = (color.r + color.g + color.b) / 3.0;
+    // f_Color = vec4(averageColor, averageColor, averageColor, 1.0);
 }
     )";
 }

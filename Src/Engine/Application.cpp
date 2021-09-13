@@ -34,7 +34,7 @@ namespace Project001
         meshStoresPtr_ = new MeshStores();
         textureStoresPtr_ = new TextureStores();
 
-        rendererPtr_ = Renderer::Create();
+        rendererPtr_ = Renderer::Create(windowWidth, windowHeight);
     }
 
     Application::~Application()
@@ -129,6 +129,33 @@ namespace Project001
         deinitializeSceneEvent.handled = true;
     }
 
+    void Application::ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent)
+    {
+        const int& height = frameBufferSizeEvent.height;
+        const int& width = frameBufferSizeEvent.width;
+
+        float aspectRatio = (float)windowWidth_ / (float)windowHeight_;
+
+        int adjustedHeight = (int)(width / aspectRatio);
+        int adjustedWidth = (int)(height * aspectRatio);
+
+        if (adjustedWidth > width)
+        {
+            adjustedWidth = width;
+        }
+
+        if (adjustedHeight > height)
+        {
+            adjustedHeight = height;
+        }
+
+        int lowerLeftX = (width - adjustedWidth) / 2;
+        int lowerLeftY = (height - adjustedHeight) / 2;
+
+        rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
+        rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+    }
+
     void Application::ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent)
     {
         std::string& name = initializeSceneEvent.sceneName;
@@ -156,43 +183,14 @@ namespace Project001
         windowCloseEvent.handled = true;
     }
 
-    void Application::ProcessWindowSizeEvent(WindowSizeEvent& windowSizeEvent)
-    {
-        int height = windowSizeEvent.height;
-        int width = windowSizeEvent.width;
-
-        int oldWidth;
-        int oldHeight;
-        windowPtr_->GetWindowSize(oldWidth, oldHeight);
-
-        float aspectRatio = (float)windowWidth_ / (float)windowHeight_;
-
-        int adjustedHeight = (int)(width / aspectRatio);
-        int adjustedWidth = (int)(height * aspectRatio);
-
-        if (adjustedWidth > width)
-        {
-            adjustedWidth = width;
-        }
-
-        if (adjustedHeight > height)
-        {
-            adjustedHeight = height;
-        }
-
-        int lowerLeftX = (width - adjustedWidth) / 2;
-        int lowerLeftY = (height - adjustedHeight) / 2;
-
-        windowPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
-    }
-
     void Application::OnEvent(Event& event)
     {
         DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
         DispatchEvent<InitializeSceneEvent>(event, std::bind(&Application::ProcessInitializeSceneEvent, this, std::placeholders::_1));
         DispatchEvent<DeinitializeSceneEvent>(event, std::bind(&Application::ProcessDeinitializeSceneEvent, this, std::placeholders::_1));
+
+        DispatchEvent<FrameBufferSizeEvent>(event, std::bind(&Application::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
         DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
-        DispatchEvent<WindowSizeEvent>(event, std::bind(&Application::ProcessWindowSizeEvent, this, std::placeholders::_1));
 
         if (!event.handled && activeScenePtr_ != nullptr)
         {

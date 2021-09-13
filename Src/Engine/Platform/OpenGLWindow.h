@@ -24,8 +24,6 @@ namespace Project001
         // Setting numerator and denominator to -1 unlocks the aspect ratio.
         void SetAspectRatio(int numerator, int denominator);
 
-        void SetViewportSize(int x, int y, int width, int height) override;
-
         void SetWindowSize(int width, int height) override;
 
         // Time measurements are in seconds

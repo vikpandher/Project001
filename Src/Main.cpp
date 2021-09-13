@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240*4, 160*4);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 4, 160 * 4);
 
     TestScene* testScenePtr = new TestScene();
 

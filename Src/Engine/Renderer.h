@@ -11,17 +11,27 @@ namespace Project001
     class Renderer
     {
     public:
-        static Renderer* Create();
+        static Renderer* Create(unsigned int width, unsigned int height);
 
         virtual ~Renderer();
+
+        virtual void SetFramebufferSize(
+            unsigned int width,
+            unsigned int height) = 0;
+
+        virtual void SetViewportSize(
+            unsigned int x,
+            unsigned int y,
+            unsigned int width,
+            unsigned int height) = 0;
 
         virtual bool AddTexture(
             unsigned int textureIndex,
             unsigned int textureUnit,
             unsigned char* data,
-            int width,
-            int height,
-            int numberOfComponents) = 0;
+            unsigned int width,
+            unsigned int height,
+            unsigned int numberOfComponents) = 0;
 
         virtual bool BindTexture(
             unsigned int textureIndex,
@@ -72,7 +82,8 @@ namespace Project001
             bool translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
-            const glm::quat& orientation) = 0;
+            const glm::quat& orientation,
+            bool lit) = 0;
 
         virtual void ClearBuffers() = 0;
 

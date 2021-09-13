@@ -13,6 +13,7 @@ namespace Project001
         , shininess_(0.0f)
         , color_(1.0f, 1.0f, 1.0f, 1.0f)
         , translucent_(false)
+        , lit_(true)
     {}
 
     RenderedModel::~RenderedModel()

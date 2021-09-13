@@ -32,6 +32,9 @@ namespace Project001
         void SetTranslucent(bool translucent);
         bool GetTranslucent() const;
 
+        void SetLit(bool lit);
+        bool GetLit() const;
+
     protected:
         bool visible_;
         unsigned int textureIndex_;
@@ -39,6 +42,7 @@ namespace Project001
         float shininess_; // 32.0f looks good
         glm::vec4 color_;
         bool translucent_;
+        bool lit_;
 
     private:
     };
@@ -116,5 +120,15 @@ namespace Project001
     inline bool RenderedModel::GetTranslucent() const
     {
         return translucent_;
+    }
+
+    inline void RenderedModel::SetLit(bool lit)
+    {
+        lit_ = lit;
+    }
+
+    inline bool RenderedModel::GetLit() const
+    {
+        return lit_;
     }
 }

@@ -168,6 +168,7 @@ namespace Project001
             , scale(1.0f, 1.0f, 1.0f)
             , translation(0.0f, 0.0f, 0.0f)
             , orientation(0.0f, 0.0f, 0.0f, 1.0f)
+            , lit(1.0f)
         {}
 
         glm::vec3 position;
@@ -180,7 +181,7 @@ namespace Project001
         glm::vec3 scale;
         glm::vec3 translation;
         glm::vec4 orientation; // x, y, z, w
-        // add scale factor
+        float lit;
     };
 
     struct RenderData

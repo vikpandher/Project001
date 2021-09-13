@@ -16,9 +16,9 @@ namespace Project001
 
     struct Event;
     struct DeinitializeSceneEvent;
+    struct FrameBufferSizeEvent;
     struct InitializeSceneEvent;
     struct WindowCloseEvent;
-    struct WindowSizeEvent;
     struct SwitchSceneEvent;
 
     class Application
@@ -36,10 +36,10 @@ namespace Project001
 
     protected:
         void ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent);
+        void ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent);
         void ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent);
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
-        void ProcessWindowSizeEvent(WindowSizeEvent& windowSizeEvent);
 
         void OnEvent(Event& event);
 
