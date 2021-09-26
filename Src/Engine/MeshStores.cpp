@@ -207,6 +207,19 @@ namespace Project001
         return false;
     }
 
+    void MeshStores::GenerateBox(
+        glm::uint& index,
+        float xLength,
+        float yLength,
+        float zLength,
+        bool triangulate)
+    {
+        MeshData newMeshData;
+        GenerateBox(newMeshData, meshVertexArray_, meshIndexArray_, xLength, yLength, zLength, triangulate);
+        meshDataArray_.push_back(newMeshData);
+        index = (glm::uint)(meshDataArray_.size() - 1);
+    }
+
     bool MeshStores::NormalizeMeshSize(glm::uint& index)
     {
         if (index >= meshDataArray_.size())
@@ -1334,6 +1347,264 @@ namespace Project001
         }
 
         return true;
+    }
+
+    void MeshStores::GenerateBox(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<glm::uint>& meshIndexArray,
+        float xLength,
+        float yLength,
+        float zLength,
+        bool triangulate)
+    {
+        if (xLength < 0.0f)
+        {
+            xLength *= 1.0f;
+        }
+
+        if (yLength < 0.0f)
+        {
+            yLength *= 1.0f;
+        }
+
+        if (zLength < 0.0f)
+        {
+            zLength *= 1.0f;
+        }
+
+        glm::vec3 octant_posX_posY_posZ(xLength /  2.0f, yLength /  2.0f, zLength /  2.0f);
+        glm::vec3 octant_posX_posY_negZ(xLength /  2.0f, yLength /  2.0f, zLength / -2.0f);
+        glm::vec3 octant_posX_negY_posZ(xLength /  2.0f, yLength / -2.0f, zLength /  2.0f);
+        glm::vec3 octant_posX_negY_negZ(xLength /  2.0f, yLength / -2.0f, zLength / -2.0f);
+        glm::vec3 octant_negX_posY_posZ(xLength / -2.0f, yLength /  2.0f, zLength /  2.0f);
+        glm::vec3 octant_negX_posY_negZ(xLength / -2.0f, yLength /  2.0f, zLength / -2.0f);
+        glm::vec3 octant_negX_negY_posZ(xLength / -2.0f, yLength / -2.0f, zLength /  2.0f);
+        glm::vec3 octant_negX_negY_negZ(xLength / -2.0f, yLength / -2.0f, zLength / -2.0f);
+
+        glm::vec3 normal_posX( 1.0f,  0.0f,  0.0f);
+        glm::vec3 normal_negX(-1.0f,  0.0f,  0.0f);
+        glm::vec3 normal_posY( 0.0f,  1.0f,  0.0f);
+        glm::vec3 normal_negY( 0.0f, -1.0f,  0.0f);
+        glm::vec3 normal_posZ( 0.0f,  0.0f,  1.0f);
+        glm::vec3 normal_negZ( 0.0f,  0.0f, -1.0f);
+
+        MeshVertex meshVertex_frontFace_topRight;
+        meshVertex_frontFace_topRight.position = octant_posX_posY_posZ;
+        meshVertex_frontFace_topRight.normal = normal_posZ;
+        MeshVertex meshVertex_frontFace_topLeft;
+        meshVertex_frontFace_topLeft.position = octant_negX_posY_posZ;
+        meshVertex_frontFace_topLeft.normal = normal_posZ;
+        MeshVertex meshVertex_frontFace_bottomRight;
+        meshVertex_frontFace_bottomRight.position = octant_posX_negY_posZ;
+        meshVertex_frontFace_bottomRight.normal = normal_posZ;
+        MeshVertex meshVertex_frontFace_bottomLeft;
+        meshVertex_frontFace_bottomLeft.position = octant_negX_negY_posZ;
+        meshVertex_frontFace_bottomLeft.normal = normal_posZ;
+
+        MeshVertex meshVertex_rightFace_topRight;
+        meshVertex_rightFace_topRight.position = octant_posX_posY_negZ;
+        meshVertex_rightFace_topRight.normal = normal_posX;
+        MeshVertex meshVertex_rightFace_topLeft;
+        meshVertex_rightFace_topLeft.position = octant_posX_posY_posZ;
+        meshVertex_rightFace_topLeft.normal = normal_posX;
+        MeshVertex meshVertex_rightFace_bottomRight;
+        meshVertex_rightFace_bottomRight.position = octant_posX_negY_negZ;
+        meshVertex_rightFace_bottomRight.normal = normal_posX;
+        MeshVertex meshVertex_rightFace_bottomLeft;
+        meshVertex_rightFace_bottomLeft.position = octant_posX_negY_posZ;
+        meshVertex_rightFace_bottomLeft.normal = normal_posX;
+
+        MeshVertex meshVertex_backFace_topRight;
+        meshVertex_backFace_topRight.position = octant_negX_posY_negZ;
+        meshVertex_backFace_topRight.normal = normal_negZ;
+        MeshVertex meshVertex_backFace_topLeft;
+        meshVertex_backFace_topLeft.position = octant_posX_posY_negZ;
+        meshVertex_backFace_topLeft.normal = normal_negZ;
+        MeshVertex meshVertex_backFace_bottomRight;
+        meshVertex_backFace_bottomRight.position = octant_negX_negY_negZ;
+        meshVertex_backFace_bottomRight.normal = normal_negZ;
+        MeshVertex meshVertex_backFace_bottomLeft;
+        meshVertex_backFace_bottomLeft.position = octant_posX_negY_negZ;
+        meshVertex_backFace_bottomLeft.normal = normal_negZ;
+
+        MeshVertex meshVertex_leftFace_topRight;
+        meshVertex_leftFace_topRight.position = octant_negX_posY_posZ;
+        meshVertex_leftFace_topRight.normal = normal_negX;
+        MeshVertex meshVertex_leftFace_topLeft;
+        meshVertex_leftFace_topLeft.position = octant_negX_posY_negZ;
+        meshVertex_leftFace_topLeft.normal = normal_negX;
+        MeshVertex meshVertex_leftFace_bottomRight;
+        meshVertex_leftFace_bottomRight.position = octant_negX_negY_posZ;
+        meshVertex_leftFace_bottomRight.normal = normal_negX;
+        MeshVertex meshVertex_leftFace_bottomLeft;
+        meshVertex_leftFace_bottomLeft.position = octant_negX_negY_negZ;
+        meshVertex_leftFace_bottomLeft.normal = normal_negX;
+
+        MeshVertex meshVertex_topFace_topRight;
+        meshVertex_topFace_topRight.position = octant_posX_posY_negZ;
+        meshVertex_topFace_topRight.normal = normal_posY;
+        MeshVertex meshVertex_topFace_topLeft;
+        meshVertex_topFace_topLeft.position = octant_negX_posY_negZ;
+        meshVertex_topFace_topLeft.normal = normal_posY;
+        MeshVertex meshVertex_topFace_bottomRight;
+        meshVertex_topFace_bottomRight.position = octant_posX_posY_posZ;
+        meshVertex_topFace_bottomRight.normal = normal_posY;
+        MeshVertex meshVertex_topFace_bottomLeft;
+        meshVertex_topFace_bottomLeft.position = octant_negX_posY_posZ;
+        meshVertex_topFace_bottomLeft.normal = normal_posY;
+
+        MeshVertex meshVertex_bottomFace_topRight;
+        meshVertex_bottomFace_topRight.position = octant_posX_negY_posZ;
+        meshVertex_bottomFace_topRight.normal = normal_negY;
+        MeshVertex meshVertex_bottomFace_topLeft;
+        meshVertex_bottomFace_topLeft.position = octant_negX_negY_posZ;
+        meshVertex_bottomFace_topLeft.normal = normal_negY;
+        MeshVertex meshVertex_bottomFace_bottomRight;
+        meshVertex_bottomFace_bottomRight.position = octant_posX_negY_negZ;
+        meshVertex_bottomFace_bottomRight.normal = normal_negY;
+        MeshVertex meshVertex_bottomFace_bottomLeft;
+        meshVertex_bottomFace_bottomLeft.position = octant_negX_negY_negZ;
+        meshVertex_bottomFace_bottomLeft.normal = normal_negY;
+
+        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
+        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.maxVertexPosition.x = xLength /  2.0f;
+        meshData.minVertexPosition.x = xLength / -2.0f;
+        meshData.maxVertexPosition.y = yLength /  2.0f;
+        meshData.minVertexPosition.x = yLength / -2.0f;
+        meshData.maxVertexPosition.z = zLength /  2.0f;
+        meshData.minVertexPosition.x = zLength / -2.0f;
+
+        if (triangulate)
+        {
+            meshVertexArray.push_back(meshVertex_frontFace_topRight);
+            meshVertexArray.push_back(meshVertex_frontFace_topLeft);
+            meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_frontFace_topRight);
+            meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_frontFace_bottomRight);
+
+            meshVertexArray.push_back(meshVertex_rightFace_topRight);
+            meshVertexArray.push_back(meshVertex_rightFace_topLeft);
+            meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_rightFace_topRight);
+            meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_rightFace_bottomRight);
+
+            meshVertexArray.push_back(meshVertex_backFace_topRight);
+            meshVertexArray.push_back(meshVertex_backFace_topLeft);
+            meshVertexArray.push_back(meshVertex_backFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_backFace_topRight);
+            meshVertexArray.push_back(meshVertex_backFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_backFace_bottomRight);
+
+            meshVertexArray.push_back(meshVertex_leftFace_topRight);
+            meshVertexArray.push_back(meshVertex_leftFace_topLeft);
+            meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_leftFace_topRight);
+            meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_leftFace_bottomRight);
+
+            meshVertexArray.push_back(meshVertex_topFace_topRight);
+            meshVertexArray.push_back(meshVertex_topFace_topLeft);
+            meshVertexArray.push_back(meshVertex_topFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_topFace_topRight);
+            meshVertexArray.push_back(meshVertex_topFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_topFace_bottomRight);
+
+            meshVertexArray.push_back(meshVertex_bottomFace_topRight);
+            meshVertexArray.push_back(meshVertex_bottomFace_topLeft);
+            meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_bottomFace_topRight);
+            meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);
+            meshVertexArray.push_back(meshVertex_bottomFace_bottomRight);
+
+            for (size_t i = 0; i < 36; ++i)
+            {
+                meshIndexArray.push_back((glm::uint)i);
+            }
+
+            meshData.vertexCount = 36;
+            meshData.indexCount = 36;
+        }
+        else
+        {
+            meshVertexArray.push_back(meshVertex_frontFace_topRight);     // 0
+            meshVertexArray.push_back(meshVertex_frontFace_topLeft);      // 1
+            meshVertexArray.push_back(meshVertex_frontFace_bottomRight);  // 2
+            meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);   // 3
+
+            meshVertexArray.push_back(meshVertex_rightFace_topRight);     // 4
+            meshVertexArray.push_back(meshVertex_rightFace_topLeft);      // 5
+            meshVertexArray.push_back(meshVertex_rightFace_bottomRight);  // 6
+            meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);   // 7
+
+            meshVertexArray.push_back(meshVertex_backFace_topRight);      // 8
+            meshVertexArray.push_back(meshVertex_backFace_topLeft);       // 9
+            meshVertexArray.push_back(meshVertex_backFace_bottomRight);   // 10
+            meshVertexArray.push_back(meshVertex_backFace_bottomLeft);    // 11
+
+            meshVertexArray.push_back(meshVertex_leftFace_topRight);      // 12
+            meshVertexArray.push_back(meshVertex_leftFace_topLeft);       // 13
+            meshVertexArray.push_back(meshVertex_leftFace_bottomRight);   // 14
+            meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);    // 15
+
+            meshVertexArray.push_back(meshVertex_topFace_topRight);       // 16
+            meshVertexArray.push_back(meshVertex_topFace_topLeft);        // 17
+            meshVertexArray.push_back(meshVertex_topFace_bottomRight);    // 18
+            meshVertexArray.push_back(meshVertex_topFace_bottomLeft);     // 19
+
+            meshVertexArray.push_back(meshVertex_bottomFace_topRight);    // 20
+            meshVertexArray.push_back(meshVertex_bottomFace_topLeft);     // 21
+            meshVertexArray.push_back(meshVertex_bottomFace_bottomRight); // 22
+            meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);  // 23
+
+            meshIndexArray.push_back(0);
+            meshIndexArray.push_back(1);
+            meshIndexArray.push_back(3);
+            meshIndexArray.push_back(0);
+            meshIndexArray.push_back(3);
+            meshIndexArray.push_back(2);
+
+            meshIndexArray.push_back(4);
+            meshIndexArray.push_back(5);
+            meshIndexArray.push_back(7);
+            meshIndexArray.push_back(4);
+            meshIndexArray.push_back(7);
+            meshIndexArray.push_back(6);
+
+            meshIndexArray.push_back(8);
+            meshIndexArray.push_back(9);
+            meshIndexArray.push_back(11);
+            meshIndexArray.push_back(8);
+            meshIndexArray.push_back(11);
+            meshIndexArray.push_back(10);
+
+            meshIndexArray.push_back(12);
+            meshIndexArray.push_back(13);
+            meshIndexArray.push_back(15);
+            meshIndexArray.push_back(12);
+            meshIndexArray.push_back(15);
+            meshIndexArray.push_back(14);
+
+            meshIndexArray.push_back(16);
+            meshIndexArray.push_back(17);
+            meshIndexArray.push_back(19);
+            meshIndexArray.push_back(16);
+            meshIndexArray.push_back(19);
+            meshIndexArray.push_back(18);
+
+            meshIndexArray.push_back(20);
+            meshIndexArray.push_back(21);
+            meshIndexArray.push_back(23);
+            meshIndexArray.push_back(20);
+            meshIndexArray.push_back(23);
+            meshIndexArray.push_back(22);
+
+            meshData.vertexCount = 24;
+            meshData.indexCount = 36;
+        }
     }
 
     void MeshStores::NormalizeMeshSize(

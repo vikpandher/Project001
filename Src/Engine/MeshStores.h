@@ -127,6 +127,13 @@ namespace Project001
             bool triangulate = true,
             bool positionalTexture = true);
 
+        void GenerateBox(
+            glm::uint& index,
+            float xLength,
+            float yLength,
+            float zLength,
+            bool triangulate = true);
+
         bool NormalizeMeshSize(glm::uint& index);
 
         bool RecenterMesh(glm::uint& index);
@@ -204,6 +211,15 @@ namespace Project001
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
+
+        static void GenerateBox(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<glm::uint>& meshIndexArray,
+            float xLength,
+            float yLength,
+            float zLength,
+            bool triangulate = true);
 
         static void NormalizeMeshSize(
             MeshData& meshData,

@@ -14,6 +14,8 @@ namespace Project001
 
     OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
         : isCurrentContext_(true)
+        , aspectRatioNumerator_(GLFW_DONT_CARE)
+        , aspectRatioDenominator_(GLFW_DONT_CARE)
     {
         if (s_glfwWindowCount_ == 0)
         {
@@ -48,8 +50,9 @@ namespace Project001
         Logger::Message("    Vendor: %s", glGetString(GL_VENDOR));
         Logger::Message("    Renderer: %s", glGetString(GL_RENDERER));
         Logger::Message("    Version: %s", glGetString(GL_VERSION));
+        Logger::Message("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-        SetVSync(true);
+        SetVSync(false);
 
         // NOTES:
         // GLFW Callback Functions:
@@ -165,12 +168,19 @@ namespace Project001
 
     void OpenGLWindow::SetAspectRatio(int numerator, int denominator)
     {
+        aspectRatioNumerator_ = numerator;
+        aspectRatioDenominator_ = denominator;
         glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
     }
 
     void OpenGLWindow::SetWindowSize(int width, int height)
     {
         glfwSetWindowSize(glfwWindowPtr_, width, height);
+    }
+
+    void OpenGLWindow::GetWindowSize(int& width, int& height) const
+    {
+        glfwGetWindowSize(glfwWindowPtr_, &width, &height);
     }
 
     void OpenGLWindow::SetTime(const double time)
@@ -196,17 +206,12 @@ namespace Project001
             glfwSwapInterval(0);
         }
 
-        windowData_.vSyncEnabled = enabled;
+        vSyncEnabled_ = enabled;
     }
 
     void OpenGLWindow::GetFramebufferSize(int& width, int& height) const
     {
         glfwGetFramebufferSize(glfwWindowPtr_, &width, &height);
-    }
-
-    void OpenGLWindow::GetWindowSize(int& width, int& height) const
-    {
-        glfwGetWindowSize(glfwWindowPtr_, &width, &height);
     }
 
     bool OpenGLWindow::GetKeyPressed(KeyCode key) const

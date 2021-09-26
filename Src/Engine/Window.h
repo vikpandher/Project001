@@ -22,8 +22,10 @@ namespace Project001
         virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
 
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
+        virtual void GetAspectRatio(int& numerator, int& denominator) const = 0;
 
         virtual void SetWindowSize(int width, int height) = 0;
+        virtual void GetWindowSize(int& width, int& height) const = 0;
 
         virtual void SetTime(const double time) = 0;
         virtual double GetTime() const = 0;
@@ -32,7 +34,6 @@ namespace Project001
         virtual bool IsVSync() const = 0;
 
         virtual void GetFramebufferSize(int& width, int& height) const = 0;
-        virtual void GetWindowSize(int& width, int& height) const = 0;
 
         virtual bool GetKeyPressed(KeyCode key) const = 0;
         virtual bool GetMouseButtonPressed(MouseButton mouseButton) const = 0;

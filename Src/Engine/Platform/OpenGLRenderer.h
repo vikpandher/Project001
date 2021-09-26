@@ -75,7 +75,7 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
-        void AddModel(
+        bool AddModel(
             MeshStores* meshStoresPtr,
             unsigned int meshIndex,
             unsigned int textureIndex,
@@ -92,6 +92,8 @@ namespace Project001
 
         void Render() override;
 
+        void SwapBuffers() override;
+
     protected:
         void CheckAndMakeContextCurrent();
 
@@ -99,7 +101,6 @@ namespace Project001
 
         void RenderTriangles(const std::vector<VertexData>& vertexBuffer);
 
-        // determines the size of the index and vertex buffers
         static const unsigned int s_bufferCapacity_ = 36 * 10;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
@@ -114,13 +115,7 @@ namespace Project001
         OpenGLShader* primaryShaderPtr_;
         OpenGLShader* screenShaderPtr_;
 
-        // this holds the buffer's id
-        // the buffer holds the blob of data that will be displayed
         unsigned int vertexBufferId_;
-
-        // this holds the vertex array's id
-        // the vertex array holds information about the vertex attribute
-        // locations
         unsigned int vertexArrayId_;
 
         unsigned int screenVertexBufferId_;

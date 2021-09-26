@@ -25,12 +25,10 @@ namespace Project001
         , secondsPerFrame_(1.0 / 60.0)
         , activeScenePtr_(nullptr)
     {
-        componentStoresPtr_ = new ComponentStores();
-
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
-        windowPtr_->SetAspectRatio(windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
+        componentStoresPtr_ = new ComponentStores();
         meshStoresPtr_ = new MeshStores();
         textureStoresPtr_ = new TextureStores();
 
@@ -70,7 +68,9 @@ namespace Project001
         std::string name(scenePtr->Name());
         if (sceneMap_.find(name) == sceneMap_.end())
         {
-            scenePtr->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+            scenePtr->applicationPtr_ = this;
+            scenePtr->EventCallback = std::bind(&Application::OnEvent, this, std::placeholders::_1);
+
             sceneMap_[name] = scenePtr;
 
             if (sceneMap_.size() == 1)
@@ -84,35 +84,53 @@ namespace Project001
     {
         std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
         std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
-        double timeStampDifference = 0.0;
-        double sleepTime = 0.0;
 
         if (activeScenePtr_ != nullptr)
         {
-            activeScenePtr_->Initialize(componentStoresPtr_, meshStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
+            activeScenePtr_->Initialize();
             running_ = true;
         }
 
-        while (running_)
+        double millisecondsPerFrame = secondsPerFrame_ * 1000.0f;
+
+        if (false)
         {
-            timeStampA = std::chrono::system_clock::now();
-            std::chrono::duration<double, std::milli> workTime_ms = timeStampA - timeStampB;
-
-            double millisecondsPerFrame = secondsPerFrame_ * 1000.0f;
-            if (workTime_ms.count() < millisecondsPerFrame)
+            while (running_)
             {
-                std::chrono::duration<double, std::milli> delta_ms(millisecondsPerFrame - workTime_ms.count());
-                std::chrono::duration<long long, std::milli> deltaDuration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
-                std::this_thread::sleep_for(std::chrono::milliseconds(deltaDuration_ms.count()));
+                timeStampA = std::chrono::system_clock::now();
+                std::chrono::duration<double, std::milli> workTime_ms = timeStampA - timeStampB;
+
+                if (workTime_ms.count() < millisecondsPerFrame)
+                {
+                    std::chrono::duration<double, std::milli> delta_ms(millisecondsPerFrame - workTime_ms.count());
+                    std::this_thread::sleep_for(delta_ms);
+                }
+
+                timeStampB = std::chrono::system_clock::now();
+                std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
+                std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
+
+                OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
+                windowPtr_->PollEvents();
             }
+        }
+        else
+        {
+            while (running_)
+            {
+                timeStampB = timeStampA;
+                timeStampA = std::chrono::system_clock::now();
+                std::chrono::duration<double, std::milli> totalTime_ms = timeStampA - timeStampB;
 
-            timeStampB = std::chrono::system_clock::now();
-            //std::chrono::duration<double> currentTime_s = timeStampB.time_since_epoch();
-            std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
-            std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
+                while (totalTime_ms.count() < millisecondsPerFrame)
+                {
+                    timeStampA = std::chrono::system_clock::now();
+                    totalTime_ms = timeStampA - timeStampB;
+                }
 
-            windowPtr_->PollEvents();
-            OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
+                OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
+                windowPtr_->PollEvents();
+            }
         }
     }
 
@@ -129,40 +147,13 @@ namespace Project001
         deinitializeSceneEvent.handled = true;
     }
 
-    void Application::ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent)
-    {
-        const int& height = frameBufferSizeEvent.height;
-        const int& width = frameBufferSizeEvent.width;
-
-        float aspectRatio = (float)windowWidth_ / (float)windowHeight_;
-
-        int adjustedHeight = (int)(width / aspectRatio);
-        int adjustedWidth = (int)(height * aspectRatio);
-
-        if (adjustedWidth > width)
-        {
-            adjustedWidth = width;
-        }
-
-        if (adjustedHeight > height)
-        {
-            adjustedHeight = height;
-        }
-
-        int lowerLeftX = (width - adjustedWidth) / 2;
-        int lowerLeftY = (height - adjustedHeight) / 2;
-
-        rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
-        rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
-    }
-
     void Application::ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent)
     {
         std::string& name = initializeSceneEvent.sceneName;
         if (sceneMap_.find(name) != sceneMap_.end())
         {
             Scene* currentScenePtr_ = sceneMap_[name];
-            currentScenePtr_->Initialize(componentStoresPtr_,meshStoresPtr_, textureStoresPtr_, rendererPtr_, windowPtr_);
+            currentScenePtr_->Initialize();
         }
         initializeSceneEvent.handled = true;
     }
@@ -189,7 +180,6 @@ namespace Project001
         DispatchEvent<InitializeSceneEvent>(event, std::bind(&Application::ProcessInitializeSceneEvent, this, std::placeholders::_1));
         DispatchEvent<DeinitializeSceneEvent>(event, std::bind(&Application::ProcessDeinitializeSceneEvent, this, std::placeholders::_1));
 
-        DispatchEvent<FrameBufferSizeEvent>(event, std::bind(&Application::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
         DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
 
         if (!event.handled && activeScenePtr_ != nullptr)

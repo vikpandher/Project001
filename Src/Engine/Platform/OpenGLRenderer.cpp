@@ -289,7 +289,7 @@ namespace Project001
         textureIndexToUnitBiMap_.Clear();
     }
 
-    void OpenGLRenderer::AddModel(
+    bool OpenGLRenderer::AddModel(
         MeshStores* meshStoresPtr,
         unsigned int meshIndex,
         unsigned int textureIndex,
@@ -352,7 +352,11 @@ namespace Project001
                     vertexBuffer_.push_back(newVertex);
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
     void OpenGLRenderer::Render()
@@ -540,9 +544,11 @@ namespace Project001
         glBindVertexArray(screenVertexArrayId_);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
 
-        // Swap imediatly for debugging
-        // glfwSwapInterval(0);
+    void OpenGLRenderer::SwapBuffers()
+    {
+        CheckAndMakeContextCurrent();
 
         // Uses default platform swap interval, usually 60 fps
         glfwSwapBuffers(glfwWindowPtr_);

@@ -16,35 +16,37 @@ namespace Project001
 
     class Scene
     {
+        friend class Application;
+
     public:
-        Scene() = default;
+        Scene();
 
         Scene(Scene& other) = delete;
         void operator=(const Scene&) = delete;
 
         virtual const char* Name() = 0;
 
-        virtual void Initialize(
-            ComponentStores* componentStoresPtr,
-            MeshStores* meshStoresPtr,
-            TextureStores* textureStoresPtr,
-            Renderer* rendererPtr,
-            Window* windowPtr) = 0;
+        virtual void Initialize() = 0;
 
         virtual void Deinitialize() = 0;
 
         virtual void OnEvent(Event& event) = 0;
 
-        void SetEventCallback(const std::function<void(Event&)>& callback);
-
     protected:
-        std::function<void(Event&)> EventCallback;
+        Window* GetApplicationWindowPtr();
+
+        ComponentStores* GetApplicationComponentStoresPtr();
+
+        MeshStores* GetApplicationMeshStoresPtr();
+
+        TextureStores* GetApplicationTextureStoresPtr();
+
+        Renderer* GetApplicationRendererPtr();
 
     private:
-    };
+        Application* applicationPtr_;
 
-    inline void Scene::SetEventCallback(const std::function<void(Event&)>& callback)
-    {
-        EventCallback = callback;
-    }
+        std::function<void(Event&)> EventCallback;
+
+    };
 }

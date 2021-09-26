@@ -22,9 +22,11 @@ namespace Project001
         void SetEventCallback(const std::function<void(Event&)>& callback) override;
 
         // Setting numerator and denominator to -1 unlocks the aspect ratio.
-        void SetAspectRatio(int numerator, int denominator);
+        void SetAspectRatio(int numerator, int denominator) override;
+        void GetAspectRatio(int& numerator, int& denominator) const override;
 
         void SetWindowSize(int width, int height) override;
+        void GetWindowSize(int& width, int& height) const override;
 
         // Time measurements are in seconds
         void SetTime(const double time) override;
@@ -34,7 +36,6 @@ namespace Project001
         bool IsVSync() const override;
 
         void GetFramebufferSize(int& width, int& height) const override;
-        void GetWindowSize(int& width, int& height) const override;
 
         bool GetKeyPressed(KeyCode key) const override;
         bool GetMouseButtonPressed(MouseButton mouseButton) const override;
@@ -55,15 +56,14 @@ namespace Project001
 
         bool isCurrentContext_;
 
+        int aspectRatioNumerator_;
+        int aspectRatioDenominator_;
+
+        bool vSyncEnabled_;
+
         struct WindowData
         {
-            WindowData()
-                : vSyncEnabled(false)
-            {}
-
             std::function<void(Event&)> EventCallback;
-
-            bool vSyncEnabled;
         } windowData_;
 
     private:
@@ -76,8 +76,14 @@ namespace Project001
         windowData_.EventCallback = callback;
     }
 
+    inline void OpenGLWindow::GetAspectRatio(int& numerator, int& denominator) const
+    {
+        numerator = aspectRatioNumerator_;
+        denominator = aspectRatioDenominator_;
+    }
+
     inline bool OpenGLWindow::IsVSync() const
     {
-        return windowData_.vSyncEnabled;
+        return vSyncEnabled_;
     }
 }

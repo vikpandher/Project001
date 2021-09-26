@@ -72,7 +72,7 @@ namespace Project001
         virtual void ClearPointLights() = 0;
         virtual void ClearSpotLights() = 0;
 
-        virtual void AddModel(
+        virtual bool AddModel(
             MeshStores* meshStoresPtr,
             unsigned int meshIndex,
             unsigned int textureIndex,
@@ -88,6 +88,8 @@ namespace Project001
         virtual void ClearBuffers() = 0;
 
         virtual void Render() = 0;
+
+        virtual void SwapBuffers() = 0;
 
     protected:
 

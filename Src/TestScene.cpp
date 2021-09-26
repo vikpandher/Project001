@@ -1,6 +1,6 @@
 #include "TestScene.h"
 
-// #include <chrono>
+#include <chrono>
 
 #include "DeathFlag.h"
 #include "TestComponents.h"
@@ -9,6 +9,7 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedModel.h"
+#include "Engine/Application.h"
 #include "Engine/BiMap.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -30,27 +31,28 @@ TestScene::TestScene()
     , textureStoresPtr_(nullptr)
     , windowPtr_(nullptr)
     , cubeMeshIndex_((unsigned int)-1)
+    , shape01MeshIndex_((unsigned int)-1)
+    , shape02MeshIndex_((unsigned int)-1)
+    , shape03MeshIndex_((unsigned int)-1)
+    , shape04MeshIndex_((unsigned int)-1)
+    , shape05MeshIndex_((unsigned int)-1)
+    , shape06MeshIndex_((unsigned int)-1)
+    , shape07MeshIndex_((unsigned int)-1)
+    , shape08MeshIndex_((unsigned int)-1)
+    , shape09MeshIndex_((unsigned int)-1)
+    , shape10MeshIndex_((unsigned int)-1)
+    , shape11MeshIndex_((unsigned int)-1)
+    , shape12MeshIndex_((unsigned int)-1)
+    , shape13MeshIndex_((unsigned int)-1)
+    , shape14MeshIndex_((unsigned int)-1)
+    , shape15MeshIndex_((unsigned int)-1)
+    , shape16MeshIndex_((unsigned int)-1)
     , diceTexture01Index_((unsigned int)-1)
     , diceTexture02Index_((unsigned int)-1)
     , thonkTextureIndex_((unsigned int)-1)
     , _100x100TextureIndex_((unsigned int)-1)
-    , patternSpecularIndex_((unsigned int)-1)
-    , thonkSpecularIndex_((unsigned int)-1)
-    , shape01Index_((unsigned int)-1)
-    , shape02Index_((unsigned int)-1)
-    , shape03Index_((unsigned int)-1)
-    , shape04Index_((unsigned int)-1)
-    , shape05Index_((unsigned int)-1)
-    , shape06Index_((unsigned int)-1)
-    , shape07Index_((unsigned int)-1)
-    , shape08Index_((unsigned int)-1)
-    , shape09Index_((unsigned int)-1)
-    , shape10Index_((unsigned int)-1)
-    , shape11Index_((unsigned int)-1)
-    , shape12Index_((unsigned int)-1)
-    , shape13Index_((unsigned int)-1)
-    , shape14Index_((unsigned int)-1)
-    , shape15Index_((unsigned int)-1)
+    , patternSpecularTextureIndex_((unsigned int)-1)
+    , thonkSpecularTextureIndex_((unsigned int)-1)
     , sceneDataEntityId_((unsigned int)-1)
     , mainCameraEntityId_((unsigned int)-1)
     , lightSourceEntityId_((unsigned int)-1)
@@ -74,6 +76,7 @@ TestScene::TestScene()
     , shape13EntityId_((unsigned int)-1)
     , shape14EntityId_((unsigned int)-1)
     , shape15EntityId_((unsigned int)-1)
+    , shape16EntityId_((unsigned int)-1)
 {
     BiMapTest();
     ComponentContainerTest();
@@ -92,18 +95,19 @@ const char* TestScene::Name()
     return "Test";
 }
 
-void TestScene::Initialize(
-    Project001::ComponentStores* componentStoresPtr,
-    Project001::MeshStores* meshStoresPtr,
-    Project001::TextureStores* textureStoresPtr,
-    Project001::Renderer* rendererPtr,
-    Project001::Window* windowPtr)
+void TestScene::Initialize()
 {
-    componentStoresPtr_ = componentStoresPtr;
-    rendererPtr_ = rendererPtr;
-    meshStoresPtr_ = meshStoresPtr;
-    textureStoresPtr_ = textureStoresPtr;
-    windowPtr_ = windowPtr;
+    windowPtr_ = GetApplicationWindowPtr();
+
+    componentStoresPtr_ = GetApplicationComponentStoresPtr();
+    meshStoresPtr_ = GetApplicationMeshStoresPtr();
+    textureStoresPtr_ = GetApplicationTextureStoresPtr();
+
+    rendererPtr_ = GetApplicationRendererPtr();
+
+    int windowWidth, windowHeight;
+    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+    windowPtr_->SetAspectRatio(windowWidth, windowHeight);
 
     meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Cube.obj", false);
     // meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Assault Arwing/arwing.obj");
@@ -121,7 +125,7 @@ void TestScene::Initialize(
     {
         fanPositions[i] += glm::vec2(0.5f, 0.5f);
     }
-    meshStoresPtr_->Generate2DTriangleFan(shape01Index_, fanPositions, fanPositions);
+    meshStoresPtr_->Generate2DTriangleFan(shape01MeshIndex_, fanPositions, fanPositions);
 
     std::vector<glm::vec2> stripPositions;
     stripPositions.emplace_back(-0.32f, -0.32f);
@@ -144,7 +148,7 @@ void TestScene::Initialize(
     {
         stripPositions[i] += glm::vec2(0.5f, 0.5f);
     }
-    meshStoresPtr_->Generate2DTriangleStrip(shape02Index_, stripPositions, stripPositions);
+    meshStoresPtr_->Generate2DTriangleStrip(shape02MeshIndex_, stripPositions, stripPositions);
 
     std::vector<glm::vec2> triPositions;
     triPositions.emplace_back(0.0f, 0.08f);
@@ -163,7 +167,7 @@ void TestScene::Initialize(
     {
         triPositions[i] += glm::vec2(0.5f, 0.5f);
     }
-    meshStoresPtr_->Generate2DTriangles(shape03Index_, triPositions, triPositions);
+    meshStoresPtr_->Generate2DTriangles(shape03MeshIndex_, triPositions, triPositions);
 
     std::vector<glm::vec2> linePositions;
     linePositions.emplace_back(-0.24f, -0.16f);
@@ -191,7 +195,7 @@ void TestScene::Initialize(
     {
         linePositions[i] += glm::vec2(0.5f, 0.5f);
     }
-    meshStoresPtr_->Generate2DLine(shape04Index_, linePositions, 0.08f);
+    meshStoresPtr_->Generate2DLine(shape04MeshIndex_, linePositions, 0.08f);
 
     std::vector<glm::vec2> linePositions2;
     linePositions2.emplace_back(0.08f, 0.0f);
@@ -215,28 +219,27 @@ void TestScene::Initialize(
     {
         linePositions2[i] += glm::vec2(0.5f, 0.5f);
     }
-    meshStoresPtr_->Generate2DLine(shape05Index_, linePositions2, 0.04f);
+    meshStoresPtr_->Generate2DLine(shape05MeshIndex_, linePositions2, 0.04f);
 
-    meshStoresPtr_->Generate2DRegularPolygon(shape06Index_, 0.32f, 3);
-    meshStoresPtr_->Generate2DRegularPolygon(shape07Index_, 0.32f, 4);
-    meshStoresPtr_->Generate2DRegularPolygon(shape08Index_, 0.32f, 5);
-    meshStoresPtr_->Generate2DRegularPolygon(shape09Index_, 0.32f, 6);
-    meshStoresPtr_->Generate2DRegularPolygon(shape10Index_, 0.32f, 24);
-    meshStoresPtr_->ScaleMesh(shape10Index_, glm::vec3(2.0f, 1.5f, 1.0f));
-    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
-    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
-    meshStoresPtr_->RotateMesh(shape10Index_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(1.0f, 0.0f, 0.0f)));
-    meshStoresPtr_->TranslateMesh(shape10Index_, glm::vec3(0.16f, 0.0f, 0.0f));
+    meshStoresPtr_->Generate2DRegularPolygon(shape06MeshIndex_, 0.32f, 3);
+    meshStoresPtr_->Generate2DRegularPolygon(shape07MeshIndex_, 0.32f, 4);
+    meshStoresPtr_->Generate2DRegularPolygon(shape08MeshIndex_, 0.32f, 5);
+    meshStoresPtr_->Generate2DRegularPolygon(shape09MeshIndex_, 0.32f, 6);
 
-    meshStoresPtr_->Generate2DArc(shape11Index_, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>());
+    meshStoresPtr_->Generate2DRegularPolygon(shape10MeshIndex_, 0.32f, 24);
+    meshStoresPtr_->ScaleMesh(shape10MeshIndex_, glm::vec3(2.0f, 1.5f, 1.0f));
+    meshStoresPtr_->RotateMesh(shape10MeshIndex_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
+    meshStoresPtr_->RotateMesh(shape10MeshIndex_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+    meshStoresPtr_->RotateMesh(shape10MeshIndex_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(1.0f, 0.0f, 0.0f)));
+    meshStoresPtr_->TranslateMesh(shape10MeshIndex_, glm::vec3(0.16f, 0.0f, 0.0f));
 
-    meshStoresPtr_->Generate2DArc(shape12Index_, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>());
+    meshStoresPtr_->Generate2DArc(shape11MeshIndex_, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>());
+    meshStoresPtr_->Generate2DArc(shape12MeshIndex_, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>());
+    meshStoresPtr_->Generate2DArc(shape13MeshIndex_, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>());
+    meshStoresPtr_->Generate2DArc(shape14MeshIndex_, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>());
+    meshStoresPtr_->Generate2DArc(shape15MeshIndex_, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>());
 
-    meshStoresPtr_->Generate2DArc(shape13Index_, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>());
-
-    meshStoresPtr_->Generate2DArc(shape14Index_, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>());
-
-    meshStoresPtr_->Generate2DArc(shape15Index_, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>());
+    meshStoresPtr_->GenerateBox(shape16MeshIndex_, 0.64f, 0.48f, 0.32f);
 
     textureStoresPtr_->LoadTexture(diceTexture01Index_, "../Textures/CounterclockwiseDie.png");
     Project001::TextureData diceTexture01Data;
@@ -258,20 +261,20 @@ void TestScene::Initialize(
 
     textureStoresPtr_->LoadTexture(_100x100TextureIndex_, "../Textures/100x100.png");
     Project001::TextureData _100x100TextureData;
-    textureStoresPtr->GetTexture(_100x100TextureIndex_, _100x100TextureData);
-    rendererPtr->AddTexture(_100x100TextureIndex_, 4, _100x100TextureData.data,
+    textureStoresPtr_->GetTexture(_100x100TextureIndex_, _100x100TextureData);
+    rendererPtr_->AddTexture(_100x100TextureIndex_, 4, _100x100TextureData.data,
         _100x100TextureData.width, _100x100TextureData.height, _100x100TextureData.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture(patternSpecularIndex_, "../Textures/Specular2.png");
+    textureStoresPtr_->LoadTexture(patternSpecularTextureIndex_, "../Textures/Specular2.png");
     Project001::TextureData patternSpecularData;
-    textureStoresPtr_->GetTexture(patternSpecularIndex_, patternSpecularData);
-    rendererPtr_->AddTexture(patternSpecularIndex_, 5, patternSpecularData.data,
+    textureStoresPtr_->GetTexture(patternSpecularTextureIndex_, patternSpecularData);
+    rendererPtr_->AddTexture(patternSpecularTextureIndex_, 5, patternSpecularData.data,
         patternSpecularData.width, patternSpecularData.height, patternSpecularData.numberOfComponents);
 
-    textureStoresPtr_->LoadTexture(thonkSpecularIndex_, "../Textures/ThonkSpecular.png");
+    textureStoresPtr_->LoadTexture(thonkSpecularTextureIndex_, "../Textures/ThonkSpecular.png");
     Project001::TextureData thonkSpecularData;
-    textureStoresPtr_->GetTexture(thonkSpecularIndex_, thonkSpecularData);
-    rendererPtr_->AddTexture(thonkSpecularIndex_, 6, thonkSpecularData.data,
+    textureStoresPtr_->GetTexture(thonkSpecularTextureIndex_, thonkSpecularData);
+    rendererPtr_->AddTexture(thonkSpecularTextureIndex_, 6, thonkSpecularData.data,
         thonkSpecularData.width, thonkSpecularData.height, thonkSpecularData.numberOfComponents);
 
     // scene data entity
@@ -284,8 +287,8 @@ void TestScene::Initialize(
     // main camera entity
     // -------------------------------------------------------------------------
     {
-        componentStoresPtr->CreateEntity(mainCameraEntityId_);
-        componentStoresPtr->CreateComponent<Project001::Camera>(mainCameraEntityId_);
+        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
+        componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_);
 
         Project001::Camera* cameraPtr;
         componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr);
@@ -356,7 +359,7 @@ void TestScene::Initialize(
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
         renderedModelPtr->SetTextureIndex(thonkTextureIndex_);
-        renderedModelPtr->SetSpecularIndex(thonkSpecularIndex_);
+        renderedModelPtr->SetSpecularIndex(thonkSpecularTextureIndex_);
         renderedModelPtr->SetShininess(32.0f);
     }
 
@@ -413,7 +416,7 @@ void TestScene::Initialize(
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(cubeEntity04Id_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(cubeMeshIndex_);
-        renderedModelPtr->SetSpecularIndex(patternSpecularIndex_);
+        renderedModelPtr->SetSpecularIndex(patternSpecularTextureIndex_);
         renderedModelPtr->SetShininess(32.0f);
         renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
         renderedModelPtr->SetScale(0.5f, 0.75f, 1.0f);
@@ -430,7 +433,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape01Index_);
+        renderedModelPtr->SetMeshIndex(shape01MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
         renderedModelPtr->SetTranslucent(true);
@@ -445,7 +448,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape02Index_);
+        renderedModelPtr->SetMeshIndex(shape02MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
         renderedModelPtr->SetTranslucent(true);
@@ -459,7 +462,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape03Index_);
+        renderedModelPtr->SetMeshIndex(shape03MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
         renderedModelPtr->SetTranslucent(true);
@@ -473,7 +476,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape04Index_);
+        renderedModelPtr->SetMeshIndex(shape04MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
         renderedModelPtr->SetTranslucent(true);
@@ -487,7 +490,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape05Index_);
+        renderedModelPtr->SetMeshIndex(shape05MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.5f, 0.5f);
         renderedModelPtr->SetTranslucent(true);
@@ -501,7 +504,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape06EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape06Index_);
+        renderedModelPtr->SetMeshIndex(shape06MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -515,7 +518,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape07EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape07Index_);
+        renderedModelPtr->SetMeshIndex(shape07MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -529,7 +532,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape08EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape08Index_);
+        renderedModelPtr->SetMeshIndex(shape08MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -543,7 +546,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape09EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape09Index_);
+        renderedModelPtr->SetMeshIndex(shape09MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -557,7 +560,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape10EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape10Index_);
+        renderedModelPtr->SetMeshIndex(shape10MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.5f, 0.5f, 0.5f);
         renderedModelPtr->SetTranslucent(true);
@@ -572,7 +575,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape11EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape11Index_);
+        renderedModelPtr->SetMeshIndex(shape11MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -586,7 +589,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape12EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape12Index_);
+        renderedModelPtr->SetMeshIndex(shape12MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -600,7 +603,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape13EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape13Index_);
+        renderedModelPtr->SetMeshIndex(shape13MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -614,7 +617,7 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape14EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape14Index_);
+        renderedModelPtr->SetMeshIndex(shape14MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
         renderedModelPtr->SetTranslucent(true);
@@ -628,10 +631,21 @@ void TestScene::Initialize(
         Project001::RenderedModel* renderedModelPtr;
         componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape15EntityId_, renderedModelPtr);
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape15Index_);
+        renderedModelPtr->SetMeshIndex(shape15MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
         renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
         renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 16
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(shape16EntityId_);
+        componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape16EntityId_);
+        Project001::RenderedModel* renderedModelPtr;
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape16EntityId_, renderedModelPtr);
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
+        renderedModelPtr->SetMeshIndex(shape16MeshIndex_);
     }
 }
 
@@ -653,15 +667,16 @@ void TestScene::Deinitialize()
 
 void TestScene::OnEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene::ProcessCursorPosition, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene::ProcessMouseButton, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestScene::ProcessScroll, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene::Update, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene::ProcessCursorPositionEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestScene::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestScene::ProcessScrollEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene::ProcessUpdateEvent, this, std::placeholders::_1));
 }
 
 // protected: ------------------------------------------------------------------
 
-void TestScene::ProcessCursorPosition(Project001::CursorPositionEvent& cursorButtonEvent)
+void TestScene::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
 {
     bool mouseButton1Pressed = windowPtr_->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_1);
 
@@ -696,7 +711,45 @@ void TestScene::ProcessCursorPosition(Project001::CursorPositionEvent& cursorBut
     }
 }
 
-void TestScene::ProcessMouseButton(Project001::MouseButtonEvent& mouseButtonEvent)
+void TestScene::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
+{
+    const int& height = frameBufferSizeEvent.height;
+    const int& width = frameBufferSizeEvent.width;
+
+    int aspectRatioNumerator, aspectRatioDenominator;
+    windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+
+    if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+    {
+        float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+
+        int adjustedHeight = (int)(width / aspectRatio);
+        int adjustedWidth = (int)(height * aspectRatio);
+
+        if (adjustedWidth > width)
+        {
+            adjustedWidth = width;
+        }
+
+        if (adjustedHeight > height)
+        {
+            adjustedHeight = height;
+        }
+
+        int lowerLeftX = (width - adjustedWidth) / 2;
+        int lowerLeftY = (height - adjustedHeight) / 2;
+
+        rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
+        rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+    }
+    else
+    {
+        rendererPtr_->SetFramebufferSize(width, height);
+        rendererPtr_->SetViewportSize(0, 0, width, height);
+    }
+}
+
+void TestScene::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
     Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
@@ -714,7 +767,7 @@ void TestScene::ProcessMouseButton(Project001::MouseButtonEvent& mouseButtonEven
     }
 }
 
-void TestScene::ProcessScroll(Project001::ScrollEvent& scrollEvent)
+void TestScene::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
 
@@ -726,7 +779,7 @@ void TestScene::ProcessScroll(Project001::ScrollEvent& scrollEvent)
     cameraPtr->MoveForward(cameraTranslation);
 }
 
-void TestScene::Update(Project001::UpdateEvent& updateEvent)
+void TestScene::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     double timestep = updateEvent.timestep_s;
 
@@ -738,14 +791,14 @@ void TestScene::Update(Project001::UpdateEvent& updateEvent)
     // Delete all entities with marked for deletion component
     DeleteDeadEntities();
 
-    // std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
 
     // Render all renderable components
     RenderRenderableEntities();
 
-    // std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
-    // std::chrono::duration<double, std::milli> workTime_ms = timeStampB - timeStampA;
-    // Project001::Logger::Message("RenderTime = %f", workTime_ms.count());
+    std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
+    std::chrono::duration<double, std::milli> workTime_ms = timeStampB - timeStampA;
+    Project001::Logger::Message("RenderTime = %f", workTime_ms.count());
 
     // Play all audio components???
 
@@ -927,6 +980,8 @@ void TestScene::RenderRenderableEntities()
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
         rendererPtr_->Render();
     }
+
+    rendererPtr_->SwapBuffers();
 }
 
 // private: --------------------------------------------------------------------

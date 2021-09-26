@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/BiMap.h"
 #include "Engine/Renderer.h"
 
 
@@ -14,18 +15,32 @@ namespace Project001
     class OpenGLRendererAlt : public Renderer
     {
     public:
-        OpenGLRendererAlt(ModelStores* modelStoresPtr, TextureStores* textureStoresPtr);
-        ~OpenGLRendererAlt();
+        OpenGLRendererAlt(unsigned int width, unsigned int height);
+        virtual ~OpenGLRendererAlt() override;
 
-        void AddTexture(
-            unsigned int textureSlot,
+        void SetFramebufferSize(
+            unsigned int width,
+            unsigned int height) override;
+
+        void SetViewportSize(
+            unsigned int x,
+            unsigned int y,
+            unsigned int width,
+            unsigned int height) override;
+
+        bool AddTexture(
+            unsigned int textureIndex,
+            unsigned int textureUnit,
             unsigned char* data,
-            int width,
-            int height,
-            int numberOfComponents) override;
+            unsigned int width,
+            unsigned int height,
+            unsigned int numberOfComponents) override;
 
-        void SetModelStoresPtr(ModelStores* modelStoresPtr) override;
-        void SetTextureStoresPtr(TextureStores* textureStoresPtr) override;
+        bool BindTexture(
+            unsigned int textureIndex,
+            unsigned int textureUnit) override;
+
+        void ClearTextures() override;
 
         void SetViewMatrix(const glm::mat4& viewMatrix) override;
         void SetViewPosition(const glm::vec3& viewPosition) override;
@@ -38,20 +53,20 @@ namespace Project001
             const glm::vec3& specular) override;
         void AddPointLight(
             const glm::vec3& position,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) override;
         void AddSpotLight(
             const glm::vec3& position,
             const glm::vec3& direction,
-            const float& cutoff,
-            const float& outerCutoff,
-            const float& constant,
-            const float& linear,
-            const float& quadratic,
+            float cutoff,
+            float outerCutoff,
+            float constant,
+            float linear,
+            float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
             const glm::vec3& specular) override;
@@ -60,54 +75,67 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
-        void AddModel(
-            const unsigned int& modelIndex,
-            const unsigned int& textureIndex,
-            const unsigned int& specularIndex,
-            const float& shininess,
+        bool AddModel(
+            MeshStores* meshStoresPtr,
+            unsigned int meshIndex,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
             const glm::vec4& color,
+            bool translucent,
             const glm::vec3& scale,
             const glm::vec3& position,
-            const glm::quat& orientation) override;
+            const glm::quat& orientation,
+            bool lit) override;
 
         void ClearBuffers() override;
 
         void Render() override;
 
+        void SwapBuffers() override;
+
     protected:
         void CheckAndMakeContextCurrent();
 
-        // determines the size of the index and vertex buffers
-        // static const unsigned int s_bufferCapacity_ = 36 * 10;
-        static const unsigned int s_indexBufferCapacity_ = 36 * 20;
-        static const unsigned int s_vertexBufferCapacity_ = 36 * 16;
+        void CreateFramebuffer();
+
+        static const unsigned int s_indexBufferCapacity_ = 36 * 48;
+        static const unsigned int s_vertexBufferCapacity_ = 36 * 32;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
 
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
 
-        ModelStores* modelStoresPtr_;
-        TextureStores* textureStoresPtr_;
-
         GLFWwindow* glfwWindowPtr_;
 
         bool isCurrentContext_;
 
-        OpenGLShader* shaderPtr_;
+        OpenGLShader* primaryShaderPtr_;
+        OpenGLShader* screenShaderPtr_;
 
-        // this holds the buffer's id
-        // the buffer holds the blob of data that will be displayed
         unsigned int vertexBufferId_;
-
-        // this holds the index buffer's id
         unsigned int indexBufferId_;
-
-        // this holds the vertex array's id
-        // the vertex array holds information about the size, shape, and type of array
         unsigned int vertexArrayId_;
 
-        OpenGLTexture* texturePtrs_[s_numberOfTextureSlots_];
+        unsigned int screenVertexBufferId_;
+        unsigned int screenVertexArrayId_;
+
+        unsigned int frameBufferWidth_;
+        unsigned int frameBufferHeight_;
+
+        unsigned int viewportX_;
+        unsigned int viewportY_;
+        unsigned int viewportWidth_;
+        unsigned int viewportHeight_;
+
+        unsigned int frameBufferId_;
+        unsigned int screenTextureColorBufferId_;
+
+        unsigned int renderBufferId_;
+
+        std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
+        BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
@@ -122,16 +150,6 @@ namespace Project001
 
     private:
     };
-
-    inline void OpenGLRendererAlt::SetModelStoresPtr(ModelStores* modelStoresPtr)
-    {
-        modelStoresPtr_ = modelStoresPtr;
-    }
-
-    inline void OpenGLRendererAlt::SetTextureStoresPtr(TextureStores* textureStoresPtr)
-    {
-        textureStoresPtr_ = textureStoresPtr;
-    }
 
     inline void OpenGLRendererAlt::SetViewMatrix(const glm::mat4& viewMatrix)
     {
@@ -162,9 +180,9 @@ namespace Project001
 
     inline void OpenGLRendererAlt::AddPointLight(
         const glm::vec3& position,
-        const float& constant,
-        const float& linear,
-        const float& quadratic,
+        float constant,
+        float linear,
+        float quadratic,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
         const glm::vec3& specular)
@@ -185,11 +203,11 @@ namespace Project001
     inline void OpenGLRendererAlt::AddSpotLight(
         const glm::vec3& position,
         const glm::vec3& direction,
-        const float& cutoff,
-        const float& outerCutoff,
-        const float& constant,
-        const float& linear,
-        const float& quadratic,
+        float cutoff,
+        float outerCutoff,
+        float constant,
+        float linear,
+        float quadratic,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
         const glm::vec3& specular)

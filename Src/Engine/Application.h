@@ -10,19 +10,19 @@ namespace Project001
     class ComponentStores;
     class MeshStores;
     class Renderer;
-    class Scene;
     class TextureStores;
     class Window;
 
     struct Event;
     struct DeinitializeSceneEvent;
-    struct FrameBufferSizeEvent;
     struct InitializeSceneEvent;
-    struct WindowCloseEvent;
     struct SwitchSceneEvent;
+    struct WindowCloseEvent;
 
     class Application
     {
+        friend class Scene;
+
     public:
         Application(const char* windowTitile, unsigned int windowWidth, unsigned int windowHeight);
         virtual ~Application();
@@ -36,7 +36,6 @@ namespace Project001
 
     protected:
         void ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent);
-        void ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent);
         void ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent);
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
@@ -51,10 +50,9 @@ namespace Project001
 
         double secondsPerFrame_;
 
-        ComponentStores* componentStoresPtr_;
-
         Window* windowPtr_;
 
+        ComponentStores* componentStoresPtr_;
         MeshStores* meshStoresPtr_;
         TextureStores* textureStoresPtr_;
 

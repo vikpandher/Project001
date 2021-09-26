@@ -6,6 +6,7 @@
 namespace Project001
 {
     struct CursorPositionEvent;
+    struct FrameBufferSizeEvent;
     struct MouseButtonEvent;
     struct ScrollEvent;
     struct UpdateEvent;
@@ -22,34 +23,18 @@ public:
 
     const char* Name() override;
 
-    void Initialize(
-        Project001::ComponentStores* componentStoresPtr,
-        Project001::MeshStores* meshStoresPtr,
-        Project001::TextureStores* textureStoresPtr,
-        Project001::Renderer* rendererPtr,
-        Project001::Window* windowPtr) override;
+    void Initialize() override;
 
     void Deinitialize() override;
 
     void OnEvent(Project001::Event& event) override;
 
 protected:
-
-    // On CursorPositionEvent: -------------------------------------------------
-
-    void ProcessCursorPosition(Project001::CursorPositionEvent& cursorPositionEvent);
-
-    // On MouseButtonEvent: ----------------------------------------------------
-
-    void ProcessMouseButton(Project001::MouseButtonEvent& mouseButtonEvent);
-
-    // On ScrollEvent: ---------------------------------------------------------
-
-    void ProcessScroll(Project001::ScrollEvent& scrollEvent);
-
-    // On UpdateEvent: ---------------------------------------------------------
-
-    void Update(Project001::UpdateEvent& updateEvent);
+    void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
+    void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
+    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
+    void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
+    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
     void UpdateMainCameraEntityPositionAndRoll(double timestep);
 
@@ -61,48 +46,53 @@ protected:
 
     // Pointers from Application: ----------------------------------------------
 
-    Project001::ComponentStores* componentStoresPtr_;
-    Project001::MeshStores* meshStoresPtr_;
-    Project001::Renderer* rendererPtr_;
-    Project001::TextureStores* textureStoresPtr_;
     Project001::Window* windowPtr_;
 
-    // EntityIds: --------------------------------------------------------------
+    Project001::ComponentStores* componentStoresPtr_;
+    Project001::MeshStores* meshStoresPtr_;
+    Project001::TextureStores* textureStoresPtr_;
+
+    Project001::Renderer* rendererPtr_;
+
+    // Mesh Indicies: ----------------------------------------------------------
 
     unsigned int cubeMeshIndex_;
+    unsigned int shape01MeshIndex_;
+    unsigned int shape02MeshIndex_;
+    unsigned int shape03MeshIndex_;
+    unsigned int shape04MeshIndex_;
+    unsigned int shape05MeshIndex_;
+    unsigned int shape06MeshIndex_;
+    unsigned int shape07MeshIndex_;
+    unsigned int shape08MeshIndex_;
+    unsigned int shape09MeshIndex_;
+    unsigned int shape10MeshIndex_;
+    unsigned int shape11MeshIndex_;
+    unsigned int shape12MeshIndex_;
+    unsigned int shape13MeshIndex_;
+    unsigned int shape14MeshIndex_;
+    unsigned int shape15MeshIndex_;
+    unsigned int shape16MeshIndex_;
+
+    // Texture Indicies: -------------------------------------------------------
+
     unsigned int diceTexture01Index_;
     unsigned int diceTexture02Index_;
     unsigned int thonkTextureIndex_;
     unsigned int _100x100TextureIndex_;
-    unsigned int patternSpecularIndex_;
-    unsigned int thonkSpecularIndex_;
+    unsigned int patternSpecularTextureIndex_;
+    unsigned int thonkSpecularTextureIndex_;
 
-    unsigned int shape01Index_;
-    unsigned int shape02Index_;
-    unsigned int shape03Index_;
-    unsigned int shape04Index_;
-    unsigned int shape05Index_;
-    unsigned int shape06Index_;
-    unsigned int shape07Index_;
-    unsigned int shape08Index_;
-    unsigned int shape09Index_;
-    unsigned int shape10Index_;
-    unsigned int shape11Index_;
-    unsigned int shape12Index_;
-    unsigned int shape13Index_;
-    unsigned int shape14Index_;
-    unsigned int shape15Index_;
+    // Entity Ids: -------------------------------------------------------------
 
     unsigned int sceneDataEntityId_;
     unsigned int mainCameraEntityId_;
     unsigned int lightSourceEntityId_;
-
     unsigned int cubeEntity01Id_;
     unsigned int cubeEntity02Id_;
     unsigned int cubeEntity03Id_;
     unsigned int cubeEntity04Id_;
     unsigned int cubeEntity05Id_;
-
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;
     unsigned int shape03EntityId_;
@@ -118,6 +108,7 @@ protected:
     unsigned int shape13EntityId_;
     unsigned int shape14EntityId_;
     unsigned int shape15EntityId_;
+    unsigned int shape16EntityId_;
 
 private:
     void BiMapTest() const;
