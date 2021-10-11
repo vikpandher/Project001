@@ -13,12 +13,12 @@ namespace Project001
     {
         MeshVertex()
             : position(0.0f)
-            , textureCoordinte(0.0f)
+            , textureCoordinate(0.0f)
             , normal(0.0f)
         {}
 
         glm::vec3 position;
-        glm::vec2 textureCoordinte;
+        glm::vec2 textureCoordinate;
         glm::vec3 normal;
     };
 
@@ -43,10 +43,10 @@ namespace Project001
             return maxVertexPosition - minVertexPosition;
         }
 
-        glm::uint vertexIndex;
-        glm::uint vertexCount;
-        glm::uint indexIndex;
-        glm::uint indexCount;
+        unsigned int vertexIndex;
+        unsigned int vertexCount;
+        unsigned int indexIndex;
+        unsigned int indexCount;
         glm::vec3 maxVertexPosition;
         glm::vec3 minVertexPosition;
     };
@@ -62,45 +62,45 @@ namespace Project001
 
         // If more meshes are added, the pointers returned are nolonger valid.
         bool GetMesh(
-            glm::uint index,
+            unsigned int index,
             MeshVertex*& firstVertexPtr,
-            glm::uint& vertexCount,
-            glm::uint*& firstIndexPtr,
-            glm::uint& indexCount);
+            unsigned int& vertexCount,
+            unsigned int*& firstIndexPtr,
+            unsigned int& indexCount);
 
         bool GetMeshData(
-            glm::uint index,
+            unsigned int index,
             MeshData& meshData);
 
         bool LoadMeshOBJ(
-            glm::uint& index,
+            unsigned int& index,
             const std::string& path,
             bool normalizeSize = true,
             bool recenter = true,
             bool triangulate = true);
 
         bool Generate2DTriangleFan(
-            glm::uint& index,
+            unsigned int& index,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
             bool triangulate = true);
 
         bool Generate2DTriangles(
-            glm::uint& index,
+            unsigned int& index,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true);
 
         bool Generate2DTriangleStrip(
-            glm::uint& index,
+            unsigned int& index,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
             bool triangulate = true);
 
         bool Generate2DLine(
-            glm::uint& index,
+            unsigned int& index,
             const std::vector<glm::vec2>& positions,
             float width,
             bool recenter = true,
@@ -108,46 +108,61 @@ namespace Project001
             bool positionalTexture = true);
 
         bool Generate2DRegularPolygon(
-            glm::uint& index,
+            unsigned int& index,
             float radius,
-            glm::uint sides,
+            size_t sides,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
 
         // Arc grows according to right hand rule
         bool Generate2DArc(
-            glm::uint& index,
+            unsigned int& index,
             float innerRadius,
             float outerRadius,
-            glm::uint subdivisions,
+            size_t subdivisions,
             float startAngle,
             float endAngle,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
 
-        void GenerateBox(
-            glm::uint& index,
+        bool GenerateBox(
+            unsigned int& index,
             float xLength,
             float yLength,
             float zLength,
             bool triangulate = true);
 
-        bool NormalizeMeshSize(glm::uint& index);
+        bool GenerateIcosphere(
+            unsigned int& index,
+            float radius,
+            size_t subdivisions,
+            bool smoothNormals = true,
+            bool triangulate = true);
 
-        bool RecenterMesh(glm::uint& index);
+        bool GenerateSphere(
+            unsigned int& index,
+            float radius,
+            size_t longitudinalSections,
+            size_t latitudinalSections,
+            bool smoothNormals = true,
+            bool triangulate = true);
 
-        bool TranslateMesh(glm::uint& index, glm::vec3 translation);
+        bool NormalizeMeshSize(unsigned int& index);
 
-        bool RotateMesh(glm::uint& index, glm::quat rotation);
+        bool RecenterMesh(unsigned int& index);
 
-        bool ScaleMesh(glm::uint& index, glm::vec3 scale);
+        bool TranslateMesh(unsigned int& index, glm::vec3 translation);
+
+        bool RotateMesh(unsigned int& index, glm::quat rotation);
+
+        bool ScaleMesh(unsigned int& index, glm::vec3 scale);
 
         static bool LoadMeshOBJ(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             const std::string& path,
             bool normalizeSize = true,
             bool recenter = true,
@@ -156,7 +171,7 @@ namespace Project001
         static bool Generate2DTriangleFan(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
@@ -165,7 +180,7 @@ namespace Project001
         static bool Generate2DTriangles(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true);
@@ -173,7 +188,7 @@ namespace Project001
         static bool Generate2DTriangleStrip(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
@@ -182,7 +197,7 @@ namespace Project001
         static bool Generate2DLine(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
             float width,
             bool recenter = true,
@@ -192,9 +207,9 @@ namespace Project001
         static bool Generate2DRegularPolygon(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             float radius,
-            glm::uint sides,
+            size_t sides,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
@@ -202,23 +217,42 @@ namespace Project001
         static bool Generate2DArc(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             float innerRadius,
             float outerRadius,
-            glm::uint subdivisions,
+            size_t subdivisions,
             float startAngle,
             float endAngle,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
 
-        static void GenerateBox(
+        static bool GenerateBox(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
-            std::vector<glm::uint>& meshIndexArray,
+            std::vector<unsigned int>& meshIndexArray,
             float xLength,
             float yLength,
             float zLength,
+            bool triangulate = true);
+
+        static bool GenerateIcosphere(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float radius,
+            size_t subdivisions,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        static bool GenerateSphere(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float radius,
+            size_t longitudinalSections,
+            size_t latitudinalSections,
+            bool smoothNormals = true,
             bool triangulate = true);
 
         static void NormalizeMeshSize(
@@ -267,7 +301,7 @@ namespace Project001
             const std::vector<glm::vec3>& normals);
 
         std::vector<MeshVertex> meshVertexArray_;
-        std::vector<glm::uint> meshIndexArray_;
+        std::vector<unsigned int> meshIndexArray_;
         std::vector<MeshData> meshDataArray_;
 
     private:

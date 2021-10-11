@@ -34,4 +34,14 @@ namespace Project001
     {
         return applicationPtr_->rendererPtr_;
     }
+
+    bool Scene::IsActiveScene()
+    {
+        return applicationPtr_->activeScenePtr_ == this;
+    }
+
+    void Scene::SendEvent(Event& event)
+    {
+        return EventCallback(event);
+    }
 }

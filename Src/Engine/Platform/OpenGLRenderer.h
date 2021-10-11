@@ -75,7 +75,7 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
-        bool AddModel(
+        bool AddMesh(
             MeshStores* meshStoresPtr,
             unsigned int meshIndex,
             unsigned int textureIndex,

@@ -46,12 +46,16 @@ namespace Project001
         unsigned int lastComponentEntityId = componentEntityIds_[lastComponentEntityIdIndex];
 
         ComponentDestructionFunction(deletedComponentPtr);
-        ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
         entityIdToComponentMemoryIndicies_[entityId] = -1;
-        entityIdToComponentMemoryIndicies_[lastComponentEntityId] = deletedComponentMemoryIndex;
 
-        int deletedComponentEntityIdIndex = deletedComponentMemoryIndex / (int)componentSize_;
-        componentEntityIds_[deletedComponentEntityIdIndex] = lastComponentEntityId;
+        if (entityId != lastComponentEntityId)
+        {
+            ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
+            entityIdToComponentMemoryIndicies_[lastComponentEntityId] = deletedComponentMemoryIndex;
+
+            int deletedComponentEntityIdIndex = deletedComponentMemoryIndex / (int)componentSize_;
+            componentEntityIds_[deletedComponentEntityIdIndex] = lastComponentEntityId;
+        }
 
         componentMemory_.resize(lastComponentMemoryIndex);
         componentEntityIds_.resize(lastComponentEntityIdIndex);

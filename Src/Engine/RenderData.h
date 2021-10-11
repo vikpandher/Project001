@@ -159,7 +159,7 @@ namespace Project001
     {
         VertexData()
             : position(0.0f, 0.0f, 0.0f)
-            , textureCoordinte(0.0f, 0.0f)
+            , textureCoordinate(0.0f, 0.0f)
             , normal(0.0f, 0.0f, 0.0f)
             , color(1.0f, 1.0f, 1.0f, 1.0f)
             , textureSlot(-1.0f)
@@ -172,7 +172,7 @@ namespace Project001
         {}
 
         glm::vec3 position;
-        glm::vec2 textureCoordinte;
+        glm::vec2 textureCoordinate;
         glm::vec3 normal;
         glm::vec4 color;
         float textureSlot;

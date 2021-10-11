@@ -141,12 +141,12 @@ namespace Project001
 
         if (s_indexBufferCapacity_ % 3 != 0)
         {
-            Logger::Error("Index Buffer Size Not Multiple Of 3");
+            _LOG_ERROR("Index Buffer Size Not Multiple Of 3");
         }
 
         // set the size of the active element array buffer
         // (target, size, data, usage)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::uint) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
         float screenQuadVertices[] = {
             // positions   // texCoords
@@ -305,7 +305,7 @@ namespace Project001
         textureIndexToUnitBiMap_.Clear();
     }
 
-    bool OpenGLRendererAlt::AddModel(
+    bool OpenGLRendererAlt::AddMesh(
         MeshStores* meshStoresPtr,
         unsigned int meshIndex,
         unsigned int textureIndex,
@@ -319,9 +319,9 @@ namespace Project001
         bool lit)
     {
         MeshVertex* meshVerticies;
-        glm::uint meshVertexCount;
-        glm::uint* meshIndicies;
-        glm::uint meshIndexCount;
+        unsigned int meshVertexCount;
+        unsigned int* meshIndicies;
+        unsigned int meshIndexCount;
 
         if (meshStoresPtr->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount) &&
             (vertexBuffer_.size() + meshVertexCount) < s_vertexBufferCapacity_ &&
@@ -339,7 +339,7 @@ namespace Project001
                 specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
             }
 
-            glm::uint vertexBufferOffset = (glm::uint)vertexBuffer_.size();
+            unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
 
             for (size_t j = 0; j < meshVertexCount; ++j)
             {
@@ -347,7 +347,7 @@ namespace Project001
 
                 Project001::VertexData newVertex;
                 newVertex.position = currentMeshVertex.position;
-                newVertex.textureCoordinte = currentMeshVertex.textureCoordinte;
+                newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
                 newVertex.normal = currentMeshVertex.normal;
                 newVertex.color = color;
                 newVertex.textureSlot = textureSlot;
@@ -382,8 +382,10 @@ namespace Project001
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
-        // draw as wireframe
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (s_wireFrameMode)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
 
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
@@ -484,16 +486,21 @@ namespace Project001
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(glm::uint) * indexBuffer_.size(), &indexBuffer_[0]);
+        if (!vertexBuffer_.empty() && !indexBuffer_.empty())
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * indexBuffer_.size(), &indexBuffer_[0]);
+        }
 
         glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
 
         // Render to screen frameBuffer
         // ---------------------------------------------------------------------
 
-        // draw as triangles
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if (s_wireFrameMode)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
 
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 

@@ -21,7 +21,7 @@ namespace Project001
         {
             if (!glfwInit())
             {
-                Logger::Error("Could not initalize GLFW!");
+                _LOG_ERROR("Could not initalize GLFW!");
             }
 
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4
@@ -29,9 +29,9 @@ namespace Project001
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
             glfwSetErrorCallback([](int errorCode, const char* description)
-                {
-                    Logger::Error("GLFW Error: (%d) %s", errorCode, description);
-                });
+            {
+                _LOG_ERROR("GLFW Error: (%d) %s", errorCode, description);
+            });
         }
 
         glfwWindowPtr_ = glfwCreateWindow(width, height, title, NULL, NULL);
@@ -43,14 +43,14 @@ namespace Project001
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            Logger::Error("Failed to initialize Glad!");
+            _LOG_ERROR("Failed to initialize Glad!");
         }
 
-        Logger::Message("OpenGL Info:");
-        Logger::Message("    Vendor: %s", glGetString(GL_VENDOR));
-        Logger::Message("    Renderer: %s", glGetString(GL_RENDERER));
-        Logger::Message("    Version: %s", glGetString(GL_VERSION));
-        Logger::Message("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        _LOG_MESSAGE("OpenGL Info:");
+        _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
+        _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
+        _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
+        _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         SetVSync(false);
 

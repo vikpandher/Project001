@@ -289,7 +289,7 @@ namespace Project001
         textureIndexToUnitBiMap_.Clear();
     }
 
-    bool OpenGLRenderer::AddModel(
+    bool OpenGLRenderer::AddMesh(
         MeshStores* meshStoresPtr,
         unsigned int meshIndex,
         unsigned int textureIndex,
@@ -303,9 +303,9 @@ namespace Project001
         bool lit)
     {
         MeshVertex* meshVerticies;
-        glm::uint meshVertexCount;
-        glm::uint* meshIndicies;
-        glm::uint meshIndexCount;
+        unsigned int meshVertexCount;
+        unsigned int* meshIndicies;
+        unsigned int meshIndexCount;
 
         if (meshStoresPtr->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount))
         {
@@ -321,7 +321,7 @@ namespace Project001
                 specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
             }
 
-            glm::uint vertexBufferOffset = (glm::uint)vertexBuffer_.size();
+            unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
 
             for (size_t j = 0; j < meshVertexCount; ++j)
             {
@@ -329,7 +329,7 @@ namespace Project001
 
                 Project001::VertexData newVertex;
                 newVertex.position = currentMeshVertex.position;
-                newVertex.textureCoordinte = currentMeshVertex.textureCoordinte;
+                newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
                 newVertex.normal = currentMeshVertex.normal;
                 newVertex.color = color;
                 newVertex.textureSlot = textureSlot;

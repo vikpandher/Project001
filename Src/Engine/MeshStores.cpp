@@ -24,11 +24,11 @@ namespace Project001
     }
 
     bool MeshStores::GetMesh(
-        glm::uint index,
+        unsigned int index,
         MeshVertex*& firstVertexPtr,
-        glm::uint& vertexCount,
-        glm::uint*& firstIndexPtr,
-        glm::uint& indexCount)
+        unsigned int& vertexCount,
+        unsigned int*& firstIndexPtr,
+        unsigned int& indexCount)
     {
         if (index >= meshDataArray_.size())
         {
@@ -41,7 +41,7 @@ namespace Project001
         firstVertexPtr = &meshVertexArrayPtr[meshData.vertexIndex];
         vertexCount = meshData.vertexCount;
 
-        glm::uint* meshIndexArrayPtr = meshIndexArray_.data();
+        unsigned int* meshIndexArrayPtr = meshIndexArray_.data();
 
         firstIndexPtr = &meshIndexArrayPtr[meshData.indexIndex];
         indexCount = meshData.indexCount;
@@ -50,7 +50,7 @@ namespace Project001
     }
 
     bool MeshStores::GetMeshData(
-        glm::uint index,
+        unsigned int index,
         MeshData& meshData)
     {
         if (index >= meshDataArray_.size())
@@ -64,7 +64,7 @@ namespace Project001
     }
 
     bool MeshStores::LoadMeshOBJ(
-        glm::uint& index,
+        unsigned int& index,
         const std::string& path,
         bool normalizeSize,
         bool recenter,
@@ -80,7 +80,7 @@ namespace Project001
         if (LoadMeshOBJ(newMeshData, meshVertexArray_, meshIndexArray_, path, normalizeSize, recenter, triangulate))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -89,7 +89,7 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DTriangleFan(
-        glm::uint& index,
+        unsigned int& index,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter,
@@ -99,7 +99,7 @@ namespace Project001
         if (Generate2DTriangleFan(newMeshData, meshVertexArray_, meshIndexArray_, positions, textureCoordinates, recenter, triangulate))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -108,7 +108,7 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DTriangles(
-        glm::uint& index,
+        unsigned int& index,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter)
@@ -117,7 +117,7 @@ namespace Project001
         if (Generate2DTriangles(newMeshData, meshVertexArray_, meshIndexArray_, positions, textureCoordinates, recenter))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -126,7 +126,7 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DTriangleStrip(
-        glm::uint& index,
+        unsigned int& index,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter,
@@ -136,7 +136,7 @@ namespace Project001
         if (Generate2DTriangleStrip(newMeshData, meshVertexArray_, meshIndexArray_, positions, textureCoordinates, recenter, triangulate))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -145,7 +145,7 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DLine(
-        glm::uint& index,
+        unsigned int& index,
         const std::vector<glm::vec2>& positions,
         float width,
         bool recenter,
@@ -156,7 +156,7 @@ namespace Project001
         if (Generate2DLine(newMeshData, meshVertexArray_, meshIndexArray_, positions, width, recenter, triangulate, positionalTexture))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -165,9 +165,9 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DRegularPolygon(
-        glm::uint& index,
+        unsigned int& index,
         float radius,
-        glm::uint sides,
+        size_t sides,
         bool recenter,
         bool triangulate,
         bool positionalTexture)
@@ -176,7 +176,7 @@ namespace Project001
         if (Generate2DRegularPolygon(newMeshData, meshVertexArray_, meshIndexArray_, radius, sides, recenter, triangulate, positionalTexture))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -185,10 +185,10 @@ namespace Project001
     }
 
     bool MeshStores::Generate2DArc(
-        glm::uint& index,
+        unsigned int& index,
         float innerRadius,
         float outerRadius,
-        glm::uint subdivisions,
+        size_t subdivisions,
         float startAngle,
         float endAngle,
         bool recenter,
@@ -199,7 +199,7 @@ namespace Project001
         if (Generate2DArc(newMeshData, meshVertexArray_, meshIndexArray_, innerRadius, outerRadius, subdivisions, startAngle, endAngle, recenter, triangulate, positionalTexture))
         {
             meshDataArray_.push_back(newMeshData);
-            index = (glm::uint)(meshDataArray_.size() - 1);
+            index = (unsigned int)(meshDataArray_.size() - 1);
 
             return true;
         }
@@ -207,20 +207,65 @@ namespace Project001
         return false;
     }
 
-    void MeshStores::GenerateBox(
-        glm::uint& index,
+    bool MeshStores::GenerateBox(
+        unsigned int& index,
         float xLength,
         float yLength,
         float zLength,
         bool triangulate)
     {
         MeshData newMeshData;
-        GenerateBox(newMeshData, meshVertexArray_, meshIndexArray_, xLength, yLength, zLength, triangulate);
-        meshDataArray_.push_back(newMeshData);
-        index = (glm::uint)(meshDataArray_.size() - 1);
+        if (GenerateBox(newMeshData, meshVertexArray_, meshIndexArray_, xLength, yLength, zLength, triangulate))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
     }
 
-    bool MeshStores::NormalizeMeshSize(glm::uint& index)
+    bool MeshStores::GenerateIcosphere(
+        unsigned int& index,
+        float radius,
+        size_t subdivisions,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        MeshData newMeshData;
+        if (GenerateIcosphere(newMeshData, meshVertexArray_, meshIndexArray_, radius, subdivisions, smoothNormals, triangulate))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool MeshStores::GenerateSphere(
+        unsigned int& index,
+        float radius,
+        size_t longitudinalSections,
+        size_t latitudinalSections,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        MeshData newMeshData;
+        if (GenerateSphere(newMeshData, meshVertexArray_, meshIndexArray_, radius, longitudinalSections, latitudinalSections, smoothNormals, triangulate))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool MeshStores::NormalizeMeshSize(unsigned int& index)
     {
         if (index >= meshDataArray_.size())
         {
@@ -233,7 +278,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshStores::RecenterMesh(glm::uint& index)
+    bool MeshStores::RecenterMesh(unsigned int& index)
     {
         if (index >= meshDataArray_.size())
         {
@@ -246,7 +291,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshStores::TranslateMesh(glm::uint& index, glm::vec3 translation)
+    bool MeshStores::TranslateMesh(unsigned int& index, glm::vec3 translation)
     {
         if (index >= meshDataArray_.size())
         {
@@ -259,7 +304,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshStores::RotateMesh(glm::uint& index, glm::quat rotation)
+    bool MeshStores::RotateMesh(unsigned int& index, glm::quat rotation)
     {
         if (index >= meshDataArray_.size())
         {
@@ -272,7 +317,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshStores::ScaleMesh(glm::uint& index, glm::vec3 scale)
+    bool MeshStores::ScaleMesh(unsigned int& index, glm::vec3 scale)
     {
         if (index >= meshDataArray_.size())
         {
@@ -288,7 +333,7 @@ namespace Project001
     bool MeshStores::LoadMeshOBJ(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         const std::string& path,
         bool normalizeSize,
         bool recenter,
@@ -301,8 +346,8 @@ namespace Project001
             return false;
         }
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
 
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> textureCoordinates;
@@ -498,12 +543,12 @@ namespace Project001
                             for (size_t i = 1; i < face.size() - 1; ++i)
                             {
                                 meshIndexArray.push_back(meshData.vertexCount);
-                                meshIndexArray.push_back(meshData.vertexCount + (glm::uint)i);
-                                meshIndexArray.push_back(meshData.vertexCount + (glm::uint)i + 1);
+                                meshIndexArray.push_back(meshData.vertexCount + (unsigned int)i);
+                                meshIndexArray.push_back(meshData.vertexCount + (unsigned int)i + 1);
                             }
 
-                            meshData.vertexCount += (glm::uint)face.size();
-                            meshData.indexCount += (glm::uint)((face.size() - 2) * 3);
+                            meshData.vertexCount += (unsigned int)face.size();
+                            meshData.indexCount += (unsigned int)((face.size() - 2) * 3);
                         }
                         else
                         {
@@ -529,7 +574,7 @@ namespace Project001
                                 meshIndexArray.push_back(meshData.indexCount++);
                             }
 
-                            meshData.vertexCount += (glm::uint)((face.size() - 2) * 3);
+                            meshData.vertexCount += (unsigned int)((face.size() - 2) * 3);
                         }
                     }
                 }
@@ -557,7 +602,7 @@ namespace Project001
     bool MeshStores::Generate2DTriangleFan(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter,
@@ -568,8 +613,8 @@ namespace Project001
             return false;
         }
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
         meshData.maxVertexPosition.z = 0.0f;
         meshData.minVertexPosition.z = 0.0f;
 
@@ -584,7 +629,7 @@ namespace Project001
 
                 if (i < textureCoordinates.size())
                 {
-                    meshVertex.textureCoordinte = textureCoordinates[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
                 }
 
                 meshVertex.normal = normal;
@@ -594,12 +639,12 @@ namespace Project001
             for (size_t i = 1; i < positions.size() - 1; ++i)
             {
                 meshIndexArray.push_back(0);
-                meshIndexArray.push_back((glm::uint)i);
-                meshIndexArray.push_back((glm::uint)i + 1);
+                meshIndexArray.push_back((unsigned int)i);
+                meshIndexArray.push_back((unsigned int)i + 1);
             }
 
-            meshData.vertexCount = (glm::uint)positions.size();
-            meshData.indexCount += (glm::uint)((positions.size() - 2) * 3);
+            meshData.vertexCount = (unsigned int)positions.size();
+            meshData.indexCount += (unsigned int)((positions.size() - 2) * 3);
         }
         else
         {
@@ -610,7 +655,7 @@ namespace Project001
 
                 if (0 < textureCoordinates.size())
                 {
-                    centerMeshVertex.textureCoordinte = textureCoordinates[0];
+                    centerMeshVertex.textureCoordinate = textureCoordinates[0];
                 }
 
                 centerMeshVertex.normal = normal;
@@ -620,7 +665,7 @@ namespace Project001
 
                 if (i < textureCoordinates.size())
                 {
-                    meshVertexA.textureCoordinte = textureCoordinates[i];
+                    meshVertexA.textureCoordinate = textureCoordinates[i];
                 }
 
                 meshVertexA.normal = normal;
@@ -630,7 +675,7 @@ namespace Project001
 
                 if (i + 1 < textureCoordinates.size())
                 {
-                    meshVertexB.textureCoordinte = textureCoordinates[i + 1];
+                    meshVertexB.textureCoordinate = textureCoordinates[i + 1];
                 }
 
                 meshVertexB.normal = normal;
@@ -644,7 +689,7 @@ namespace Project001
                 meshIndexArray.push_back(meshData.indexCount++);
             }
 
-            meshData.vertexCount += (glm::uint)((positions.size() - 2) * 3);
+            meshData.vertexCount += (unsigned int)((positions.size() - 2) * 3);
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -667,7 +712,7 @@ namespace Project001
     bool MeshStores::Generate2DTriangles(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter)
@@ -677,10 +722,10 @@ namespace Project001
             return false;
         }
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.vertexCount = (glm::uint)positions.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
-        meshData.indexCount = (glm::uint)positions.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.vertexCount = (unsigned int)positions.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
+        meshData.indexCount = (unsigned int)positions.size();
         meshData.maxVertexPosition.z = 0.0f;
         meshData.minVertexPosition.z = 0.0f;
 
@@ -693,13 +738,13 @@ namespace Project001
 
             if (i < textureCoordinates.size())
             {
-                meshVertex.textureCoordinte = textureCoordinates[i];
+                meshVertex.textureCoordinate = textureCoordinates[i];
             }
 
             meshVertex.normal = normal;
 
             meshVertexArray.push_back(meshVertex);
-            meshIndexArray.push_back((glm::uint)i);
+            meshIndexArray.push_back((unsigned int)i);
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -722,7 +767,7 @@ namespace Project001
     bool MeshStores::Generate2DTriangleStrip(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         const std::vector<glm::vec2>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         bool recenter,
@@ -733,8 +778,8 @@ namespace Project001
             return false;
         }
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
         meshData.maxVertexPosition.z = 0.0f;
         meshData.minVertexPosition.z = 0.0f;
 
@@ -749,7 +794,7 @@ namespace Project001
 
                 if (i < textureCoordinates.size())
                 {
-                    meshVertex.textureCoordinte = textureCoordinates[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
                 }
 
                 meshVertex.normal = normal;
@@ -761,20 +806,20 @@ namespace Project001
             {
                 if (i % 2 == 0)
                 {
-                    meshIndexArray.push_back((glm::uint)i);
-                    meshIndexArray.push_back((glm::uint)i + 1);
-                    meshIndexArray.push_back((glm::uint)i + 2);
+                    meshIndexArray.push_back((unsigned int)i);
+                    meshIndexArray.push_back((unsigned int)i + 1);
+                    meshIndexArray.push_back((unsigned int)i + 2);
                 }
                 else
                 {
-                    meshIndexArray.push_back((glm::uint)i + 2);
-                    meshIndexArray.push_back((glm::uint)i + 1);
-                    meshIndexArray.push_back((glm::uint)i);
+                    meshIndexArray.push_back((unsigned int)i + 2);
+                    meshIndexArray.push_back((unsigned int)i + 1);
+                    meshIndexArray.push_back((unsigned int)i);
                 }
             }
 
-            meshData.vertexCount = (glm::uint)positions.size();
-            meshData.indexCount += (glm::uint)((positions.size() - 2) * 3);
+            meshData.vertexCount = (unsigned int)positions.size();
+            meshData.indexCount += (unsigned int)((positions.size() - 2) * 3);
         }
         else
         {
@@ -785,7 +830,7 @@ namespace Project001
 
                 if (i < textureCoordinates.size())
                 {
-                    meshVertexA.textureCoordinte = textureCoordinates[i];
+                    meshVertexA.textureCoordinate = textureCoordinates[i];
                 }
 
                 meshVertexA.normal = normal;
@@ -795,7 +840,7 @@ namespace Project001
 
                 if (i + 1 < textureCoordinates.size())
                 {
-                    meshVertexB.textureCoordinte = textureCoordinates[i + 1];
+                    meshVertexB.textureCoordinate = textureCoordinates[i + 1];
                 }
 
                 meshVertexB.normal = normal;
@@ -805,7 +850,7 @@ namespace Project001
 
                 if (i + 2 < textureCoordinates.size())
                 {
-                    meshVertexC.textureCoordinte = textureCoordinates[i + 2];
+                    meshVertexC.textureCoordinate = textureCoordinates[i + 2];
                 }
 
                 meshVertexC.normal = normal;
@@ -828,7 +873,7 @@ namespace Project001
                 meshIndexArray.push_back(meshData.indexCount++);
             }
 
-            meshData.vertexCount += (glm::uint)((positions.size() - 2) * 3);
+            meshData.vertexCount += (unsigned int)((positions.size() - 2) * 3);
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -851,7 +896,7 @@ namespace Project001
     bool MeshStores::Generate2DLine(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         const std::vector<glm::vec2>& positions,
         float width,
         bool recenter,
@@ -863,8 +908,8 @@ namespace Project001
             return false;
         }
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
         meshData.maxVertexPosition.z = 0.0f;
         meshData.minVertexPosition.z = 0.0f;
 
@@ -1186,17 +1231,17 @@ namespace Project001
         {
             for (size_t i = 0; i < meshData.vertexCount; ++i)
             {
-                glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+                unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
                 MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
 
-                currentMeshVertex.textureCoordinte.x = currentMeshVertex.position.x;
-                currentMeshVertex.textureCoordinte.y = currentMeshVertex.position.y;
+                currentMeshVertex.textureCoordinate.x = currentMeshVertex.position.x;
+                currentMeshVertex.textureCoordinate.y = currentMeshVertex.position.y;
             }
         }
 
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             const MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
 
             meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
@@ -1217,9 +1262,9 @@ namespace Project001
     bool MeshStores::Generate2DRegularPolygon(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         float radius,
-        glm::uint sides,
+        size_t sides,
         bool recenter,
         bool triangulate,
         bool positionalTexture)
@@ -1236,7 +1281,7 @@ namespace Project001
         glm::vec2 radialVector(0.0f, radius);
         positions.push_back(radialVector);
 
-        for (size_t i = 0; i < (size_t)sides; ++i)
+        for (size_t i = 0; i < sides; ++i)
         {
             radialVector = Rotate2DVector(radialVector, sectionAngle);
             positions.push_back(radialVector);
@@ -1263,10 +1308,10 @@ namespace Project001
     bool MeshStores::Generate2DArc(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         float innerRadius,
         float outerRadius,
-        glm::uint subdivisions,
+        size_t subdivisions,
         float startAngle,
         float endAngle,
         bool recenter,
@@ -1322,7 +1367,7 @@ namespace Project001
         outerRadialVector = Rotate2DVector(outerRadialVector, startAngle);
         positions.push_back(outerRadialVector);
 
-        for (size_t i = 0; i < (size_t)subdivisions; ++i)
+        for (size_t i = 0; i < subdivisions; ++i)
         {
             innerRadialVector = Rotate2DVector(innerRadialVector, sectionAngle);
             positions.push_back(innerRadialVector);
@@ -1349,28 +1394,18 @@ namespace Project001
         return true;
     }
 
-    void MeshStores::GenerateBox(
+    bool MeshStores::GenerateBox(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
-        std::vector<glm::uint>& meshIndexArray,
+        std::vector<unsigned int>& meshIndexArray,
         float xLength,
         float yLength,
         float zLength,
         bool triangulate)
     {
-        if (xLength < 0.0f)
+        if (xLength <= 0.0f || yLength <= 0.0f || zLength <= 0.0f)
         {
-            xLength *= 1.0f;
-        }
-
-        if (yLength < 0.0f)
-        {
-            yLength *= 1.0f;
-        }
-
-        if (zLength < 0.0f)
-        {
-            zLength *= 1.0f;
+            return false;
         }
 
         glm::vec3 octant_posX_posY_posZ(xLength /  2.0f, yLength /  2.0f, zLength /  2.0f);
@@ -1467,8 +1502,8 @@ namespace Project001
         meshVertex_bottomFace_bottomLeft.position = octant_negX_negY_negZ;
         meshVertex_bottomFace_bottomLeft.normal = normal_negY;
 
-        meshData.vertexIndex = (glm::uint)meshVertexArray.size();
-        meshData.indexIndex = (glm::uint)meshIndexArray.size();
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
         meshData.maxVertexPosition.x = xLength /  2.0f;
         meshData.minVertexPosition.x = xLength / -2.0f;
         meshData.maxVertexPosition.y = yLength /  2.0f;
@@ -1522,7 +1557,7 @@ namespace Project001
 
             for (size_t i = 0; i < 36; ++i)
             {
-                meshIndexArray.push_back((glm::uint)i);
+                meshIndexArray.push_back((unsigned int)i);
             }
 
             meshData.vertexCount = 36;
@@ -1605,6 +1640,501 @@ namespace Project001
             meshData.vertexCount = 24;
             meshData.indexCount = 36;
         }
+
+        return true;
+    }
+
+    // TODO:
+    bool MeshStores::GenerateIcosphere(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<unsigned int>& meshIndexArray,
+        float radius,
+        size_t subdivisions,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius <= 0.0f)
+        {
+            return false;
+        }
+
+        // Calculations initalialy done using Polar Coordinates:
+        // x = radial distance of a point from the origin
+        //     range = [0, infinity)
+        // y = polar angle from the +z axis towards the -z axis
+        //     range = [0, _PI]
+        // z = azimouth angle of projection in the xy plane, starting from the
+        //     +x axis and going around counter clockwise
+        //     range = [0, 2 * _PI]
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+
+        positions.reserve(22);
+        textureCoordinates.reserve(22);
+
+        // top
+        for (size_t i = 0; i < 5; ++i)
+        {
+            positions.emplace_back(radius, glm::pi<float>() * 0.5f, 0.0f);
+            textureCoordinates.emplace_back((float)( i * 2 + 1), 1.0f);
+        }
+
+        const float hAngle = 0.4f * glm::pi<float>();
+        const float vAngle = std::atan(0.5f);
+
+        // body
+        for (size_t i = 0; i < 6; ++i)
+        {
+            positions.emplace_back(radius, vAngle, (float)i * hAngle);
+            textureCoordinates.emplace_back((float)(i * 2), 2.0f / 3.0f);
+
+            positions.emplace_back(radius, -1.0f * vAngle, ((float)i + 0.5) * hAngle);
+            textureCoordinates.emplace_back((float)(i * 2 + 1), 1.0f / 3.0f);
+        }
+
+        // bottom
+        for (size_t i = 0; i < 5; ++i)
+        {
+            positions.emplace_back(radius, glm::pi<float>() * -0.5f, 0.0f);
+            textureCoordinates.emplace_back((float)(i * 2 + 2), 0.0f);
+        }
+
+        // subdivide
+
+        return false;
+    }
+
+    bool MeshStores::GenerateSphere(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<unsigned int>& meshIndexArray,
+        float radius,
+        size_t longitudinalSections, // west/east
+        size_t latitudinalSections, // north/south
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius <= 0.0f || longitudinalSections < 3 || latitudinalSections < 2)
+        {
+            return false;
+        }
+
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.vertexCount = 0;
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
+        meshData.indexCount = 0;
+        meshData.maxVertexPosition.y = radius;
+        meshData.minVertexPosition.y = -1.0f * radius;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        size_t uniquePositions = (longitudinalSections + 1) * (latitudinalSections + 1) - 2;
+        positions.reserve(uniquePositions);
+        textureCoordinates.reserve(uniquePositions);
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        const float longStep = -2.0f * glm::pi<float>() / (float)(longitudinalSections);
+        const float latiStep = glm::pi<float>() / (float)(latitudinalSections);
+
+        // top
+        for (size_t i = 0; i < longitudinalSections; ++i)
+        {
+            positions.emplace_back(0.0f, radius, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 1.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, 1.0f, 0.0f);
+            }
+        }
+
+        // body
+        for (size_t i = 1; i < latitudinalSections; ++i)
+        {
+            float latiAngle = glm::pi<float>() / 2.0f - latiStep * (float)i;
+            float xz = radius * std::cosf(latiAngle);
+            float y = radius * std::sinf(latiAngle);
+
+            for (size_t j = 0; j < longitudinalSections + 1; j++) // +1 for wrap around
+            {
+                float longAngle = longStep * (float)j;
+                float x = xz * std::cosf(longAngle);
+                float z = xz * std::sinf(longAngle);
+
+                positions.emplace_back(x, y, z);
+                textureCoordinates.emplace_back((float)j / (float)longitudinalSections, (float)(latitudinalSections - i) / (float)latitudinalSections);
+                if (smoothNormals)
+                {
+                    normals.emplace_back(x / radius, y / radius, z / radius);
+                }
+            }
+        }
+
+        // bottom
+        for (size_t i = 0; i < longitudinalSections; ++i)
+        {
+            positions.emplace_back(0.0f, -1.0f * radius, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 0.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, -1.0f, 0.0f);
+            }
+        }
+
+        const size_t firstBodyPosition = longitudinalSections;
+        const size_t firstBottomPosition = (longitudinalSections + 1) * (latitudinalSections - 1) - 1;
+        const size_t bodyWrapVertexCount = longitudinalSections + 1;
+
+        if (smoothNormals)
+        {
+            if (triangulate)
+            {
+                std::vector<MeshVertex> tempMeshVertexArray;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    tempMeshVertexArray.push_back(meshVertex);
+                }
+
+                // top
+                // p1
+                // |  \
+                // |   \
+                // p2 -- p2+1 (p3)
+                for (size_t i = 0; i < firstBodyPosition; ++i)
+                {
+                    size_t i2 = i + longitudinalSections;
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2 + 1]);
+
+                    meshData.vertexCount += 3;
+                }
+
+                // body
+                // p1 -- p1+1
+                // |  \  |
+                // |   \ |
+                // p2 -- p2+1 (p3)
+                if (latitudinalSections > 2)
+                {
+                    for (size_t i = firstBodyPosition; i < firstBottomPosition - 1; ++i)
+                    {
+                        if ((i + 2) % bodyWrapVertexCount == 0)
+                        {
+                            continue;
+                        }
+
+                        size_t i2 = i + bodyWrapVertexCount;
+
+                        meshVertexArray.push_back(tempMeshVertexArray[i]);
+                        meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                        meshVertexArray.push_back(tempMeshVertexArray[i2 + 1]);
+
+                        meshVertexArray.push_back(tempMeshVertexArray[i2 + 1]);
+                        meshVertexArray.push_back(tempMeshVertexArray[i + 1]);
+                        meshVertexArray.push_back(tempMeshVertexArray[i]);
+
+                        meshData.vertexCount += 6;
+                    }
+                }
+
+                // bottom
+                // p1 -- p1+1 (p3)
+                // |   /
+                // |  /
+                // p2
+                for (size_t i = firstBottomPosition; i < positions.size() - bodyWrapVertexCount; ++i)
+                {
+                    size_t i2 = i + bodyWrapVertexCount;
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i + 1]);
+
+                    meshData.vertexCount += 3;
+                }
+
+                while (meshData.indexCount < meshData.vertexCount)
+                {
+                    meshIndexArray.push_back(meshData.indexCount++);
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    meshVertexArray.push_back(meshVertex);
+                }
+
+                meshData.vertexCount = (unsigned int)positions.size();
+
+                // top
+                // p1
+                // |  \
+                // |   \
+                // p2 -- p2+1 (p3)
+                for (size_t i = 0; i < firstBodyPosition; ++i)
+                {
+                    size_t i2 = i + longitudinalSections;
+                    size_t i3 = i2 + 1;
+
+                    meshIndexArray.push_back((unsigned int)i);
+                    meshIndexArray.push_back((unsigned int)i2);
+                    meshIndexArray.push_back((unsigned int)i3);
+
+                    meshData.indexCount += 3;
+                }
+
+                // body
+                // p1 -- p1+1 (p4)
+                // |  \  |
+                // |   \ |
+                // p2 -- p2+1 (p3)
+                if (latitudinalSections > 2)
+                {
+                    for (size_t i = firstBodyPosition; i < firstBottomPosition - 1; ++i)
+                    {
+                        if ((i + 2) % bodyWrapVertexCount == 0)
+                        {
+                            continue;
+                        }
+
+                        size_t i2 = i + bodyWrapVertexCount;
+                        size_t i3 = i2 + 1;
+                        size_t i4 = i + 1;
+
+                        meshIndexArray.push_back((unsigned int)i);
+                        meshIndexArray.push_back((unsigned int)i2);
+                        meshIndexArray.push_back((unsigned int)i3);
+                        meshIndexArray.push_back((unsigned int)i3);
+                        meshIndexArray.push_back((unsigned int)i4);
+                        meshIndexArray.push_back((unsigned int)i);
+
+                        meshData.indexCount += 6;
+                    }
+                }
+
+                // bottom
+                // p1 -- p1+1 (p3)
+                // |   /
+                // |  /
+                // p2
+                for (size_t i = firstBottomPosition; i < positions.size() - bodyWrapVertexCount; ++i)
+                {
+                    size_t i2 = i + bodyWrapVertexCount;
+                    size_t i3 = i + 1;
+
+                    meshIndexArray.push_back((unsigned int)i);
+                    meshIndexArray.push_back((unsigned int)i2);
+                    meshIndexArray.push_back((unsigned int)i3);
+
+                    meshData.indexCount += 3;
+                }
+            }
+        }
+        else
+        {
+            // top
+            // p1
+            // |  \
+            // |   \
+            // p2 -- p2+1 (p3)
+            for (size_t i = 0; i < firstBodyPosition; ++i)
+            {
+                size_t i2 = i + longitudinalSections;
+
+                const glm::vec3& p1 = positions[i];
+                const glm::vec3& p2 = positions[i2];
+                const glm::vec3& p3 = positions[i2 + 1];
+
+                glm::vec3 p1_to_p2 = p2 - p1;
+                glm::vec3 p2_to_p3 = p3 - p2;
+                glm::vec3 normal123 = glm::normalize(glm::cross(p1_to_p2, p2_to_p3));
+
+                MeshVertex v1;
+                v1.position = p1;
+                v1.textureCoordinate = textureCoordinates[i];
+                v1.normal = normal123;
+
+                MeshVertex v2;
+                v2.position = p2;
+                v2.textureCoordinate = textureCoordinates[i2];
+                v2.normal = normal123;
+
+                MeshVertex v3;
+                v3.position = p3;
+                v3.textureCoordinate = textureCoordinates[i2 + 1];
+                v3.normal = normal123;
+
+                meshVertexArray.push_back(v1);
+                meshVertexArray.push_back(v2);
+                meshVertexArray.push_back(v3);
+
+                meshData.vertexCount += 3;
+
+                meshIndexArray.push_back(meshData.indexCount++);
+                meshIndexArray.push_back(meshData.indexCount++);
+                meshIndexArray.push_back(meshData.indexCount++);
+            }
+
+            // body
+            // p1 -- p1+1 (p4)
+            // |  \  |
+            // |   \ |
+            // p2 -- p2+1 (p3)
+            if (latitudinalSections > 2)
+            {
+                for (size_t i = firstBodyPosition; i < firstBottomPosition - 1; ++i)
+                {
+                    if ((i + 2) % bodyWrapVertexCount == 0)
+                    {
+                        continue;
+                    }
+
+
+                    size_t i2 = i + bodyWrapVertexCount;
+                    size_t i3 = i2 + 1;
+                    size_t i4 = i + 1;
+
+                    const glm::vec3& p1 = positions[i];
+                    const glm::vec3& p2 = positions[i2];
+                    const glm::vec3& p3 = positions[i3];
+
+                    glm::vec3 p1_to_p2 = p2 - p1;
+                    glm::vec3 p2_to_p3 = p3 - p2;
+                    glm::vec3 normal123 = glm::normalize(glm::cross(p1_to_p2, p2_to_p3));
+
+                    MeshVertex v1;
+                    v1.position = p1;
+                    v1.textureCoordinate = textureCoordinates[i];
+                    v1.normal = normal123;
+
+                    MeshVertex v2;
+                    v2.position = p2;
+                    v2.textureCoordinate = textureCoordinates[i2];
+                    v2.normal = normal123;
+
+                    MeshVertex v3;
+                    v3.position = p3;
+                    v3.textureCoordinate = textureCoordinates[i3];
+                    v3.normal = normal123;
+
+                    MeshVertex v4;
+                    v4.position = positions[i4];
+                    v4.textureCoordinate = textureCoordinates[i4];
+                    v4.normal = normal123;
+
+                    if (triangulate)
+                    {
+                        meshVertexArray.push_back(v1);
+                        meshVertexArray.push_back(v2);
+                        meshVertexArray.push_back(v3);
+                        meshVertexArray.push_back(v1);
+                        meshVertexArray.push_back(v3);
+                        meshVertexArray.push_back(v4);
+
+                        meshData.vertexCount += 6;
+
+                        meshIndexArray.push_back(meshData.indexCount++);
+                        meshIndexArray.push_back(meshData.indexCount++);
+                        meshIndexArray.push_back(meshData.indexCount++);
+                        meshIndexArray.push_back(meshData.indexCount++);
+                        meshIndexArray.push_back(meshData.indexCount++);
+                        meshIndexArray.push_back(meshData.indexCount++);
+                    }
+                    else
+                    {
+                        meshVertexArray.push_back(v1);
+                        meshVertexArray.push_back(v2);
+                        meshVertexArray.push_back(v3);
+                        meshVertexArray.push_back(v4);
+                    
+                        meshData.vertexCount += 4;
+
+                        meshIndexArray.push_back((unsigned int)i);
+                        meshIndexArray.push_back((unsigned int)i2);
+                        meshIndexArray.push_back((unsigned int)i3);
+                        meshIndexArray.push_back((unsigned int)i);
+                        meshIndexArray.push_back((unsigned int)i3);
+                        meshIndexArray.push_back((unsigned int)i4);
+
+                        meshData.indexCount += 6;
+                    }
+                }
+            }
+
+            // bottom
+            // p1 -- p1+1 (p3)
+            // |   /
+            // |  /
+            // p2
+            for (size_t i = firstBottomPosition; i < positions.size() - bodyWrapVertexCount; ++i)
+            {
+                size_t i2 = i + bodyWrapVertexCount;
+
+                const glm::vec3& p1 = positions[i];
+                const glm::vec3& p2 = positions[i2];
+                const glm::vec3& p3 = positions[i + 1];
+
+                glm::vec3 p1_to_p2 = p2 - p1;
+                glm::vec3 p2_to_p3 = p3 - p2;
+                glm::vec3 normal123 = glm::normalize(glm::cross(p1_to_p2, p2_to_p3));
+
+                MeshVertex v1;
+                v1.position = p1;
+                v1.textureCoordinate = textureCoordinates[i];
+                v1.normal = normal123;
+
+                MeshVertex v2;
+                v2.position = p2;
+                v2.textureCoordinate = textureCoordinates[i2];
+                v2.normal = normal123;
+
+                MeshVertex v3;
+                v3.position = p3;
+                v3.textureCoordinate = textureCoordinates[i + 1];
+                v3.normal = normal123;
+
+                meshVertexArray.push_back(v1);
+                meshVertexArray.push_back(v2);
+                meshVertexArray.push_back(v3);
+
+                meshData.vertexCount += 3;
+
+                meshIndexArray.push_back(meshData.indexCount++);
+                meshIndexArray.push_back(meshData.indexCount++);
+                meshIndexArray.push_back(meshData.indexCount++);
+            }
+        }
+
+        for (size_t i = 0; i < meshData.vertexCount; ++i)
+        {
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
+            const MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
+
+            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
+            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, currentMeshVertex.position.y);
+
+            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentMeshVertex.position.x);
+            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, currentMeshVertex.position.y);
+        }
+
+        return true;
     }
 
     void MeshStores::NormalizeMeshSize(
@@ -1624,7 +2154,7 @@ namespace Project001
 
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             meshVertexArray[meshVeretxArrayIndex].position /= biggestDimension;
         }
 
@@ -1639,7 +2169,7 @@ namespace Project001
         glm::vec3 center = (meshData.maxVertexPosition + meshData.minVertexPosition) / 2.0f;
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             meshVertexArray[meshVeretxArrayIndex].position -= center;
         }
 
@@ -1654,7 +2184,7 @@ namespace Project001
     {
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             meshVertexArray[meshVeretxArrayIndex].position += translation;
         }
 
@@ -1669,7 +2199,7 @@ namespace Project001
     {
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             glm::vec3& position = meshVertexArray[meshVeretxArrayIndex].position;
             glm::vec3& normal = meshVertexArray[meshVeretxArrayIndex].normal;
 
@@ -1679,7 +2209,7 @@ namespace Project001
 
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             const MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
 
             meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
@@ -1699,7 +2229,7 @@ namespace Project001
     {
         for (size_t i = 0; i < meshData.vertexCount; ++i)
         {
-            glm::uint meshVeretxArrayIndex = meshData.vertexIndex + (glm::uint)i;
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
             meshVertexArray[meshVeretxArrayIndex].position *= scale;
         }
 
@@ -1736,12 +2266,12 @@ namespace Project001
         if (faceVertex.textureCoordinateIndex > 0 && faceVertex.textureCoordinateIndex <= textureCoordinates.size())
         {
             int textureCoordinateIndex = faceVertex.textureCoordinateIndex - 1;
-            meshVertex.textureCoordinte = textureCoordinates[textureCoordinateIndex];
+            meshVertex.textureCoordinate = textureCoordinates[textureCoordinateIndex];
         }
         else if (faceVertex.textureCoordinateIndex < 0 && faceVertex.textureCoordinateIndex >= textureCoordinates.size() * -1)
         {
             int textureCoordinateIndex = (int)(faceVertex.textureCoordinateIndex + textureCoordinates.size());
-            meshVertex.textureCoordinte = textureCoordinates[textureCoordinateIndex];
+            meshVertex.textureCoordinate = textureCoordinates[textureCoordinateIndex];
         }
         else
         {

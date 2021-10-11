@@ -75,7 +75,7 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
-        bool AddModel(
+        bool AddMesh(
             MeshStores* meshStoresPtr,
             unsigned int meshIndex,
             unsigned int textureIndex,
@@ -99,8 +99,10 @@ namespace Project001
 
         void CreateFramebuffer();
 
-        static const unsigned int s_indexBufferCapacity_ = 36 * 48;
-        static const unsigned int s_vertexBufferCapacity_ = 36 * 32;
+        static const bool s_wireFrameMode = false;
+
+        static const unsigned int s_indexBufferCapacity_ = 8192;
+        static const unsigned int s_vertexBufferCapacity_ = 6144;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
 
@@ -146,7 +148,7 @@ namespace Project001
         std::vector<SpotLight> spotLights_;
 
         std::vector<VertexData> vertexBuffer_;
-        std::vector<glm::uint> indexBuffer_;
+        std::vector<unsigned int> indexBuffer_;
 
     private:
     };

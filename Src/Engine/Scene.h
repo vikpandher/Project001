@@ -43,6 +43,10 @@ namespace Project001
 
         Renderer* GetApplicationRendererPtr();
 
+        bool IsActiveScene();
+
+        void SendEvent(Event& event);
+
     private:
         Application* applicationPtr_;
 

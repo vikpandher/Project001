@@ -25,16 +25,16 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("SHADER::PROGRAM::LINKING_FAILED");
-            Project001::Logger::Error(infoLog);
+            _LOG_ERROR("SHADER::PROGRAM::LINKING_FAILED");
+            _LOG_ERROR(infoLog);
         }
         glValidateProgram(programId_);
         glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("SHADER::PROGRAM::VALIDATE_FAILED");
-            Project001::Logger::Error(infoLog);
+            _LOG_ERROR("SHADER::PROGRAM::VALIDATE_FAILED");
+            _LOG_ERROR(infoLog);
         }
 
         glDetachShader(programId_, vertexShaderId);
@@ -63,16 +63,16 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("SHADER::PROGRAM::LINKING_FAILED");
-            Project001::Logger::Error(infoLog);
+            _LOG_ERROR("SHADER::PROGRAM::LINKING_FAILED");
+            _LOG_ERROR(infoLog);
         }
         glValidateProgram(programId_);
         glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            Project001::Logger::Error("SHADER::PROGRAM::VALIDATE_FAILED");
-            Project001::Logger::Error(infoLog);
+            _LOG_ERROR("SHADER::PROGRAM::VALIDATE_FAILED");
+            _LOG_ERROR(infoLog);
         }
 
         glDetachShader(programId_, vertexShaderId);
@@ -171,21 +171,21 @@ namespace Project001
             glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
             if (shaderType == GL_VERTEX_SHADER)
             {
-                Project001::Logger::Error("VERTEX_SHADER::COMPILATION_FAILED");
+                _LOG_ERROR("VERTEX_SHADER::COMPILATION_FAILED");
             }
             else if (shaderType == GL_GEOMETRY_SHADER)
             {
-                Project001::Logger::Error("GEOMETRY_SHADER::COMPILATION_FAILED");
+                _LOG_ERROR("GEOMETRY_SHADER::COMPILATION_FAILED");
             }
             else if (shaderType == GL_FRAGMENT_SHADER)
             {
-                Project001::Logger::Error("FRAGMET_SHADER::COMPILATION_FAILED");
+                _LOG_ERROR("FRAGMET_SHADER::COMPILATION_FAILED");
             }
             else
             {
-                Project001::Logger::Error("UNKNOWN_SHADER::COMPILATION_FAILED");
+                _LOG_ERROR("UNKNOWN_SHADER::COMPILATION_FAILED");
             }
-            Project001::Logger::Error(infoLog);
+            _LOG_ERROR(infoLog);
         }
         return shaderId;
     }
@@ -198,32 +198,32 @@ namespace Project001
         GLint size; // size of the variable
         GLenum type; // type of the variable (float, vec3 or mat4, etc)
 
-        const GLsizei bufferCapacity = 64; // maximum name length
+        const GLsizei bufferCapacity = 128; // maximum name length
         GLchar name[bufferCapacity]; // variable name in GLSL
         GLsizei length; // name length
 
         // ATTRIBUTES
         glGetProgramiv(programId_, GL_ACTIVE_ATTRIBUTES, &count);
-        Project001::Logger::Message("Active Attributes: %d", count);
+        _LOG_MESSAGE("Active Attributes: %d", count);
 
         for (i = 0; i < count; i++)
         {
             glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
-            Project001::Logger::Message("Attribute #%d Type: %u Name: %s", i, type, name);
+            _LOG_MESSAGE("Attribute #%d Type: %u Name: %s", i, type, name);
         }
 
         // UNIFORMS
         glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
-        Project001::Logger::Message("Active Uniforms: %d", count);
+        _LOG_MESSAGE("Active Uniforms: %d", count);
 
         for (i = 0; i < count; i++)
         {
             glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
-            Project001::Logger::Message("Uniform #%d Type: %u Name: %s", i, type, name);
+            _LOG_MESSAGE("Uniform #%d Type: %u Name: %s", i, type, name);
         }
 
-        Project001::Logger::Message("");
+        _LOG_MESSAGE("");
     }
 }

@@ -3,7 +3,8 @@
 
 #include "Engine/Application.h"
 
-#include "TestScene.h"
+#include "TestScene001.h"
+#include "TestScene002.h"
 
 
 
@@ -11,13 +12,17 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 4, 160 * 4);
 
-    TestScene* testScenePtr = new TestScene();
+    TestScene002* testScene002Ptr = new TestScene002();
+    applicationPtr->AddScene(testScene002Ptr);
 
-    applicationPtr->AddScene(testScenePtr);
+    TestScene001* testScene001Ptr = new TestScene001();
+    applicationPtr->AddScene(testScene001Ptr);
+
     applicationPtr->Run();
 
-    delete testScenePtr;
     delete applicationPtr;
+    delete testScene002Ptr;
+    delete testScene001Ptr;
 
     return 0;
 }

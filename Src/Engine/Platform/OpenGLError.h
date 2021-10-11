@@ -21,7 +21,7 @@ namespace Project001
         GLenum error = glGetError();
         if (error != GL_NO_ERROR)
         {
-            Logger::Error("OpenGL::ErrorCode: %d", glGetError());
+            _LOG_ERROR("OpenGL::ErrorCode: %d", glGetError());
         }
     }
 }

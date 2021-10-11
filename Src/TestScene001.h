@@ -7,19 +7,20 @@ namespace Project001
 {
     struct CursorPositionEvent;
     struct FrameBufferSizeEvent;
+    struct KeyEvent;
     struct MouseButtonEvent;
     struct ScrollEvent;
     struct UpdateEvent;
 }
 
-class TestScene : public Project001::Scene
+class TestScene001 : public Project001::Scene
 {
 public:
-    TestScene();
-    ~TestScene();
+    TestScene001();
+    ~TestScene001();
 
-    TestScene(TestScene& other) = delete;
-    void operator=(const TestScene&) = delete;
+    TestScene001(TestScene001& other) = delete;
+    void operator=(const TestScene001&) = delete;
 
     const char* Name() override;
 
@@ -30,8 +31,11 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
+    void ClearIndiciesAndEntityIds();
+
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
+    void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
@@ -73,6 +77,18 @@ protected:
     unsigned int shape14MeshIndex_;
     unsigned int shape15MeshIndex_;
     unsigned int shape16MeshIndex_;
+    unsigned int shape17MeshIndex_;
+    unsigned int shape18MeshIndex_;
+    unsigned int shape19MeshIndex_;
+    unsigned int shape20MeshIndex_;
+    unsigned int shape21MeshIndex_;
+    unsigned int shape22MeshIndex_;
+    unsigned int shape23MeshIndex_;
+    unsigned int shape24MeshIndex_;
+    unsigned int shape25MeshIndex_;
+    unsigned int shape26MeshIndex_;
+    unsigned int shape27MeshIndex_;
+    unsigned int shape28MeshIndex_;
 
     // Texture Indicies: -------------------------------------------------------
 
@@ -80,7 +96,9 @@ protected:
     unsigned int diceTexture02Index_;
     unsigned int thonkTextureIndex_;
     unsigned int _100x100TextureIndex_;
-    unsigned int patternSpecularTextureIndex_;
+    unsigned int earthTextureIndex_;
+    unsigned int patternSpecularTexture01Index_;
+    unsigned int patternSpecularTexture02Index_;
     unsigned int thonkSpecularTextureIndex_;
 
     // Entity Ids: -------------------------------------------------------------
@@ -93,6 +111,8 @@ protected:
     unsigned int cubeEntity03Id_;
     unsigned int cubeEntity04Id_;
     unsigned int cubeEntity05Id_;
+    unsigned int cubeEntity06Id_;
+    unsigned int cubeEntity07Id_;
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;
     unsigned int shape03EntityId_;
@@ -109,6 +129,18 @@ protected:
     unsigned int shape14EntityId_;
     unsigned int shape15EntityId_;
     unsigned int shape16EntityId_;
+    unsigned int shape17EntityId_;
+    unsigned int shape18EntityId_;
+    unsigned int shape19EntityId_;
+    unsigned int shape20EntityId_;
+    unsigned int shape21EntityId_;
+    unsigned int shape22EntityId_;
+    unsigned int shape23EntityId_;
+    unsigned int shape24EntityId_;
+    unsigned int shape25EntityId_;
+    unsigned int shape26EntityId_;
+    unsigned int shape27EntityId_;
+    unsigned int shape28EntityId_;
 
 private:
     void BiMapTest() const;
@@ -116,6 +148,5 @@ private:
     void ComponentStoresTest() const;
     void LRUArrayTest() const;
     void MeshStoresTest() const;
-    void RendererTest() const;
     void TextureStoresTest() const;
 };

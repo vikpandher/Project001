@@ -21,8 +21,10 @@ set(SOURCE_FILES
     "Src/DeathFlag.h"
     "Src/TestComponents.cpp"
     "Src/TestComponents.h"
-    "Src/TestScene.cpp"
-    "Src/TestScene.h"
+    "Src/TestScene001.cpp"
+    "Src/TestScene001.h"
+    "Src/TestScene002.cpp"
+    "Src/TestScene002.h"
     "Src/TestSceneData.cpp"
     "Src/TestSceneData.h"
 )
