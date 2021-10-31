@@ -242,15 +242,14 @@ void TestScene001::Initialize()
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape20MeshIndex_, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape21MeshIndex_, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape22MeshIndex_, 0.64f, 0.48f, 0.32f));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape22MeshIndex_, 0.32f, 0.32f, 2));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape23MeshIndex_, 0.32f, 0.32f, 4));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape24MeshIndex_, 0.32f, 0.32f, 8));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape23MeshIndex_, 0.32f, 3, 2));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape24MeshIndex_, 0.32f, 4, 4));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape25MeshIndex_, 0.32f, 8, 8));
-
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape26MeshIndex_, 0.32f, 3, 2, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape27MeshIndex_, 0.32f, 4, 4, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape28MeshIndex_, 0.32f, 8, 8, false));
+    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape25MeshIndex_, 0.64f, 0.64f, 0.16f, 1));
+    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape26MeshIndex_, 0.64f, 0.64f, 0.16f, 2));
+    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape27MeshIndex_, 0.64f, 0.64f, 0.16f, 3));
+    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape28MeshIndex_, 0.64f, 0.48f, 0.16f, 4));
 
     {
         _FAIL_CHECK(textureStoresPtr_->LoadTexture(diceTexture01Index_, "../Textures/CounterclockwiseDie.png"));
@@ -278,13 +277,6 @@ void TestScene001::Initialize()
         Project001::TextureData textureData;
         _FAIL_CHECK(textureStoresPtr_->GetTexture(_100x100TextureIndex_, textureData));
         _FAIL_CHECK(rendererPtr_->AddTexture(_100x100TextureIndex_, 4, textureData.data, textureData.width, textureData.height, textureData.numberOfComponents));
-    }
-
-    {
-        _FAIL_CHECK(textureStoresPtr_->LoadTexture(earthTextureIndex_, "../Textures/Earth.png"));
-        Project001::TextureData textureData;
-        _FAIL_CHECK(textureStoresPtr_->GetTexture(earthTextureIndex_, textureData));
-        _FAIL_CHECK(rendererPtr_->AddTexture(earthTextureIndex_, 5, textureData.data, textureData.width, textureData.height, textureData.numberOfComponents));
     }
 
     {
@@ -782,7 +774,6 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape23EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape23MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
     }
 
     // generated shape entity 24
@@ -794,7 +785,6 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape24EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape24MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
     }
 
     // generated shape entity 25
@@ -806,7 +796,7 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape25EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape25MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
     }
 
     // generated shape entity 26
@@ -818,7 +808,7 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape26EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape26MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
     }
 
     // generated shape entity 27
@@ -830,7 +820,7 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape27EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape27MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
     }
 
     // generated shape entity 28
@@ -842,7 +832,7 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape28EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape28MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
     }
 }
 
@@ -904,7 +894,6 @@ void TestScene001::ClearIndiciesAndEntityIds()
     diceTexture02Index_ = (unsigned int)-1;
     thonkTextureIndex_ = (unsigned int)-1;
     _100x100TextureIndex_ = (unsigned int)-1;
-    earthTextureIndex_ = (unsigned int)-1;
     patternSpecularTexture01Index_ = (unsigned int)-1;
     patternSpecularTexture02Index_ = (unsigned int)-1;
     thonkSpecularTextureIndex_ = (unsigned int)-1;

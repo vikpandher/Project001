@@ -24,6 +24,11 @@ namespace Project001
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
         virtual void GetAspectRatio(int& numerator, int& denominator) const = 0;
 
+        virtual void GetScreenSize(int& width, int& height) const = 0;
+
+        virtual void SetWindowPosition(int x, int y) = 0;
+        virtual void GetWindowPosition(int& x, int& y) const = 0;
+
         virtual void SetWindowSize(int width, int height) = 0;
         virtual void GetWindowSize(int& width, int& height) const = 0;
 

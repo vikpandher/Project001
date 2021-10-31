@@ -10,13 +10,13 @@
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 4, 160 * 4);
-
-    TestScene002* testScene002Ptr = new TestScene002();
-    applicationPtr->AddScene(testScene002Ptr);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
     TestScene001* testScene001Ptr = new TestScene001();
     applicationPtr->AddScene(testScene001Ptr);
+
+    TestScene002* testScene002Ptr = new TestScene002();
+    applicationPtr->AddScene(testScene002Ptr);
 
     applicationPtr->Run();
 

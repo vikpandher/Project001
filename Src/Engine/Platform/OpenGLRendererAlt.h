@@ -99,7 +99,8 @@ namespace Project001
 
         void CreateFramebuffer();
 
-        static const bool s_wireFrameMode = false;
+        static const bool s_drawWireframe = true;
+        static const bool s_drawNormals = true;
 
         static const unsigned int s_indexBufferCapacity_ = 8192;
         static const unsigned int s_vertexBufferCapacity_ = 6144;
@@ -114,6 +115,8 @@ namespace Project001
         bool isCurrentContext_;
 
         OpenGLShader* primaryShaderPtr_;
+        OpenGLShader* wireframeShaderPtr_;
+        OpenGLShader* normalShaderPtr_;
         OpenGLShader* screenShaderPtr_;
 
         unsigned int vertexBufferId_;

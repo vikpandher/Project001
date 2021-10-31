@@ -25,6 +25,11 @@ namespace Project001
         void SetAspectRatio(int numerator, int denominator) override;
         void GetAspectRatio(int& numerator, int& denominator) const override;
 
+        void GetScreenSize(int& width, int& height) const override;
+
+        void SetWindowPosition(int x, int y) override;
+        void GetWindowPosition(int& x, int& y) const override;
+
         void SetWindowSize(int width, int height) override;
         void GetWindowSize(int& width, int& height) const override;
 

@@ -101,6 +101,8 @@ namespace Project001
 
         void RenderTriangles(const std::vector<VertexData>& vertexBuffer);
 
+        static const bool s_wireFrameMode = false;
+
         static const unsigned int s_bufferCapacity_ = 36 * 10;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;

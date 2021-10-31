@@ -91,10 +91,18 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGLTexture.h"
     "Src/Engine/Platform/OpenGLWindow.cpp"
     "Src/Engine/Platform/OpenGLWindow.h"
-    "Src/Engine/Platform/Shaders.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
+
+set(SHADER_SOURCE_FILES
+    "Src/Engine/Platform/ShaderSource/BatchShaderSource.h"
+    "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
+    "Src/Engine/Platform/ShaderSource/ScreenShaderSource.h"
+    "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"
+)
+
+source_group("Src/Engine/Platform/ShaderSource" FILES ${SHADER_SOURCE_FILES})
 
 # adding WIN32 makes WinMain() the entry point and so no conole appears
 add_executable("${PROJECT_NAME}" # WIN32
@@ -102,6 +110,7 @@ add_executable("${PROJECT_NAME}" # WIN32
     ${ENGINE_FILES}
     ${ENGINE_COMPONENTS_FILES}
     ${PLATFORM_FILES}
+    ${SHADER_SOURCE_FILES}
 )
 
 target_include_directories("${PROJECT_NAME}"

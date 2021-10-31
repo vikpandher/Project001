@@ -99,6 +99,25 @@ namespace Project001
             bool recenter = true,
             bool triangulate = true);
 
+        // Arc grows according to right hand rule
+        bool Generate2DArc(
+            unsigned int& index,
+            float innerRadius,
+            float outerRadius,
+            size_t subdivisions,
+            float startAngle,
+            float endAngle,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        bool Generate2DCapsule(
+            unsigned int& index,
+            float rectangleHeight,
+            float capsuleWidth,
+            size_t radialSections,
+            bool triangulate = true);
+
         bool Generate2DLine(
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
@@ -115,15 +134,12 @@ namespace Project001
             bool triangulate = true,
             bool positionalTexture = true);
 
-        // Arc grows according to right hand rule
-        bool Generate2DArc(
+        bool GenerateBezeledRectangle(
             unsigned int& index,
-            float innerRadius,
-            float outerRadius,
-            size_t subdivisions,
-            float startAngle,
-            float endAngle,
-            bool recenter = true,
+            float width,
+            float height,
+            float bezelSize,
+            float bezelSections,
             bool triangulate = true,
             bool positionalTexture = true);
 
@@ -132,6 +148,32 @@ namespace Project001
             float xLength,
             float yLength,
             float zLength,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        bool GenerateCapsule(
+            unsigned int& index,
+            float cylindricalHeight,
+            float radius,
+            size_t faces,
+            size_t stacks,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        bool GenerateCone(
+            unsigned int& index,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        bool GenerateCylinder(
+            unsigned int& index,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
             bool triangulate = true);
 
         bool GenerateIcosphere(
@@ -158,6 +200,10 @@ namespace Project001
         bool RotateMesh(unsigned int& index, glm::quat rotation);
 
         bool ScaleMesh(unsigned int& index, glm::vec3 scale);
+
+        bool SizeMeshAlongNormals(unsigned int& index, float size);
+
+        bool TurnInsideOut(unsigned int& index, bool wasTriangulated = true);
 
         static bool LoadMeshOBJ(
             MeshData& meshData,
@@ -194,6 +240,28 @@ namespace Project001
             bool recenter = true,
             bool triangulate = true);
 
+        static bool Generate2DArc(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float innerRadius,
+            float outerRadius,
+            size_t subdivisions,
+            float startAngle,
+            float endAngle,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        static bool Generate2DCapsule(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float rectangleHeight,
+            float capsuleWidth,
+            size_t radialSections,
+            bool triangulate = true);
+
         static bool Generate2DLine(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
@@ -214,16 +282,14 @@ namespace Project001
             bool triangulate = true,
             bool positionalTexture = true);
 
-        static bool Generate2DArc(
+        static bool GenerateBezeledRectangle(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
-            float innerRadius,
-            float outerRadius,
-            size_t subdivisions,
-            float startAngle,
-            float endAngle,
-            bool recenter = true,
+            float width,
+            float height,
+            float bezelSize,
+            float bezelSections,
             bool triangulate = true,
             bool positionalTexture = true);
 
@@ -234,6 +300,38 @@ namespace Project001
             float xLength,
             float yLength,
             float zLength,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        static bool GenerateCapsule(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float cylindricalHeight,
+            float radius,
+            size_t faces,
+            size_t stacks,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        static bool GenerateCone(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = true);
+
+        static bool GenerateCylinder(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
             bool triangulate = true);
 
         static bool GenerateIcosphere(
@@ -278,6 +376,17 @@ namespace Project001
             std::vector<MeshVertex>& meshVertexArray,
             glm::vec3 scale);
 
+        static void SizeMeshAlongNormals(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            float size);
+
+        static void TurnInsideOut(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            bool wasTriangulated = true);
+
     protected:
         struct FaceVertex
         {
@@ -290,6 +399,17 @@ namespace Project001
             int positionIndex;
             int textureCoordinateIndex;
             int normalIndex;
+        };
+
+        struct TriangleFace
+        {
+            TriangleFace(unsigned int index0 = 0, unsigned int index1 = 0, unsigned int index2 = 0)
+            {
+                indicies[0] = index0;
+                indicies[1] = index1;
+                indicies[2] = index2;
+            }
+            unsigned int indicies[3];
         };
 
         // used by LoadMeshOBJ

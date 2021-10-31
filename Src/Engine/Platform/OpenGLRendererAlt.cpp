@@ -10,7 +10,10 @@
 
 #include "Engine/Platform/OpenGLShader.h"
 #include "Engine/Platform/OpenGLTexture.h"
-#include "Engine/Platform/Shaders.h"
+#include "Engine/Platform/ShaderSource/BatchShaderSource.h"
+#include "Engine/Platform/ShaderSource/NormalShaderSource.h"
+#include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
+#include "Engine/Platform/ShaderSource/WireFrameShaderSource.h"
 
 
 
@@ -169,7 +172,10 @@ namespace Project001
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
         glEnableVertexAttribArray(1);
 
-        primaryShaderPtr_ = new OpenGLShader(g_vertexShaderSource01_, g_fragmentShaderSource01_);
+        primaryShaderPtr_ = new OpenGLShader(
+            BatchShader::g_vertexShaderSource,
+            BatchShader::g_fragmentShaderSource
+        );
         primaryShaderPtr_->Use();
 
         for (int i = 0; i < s_numberOfTextureSlots_; ++i)
@@ -181,7 +187,22 @@ namespace Project001
             primaryShaderPtr_->SetInt(uniformName.c_str(), i);
         }
 
-        screenShaderPtr_ = new OpenGLShader(g_vertexShaderSource02_, g_fragmentShaderSource02_);
+        wireframeShaderPtr_ = new OpenGLShader(
+            WireFrameShader::g_vertexShaderSource,
+            WireFrameShader::g_geometryShaderSource,
+            WireFrameShader::g_fragmentShaderSource
+        );
+
+        normalShaderPtr_ = new OpenGLShader(
+            NormalShader::g_vertexShaderSource,
+            NormalShader::g_geometryShaderSource,
+            NormalShader::g_fragmentShaderSource
+        );
+
+        screenShaderPtr_ = new OpenGLShader(
+            ScreenShader::g_vertexShaderSource,
+            ScreenShader::g_fragmentShaderSource
+        );
         screenShaderPtr_->Use();
         screenShaderPtr_->SetInt("u_ScreenTexture", 0);
 
@@ -199,6 +220,9 @@ namespace Project001
     OpenGLRendererAlt::~OpenGLRendererAlt()
     {
         delete primaryShaderPtr_;
+        delete wireframeShaderPtr_;
+        delete normalShaderPtr_;
+        delete screenShaderPtr_;
 
         ClearTextures();
 
@@ -382,11 +406,6 @@ namespace Project001
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
-        if (s_wireFrameMode)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
-
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
@@ -494,13 +513,34 @@ namespace Project001
 
         glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
 
+
+        if (s_drawWireframe)
+        {
+            wireframeShaderPtr_->Use();
+
+            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
+            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+            wireframeShaderPtr_->SetVec4("u_Color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
+        if (s_drawNormals)
+        {
+            normalShaderPtr_->Use();
+
+            normalShaderPtr_->SetFloat("u_Magnitude", 0.16f);
+            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
+            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            normalShaderPtr_->SetVec4("u_StartColor", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            normalShaderPtr_->SetVec4("u_EndColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
         // Render to screen frameBuffer
         // ---------------------------------------------------------------------
-
-        if (s_wireFrameMode)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
 
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 

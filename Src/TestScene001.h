@@ -96,7 +96,6 @@ protected:
     unsigned int diceTexture02Index_;
     unsigned int thonkTextureIndex_;
     unsigned int _100x100TextureIndex_;
-    unsigned int earthTextureIndex_;
     unsigned int patternSpecularTexture01Index_;
     unsigned int patternSpecularTexture02Index_;
     unsigned int thonkSpecularTextureIndex_;

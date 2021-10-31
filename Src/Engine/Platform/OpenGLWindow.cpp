@@ -173,6 +173,23 @@ namespace Project001
         glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
     }
 
+    void OpenGLWindow::GetScreenSize(int& width, int& height) const
+    {
+        const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        width = videoMode->width;
+        height = videoMode->height;
+    }
+
+    void OpenGLWindow::SetWindowPosition(int x, int y)
+    {
+        glfwSetWindowPos(glfwWindowPtr_, x, y);
+    }
+
+    void OpenGLWindow::GetWindowPosition(int& x, int& y) const
+    {
+        glfwGetWindowPos(glfwWindowPtr_, &x, &y);
+    }
+
     void OpenGLWindow::SetWindowSize(int width, int height)
     {
         glfwSetWindowSize(glfwWindowPtr_, width, height);

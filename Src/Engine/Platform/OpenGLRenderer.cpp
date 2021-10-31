@@ -10,7 +10,8 @@
 
 #include "Engine/Platform/OpenGLShader.h"
 #include "Engine/Platform/OpenGLTexture.h"
-#include "Engine/Platform/Shaders.h"
+#include "Engine/Platform/ShaderSource/BatchShaderSource.h"
+#include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
 
 
 
@@ -154,7 +155,10 @@ namespace Project001
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
         glEnableVertexAttribArray(1);
 
-        primaryShaderPtr_ = new OpenGLShader(g_vertexShaderSource01_, g_fragmentShaderSource01_);
+        primaryShaderPtr_ = new OpenGLShader(
+            BatchShader::g_vertexShaderSource,
+            BatchShader::g_fragmentShaderSource
+        );
         primaryShaderPtr_->Use();
 
         for (int i = 0; i < s_numberOfTextureSlots_; ++i)
@@ -166,7 +170,10 @@ namespace Project001
             primaryShaderPtr_->SetInt(uniformName.c_str(), i);
         }
 
-        screenShaderPtr_ = new OpenGLShader(g_vertexShaderSource02_, g_fragmentShaderSource02_);
+        screenShaderPtr_ = new OpenGLShader(
+            ScreenShader::g_vertexShaderSource,
+            ScreenShader::g_fragmentShaderSource
+        );
         screenShaderPtr_->Use();
         screenShaderPtr_->SetInt("u_ScreenTexture", 0);
 
@@ -184,6 +191,7 @@ namespace Project001
     OpenGLRenderer::~OpenGLRenderer()
     {
         delete primaryShaderPtr_;
+        delete screenShaderPtr_;
 
         ClearTextures();
 
@@ -421,8 +429,10 @@ namespace Project001
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
-        // draw as wireframe
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (s_wireFrameMode)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
 
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
@@ -529,7 +539,10 @@ namespace Project001
         // Render to screen frameBuffer
         // ---------------------------------------------------------------------
 
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if (s_wireFrameMode)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
 
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 

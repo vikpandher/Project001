@@ -27,6 +27,15 @@ namespace Project001
     {
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+        windowPtr_->SetAspectRatio(windowWidth, windowHeight);
+
+        int screenWidth;
+        int screenHeight;
+        windowPtr_->GetScreenSize(screenWidth, screenHeight);
+        if (screenWidth > (int)windowWidth && screenHeight > (int)windowHeight)
+        {
+            windowPtr_->SetWindowPosition((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2);
+        }
 
         componentStoresPtr_ = new ComponentStores();
         meshStoresPtr_ = new MeshStores();
@@ -93,7 +102,7 @@ namespace Project001
 
         double millisecondsPerFrame = secondsPerFrame_ * 1000.0f;
 
-        if (false)
+        if (true)
         {
             while (running_)
             {
