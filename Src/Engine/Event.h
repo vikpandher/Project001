@@ -23,7 +23,8 @@ namespace Project001
         EVENT_TYPE_SWITCH_SCENE,
         EVENT_TYPE_INITIALIZE_SCENE,
         EVENT_TYPE_DEINITIALIZE_SCENE,
-        EVENT_TYPE_UPDATE
+        EVENT_TYPE_UPDATE,
+        EVENT_TYPE_RENDER
     };
 
     static std::string EventTypeToString(EventType eventType)
@@ -860,13 +861,15 @@ namespace Project001
         bool handled;
     };
 
-    // Maybe I'll use this...
-    template<typename EventEvent, typename Function>
+    template<typename DispatcherEvent, typename Function>
     static bool DispatchEvent(Event& event, const Function& function)
     {
-        if (event.GetEventType() == EventEvent::GetStaticEventType())
+        if (event.GetEventType() == DispatcherEvent::GetStaticEventType())
         {
-            (function)(static_cast<EventEvent&>(event));
+            if (!event.handled)
+            {
+                (function)(static_cast<DispatcherEvent&>(event));
+            }
             return true;
         }
         return false;
@@ -1054,6 +1057,20 @@ namespace Project001
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_UPDATE)
+
+        unsigned int threadId;
+        double timestep_s;
+    };
+
+    struct RenderEvent : Event
+    {
+        RenderEvent(unsigned int threadId, double timestep_s)
+            : Event()
+            , threadId(threadId)
+            , timestep_s(timestep_s)
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_RENDER)
 
         unsigned int threadId;
         double timestep_s;

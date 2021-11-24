@@ -89,6 +89,26 @@ namespace Project001
         return false;
     }
 
+    bool MeshStores::LoadTriangleMesh(
+        unsigned int& index,
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec3>& normals,
+        std::vector<glm::ivec2>& faces,
+        bool normalizeSize,
+        bool recenter)
+    {
+        MeshData newMeshData;
+        if (LoadTriangleMesh(newMeshData, meshVertexArray_, meshIndexArray_, positions, normals, faces, normalizeSize, recenter))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
+    }
+
     bool MeshStores::Generate2DTriangleFan(
         unsigned int& index,
         const std::vector<glm::vec2>& positions,
@@ -586,7 +606,9 @@ namespace Project001
             {
                 if (splitValues.size() >= 3)
                 {
-                    std::vector<FaceVertex> face;
+                    // x/y/z
+                    // positionIndex/textureCoordinateIndex/normalIndex
+                    std::vector<glm::ivec3> face;
 
                     for (size_t i = 0; i < splitValues.size(); ++i)
                     {
@@ -603,57 +625,59 @@ namespace Project001
 
                         if (slashIndicies.size() == 0)
                         {
-                            FaceVertex newFaceVertex;
-                            newFaceVertex.positionIndex = std::stoi(indexGroup);
+                            int positionIndex = std::stoi(indexGroup);
 
-                            face.push_back(newFaceVertex);
+                            face.emplace_back(positionIndex, 0, 0);
                         }
                         else if (slashIndicies.size() == 1)
                         {
                             const size_t& slashIndex = slashIndicies[0];
 
-                            FaceVertex newFaceVertex;
+                            int positionIndex = 0;
+                            int textureCoordinateIndex = 0;
 
                             if (slashIndex > 0)
                             {
                                 std::string positionIndexString = indexGroup.substr(0, slashIndex);
-                                newFaceVertex.positionIndex = std::stoi(positionIndexString);
+                                positionIndex = std::stoi(positionIndexString);
                             }
 
                             if (indexGroup.size() > slashIndex + 1)
                             {
                                 std::string textureCoordinateIndexString = indexGroup.substr(slashIndex + 1);
-                                newFaceVertex.textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
+                                textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
                             }
 
-                            face.push_back(newFaceVertex);
+                            face.emplace_back(positionIndex, textureCoordinateIndex, 0);
                         }
                         else if (slashIndicies.size() == 2)
                         {
                             const size_t& firstSlashIndex = slashIndicies[0];
                             const size_t& secondSlashIndex = slashIndicies[1];
 
-                            FaceVertex newFaceVertex;
+                            int positionIndex = 0;
+                            int textureCoordinateIndex = 0;
+                            int normalIndex = 0;
 
                             if (firstSlashIndex > 0)
                             {
                                 std::string positionIndexString = indexGroup.substr(0, firstSlashIndex);
-                                newFaceVertex.positionIndex = std::stoi(positionIndexString);
+                                positionIndex = std::stoi(positionIndexString);
                             }
 
                             if (secondSlashIndex > firstSlashIndex + 1)
                             {
                                 std::string textureCoordinateIndexString = indexGroup.substr(firstSlashIndex + 1, secondSlashIndex - firstSlashIndex - 1);
-                                newFaceVertex.textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
+                                textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
                             }
 
                             if (indexGroup.size() > secondSlashIndex + 1)
                             {
                                 std::string normalIndexString = indexGroup.substr(secondSlashIndex + 1);
-                                newFaceVertex.normalIndex = std::stoi(normalIndexString);
+                                normalIndex = std::stoi(normalIndexString);
                             }
 
-                            face.push_back(newFaceVertex);
+                            face.emplace_back(positionIndex, textureCoordinateIndex, normalIndex);
                         }
                     }
 
@@ -663,9 +687,12 @@ namespace Project001
                         {
                             for (size_t i = 0; i < face.size(); ++i)
                             {
-                                FaceVertex& faceVertex = face[i];
+                                const glm::ivec3& faceVertex = face[i];
                                 MeshVertex meshVertex;
-                                GetMeshVertexFromFaceVertex(meshVertex, faceVertex, positions, textureCoordinates, normals);
+                                if (!GetMeshVertexFromFaceVertex(meshVertex, faceVertex, positions, textureCoordinates, normals))
+                                {
+                                    return false;
+                                }
                                 meshVertexArray.push_back(meshVertex);
                             }
 
@@ -683,22 +710,31 @@ namespace Project001
                         {
                             for (size_t i = 1; i < face.size() - 1; ++i)
                             {
-                                FaceVertex& face0 = face[0];
-                                FaceVertex& face1 = face[i];
-                                FaceVertex& face2 = face[i + 1];
+                                const glm::ivec3& face0 = face[0];
+                                const glm::ivec3& face1 = face[i];
+                                const glm::ivec3& face2 = face[i + 1];
 
                                 MeshVertex meshVertex0;
-                                GetMeshVertexFromFaceVertex(meshVertex0, face0, positions, textureCoordinates, normals);
+                                if (!GetMeshVertexFromFaceVertex(meshVertex0, face0, positions, textureCoordinates, normals))
+                                {
+                                    return false;
+                                }
                                 meshVertexArray.push_back(meshVertex0);
                                 meshIndexArray.push_back(meshData.indexCount++);
 
                                 MeshVertex meshVertex1;
-                                GetMeshVertexFromFaceVertex(meshVertex1, face1, positions, textureCoordinates, normals);
+                                if (!GetMeshVertexFromFaceVertex(meshVertex1, face1, positions, textureCoordinates, normals))
+                                {
+                                    return false;
+                                }
                                 meshVertexArray.push_back(meshVertex1);
                                 meshIndexArray.push_back(meshData.indexCount++);
 
                                 MeshVertex meshVertex2;
-                                GetMeshVertexFromFaceVertex(meshVertex2, face2, positions, textureCoordinates, normals);
+                                if (!GetMeshVertexFromFaceVertex(meshVertex2, face2, positions, textureCoordinates, normals))
+                                {
+                                    return false;
+                                }
                                 meshVertexArray.push_back(meshVertex2);
                                 meshIndexArray.push_back(meshData.indexCount++);
                             }
@@ -708,6 +744,74 @@ namespace Project001
                     }
                 }
             }
+        }
+
+        if (recenter)
+        {
+            RecenterMesh(meshData, meshVertexArray);
+        }
+
+        if (normalizeSize)
+        {
+            NormalizeMeshSize(meshData, meshVertexArray);
+        }
+
+        if (meshData.vertexCount == 0 && meshData.indexCount == 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool MeshStores::LoadTriangleMesh(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<unsigned int>& meshIndexArray,
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec3>& normals,
+        std::vector<glm::ivec2>& faces,
+        bool normalizeSize,
+        bool recenter)
+    {
+        if (faces.empty())
+        {
+            return false;
+        }
+
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
+
+        for (size_t i = 0; i < faces.size(); ++i)
+        {
+            const int& positionIndex = faces[i].x;
+            const int& normalIndex = faces[i].y;
+
+            if (positionIndex < 0 || positionIndex >= (int)positions.size() ||
+                normalIndex < 0 || normalIndex >= (int)normals.size())
+            {
+                return false;
+            }
+
+            MeshVertex meshVertex;
+            meshVertex.position = positions[positionIndex];
+            meshVertex.normal = normals[normalIndex];
+
+            meshVertexArray.push_back(meshVertex);
+            meshIndexArray.push_back(meshData.indexCount++);
+        }
+
+        meshData.vertexCount = (unsigned int)faces.size();
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, positions[i].x);
+            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, positions[i].y);
+            meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, positions[i].z);
+
+            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, positions[i].x);
+            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, positions[i].y);
+            meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, positions[i].z);
         }
 
         if (recenter)
@@ -3223,7 +3327,7 @@ namespace Project001
 
         // initial triangles
         // ---------------------------------------------------------------------
-        std::vector<TriangleFace> triangleFaces;
+        std::vector<glm::uvec3> triangleFaces;
 
         triangleFaces.emplace_back(0, 5, 6);
         triangleFaces.emplace_back(1, 6, 7);
@@ -3253,7 +3357,7 @@ namespace Project001
         // ---------------------------------------------------------------------
         for (size_t i = 0; i < subdivisions; ++i)
         {
-            std::vector<TriangleFace> newTriangleFaces;
+            std::vector<glm::uvec3> newTriangleFaces;
 
             for (size_t j = 0; j < triangleFaces.size(); ++j)
             {
@@ -3271,10 +3375,10 @@ namespace Project001
                 //     \   /       ->       \   /       ->       \   /
                 //       1         ->         1         ->         1
 
-                const TriangleFace& currentTriangleFace = triangleFaces[j];
-                const unsigned int& index0 = currentTriangleFace.indicies[0];
-                const unsigned int& index1 = currentTriangleFace.indicies[1];
-                const unsigned int& index2 = currentTriangleFace.indicies[2];
+                const glm::uvec3& currentTriangleFace = triangleFaces[j];
+                const unsigned int& index0 = currentTriangleFace.x;
+                const unsigned int& index1 = currentTriangleFace.y;
+                const unsigned int& index2 = currentTriangleFace.z;
 
                 const glm::vec3& position0 = positions[index0];
                 const glm::vec2& textureCoordinate0 = textureCoordinates[index0];
@@ -3357,10 +3461,10 @@ namespace Project001
 
                 for (size_t i = 0; i < triangleFaces.size(); ++i)
                 {
-                    const TriangleFace& currentTriangleFace = triangleFaces[i];
-                    const size_t& index0 = currentTriangleFace.indicies[0];
-                    const size_t& index1 = currentTriangleFace.indicies[1];
-                    const size_t& index2 = currentTriangleFace.indicies[2];
+                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                    const unsigned int& index0 = currentTriangleFace.x;
+                    const unsigned int& index1 = currentTriangleFace.y;
+                    const unsigned int& index2 = currentTriangleFace.z;
 
                     meshVertexArray.push_back(tempMeshVertexArray[index0]);
                     meshVertexArray.push_back(tempMeshVertexArray[index1]);
@@ -3389,10 +3493,10 @@ namespace Project001
 
                 for (size_t i = 0; i < triangleFaces.size(); ++i)
                 {
-                    const TriangleFace& currentTriangleFace = triangleFaces[i];
-                    meshIndexArray.push_back(currentTriangleFace.indicies[0]);
-                    meshIndexArray.push_back(currentTriangleFace.indicies[1]);
-                    meshIndexArray.push_back(currentTriangleFace.indicies[2]);
+                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                    meshIndexArray.push_back(currentTriangleFace.x);
+                    meshIndexArray.push_back(currentTriangleFace.y);
+                    meshIndexArray.push_back(currentTriangleFace.z);
                 }
 
                 meshData.indexCount = (unsigned int)triangleFaces.size() * 3;
@@ -3402,10 +3506,10 @@ namespace Project001
         {
             for (size_t i = 0; i < triangleFaces.size(); ++i)
             {
-                const TriangleFace& currentTriangleFace = triangleFaces[i];
-                const size_t& index0 = currentTriangleFace.indicies[0];
-                const size_t& index1 = currentTriangleFace.indicies[1];
-                const size_t& index2 = currentTriangleFace.indicies[2];
+                const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                const unsigned int& index0 = currentTriangleFace.x;
+                const unsigned int& index1 = currentTriangleFace.y;
+                const unsigned int& index2 = currentTriangleFace.z;
                 const glm::vec3& position0 = positions[index0];
                 const glm::vec3& position1 = positions[index1];
                 const glm::vec3& position2 = positions[index2];
@@ -4069,57 +4173,61 @@ namespace Project001
 
     bool MeshStores::GetMeshVertexFromFaceVertex(
         MeshVertex& meshVertex,
-        const FaceVertex& faceVertex,
+        const glm::ivec3& faceVertex,
         const std::vector<glm::vec3>& positions,
         const std::vector<glm::vec2>& textureCoordinates,
         const std::vector<glm::vec3>& normals)
     {
         bool success = true;
 
-        if (faceVertex.positionIndex > 0 && faceVertex.positionIndex <= positions.size())
+        const int& positionIndex = faceVertex.x;
+        const int& textureCoordinateIndex = faceVertex.y;
+        const int& normalIndex = faceVertex.z;
+
+        if (positionIndex > 0 && positionIndex <= positions.size())
         {
-            int positionIndex = faceVertex.positionIndex - 1;
-            meshVertex.position = positions[positionIndex];
+            int adjustedPositionIndex = positionIndex - 1;
+            meshVertex.position = positions[adjustedPositionIndex];
         }
-        else if (faceVertex.positionIndex < 0 && faceVertex.positionIndex >= positions.size() * -1)
+        else if (positionIndex < 0 && positionIndex >= positions.size() * -1)
         {
-            int positionIndex = (int)(faceVertex.positionIndex + positions.size());
-            meshVertex.position = positions[positionIndex];
+            int adjustedPositionIndex = (int)(positionIndex + positions.size());
+            meshVertex.position = positions[adjustedPositionIndex];
         }
         else
         {
             success = false;
         }
 
-        if (faceVertex.textureCoordinateIndex > 0 && faceVertex.textureCoordinateIndex <= textureCoordinates.size())
+        if (textureCoordinateIndex > 0 && textureCoordinateIndex <= textureCoordinates.size())
         {
-            int textureCoordinateIndex = faceVertex.textureCoordinateIndex - 1;
-            meshVertex.textureCoordinate = textureCoordinates[textureCoordinateIndex];
+            int adjustedTextureCoordinateIndex = textureCoordinateIndex - 1;
+            meshVertex.textureCoordinate = textureCoordinates[adjustedTextureCoordinateIndex];
         }
-        else if (faceVertex.textureCoordinateIndex < 0 && faceVertex.textureCoordinateIndex >= textureCoordinates.size() * -1)
+        else if (textureCoordinateIndex < 0 && textureCoordinateIndex >= textureCoordinates.size() * -1)
         {
-            int textureCoordinateIndex = (int)(faceVertex.textureCoordinateIndex + textureCoordinates.size());
-            meshVertex.textureCoordinate = textureCoordinates[textureCoordinateIndex];
+            int adjustedTextureCoordinateIndex = (int)(textureCoordinateIndex + textureCoordinates.size());
+            meshVertex.textureCoordinate = textureCoordinates[adjustedTextureCoordinateIndex];
         }
-        else
-        {
-            success = false;
-        }
+        // else
+        // {
+        //     success = false;
+        // }
 
-        if (faceVertex.normalIndex > 0 && faceVertex.normalIndex <= normals.size())
+        if (normalIndex > 0 && normalIndex <= normals.size())
         {
-            int normalIndex = faceVertex.normalIndex - 1;
-            meshVertex.normal = normals[normalIndex];
+            int adjustedNormalIndex = normalIndex - 1;
+            meshVertex.normal = normals[adjustedNormalIndex];
         }
-        else if (faceVertex.normalIndex < 0 && faceVertex.normalIndex >= normals.size() * -1)
+        else if (normalIndex < 0 && normalIndex >= normals.size() * -1)
         {
-            int normalIndex = (int)(faceVertex.normalIndex + normals.size());
-            meshVertex.normal = normals[normalIndex];
+            int adjustedNormalIndex = (int)(normalIndex + normals.size());
+            meshVertex.normal = normals[adjustedNormalIndex];
         }
-        else
-        {
-            success = false;
-        }
+        // else
+        // {
+        //     success = false;
+        // }
 
         return success;
     }

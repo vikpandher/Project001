@@ -46,9 +46,11 @@ namespace Project001
         unsigned int windowWidth_;
         unsigned int windowHeight_;
 
-        bool running_;
+        double desiredFrameDuration_ms_;
+        bool sleepyRunLoop_;
 
-        double secondsPerFrame_;
+        bool running_;
+        bool paused_;
 
         Window* windowPtr_;
 

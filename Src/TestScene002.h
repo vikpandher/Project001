@@ -1,19 +1,14 @@
 #pragma once
 
-#include "Engine/Scene.h"
+#include "TestSceneFramework.h"
 
 
 namespace Project001
 {
-    struct CursorPositionEvent;
-    struct FrameBufferSizeEvent;
     struct KeyEvent;
-    struct MouseButtonEvent;
-    struct ScrollEvent;
-    struct UpdateEvent;
 }
 
-class TestScene002 : public Project001::Scene
+class TestScene002 : public TestSceneFramework
 {
 public:
     TestScene002();
@@ -33,28 +28,7 @@ public:
 protected:
     void ClearIndiciesAndEntityIds();
 
-    void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
-    void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
-    void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
-    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
-
-    void UpdateMainCameraEntityPositionAndRoll(double timestep);
-
-    void UpdateLightEntityPosition();
-
-    void RenderRenderableEntities();
-
-    // Pointers from Application: ----------------------------------------------
-
-    Project001::Window* windowPtr_;
-
-    Project001::ComponentStores* componentStoresPtr_;
-    Project001::MeshStores* meshStoresPtr_;
-    Project001::TextureStores* textureStoresPtr_;
-
-    Project001::Renderer* rendererPtr_;
 
     // Mesh Indicies: ----------------------------------------------------------
 
@@ -101,9 +75,6 @@ protected:
 
     // Entity Ids: -------------------------------------------------------------
 
-    unsigned int sceneDataEntityId_;
-    unsigned int mainCameraEntityId_;
-    unsigned int lightSourceEntityId_;
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;
     unsigned int shape03EntityId_;

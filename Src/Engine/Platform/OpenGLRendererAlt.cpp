@@ -399,6 +399,72 @@ namespace Project001
         return false;
     }
 
+    bool OpenGLRendererAlt::AddMesh(
+        MeshVertex* meshVerticies,
+        unsigned int meshVertexCount,
+        unsigned int* meshIndicies,
+        unsigned int meshIndexCount,
+        unsigned int textureIndex,
+        unsigned int specularIndex,
+        float shininess,
+        const glm::vec4& color,
+        bool translucent,
+        const glm::vec3& scale,
+        const glm::vec3& position,
+        const glm::quat& orientation,
+        bool lit)
+    {
+        if ((vertexBuffer_.size() + meshVertexCount) < s_vertexBufferCapacity_ &&
+            (indexBuffer_.size() + meshIndexCount) < s_indexBufferCapacity_)
+        {
+            float textureSlot = -1.0f;
+            if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureSlot
+            {
+                textureSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
+            }
+
+            float specularSlot = -1.0f;
+            if (textureIndexToUnitBiMap_.Find_X(specularIndex)) // convert specularIndex to textureSlot
+            {
+                specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
+            }
+
+            unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
+
+            for (size_t j = 0; j < meshVertexCount; ++j)
+            {
+                Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
+
+                Project001::VertexData newVertex;
+                newVertex.position = currentMeshVertex.position;
+                newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
+                newVertex.normal = currentMeshVertex.normal;
+                newVertex.color = color;
+                newVertex.textureSlot = textureSlot;
+                newVertex.specularSlot = specularSlot;
+                newVertex.shininess = shininess;
+                newVertex.scale = scale;
+                newVertex.translation = position;
+                newVertex.orientation.x = orientation.x;
+                newVertex.orientation.y = orientation.y;
+                newVertex.orientation.z = orientation.z;
+                newVertex.orientation.w = orientation.w;
+                newVertex.lit = lit;
+
+                vertexBuffer_.push_back(newVertex);
+            }
+
+            for (unsigned int j = 0; j < meshIndexCount; ++j)
+            {
+                indexBuffer_.push_back(vertexBufferOffset + meshIndicies[j]);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     void OpenGLRendererAlt::Render()
     {
         CheckAndMakeContextCurrent();

@@ -42,8 +42,6 @@ namespace Project001
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
-
-        OutputActiveAttributesAndUniforms();
     }
 
     OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)

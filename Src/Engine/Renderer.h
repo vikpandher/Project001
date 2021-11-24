@@ -8,6 +8,8 @@ namespace Project001
 {
     class MeshStores;
 
+    struct MeshVertex;
+
     class Renderer
     {
     public:
@@ -75,6 +77,21 @@ namespace Project001
         virtual bool AddMesh(
             MeshStores* meshStoresPtr,
             unsigned int meshIndex,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
+            const glm::vec4& color,
+            bool translucent,
+            const glm::vec3& scale,
+            const glm::vec3& position,
+            const glm::quat& orientation,
+            bool lit) = 0;
+
+        virtual bool AddMesh(
+            MeshVertex* meshVerticies,
+            unsigned int meshVertexCount,
+            unsigned int* meshIndicies,
+            unsigned int meshIndexCount,
             unsigned int textureIndex,
             unsigned int specularIndex,
             float shininess,

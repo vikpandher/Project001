@@ -88,6 +88,21 @@ namespace Project001
             const glm::quat& orientation,
             bool lit) override;
 
+        bool AddMesh(
+            MeshVertex* meshVerticies,
+            unsigned int meshVertexCount,
+            unsigned int* meshIndicies,
+            unsigned int meshIndexCount,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
+            const glm::vec4& color,
+            bool translucent,
+            const glm::vec3& scale,
+            const glm::vec3& position,
+            const glm::quat& orientation,
+            bool lit) override;
+
         void ClearBuffers() override;
 
         void Render() override;
@@ -102,8 +117,8 @@ namespace Project001
         static const bool s_drawWireframe = true;
         static const bool s_drawNormals = true;
 
-        static const unsigned int s_indexBufferCapacity_ = 8192;
-        static const unsigned int s_vertexBufferCapacity_ = 6144;
+        static const unsigned int s_indexBufferCapacity_ = 4194304; // 8192;
+        static const unsigned int s_vertexBufferCapacity_ = 4194304; // 6144;
 
         static const unsigned int s_numberOfTextureSlots_ = 16;
 

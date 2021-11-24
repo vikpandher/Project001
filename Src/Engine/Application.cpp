@@ -21,8 +21,10 @@ namespace Project001
         : windowTitle_(windowTitle)
         , windowWidth_(windowWidth)
         , windowHeight_(windowHeight)
+        , desiredFrameDuration_ms_(1000.0 / 60)
+        , sleepyRunLoop_(true)
         , running_(false)
-        , secondsPerFrame_(1.0 / 60.0)
+        , paused_(false)
         , activeScenePtr_(nullptr)
     {
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
@@ -91,55 +93,54 @@ namespace Project001
 
     void Application::Run()
     {
-        std::chrono::system_clock::time_point timeStampA = std::chrono::system_clock::now();
-        std::chrono::system_clock::time_point timeStampB = std::chrono::system_clock::now();
-
         if (activeScenePtr_ != nullptr)
         {
             activeScenePtr_->Initialize();
             running_ = true;
         }
 
-        double millisecondsPerFrame = secondsPerFrame_ * 1000.0f;
+        std::chrono::system_clock::time_point lastFrameTimeStamp;
+        std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
 
-        if (true)
+        double simulationTimeDebt_ms = 0.0;
+
+        while (running_)
         {
-            while (running_)
-            {
-                timeStampA = std::chrono::system_clock::now();
-                std::chrono::duration<double, std::milli> workTime_ms = timeStampA - timeStampB;
+            lastFrameTimeStamp = currentFrameTimeStamp;
+            currentFrameTimeStamp = std::chrono::system_clock::now();
+            std::chrono::duration<double, std::milli> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+            double lastFrameDuration_ms = lastFrameDuration.count();
 
-                if (workTime_ms.count() < millisecondsPerFrame)
+            if (sleepyRunLoop_)
+            {
+                if (lastFrameDuration_ms < desiredFrameDuration_ms_)
                 {
-                    std::chrono::duration<double, std::milli> delta_ms(millisecondsPerFrame - workTime_ms.count());
+                    std::chrono::duration<double, std::milli> delta_ms(desiredFrameDuration_ms_ - lastFrameDuration_ms);
                     std::this_thread::sleep_for(delta_ms);
                 }
-
-                timeStampB = std::chrono::system_clock::now();
-                std::chrono::duration<double, std::milli> sleepTime_ms = timeStampB - timeStampA;
-                std::chrono::duration<double, std::milli> totalTime_ms = workTime_ms + sleepTime_ms;
-
-                OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
-                windowPtr_->PollEvents();
+                currentFrameTimeStamp = std::chrono::system_clock::now();
+                lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+                lastFrameDuration_ms = lastFrameDuration.count();
             }
-        }
-        else
-        {
-            while (running_)
+            else
             {
-                timeStampB = timeStampA;
-                timeStampA = std::chrono::system_clock::now();
-                std::chrono::duration<double, std::milli> totalTime_ms = timeStampA - timeStampB;
-
-                while (totalTime_ms.count() < millisecondsPerFrame)
+                while (lastFrameDuration_ms < desiredFrameDuration_ms_)
                 {
-                    timeStampA = std::chrono::system_clock::now();
-                    totalTime_ms = timeStampA - timeStampB;
+                    currentFrameTimeStamp = std::chrono::system_clock::now();
+                    lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+                    lastFrameDuration_ms = lastFrameDuration.count();
                 }
-
-                OnEvent(UpdateEvent(0, totalTime_ms.count() / 1000.0f));
-                windowPtr_->PollEvents();
             }
+
+            simulationTimeDebt_ms += lastFrameDuration_ms;
+            while (simulationTimeDebt_ms > desiredFrameDuration_ms_)
+            {
+                OnEvent(UpdateEvent(0, desiredFrameDuration_ms_ / 1000.0));
+                simulationTimeDebt_ms -= desiredFrameDuration_ms_;
+            }
+
+            OnEvent(RenderEvent(0, lastFrameDuration_ms / 1000.0));
+            windowPtr_->PollEvents();
         }
     }
 

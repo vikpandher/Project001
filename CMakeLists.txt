@@ -17,6 +17,10 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 set(SOURCE_FILES
     "Src/Main.cpp"
+    "Src/BitmappedTextGenerator.cpp"
+    "Src/BitmappedTextGenerator.h"
+    "Src/TestSceneFramework.cpp"
+    "Src/TestSceneFramework.h"
     "Src/DeathFlag.cpp"
     "Src/DeathFlag.h"
     "Src/TestComponents.cpp"
@@ -25,6 +29,8 @@ set(SOURCE_FILES
     "Src/TestScene001.h"
     "Src/TestScene002.cpp"
     "Src/TestScene002.h"
+    "Src/TestScene003.cpp"
+    "Src/TestScene003.h"
     "Src/TestSceneData.cpp"
     "Src/TestSceneData.h"
 )

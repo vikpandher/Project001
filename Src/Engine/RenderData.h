@@ -183,25 +183,4 @@ namespace Project001
         glm::vec4 orientation; // x, y, z, w
         float lit;
     };
-
-    struct RenderData
-    {
-        RenderData()
-            : viewMatrix(1.0f)
-            , viewPosition(0.0f, 0.0f, 0.0f)
-            , projectionMatrix(1.0f)
-        {}
-        
-        glm::mat4 viewMatrix;
-        glm::vec3 viewPosition;
-
-        glm::mat4 projectionMatrix;
-
-        DirectionalLight directionalLight;
-        std::vector<PointLight> pointLights;
-        std::vector<SpotLight> spotLights;
-
-        std::vector<VertexData> vertexBuffer;
-        std::vector<glm::uint> indexBuffer;
-    };
 }

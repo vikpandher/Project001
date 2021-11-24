@@ -88,6 +88,21 @@ namespace Project001
             const glm::quat& orientation,
             bool lit) override;
 
+        bool AddMesh(
+            MeshVertex* meshVerticies,
+            unsigned int meshVertexCount,
+            unsigned int* meshIndicies,
+            unsigned int meshIndexCount,
+            unsigned int textureIndex,
+            unsigned int specularIndex,
+            float shininess,
+            const glm::vec4& color,
+            bool translucent,
+            const glm::vec3& scale,
+            const glm::vec3& position,
+            const glm::quat& orientation,
+            bool lit) override;
+
         void ClearBuffers() override;
 
         void Render() override;

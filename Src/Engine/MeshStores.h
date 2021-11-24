@@ -79,6 +79,14 @@ namespace Project001
             bool recenter = true,
             bool triangulate = true);
 
+        bool LoadTriangleMesh(
+            unsigned int& index,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec3>& normals,
+            std::vector<glm::ivec2>& faces,
+            bool normalizeSize = true,
+            bool recenter = true);
+
         bool Generate2DTriangleFan(
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
@@ -213,6 +221,16 @@ namespace Project001
             bool normalizeSize = true,
             bool recenter = true,
             bool triangulate = true);
+
+        static bool LoadTriangleMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec3>& normals,
+            std::vector<glm::ivec2>& faces,
+            bool normalizeSize = true,
+            bool recenter = true);
 
         static bool Generate2DTriangleFan(
             MeshData& meshData,
@@ -388,34 +406,10 @@ namespace Project001
             bool wasTriangulated = true);
 
     protected:
-        struct FaceVertex
-        {
-            FaceVertex()
-                : positionIndex(0)
-                , textureCoordinateIndex(0)
-                , normalIndex(0)
-            {}
-
-            int positionIndex;
-            int textureCoordinateIndex;
-            int normalIndex;
-        };
-
-        struct TriangleFace
-        {
-            TriangleFace(unsigned int index0 = 0, unsigned int index1 = 0, unsigned int index2 = 0)
-            {
-                indicies[0] = index0;
-                indicies[1] = index1;
-                indicies[2] = index2;
-            }
-            unsigned int indicies[3];
-        };
-
         // used by LoadMeshOBJ
         static bool GetMeshVertexFromFaceVertex(
             MeshVertex& meshVertex,
-            const FaceVertex& faceVertex,
+            const glm::ivec3& faceVertex,
             const std::vector<glm::vec3>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             const std::vector<glm::vec3>& normals);
