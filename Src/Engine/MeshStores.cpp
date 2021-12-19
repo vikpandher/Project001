@@ -26,25 +26,22 @@ namespace Project001
 
     bool MeshStores::GetMesh(
         unsigned int index,
-        MeshVertex*& firstVertexPtr,
+        const MeshVertex*& firstVertexPtr,
         unsigned int& vertexCount,
-        unsigned int*& firstIndexPtr,
-        unsigned int& indexCount)
+        const unsigned int*& firstIndexPtr,
+        unsigned int& indexCount) const
     {
         if (index >= meshDataArray_.size())
         {
             return false;
         }
 
-        MeshData& meshData = meshDataArray_[index];
-        MeshVertex* meshVertexArrayPtr = meshVertexArray_.data();
+        const MeshData& meshData = meshDataArray_[index];
 
-        firstVertexPtr = &meshVertexArrayPtr[meshData.vertexIndex];
+        firstVertexPtr = &meshVertexArray_[meshData.vertexIndex];
         vertexCount = meshData.vertexCount;
 
-        unsigned int* meshIndexArrayPtr = meshIndexArray_.data();
-
-        firstIndexPtr = &meshIndexArrayPtr[meshData.indexIndex];
+        firstIndexPtr = &meshIndexArray_[meshData.indexIndex];
         indexCount = meshData.indexCount;
 
         return true;
@@ -52,7 +49,7 @@ namespace Project001
 
     bool MeshStores::GetMeshData(
         unsigned int index,
-        MeshData& meshData)
+        MeshData& meshData) const
     {
         if (index >= meshDataArray_.size())
         {

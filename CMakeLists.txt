@@ -59,6 +59,10 @@ set(ENGINE_FILES
     "Src/Engine/Renderer.h"
     "Src/Engine/Scene.cpp"
     "Src/Engine/Scene.h"
+    "Src/Engine/SoundPlayer.cpp"
+    "Src/Engine/SoundPlayer.h"
+    "Src/Engine/SoundStores.cpp"
+    "Src/Engine/SoundStores.h"
     "Src/Engine/TextureStores.cpp"
     "Src/Engine/TextureStores.h"
     "Src/Engine/Window.cpp"
@@ -86,6 +90,11 @@ source_group("Src/Engine/Components" FILES ${ENGINE_COMPONENTS_FILES})
 
 set(PLATFORM_FILES
     "Src/Engine/Platform/glad.c"
+    "Src/Engine/Platform/GLFWWindow.cpp"
+    "Src/Engine/Platform/GLFWWindow.h"
+    "Src/Engine/Platform/OpenALError.h"
+    "Src/Engine/Platform/OpenALSoundPlayer.cpp"
+    "Src/Engine/Platform/OpenALSoundPlayer.h"
     "Src/Engine/Platform/OpenGLError.h"
     "Src/Engine/Platform/OpenGLRenderer.cpp"
     "Src/Engine/Platform/OpenGLRenderer.h"
@@ -95,8 +104,6 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGLShader.h"
     "Src/Engine/Platform/OpenGLTexture.cpp"
     "Src/Engine/Platform/OpenGLTexture.h"
-    "Src/Engine/Platform/OpenGLWindow.cpp"
-    "Src/Engine/Platform/OpenGLWindow.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
@@ -135,7 +142,8 @@ target_link_directories("${PROJECT_NAME}"
     # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
-    "glfw3.lib" # This is a 64 bit library
+    "x64/glfw3"
+    "x64/OpenAL32"
 )
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")

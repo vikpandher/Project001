@@ -29,7 +29,20 @@ namespace Project001
         const glm::vec2& circleCenter, float circleRadius,
         const glm::vec2& lineStart, const glm::vec2& lineEnd);
 
+    // Polar Coordinate angle starts and positive x-axis
+    // and goes counter clockwise
+
+    glm::vec2 CartesianToPolar(const glm::vec2& cartesian);
+    glm::vec2 CartesianToPolar(float x, float y);
+
+    glm::vec2 PolarToCartesian(const glm::vec2& polar);
+    glm::vec2 PolarToCartesian(float r, float t);
+
     // Tests -------------------------------------------------------------------
 
     void TestGet2DVectorAngle();
+
+    void TestCartesianToPolar();
+
+    void TestPolarToCartesian();
 }

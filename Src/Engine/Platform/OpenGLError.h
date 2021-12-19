@@ -5,23 +5,21 @@
 #include "Engine/Logger.h"
 
 
-
 #ifdef _DEBUG
-#define glChk Project001::LogOpenGLError()
-#else
-#define glChk
+#define glLogError() Project001::LogOpenGLError(__FILENAME__ , __LINE__)
+#elif
+#define glLogError()
 #endif
-
 
 
 namespace Project001
 {
-    inline void LogOpenGLError()
+    inline void LogOpenGLError(const char* file, int line)
     {
         GLenum error = glGetError();
         if (error != GL_NO_ERROR)
         {
-            _LOG_ERROR("OpenGL::ErrorCode: %d", glGetError());
+            Logger::Error("OpenGL ErrorCode: %s %d %d", file, line, error);
         }
     }
 }

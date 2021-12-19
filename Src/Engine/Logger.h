@@ -6,10 +6,16 @@
 // static_assert(true, "") is at the end of macros so they require a semi-colon
 // maybe add exit(1); to _FAIL_CHECK(x)
 
+#ifdef _MSC_VER 
+#define __FILENAME__ strrchr("\\" __FILE__, '\\') + 1
+#elif
+#define __FILENAME__ strrchr("/" __FILE__, '/') + 1
+#endif
+
 #ifdef _DEBUG
-#define _LOG_ERROR(...) Project001::Logger::Error(__VA_ARGS__)
+#define _LOG_ERROR(...) Project001::Logger::Error("%s %d %s", __FILENAME__ , __LINE__, __VA_ARGS__)
 #define _LOG_MESSAGE(...) Project001::Logger::Message(__VA_ARGS__)
-#define _FAIL_CHECK(x) if (!(x)) {_LOG_ERROR("%s %d", __FILE__ , __LINE__);} static_assert(true, "")
+#define _FAIL_CHECK(x) if (!(x)) {_LOG_ERROR("");} static_assert(true, "")
 #else
 #define _LOG_ERROR(...)
 #define _LOG_MESSAGE(...)

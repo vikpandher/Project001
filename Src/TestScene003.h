@@ -29,10 +29,17 @@ protected:
     void ClearIndiciesAndEntityIds();
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
+
+    void UpdateShape01EntityPosition(double timestep);
 
     // Mesh Indicies: ----------------------------------------------------------
 
     unsigned int shape01MeshIndex_;
+
+    // Sound Indicies: ---------------------------------------------------------
+
+    unsigned int song01SoundIndex_;
 
     // Texture Indicies: -------------------------------------------------------
 
@@ -41,4 +48,5 @@ protected:
     unsigned int shape01EntityId_;
 
 private:
+    void TestOpenAL() const;
 };

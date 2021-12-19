@@ -7,13 +7,20 @@
 
 namespace Project001
 {
+    // public: -----------------------------------------------------------------
+
     TextureStores::TextureStores()
     {
         stbi_set_flip_vertically_on_load(true);
     }
 
     TextureStores::~TextureStores()
-    {}
+    {
+        for (unsigned int i = 0; i < textureDataArray_.size(); ++i)
+        {
+            stbi_image_free(textureDataArray_[i].data);
+        }
+    }
 
     void TextureStores::ClearTextures()
     {
@@ -24,16 +31,14 @@ namespace Project001
         textureDataArray_.clear();
     }
 
-    bool TextureStores::GetTexture(unsigned int index, TextureData& textureData)
+    bool TextureStores::GetTexture(unsigned int index, TextureData& textureData) const
     {
         if (index >= textureDataArray_.size())
         {
             return false;
         }
 
-        TextureData* textureDataArrayPtr = textureDataArray_.data();
-
-        textureData = textureDataArrayPtr[index];
+        textureData = textureDataArray_[index];
 
         return true;
     }

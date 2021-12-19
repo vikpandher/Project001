@@ -40,7 +40,7 @@ protected:
 
     void UpdateMainCameraEntityPositionAndRoll(double timestep);
 
-    void UpdateLightEntityPosition();
+    void SyncComponentPositions();
 
     void DeleteDeadEntities();
 
@@ -50,9 +50,11 @@ protected:
 
     Project001::ComponentStores* componentStoresPtr_;
     Project001::MeshStores* meshStoresPtr_;
+    Project001::SoundStores* soundStoresPtr_;
     Project001::TextureStores* textureStoresPtr_;
 
     Project001::Renderer* rendererPtr_;
+    Project001::SoundPlayer* soundPlayerPtr_;
 
     // Entity Ids: -------------------------------------------------------------
 

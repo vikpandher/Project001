@@ -8,14 +8,14 @@ struct GLFWwindow;
 
 namespace Project001
 {
-    class OpenGLWindow : public Window
+    class GLFWWindow : public Window
     {
     public:
-        OpenGLWindow(const char* title, int width, int height);
-        virtual ~OpenGLWindow() override;
+        GLFWWindow(const char* title, int width, int height);
+        virtual ~GLFWWindow() override;
 
-        OpenGLWindow(OpenGLWindow& other) = delete;
-        void operator=(const OpenGLWindow&) = delete;
+        GLFWWindow(GLFWWindow& other) = delete;
+        void operator=(const GLFWWindow&) = delete;
 
         void PollEvents() override;
 
@@ -76,18 +76,18 @@ namespace Project001
 
     // public: -----------------------------------------------------------------
 
-    inline void OpenGLWindow::SetEventCallback(const std::function<void(Event&)>& callback)
+    inline void GLFWWindow::SetEventCallback(const std::function<void(Event&)>& callback)
     {
         windowData_.EventCallback = callback;
     }
 
-    inline void OpenGLWindow::GetAspectRatio(int& numerator, int& denominator) const
+    inline void GLFWWindow::GetAspectRatio(int& numerator, int& denominator) const
     {
         numerator = aspectRatioNumerator_;
         denominator = aspectRatioDenominator_;
     }
 
-    inline bool OpenGLWindow::IsVSync() const
+    inline bool GLFWWindow::IsVSync() const
     {
         return vSyncEnabled_;
     }

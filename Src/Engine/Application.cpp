@@ -7,6 +7,8 @@
 #include "Engine/Event.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
+#include "Engine/SoundPlayer.h"
+#include "Engine/SoundStores.h"
 #include "Engine/Scene.h"
 #include "Engine/TextureStores.h"
 #include "Engine/Window.h"
@@ -24,7 +26,6 @@ namespace Project001
         , desiredFrameDuration_ms_(1000.0 / 60)
         , sleepyRunLoop_(true)
         , running_(false)
-        , paused_(false)
         , activeScenePtr_(nullptr)
     {
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
@@ -41,9 +42,11 @@ namespace Project001
 
         componentStoresPtr_ = new ComponentStores();
         meshStoresPtr_ = new MeshStores();
+        soundStoresPtr_ = new SoundStores();
         textureStoresPtr_ = new TextureStores();
 
         rendererPtr_ = Renderer::Create(windowWidth, windowHeight);
+        soundPlayerPtr_ = SoundPlayer::Create();
     }
 
     Application::~Application()

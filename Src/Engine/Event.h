@@ -864,12 +864,10 @@ namespace Project001
     template<typename DispatcherEvent, typename Function>
     static bool DispatchEvent(Event& event, const Function& function)
     {
-        if (event.GetEventType() == DispatcherEvent::GetStaticEventType())
+        if (event.GetEventType() == DispatcherEvent::GetStaticEventType() &&
+            !event.handled)
         {
-            if (!event.handled)
-            {
-                (function)(static_cast<DispatcherEvent&>(event));
-            }
+            (function)(static_cast<DispatcherEvent&>(event));
             return true;
         }
         return false;

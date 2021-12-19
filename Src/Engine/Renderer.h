@@ -88,9 +88,9 @@ namespace Project001
             bool lit) = 0;
 
         virtual bool AddMesh(
-            MeshVertex* meshVerticies,
+            const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
-            unsigned int* meshIndicies,
+            const unsigned int* meshIndicies,
             unsigned int meshIndexCount,
             unsigned int textureIndex,
             unsigned int specularIndex,

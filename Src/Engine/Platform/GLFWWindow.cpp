@@ -1,6 +1,5 @@
-#include "OpenGLWindow.h"
+#include "GLFWWindow.h"
 
-#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "Engine/Event.h"
@@ -12,7 +11,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLWindow::OpenGLWindow(const char* title, int width, int height)
+    GLFWWindow::GLFWWindow(const char* title, int width, int height)
         : isCurrentContext_(true)
         , aspectRatioNumerator_(GLFW_DONT_CARE)
         , aspectRatioDenominator_(GLFW_DONT_CARE)
@@ -40,17 +39,6 @@ namespace Project001
         glfwSetWindowUserPointer(glfwWindowPtr_, &windowData_);
 
         glfwMakeContextCurrent(glfwWindowPtr_);
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            _LOG_ERROR("Failed to initialize Glad!");
-        }
-
-        _LOG_MESSAGE("OpenGL Info:");
-        _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
-        _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
-        _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
-        _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
         SetVSync(false);
 
@@ -149,7 +137,7 @@ namespace Project001
             });
     }
 
-    OpenGLWindow::~OpenGLWindow()
+    GLFWWindow::~GLFWWindow()
     {
         glfwDestroyWindow(glfwWindowPtr_);
 
@@ -159,58 +147,58 @@ namespace Project001
         }
     }
 
-    void OpenGLWindow::PollEvents()
+    void GLFWWindow::PollEvents()
     {
         CheckAndMakeContextCurrent();
 
         glfwPollEvents();
     }
 
-    void OpenGLWindow::SetAspectRatio(int numerator, int denominator)
+    void GLFWWindow::SetAspectRatio(int numerator, int denominator)
     {
         aspectRatioNumerator_ = numerator;
         aspectRatioDenominator_ = denominator;
         glfwSetWindowAspectRatio(glfwWindowPtr_, numerator, denominator);
     }
 
-    void OpenGLWindow::GetScreenSize(int& width, int& height) const
+    void GLFWWindow::GetScreenSize(int& width, int& height) const
     {
         const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         width = videoMode->width;
         height = videoMode->height;
     }
 
-    void OpenGLWindow::SetWindowPosition(int x, int y)
+    void GLFWWindow::SetWindowPosition(int x, int y)
     {
         glfwSetWindowPos(glfwWindowPtr_, x, y);
     }
 
-    void OpenGLWindow::GetWindowPosition(int& x, int& y) const
+    void GLFWWindow::GetWindowPosition(int& x, int& y) const
     {
         glfwGetWindowPos(glfwWindowPtr_, &x, &y);
     }
 
-    void OpenGLWindow::SetWindowSize(int width, int height)
+    void GLFWWindow::SetWindowSize(int width, int height)
     {
         glfwSetWindowSize(glfwWindowPtr_, width, height);
     }
 
-    void OpenGLWindow::GetWindowSize(int& width, int& height) const
+    void GLFWWindow::GetWindowSize(int& width, int& height) const
     {
         glfwGetWindowSize(glfwWindowPtr_, &width, &height);
     }
 
-    void OpenGLWindow::SetTime(const double time)
+    void GLFWWindow::SetTime(const double time)
     {
         glfwSetTime(time);
     }
 
-    double OpenGLWindow::GetTime() const
+    double GLFWWindow::GetTime() const
     {
         return glfwGetTime();
     }
 
-    void OpenGLWindow::SetVSync(bool enabled)
+    void GLFWWindow::SetVSync(bool enabled)
     {
         CheckAndMakeContextCurrent();
 
@@ -226,24 +214,24 @@ namespace Project001
         vSyncEnabled_ = enabled;
     }
 
-    void OpenGLWindow::GetFramebufferSize(int& width, int& height) const
+    void GLFWWindow::GetFramebufferSize(int& width, int& height) const
     {
         glfwGetFramebufferSize(glfwWindowPtr_, &width, &height);
     }
 
-    bool OpenGLWindow::GetKeyPressed(KeyCode key) const
+    bool GLFWWindow::GetKeyPressed(KeyCode key) const
     {
         int result = glfwGetKey(glfwWindowPtr_, (int)key);
         return result == GLFW_PRESS;
     }
 
-    bool OpenGLWindow::GetMouseButtonPressed(MouseButton mouseButton) const
+    bool GLFWWindow::GetMouseButtonPressed(MouseButton mouseButton) const
     {
         int result = glfwGetMouseButton(glfwWindowPtr_, (int)mouseButton);
         return result == GLFW_PRESS;
     }
 
-    void OpenGLWindow::GetCursorPosition(float& xPosition, float& yPosition) const
+    void GLFWWindow::GetCursorPosition(float& xPosition, float& yPosition) const
     {
         double xPositionDouble, yPositionDouble;
         glfwGetCursorPos(glfwWindowPtr_, &xPositionDouble, &yPositionDouble);
@@ -251,13 +239,13 @@ namespace Project001
         yPosition = (float)yPositionDouble;
     }
 
-    bool OpenGLWindow::GetJoystickPresent(unsigned int index) const
+    bool GLFWWindow::GetJoystickPresent(unsigned int index) const
     {
         int result = glfwJoystickPresent(index);
-        return result == GL_TRUE;
+        return result == GLFW_TRUE;
     }
 
-    void OpenGLWindow::GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const
+    void GLFWWindow::GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const
     {
         int countInt;
         const float* axes = glfwGetJoystickAxes(index, &countInt);
@@ -268,7 +256,7 @@ namespace Project001
         }
     }
 
-    void OpenGLWindow::GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const
+    void GLFWWindow::GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const
     {
         int countInt;
         const unsigned char* buttons = glfwGetJoystickButtons(index, &countInt);
@@ -281,7 +269,7 @@ namespace Project001
 
     // protected ---------------------------------------------------------------
 
-    void OpenGLWindow::CheckAndMakeContextCurrent()
+    void GLFWWindow::CheckAndMakeContextCurrent()
     {
         if (!isCurrentContext_)
         {
@@ -290,5 +278,5 @@ namespace Project001
         }
     }
 
-    int OpenGLWindow::s_glfwWindowCount_ = 0;
+    int GLFWWindow::s_glfwWindowCount_ = 0;
 }

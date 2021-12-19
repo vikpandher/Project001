@@ -63,14 +63,14 @@ namespace Project001
         // If more meshes are added, the pointers returned are nolonger valid.
         bool GetMesh(
             unsigned int index,
-            MeshVertex*& firstVertexPtr,
+            const MeshVertex*& firstVertexPtr,
             unsigned int& vertexCount,
-            unsigned int*& firstIndexPtr,
-            unsigned int& indexCount);
+            const unsigned int*& firstIndexPtr,
+            unsigned int& indexCount) const;
 
         bool GetMeshData(
             unsigned int index,
-            MeshData& meshData);
+            MeshData& meshData) const;
 
         bool LoadMeshOBJ(
             unsigned int& index,

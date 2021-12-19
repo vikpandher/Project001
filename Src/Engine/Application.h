@@ -10,6 +10,8 @@ namespace Project001
     class ComponentStores;
     class MeshStores;
     class Renderer;
+    class SoundPlayer;
+    class SoundStores;
     class TextureStores;
     class Window;
 
@@ -50,15 +52,16 @@ namespace Project001
         bool sleepyRunLoop_;
 
         bool running_;
-        bool paused_;
 
         Window* windowPtr_;
 
         ComponentStores* componentStoresPtr_;
         MeshStores* meshStoresPtr_;
+        SoundStores* soundStoresPtr_;
         TextureStores* textureStoresPtr_;
 
         Renderer* rendererPtr_;
+        SoundPlayer* soundPlayerPtr_;
 
         Scene* activeScenePtr_;
         std::map<std::string, Scene*> sceneMap_;

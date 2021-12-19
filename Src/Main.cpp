@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
-    // 
+    // tests sound
     TestScene003* testScene003Ptr = new TestScene003();
     applicationPtr->AddScene(testScene003Ptr);
 

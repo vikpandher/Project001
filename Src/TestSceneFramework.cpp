@@ -12,6 +12,8 @@
 #include "Engine/Logger.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
+#include "Engine/SoundPlayer.h"
+#include "Engine/SoundStores.h"
 #include "Engine/TextureStores.h"
 #include "Engine/Window.h"
 
@@ -38,9 +40,11 @@ void TestSceneFramework::Initialize()
 
     componentStoresPtr_ = GetApplicationComponentStoresPtr();
     meshStoresPtr_ = GetApplicationMeshStoresPtr();
+    soundStoresPtr_ = GetApplicationSoundStoresPtr();
     textureStoresPtr_ = GetApplicationTextureStoresPtr();
 
     rendererPtr_ = GetApplicationRendererPtr();
+    soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
 
     int windowWidth, windowHeight;
     windowPtr_->GetWindowSize(windowWidth, windowHeight);
@@ -91,8 +95,11 @@ void TestSceneFramework::Deinitialize()
 {
     componentStoresPtr_->DeleteAllEntities();
     meshStoresPtr_->ClearMeshes();
+    soundStoresPtr_->ClearSounds();
     textureStoresPtr_->ClearTextures();
     rendererPtr_->ClearTextures();
+    soundPlayerPtr_->RemoveAllSoundSources();
+    soundPlayerPtr_->RemoveAllSoundBuffers();
 
     ClearIndiciesAndEntityIds();
 }
@@ -275,9 +282,9 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
 
         if (currentRenderedModel.IsVisible())
         {
-            Project001::MeshVertex* meshVerticies = nullptr;
+            const Project001::MeshVertex* meshVerticies = nullptr;
             unsigned int meshVertexCount = 0;
-            unsigned int* meshIndicies = nullptr;
+            const unsigned int* meshIndicies = nullptr;
             unsigned int meshIndexCount = 0;
 
             _FAIL_CHECK(meshStoresPtr_->GetMesh(currentRenderedModel.GetMeshIndex(), meshVerticies, meshVertexCount, meshIndicies, meshIndexCount));
@@ -335,7 +342,7 @@ void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent
     // Update Entities
     UpdateMainCameraEntityPositionAndRoll(timestep);
 
-    UpdateLightEntityPosition();
+    SyncComponentPositions();
 
     // Delete all entities with marked for deletion component
     // DeleteDeadEntities();
@@ -396,7 +403,7 @@ void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(double timestep)
     // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add to orbit
 }
 
-void TestSceneFramework::UpdateLightEntityPosition()
+void TestSceneFramework::SyncComponentPositions()
 {
     Project001::LightSource* lightSourcePtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
@@ -405,6 +412,14 @@ void TestSceneFramework::UpdateLightEntityPosition()
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
     lightSourcePtr->SetPosition(cameraPtr->GetPosition());
+
+    soundPlayerPtr_->UpdateListener(
+        cameraPtr->GetPosition(),
+        cameraPtr->GetForwardVector(),
+        cameraPtr->GetUpVector(),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        1.0f
+    );
 }
 
 void TestSceneFramework::DeleteDeadEntities()

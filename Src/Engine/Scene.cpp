@@ -25,6 +25,11 @@ namespace Project001
         return applicationPtr_->meshStoresPtr_;
     }
 
+    SoundStores* Scene::GetApplicationSoundStoresPtr()
+    {
+        return applicationPtr_->soundStoresPtr_;
+    }
+
     TextureStores* Scene::GetApplicationTextureStoresPtr()
     {
         return applicationPtr_->textureStoresPtr_;
@@ -33,6 +38,11 @@ namespace Project001
     Renderer* Scene::GetApplicationRendererPtr()
     {
         return applicationPtr_->rendererPtr_;
+    }
+
+    SoundPlayer* Scene::GetApplicationSoundPlayerPtr()
+    {
+        return applicationPtr_->soundPlayerPtr_;
     }
 
     bool Scene::IsActiveScene()

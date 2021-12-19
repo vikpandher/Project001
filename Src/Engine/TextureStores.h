@@ -24,7 +24,7 @@ namespace Project001
 
         void ClearTextures();
 
-        bool GetTexture(unsigned int index, TextureData& textureData);
+        bool GetTexture(unsigned int index, TextureData& textureData) const;
 
         bool LoadTexture(unsigned int& index, const std::string& path);
 

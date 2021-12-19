@@ -31,6 +31,20 @@ namespace Project001
     {
         glfwWindowPtr_ = glfwGetCurrentContext();
 
+        if (glHint == 0) // OpenGL functions need to be loaded
+        {
+            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            {
+                _LOG_ERROR("Failed to initialize Glad!");
+            }
+
+            _LOG_MESSAGE("OpenGL Info:");
+            _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
+            _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
+            _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
+            _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        }
+
         // This is enabled so when glViewport is used to set the viewport size,
         // glScissor can be used to limit drawing to within the viewport.
         // glEnable(GL_SCISSOR_TEST);
@@ -342,9 +356,14 @@ namespace Project001
         const glm::quat& orientation,
         bool lit)
     {
-        MeshVertex* meshVerticies;
+        if (translucent)
+        {
+            _LOG_ERROR("OpenGLRendererAlt doesn't handle translucent meshes");
+        }
+
+        const MeshVertex* meshVerticies;
         unsigned int meshVertexCount;
-        unsigned int* meshIndicies;
+        const unsigned int* meshIndicies;
         unsigned int meshIndexCount;
 
         if (meshStoresPtr->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount) &&
@@ -367,7 +386,7 @@ namespace Project001
 
             for (size_t j = 0; j < meshVertexCount; ++j)
             {
-                Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
+                const Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
 
                 Project001::VertexData newVertex;
                 newVertex.position = currentMeshVertex.position;
@@ -400,9 +419,9 @@ namespace Project001
     }
 
     bool OpenGLRendererAlt::AddMesh(
-        MeshVertex* meshVerticies,
+        const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
-        unsigned int* meshIndicies,
+        const unsigned int* meshIndicies,
         unsigned int meshIndexCount,
         unsigned int textureIndex,
         unsigned int specularIndex,
@@ -414,6 +433,11 @@ namespace Project001
         const glm::quat& orientation,
         bool lit)
     {
+        if (translucent)
+        {
+            _LOG_ERROR("OpenGLRendererAlt doesn't handle translucent meshes");
+        }
+
         if ((vertexBuffer_.size() + meshVertexCount) < s_vertexBufferCapacity_ &&
             (indexBuffer_.size() + meshIndexCount) < s_indexBufferCapacity_)
         {
@@ -433,7 +457,7 @@ namespace Project001
 
             for (size_t j = 0; j < meshVertexCount; ++j)
             {
-                Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
+                const Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
 
                 Project001::VertexData newVertex;
                 newVertex.position = currentMeshVertex.position;

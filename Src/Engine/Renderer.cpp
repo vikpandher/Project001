@@ -7,6 +7,8 @@
 
 namespace Project001
 {
+    // public: -----------------------------------------------------------------
+
     Renderer* Renderer::Create(unsigned int width, unsigned int height)
     {
         // return new OpenGLRenderer(width, height);

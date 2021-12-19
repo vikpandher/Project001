@@ -9,6 +9,8 @@ namespace Project001
     class ComponentStores;
     class MeshStores;
     class Renderer;
+    class SoundPlayer;
+    class SoundStores;
     class TextureStores;
     class Window;
 
@@ -39,9 +41,13 @@ namespace Project001
 
         MeshStores* GetApplicationMeshStoresPtr();
 
+        SoundStores* GetApplicationSoundStoresPtr();
+
         TextureStores* GetApplicationTextureStoresPtr();
 
         Renderer* GetApplicationRendererPtr();
+
+        SoundPlayer* GetApplicationSoundPlayerPtr();
 
         bool IsActiveScene();
 
