@@ -12,7 +12,6 @@ namespace Project001
     {
     public:
         Placement();
-        ~Placement();
 
         // Position Controls
         // ---------------------------------------------------------------------
@@ -48,7 +47,10 @@ namespace Project001
 
         void LookAt(const glm::vec3& direction, const glm::vec3& up);
 
-     protected:
+    protected:
+        // Inherited:
+        // glm::vec3 position_;
+
         glm::quat orientation_; // w, x, y, z
 
     private:

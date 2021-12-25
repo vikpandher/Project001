@@ -1048,29 +1048,29 @@ namespace Project001
 
     struct UpdateEvent : Event
     {
-        UpdateEvent(unsigned int threadId, double timestep_s)
+        UpdateEvent(unsigned int threadId, unsigned long timestep_ns)
             : Event()
             , threadId(threadId)
-            , timestep_s(timestep_s)
+            , timestep_ns(timestep_ns)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_UPDATE)
 
         unsigned int threadId;
-        double timestep_s;
+        unsigned long timestep_ns;
     };
 
     struct RenderEvent : Event
     {
-        RenderEvent(unsigned int threadId, double timestep_s)
+        RenderEvent(unsigned int threadId, unsigned long timestep_ns)
             : Event()
             , threadId(threadId)
-            , timestep_s(timestep_s)
+            , timestep_ns(timestep_ns)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_RENDER)
 
         unsigned int threadId;
-        double timestep_s;
+        unsigned long timestep_ns;
     };
 }

@@ -2,10 +2,10 @@
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/RenderedModel.h"
+#include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
-#include "Engine/GeometryFunctions.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
@@ -22,9 +22,7 @@ TestScene003::TestScene003()
 {
     ClearIndiciesAndEntityIds();
 
-    Project001::TestCartesianToPolar();
-    Project001::TestPolarToCartesian();
-    TestOpenAL();
+    // TestOpenAL();
 }
 
 TestScene003::~TestScene003()
@@ -143,11 +141,11 @@ void TestScene003::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene004"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene004"));
             }
         }
     }
@@ -155,25 +153,27 @@ void TestScene003::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
 void TestScene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    double timestep = updateEvent.timestep_s;
+    unsigned long timestep_ns = updateEvent.timestep_ns;
 
     // Update Entities
-    UpdateShape01EntityPosition(timestep);
+    UpdateShape01EntityPosition(timestep_ns);
 }
 
-void TestScene003::UpdateShape01EntityPosition(double timestep)
+void TestScene003::UpdateShape01EntityPosition(unsigned long timestep_ns)
 {
+    float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+
     Project001::RenderedModel* renderedModelPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
     glm::vec3 currentPosition = renderedModelPtr->GetPosition();
 
     glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);
-    currentPositionPolar.y += (float)timestep;
+    currentPositionPolar.y += timestep_s;
     glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
 
     renderedModelPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
 
-    glm::vec3 velocity((newPosition.x - currentPosition.x) / (float)timestep, (newPosition.y - currentPosition.y) / (float)timestep, 0.0f);
+    glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
 
     soundPlayerPtr_->UpdateSoundSource(
         song01SoundIndex_,

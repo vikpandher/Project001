@@ -10,7 +10,6 @@ namespace Project001
     {
     public:
         RenderedModel();
-        ~RenderedModel();
 
         void SetVisibility(bool visible);
         bool IsVisible() const;
@@ -36,6 +35,12 @@ namespace Project001
         bool GetLit() const;
 
     protected:
+        // Inherited:
+        // glm::vec3 position_;
+        // glm::quat orientation_;
+        // unsigned int meshIndex_;
+        // glm::vec3 scale_;
+
         bool visible_;
         unsigned int textureIndex_;
         unsigned int specularIndex_;

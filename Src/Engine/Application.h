@@ -48,7 +48,7 @@ namespace Project001
         unsigned int windowWidth_;
         unsigned int windowHeight_;
 
-        double desiredFrameDuration_ms_;
+        unsigned long desiredFrameDuration_ns_;
         bool sleepyRunLoop_;
 
         bool running_;

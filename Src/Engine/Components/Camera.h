@@ -10,7 +10,6 @@ namespace Project001
     {
     public:
         Camera();
-        ~Camera();
 
         void TurnOn();
         void TurnOff();
@@ -81,6 +80,10 @@ namespace Project001
         glm::mat4 GetProjectionMatrix() const;
 
     protected:
+        // Inherited:
+        // glm::vec3 position_;
+        // glm::quat orientation_;
+
         enum class CameraProjection
         {
             CAMERA_PROJECTION_PERSPECTIVE,

@@ -9,11 +9,16 @@ project("Project001" # ${PROJECT_NAME}
     LANGUAGES C CXX
 )
 
+# at least C++11
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
+
+# add_compile_definitions("GLM_ENABLE_EXPERIMENTAL")
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -31,6 +36,8 @@ set(SOURCE_FILES
     "Src/TestScene002.h"
     "Src/TestScene003.cpp"
     "Src/TestScene003.h"
+    "Src/TestScene004.cpp"
+    "Src/TestScene004.h"
     "Src/TestSceneData.cpp"
     "Src/TestSceneData.h"
 )
@@ -49,9 +56,6 @@ set(ENGINE_FILES
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
     "Src/Engine/LRUArray.h"
-    #"Src/Engine/MathConstants.h"
-    "Src/Engine/GeometryFunctions.cpp"
-    "Src/Engine/GeometryFunctions.h"
     "Src/Engine/MeshStores.cpp"
     "Src/Engine/MeshStores.h"
     "Src/Engine/RenderData.h"
@@ -71,7 +75,7 @@ set(ENGINE_FILES
 
 source_group("Src/Engine" FILES ${ENGINE_FILES})
 
-set (ENGINE_COMPONENTS_FILES
+set (COMPONENTS_FILES
     "Src/Engine/Components/Camera.cpp"
     "Src/Engine/Components/Camera.h"
     "Src/Engine/Components/LightSource.cpp"
@@ -86,7 +90,21 @@ set (ENGINE_COMPONENTS_FILES
     "Src/Engine/Components/RenderedModel.h"
 )
 
-source_group("Src/Engine/Components" FILES ${ENGINE_COMPONENTS_FILES})
+source_group("Src/Engine/Components" FILES ${COMPONENTS_FILES})
+
+set (MATH_FILES
+    "Src/Engine/Math/Collisions.cpp"
+    "Src/Engine/Math/Collisions.h"
+    "Src/Engine/Math/CoordinateSystems.cpp"
+    "Src/Engine/Math/CoordinateSystems.h"
+    "Src/Engine/Math/Constants.h"
+    "Src/Engine/Math/Miscellaneous.cpp"
+    "Src/Engine/Math/Miscellaneous.h"
+    "Src/Engine/Math/VectorAngles.cpp"
+    "Src/Engine/Math/VectorAngles.h"
+)
+
+source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_FILES
     "Src/Engine/Platform/glad.c"
@@ -121,7 +139,8 @@ source_group("Src/Engine/Platform/ShaderSource" FILES ${SHADER_SOURCE_FILES})
 add_executable("${PROJECT_NAME}" # WIN32
     ${SOURCE_FILES}
     ${ENGINE_FILES}
-    ${ENGINE_COMPONENTS_FILES}
+    ${MATH_FILES}
+    ${COMPONENTS_FILES}
     ${PLATFORM_FILES}
     ${SHADER_SOURCE_FILES}
 )
@@ -158,6 +177,7 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 
 if(${PRINT_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
+
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
     message("PROJECT_DESCRIPTION: ${PROJECT_DESCRIPTION}")
@@ -167,11 +187,13 @@ if(${PRINT_DEBUG_OUTPUT})
     foreach(VARIABLE ${_ENABLED_LANGUAGES})
         message("    ${VARIABLE}")
     endforeach()
-    
+
     message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
     message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
     message("CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
-    
+
+    message("CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
+
     message("CMAKE_CONFIGURATION_TYPES:")
     foreach(VARIABLE ${CMAKE_CONFIGURATION_TYPES})
         message("    ${VARIABLE}")
@@ -179,34 +201,40 @@ if(${PRINT_DEBUG_OUTPUT})
 
     get_property(_USE_FOLDERS GLOBAL PROPERTY USE_FOLDERS)
     message("USE_FOLDERS: ${_USE_FOLDERS}")
-    
+
     get_property(_VS_STARTUP_PROJECT DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT)
     message("VS_STARTUP_PROJECT: ${_VS_STARTUP_PROJECT}")
-    
+
+    get_property(_COMPILE_DEFINITIONS DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY COMPILE_DEFINITIONS)
+    message("COMPILE_DEFINITIONS:")
+    foreach(VARIABLE ${_COMPILE_DEFINITIONS})
+        message("    ${VARIABLE}")
+    endforeach()
+
     get_property(_SOURCES TARGET "${PROJECT_NAME}" PROPERTY SOURCES)
     message("SOURCES:")
     foreach(VARIABLE ${_SOURCES})
         message("    ${VARIABLE}")
     endforeach()
-    
+
     get_property(_TARGET_INCLUDE_DIRECTORIES TARGET "${PROJECT_NAME}" PROPERTY INCLUDE_DIRECTORIES)
     message("TARGET_INCLUDE_DIRECTORIES:")
     foreach(VARIABLE ${_TARGET_INCLUDE_DIRECTORIES})
         message("    ${VARIABLE}")
     endforeach()
-    
+
     get_property(_TARGET_LINK_DIRECTORIES TARGET "${PROJECT_NAME}" PROPERTY LINK_DIRECTORIES)
     message("TARGET_LINK_DIRECTORIES:")
     foreach(VARIABLE ${_TARGET_LINK_DIRECTORIES})
         message("    ${VARIABLE}")
     endforeach()
-    
+
     get_property(_TARGET_LINK_LIBRARIES TARGET "${PROJECT_NAME}" PROPERTY LINK_LIBRARIES)
     message("TARGET_LINK_LIBRARIES:")
     foreach(VARIABLE ${_TARGET_LINK_LIBRARIES})
         message("    ${VARIABLE}")
     endforeach()
-    
+
     message("OUTPUT_DIR: ${OUTPUT_DIR}")
 
     get_property(_VS_DEBUGGER_WORKING_DIRECTORY TARGET "${PROJECT_NAME}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY)
@@ -214,7 +242,7 @@ if(${PRINT_DEBUG_OUTPUT})
 
     get_property(_RUNTIME_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG)
     message("RUNTIME_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
-    
+
     get_property(_RUNTIME_OUTPUT_DIRECTORY_RELEASE TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE)
     message("RUNTIME_OUTPUT_DIRECTORY_RELEASE: ${_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
 

@@ -9,7 +9,4 @@ namespace Project001
     Position::Position()
         : position_(0.0f, 0.0f, 0.0f)
     {}
-
-    Position::~Position()
-    {}
 }

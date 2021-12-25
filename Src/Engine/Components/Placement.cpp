@@ -10,9 +10,6 @@ namespace Project001
         : orientation_(1.0f, 0.0f, 0.0f, 0.0f)
     {}
 
-    Placement::~Placement()
-    {}
-
     void Placement::RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal)
     {
         glm::vec3 focalPointToPosition = position_ - focalPoint;

@@ -19,9 +19,6 @@ namespace Project001
         , farCutoff_(50.0f)
     {}
 
-    Camera::~Camera()
-    {}
-
     glm::mat4 Camera::GetViewMatrix() const
     {
         glm::mat4 rotationMatrix = glm::mat4_cast(orientation_);

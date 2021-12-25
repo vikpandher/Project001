@@ -10,7 +10,6 @@ namespace Project001
     {
     public:
         LightSource();
-        ~LightSource();
 
         void TurnOn();
         void TurnOff();
@@ -61,6 +60,9 @@ namespace Project001
         const glm::vec3& GetSpecularColor() const;
 
     protected:
+        // Inherited:
+        // glm::vec3 position_;
+
         enum class LightType
         {
             LIGHT_TYPE_DIRECTIONAL,

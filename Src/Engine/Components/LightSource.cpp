@@ -19,7 +19,4 @@ namespace Project001
         , diffuse_(1.0f, 1.0f, 1.0f)
         , specular_(0.0f, 0.0f, 0.0f)
     {}
-
-    LightSource::~LightSource()
-    {}
 }

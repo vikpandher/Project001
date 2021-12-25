@@ -15,7 +15,4 @@ namespace Project001
         , translucent_(false)
         , lit_(true)
     {}
-
-    RenderedModel::~RenderedModel()
-    {}
 }

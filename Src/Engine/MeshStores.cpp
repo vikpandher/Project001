@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <fstream>
 
-#include "Engine/GeometryFunctions.h"
+#include "Engine/Math/Collisions.h"
+#include "Engine/Math/CoordinateSystems.h"
+#include "Engine/Math/VectorAngles.h"
 
 
 
@@ -1333,19 +1335,19 @@ namespace Project001
 
                     if (angle > 0.0f) // turn to the left
                     {
-                        positionC = Get2DLineIntersection(positionA, slope1, positionE, slope2);
+                        positionC = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
                         positionD = position2 - scaled1;
                     }
                     else
                     {
                         positionC = position2 + scaled1;
-                        positionD = Get2DLineIntersection(positionB, slope1, positionF, slope2);
+                        positionD = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
                     }
                 }
                 else
                 {
-                    positionC = Get2DLineIntersection(positionA, slope1, positionE, slope2);
-                    positionD = Get2DLineIntersection(positionB, slope1, positionF, slope2);
+                    positionC = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
+                    positionD = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
                 }
 
                 meshVertexA.position = glm::vec3(positionA, 0.0f);

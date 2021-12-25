@@ -10,7 +10,6 @@ namespace Project001
     {
     public:
         Position();
-        ~Position();
 
         void SetPosition(const glm::vec3& position);
         void SetPosition(float x, float y, float z);

@@ -23,7 +23,7 @@ namespace Project001
         : windowTitle_(windowTitle)
         , windowWidth_(windowWidth)
         , windowHeight_(windowHeight)
-        , desiredFrameDuration_ms_(1000.0 / 60)
+        , desiredFrameDuration_ns_(1000000000ul / 60ul)
         , sleepyRunLoop_(true)
         , running_(false)
         , activeScenePtr_(nullptr)
@@ -105,44 +105,44 @@ namespace Project001
         std::chrono::system_clock::time_point lastFrameTimeStamp;
         std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
 
-        double simulationTimeDebt_ms = 0.0;
+        unsigned long simulationTimeDebt_ns = 0ul;
 
         while (running_)
         {
             lastFrameTimeStamp = currentFrameTimeStamp;
             currentFrameTimeStamp = std::chrono::system_clock::now();
-            std::chrono::duration<double, std::milli> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-            double lastFrameDuration_ms = lastFrameDuration.count();
+            std::chrono::duration<unsigned long, std::nano> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+            unsigned long lastFrameDuration_ns = lastFrameDuration.count();
 
             if (sleepyRunLoop_)
             {
-                if (lastFrameDuration_ms < desiredFrameDuration_ms_)
+                if (lastFrameDuration_ns < desiredFrameDuration_ns_)
                 {
-                    std::chrono::duration<double, std::milli> delta_ms(desiredFrameDuration_ms_ - lastFrameDuration_ms);
-                    std::this_thread::sleep_for(delta_ms);
+                    std::chrono::duration<unsigned long, std::nano> delta_ns(desiredFrameDuration_ns_ - lastFrameDuration_ns);
+                    std::this_thread::sleep_for(delta_ns);
                 }
                 currentFrameTimeStamp = std::chrono::system_clock::now();
                 lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-                lastFrameDuration_ms = lastFrameDuration.count();
+                lastFrameDuration_ns = lastFrameDuration.count();
             }
             else
             {
-                while (lastFrameDuration_ms < desiredFrameDuration_ms_)
+                while (lastFrameDuration_ns < desiredFrameDuration_ns_)
                 {
                     currentFrameTimeStamp = std::chrono::system_clock::now();
                     lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-                    lastFrameDuration_ms = lastFrameDuration.count();
+                    lastFrameDuration_ns = lastFrameDuration.count();
                 }
             }
 
-            simulationTimeDebt_ms += lastFrameDuration_ms;
-            while (simulationTimeDebt_ms > desiredFrameDuration_ms_)
+            simulationTimeDebt_ns += lastFrameDuration_ns;
+            while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
             {
-                OnEvent(UpdateEvent(0, desiredFrameDuration_ms_ / 1000.0));
-                simulationTimeDebt_ms -= desiredFrameDuration_ms_;
+                OnEvent(UpdateEvent(0, desiredFrameDuration_ns_));
+                simulationTimeDebt_ns -= desiredFrameDuration_ns_;
             }
 
-            OnEvent(RenderEvent(0, lastFrameDuration_ms / 1000.0));
+            OnEvent(RenderEvent(0, lastFrameDuration_ns / 1000.0));
             windowPtr_->PollEvents();
         }
     }

@@ -10,7 +10,6 @@ namespace Project001
     {
     public:
         Model();
-        ~Model();
 
         void SetMeshIndex(unsigned int meshIndex);
         unsigned int GetMeshIndex() const;
@@ -23,6 +22,10 @@ namespace Project001
         const glm::vec3& GetScale() const;
 
     protected:
+        // Inherited:
+        // glm::vec3 position_;
+        // glm::quat orientation_;
+
         unsigned int meshIndex_;
 
         glm::vec3 scale_;

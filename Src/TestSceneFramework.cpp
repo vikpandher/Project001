@@ -274,7 +274,7 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
     Project001::RenderedModel* renderedModelArray = nullptr;
     size_t renderedModelCount = 0;
 
-    _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount));
+    componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
 
     for (unsigned int i = 0; i < renderedModelCount; ++i)
     {
@@ -337,10 +337,10 @@ void TestSceneFramework::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent
 
 void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    double timestep = updateEvent.timestep_s;
+    unsigned long timestep_ns = updateEvent.timestep_ns;
 
     // Update Entities
-    UpdateMainCameraEntityPositionAndRoll(timestep);
+    UpdateMainCameraEntityPositionAndRoll(timestep_ns);
 
     SyncComponentPositions();
 
@@ -352,11 +352,13 @@ void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent
     updateEvent.handled = true;
 }
 
-void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(double timestep)
+void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns)
 {
+    float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+
     float speedConstant = 1.0f;
-    float cameraTranslationSpeed = speedConstant * (float)timestep;
-    float cameraRotationSpeed = speedConstant * 2.0f * (float)timestep;
+    float cameraTranslationSpeed = speedConstant * timestep_s;
+    float cameraRotationSpeed = speedConstant * 2.0f * timestep_s;
 
     bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
     bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
