@@ -16,7 +16,15 @@ namespace Project001
         // Position Controls
         // ---------------------------------------------------------------------
 
+        void MoveForward(float translation);
+        void MoveBack(float translation);
+        void MoveRight(float translation);
+        void MoveLeft(float translation);
+        void MoveUp(float translation);
+        void MoveDown(float translation);
+
         void RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal);
+        void RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians);
 
         // Orientation Controls
         // ---------------------------------------------------------------------
@@ -46,6 +54,11 @@ namespace Project001
         void AddWorldRotationZ(float rotationInRadians);
 
         void LookAt(const glm::vec3& direction, const glm::vec3& up);
+        void LookAt(const glm::vec3& direction);
+
+        glm::vec3 GetForwardVector() const;
+        glm::vec3 GetLeftVector() const;
+        glm::vec3 GetUpVector() const;
 
     protected:
         // Inherited:
@@ -55,6 +68,41 @@ namespace Project001
 
     private:
     };
+
+    inline void Placement::MoveForward(float translation)
+    {
+        AddTranslation(translation * GetForwardVector());
+    }
+
+    inline void Placement::MoveBack(float translation)
+    {
+        AddTranslation(-1.0f * translation * GetForwardVector());
+    }
+
+    inline void Placement::MoveRight(float translation)
+    {
+        AddTranslation(-1.0f * translation * GetLeftVector());
+    }
+
+    inline void Placement::MoveLeft(float translation)
+    {
+        AddTranslation(translation * GetLeftVector());
+    }
+
+    inline void Placement::MoveUp(float translation)
+    {
+        AddTranslation(translation * GetUpVector());
+    }
+
+    inline void Placement::MoveDown(float translation)
+    {
+        AddTranslation(-1.0f * translation * GetUpVector());
+    }
+
+    inline void Placement::RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians)
+    {
+        RevolveAround(focalPoint, angleInRadians, GetUpVector());
+    }
 
     inline void Placement::SetOrientation(const glm::quat& orientation)
     {
@@ -136,6 +184,26 @@ namespace Project001
 
     inline void Placement::LookAt(const glm::vec3& direction, const glm::vec3& up)
     {
-        orientation_ = glm::quatLookAt(glm::normalize(direction), glm::normalize(up));
+        orientation_ = glm::quatLookAtLH(glm::normalize(direction), glm::normalize(up));
+    }
+
+    inline void Placement::LookAt(const glm::vec3& direction)
+    {
+        orientation_ = glm::quatLookAtLH(glm::normalize(direction), GetUpVector());
+    }
+
+    inline glm::vec3 Placement::GetForwardVector() const
+    {
+        return orientation_ * glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+
+    inline glm::vec3 Placement::GetLeftVector() const
+    {
+        return orientation_ * glm::vec3(1.0f, 0.0f, 0.0f);
+    }
+
+    inline glm::vec3 Placement::GetUpVector() const
+    {
+        return orientation_ * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 }

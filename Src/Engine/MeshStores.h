@@ -5,23 +5,12 @@
 
 #include "glm/gtc/quaternion.hpp"
 
+#include "Engine/MeshVertex.h"
+
 
 
 namespace Project001
 {
-    struct MeshVertex
-    {
-        MeshVertex()
-            : position(0.0f)
-            , textureCoordinate(0.0f)
-            , normal(0.0f)
-        {}
-
-        glm::vec3 position;
-        glm::vec2 textureCoordinate;
-        glm::vec3 normal;
-    };
-
     struct MeshData
     {
         MeshData()

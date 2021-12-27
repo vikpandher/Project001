@@ -15,31 +15,6 @@ namespace Project001
         void TurnOff();
         bool IsTurnedOn() const;
 
-        // Position Controls
-        // ---------------------------------------------------------------------
-
-        void MoveForward(float translation);
-        void MoveBack(float translation);
-        void MoveRight(float translation);
-        void MoveLeft(float translation);
-        void MoveUp(float translation);
-        void MoveDown(float translation);
-
-        void RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians);
-
-        // Orientation Controls
-        // ---------------------------------------------------------------------
-        // Camera is oriented facing -z, so "Roll" parent functions are hidden
-
-        void AddRoll(float rotationInRadians);
-        float GetRoll() const;
-
-        void LookAt(const glm::vec3& direction);
-
-        glm::vec3 GetForwardVector() const;
-        glm::vec3 GetRightVector() const;
-        glm::vec3 GetUpVector() const;
-
         // Other View Controls
         // ---------------------------------------------------------------------
 
@@ -119,71 +94,6 @@ namespace Project001
     inline bool Camera::IsTurnedOn() const
     {
         return turnedOn_;
-    }
-
-    inline void Camera::MoveForward(float translation)
-    {
-        AddTranslation(translation * GetForwardVector());
-    }
-
-    inline void Camera::MoveBack(float translation)
-    {
-        AddTranslation(-1.0f * translation * GetForwardVector());
-    }
-
-    inline void Camera::MoveRight(float translation)
-    {
-        AddTranslation(translation * GetRightVector());
-    }
-
-    inline void Camera::MoveLeft(float translation)
-    {
-        AddTranslation(-1.0f * translation * GetRightVector());
-    }
-
-    inline void Camera::MoveUp(float translation)
-    {
-        AddTranslation(translation * GetUpVector());
-    }
-
-    inline void Camera::MoveDown(float translation)
-    {
-        AddTranslation(-1.0f * translation * GetUpVector());
-    }
-
-    inline void Camera::RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians)
-    {
-        RevolveAround(focalPoint, angleInRadians, GetUpVector());
-    }
-
-    inline void Camera::AddRoll(float rotationInRadians)
-    {
-        orientation_ = glm::rotate(orientation_, rotationInRadians, glm::vec3(0.0f, 0.0f, -1.0f)); // camera looks towards -z
-    }
-
-    inline float Camera::GetRoll() const
-    {
-        return -1.0f * glm::roll(orientation_); // camera looks towards -z
-    }
-
-    inline void Camera::LookAt(const glm::vec3& direction)
-    {
-        orientation_ = glm::quatLookAt(glm::normalize(direction), GetUpVector());
-    }
-
-    inline glm::vec3 Camera::GetForwardVector() const
-    {
-        return orientation_ * glm::vec3(0.0f, 0.0f, -1.0f); // camera looks toward -z
-    }
-
-    inline glm::vec3 Camera::GetRightVector() const
-    {
-        return orientation_ * glm::vec3(1.0f, 0.0f, 0.0f);
-    }
-
-    inline glm::vec3 Camera::GetUpVector() const
-    {
-        return orientation_ * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     inline void Camera::SetProjectionToOrthographic()

@@ -71,6 +71,7 @@ void TestSceneFramework::Initialize()
         float aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
         cameraPtr->SetAspectRatio(aspectRatio);
         cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
+        cameraPtr->AddYaw(glm::pi<float>());
         // cameraPtr->SetProjectionToOrthographic();
         // cameraPtr->SetLeftCutoff(aspectRatio * -5.0f);
         // cameraPtr->SetRightCutoff(aspectRatio * 5.0f);
@@ -147,7 +148,7 @@ void TestSceneFramework::ProcessCursorPositionEvent(Project001::CursorPositionEv
         float yOffset = currentYPosition - prevousYPosition;
 
         float cameraYaw = -1.0f * xOffset * speedConstant;
-        float cameraPitch = -1.0f * yOffset * speedConstant;
+        float cameraPitch = yOffset * speedConstant;
 
         cameraPtr->AddYaw(cameraYaw);
         // cameraPtr->AddWorldRotationY(cameraYaw); // for fps camera
@@ -402,7 +403,7 @@ void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(unsigned long tim
         cameraPtr->AddRoll(cameraRotationSpeed);
     }
 
-    // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add to orbit
+    // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add for hacky orbit
 }
 
 void TestSceneFramework::SyncComponentPositions()

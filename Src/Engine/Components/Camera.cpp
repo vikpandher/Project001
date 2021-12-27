@@ -21,10 +21,17 @@ namespace Project001
 
     glm::mat4 Camera::GetViewMatrix() const
     {
-        glm::mat4 rotationMatrix = glm::mat4_cast(orientation_);
-        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position_);
-        glm::mat4 inverseViewMatrix = translationMatrix * rotationMatrix;
-        return glm::inverse(inverseViewMatrix);
+        // glm::quat flippedOrientation = orientation_;
+        // flippedOrientation.z *= -1.0f;
+        // glm::mat4 rotationMatrix = glm::mat4_cast(flippedOrientation);
+        // glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position_);
+        // glm::mat4 inverseViewMatrix = translationMatrix * rotationMatrix;
+        // return glm::inverse(inverseViewMatrix);
+
+        glm::vec3 eye = position_;
+        glm::vec3 center = position_ + GetForwardVector();
+        glm::vec3 up = GetUpVector();
+        return glm::lookAt(eye, center, up);
     }
 
     glm::mat4 Camera::GetProjectionMatrix() const

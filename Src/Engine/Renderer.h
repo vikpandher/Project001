@@ -6,8 +6,6 @@
 
 namespace Project001
 {
-    class MeshStores;
-
     struct MeshVertex;
 
     class Renderer
@@ -73,19 +71,6 @@ namespace Project001
         virtual void ClearDirectionalLight() = 0;
         virtual void ClearPointLights() = 0;
         virtual void ClearSpotLights() = 0;
-
-        virtual bool AddMesh(
-            MeshStores* meshStoresPtr,
-            unsigned int meshIndex,
-            unsigned int textureIndex,
-            unsigned int specularIndex,
-            float shininess,
-            const glm::vec4& color,
-            bool translucent,
-            const glm::vec3& scale,
-            const glm::vec3& position,
-            const glm::quat& orientation,
-            bool lit) = 0;
 
         virtual bool AddMesh(
             const MeshVertex* meshVerticies,

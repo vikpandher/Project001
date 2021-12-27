@@ -1,12 +1,13 @@
 #include "OpenGLRenderer.h"
 
 #include <algorithm>
+#include <string>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "Engine/Logger.h"
-#include "Engine/MeshStores.h"
+#include "Engine/MeshVertex.h"
 
 #include "Engine/Platform/OpenGLShader.h"
 #include "Engine/Platform/OpenGLTexture.h"
@@ -309,76 +310,6 @@ namespace Project001
         }
         texturePtrMap_.clear();
         textureIndexToUnitBiMap_.Clear();
-    }
-
-    bool OpenGLRenderer::AddMesh(
-        MeshStores* meshStoresPtr,
-        unsigned int meshIndex,
-        unsigned int textureIndex,
-        unsigned int specularIndex,
-        float shininess,
-        const glm::vec4& color,
-        bool translucent,
-        const glm::vec3& scale,
-        const glm::vec3& position,
-        const glm::quat& orientation,
-        bool lit)
-    {
-        const MeshVertex* meshVerticies;
-        unsigned int meshVertexCount;
-        const unsigned int* meshIndicies;
-        unsigned int meshIndexCount;
-
-        if (meshStoresPtr->GetMesh(meshIndex, meshVerticies, meshVertexCount, meshIndicies, meshIndexCount))
-        {
-            float textureSlot = -1.0f;
-            if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureSlot
-            {
-                textureSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
-            }
-
-            float specularSlot = -1.0f;
-            if (textureIndexToUnitBiMap_.Find_X(specularIndex)) // convert specularIndex to textureSlot
-            {
-                specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
-            }
-
-            unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
-
-            for (size_t j = 0; j < meshVertexCount; ++j)
-            {
-                const Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
-
-                Project001::VertexData newVertex;
-                newVertex.position = currentMeshVertex.position;
-                newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
-                newVertex.normal = currentMeshVertex.normal;
-                newVertex.color = color;
-                newVertex.textureSlot = textureSlot;
-                newVertex.specularSlot = specularSlot;
-                newVertex.shininess = shininess;
-                newVertex.scale = scale;
-                newVertex.translation = position;
-                newVertex.orientation.x = orientation.x;
-                newVertex.orientation.y = orientation.y;
-                newVertex.orientation.z = orientation.z;
-                newVertex.orientation.w = orientation.w;
-                newVertex.lit = lit;
-
-                if (translucent)
-                {
-                    translucentVertexBuffer_.push_back(newVertex);
-                }
-                else
-                {
-                    vertexBuffer_.push_back(newVertex);
-                }
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     bool OpenGLRenderer::AddMesh(

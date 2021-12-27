@@ -76,19 +76,6 @@ namespace Project001
         void ClearSpotLights() override;
 
         bool AddMesh(
-            MeshStores* meshStoresPtr,
-            unsigned int meshIndex,
-            unsigned int textureIndex,
-            unsigned int specularIndex,
-            float shininess,
-            const glm::vec4& color,
-            bool translucent,
-            const glm::vec3& scale,
-            const glm::vec3& position,
-            const glm::quat& orientation,
-            bool lit) override;
-
-        bool AddMesh(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
             const unsigned int* meshIndicies,
