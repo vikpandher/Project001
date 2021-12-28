@@ -77,17 +77,9 @@ set(ENGINE_FILES
 source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set (COMPONENTS_FILES
-    "Src/Engine/Components/Camera.cpp"
     "Src/Engine/Components/Camera.h"
-    "Src/Engine/Components/LightSource.cpp"
     "Src/Engine/Components/LightSource.h"
-    "Src/Engine/Components/Model.cpp"
-    "Src/Engine/Components/Model.h"
-    "Src/Engine/Components/Placement.cpp"
     "Src/Engine/Components/Placement.h"
-    "Src/Engine/Components/Position.cpp"
-    "Src/Engine/Components/Position.h"
-    "Src/Engine/Components/RenderedModel.cpp"
     "Src/Engine/Components/RenderedModel.h"
 )
 

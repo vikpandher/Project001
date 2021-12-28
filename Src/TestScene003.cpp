@@ -76,7 +76,7 @@ void TestScene003::Initialize()
     {
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-        cameraPtr->SetPosition(0.0f, 0.0f, 2.0f);
+        cameraPtr->position.z =2.0f;
     }
 
     // generated shape entity 01
@@ -87,15 +87,15 @@ void TestScene003::Initialize()
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape01EntityId_));
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(1.28f, 0.0f, 0.0f);
-        renderedModelPtr->SetMeshIndex(shape01MeshIndex_);
+        renderedModelPtr->position.x = 1.28f;
+        renderedModelPtr->meshIndex = shape01MeshIndex_;
 
         unsigned int soundSourceIndex;
         _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(soundSourceIndex));
         _FAIL_CHECK(soundPlayerPtr_->LinkSoundBufferToSoundSource(song01SoundIndex_, soundSourceIndex));
         _FAIL_CHECK(soundPlayerPtr_->UpdateSoundSource(
             soundSourceIndex,
-            renderedModelPtr->GetPosition(),
+            renderedModelPtr->position,
             glm::vec3(0.0f, 0.0f, 0.0f),
             1.0f,
             0.5f,
@@ -165,19 +165,19 @@ void TestScene003::UpdateShape01EntityPosition(unsigned long timestep_ns)
 
     Project001::RenderedModel* renderedModelPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
-    glm::vec3 currentPosition = renderedModelPtr->GetPosition();
+    glm::vec3 currentPosition = renderedModelPtr->position;
 
     glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);
     currentPositionPolar.y += timestep_s;
     glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
 
-    renderedModelPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
+    renderedModelPtr->position = glm::vec3(newPosition.x, newPosition.y, 0.0f);
 
     glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
 
     soundPlayerPtr_->UpdateSoundSource(
         song01SoundIndex_,
-        renderedModelPtr->GetPosition(),
+        renderedModelPtr->position,
         velocity,
         1.0f,
         0.5f,

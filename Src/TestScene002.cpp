@@ -202,8 +202,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape01MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape01MeshIndex_;
     }
 
     // generated shape entity 02
@@ -214,9 +214,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape02MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape02MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 03
@@ -227,9 +227,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape03MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape03MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 04
@@ -240,9 +240,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape04MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape04MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 05
@@ -253,9 +253,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape05MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape05MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 06
@@ -266,9 +266,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape06EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape06MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape06MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 07
@@ -279,9 +279,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape07EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape07MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape07MeshIndex_;
+        renderedModelPtr->textureIndex = earthTextureIndex_;
     }
 
     // generated shape entity 08
@@ -292,8 +292,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape08EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape08MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape08MeshIndex_;
     }
 
     // generated shape entity 09
@@ -304,9 +304,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape09EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape09MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape09MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 10
@@ -317,9 +317,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape10EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape10MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape10MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 11
@@ -330,9 +330,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape11EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape11MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape11MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 12
@@ -343,9 +343,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape12EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape12MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape12MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 13
@@ -356,9 +356,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape13EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape13MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape13MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 14
@@ -369,9 +369,9 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape14EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape14MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape14MeshIndex_;
+        renderedModelPtr->textureIndex = rgb120x60TextureIndex_;
     }
 
     // generated shape entity 15
@@ -382,8 +382,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape15EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape15MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape15MeshIndex_;
     }
 
     // generated shape entity 16
@@ -394,8 +394,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape16EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape16MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape16MeshIndex_;
     }
 
     // generated shape entity 17
@@ -406,8 +406,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape17EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape17MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape17MeshIndex_;
     }
 
     // generated shape entity 18
@@ -418,8 +418,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape18EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape18MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape18MeshIndex_;
     }
 
     // generated shape entity 19
@@ -430,8 +430,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape19EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape19MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape19MeshIndex_;
     }
 
     // generated shape entity 20
@@ -442,8 +442,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape20EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape20MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape20MeshIndex_;
     }
 
     // generated shape entity 21
@@ -454,8 +454,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape21EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape21MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape21MeshIndex_;
     }
 
     // generated shape entity 22
@@ -466,8 +466,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape22EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape22MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape22MeshIndex_;
     }
 
     // generated shape entity 23
@@ -478,8 +478,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape23EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape23MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape23MeshIndex_;
     }
 
     // generated shape entity 24
@@ -490,8 +490,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape24EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape24MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape24MeshIndex_;
     }
 
     // generated shape entity 25
@@ -502,8 +502,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape25EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape25MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape25MeshIndex_;
     }
 
     // generated shape entity 26
@@ -514,8 +514,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape26EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape26MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape26MeshIndex_;
     }
 
     // generated shape entity 27
@@ -526,8 +526,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape27EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape27MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape27MeshIndex_;
     }
 
     // generated shape entity 28
@@ -538,8 +538,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape28EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape28MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape28MeshIndex_;
     }
 
     // generated shape entity 29
@@ -550,8 +550,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape29EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape29MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape29MeshIndex_;
     }
 
     // generated shape entity 30
@@ -562,8 +562,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape30EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape30MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape30MeshIndex_;
     }
 
     // generated shape entity 31
@@ -574,8 +574,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape31EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape31MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape31MeshIndex_;
     }
 
     // generated shape entity 32
@@ -586,8 +586,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape32EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape32MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape32MeshIndex_;
     }
 
     // generated shape entity 33
@@ -598,8 +598,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape33EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape33MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape33MeshIndex_;
     }
 
     // generated shape entity 34
@@ -610,8 +610,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape34EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape34MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape34MeshIndex_;
     }
 
     // generated shape entity 35
@@ -622,8 +622,8 @@ void TestScene002::Initialize()
 
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape35EntityId_, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape35MeshIndex_);
+        renderedModelPtr->position = modelEntityPositions[positionPosition++];
+        renderedModelPtr->meshIndex = shape35MeshIndex_;
     }
 }
 

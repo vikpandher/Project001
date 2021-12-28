@@ -69,13 +69,13 @@ void TestSceneFramework::Initialize()
         int framebufferHeight;
         windowPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
         float aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
-        cameraPtr->SetAspectRatio(aspectRatio);
-        cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
+        cameraPtr->aspectRatio = aspectRatio;
+        cameraPtr->position.z =5.0f;
         cameraPtr->AddYaw(glm::pi<float>());
-        // cameraPtr->SetProjectionToOrthographic();
-        // cameraPtr->SetLeftCutoff(aspectRatio * -5.0f);
-        // cameraPtr->SetRightCutoff(aspectRatio * 5.0f);
-        cameraPtr->TurnOn();
+        // cameraPtr->cameraProjection = Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
+        // cameraPtr->leftCutoff  = aspectRatio * -5.0f;
+        // cameraPtr->rightCutoff = aspectRatio * 5.0f;
+        cameraPtr->turnedOn = true;
     }
 
     // light source entity
@@ -86,9 +86,9 @@ void TestSceneFramework::Initialize()
 
         Project001::LightSource* lightSourcePtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
-        lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
-        lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
-        lightSourcePtr->TurnOn();
+        lightSourcePtr->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+        lightSourcePtr->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+        lightSourcePtr->turnedOn = true;
     }
 }
 
@@ -231,42 +231,42 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
     for (unsigned int i = 0; i < lightSourceCount; ++i)
     {
         Project001::LightSource& currentLightSource = lightSourceArray[i];
-        if (currentLightSource.IsTurnedOn())
+        if (currentLightSource.turnedOn)
         {
-            if (currentLightSource.IsLightTypeDirectional())
+            if (currentLightSource.lightType == Project001::LightSource::LightType::LIGHT_TYPE_DIRECTIONAL)
             {
                 rendererPtr_->SetDirectionalLight(
-                    currentLightSource.GetDirection(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
+                    currentLightSource.direction,
+                    currentLightSource.ambient,
+                    currentLightSource.diffuse,
+                    currentLightSource.specular
                 );
             }
-            else if (currentLightSource.IsLightTypePoint())
+            else if (currentLightSource.lightType == Project001::LightSource::LightType::LIGHT_TYPE_POINT)
             {
                 rendererPtr_->AddPointLight(
-                    currentLightSource.GetPosition(),
-                    currentLightSource.GetAttenuationConstant(),
-                    currentLightSource.GetLinearAttenuation(),
-                    currentLightSource.GetQuadraticAttenuation(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
+                    currentLightSource.position,
+                    currentLightSource.constant,
+                    currentLightSource.linear,
+                    currentLightSource.quadratic,
+                    currentLightSource.ambient,
+                    currentLightSource.diffuse,
+                    currentLightSource.specular
                 );
             }
-            else if (currentLightSource.IsLightTypeSpot())
+            else if (currentLightSource.lightType == Project001::LightSource::LightType::LIGHT_TYPE_SPOT)
             {
                 rendererPtr_->AddSpotLight(
-                    currentLightSource.GetPosition(),
-                    currentLightSource.GetDirection(),
-                    currentLightSource.GetCutoff(),
-                    currentLightSource.GetOuterCutoff(),
-                    currentLightSource.GetAttenuationConstant(),
-                    currentLightSource.GetLinearAttenuation(),
-                    currentLightSource.GetQuadraticAttenuation(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
+                    currentLightSource.position,
+                    currentLightSource.direction,
+                    currentLightSource.cutoff,
+                    currentLightSource.outerCutoff,
+                    currentLightSource.constant,
+                    currentLightSource.linear,
+                    currentLightSource.quadratic,
+                    currentLightSource.ambient,
+                    currentLightSource.diffuse,
+                    currentLightSource.specular
                 );
             }
         }
@@ -281,29 +281,35 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
     {
         Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
 
-        if (currentRenderedModel.IsVisible())
+        if (currentRenderedModel.visible)
         {
             const Project001::MeshVertex* meshVerticies = nullptr;
             unsigned int meshVertexCount = 0;
             const unsigned int* meshIndicies = nullptr;
             unsigned int meshIndexCount = 0;
 
-            _FAIL_CHECK(meshStoresPtr_->GetMesh(currentRenderedModel.GetMeshIndex(), meshVerticies, meshVertexCount, meshIndicies, meshIndexCount));
+            _FAIL_CHECK(meshStoresPtr_->GetMesh(
+                currentRenderedModel.meshIndex,
+                meshVerticies,
+                meshVertexCount,
+                meshIndicies,
+                meshIndexCount
+            ));
 
             _FAIL_CHECK(rendererPtr_->AddMesh(
                 meshVerticies,
                 meshVertexCount,
                 meshIndicies,
                 meshIndexCount,
-                currentRenderedModel.GetTextureIndex(),
-                currentRenderedModel.GetSpecularIndex(),
-                currentRenderedModel.GetShininess(),
-                currentRenderedModel.GetColor(),
-                currentRenderedModel.GetTranslucent(),
-                currentRenderedModel.GetScale(),
-                currentRenderedModel.GetPosition(),
-                currentRenderedModel.GetOrientation(),
-                currentRenderedModel.GetLit()
+                currentRenderedModel.textureIndex,
+                currentRenderedModel.specularIndex,
+                currentRenderedModel.position,
+                currentRenderedModel.orientation,
+                currentRenderedModel.scale,
+                currentRenderedModel.color,
+                currentRenderedModel.shininess,
+                currentRenderedModel.translucent,
+                currentRenderedModel.lit
             ));
         }
     }
@@ -311,10 +317,10 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
-    if (cameraPtr->IsTurnedOn())
+    if (cameraPtr->turnedOn)
     {
         rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
-        rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
+        rendererPtr_->SetViewPosition(cameraPtr->position);
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
         rendererPtr_->Render();
     }
@@ -414,10 +420,10 @@ void TestSceneFramework::SyncComponentPositions()
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
-    lightSourcePtr->SetPosition(cameraPtr->GetPosition());
+    lightSourcePtr->position = cameraPtr->position;
 
     soundPlayerPtr_->UpdateListener(
-        cameraPtr->GetPosition(),
+        cameraPtr->position,
         cameraPtr->GetForwardVector(),
         cameraPtr->GetUpVector(),
         glm::vec3(0.0f, 0.0f, 0.0f),

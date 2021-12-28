@@ -351,12 +351,12 @@ namespace Project001
         unsigned int meshIndexCount,
         unsigned int textureIndex,
         unsigned int specularIndex,
-        float shininess,
-        const glm::vec4& color,
-        bool translucent,
-        const glm::vec3& scale,
         const glm::vec3& position,
         const glm::quat& orientation,
+        const glm::vec3& scale,
+        const glm::vec4& color,
+        float shininess,
+        bool translucent,
         bool lit)
     {
         if (translucent)

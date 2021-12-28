@@ -2,12 +2,15 @@
 
 #include "glm/gtc/quaternion.hpp"
 
+#include "Engine/Components/Position.h"
+
 
 
 namespace Project001
 {
-    struct Placement
+    class Placement : public Position
     {
+    public:
         Placement();
 
         // Position Controls
@@ -26,6 +29,10 @@ namespace Project001
         // Orientation Controls
         // ---------------------------------------------------------------------
         // Rotation follows the right hand rule.
+
+        void SetOrientation(const glm::quat& orientation);
+        void SetOrientation(float w, float x, float y, float z);
+        const glm::quat& GetOrientation() const;
 
         void AddRotation(const glm::quat& rotation);
 
@@ -53,52 +60,43 @@ namespace Project001
         glm::vec3 GetLeftVector() const;
         glm::vec3 GetUpVector() const;
 
-        glm::vec3 position;
-        glm::quat orientation; // w, x, y, z
-    };
+    protected:
+        // Inherited:
+        // glm::vec3 position_;
 
-    inline Placement::Placement()
-        : orientation(1.0f, 0.0f, 0.0f, 0.0f)
-        , position(0.0f, 0.0f, 0.0f)
-    {}
+        glm::quat orientation_; // w, x, y, z
+
+    private:
+    };
 
     inline void Placement::MoveForward(float translation)
     {
-        position += translation * GetForwardVector();
+        AddTranslation(translation * GetForwardVector());
     }
 
     inline void Placement::MoveBack(float translation)
     {
-        position -= translation * GetForwardVector();
+        AddTranslation(-1.0f * translation * GetForwardVector());
     }
 
     inline void Placement::MoveRight(float translation)
     {
-        position -= translation * GetLeftVector();
+        AddTranslation(-1.0f * translation * GetLeftVector());
     }
 
     inline void Placement::MoveLeft(float translation)
     {
-        position += translation * GetLeftVector();
+        AddTranslation(translation * GetLeftVector());
     }
 
     inline void Placement::MoveUp(float translation)
     {
-        position += translation * GetUpVector();
+        AddTranslation(translation * GetUpVector());
     }
 
     inline void Placement::MoveDown(float translation)
     {
-        position -= translation * GetUpVector();
-    }
-
-    inline void Placement::RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal)
-    {
-        glm::vec3 focalPointToPosition = position - focalPoint;
-        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), angleInRadians, normal);
-        glm::vec3 focalPointToNewPosition = rotation * focalPointToPosition;
-        glm::vec3 positionToNewPosition = focalPointToNewPosition - focalPointToPosition;
-        position += positionToNewPosition;
+        AddTranslation(-1.0f * translation * GetUpVector());
     }
 
     inline void Placement::RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians)
@@ -106,14 +104,32 @@ namespace Project001
         RevolveAround(focalPoint, angleInRadians, GetUpVector());
     }
 
+    inline void Placement::SetOrientation(const glm::quat& orientation)
+    {
+        orientation_ = orientation;
+    }
+
+    inline void Placement::SetOrientation(float w, float x, float y, float z)
+    {
+        orientation_.w = w;
+        orientation_.x = x;
+        orientation_.y = y;
+        orientation_.z = z;
+    }
+
+    inline const glm::quat& Placement::GetOrientation() const
+    {
+        return orientation_;
+    }
+
     inline void Placement::AddRotation(const glm::quat& rotation)
     {
-        orientation = rotation * orientation;
+        orientation_ = rotation * orientation_;
     }
 
     inline void Placement::AddRelativeRotation(float rotationInRadians, const glm::vec3 axis)
     {
-        orientation = glm::rotate(orientation, rotationInRadians, axis);
+        orientation_ = glm::rotate(orientation_, rotationInRadians, axis);
     }
 
     inline void Placement::AddPitch(float rotationInRadians)
@@ -123,7 +139,7 @@ namespace Project001
 
     inline float Placement::GetPitch() const
     {
-        return glm::pitch(orientation);
+        return glm::pitch(orientation_);
     }
 
     inline void Placement::AddYaw(float rotationInRadians)
@@ -133,7 +149,7 @@ namespace Project001
 
     inline float Placement::GetYaw() const
     {
-        return glm::yaw(orientation);
+        return glm::yaw(orientation_);
     }
 
     inline void Placement::AddRoll(float rotationInRadians)
@@ -143,51 +159,51 @@ namespace Project001
 
     inline float Placement::GetRoll() const
     {
-        return glm::roll(orientation);
+        return glm::roll(orientation_);
     }
 
     inline void Placement::AddWorldRotation(float rotationInRadians, const glm::vec3 axis)
     {
-        orientation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, axis) * orientation;
+        orientation_ = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, axis) * orientation_;
     }
 
     inline void Placement::AddWorldRotationX(float rotationInRadians)
     {
-        orientation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(1.0f, 0.0f, 0.0f)) * orientation;
+        orientation_ = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(1.0f, 0.0f, 0.0f)) * orientation_;
     }
 
     inline void Placement::AddWorldRotationY(float rotationInRadians)
     {
-        orientation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 1.0f, 0.0f)) * orientation;
+        orientation_ = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 1.0f, 0.0f)) * orientation_;
     }
 
     inline void Placement::AddWorldRotationZ(float rotationInRadians)
     {
-        orientation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f)) * orientation;
+        orientation_ = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f)) * orientation_;
     }
 
     inline void Placement::LookAt(const glm::vec3& direction, const glm::vec3& up)
     {
-        orientation = glm::quatLookAtLH(glm::normalize(direction), glm::normalize(up));
+        orientation_ = glm::quatLookAtLH(glm::normalize(direction), glm::normalize(up));
     }
 
     inline void Placement::LookAt(const glm::vec3& direction)
     {
-        orientation = glm::quatLookAtLH(glm::normalize(direction), GetUpVector());
+        orientation_ = glm::quatLookAtLH(glm::normalize(direction), GetUpVector());
     }
 
     inline glm::vec3 Placement::GetForwardVector() const
     {
-        return orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+        return orientation_ * glm::vec3(0.0f, 0.0f, 1.0f);
     }
 
     inline glm::vec3 Placement::GetLeftVector() const
     {
-        return orientation * glm::vec3(1.0f, 0.0f, 0.0f);
+        return orientation_ * glm::vec3(1.0f, 0.0f, 0.0f);
     }
 
     inline glm::vec3 Placement::GetUpVector() const
     {
-        return orientation * glm::vec3(0.0f, 1.0f, 0.0f);
+        return orientation_ * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 }
