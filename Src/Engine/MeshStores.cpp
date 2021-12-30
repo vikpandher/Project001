@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include "Engine/Math/Collisions.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorAngles.h"
 
@@ -4229,5 +4228,56 @@ namespace Project001
         // }
 
         return success;
+    }
+
+    glm::vec2 MeshStores::GetLineLineIntersection2d(
+        const glm::vec2& point1,
+        const float& slope1,
+        const glm::vec2& point2,
+        const float& slope2)
+    {
+        glm::vec2 intersectionPoint;
+
+        if (slope1 == slope2)
+        {
+            intersectionPoint.x = NAN;
+            intersectionPoint.y = NAN;
+        }
+        else if (slope1 == INFINITY || slope1 == -INFINITY)
+        {
+            // x = x1
+            // y = m2 * (x - x2) + y2
+            // y = m2 * (x1 - x2) + y2
+            intersectionPoint.x = point1.x;
+            intersectionPoint.y = slope2 * (point1.x - point2.x) + point2.y;
+        }
+        else if (slope2 == INFINITY || slope2 == -INFINITY)
+        {
+            // y = m1 * (x - x1) + y1
+            // x = x2
+            // y = m1 * (x2 - x1) + y1
+            intersectionPoint.x = point2.x;
+            intersectionPoint.y = slope1 * (point2.x - point1.x) + point1.y;
+        }
+        else if (slope1 != 0.0f)
+        {
+            // x = (1 / m1) * (y - y1) + x1
+            // y = m2 * (x - x2) + y2
+            // y = m2 * ((1 / m1) * (y - y1) + x1 - x2) + y2
+            // y = (m2 * m1 * x2 - m2 * m1 * x1 + m2 * y1 - m1 * y2) / (m2 - m1)
+            intersectionPoint.y = (slope2 * slope1 * point2.x - slope2 * slope1 * point1.x + slope2 * point1.y - slope1 * point2.y) / (slope2 - slope1);
+            intersectionPoint.x = (1 / slope1) * (intersectionPoint.y - point1.y) + point1.x;
+        }
+        else if (slope2 != 0.0f)
+        {
+            // y = m1 * (x - x1) + y1
+            // x = (1 / m2) * (y - y2) + x2
+            // y = m1 * ((1 / m2) * (y - y2) + x2 - x1) + y1
+            // y = (m1 * m2 * x1 - m1 * m2 * x2 + m1 * y2 - m2 * y1) / (m1 - m2)
+            intersectionPoint.y = (slope1 * slope2 * point1.x - slope1 * slope2 * point2.x + slope1 * point2.y - slope2 * point1.y) / (slope1 - slope2);
+            intersectionPoint.x = (1 / slope2) * (intersectionPoint.y - point2.y) + point2.x;
+        }
+
+        return intersectionPoint;
     }
 }

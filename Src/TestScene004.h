@@ -37,4 +37,7 @@ protected:
     // Entity Ids: -------------------------------------------------------------
 
 private:
+    void TestCartesianToPolar() const;
+    void TestPolarToCartesian() const;
+    void TestGet2DVectorAngle() const;
 };

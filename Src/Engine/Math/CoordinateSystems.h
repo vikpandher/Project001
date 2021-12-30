@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glm/gtc/constants.hpp"
 #include "glm/glm.hpp"
 
 
@@ -9,14 +10,49 @@ namespace Project001
     // Polar Coordinate angle starts and positive x-axis
     // and goes counter clockwise
 
-    glm::vec2 CartesianToPolar(const glm::vec2& cartesian);
-    glm::vec2 CartesianToPolar(float x, float y);
+    inline glm::vec2 CartesianToPolar(float x, float y)
+    {
+        glm::vec2 polar;
+        float& r = polar.x;
+        float& t = polar.y;
 
-    glm::vec2 PolarToCartesian(const glm::vec2& polar);
-    glm::vec2 PolarToCartesian(float r, float t);
+        r = std::sqrtf(x * x + y * y);
 
-    // Tests -------------------------------------------------------------------
+        if (r == 0.0f)
+        {
+            t = 0.0f;
+        }
+        else if (y < 0.0f)
+        {
+            t = glm::two_pi<float>() - std::acosf(x / r);
+        }
+        else
+        {
+            t = std::acosf(x / r);
+        }
 
-    void TestCartesianToPolar();
-    void TestPolarToCartesian();
+        return polar;
+    }
+
+    inline glm::vec2 CartesianToPolar(const glm::vec2& cartesian)
+    {
+        return CartesianToPolar(cartesian.x, cartesian.y);
+    }
+
+    inline glm::vec2 PolarToCartesian(float r, float t)
+    {
+        glm::vec2 cartesian;
+        float& x = cartesian.x;
+        float& y = cartesian.y;
+
+        x = r * std::cosf(t);
+        y = r * std::sinf(t);
+
+        return cartesian;
+    }
+
+    inline glm::vec2 PolarToCartesian(const glm::vec2& polar)
+    {
+        return PolarToCartesian(polar.x, polar.y);
+    }
 }

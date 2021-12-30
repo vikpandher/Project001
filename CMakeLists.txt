@@ -80,20 +80,20 @@ set (COMPONENTS_FILES
     "Src/Engine/Components/Camera.h"
     "Src/Engine/Components/LightSource.h"
     "Src/Engine/Components/Placement.h"
+    "Src/Engine/Components/Placement2d.h"
+    "Src/Engine/Components/Position.h"
     "Src/Engine/Components/RenderedModel.h"
 )
 
 source_group("Src/Engine/Components" FILES ${COMPONENTS_FILES})
 
 set (MATH_FILES
-    "Src/Engine/Math/Collisions.cpp"
-    "Src/Engine/Math/Collisions.h"
-    "Src/Engine/Math/CoordinateSystems.cpp"
+    # "Src/Engine/Math/Collisions.h"
+    # "Src/Engine/Math/Collisions.inl"
     "Src/Engine/Math/CoordinateSystems.h"
     # "Src/Engine/Math/Constants.h"
     # "Src/Engine/Math/Miscellaneous.cpp"
     # "Src/Engine/Math/Miscellaneous.h"
-    "Src/Engine/Math/VectorAngles.cpp"
     "Src/Engine/Math/VectorAngles.h"
 )
 

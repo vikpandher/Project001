@@ -403,6 +403,13 @@ namespace Project001
             const std::vector<glm::vec2>& textureCoordinates,
             const std::vector<glm::vec3>& normals);
 
+        // used by Generate2DLine
+        static glm::vec2 GetLineLineIntersection2d(
+            const glm::vec2& point1,
+            const float& slope1,
+            const glm::vec2& point2,
+            const float& slope2);
+
         std::vector<MeshVertex> meshVertexArray_;
         std::vector<unsigned int> meshIndexArray_;
         std::vector<MeshData> meshDataArray_;

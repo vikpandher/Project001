@@ -142,7 +142,7 @@ namespace Project001
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
             }
 
-            OnEvent(RenderEvent(0, lastFrameDuration_ns / 1000.0));
+            OnEvent(RenderEvent(0, lastFrameDuration_ns));
             windowPtr_->PollEvents();
         }
     }
