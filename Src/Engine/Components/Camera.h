@@ -77,8 +77,6 @@ namespace Project001
         float topCutoff_; // only used in othographic projection
         float nearCutoff_;
         float farCutoff_;
-
-    private:
     };
 
     inline Camera::Camera()

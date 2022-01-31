@@ -438,6 +438,45 @@ namespace Project001
         return true;
     }
 
+    bool MeshStores::RotateMeshX(unsigned int& index, float rotationInRadians)
+    {
+        if (index >= meshDataArray_.size())
+        {
+            return false;
+        }
+
+        MeshData& meshData = meshDataArray_[index];
+        RotateMeshX(meshData, meshVertexArray_, rotationInRadians);
+
+        return true;
+    }
+
+    bool MeshStores::RotateMeshY(unsigned int& index, float rotationInRadians)
+    {
+        if (index >= meshDataArray_.size())
+        {
+            return false;
+        }
+
+        MeshData& meshData = meshDataArray_[index];
+        RotateMeshY(meshData, meshVertexArray_, rotationInRadians);
+
+        return true;
+    }
+
+    bool MeshStores::RotateMeshZ(unsigned int& index, float rotationInRadians)
+    {
+        if (index >= meshDataArray_.size())
+        {
+            return false;
+        }
+
+        MeshData& meshData = meshDataArray_[index];
+        RotateMeshZ(meshData, meshVertexArray_, rotationInRadians);
+
+        return true;
+    }
+
     bool MeshStores::ScaleMesh(unsigned int& index, glm::vec3 scale)
     {
         if (index >= meshDataArray_.size())
@@ -4064,6 +4103,33 @@ namespace Project001
             meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, currentMeshVertex.position.y);
             meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, currentMeshVertex.position.z);
         }
+    }
+
+    void MeshStores::RotateMeshX(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        float rotationInRadians)
+    {
+        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+        RotateMesh(meshData, meshVertexArray, rotation);
+    }
+
+    void MeshStores::RotateMeshY(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        float rotationInRadians)
+    {
+        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+        RotateMesh(meshData, meshVertexArray, rotation);
+    }
+
+    void MeshStores::RotateMeshZ(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        float rotationInRadians)
+    {
+        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+        RotateMesh(meshData, meshVertexArray, rotation);
     }
 
     void MeshStores::ScaleMesh(

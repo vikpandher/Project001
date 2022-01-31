@@ -23,9 +23,12 @@ namespace Project001
                 _LOG_ERROR("Could not initalize GLFW!");
             }
 
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // 6
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+            // glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
             glfwSetErrorCallback([](int errorCode, const char* description)
             {

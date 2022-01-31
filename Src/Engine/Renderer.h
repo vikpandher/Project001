@@ -15,6 +15,9 @@ namespace Project001
 
         virtual ~Renderer();
 
+        virtual void SetDepthTesting(
+            bool depthTesting) = 0;
+
         virtual void SetFramebufferSize(
             unsigned int width,
             unsigned int height) = 0;

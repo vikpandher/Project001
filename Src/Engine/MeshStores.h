@@ -196,6 +196,12 @@ namespace Project001
 
         bool RotateMesh(unsigned int& index, glm::quat rotation);
 
+        bool RotateMeshX(unsigned int& index, float rotationInRadians);
+
+        bool RotateMeshY(unsigned int& index, float rotationInRadians);
+
+        bool RotateMeshZ(unsigned int& index, float rotationInRadians);
+
         bool ScaleMesh(unsigned int& index, glm::vec3 scale);
 
         bool SizeMeshAlongNormals(unsigned int& index, float size);
@@ -377,6 +383,21 @@ namespace Project001
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             glm::quat rotation);
+
+        static void RotateMeshX(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            float rotationInRadians);
+
+        static void RotateMeshY(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            float rotationInRadians);
+
+        static void RotateMeshZ(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            float rotationInRadians);
 
         static void ScaleMesh(
             MeshData& meshData,

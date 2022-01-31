@@ -58,8 +58,6 @@ namespace Project001
         glm::vec4 color_;
         bool translucent_;
         bool lit_;
-
-    private:
     };
 
     inline RenderedModel::RenderedModel()

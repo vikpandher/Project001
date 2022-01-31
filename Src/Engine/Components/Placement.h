@@ -38,6 +38,10 @@ namespace Project001
 
         void AddRelativeRotation(float rotationInRadians, const glm::vec3 axis);
 
+        void AddRelativeRotationX(float rotationInRadians);
+        void AddRelativeRotationY(float rotationInRadians);
+        void AddRelativeRotationZ(float rotationInRadians);
+
         void AddPitch(float rotationInRadians);
         float GetPitch() const;
 
@@ -65,8 +69,6 @@ namespace Project001
         // glm::vec3 position_;
 
         glm::quat orientation_; // w, x, y, z
-
-    private:
     };
 
     inline Placement::Placement()
@@ -145,9 +147,24 @@ namespace Project001
         orientation_ = glm::rotate(orientation_, rotationInRadians, axis);
     }
 
-    inline void Placement::AddPitch(float rotationInRadians)
+    inline void Placement::AddRelativeRotationX(float rotationInRadians)
     {
         AddRelativeRotation(rotationInRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    inline void Placement::AddRelativeRotationY(float rotationInRadians)
+    {
+        AddRelativeRotation(rotationInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    inline void Placement::AddRelativeRotationZ(float rotationInRadians)
+    {
+        AddRelativeRotation(rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+
+    inline void Placement::AddPitch(float rotationInRadians)
+    {
+        AddRelativeRotationX(rotationInRadians);
     }
 
     inline float Placement::GetPitch() const
@@ -157,7 +174,7 @@ namespace Project001
 
     inline void Placement::AddYaw(float rotationInRadians)
     {
-        AddRelativeRotation(rotationInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+        AddRelativeRotationY(rotationInRadians);
     }
 
     inline float Placement::GetYaw() const
@@ -167,7 +184,7 @@ namespace Project001
 
     inline void Placement::AddRoll(float rotationInRadians)
     {
-        AddRelativeRotation(rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+        AddRelativeRotationZ(rotationInRadians);
     }
 
     inline float Placement::GetRoll() const

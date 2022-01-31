@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
-    // 
+    // tests 2d shape overlap
     TestScene004* testScene004Ptr = new TestScene004();
     applicationPtr->AddScene(testScene004Ptr);
 

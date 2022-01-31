@@ -18,6 +18,9 @@ namespace Project001
         OpenGLRendererAlt(unsigned int width, unsigned int height);
         virtual ~OpenGLRendererAlt() override;
 
+        void SetDepthTesting(
+            bool depthTesting) override;
+
         void SetFramebufferSize(
             unsigned int width,
             unsigned int height) override;
@@ -115,6 +118,8 @@ namespace Project001
         GLFWwindow* glfwWindowPtr_;
 
         bool isCurrentContext_;
+
+        bool depthTesting_;
 
         OpenGLShader* primaryShaderPtr_;
         OpenGLShader* wireframeShaderPtr_;

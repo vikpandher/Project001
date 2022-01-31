@@ -24,6 +24,7 @@ namespace Project001
 
     OpenGLRendererAlt::OpenGLRendererAlt(unsigned int width, unsigned int height)
         : isCurrentContext_(true)
+        , depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
         , viewMatrix_(1.0f)
@@ -253,6 +254,21 @@ namespace Project001
         glDeleteVertexArrays(1, &screenVertexArrayId_);
     }
 
+    void OpenGLRendererAlt::SetDepthTesting(
+        bool depthTesting)
+    {
+        depthTesting_ = depthTesting;
+
+        if (depthTesting_)
+        {
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
+        }
+    }
+
     void OpenGLRendererAlt::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
@@ -426,8 +442,11 @@ namespace Project001
 
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
 
-        // enable using the z buffer
-        glEnable(GL_DEPTH_TEST);
+        if (depthTesting_)
+        {
+            // enable using the z buffer
+            glEnable(GL_DEPTH_TEST);
+        }
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -133,8 +133,6 @@ namespace Project001
 
         // The color of the shine
         glm::vec3 specular_;
-
-    private:
     };
 
     inline LightSource::LightSource()

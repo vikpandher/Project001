@@ -44,6 +44,8 @@ void TestSceneFramework::Initialize()
     textureStoresPtr_ = GetApplicationTextureStoresPtr();
 
     rendererPtr_ = GetApplicationRendererPtr();
+    rendererPtr_->SetDepthTesting(true);
+
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
 
     int windowWidth, windowHeight;
@@ -86,6 +88,8 @@ void TestSceneFramework::Initialize()
 
         Project001::LightSource* lightSourcePtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
+        lightSourcePtr->SetPosition(0.0f, 0.0f, 5.0f);
+        lightSourcePtr->SetDirection(0.0f, 0.0f, -1.0f);
         lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
         lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
         lightSourcePtr->TurnOn();
@@ -157,6 +161,8 @@ void TestSceneFramework::ProcessCursorPositionEvent(Project001::CursorPositionEv
         prevousXPosition = currentXPosition;
         prevousYPosition = currentYPosition;
     }
+
+    cursorButtonEvent.handled = true;
 }
 
 void TestSceneFramework::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
@@ -195,6 +201,8 @@ void TestSceneFramework::ProcessFrameBufferSizeEvent(Project001::FrameBufferSize
         rendererPtr_->SetFramebufferSize(width, height);
         rendererPtr_->SetViewportSize(0, 0, width, height);
     }
+
+    frameBufferSizeEvent.handled = true;
 }
 
 void TestSceneFramework::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
@@ -213,6 +221,8 @@ void TestSceneFramework::ProcessMouseButtonEvent(Project001::MouseButtonEvent& m
 
         windowPtr_->GetCursorPosition(prevousXPosition, prevousYPosition);
     }
+
+    mouseButtonEvent.handled = true;
 }
 
 void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
@@ -340,6 +350,8 @@ void TestSceneFramework::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
     cameraPtr->MoveForward(cameraTranslation);
+
+    scrollEvent.handled = true;
 }
 
 void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
