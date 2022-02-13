@@ -1,5 +1,6 @@
 #include "GLFWWindow.h"
 
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "Engine/Event.h"
@@ -12,8 +13,7 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     GLFWWindow::GLFWWindow(const char* title, int width, int height)
-        : isCurrentContext_(true)
-        , aspectRatioNumerator_(GLFW_DONT_CARE)
+        : aspectRatioNumerator_(GLFW_DONT_CARE)
         , aspectRatioDenominator_(GLFW_DONT_CARE)
     {
         if (s_glfwWindowCount_ == 0)
@@ -39,11 +39,18 @@ namespace Project001
         glfwWindowPtr_ = glfwCreateWindow(width, height, title, NULL, NULL);
         s_glfwWindowCount_++;
 
-        glfwSetWindowUserPointer(glfwWindowPtr_, &windowData_);
+        glfwSetWindowUserPointer(glfwWindowPtr_, this);
+
+        GLFWwindow* oldContext = glfwGetCurrentContext();
 
         glfwMakeContextCurrent(glfwWindowPtr_);
 
-        SetVSync(false);
+        CheckAndInitializeOpenGL();
+
+        // Disable VSync
+        glfwSwapInterval(0);
+
+        glfwMakeContextCurrent(oldContext);
 
         // NOTES:
         // GLFW Callback Functions:
@@ -78,65 +85,65 @@ namespace Project001
 
         glfwSetKeyCallback(glfwWindowPtr_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 KeyEvent event((KeyCode)key, (ButtonAction)action, (KeyModifier)mods);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetMouseButtonCallback(glfwWindowPtr_, [](GLFWwindow* window, int button, int action, int mods)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 MouseButtonEvent event((MouseButton)button, (ButtonAction)action, (KeyModifier)mods);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetCursorPosCallback(glfwWindowPtr_, [](GLFWwindow* window, double xpos, double ypos)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 CursorPositionEvent event((float)xpos, (float)ypos);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetCursorEnterCallback(glfwWindowPtr_, [](GLFWwindow* window, int entered)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 CursorEnterEvent event((bool)entered);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetScrollCallback(glfwWindowPtr_, [](GLFWwindow* window, double xoffset, double yoffset)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 ScrollEvent event((float)xoffset, (float)yoffset);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowCloseCallback(glfwWindowPtr_, [](GLFWwindow* window)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 WindowCloseEvent event;
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowFocusCallback(glfwWindowPtr_, [](GLFWwindow* window, int focused)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 WindowFocusEvent event((bool)focused);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 WindowSizeEvent event(width, height);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
 
         glfwSetFramebufferSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+                GLFWWindow& sourceWindow = *(GLFWWindow*)glfwGetWindowUserPointer(window);
                 FrameBufferSizeEvent event(width, height);
-                data.EventCallback(event);
+                sourceWindow.EventCallback(event);
             });
     }
 
@@ -152,8 +159,6 @@ namespace Project001
 
     void GLFWWindow::PollEvents()
     {
-        CheckAndMakeContextCurrent();
-
         glfwPollEvents();
     }
 
@@ -203,7 +208,9 @@ namespace Project001
 
     void GLFWWindow::SetVSync(bool enabled)
     {
-        CheckAndMakeContextCurrent();
+        GLFWwindow* oldContext = glfwGetCurrentContext();
+
+        glfwMakeContextCurrent(glfwWindowPtr_);
 
         if (enabled)
         {
@@ -213,6 +220,8 @@ namespace Project001
         {
             glfwSwapInterval(0);
         }
+
+        glfwMakeContextCurrent(oldContext);
 
         vSyncEnabled_ = enabled;
     }
@@ -270,14 +279,40 @@ namespace Project001
         }
     }
 
+    void GLFWWindow::MakeContextCurrent()
+    {
+        glfwMakeContextCurrent(glfwWindowPtr_);
+    }
+
+    void GLFWWindow::MakeContextNotCurrent()
+    {
+        glfwMakeContextCurrent(NULL);
+    }
+
+    void GLFWWindow::SwapBuffers()
+    {
+        // Uses default platform swap interval, usually 60 fps
+        glfwSwapBuffers(glfwWindowPtr_);
+    }
+
     // protected ---------------------------------------------------------------
 
-    void GLFWWindow::CheckAndMakeContextCurrent()
+    void GLFWWindow::CheckAndInitializeOpenGL()
     {
-        if (!isCurrentContext_)
+        if (glHint == nullptr) // OpenGL functions need to be loaded
         {
-            glfwMakeContextCurrent(glfwWindowPtr_);
-            isCurrentContext_ = true;
+            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            {
+                _LOG_ERROR("Failed to initialize Glad!");
+            }
+            else
+            {
+                _LOG_MESSAGE("OpenGL Info:");
+                _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
+                _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
+                _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
+                _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+            }
         }
     }
 

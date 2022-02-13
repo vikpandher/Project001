@@ -1,9 +1,6 @@
 #pragma once
 
-#include "TestSceneFramework.h"
-
-#include <map>
-#include <vector>
+#include "TestSceneBase001.h"
 
 
 namespace Project001
@@ -11,7 +8,7 @@ namespace Project001
     struct KeyEvent;
 }
 
-class TestScene004 : public TestSceneFramework
+class TestScene004 : public TestSceneBase001
 {
 public:
     TestScene004();
@@ -32,35 +29,24 @@ protected:
     void ClearIndiciesAndEntityIds();
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
-    void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void UpdatedSelectedEntityPosition(unsigned long timestep_ns);
-
-    void DetectCollisions();
-
-    void SyncCollisionComponents();
+    void UpdateShape01EntityPosition(unsigned long timestep_ns);
 
     // Mesh Indicies: ----------------------------------------------------------
-    std::vector<unsigned int> meshIndicies_;
+
+    unsigned int shape01MeshIndex_;
+
+    // Sound Indicies: ---------------------------------------------------------
+
+    unsigned int song01SoundIndex_;
 
     // Texture Indicies: -------------------------------------------------------
 
     // Entity Ids: -------------------------------------------------------------
-    std::vector<unsigned int> entityIds_;
 
-    unsigned int selectedEntityIdIndex_;
+    unsigned int shape01EntityId_;
 
 private:
-    void Test_CartesianToPolar() const;
-    void Test_PolarToCartesian() const;
-    void Test_Get2DVectorAngle() const;
-
-    void TestCollision2D() const;
-    void Test_Get2D_Point_Line_Distance() const;
-    void Test_Get2D_Point_LineSegment_Distance() const;
-    void Test_RotateSlope() const;
-
-    void Test_Misc() const;
+    void TestOpenAL() const;
 };

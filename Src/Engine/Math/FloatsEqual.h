@@ -12,4 +12,28 @@ namespace Project001
     {
         return glm::abs(a - b) < epsilon;
     }
+
+    inline float GetMax(float a, float b)
+    {
+        if (a > b)
+        {
+            return a;
+        }
+        else
+        {
+            return b;
+        }
+    }
+
+    inline float GetMin(float a, float b)
+    {
+        if (a < b)
+        {
+            return a;
+        }
+        else
+        {
+            return b;
+        }
+    }
 }

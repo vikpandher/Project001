@@ -4,7 +4,6 @@
 #include <string>
 
 #include "glad/glad.h"
-#include "GLFW/glfw3.h"
 
 #include "Engine/Logger.h"
 #include "Engine/MeshVertex.h"
@@ -23,79 +22,24 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     OpenGLRendererAlt::OpenGLRendererAlt(unsigned int width, unsigned int height)
-        : isCurrentContext_(true)
-        , depthTesting_(true)
+        : depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
     {
-        glfwWindowPtr_ = glfwGetCurrentContext();
-
-        if (glHint == 0) // OpenGL functions need to be loaded
-        {
-            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-            {
-                _LOG_ERROR("Failed to initialize Glad!");
-            }
-
-            _LOG_MESSAGE("OpenGL Info:");
-            _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
-            _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
-            _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
-            _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        }
-
-        // This is enabled so when glViewport is used to set the viewport size,
-        // glScissor can be used to limit drawing to within the viewport.
-        // glEnable(GL_SCISSOR_TEST);
-
-        // enable writing to the depth buffer
-        glDepthMask(GL_TRUE);
-
-        // cull backfaces
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-
-        // blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        // NOTE:
-        // glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
-        // but there are situations when it does.
-        //
-        // OpenGL calls are executred in the order they are issued. So
-        // glVertexArrtribPointer interprets parameters relative to the
-        // currenlty bound buffer.
-        //
-        // There is an exception to this. Binding the GL_ELEMENT_ARRAY_BUFFER is
-        // saved to the current Vertex Array Object at the time it is bound. The
-        // VAO must be bound first.
-
-        // ---------------------------------------------------------------------
-        // generate an id (name) for a new vertex array object
         glGenVertexArrays(1, &vertexArrayId_);
 
-        // generate an id (name) for a vertex buffer object
         glGenBuffers(1, &vertexBufferId_);
 
-        // generate an id (name) for the index buffer
         glGenBuffers(1, &indexBufferId_);
 
-        // make the vertex arrat object active, create it if necessary
         glBindVertexArray(vertexArrayId_);
 
-        // make the buffer the active array buffer, creating it if necessary
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
 
-        // set the size of the active array buffer
-        // (target, size, data, usage)
         glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
-
-        // attach the active buffer to the active array with the given attributes
-        // (index, size, type, normalized, stride, pointer)
 
         GLuint positionAttributeIndex = 0;
         GLuint textureCoordinateAttributeIndex = 1;
@@ -155,7 +99,6 @@ namespace Project001
         glEnableVertexAttribArray(litAttributeIndex);
         // attributeOffset += sizeof(float);
 
-        // make the buffer the active element array buffer, create it if necessary
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
         if (s_indexBufferCapacity_ % 3 != 0)
@@ -163,8 +106,6 @@ namespace Project001
             _LOG_ERROR("Index Buffer Size Not Multiple Of 3");
         }
 
-        // set the size of the active element array buffer
-        // (target, size, data, usage)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
         float screenQuadVertices[] = {
@@ -254,27 +195,10 @@ namespace Project001
         glDeleteVertexArrays(1, &screenVertexArrayId_);
     }
 
-    void OpenGLRendererAlt::SetDepthTesting(
-        bool depthTesting)
-    {
-        depthTesting_ = depthTesting;
-
-        if (depthTesting_)
-        {
-            glEnable(GL_DEPTH_TEST);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
-    }
-
     void OpenGLRendererAlt::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
     {
-        CheckAndMakeContextCurrent();
-
         frameBufferWidth_ = width;
         frameBufferHeight_ = height;
 
@@ -283,18 +207,6 @@ namespace Project001
         glDeleteFramebuffers(1, &frameBufferId_);
 
         CreateFramebuffer();
-    }
-
-    void OpenGLRendererAlt::SetViewportSize(
-        unsigned int x,
-        unsigned int y,
-        unsigned int width,
-        unsigned int height)
-    {
-        viewportX_ = x;
-        viewportY_ = y;
-        viewportWidth_ = width;
-        viewportHeight_ = height;
     }
 
     bool OpenGLRendererAlt::AddTexture(
@@ -307,8 +219,6 @@ namespace Project001
     {
         if (textureUnit < s_numberOfTextureSlots_ && textureUnit > 0) // temp. reserving 0 for the screenTexture
         {
-            CheckAndMakeContextCurrent();
-
             if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
             {
                 delete texturePtrMap_[textureIndex];
@@ -399,9 +309,9 @@ namespace Project001
 
             for (size_t j = 0; j < meshVertexCount; ++j)
             {
-                const Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
+                const MeshVertex& currentMeshVertex = meshVerticies[j];
 
-                Project001::VertexData newVertex;
+                VertexData newVertex;
                 newVertex.position = currentMeshVertex.position;
                 newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
                 newVertex.normal = currentMeshVertex.normal;
@@ -431,10 +341,24 @@ namespace Project001
         return false;
     }
 
+    void OpenGLRendererAlt::PrepareCapabilities()
+    {
+        glDepthMask(GL_TRUE);
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, screenTextureColorBufferId_);
+    }
+
     void OpenGLRendererAlt::Render()
     {
-        CheckAndMakeContextCurrent();
-
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
@@ -590,25 +514,6 @@ namespace Project001
         glBindVertexArray(screenVertexArrayId_);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
-
-    void OpenGLRendererAlt::SwapBuffers()
-    {
-        CheckAndMakeContextCurrent();
-
-        // Uses default platform swap interval, usually 60 fps
-        glfwSwapBuffers(glfwWindowPtr_);
-    }
-
-    // protected ---------------------------------------------------------------
-
-    void OpenGLRendererAlt::CheckAndMakeContextCurrent()
-    {
-        if (!isCurrentContext_)
-        {
-            glfwMakeContextCurrent(glfwWindowPtr_);
-            isCurrentContext_ = true;
-        }
     }
 
     void OpenGLRendererAlt::CreateFramebuffer()

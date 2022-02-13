@@ -13,7 +13,7 @@
 #endif
 
 #ifdef _DEBUG
-#define _LOG_ERROR(...) Project001::Logger::Error("%s %s %d %s", __FILENAME__ , __FUNCTION__, __LINE__, __VA_ARGS__)
+#define _LOG_ERROR(...) Project001::Logger::Error("%s %s %d", __FILENAME__ , __FUNCTION__, __LINE__); Project001::Logger::Error(__VA_ARGS__)
 #define _LOG_MESSAGE(...) Project001::Logger::Message(__VA_ARGS__)
 #define _FAIL_CHECK(x) if (!(x)) {_LOG_ERROR(#x);} static_assert(true, "")
 #else

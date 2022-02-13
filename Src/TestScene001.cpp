@@ -40,7 +40,7 @@ const char* TestScene001::Name()
 
 void TestScene001::Initialize()
 {
-    TestSceneFramework::Initialize();
+    TestSceneBase001::Initialize();
 
     // Load meshes
     // -------------------------------------------------------------------------
@@ -775,7 +775,7 @@ void TestScene001::Initialize()
 
 void TestScene001::Deinitialize()
 {
-    TestSceneFramework::Deinitialize();
+    TestSceneBase001::Deinitialize();
 
     ClearIndiciesAndEntityIds();
 }
@@ -784,7 +784,7 @@ void TestScene001::OnEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene001::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneFramework::OnEvent(event);
+    TestSceneBase001::OnEvent(event);
 }
 
 // protected: ------------------------------------------------------------------

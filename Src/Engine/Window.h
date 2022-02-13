@@ -47,6 +47,11 @@ namespace Project001
         virtual void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const = 0;
         virtual void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const = 0;
 
+        virtual void MakeContextCurrent() = 0;
+        virtual void MakeContextNotCurrent() = 0;
+
+        virtual void SwapBuffers() = 0;
+
     protected:
 
     private:

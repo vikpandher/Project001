@@ -31,6 +31,7 @@ namespace Project001
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
         windowPtr_->SetAspectRatio(windowWidth, windowHeight);
+        windowPtr_->MakeContextCurrent();
 
         int screenWidth;
         int screenHeight;

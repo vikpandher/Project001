@@ -11,12 +11,12 @@ namespace Project001
     public:
         Position();
 
+        const glm::vec3& GetPosition() const;
         void SetPosition(const glm::vec3& position);
         void SetPosition(float x, float y, float z);
         void SetPositionX(float x);
         void SetPositionY(float y);
         void SetPositionZ(float z);
-        const glm::vec3& GetPosition() const;
 
         void AddTranslation(const glm::vec3& translation);
         void AddTranslation(float x, float y, float z);
@@ -31,6 +31,11 @@ namespace Project001
     inline Position::Position()
         : position_(0.0f, 0.0f, 0.0f)
     {}
+
+    inline const glm::vec3& Position::GetPosition() const
+    {
+        return position_;
+    }
 
     inline void Position::SetPosition(const glm::vec3& position)
     {
@@ -57,11 +62,6 @@ namespace Project001
     inline void Position::SetPositionZ(float z)
     {
         position_.z = z;
-    }
-
-    inline const glm::vec3& Position::GetPosition() const
-    {
-        return position_;
     }
 
     inline void Position::AddTranslation(const glm::vec3& translation)

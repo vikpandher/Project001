@@ -13,11 +13,11 @@ namespace Project001
     public:
         Position2D();
 
+        const glm::vec2& GetPosition() const;
         void SetPosition(const glm::vec2& position);
         void SetPosition(float x, float y);
         void SetPositionX(float x);
         void SetPositionY(float y);
-        const glm::vec2& GetPosition() const;
 
         void AddTranslation(const glm::vec2& translation);
         void AddTranslation(float x, float y);
@@ -33,6 +33,11 @@ namespace Project001
     inline Position2D::Position2D()
         : position_(0.0f, 0.0f)
     {}
+
+    inline const glm::vec2& Position2D::GetPosition() const
+    {
+        return position_;
+    }
 
     inline void Position2D::SetPosition(const glm::vec2& position)
     {
@@ -53,11 +58,6 @@ namespace Project001
     inline void Position2D::SetPositionY(float y)
     {
         position_.y = y;
-    }
-
-    inline const glm::vec2& Position2D::GetPosition() const
-    {
-        return position_;
     }
 
     inline void Position2D::AddTranslation(const glm::vec2& translation)

@@ -24,8 +24,6 @@ set(SOURCE_FILES
     "Src/Main.cpp"
     "Src/BitmappedTextGenerator.cpp"
     "Src/BitmappedTextGenerator.h"
-    "Src/TestSceneFramework.cpp"
-    "Src/TestSceneFramework.h"
     "Src/DeathFlag.cpp"
     "Src/DeathFlag.h"
     "Src/TestComponents.cpp"
@@ -38,6 +36,12 @@ set(SOURCE_FILES
     "Src/TestScene003.h"
     "Src/TestScene004.cpp"
     "Src/TestScene004.h"
+    "Src/TestScene005.cpp"
+    "Src/TestScene005.h"
+    "Src/TestScene006.cpp"
+    "Src/TestScene006.h"
+    "Src/TestSceneBase001.cpp"
+    "Src/TestSceneBase001.h"
     "Src/TestSceneData.cpp"
     "Src/TestSceneData.h"
 )
@@ -95,6 +99,8 @@ set (MATH_FILES
     "Src/Engine/Math/FloatsEqual.h"
     "Src/Engine/Math/Overlap2D.h"
     "Src/Engine/Math/Overlap2D.inl"
+    "Src/Engine/Math/Overlap3D.h"
+    "Src/Engine/Math/Overlap3D.inl"
     "Src/Engine/Math/Shapes2D.h"
     "Src/Engine/Math/VectorAngles.h"
 )
@@ -123,6 +129,7 @@ source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
 
 set(SHADER_SOURCE_FILES
     "Src/Engine/Platform/ShaderSource/BatchShaderSource.h"
+    "Src/Engine/Platform/ShaderSource/ColorShaderSource.h"
     "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
     "Src/Engine/Platform/ShaderSource/ScreenShaderSource.h"
     "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"

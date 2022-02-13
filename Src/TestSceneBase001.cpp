@@ -1,4 +1,4 @@
-#include "TestSceneFramework.h"
+#include "TestSceneBase001.h"
 
 #include "DeathFlag.h"
 #include "TestSceneData.h"
@@ -21,7 +21,7 @@
 
 // public: ---------------------------------------------------------------------
 
-TestSceneFramework::TestSceneFramework()
+TestSceneBase001::TestSceneBase001()
     : componentStoresPtr_(nullptr)
     , meshStoresPtr_(nullptr)
     , rendererPtr_(nullptr)
@@ -31,10 +31,10 @@ TestSceneFramework::TestSceneFramework()
     ClearIndiciesAndEntityIds();
 }
 
-TestSceneFramework::~TestSceneFramework()
+TestSceneBase001::~TestSceneBase001()
 {}
 
-void TestSceneFramework::Initialize()
+void TestSceneBase001::Initialize()
 {
     windowPtr_ = GetApplicationWindowPtr();
 
@@ -96,7 +96,7 @@ void TestSceneFramework::Initialize()
     }
 }
 
-void TestSceneFramework::Deinitialize()
+void TestSceneBase001::Deinitialize()
 {
     componentStoresPtr_->DeleteAllEntities();
     meshStoresPtr_->ClearMeshes();
@@ -109,26 +109,26 @@ void TestSceneFramework::Deinitialize()
     ClearIndiciesAndEntityIds();
 }
 
-void TestSceneFramework::OnEvent(Project001::Event& event)
+void TestSceneBase001::OnEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneFramework::ProcessCursorPositionEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneFramework::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestSceneFramework::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestSceneFramework::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestSceneFramework::ProcessScrollEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestSceneFramework::ProcessUpdateEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneBase001::ProcessCursorPositionEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneBase001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestSceneBase001::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestSceneBase001::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestSceneBase001::ProcessScrollEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestSceneBase001::ProcessUpdateEvent, this, std::placeholders::_1));
 }
 
 // protected: ------------------------------------------------------------------
 
-void TestSceneFramework::ClearIndiciesAndEntityIds()
+void TestSceneBase001::ClearIndiciesAndEntityIds()
 {
     sceneDataEntityId_ = (unsigned int)-1;
     mainCameraEntityId_ = (unsigned int)-1;
     lightSourceEntityId_ = (unsigned int)-1;
 }
 
-void TestSceneFramework::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
+void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
 {
     bool mouseButton1Pressed = windowPtr_->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_1);
 
@@ -165,7 +165,7 @@ void TestSceneFramework::ProcessCursorPositionEvent(Project001::CursorPositionEv
     cursorButtonEvent.handled = true;
 }
 
-void TestSceneFramework::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
+void TestSceneBase001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
 {
     const int& height = frameBufferSizeEvent.height;
     const int& width = frameBufferSizeEvent.width;
@@ -205,7 +205,7 @@ void TestSceneFramework::ProcessFrameBufferSizeEvent(Project001::FrameBufferSize
     frameBufferSizeEvent.handled = true;
 }
 
-void TestSceneFramework::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
     Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
@@ -225,13 +225,13 @@ void TestSceneFramework::ProcessMouseButtonEvent(Project001::MouseButtonEvent& m
     mouseButtonEvent.handled = true;
 }
 
-void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
+void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     rendererPtr_->ClearDirectionalLight();
     rendererPtr_->ClearPointLights();
     rendererPtr_->ClearSpotLights();
 
-    rendererPtr_->ClearBuffers();
+    rendererPtr_->ClearLocalBuffers();
 
     Project001::LightSource* lightSourceArray = nullptr;
     size_t lightSourceCount = 0;
@@ -332,15 +332,16 @@ void TestSceneFramework::ProcessRenderEvent(Project001::RenderEvent& renderEvent
         rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
         rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
+        rendererPtr_->PrepareCapabilities();
         rendererPtr_->Render();
     }
 
-    rendererPtr_->SwapBuffers();
+    windowPtr_->SwapBuffers();
 
     renderEvent.handled = true;
 }
 
-void TestSceneFramework::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
+void TestSceneBase001::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
 
@@ -354,7 +355,7 @@ void TestSceneFramework::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent
     scrollEvent.handled = true;
 }
 
-void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     unsigned long timestep_ns = updateEvent.timestep_ns;
 
@@ -371,7 +372,7 @@ void TestSceneFramework::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent
     updateEvent.handled = true;
 }
 
-void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns)
+void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
@@ -424,7 +425,7 @@ void TestSceneFramework::UpdateMainCameraEntityPositionAndRoll(unsigned long tim
     // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add for hacky orbit
 }
 
-void TestSceneFramework::SyncComponentPositions()
+void TestSceneBase001::SyncComponentPositions()
 {
     Project001::LightSource* lightSourcePtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
@@ -443,7 +444,7 @@ void TestSceneFramework::SyncComponentPositions()
     );
 }
 
-void TestSceneFramework::DeleteDeadEntities()
+void TestSceneBase001::DeleteDeadEntities()
 {
     DeathFlag* deathFlagArray = nullptr;
     size_t deathFlagCount = 0;

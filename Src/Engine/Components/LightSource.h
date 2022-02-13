@@ -11,53 +11,53 @@ namespace Project001
     public:
         LightSource();
 
+        bool IsTurnedOn() const;
         void TurnOn();
         void TurnOff();
-        bool IsTurnedOn() const;
 
-        void SetLightTypeDirectional();
-        void SetLightTypePoint();
-        void SetLightTypeSpot();
         bool IsLightTypeDirectional() const;
         bool IsLightTypePoint() const;
         bool IsLightTypeSpot() const;
+        void SetLightTypeDirectional();
+        void SetLightTypePoint();
+        void SetLightTypeSpot();
 
+        const glm::vec3& GetDirection() const;
+        float GetDirectionX() const;
+        float GetDirectionY() const;
+        float GetDirectionZ() const;
         void SetDirection(const glm::vec3& direction);
         void SetDirection(float x, float y, float z);
         void SetDirectionX(float x);
         void SetDirectionY(float y);
         void SetDirectionZ(float z);
-        const glm::vec3& GetDirection() const;
-        float GetDirectionX() const;
-        float GetDirectionY() const;
-        float GetDirectionZ() const;
 
-        void SetCutoff(float cutoff);
         float GetCutoff() const;
+        void SetCutoff(float cutoff);
 
-        void SetOuterCutoff(float outerCutoff);
         float GetOuterCutoff() const;
+        void SetOuterCutoff(float outerCutoff);
 
-        void SetAttenuationConstant(float constant);
         float GetAttenuationConstant() const;
+        void SetAttenuationConstant(float constant);
 
-        void SetLinearAttenuation(float linear);
         float GetLinearAttenuation() const;
+        void SetLinearAttenuation(float linear);
 
-        void SetQuadraticAttenuation(float quadratic);
         float GetQuadraticAttenuation() const;
+        void SetQuadraticAttenuation(float quadratic);
 
+        const glm::vec3& GetAmbientColor() const;
         void SetAmbientColor(const glm::vec3& ambient);
         void SetAmbientColor(float r, float g, float b);
-        const glm::vec3& GetAmbientColor() const;
 
+        const glm::vec3& GetDiffuseColor() const;
         void SetDiffuseColor(const glm::vec3& diffuse);
         void SetDiffuseColor(float r, float g, float b);
-        const glm::vec3& GetDiffuseColor() const;
 
+        const glm::vec3& GetSpecularColor() const;
         void SetSpecularColor(const glm::vec3& specular);
         void SetSpecularColor(float r, float g, float b);
-        const glm::vec3& GetSpecularColor() const;
 
     protected:
         // Inherited:
@@ -149,6 +149,11 @@ namespace Project001
         , specular_(0.0f, 0.0f, 0.0f)
     {}
 
+    inline bool LightSource::IsTurnedOn() const
+    {
+        return turnedOn_;
+    }
+
     inline void LightSource::TurnOn()
     {
         turnedOn_ = true;
@@ -159,9 +164,19 @@ namespace Project001
         turnedOn_ = false;
     }
 
-    inline bool LightSource::IsTurnedOn() const
+    inline bool LightSource::IsLightTypeDirectional() const
     {
-        return turnedOn_;
+        return lightType_ == LightType::LIGHT_TYPE_DIRECTIONAL;
+    }
+
+    inline bool LightSource::IsLightTypePoint() const
+    {
+        return lightType_ == LightType::LIGHT_TYPE_POINT;
+    }
+
+    inline bool LightSource::IsLightTypeSpot() const
+    {
+        return lightType_ == LightType::LIGHT_TYPE_SPOT;
     }
 
     inline void LightSource::SetLightTypeDirectional()
@@ -179,19 +194,24 @@ namespace Project001
         lightType_ = LightType::LIGHT_TYPE_SPOT;
     }
 
-    inline bool LightSource::IsLightTypeDirectional() const
+    inline const glm::vec3& LightSource::GetDirection() const
     {
-        return lightType_ == LightType::LIGHT_TYPE_DIRECTIONAL;
+        return direction_;
     }
 
-    inline bool LightSource::IsLightTypePoint() const
+    inline float LightSource::GetDirectionX() const
     {
-        return lightType_ == LightType::LIGHT_TYPE_POINT;
+        return direction_.x;
     }
 
-    inline bool LightSource::IsLightTypeSpot() const
+    inline float LightSource::GetDirectionY() const
     {
-        return lightType_ == LightType::LIGHT_TYPE_SPOT;
+        return direction_.y;
+    }
+
+    inline float LightSource::GetDirectionZ() const
+    {
+        return direction_.z;
     }
 
     inline void LightSource::SetDirection(const glm::vec3& direction)
@@ -220,24 +240,9 @@ namespace Project001
         direction_.z = z;
     }
 
-    inline const glm::vec3& LightSource::GetDirection() const
+    inline float LightSource::GetCutoff() const
     {
-        return direction_;
-    }
-
-    inline float LightSource::GetDirectionX() const
-    {
-        return direction_.x;
-    }
-
-    inline float LightSource::GetDirectionY() const
-    {
-        return direction_.y;
-    }
-
-    inline float LightSource::GetDirectionZ() const
-    {
-        return direction_.z;
+        return cutoff_;
     }
 
     inline void LightSource::SetCutoff(float cutoff)
@@ -245,9 +250,9 @@ namespace Project001
         cutoff_ = cutoff;
     }
 
-    inline float LightSource::GetCutoff() const
+    inline float LightSource::GetOuterCutoff() const
     {
-        return cutoff_;
+        return outerCutoff_;
     }
 
     inline void LightSource::SetOuterCutoff(float outerCutoff)
@@ -255,9 +260,9 @@ namespace Project001
         outerCutoff_ = outerCutoff;
     }
 
-    inline float LightSource::GetOuterCutoff() const
+    inline float LightSource::GetAttenuationConstant() const
     {
-        return outerCutoff_;
+        return constant_;
     }
 
     inline void LightSource::SetAttenuationConstant(float constant)
@@ -265,9 +270,9 @@ namespace Project001
         constant_ = constant;
     }
 
-    inline float LightSource::GetAttenuationConstant() const
+    inline float LightSource::GetLinearAttenuation() const
     {
-        return constant_;
+        return linear_;
     }
 
     inline void LightSource::SetLinearAttenuation(float linear)
@@ -275,9 +280,9 @@ namespace Project001
         linear_ = linear;
     }
 
-    inline float LightSource::GetLinearAttenuation() const
+    inline float LightSource::GetQuadraticAttenuation() const
     {
-        return linear_;
+        return quadratic_;
     }
 
     inline void LightSource::SetQuadraticAttenuation(float quadratic)
@@ -285,9 +290,9 @@ namespace Project001
         quadratic_ = quadratic;
     }
 
-    inline float LightSource::GetQuadraticAttenuation() const
+    inline const glm::vec3& LightSource::GetAmbientColor() const
     {
-        return quadratic_;
+        return ambient_;
     }
 
     inline void LightSource::SetAmbientColor(const glm::vec3& ambient)
@@ -302,9 +307,9 @@ namespace Project001
         ambient_.b = b;
     }
 
-    inline const glm::vec3& LightSource::GetAmbientColor() const
+    inline const glm::vec3& LightSource::GetDiffuseColor() const
     {
-        return ambient_;
+        return diffuse_;
     }
 
     inline void LightSource::SetDiffuseColor(const glm::vec3& diffuse)
@@ -319,9 +324,9 @@ namespace Project001
         diffuse_.b = b;
     }
 
-    inline const glm::vec3& LightSource::GetDiffuseColor() const
+    inline const glm::vec3& LightSource::GetSpecularColor() const
     {
-        return diffuse_;
+        return specular_;
     }
 
     inline void LightSource::SetSpecularColor(const glm::vec3& specular)
@@ -335,10 +340,4 @@ namespace Project001
         specular_.g = g;
         specular_.b = b;
     }
-
-    inline const glm::vec3& LightSource::GetSpecularColor() const
-    {
-        return specular_;
-    }
-
 }

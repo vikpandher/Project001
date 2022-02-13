@@ -30,9 +30,11 @@ namespace Project001
         // ---------------------------------------------------------------------
         // Rotation follows the right hand rule.
 
+        void ResetOrientation();
+
+        const glm::quat& GetOrientation() const;
         void SetOrientation(const glm::quat& orientation);
         void SetOrientation(float w, float x, float y, float z);
-        const glm::quat& GetOrientation() const;
 
         void AddRotation(const glm::quat& rotation);
 
@@ -42,14 +44,14 @@ namespace Project001
         void AddRelativeRotationY(float rotationInRadians);
         void AddRelativeRotationZ(float rotationInRadians);
 
-        void AddPitch(float rotationInRadians);
         float GetPitch() const;
+        void AddPitch(float rotationInRadians);
 
-        void AddYaw(float rotationInRadians);
         float GetYaw() const;
+        void AddYaw(float rotationInRadians);
 
-        void AddRoll(float rotationInRadians);
         float GetRoll() const;
+        void AddRoll(float rotationInRadians);
 
         void AddWorldRotation(float rotationInRadians, const glm::vec3 axis);
 
@@ -119,6 +121,16 @@ namespace Project001
         RevolveAround(focalPoint, angleInRadians, GetUpVector());
     }
 
+    inline void Placement::ResetOrientation()
+    {
+        orientation_ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    inline const glm::quat& Placement::GetOrientation() const
+    {
+        return orientation_;
+    }
+
     inline void Placement::SetOrientation(const glm::quat& orientation)
     {
         orientation_ = orientation;
@@ -130,11 +142,6 @@ namespace Project001
         orientation_.x = x;
         orientation_.y = y;
         orientation_.z = z;
-    }
-
-    inline const glm::quat& Placement::GetOrientation() const
-    {
-        return orientation_;
     }
 
     inline void Placement::AddRotation(const glm::quat& rotation)
@@ -162,19 +169,14 @@ namespace Project001
         AddRelativeRotation(rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
     }
 
-    inline void Placement::AddPitch(float rotationInRadians)
-    {
-        AddRelativeRotationX(rotationInRadians);
-    }
-
     inline float Placement::GetPitch() const
     {
         return glm::pitch(orientation_);
     }
 
-    inline void Placement::AddYaw(float rotationInRadians)
+    inline void Placement::AddPitch(float rotationInRadians)
     {
-        AddRelativeRotationY(rotationInRadians);
+        AddRelativeRotationX(rotationInRadians);
     }
 
     inline float Placement::GetYaw() const
@@ -182,14 +184,19 @@ namespace Project001
         return glm::yaw(orientation_);
     }
 
-    inline void Placement::AddRoll(float rotationInRadians)
+    inline void Placement::AddYaw(float rotationInRadians)
     {
-        AddRelativeRotationZ(rotationInRadians);
+        AddRelativeRotationY(rotationInRadians);
     }
 
     inline float Placement::GetRoll() const
     {
         return glm::roll(orientation_);
+    }
+
+    inline void Placement::AddRoll(float rotationInRadians)
+    {
+        AddRelativeRotationZ(rotationInRadians);
     }
 
     inline void Placement::AddWorldRotation(float rotationInRadians, const glm::vec3 axis)

@@ -90,11 +90,11 @@ namespace Project001
             bool translucent,
             bool lit) = 0;
 
-        virtual void ClearBuffers() = 0;
+        virtual void PrepareCapabilities() = 0;
+
+        virtual void ClearLocalBuffers() = 0;
 
         virtual void Render() = 0;
-
-        virtual void SwapBuffers() = 0;
 
     protected:
 

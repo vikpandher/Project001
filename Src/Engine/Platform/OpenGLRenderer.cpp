@@ -4,7 +4,6 @@
 #include <string>
 
 #include "glad/glad.h"
-#include "GLFW/glfw3.h"
 
 #include "Engine/Logger.h"
 #include "Engine/MeshVertex.h"
@@ -21,45 +20,17 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     OpenGLRenderer::OpenGLRenderer(unsigned int width, unsigned int height)
-        : isCurrentContext_(true)
-        , depthTesting_(true)
+        : depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
+        , viewportX_(0)
+        , viewportY_(0)
+        , viewportWidth_(width)
+        , viewportHeight_(height)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
     {
-        glfwWindowPtr_ = glfwGetCurrentContext();
-
-        if (glHint == 0) // OpenGL functions need to be loaded
-        {
-            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-            {
-                _LOG_ERROR("Failed to initialize Glad!");
-            }
-
-            _LOG_MESSAGE("OpenGL Info:");
-            _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
-            _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
-            _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
-            _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        }
-
-        // This is enabled so when glViewport is used to set the viewport size,
-        // glScissor can be used to limit drawing to within the viewport.
-        // glEnable(GL_SCISSOR_TEST);
-
-        // enable writing to the depth buffer
-        glDepthMask(GL_TRUE);
-
-        // cull backfaces
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-
-        // blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         // NOTE:
         // glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
         // but there are situations when it does.
@@ -195,11 +166,6 @@ namespace Project001
 
         CreateFramebuffer();
 
-        viewportX_ = 0;
-        viewportY_ = 0;
-        viewportWidth_ = frameBufferWidth_;
-        viewportHeight_ = frameBufferHeight_;
-
         pointLights_.reserve(s_numberOfPointLights_);
         spotLights_.reserve(s_numberOfSpotLights_);
     }
@@ -222,27 +188,10 @@ namespace Project001
         glDeleteVertexArrays(1, &screenVertexArrayId_);
     }
 
-    void OpenGLRenderer::SetDepthTesting(
-        bool depthTesting)
-    {
-        depthTesting_ = depthTesting;
-
-        if (depthTesting_)
-        {
-            glEnable(GL_DEPTH_TEST);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
-    }
-
     void OpenGLRenderer::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
     {
-        CheckAndMakeContextCurrent();
-
         frameBufferWidth_ = width;
         frameBufferHeight_ = height;
 
@@ -251,18 +200,6 @@ namespace Project001
         glDeleteFramebuffers(1, &frameBufferId_);
 
         CreateFramebuffer();
-    }
-
-    void OpenGLRenderer::SetViewportSize(
-        unsigned int x,
-        unsigned int y,
-        unsigned int width,
-        unsigned int height)
-    {
-        viewportX_ = x;
-        viewportY_ = y;
-        viewportWidth_ = width;
-        viewportHeight_ = height;
     }
 
     bool OpenGLRenderer::AddTexture(
@@ -275,8 +212,6 @@ namespace Project001
     {
         if (textureUnit < s_numberOfTextureSlots_ && textureUnit > 0) // temp. reserving 0 for the screenTexture
         {
-            CheckAndMakeContextCurrent();
-
             if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
             {
                 delete texturePtrMap_[textureIndex];
@@ -355,13 +290,11 @@ namespace Project001
             specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
         }
 
-        unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
-
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
-            const Project001::MeshVertex& currentMeshVertex = meshVerticies[j];
+            const MeshVertex& currentMeshVertex = meshVerticies[j];
 
-            Project001::VertexData newVertex;
+            VertexData newVertex;
             newVertex.position = currentMeshVertex.position;
             newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
             newVertex.normal = currentMeshVertex.normal;
@@ -390,10 +323,34 @@ namespace Project001
         return true;
     }
 
+    void OpenGLRenderer::PrepareCapabilities()
+    {
+        // This is enabled so when glViewport is used to set the viewport size,
+        // glScissor can be used to limit drawing to within the viewport.
+        // glEnable(GL_SCISSOR_TEST);
+
+        // enable writing to the depth buffer
+        glDepthMask(GL_TRUE);
+
+        // cull backfaces
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        // blending
+        glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
+
+        // drawing triangles
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        // bind the texture attached to frameBufferId_
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, screenTextureColorBufferId_);
+    }
+
     void OpenGLRenderer::Render()
     {
-        CheckAndMakeContextCurrent();
-
         // Sort Translucent Faces' Verticies
         // ---------------------------------------------------------------------
         // Note that faces are sorted based on the average distance of their 3
@@ -585,27 +542,11 @@ namespace Project001
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
-    void OpenGLRenderer::SwapBuffers()
-    {
-        CheckAndMakeContextCurrent();
-
-        // Uses default platform swap interval, usually 60 fps
-        glfwSwapBuffers(glfwWindowPtr_);
-    }
-
     // protected ---------------------------------------------------------------
-
-    void OpenGLRenderer::CheckAndMakeContextCurrent()
-    {
-        if (!isCurrentContext_)
-        {
-            glfwMakeContextCurrent(glfwWindowPtr_);
-            isCurrentContext_ = true;
-        }
-    }
 
     void OpenGLRenderer::CreateFramebuffer()
     {
+        // generate an id (name) for a frame buffer object
         glGenFramebuffers(1, &frameBufferId_);
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
 
@@ -616,15 +557,33 @@ namespace Project001
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameBufferWidth_, frameBufferHeight_, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // attach a texture image to a framebuffer object
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTextureColorBufferId_, 0);
 
+        // generate an id (name) for a renderbuffer object
         glGenRenderbuffers(1, &renderBufferId_);
         glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
+
+        // NOTE:
+        // Renderbuffer objects can be more efficient for use in off-screen
+        // render projects, but it is important to realize when to use
+        // renderbuffer objects and when to use textures.The general rule is
+        // that if you never need to sample data from a specific buffer, it is
+        // wise to use a renderbuffer object for that specific buffer. If you
+        // need to sample data from a specific buffer like colors or depth
+        // values, you should use a texture attachment instead.
+
+        // establish the data storage, format and dimensions of the renderbuffer
+        // object's image
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
+
+        // attach a renderbuffer as the logical buffer of the framebuffer object
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
             // Log Error
+            _LOG_ERROR("Framebuffer is not complete");
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -651,7 +610,6 @@ namespace Project001
             // (target, offset, size, data)
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * numberOfVerticiesDrawnThisDrawCall, &vertexBuffer[verticiesOffset]);
 
-            /// glBindVertexArray(vertexArrayId_);
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)numberOfVerticiesDrawnThisDrawCall);
 
             numberOfVerticiesLeft -= numberOfVerticiesDrawnThisDrawCall;

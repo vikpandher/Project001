@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TestSceneFramework.h"
+#include "TestSceneBase001.h"
 
 
 namespace Project001
@@ -8,7 +8,7 @@ namespace Project001
     struct KeyEvent;
 }
 
-class TestScene001 : public TestSceneFramework
+class TestScene001 : public TestSceneBase001
 {
 public:
     TestScene001();

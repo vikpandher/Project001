@@ -13,10 +13,9 @@ namespace Project001
     public:
         Placement2D();
 
-        void SetRotation(float angleInRadians);
-        float GetRotation() const;
-
         void AddRotation(float angleInRadians);
+        float GetRotation() const;
+        void SetRotation(float angleInRadians);
 
     protected:
         // Inherited:
@@ -29,9 +28,9 @@ namespace Project001
         : rotation_(0.0f)
     {}
 
-    inline void Placement2D::SetRotation(float angleInRadians)
+    inline void Placement2D::AddRotation(float angleInRadians)
     {
-        rotation_ = angleInRadians;
+        rotation_ += angleInRadians;
         if (rotation_ < 0.0f)
         {
             rotation_ += glm::two_pi<float>();
@@ -47,9 +46,9 @@ namespace Project001
         return rotation_;
     }
 
-    inline void Placement2D::AddRotation(float angleInRadians)
+    inline void Placement2D::SetRotation(float angleInRadians)
     {
-        rotation_ += angleInRadians;
+        rotation_ = angleInRadians;
         if (rotation_ < 0.0f)
         {
             rotation_ += glm::two_pi<float>();

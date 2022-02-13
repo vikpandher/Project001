@@ -5,8 +5,6 @@
 
 
 
-struct GLFWwindow;
-
 namespace Project001
 {
     class OpenGLShader;
@@ -16,7 +14,7 @@ namespace Project001
     {
     public:
         OpenGLRendererAlt(unsigned int width, unsigned int height);
-        virtual ~OpenGLRendererAlt() override;
+        ~OpenGLRendererAlt() override;
 
         void SetDepthTesting(
             bool depthTesting) override;
@@ -93,15 +91,13 @@ namespace Project001
             bool translucent,
             bool lit) override;
 
-        void ClearBuffers() override;
+        void PrepareCapabilities() override;
+
+        void ClearLocalBuffers() override;
 
         void Render() override;
 
-        void SwapBuffers() override;
-
     protected:
-        void CheckAndMakeContextCurrent();
-
         void CreateFramebuffer();
 
         static const bool s_drawWireframe = true;
@@ -114,10 +110,6 @@ namespace Project001
 
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
-
-        GLFWwindow* glfwWindowPtr_;
-
-        bool isCurrentContext_;
 
         bool depthTesting_;
 
@@ -162,6 +154,23 @@ namespace Project001
 
     private:
     };
+
+    inline void OpenGLRendererAlt::SetDepthTesting(bool depthTesting)
+    {
+        depthTesting_ = depthTesting;
+    }
+
+    inline void OpenGLRendererAlt::SetViewportSize(
+        unsigned int x,
+        unsigned int y,
+        unsigned int width,
+        unsigned int height)
+    {
+        viewportX_ = x;
+        viewportY_ = y;
+        viewportWidth_ = width;
+        viewportHeight_ = height;
+    }
 
     inline void OpenGLRendererAlt::SetViewMatrix(const glm::mat4& viewMatrix)
     {
@@ -258,7 +267,7 @@ namespace Project001
         spotLights_.clear();
     }
 
-    inline void OpenGLRendererAlt::ClearBuffers()
+    inline void OpenGLRendererAlt::ClearLocalBuffers()
     {
         vertexBuffer_.clear();
         indexBuffer_.clear();

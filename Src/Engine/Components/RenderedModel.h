@@ -11,38 +11,38 @@ namespace Project001
     public:
         RenderedModel();
 
-        void SetVisibility(bool visible);
         bool IsVisible() const;
+        void SetVisibility(bool visible);
 
-        void SetMeshIndex(unsigned int meshIndex);
         unsigned int GetMeshIndex() const;
+        void SetMeshIndex(unsigned int meshIndex);
 
-        void SetTextureIndex(unsigned int textureIndex);
         unsigned int GetTextureIndex() const;
+        void SetTextureIndex(unsigned int textureIndex);
 
-        void SetSpecularIndex(unsigned int specularIndex);
         unsigned int GetSpecularIndex() const;
+        void SetSpecularIndex(unsigned int specularIndex);
 
+        const glm::vec3& GetScale() const;
         void SetScale(const glm::vec3& scale);
         void SetScale(float x, float y, float z);
         void SetScaleX(float x);
         void SetScaleY(float y);
         void SetScaleZ(float z);
-        const glm::vec3& GetScale() const;
 
+        const glm::vec4& GetColor() const;
         void SetColor(const glm::vec4& color);
         void SetColor(float r, float g, float b, float a);
         void SetColorRGB(float r, float g, float b);
-        const glm::vec4& GetColor() const;
 
-        void SetShininess(float shininess);
         float GetShininess() const;
+        void SetShininess(float shininess);
 
-        void SetTranslucent(bool translucent);
         bool GetTranslucent() const;
+        void SetTranslucent(bool translucent);
 
-        void SetLit(bool lit);
         bool GetLit() const;
+        void SetLit(bool lit);
 
     protected:
         // Inherited:
@@ -72,19 +72,14 @@ namespace Project001
         , lit_(true)
     {}
 
-    inline void RenderedModel::SetVisibility(bool visible)
-    {
-        visible_ = visible;
-    }
-
     inline bool RenderedModel::IsVisible() const
     {
         return visible_;
     }
 
-    inline void RenderedModel::SetMeshIndex(unsigned int meshIndex)
+    inline void RenderedModel::SetVisibility(bool visible)
     {
-        meshIndex_ = meshIndex;
+        visible_ = visible;
     }
 
     inline unsigned int RenderedModel::GetMeshIndex() const
@@ -92,9 +87,9 @@ namespace Project001
         return meshIndex_;
     }
 
-    inline void RenderedModel::SetTextureIndex(unsigned int textureIndex)
+    inline void RenderedModel::SetMeshIndex(unsigned int meshIndex)
     {
-        textureIndex_ = textureIndex;
+        meshIndex_ = meshIndex;
     }
 
     inline unsigned int RenderedModel::GetTextureIndex() const
@@ -102,14 +97,24 @@ namespace Project001
         return textureIndex_;
     }
 
-    inline void RenderedModel::SetSpecularIndex(unsigned int specularIndex)
+    inline void RenderedModel::SetTextureIndex(unsigned int textureIndex)
     {
-        specularIndex_ = specularIndex;
+        textureIndex_ = textureIndex;
     }
 
     inline unsigned int RenderedModel::GetSpecularIndex() const
     {
         return specularIndex_;
+    }
+
+    inline void RenderedModel::SetSpecularIndex(unsigned int specularIndex)
+    {
+        specularIndex_ = specularIndex;
+    }
+
+    inline const glm::vec3& RenderedModel::GetScale() const
+    {
+        return scale_;
     }
 
     inline void RenderedModel::SetScale(const glm::vec3& scale)
@@ -139,9 +144,9 @@ namespace Project001
         scale_.z = z;
     }
 
-    inline const glm::vec3& RenderedModel::GetScale() const
+    inline const glm::vec4& RenderedModel::GetColor() const
     {
-        return scale_;
+        return color_;
     }
 
     inline void RenderedModel::SetColor(const glm::vec4& color)
@@ -164,9 +169,9 @@ namespace Project001
         color_.b = b;
     }
 
-    inline const glm::vec4& RenderedModel::GetColor() const
+    inline float RenderedModel::GetShininess() const
     {
-        return color_;
+        return shininess_;
     }
 
     inline void RenderedModel::SetShininess(float shininess)
@@ -174,9 +179,9 @@ namespace Project001
         shininess_ = shininess;
     }
 
-    inline float RenderedModel::GetShininess() const
+    inline bool RenderedModel::GetTranslucent() const
     {
-        return shininess_;
+        return translucent_;
     }
 
     inline void RenderedModel::SetTranslucent(bool translucent)
@@ -184,18 +189,13 @@ namespace Project001
         translucent_ = translucent;
     }
 
-    inline bool RenderedModel::GetTranslucent() const
+    inline bool RenderedModel::GetLit() const
     {
-        return translucent_;
+        return lit_;
     }
 
     inline void RenderedModel::SetLit(bool lit)
     {
         lit_ = lit;
-    }
-
-    inline bool RenderedModel::GetLit() const
-    {
-        return lit_;
     }
 }

@@ -11,41 +11,42 @@ namespace Project001
     public:
         Camera();
 
+        bool IsTurnedOn() const;
         void TurnOn();
         void TurnOff();
-        bool IsTurnedOn() const;
 
         // Other View Controls
         // ---------------------------------------------------------------------
 
-        void SetProjectionToOrthographic();
-        void SetProjectionToPerspective();
         bool IsProjectionOrthographic() const;
+        void SetProjectionToOrthographic();
+
         bool IsProjectionPerspective() const;
+        void SetProjectionToPerspective();
 
-        void SetFieldOfVision(float angleInRadians);
         float GetFieldOfVision() const;
+        void SetFieldOfVision(float angleInRadians);
 
-        void SetAspectRatio(float aspectRatio);
         float GetAspectRatio() const;
+        void SetAspectRatio(float aspectRatio);
 
-        void SetLeftCutoff(float leftCutoff);
         float GetLeftCutoff() const;
+        void SetLeftCutoff(float leftCutoff);
 
-        void SetRightCutoff(float rightCutoff);
         float GetRightCutoff() const;
+        void SetRightCutoff(float rightCutoff);
 
-        void SetBottomCutoff(float bottomCutoff);
         float GetBottomCutoff() const;
+        void SetBottomCutoff(float bottomCutoff);
 
-        void SetTopCutoff(float topCutoff);
         float GetTopCutoff() const;
+        void SetTopCutoff(float topCutoff);
 
-        void SetNearCutoff(float nearCutoff);
         float GetNearCutoff() const;
+        void SetNearCutoff(float nearCutoff);
 
-        void SetFarCutoff(float farCutoff);
         float GetFarCutoff() const;
+        void SetFarCutoff(float farCutoff);
 
         // 
         // ---------------------------------------------------------------------
@@ -53,6 +54,8 @@ namespace Project001
         glm::mat4 GetViewMatrix() const;
 
         glm::mat4 GetProjectionMatrix() const;
+
+        glm::vec2 ConvertPointFromWindowToOrtho(int windowWidth, int windowHeight, glm::vec2 windowPoint) const;
 
     protected:
         // Inherited:
@@ -92,6 +95,11 @@ namespace Project001
         , farCutoff_(50.0f)
     {}
 
+    inline bool Camera::IsTurnedOn() const
+    {
+        return turnedOn_;
+    }
+
     inline void Camera::TurnOn()
     {
         turnedOn_ = true;
@@ -102,9 +110,9 @@ namespace Project001
         turnedOn_ = false;
     }
 
-    inline bool Camera::IsTurnedOn() const
+    inline bool Camera::IsProjectionOrthographic() const
     {
-        return turnedOn_;
+        return cameraProjection_ == CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
     }
 
     inline void Camera::SetProjectionToOrthographic()
@@ -112,24 +120,14 @@ namespace Project001
         cameraProjection_ = CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
     }
 
-    inline void Camera::SetProjectionToPerspective()
-    {
-        cameraProjection_ = CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
-    }
-
-    inline bool Camera::IsProjectionOrthographic() const
-    {
-        return cameraProjection_ == CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
-    }
-
     inline bool Camera::IsProjectionPerspective() const
     {
         return cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
     }
 
-    inline void Camera::SetFieldOfVision(float angleInRadians)
+    inline void Camera::SetProjectionToPerspective()
     {
-        fieldOfVision_ = angleInRadians;
+        cameraProjection_ = CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
     }
 
     inline float Camera::GetFieldOfVision() const
@@ -137,9 +135,9 @@ namespace Project001
         return fieldOfVision_;
     }
 
-    inline void Camera::SetAspectRatio(float aspectRatio)
+    inline void Camera::SetFieldOfVision(float angleInRadians)
     {
-        aspectRatio_ = aspectRatio;
+        fieldOfVision_ = angleInRadians;
     }
 
     inline float Camera::GetAspectRatio() const
@@ -147,9 +145,9 @@ namespace Project001
         return aspectRatio_;
     }
 
-    inline void Camera::SetLeftCutoff(float leftCutoff)
+    inline void Camera::SetAspectRatio(float aspectRatio)
     {
-        leftCutoff_ = leftCutoff;
+        aspectRatio_ = aspectRatio;
     }
 
     inline float Camera::GetLeftCutoff() const
@@ -157,9 +155,9 @@ namespace Project001
         return leftCutoff_;
     }
 
-    inline void Camera::SetRightCutoff(float rightCutoff)
+    inline void Camera::SetLeftCutoff(float leftCutoff)
     {
-        rightCutoff_ = rightCutoff;
+        leftCutoff_ = leftCutoff;
     }
 
     inline float Camera::GetRightCutoff() const
@@ -167,9 +165,9 @@ namespace Project001
         return rightCutoff_;
     }
 
-    inline void Camera::SetBottomCutoff(float bottomCutoff)
+    inline void Camera::SetRightCutoff(float rightCutoff)
     {
-        bottomCutoff_ = bottomCutoff;
+        rightCutoff_ = rightCutoff;
     }
 
     inline float Camera::GetBottomCutoff() const
@@ -177,9 +175,9 @@ namespace Project001
         return bottomCutoff_;
     }
 
-    inline void Camera::SetTopCutoff(float topCutoff)
+    inline void Camera::SetBottomCutoff(float bottomCutoff)
     {
-        topCutoff_ = topCutoff;
+        bottomCutoff_ = bottomCutoff;
     }
 
     inline float Camera::GetTopCutoff() const
@@ -187,9 +185,9 @@ namespace Project001
         return topCutoff_;
     }
 
-    inline void Camera::SetNearCutoff(float nearCutoff)
+    inline void Camera::SetTopCutoff(float topCutoff)
     {
-        nearCutoff_ = nearCutoff;
+        topCutoff_ = topCutoff;
     }
 
     inline float Camera::GetNearCutoff() const
@@ -197,14 +195,19 @@ namespace Project001
         return nearCutoff_;
     }
 
-    inline void Camera::SetFarCutoff(float farCutoff)
+    inline void Camera::SetNearCutoff(float nearCutoff)
     {
-        farCutoff_ = farCutoff;
+        nearCutoff_ = nearCutoff;
     }
 
     inline float Camera::GetFarCutoff() const
     {
         return farCutoff_;
+    }
+
+    inline void Camera::SetFarCutoff(float farCutoff)
+    {
+        farCutoff_ = farCutoff;
     }
 
     inline glm::mat4 Camera::GetViewMatrix() const
@@ -225,5 +228,12 @@ namespace Project001
         {
             return glm::ortho(leftCutoff_, rightCutoff_, bottomCutoff_, topCutoff_, nearCutoff_, farCutoff_);
         }
+    }
+
+    inline glm::vec2 Camera::ConvertPointFromWindowToOrtho(int windowWidth, int windowHeight, glm::vec2 windowPoint) const
+    {
+        return glm::vec2(
+            (windowPoint.x / (float)windowWidth - 0.5f) * (rightCutoff_ - leftCutoff_) + position_.x,
+            (((float)windowHeight - windowPoint.y) / (float)windowHeight - 0.5f) * (topCutoff_ - bottomCutoff_) + position_.y);
     }
 }

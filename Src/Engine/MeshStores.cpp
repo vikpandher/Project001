@@ -209,12 +209,34 @@ namespace Project001
         unsigned int& index,
         const std::vector<glm::vec2>& positions,
         float width,
+        bool beveledCorners,
         bool recenter,
         bool triangulate,
         bool positionalTexture)
     {
         MeshData newMeshData;
-        if (Generate2DLine(newMeshData, meshVertexArray_, meshIndexArray_, positions, width, recenter, triangulate, positionalTexture))
+        if (Generate2DLine(newMeshData, meshVertexArray_, meshIndexArray_, positions, width, beveledCorners, recenter, triangulate, positionalTexture))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool MeshStores::Generate2DLineLoop(
+        unsigned int& index,
+        const std::vector<glm::vec2>& positions,
+        float width,
+        bool beveledCorners,
+        bool recenter,
+        bool triangulate,
+        bool positionalTexture)
+    {
+        MeshData newMeshData;
+        if (Generate2DLineLoop(newMeshData, meshVertexArray_, meshIndexArray_, positions, width, beveledCorners, recenter, triangulate, positionalTexture))
         {
             meshDataArray_.push_back(newMeshData);
             index = (unsigned int)(meshDataArray_.size() - 1);
@@ -1300,6 +1322,7 @@ namespace Project001
         std::vector<unsigned int>& meshIndexArray,
         const std::vector<glm::vec2>& positions,
         float width,
+        bool beveledCorners,
         bool recenter,
         bool triangulate,
         bool positionalTexture)
@@ -1307,6 +1330,24 @@ namespace Project001
         if (positions.size() < 2)
         {
             return false;
+        }
+
+        // ignore duplicate positions at the start
+        size_t startIndex = 1;
+        while (positions[0] == positions[startIndex])
+        {
+            startIndex++;
+            if (startIndex == positions.size())
+            {
+                return false;
+            }
+        }
+
+        // ignore duplicate positions at the end
+        size_t endIndex = positions.size() - 1;
+        while (positions[endIndex - 1] == positions[endIndex])
+        {
+            endIndex--;
         }
 
         meshData.vertexIndex = (unsigned int)meshVertexArray.size();
@@ -1317,7 +1358,7 @@ namespace Project001
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
         glm::vec2 position1 = positions[0];
-        glm::vec2 position2 = positions[1];
+        glm::vec2 position2 = positions[startIndex];
 
         glm::vec2 direction1 = position2 - position1;
 
@@ -1343,27 +1384,36 @@ namespace Project001
         MeshVertex meshVertexD;
         meshVertexD.normal = normal;
 
-        for (size_t i = 2; i < positions.size(); ++i)
+        for (size_t i = startIndex + 1; i <= endIndex; ++i)
         {
+            // ignore duplicate positions in the middle
+            if (positions[i] == position2)
+            {
+                continue;
+            }
+
             glm::vec2 position3 = positions[i];
             glm::vec2 direction2 = position3 - position2;
             float slope2 = direction2.y / direction2.x;
 
             if (slope1 != slope2)
             {
-                bool sharpCorner = false;
-                float angle = Get2DVectorAngle(direction1, direction2);
-                if (angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
-                {
-                    sharpCorner = true;
-                }
-
                 glm::vec2 offset02 = glm::vec2(-1.0f * direction2.y, direction2.x);
                 float magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
                 scaled2 = offset02 / magnitude02 * width / 2.0f;
 
                 glm::vec2 positionE = position2 + scaled2;
                 glm::vec2 positionF = position2 - scaled2;
+
+                bool sharpCorner = false;
+                float angle = Get2DVectorAngle(direction1, direction2);
+                if (beveledCorners)
+                {
+                    if (angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
+                    {
+                        sharpCorner = true;
+                    }
+                }
 
                 if (sharpCorner)
                 {
@@ -1627,6 +1677,368 @@ namespace Project001
 
             meshData.vertexCount += 6;
         }
+
+        if (positionalTexture)
+        {
+            for (size_t i = 0; i < meshData.vertexCount; ++i)
+            {
+                unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
+                MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
+
+                currentMeshVertex.textureCoordinate.x = currentMeshVertex.position.x;
+                currentMeshVertex.textureCoordinate.y = currentMeshVertex.position.y;
+            }
+        }
+
+        for (size_t i = 0; i < meshData.vertexCount; ++i)
+        {
+            unsigned int meshVeretxArrayIndex = meshData.vertexIndex + (unsigned int)i;
+            const MeshVertex& currentMeshVertex = meshVertexArray[meshVeretxArrayIndex];
+
+            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
+            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, currentMeshVertex.position.y);
+
+            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentMeshVertex.position.x);
+            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, currentMeshVertex.position.y);
+        }
+
+        if (recenter)
+        {
+            RecenterMesh(meshData, meshVertexArray);
+        }
+
+        return true;
+    }
+
+    bool MeshStores::Generate2DLineLoop(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<unsigned int>& meshIndexArray,
+        const std::vector<glm::vec2>& positions,
+        float width,
+        bool beveledCorners,
+        bool recenter,
+        bool triangulate,
+        bool positionalTexture)
+    {
+        if (positions.size() < 3)
+        {
+            return false;
+        }
+
+        // ignore duplicate positions at the start
+        size_t startIndex = 1;
+        while (positions[0] == positions[startIndex])
+        {
+            startIndex++;
+            if (startIndex == positions.size())
+            {
+                return false;
+            }
+        }
+
+        // ignore duplicate positions at the end
+        size_t endIndex = positions.size() - 1;
+        while (positions[endIndex - 1] == positions[endIndex])
+        {
+            endIndex--;
+        }
+
+        if (startIndex == endIndex)
+        {
+            // must have at least 3 unique points to make a loop
+            return false;
+        }
+
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
+        meshData.maxVertexPosition.z = 0.0f;
+        meshData.minVertexPosition.z = 0.0f;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        glm::vec2 position1 = positions[endIndex];
+        glm::vec2 position2 = positions[0];
+
+        glm::vec2 direction1 = position2 - position1;
+        float slope1 = direction1.y / direction1.x;
+
+        glm::vec2 offset01(-1.0f * direction1.y, direction1.x);
+        float magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+        glm::vec2 scaled1 = offset01 / magnitude01 * width / 2.0f;
+
+        glm::vec2 scaled2 = scaled1;
+
+        glm::vec2 positionA = position1 + scaled1;
+        glm::vec2 positionB = position1 - scaled1;
+        glm::vec2 positionC;
+        glm::vec2 positionD;
+
+        glm::vec2 position3 = positions[startIndex];
+
+        glm::vec2 direction2 = position3 - position2;
+        float slope2 = direction2.y / direction2.x;
+
+        glm::vec2 offset02(-1.0f * direction2.y, direction2.x);
+        float magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+        scaled2 = offset02 / magnitude02 * width / 2.0f;
+
+        glm::vec2 positionE = position2 + scaled2;
+        glm::vec2 positionF = position2 - scaled2;
+
+        MeshVertex meshVertexA;
+        meshVertexA.normal = normal;
+        MeshVertex meshVertexB;
+        meshVertexB.normal = normal;
+        MeshVertex meshVertexC;
+        meshVertexC.normal = normal;
+        MeshVertex meshVertexD;
+        meshVertexD.normal = normal;
+
+        bool sharpCorner = false;
+        float angle = Get2DVectorAngle(direction1, direction2);
+        if (beveledCorners)
+        {
+            if (angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
+            {
+                sharpCorner = true;
+            }
+        }
+
+        if (sharpCorner)
+        {
+            if (angle > 0.0f) // turn to the left
+            {
+                positionA = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
+                positionB = positionF;
+            }
+            else
+            {
+                positionA = positionE;
+                positionB = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
+            }
+        }
+        else
+        {
+            positionA = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
+            positionB = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
+        }
+
+        position1 = position2;
+        position2 = position3;
+        direction1 = direction2;
+        slope1 = slope2;
+
+        size_t i = startIndex + 1;
+        do
+        {
+            // ignore duplicate positions in the middle
+            if (positions[i] == position2)
+            {
+                continue;
+            }
+
+            position3 = positions[i];
+            direction2 = position3 - position2;
+            slope2 = direction2.y / direction2.x;
+
+            if (slope1 != slope2)
+            {
+                offset02 = glm::vec2(-1.0f * direction2.y, direction2.x);
+                magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+                scaled2 = offset02 / magnitude02 * width / 2.0f;
+
+                positionE = position2 + scaled2;
+                positionF = position2 - scaled2;
+
+                sharpCorner = false;
+                angle = Get2DVectorAngle(direction1, direction2);
+                if (beveledCorners)
+                {
+                    if (angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
+                    {
+                        sharpCorner = true;
+                    }
+                }
+
+                if (sharpCorner)
+                {
+                    offset01 = glm::vec2(-1.0f * direction1.y, direction1.x);
+                    magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+                    scaled1 = offset01 / magnitude01 * width / 2.0f;
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        positionC = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
+                        positionD = position2 - scaled1;
+                    }
+                    else
+                    {
+                        positionC = position2 + scaled1;
+                        positionD = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
+                    }
+                }
+                else
+                {
+                    positionC = GetLineLineIntersection2d(positionA, slope1, positionE, slope2);
+                    positionD = GetLineLineIntersection2d(positionB, slope1, positionF, slope2);
+                }
+
+                meshVertexA.position = glm::vec3(positionA, 0.0f);
+                meshVertexB.position = glm::vec3(positionB, 0.0f);
+                meshVertexC.position = glm::vec3(positionC, 0.0f);
+                meshVertexD.position = glm::vec3(positionD, 0.0f);
+
+                glm::vec3 normalABC = glm::cross(meshVertexB.position - meshVertexA.position, meshVertexC.position - meshVertexA.position);
+                glm::vec3 normalDCB = glm::cross(meshVertexC.position - meshVertexD.position, meshVertexB.position - meshVertexD.position);
+
+                float dotABC = glm::dot(normal, normalABC);
+                float dotDCB = glm::dot(normal, normalDCB);
+
+                if (!triangulate)
+                {
+                    meshVertexArray.push_back(meshVertexA);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexC);
+                    meshVertexArray.push_back(meshVertexD);
+
+                    if (dotABC > 0.0f)
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount);
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                    }
+                    else
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                        meshIndexArray.push_back(meshData.vertexCount);
+                    }
+
+                    if (dotDCB > 0.0f)
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount + 3);
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                    }
+                    else
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                        meshIndexArray.push_back(meshData.vertexCount + 3);
+                    }
+
+                    meshData.vertexCount += 4;
+                    meshData.indexCount += 6;
+                }
+                else
+                {
+                    if (dotABC > 0.0f)
+                    {
+                        meshVertexArray.push_back(meshVertexA);
+                        meshVertexArray.push_back(meshVertexB);
+                        meshVertexArray.push_back(meshVertexC);
+                    }
+                    // When the width of the line is too large, triangles can 
+                    // flip.
+                    else
+                    {
+                        meshVertexArray.push_back(meshVertexC);
+                        meshVertexArray.push_back(meshVertexB);
+                        meshVertexArray.push_back(meshVertexA);
+                    }
+
+                    meshIndexArray.push_back(meshData.indexCount++);
+                    meshIndexArray.push_back(meshData.indexCount++);
+                    meshIndexArray.push_back(meshData.indexCount++);
+
+                    if (dotDCB > 0.0f)
+                    {
+                        meshVertexArray.push_back(meshVertexD);
+                        meshVertexArray.push_back(meshVertexC);
+                        meshVertexArray.push_back(meshVertexB);
+                    }
+                    else
+                    {
+                        meshVertexArray.push_back(meshVertexB);
+                        meshVertexArray.push_back(meshVertexC);
+                        meshVertexArray.push_back(meshVertexD);
+                    }
+
+                    meshIndexArray.push_back(meshData.indexCount++);
+                    meshIndexArray.push_back(meshData.indexCount++);
+                    meshIndexArray.push_back(meshData.indexCount++);
+
+                    meshData.vertexCount += 6;
+                }
+
+                if (sharpCorner)
+                {
+                    meshVertexA.position = glm::vec3(positionC, 0.0f);
+                    meshVertexB.position = glm::vec3(positionD, 0.0f);
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        meshVertexC.position = glm::vec3(positionF, 0.0f);
+                    }
+                    else
+                    {
+                        meshVertexC.position = glm::vec3(positionE, 0.0f);
+                    }
+
+                    normalABC = glm::cross(meshVertexB.position - meshVertexA.position, meshVertexC.position - meshVertexA.position);
+
+                    dotABC = glm::dot(normal, normalABC);
+
+                    meshVertexArray.push_back(meshVertexA);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexC);
+
+                    if (dotABC > 0.0f)
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount);
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                    }
+                    else
+                    {
+                        meshIndexArray.push_back(meshData.vertexCount + 2);
+                        meshIndexArray.push_back(meshData.vertexCount + 1);
+                        meshIndexArray.push_back(meshData.vertexCount);
+                    }
+
+                    meshData.vertexCount += 3;
+                    meshData.indexCount += 3;
+
+                    if (angle > 0.0f) // turn to the left
+                    {
+                        positionA = positionC;
+                        positionB = positionF;
+                    }
+                    else
+                    {
+                        positionA = positionE;
+                        positionB = positionD;
+                    }
+                }
+                else
+                {
+                    positionA = positionC;
+                    positionB = positionD;
+                }
+
+                position1 = position2;
+                direction1 = direction2;
+                slope1 = slope2;
+            }
+
+            position2 = position3;
+
+            if (++i > endIndex)
+            {
+                i = 0;
+            }
+        } while (i != startIndex + 1);
 
         if (positionalTexture)
         {

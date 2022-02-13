@@ -3,7 +3,7 @@
 
 namespace Project001
 {
-    // Checking Point overlap -----------------------------------------------
+    // Checking Point overlap --------------------------------------------------
 
     inline bool Check2D_Point_Point_Overlap(
         const glm::vec2& pointA_position,
@@ -40,10 +40,7 @@ namespace Project001
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end)
     {
-        if (point_position.x > GetMax(lineSegment_start.x, lineSegment_end.x) ||
-            point_position.x < GetMin(lineSegment_start.x, lineSegment_end.x) ||
-            point_position.y > GetMax(lineSegment_start.y, lineSegment_end.y) ||
-            point_position.y < GetMin(lineSegment_start.y, lineSegment_end.y))
+        if (Check2D_Point_Rectangle_NoOverlap_H(point_position, lineSegment_start, lineSegment_end))
         {
             // the point is outside of the recangular range of the lineSegment
             return false;
@@ -97,7 +94,7 @@ namespace Project001
         const float& circle_radius)
     {
         glm::vec2 pointToCircle = point_position - circle_position;
-        return glm::length(pointToCircle) <= circle_radius;
+        return glm::dot(pointToCircle, pointToCircle) <= circle_radius * circle_radius;
     }
 
     inline bool Check2D_Point_Capsule_Overlap(
@@ -106,8 +103,8 @@ namespace Project001
         const glm::vec2& capsule_end,
         const float& capsule_radius)
     {
-        float pointLineSegmentDistance = Get2D_Point_LineSegment_Distance(point_position, capsule_start, capsule_end);
-        return pointLineSegmentDistance <= capsule_radius;
+        float pointLineSegmentDistanceSquared = Get2D_Point_LineSegment_DistanceSquared(point_position, capsule_start, capsule_end);
+        return pointLineSegmentDistanceSquared <= capsule_radius * capsule_radius;
     }
 
     inline bool Check2D_Point_Triangle_Overlap(
@@ -165,7 +162,7 @@ namespace Project001
         return u >= 0.0f && v >= 0.0f && (u + v) < 1.0f;
     }
 
-    // Checking Line overlap ------------------------------------------------
+    // Checking Line overlap ---------------------------------------------------
 
     inline bool Check2D_Line_Point_Overlap(
         const glm::vec2& line_position,
@@ -310,8 +307,8 @@ namespace Project001
         const glm::vec2& circle_position,
         const float& circle_radius)
     {
-        float pointLineDistance = Get2D_Point_Line_Distance(circle_position, line_position, line_slope);
-        return pointLineDistance <= circle_radius;
+        float pointLineDistanceSquared = Get2D_Point_Line_DistanceSquared(circle_position, line_position, line_slope);
+        return pointLineDistanceSquared <= circle_radius * circle_radius;
     }
 
     inline bool Check2D_Line_Capsule_Overlap(
@@ -348,16 +345,18 @@ namespace Project001
             return true;
         }
 
+        float capsule_radiusSquared = capsule_radius * capsule_radius;
+
         // check if line intersects capsule start
-        float capsuleStartDistance = Get2D_Point_Line_Distance(capsule_start, line_position, line_slope);
-        if (capsuleStartDistance <= capsule_radius)
+        float capsuleStartDistanceSquared = Get2D_Point_Line_DistanceSquared(capsule_start, line_position, line_slope);
+        if (capsuleStartDistanceSquared <= capsule_radiusSquared)
         {
             return true;
         }
 
         // check if line intersects capsule end
-        float capsuleEndDistance = Get2D_Point_Line_Distance(capsule_end, line_position, line_slope);
-        return capsuleEndDistance <= capsule_radius;
+        float capsuleEndDistanceSquared = Get2D_Point_Line_DistanceSquared(capsule_end, line_position, line_slope);
+        return capsuleEndDistanceSquared <= capsule_radiusSquared;
     }
 
     inline bool Check2D_Line_Triangle_Overlap(
@@ -396,7 +395,7 @@ namespace Project001
             std::signbit(triangle_corner1_yInterceptOffset) != std::signbit(triangle_corner3_yInterceptOffset);
     }
 
-    // Checking LineSegment overlap -----------------------------------------
+    // Checking LineSegment overlap --------------------------------------------
 
     inline bool Check2D_LineSegment_Point_Overlap(
         const glm::vec2& lineSegment_start,
@@ -508,30 +507,32 @@ namespace Project001
             return true;
         }
 
-        float pointLineSegmentDistance1 = Get2D_Point_LineSegment_Distance(capsule_start, lineSegment_start, lineSegment_end);
-        if (pointLineSegmentDistance1 <= capsule_radius)
+        float capsule_radiusSquared = capsule_radius * capsule_radius;
+
+        float pointLineSegmentDistanceSquared1 = Get2D_Point_LineSegment_DistanceSquared(capsule_start, lineSegment_start, lineSegment_end);
+        if (pointLineSegmentDistanceSquared1 <= capsule_radiusSquared)
         {
             // capsule start is near lineSegment
             return true;
         }
 
-        float pointLineSegmentDistance2 = Get2D_Point_LineSegment_Distance(capsule_end, lineSegment_start, lineSegment_end);
-        if (pointLineSegmentDistance2 <= capsule_radius)
+        float pointLineSegmentDistanceSquared2 = Get2D_Point_LineSegment_DistanceSquared(capsule_end, lineSegment_start, lineSegment_end);
+        if (pointLineSegmentDistanceSquared2 <= capsule_radiusSquared)
         {
             // capsule end is near lineSegment
             return true;
         }
 
-        float pointLineSegmentDistance3 = Get2D_Point_LineSegment_Distance(lineSegment_start, capsule_start, capsule_end);
-        if (pointLineSegmentDistance3 <= capsule_radius)
+        float pointLineSegmentDistanceSquared3 = Get2D_Point_LineSegment_DistanceSquared(lineSegment_start, capsule_start, capsule_end);
+        if (pointLineSegmentDistanceSquared3 <= capsule_radiusSquared)
         {
             // lineSegment start in near capsule
             return true;
         }
 
         // check if lineSegment end is near capsule
-        float pointLineSegmentDistance4 = Get2D_Point_LineSegment_Distance(lineSegment_end, capsule_start, capsule_end);
-        return pointLineSegmentDistance4 <= capsule_radius;
+        float pointLineSegmentDistanceSquared4 = Get2D_Point_LineSegment_DistanceSquared(lineSegment_end, capsule_start, capsule_end);
+        return pointLineSegmentDistanceSquared4 <= capsule_radiusSquared;
     }
 
     inline bool Check2D_LineSegment_Triangle_Overlap(
@@ -547,7 +548,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(lineSegment_start, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    // Checking Rectangle overlap -------------------------------------------
+    // Checking Rectangle overlap ----------------------------------------------
 
     inline bool Check2D_Rectangle_Point_Overlap(
         const glm::vec2& rectangle_bottomLeft,
@@ -581,42 +582,11 @@ namespace Project001
         const glm::vec2& rectangleB_bottomLeft,
         const glm::vec2& rectangleB_topRight)
     {
-        // first check if one of rectangleA's corners is inside rectangleB
-
-        if (Check2D_Point_Rectangle_Overlap(rectangleA_bottomLeft, rectangleB_bottomLeft, rectangleB_topRight) ||
-            Check2D_Point_Rectangle_Overlap(rectangleA_topRight, rectangleB_bottomLeft, rectangleB_topRight))
-        {
-            return true;
-        }
-
-        glm::vec2 rectangleA_bottomRight(rectangleA_topRight.x, rectangleA_bottomLeft.y);
-        if (Check2D_Point_Rectangle_Overlap(rectangleA_bottomRight, rectangleB_bottomLeft, rectangleB_topRight))
-        {
-            return true;
-        }
-
-        glm::vec2 rectangleA_topLeft(rectangleA_bottomLeft.x, rectangleA_topRight.y);
-        if (Check2D_Point_Rectangle_Overlap(rectangleA_topLeft, rectangleB_bottomLeft, rectangleB_topRight))
-        {
-            return true;
-        }
-
-        // now check if one of rectangleB's corners is inside rectangleA
-
-        if (Check2D_Point_Rectangle_Overlap(rectangleB_bottomLeft, rectangleA_bottomLeft, rectangleA_topRight) ||
-            Check2D_Point_Rectangle_Overlap(rectangleB_topRight, rectangleA_bottomLeft, rectangleA_topRight))
-        {
-            return true;
-        }
-
-        glm::vec2 rectangleB_bottomRight(rectangleB_topRight.x, rectangleB_bottomLeft.y);
-        if (Check2D_Point_Rectangle_Overlap(rectangleB_bottomRight, rectangleA_bottomLeft, rectangleA_topRight))
-        {
-            return true;
-        }
-
-        glm::vec2 rectangleB_topLeft(rectangleB_bottomLeft.x, rectangleB_topRight.y);
-        return Check2D_Point_Rectangle_Overlap(rectangleB_topLeft, rectangleA_bottomLeft, rectangleA_topRight);
+        // Axis-Aligned Bounding Box (AABB)
+        return rectangleA_bottomLeft.x <= rectangleB_topRight.x &&
+            rectangleA_topRight.x >= rectangleB_bottomLeft.x &&
+            rectangleA_bottomLeft.y <= rectangleB_topRight.y &&
+            rectangleA_topRight.y >= rectangleB_bottomLeft.y;
     }
 
     inline bool Check2D_Rectangle_OrientedRectangle_Overlap(
@@ -676,8 +646,36 @@ namespace Project001
         const glm::vec2& circle_position,
         const float& circle_radius)
     {
-        return Check2D_RectangleFrame_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius) ||
-            Check2D_Point_Rectangle_Overlap(circle_position, rectangle_bottomLeft, rectangle_topRight);
+        float testX = circle_position.x;
+        float testY = circle_position.y;
+
+        // find closest edge to circle
+        if (circle_position.x < rectangle_bottomLeft.x)
+        {
+            // left edge
+            testX = rectangle_bottomLeft.x;
+        }
+        else if (circle_position.x > rectangle_topRight.x)
+        {
+            // right edge
+            testX = rectangle_topRight.x;
+        }
+        if (circle_position.y < rectangle_bottomLeft.y)
+        {
+            // bottom edge
+            testY = rectangle_bottomLeft.y;
+        }
+        else if (circle_position.y > rectangle_topRight.y)
+        {
+            // top edge
+            testY = rectangle_topRight.y;
+        }
+
+        float distanceX = circle_position.x - testX;
+        float distanceY = circle_position.y - testY;
+        float distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+        return distanceSquared <= circle_radius * circle_radius;
     }
 
     inline bool Check2D_Rectangle_Capsule_Overlap(
@@ -687,9 +685,39 @@ namespace Project001
         const glm::vec2& capsule_end,
         const float& capsule_radius)
     {
-        return Check2D_RectangleFrame_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, capsule_start, capsule_radius) ||
-            Check2D_RectangleFrame_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, capsule_end, capsule_radius) ||
-            Check2D_LineSegment_Rectangle_Overlap(capsule_start, capsule_end, rectangle_bottomLeft, rectangle_topRight);
+        // check if rectangle overlaps with one of the ends
+        if (Check2D_Rectangle_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, capsule_start, capsule_radius) ||
+            Check2D_Rectangle_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, capsule_end, capsule_radius))
+        {
+            return true;
+        }
+
+        glm::vec2 capsuleLine = capsule_end - capsule_start;
+        glm::vec2 perpenduclarLine(-1.0f * capsuleLine.y, capsuleLine.x);
+        perpenduclarLine /= glm::length(perpenduclarLine);
+        perpenduclarLine *= capsule_radius;
+
+        glm::vec2 rightCapsuleLine_start = capsule_start + perpenduclarLine;
+        glm::vec2 rightCapsuleLine_end = capsule_end + perpenduclarLine;
+
+        // check if one of the sides of the capsule cross the rectangle frame
+        if (Check2D_RectangleFrame_LineSegment_Overlap(rectangle_bottomLeft, rectangle_topRight, rightCapsuleLine_start, rightCapsuleLine_end))
+        {
+            return true;
+        }
+
+        glm::vec2 leftCapsuleLine_start = capsule_start - perpenduclarLine;
+        glm::vec2 leftCapsuleLine_end = capsule_end - perpenduclarLine;
+
+        // check if the other sidee of the capsule cross the rectangle frame
+        if (Check2D_RectangleFrame_LineSegment_Overlap(rectangle_bottomLeft, rectangle_topRight, leftCapsuleLine_start, leftCapsuleLine_end))
+        {
+            return true;
+        }
+
+        // check if a corner of the rectangle is inside the capsule rectangle
+        float distanceSquared = Get2D_Point_LineSegment_DistanceSquared(rectangle_bottomLeft, capsule_start, capsule_end);
+        return distanceSquared <= capsule_radius * capsule_radius;
     }
 
     inline bool Check2D_Rectangle_Triangle_Overlap(
@@ -705,7 +733,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(rectangle_bottomLeft, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    // Checking OrientedRectangle overlap -----------------------------------
+    // Checking OrientedRectangle overlap --------------------------------------
 
     inline bool Check2D_OrientedRectangle_Point_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
@@ -819,7 +847,7 @@ namespace Project001
         return Check2D_Rectangle_Triangle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedTriangleCorner1, rotatedTriangleCorner2, rotatedTriangleCorner3);
     }
 
-    // Checking Circle overlap ----------------------------------------------
+    // Checking Circle overlap -------------------------------------------------
 
     inline bool Check2D_Circle_Point_Overlap(
         const glm::vec2& circle_position,
@@ -898,7 +926,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(circle_position, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    // Checking Capsule overlap ---------------------------------------------
+    // Checking Capsule overlap ------------------------------------------------
 
     inline bool Check2D_Capsule_Point_Overlap(
         const glm::vec2& capsule_start,
@@ -985,7 +1013,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(capsule_start, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    // Checking Triangle overlap --------------------------------------------
+    // Checking Triangle overlap -----------------------------------------------
 
     inline bool Check2D_Triangle_Point_Overlap(
         const glm::vec2& triangle_corner1,
@@ -1080,7 +1108,7 @@ namespace Project001
 
     // Helper Functions --------------------------------------------------------
 
-    inline float Get2D_Point_Line_Distance(
+    inline float Get2D_Point_Line_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope)
@@ -1093,11 +1121,11 @@ namespace Project001
         const float& y1 = line_slope;
         float x2 = point_position.x - line_position.x;
         float y2 = point_position.y - line_position.y;
-        float mod = std::sqrtf(1.0f + y1 * y1);
-        return std::abs(y2 - y1 * x2) / mod;
+        float temp = y2 - y1 * x2;
+        return temp * temp / (1.0f + y1 * y1);
     }
 
-    inline float Get2D_Point_Line_Distance_Alt(
+    inline float Get2D_Point_Line_DistanceSquared_Alt(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope)
@@ -1114,10 +1142,10 @@ namespace Project001
 
         glm::vec2 pointToPerpendicularPoint = perpendicularPoint - point_position;
 
-        return glm::length(pointToPerpendicularPoint);
+        return glm::dot(pointToPerpendicularPoint, pointToPerpendicularPoint);
     }
 
-    inline float Get2D_Point_LineSegment_Distance(
+    inline float Get2D_Point_LineSegment_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end)
@@ -1129,17 +1157,17 @@ namespace Project001
         float dotProduct1 = glm::dot(lineSegment, endToPoint);
         float dotProduct2 = glm::dot(lineSegment, startToPoint);
 
-        float minimumDistance = 0.0f;
+        float minimumDistanceSquared = 0.0f;
 
         if (dotProduct1 > 0.0f)
         {
             // Nearest Point on the LineSegment is the end
-            minimumDistance = glm::length(endToPoint);
+            minimumDistanceSquared = glm::dot(endToPoint, endToPoint);
         }
         else if (dotProduct2 < 0.0f)
         {
             // Nearest Point on the LineSegment is the start
-            minimumDistance = glm::length(startToPoint);
+            minimumDistanceSquared = glm::dot(startToPoint, startToPoint);
         }
         else
         {
@@ -1148,11 +1176,22 @@ namespace Project001
             const float& y1 = lineSegment.y;
             const float& x2 = startToPoint.x;
             const float& y2 = startToPoint.y;
-            float mod = std::sqrtf(x1 * x1 + y1 * y1);
-            minimumDistance = std::abs(x1 * y2 - y1 * x2) / mod;
+            float temp = x1 * y2 - y1 * x2;
+            minimumDistanceSquared = temp * temp / (x1 * x1 + y1 * y1);
         }
 
-        return minimumDistance;
+        return minimumDistanceSquared;
+    }
+
+    inline bool Check2D_Point_Rectangle_NoOverlap_H(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_oppositeCorner1,
+        const glm::vec2& rectangle_oppositeCorner2)
+    {
+        return point_position.x > GetMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) ||
+            point_position.x < GetMin(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) ||
+            point_position.y > GetMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y) ||
+            point_position.y < GetMin(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y);
     }
 
     inline bool Check2D_Point_Rectangle_Overlap_H(
@@ -1207,6 +1246,60 @@ namespace Project001
         return result;
     }
 
+    inline bool Check2D_Rectangle_Rectangle_Overlap_Alt(
+        const glm::vec2& rectangleA_bottomLeft,
+        const glm::vec2& rectangleA_topRight,
+        const glm::vec2& rectangleB_bottomLeft,
+        const glm::vec2& rectangleB_topRight)
+    {
+        // first check if one of rectangleA's corners is inside rectangleB
+
+        if (Check2D_Point_Rectangle_Overlap(rectangleA_bottomLeft, rectangleB_bottomLeft, rectangleB_topRight) ||
+            Check2D_Point_Rectangle_Overlap(rectangleA_topRight, rectangleB_bottomLeft, rectangleB_topRight))
+        {
+            return true;
+        }
+
+        glm::vec2 rectangleA_bottomRight(rectangleA_topRight.x, rectangleA_bottomLeft.y);
+        if (Check2D_Point_Rectangle_Overlap(rectangleA_bottomRight, rectangleB_bottomLeft, rectangleB_topRight))
+        {
+            return true;
+        }
+
+        glm::vec2 rectangleA_topLeft(rectangleA_bottomLeft.x, rectangleA_topRight.y);
+        if (Check2D_Point_Rectangle_Overlap(rectangleA_topLeft, rectangleB_bottomLeft, rectangleB_topRight))
+        {
+            return true;
+        }
+
+        // now check if one of rectangleB's corners is inside rectangleA
+
+        if (Check2D_Point_Rectangle_Overlap(rectangleB_bottomLeft, rectangleA_bottomLeft, rectangleA_topRight) ||
+            Check2D_Point_Rectangle_Overlap(rectangleB_topRight, rectangleA_bottomLeft, rectangleA_topRight))
+        {
+            return true;
+        }
+
+        glm::vec2 rectangleB_bottomRight(rectangleB_topRight.x, rectangleB_bottomLeft.y);
+        if (Check2D_Point_Rectangle_Overlap(rectangleB_bottomRight, rectangleA_bottomLeft, rectangleA_topRight))
+        {
+            return true;
+        }
+
+        glm::vec2 rectangleB_topLeft(rectangleB_bottomLeft.x, rectangleB_topRight.y);
+        return Check2D_Point_Rectangle_Overlap(rectangleB_topLeft, rectangleA_bottomLeft, rectangleA_topRight);
+    }
+
+    inline bool Check2D_Rectangle_Circle_Overlap_Alt(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius)
+    {
+        return Check2D_RectangleFrame_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius) ||
+            Check2D_Point_Rectangle_Overlap(circle_position, rectangle_bottomLeft, rectangle_topRight);
+    }
+
     inline bool Check2D_RectangleFrame_LineSegment_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -1235,16 +1328,18 @@ namespace Project001
     {
         glm::vec2 rectangle_bottomRight(rectangle_topRight.x, rectangle_bottomLeft.y);
 
+        float circle_radiusSquared = circle_radius * circle_radius;
+
         // Check if the bottom of the rectangle crosses the circle
-        float pointLineSegmentDistance1 = Get2D_Point_LineSegment_Distance(circle_position, rectangle_bottomLeft, rectangle_bottomRight);
-        if (pointLineSegmentDistance1 <= circle_radius)
+        float pointLineSegmentDistanceSquared1 = Get2D_Point_LineSegment_DistanceSquared(circle_position, rectangle_bottomLeft, rectangle_bottomRight);
+        if (pointLineSegmentDistanceSquared1 <= circle_radiusSquared)
         {
             return true;
         }
 
         // Check if the right of the rectangle crosses the circle
-        float pointLineSegmentDistance2 = Get2D_Point_LineSegment_Distance(circle_position, rectangle_bottomRight, rectangle_topRight);
-        if (pointLineSegmentDistance2 <= circle_radius)
+        float pointLineSegmentDistanceSquared2 = Get2D_Point_LineSegment_DistanceSquared(circle_position, rectangle_bottomRight, rectangle_topRight);
+        if (pointLineSegmentDistanceSquared2 <= circle_radiusSquared)
         {
             return true;
         }
@@ -1252,39 +1347,15 @@ namespace Project001
         glm::vec2 rectangle_topLeft(rectangle_bottomLeft.x, rectangle_topRight.y);
 
         // Check if the top of the rectangle crosses the circle
-        float pointLineSegmentDistance3 = Get2D_Point_LineSegment_Distance(circle_position, rectangle_topRight, rectangle_topLeft);
-        if (pointLineSegmentDistance3 <= circle_radius)
+        float pointLineSegmentDistanceSquared3 = Get2D_Point_LineSegment_DistanceSquared(circle_position, rectangle_topRight, rectangle_topLeft);
+        if (pointLineSegmentDistanceSquared3 <= circle_radiusSquared)
         {
             return true;
         }
 
         // Check if the left of the rectangle crosses the circle
-        float pointLineSegmentDistance4 = Get2D_Point_LineSegment_Distance(circle_position, rectangle_topLeft, rectangle_bottomLeft);
-        return pointLineSegmentDistance4 <= circle_radius;
-    }
-
-    inline float GetMax(float a, float b)
-    {
-        if (a > b)
-        {
-            return a;
-        }
-        else
-        {
-            return b;
-        }
-    }
-
-    inline float GetMin(float a, float b)
-    {
-        if (a < b)
-        {
-            return a;
-        }
-        else
-        {
-            return b;
-        }
+        float pointLineSegmentDistanceSquared4 = Get2D_Point_LineSegment_DistanceSquared(circle_position, rectangle_topLeft, rectangle_bottomLeft);
+        return pointLineSegmentDistanceSquared4 <= circle_radiusSquared;
     }
 
     inline float Get2D_Slope(const glm::vec2& start, const glm::vec2& end)

@@ -9,7 +9,7 @@
 
 namespace Project001
 {
-    // Checking Point overlap -----------------------------------------------
+    // Checking Point overlap --------------------------------------------------
 
     bool Check2D_Point_Point_Overlap(
         const glm::vec2& pointA_position,
@@ -53,7 +53,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking Line overlap ------------------------------------------------
+    // Checking Line overlap ---------------------------------------------------
 
     bool Check2D_Line_Point_Overlap(
         const glm::vec2& line_position,
@@ -105,7 +105,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking LineSegment overlap -----------------------------------------
+    // Checking LineSegment overlap --------------------------------------------
 
     bool Check2D_LineSegment_Point_Overlap(
         const glm::vec2& lineSegment_start,
@@ -157,7 +157,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking Rectangle overlap -------------------------------------------
+    // Checking Rectangle overlap ----------------------------------------------
 
     bool Check2D_Rectangle_Point_Overlap(
         const glm::vec2& rectangle_bottomLeft,
@@ -209,7 +209,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking OrientedRectangle overlap -----------------------------------
+    // Checking OrientedRectangle overlap --------------------------------------
 
     bool Check2D_OrientedRectangle_Point_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
@@ -269,7 +269,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking Circle overlap ----------------------------------------------
+    // Checking Circle overlap -------------------------------------------------
 
     bool Check2D_Circle_Point_Overlap(
         const glm::vec2& circle_position,
@@ -321,7 +321,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking Capsule overlap ---------------------------------------------
+    // Checking Capsule overlap ------------------------------------------------
 
     bool Check2D_Capsule_Point_Overlap(
         const glm::vec2& capsule_start,
@@ -381,7 +381,7 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Checking Triangle overlap --------------------------------------------
+    // Checking Triangle overlap -----------------------------------------------
 
     bool Check2D_Triangle_Point_Overlap(
         const glm::vec2& triangle_corner1,
@@ -443,21 +443,27 @@ namespace Project001
 
     // Helper Functions --------------------------------------------------------
 
-    float Get2D_Point_Line_Distance(
+    float Get2D_Point_Line_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope);
 
     // Unused
-    float Get2D_Point_Line_Distance_Alt(
+    float Get2D_Point_Line_DistanceSquared_Alt(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope);
 
-    float Get2D_Point_LineSegment_Distance(
+    float Get2D_Point_LineSegment_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
+
+    // This version doesn't care which 2 cornors AS LONG AS they are opposite
+    bool Check2D_Point_Rectangle_NoOverlap_H(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_oppositeCorner1,
+        const glm::vec2& rectangle_oppositeCorner2);
 
     // This version doesn't care which 2 cornors AS LONG AS they are opposite
     bool Check2D_Point_Rectangle_Overlap_H(
@@ -478,6 +484,20 @@ namespace Project001
         const glm::vec2& lineB_position,
         const float& lineB_slope);
 
+    // Unused
+    bool Check2D_Rectangle_Rectangle_Overlap_Alt(
+        const glm::vec2& rectangleA_bottomLeft,
+        const glm::vec2& rectangleA_topRight,
+        const glm::vec2& rectangleB_bottomLeft,
+        const glm::vec2& rectangleB_topRight);
+
+    // Unused
+    bool Check2D_Rectangle_Circle_Overlap_Alt(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius);
+
     // This version doesn't check if the line segment is inside the rectangle
     // it only cares it if collides with the sides constructing it
     bool Check2D_RectangleFrame_LineSegment_Overlap(
@@ -493,9 +513,6 @@ namespace Project001
         const glm::vec2& rectangle_topRight,
         const glm::vec2& circle_position,
         const float& circle_radius);
-
-    float GetMax(float a, float b);
-    float GetMin(float a, float b);
 
     float Get2D_Slope(const glm::vec2& start, const glm::vec2& end);
 

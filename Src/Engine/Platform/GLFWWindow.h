@@ -49,27 +49,27 @@ namespace Project001
         void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const override;
         void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const override;
 
+        void MakeContextCurrent() override;
+        void MakeContextNotCurrent() override;
+
+        void SwapBuffers() override;
+
         // NOTE:
         // GLFW threading, timer, and joystick input are not window dependent.
 
     protected:
-        void CheckAndMakeContextCurrent();
+        void CheckAndInitializeOpenGL();
+
+        std::function<void(Event&)> EventCallback;
 
         static int s_glfwWindowCount_;
 
         GLFWwindow* glfwWindowPtr_;
 
-        bool isCurrentContext_;
-
         int aspectRatioNumerator_;
         int aspectRatioDenominator_;
 
         bool vSyncEnabled_;
-
-        struct WindowData
-        {
-            std::function<void(Event&)> EventCallback;
-        } windowData_;
 
     private:
     };
@@ -78,7 +78,7 @@ namespace Project001
 
     inline void GLFWWindow::SetEventCallback(const std::function<void(Event&)>& callback)
     {
-        windowData_.EventCallback = callback;
+        EventCallback = callback;
     }
 
     inline void GLFWWindow::GetAspectRatio(int& numerator, int& denominator) const

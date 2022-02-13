@@ -13,14 +13,14 @@ namespace Project001
     struct UpdateEvent;
 }
 
-class TestSceneFramework : public Project001::Scene
+class TestSceneBase001 : public Project001::Scene
 {
 public:
-    TestSceneFramework();
-    ~TestSceneFramework();
+    TestSceneBase001();
+    ~TestSceneBase001();
 
-    TestSceneFramework(TestSceneFramework& other) = delete;
-    void operator=(const TestSceneFramework&) = delete;
+    TestSceneBase001(TestSceneBase001& other) = delete;
+    void operator=(const TestSceneBase001&) = delete;
 
     void Initialize() override;
 

@@ -119,6 +119,16 @@ namespace Project001
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
             float width,
+            bool beveledCorners = true,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        bool Generate2DLineLoop(
+            unsigned int& index,
+            const std::vector<glm::vec2>& positions,
+            float width,
+            bool beveledCorners = true,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
@@ -281,6 +291,18 @@ namespace Project001
             std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
             float width,
+            bool beveledCorners = true,
+            bool recenter = true,
+            bool triangulate = true,
+            bool positionalTexture = true);
+
+        static bool Generate2DLineLoop(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            const std::vector<glm::vec2>& positions,
+            float width,
+            bool beveledCorners = true,
             bool recenter = true,
             bool triangulate = true,
             bool positionalTexture = true);
