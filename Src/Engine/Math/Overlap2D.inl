@@ -1106,6 +1106,31 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(triangleB_corner1, triangleA_corner1, triangleA_corner2, triangleA_corner3);
     }
 
+    // Getting Line Intersection -----------------------------------------------
+
+    inline void Get2D_Line_Line_Intersection(
+        const glm::vec2& lineA_position,
+        const float& lineA_slope,
+        const glm::vec2& lineB_position,
+        const float& lineB_slope,
+        glm::vec2& intersection_position)
+    {
+        // y = m * x + b
+        // b = y - m * x
+        float yInterceptA = lineA_position.y - lineA_slope * lineA_position.x;
+        float yInterceptB = lineB_position.y - lineB_slope * lineB_position.x;
+
+        // y = mA * x + bA
+        // y = mB * x + bB
+        // mA * x + bA = mB * x + bB
+        // mA * x = mB * x + bB - bA
+        // mA * x - mB * x = bB - bA
+        // x * (mA - mB) = bB - bA
+        // x = (bB - bA) / (mA - mB)
+        intersection_position.x = (yInterceptB - yInterceptA) / (lineA_slope - lineB_slope);
+        intersection_position.y = lineA_slope * intersection_position.x + yInterceptA;
+    }
+
     // Helper Functions --------------------------------------------------------
 
     inline float Get2D_Point_Line_DistanceSquared(
@@ -1137,8 +1162,8 @@ namespace Project001
 
         float invertedSlope = -1.0f / line_slope;
 
-        glm::vec2 perpendicularPoint =
-            Get2D_Line_Line_Intersection_H(line_position, line_slope, point_position, invertedSlope);
+        glm::vec2 perpendicularPoint;
+        Get2D_Line_Line_Intersection(line_position, line_slope, point_position, invertedSlope, perpendicularPoint);
 
         glm::vec2 pointToPerpendicularPoint = perpendicularPoint - point_position;
 
@@ -1218,32 +1243,6 @@ namespace Project001
         float areaSum = area1 + area2 + area3;
 
         return FloatsEqual(triangleArea, areaSum);
-    }
-
-    inline glm::vec2 Get2D_Line_Line_Intersection_H(
-        const glm::vec2& lineA_position,
-        const float& lineA_slope,
-        const glm::vec2& lineB_position,
-        const float& lineB_slope)
-    {
-        glm::vec2 result(NAN, NAN);
-
-        // y = m * x + b
-        // b = y - m * x
-        float yInterceptA = lineA_position.y - lineA_slope * lineA_position.x;
-        float yInterceptB = lineB_position.y - lineB_slope * lineB_position.x;
-
-        // y = mA * x + bA
-        // y = mB * x + bB
-        // mA * x + bA = mB * x + bB
-        // mA * x = mB * x + bB - bA
-        // mA * x - mB * x = bB - bA
-        // x * (mA - mB) = bB - bA
-        // x = (bB - bA) / (mA - mB)
-        result.x = (yInterceptB - yInterceptA) / (lineA_slope - lineB_slope);
-        result.y = lineA_slope * result.x + yInterceptA;
-
-        return result;
     }
 
     inline bool Check2D_Rectangle_Rectangle_Overlap_Alt(

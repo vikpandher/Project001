@@ -9,6 +9,37 @@
 
 namespace Project001
 {
+    // 2D Shape List -----------------------------------------------------------
+    // * Point
+    // * Line
+    // * LineSegment
+    // * Rectangle
+    // * OrientedRectangle
+    // * Circle
+    // * Capsule
+    // * Triangle
+    // 
+    // Overlap Functions:
+    //              | Poi | Lin | LiS | Rec | OrR | Cir | Cap | Tri |
+    // Point        |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |
+    // Line         | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |
+    // LineSegment  | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |
+    // Rectangle    | --- | --- | --- |  X  |  X  |  X  |  X  |  X  |
+    // O. Rectangle | --- | --- | --- | --- |  X  |  X  |  X  |  X  |
+    // Circle       | --- | --- | --- | --- | --- |  X  |  X  |  X  |
+    // Capsule      | --- | --- | --- | --- | --- | --- |  X  |  X  |
+    // Triangle     | --- | --- | --- | --- | --- | --- | --- |  X  |
+    // 
+    // Intersection Functions:
+    //              | Lin | LiS | Rec | OrR | Cir | Cap | Tri |
+    // Line         |  X  |     |     |     |     |     |     |
+    // LineSegment  | --- |     |     |     |     |     |     |
+    // Rectangle    | --- | --- |     |     |     |     |     |
+    // O. Rectangle | --- | --- | --- |     |     |     |     |
+    // Circle       | --- | --- | --- | --- |     |     |     |
+    // Capsule      | --- | --- | --- | --- | --- |     |     |
+    // Triangle     | --- | --- | --- | --- | --- | --- |     |
+
     // Checking Point overlap --------------------------------------------------
 
     bool Check2D_Point_Point_Overlap(
@@ -441,6 +472,16 @@ namespace Project001
         const glm::vec2& triangleB_corner2,
         const glm::vec2& triangleB_corner3);
 
+    // Getting Line Intersection -----------------------------------------------
+
+    // If lineA_slope == lineB_slope, intersection_position == (nan, nan)
+    void Get2D_Line_Line_Intersection(
+        const glm::vec2& lineA_position,
+        const float& lineA_slope,
+        const glm::vec2& lineB_position,
+        const float& lineB_slope,
+        glm::vec2& intersection_position);
+
     // Helper Functions --------------------------------------------------------
 
     float Get2D_Point_Line_DistanceSquared(
@@ -477,12 +518,6 @@ namespace Project001
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
-
-    glm::vec2 Get2D_Line_Line_Intersection_H(
-        const glm::vec2& lineA_position,
-        const float& lineA_slope,
-        const glm::vec2& lineB_position,
-        const float& lineB_slope);
 
     // Unused
     bool Check2D_Rectangle_Rectangle_Overlap_Alt(

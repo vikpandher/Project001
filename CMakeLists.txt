@@ -129,7 +129,6 @@ source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
 
 set(SHADER_SOURCE_FILES
     "Src/Engine/Platform/ShaderSource/BatchShaderSource.h"
-    "Src/Engine/Platform/ShaderSource/ColorShaderSource.h"
     "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
     "Src/Engine/Platform/ShaderSource/ScreenShaderSource.h"
     "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"
