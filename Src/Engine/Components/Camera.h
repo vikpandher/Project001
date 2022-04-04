@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Components/Placement.h"
+#include "Engine/Math/VectorAngles.h"
 
 
 
@@ -55,7 +56,7 @@ namespace Project001
 
         glm::mat4 GetProjectionMatrix() const;
 
-        glm::vec2 ConvertPointFromWindowToOrtho(int windowWidth, int windowHeight, glm::vec2 windowPoint) const;
+        glm::vec2 ConvertPointFromWindowToOrthoWorld(int windowWidth, int windowHeight, glm::vec2 windowPoint) const;
 
     protected:
         // Inherited:
@@ -212,6 +213,25 @@ namespace Project001
 
     inline glm::mat4 Camera::GetViewMatrix() const
     {
+        // const glm::vec3& eye = position_;
+        // const glm::vec3& r = -GetLeftVector();
+        // const glm::vec3& u = GetUpVector();
+        // const glm::vec3& f = GetForwardVector();
+        // glm::mat4 lookAtMatrix(1);
+        // lookAtMatrix[0][0] = r.x;
+        // lookAtMatrix[1][0] = r.y;
+        // lookAtMatrix[2][0] = r.z;
+        // lookAtMatrix[0][1] = u.x;
+        // lookAtMatrix[1][1] = u.y;
+        // lookAtMatrix[2][1] = u.z;
+        // lookAtMatrix[0][2] = -f.x;
+        // lookAtMatrix[1][2] = -f.y;
+        // lookAtMatrix[2][2] = -f.z;
+        // lookAtMatrix[3][0] = -glm::dot(r, eye);
+        // lookAtMatrix[3][1] = -glm::dot(u, eye);
+        // lookAtMatrix[3][2] = glm::dot(f, eye);
+        // return lookAtMatrix;
+
         glm::vec3 eye = position_;
         glm::vec3 center = position_ + GetForwardVector();
         glm::vec3 up = GetUpVector();
@@ -230,10 +250,13 @@ namespace Project001
         }
     }
 
-    inline glm::vec2 Camera::ConvertPointFromWindowToOrtho(int windowWidth, int windowHeight, glm::vec2 windowPoint) const
+    inline glm::vec2 Camera::ConvertPointFromWindowToOrthoWorld(int windowWidth, int windowHeight, glm::vec2 windowPoint) const
     {
-        return glm::vec2(
-            (windowPoint.x / (float)windowWidth - 0.5f) * (rightCutoff_ - leftCutoff_) + position_.x,
-            (((float)windowHeight - windowPoint.y) / (float)windowHeight - 0.5f) * (topCutoff_ - bottomCutoff_) + position_.y);
+        glm::vec2 orthoPoint((windowPoint.x / (float)windowWidth - 0.5f) * (rightCutoff_ - leftCutoff_),
+            (((float)windowHeight - windowPoint.y) / (float)windowHeight - 0.5f) * (topCutoff_ - bottomCutoff_));
+        orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
+        orthoPoint.x += position_.x;
+        orthoPoint.y += position_.y;
+        return orthoPoint;
     }
 }

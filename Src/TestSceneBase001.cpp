@@ -151,6 +151,9 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         float xOffset = currentXPosition - prevousXPosition;
         float yOffset = currentYPosition - prevousYPosition;
 
+        // moving cursor right = positive xOffset
+        // moving cursor up = negative yOffset
+
         float cameraYaw = -1.0f * xOffset * speedConstant;
         float cameraPitch = yOffset * speedConstant;
 

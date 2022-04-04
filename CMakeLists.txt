@@ -19,6 +19,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 # add_compile_definitions("GLM_ENABLE_EXPERIMENTAL")
+# add_compile_definitions("GLM_FORCE_LEFT_HANDED")
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -40,6 +41,8 @@ set(SOURCE_FILES
     "Src/TestScene005.h"
     "Src/TestScene006.cpp"
     "Src/TestScene006.h"
+    "Src/TestScene007.cpp"
+    "Src/TestScene007.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneData.cpp"
@@ -82,6 +85,8 @@ source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set (COMPONENTS_FILES
     "Src/Engine/Components/Camera.h"
+    "Src/Engine/Components/CollisionBody.cpp"
+    "Src/Engine/Components/CollisionBody.h"
     "Src/Engine/Components/CollisionBody2D.cpp"
     "Src/Engine/Components/CollisionBody2D.h"
     "Src/Engine/Components/LightSource.h"
@@ -96,13 +101,19 @@ source_group("Src/Engine/Components" FILES ${COMPONENTS_FILES})
 
 set (MATH_FILES
     "Src/Engine/Math/CoordinateSystems.h"
-    "Src/Engine/Math/FloatsEqual.h"
+    "Src/Engine/Math/CoordinateSystems.inl"
+    "Src/Engine/Math/FloatComparators.h"
+    "Src/Engine/Math/FloatComparators.inl"
     "Src/Engine/Math/Overlap2D.h"
     "Src/Engine/Math/Overlap2D.inl"
     "Src/Engine/Math/Overlap3D.h"
     "Src/Engine/Math/Overlap3D.inl"
+    "Src/Engine/Math/Overlap3D_UnitTests.h"
+    "Src/Engine/Math/Overlap3D_UnitTests.inl"
     "Src/Engine/Math/Shapes2D.h"
+    "Src/Engine/Math/Shapes3D.h"
     "Src/Engine/Math/VectorAngles.h"
+    "Src/Engine/Math/VectorAngles.inl"
 )
 
 source_group("Src/Engine/Math" FILES ${MATH_FILES})

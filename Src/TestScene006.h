@@ -51,7 +51,7 @@ protected:
 
     void DetectCollisions();
 
-    void Sync_RenderedModel_CollisionBody2D_Components();
+    void Sync_RenderedModel_CollisionBody_Components();
 
     // Pointers from Application: ----------------------------------------------
 
@@ -76,7 +76,7 @@ protected:
     // Scene Data: -------------------------------------------------------------
 
     bool cursorGrabbingEntity_;
-    glm::vec2 previousCursorPosition_;
+    glm::vec2 previousCursorDownPosition_;
 
 private:
 };

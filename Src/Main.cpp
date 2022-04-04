@@ -9,6 +9,7 @@
 #include "TestScene004.h"
 #include "TestScene005.h"
 #include "TestScene006.h"
+#include "TestScene007.h"
 
 
 
@@ -16,13 +17,9 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
-    // tests 2d shape overlap
-    TestScene005* testScene005Ptr = new TestScene005();
-    applicationPtr->AddScene(testScene005Ptr);
-
-    // tests 2d shape overlap
-    TestScene006* testScene006Ptr = new TestScene006();
-    applicationPtr->AddScene(testScene006Ptr);
+    // 
+    TestScene007* testScene007Ptr = new TestScene007();
+    applicationPtr->AddScene(testScene007Ptr);
 
     // tests shape generation
     TestScene001* testScene001Ptr = new TestScene001();
@@ -40,6 +37,14 @@ int main(int argc, char** argv)
     TestScene004* testScene004Ptr = new TestScene004();
     applicationPtr->AddScene(testScene004Ptr);
 
+    // tests 2d shape overlap
+    TestScene005* testScene005Ptr = new TestScene005();
+    applicationPtr->AddScene(testScene005Ptr);
+
+    // tests 2d shape overlap
+    TestScene006* testScene006Ptr = new TestScene006();
+    applicationPtr->AddScene(testScene006Ptr);
+
     applicationPtr->Run();
 
     delete applicationPtr;
@@ -49,6 +54,7 @@ int main(int argc, char** argv)
     delete testScene004Ptr;
     delete testScene005Ptr;
     delete testScene006Ptr;
+    delete testScene007Ptr;
 
     return 0;
 }

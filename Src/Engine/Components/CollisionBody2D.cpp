@@ -173,76 +173,150 @@ namespace Project001
     void CollisionBody2D::CalculateTransforedShapes()
     {
         transformedPoints_.clear();
+        transformedLines_.clear();
+        transformedLineSegments_.clear();
+        transformedRectangles_.clear();
+        transformedOrientedRectangles_.clear();
+        transformedCircles_.clear();
+        transformedCapsules_.clear();
+        transformedTriangles_.clear();
+
         for (size_t i = 0; i < points_.size(); ++i)
         {
             const Point2D& currentPoint = points_[i];
-            transformedPoints_.emplace_back(currentPoint.position + position_);
+            glm::vec2 newPosition = Rotate2DVector(currentPoint.position, rotation_) + position_;
+            transformedPoints_.emplace_back(newPosition);
         }
 
-        transformedLines_.clear();
         for (size_t i = 0; i < lines_.size(); ++i)
         {
             const Line2D& currentLine = lines_[i];
+            glm::vec2 newPosition = Rotate2DVector(currentLine.position, rotation_) + position_;
+            float newSlope = RotateSlope(currentLine.slope, rotation_);
             transformedLines_.emplace_back(
-                currentLine.position + position_,
-                currentLine.slope);
+                newPosition,
+                newSlope);
         }
 
-        transformedLineSegments_.clear();
         for (size_t i = 0; i < lineSegments_.size(); ++i)
         {
             const LineSegment2D& currentLineSegment = lineSegments_[i];
+            glm::vec2 newStart = Rotate2DVector(currentLineSegment.start, rotation_) + position_;
+            glm::vec2 newEnd = Rotate2DVector(currentLineSegment.end, rotation_) + position_;
             transformedLineSegments_.emplace_back(
-                currentLineSegment.start + position_,
-                currentLineSegment.end + position_);
+                newStart,
+                newEnd);
         }
 
-        transformedRectangles_.clear();
         for (size_t i = 0; i < rectangles_.size(); ++i)
         {
             const Rectangle2D& currentRectangle = rectangles_[i];
-            transformedRectangles_.emplace_back(
-                currentRectangle.bottomLeft + position_,
-                currentRectangle.topRight + position_);
+            if (FloatEqualToFloat(rotation_, 0.0f))
+            {
+                glm::vec2 newBottomLeft = currentRectangle.bottomLeft + position_;
+                glm::vec2 newTopRight = currentRectangle.topRight + position_;
+                transformedRectangles_.emplace_back(
+                    newBottomLeft,
+                    newTopRight);
+            }
+            else if (FloatEqualToFloat(rotation_, glm::half_pi<float>()))
+            {
+                glm::vec2 newBottomLeft = Rotate2DVector(currentRectangle.bottomLeft, glm::half_pi<float>()) + position_;
+                glm::vec2 newTopRight = Rotate2DVector(currentRectangle.topRight, glm::half_pi<float>()) + position_;
+                Swap(newBottomLeft.x, newTopRight.x);
+                transformedRectangles_.emplace_back(
+                    newBottomLeft,
+                    newTopRight);
+            }
+            else if (FloatEqualToFloat(rotation_, glm::pi<float>()))
+            {
+                glm::vec2 newBottomLeft = Rotate2DVector(currentRectangle.bottomLeft, glm::pi<float>()) + position_;
+                glm::vec2 newTopRight = Rotate2DVector(currentRectangle.topRight, glm::pi<float>()) + position_;
+                transformedRectangles_.emplace_back(
+                    newTopRight,
+                    newBottomLeft);
+            }
+            else if (FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
+            {
+                glm::vec2 newBottomLeft = Rotate2DVector(currentRectangle.bottomLeft, glm::three_over_two_pi<float>()) + position_;
+                glm::vec2 newTopRight = Rotate2DVector(currentRectangle.topRight, glm::three_over_two_pi<float>()) + position_;
+                Swap(newBottomLeft.y, newTopRight.y);
+                transformedRectangles_.emplace_back(
+                    newBottomLeft,
+                    newTopRight);
+            }
+            else
+            {
+                glm::vec2 newHalfSize = (currentRectangle.topRight - currentRectangle.bottomLeft) / 2.0f;
+                glm::vec2 newPosition = (currentRectangle.bottomLeft + currentRectangle.topRight) / 2.0f;
+                newPosition = Rotate2DVector(newPosition, rotation_) + position_;
+                transformedOrientedRectangles_.emplace_back(newHalfSize, newPosition, rotation_);
+            }
         }
 
-        transformedOrientedRectangles_.clear();
         for (size_t i = 0; i < orientedRectangles_.size(); ++i)
         {
             const OrientedRectangle2D& currentOrientedRectangle = orientedRectangles_[i];
-            transformedOrientedRectangles_.emplace_back(
-                currentOrientedRectangle.halfSize,
-                currentOrientedRectangle.position + position_,
-                currentOrientedRectangle.rotation);
+            glm::vec2 newPosition = Rotate2DVector(currentOrientedRectangle.position, rotation_) + position_;
+            float newRotation = currentOrientedRectangle.rotation + rotation_;
+            if (FloatEqualToFloat(newRotation, 0.0f) || FloatEqualToFloat(newRotation, glm::pi<float>()))
+            {
+                glm::vec2 newBottomLeft = newPosition - currentOrientedRectangle.halfSize;
+                glm::vec2 newTopRight = newPosition + currentOrientedRectangle.halfSize;
+                transformedRectangles_.emplace_back(
+                    newBottomLeft,
+                    newTopRight);
+            }
+            else if (FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
+                FloatEqualToFloat(newRotation, glm::three_over_two_pi<float>()))
+            {
+                glm::vec2 newBottomLeft(newPosition.x - currentOrientedRectangle.halfSize.y,
+                    newPosition.y - currentOrientedRectangle.halfSize.x);
+                glm::vec2 newTopRight(newPosition.y - currentOrientedRectangle.halfSize.x,
+                    newPosition.x - currentOrientedRectangle.halfSize.y);
+                transformedRectangles_.emplace_back(
+                    newBottomLeft,
+                    newTopRight);
+            }
+            else
+            {
+                transformedOrientedRectangles_.emplace_back(
+                    currentOrientedRectangle.halfSize,
+                    newPosition,
+                    newRotation);
+            }
         }
 
-        transformedCircles_.clear();
         for (size_t i = 0; i < circles_.size(); ++i)
         {
             const Circle2D& currentCircle = circles_[i];
+            glm::vec2 newPosition = Rotate2DVector(currentCircle.position, rotation_) + position_;
             transformedCircles_.emplace_back(
-                currentCircle.position + position_,
+                newPosition,
                 currentCircle.radius);
         }
 
-        transformedCapsules_.clear();
         for (size_t i = 0; i < capsules_.size(); ++i)
         {
             const Capsule2D& currentCapsule = capsules_[i];
+            glm::vec2 newStart = Rotate2DVector(currentCapsule.start, rotation_) + position_;
+            glm::vec2 newEnd = Rotate2DVector(currentCapsule.end, rotation_) + position_;
             transformedCapsules_.emplace_back(
-                currentCapsule.start + position_,
-                currentCapsule.end + position_,
+                newStart,
+                newEnd,
                 currentCapsule.radius);
         }
 
-        transformedTriangles_.clear();
         for (size_t i = 0; i < triangles_.size(); ++i)
         {
             const Triangle2D& currentTriangle = triangles_[i];
+            glm::vec2 newCorner1 = Rotate2DVector(currentTriangle.corner1, rotation_) + position_;
+            glm::vec2 newCorner2 = Rotate2DVector(currentTriangle.corner2, rotation_) + position_;
+            glm::vec2 newCorner3 = Rotate2DVector(currentTriangle.corner3, rotation_) + position_;
             transformedTriangles_.emplace_back(
-                currentTriangle.corner1 + position_,
-                currentTriangle.corner2 + position_,
-                currentTriangle.corner3 + position_);
+                newCorner1,
+                newCorner2,
+                newCorner3);
         }
     }
 

@@ -13,6 +13,9 @@ namespace Project001
     public:
         Placement2D();
 
+        void TranslateUp(float d);
+        void TranslateRight(float d);
+
         void AddRotation(float angleInRadians);
         float GetRotation() const;
         void SetRotation(float angleInRadians);
@@ -27,6 +30,17 @@ namespace Project001
     inline Placement2D::Placement2D()
         : rotation_(0.0f)
     {}
+
+    inline void Placement2D::TranslateUp(float d)
+    {
+        position_.x += d * std::sin(-1.0f * rotation_);
+        position_.y += d * std::cos(-1.0f * rotation_);
+    }
+    inline void Placement2D::TranslateRight(float d)
+    {
+        position_.x += d * std::cos(rotation_);
+        position_.y += d * std::sin(rotation_);
+    }
 
     inline void Placement2D::AddRotation(float angleInRadians)
     {

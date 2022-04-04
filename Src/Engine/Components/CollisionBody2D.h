@@ -2,14 +2,14 @@
 
 #include <vector>
 
-#include "Engine/Components/Position2D.h"
+#include "Engine/Components/Placement2D.h"
 #include "Engine/Math/Shapes2D.h"
 
 
 
 namespace Project001
 {
-    class CollisionBody2D : public Position2D
+    class CollisionBody2D : public Placement2D
     {
     public:
         CollisionBody2D();
@@ -62,6 +62,7 @@ namespace Project001
     protected:
         // Inherited:
         // glm::vec2 position_;
+        // float rotation_;
 
         std::vector<Point2D> points_;
         std::vector<Line2D> lines_;

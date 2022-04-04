@@ -5,7 +5,6 @@
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
-#include "Engine/Math/FloatsEqual.h"
 #include "Engine/Math/VectorAngles.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
@@ -22,7 +21,7 @@
 
 TestScene006::TestScene006()
     : cursorGrabbingEntity_(false)
-    , previousCursorPosition_(0.0f, 0.0f)
+    , previousCursorDownPosition_(0.0f, 0.0f)
 {
     ClearIndiciesAndEntityIds();
 }
@@ -635,10 +634,10 @@ void TestScene006::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-        currentPosition = cameraPtr->ConvertPointFromWindowToOrtho(windowWidth, windowHeight, currentPosition);
+        currentPosition = cameraPtr->ConvertPointFromWindowToOrthoWorld(windowWidth, windowHeight, currentPosition);
 
-        float xOffset = currentPosition.x - previousCursorPosition_.x;
-        float yOffset = currentPosition.y - previousCursorPosition_.y;
+        float xOffset = currentPosition.x - previousCursorDownPosition_.x;
+        float yOffset = currentPosition.y - previousCursorDownPosition_.y;
 
         if (selectedEntityIdIndex_ < entityIds_.size())
         {
@@ -650,8 +649,8 @@ void TestScene006::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
             collisionBody2DPtr->AddTranslationY(yOffset);
         }
 
-        previousCursorPosition_.x = currentPosition.x;
-        previousCursorPosition_.y = currentPosition.y;
+        previousCursorDownPosition_.x = currentPosition.x;
+        previousCursorDownPosition_.y = currentPosition.y;
     }
 
     cursorButtonEvent.handled = true;
@@ -707,11 +706,11 @@ void TestScene006::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene007"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene007"));
             }
         }
         else if (keyCode == Project001::KeyCode::KEY_CODE_N)
@@ -752,14 +751,14 @@ void TestScene006::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        windowPtr_->GetCursorPosition(previousCursorPosition_.x, previousCursorPosition_.y);
+        windowPtr_->GetCursorPosition(previousCursorDownPosition_.x, previousCursorDownPosition_.y);
 
         int windowWidth, windowHeight;
         windowPtr_->GetWindowSize(windowWidth, windowHeight);
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-        previousCursorPosition_ = cameraPtr->ConvertPointFromWindowToOrtho(windowWidth, windowHeight, previousCursorPosition_);
+        previousCursorDownPosition_ = cameraPtr->ConvertPointFromWindowToOrthoWorld(windowWidth, windowHeight, previousCursorDownPosition_);
 
         Project001::CollisionBody2D* collisionBody2DArray = nullptr;
         size_t collisionBodyCount = 0;
@@ -772,7 +771,7 @@ void TestScene006::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         for (int i = (int)collisionBodyCount - 1; i >= 0; --i)
         {
             Project001::CollisionBody2D& currentCollisionBody2D = collisionBody2DArray[i];
-            if (currentCollisionBody2D.GetCollision(previousCursorPosition_))
+            if (currentCollisionBody2D.GetCollision(previousCursorDownPosition_))
             {
                 unsigned int entityId;
                 _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&currentCollisionBody2D, entityId));
@@ -842,36 +841,6 @@ void TestScene006::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         }
     }
 
-    // std::vector<Project001::MeshVertex> meshVertexArray;
-    // std::vector<unsigned int> meshIndexArray;
-    // Project001::MeshData meshData;
-    // std::vector<glm::vec2> positions;
-    // positions.emplace_back(-1.60f, -1.60f);
-    // positions.emplace_back(1.60f, -1.60f);
-    // positions.emplace_back(1.60f, 1.60f);
-    // positions.emplace_back(-1.60f, 1.60f);
-    // Project001::MeshStores::Generate2DLine(
-    //     meshData,
-    //     meshVertexArray,
-    //     meshIndexArray,
-    //     positions,
-    //     0.04f);
-    // _FAIL_CHECK(rendererPtr_->AddMesh(
-    //     meshVertexArray.data(),
-    //     meshVertexArray.size(),
-    //     meshIndexArray.data(),
-    //     meshIndexArray.size(),
-    //     (unsigned int)-1,
-    //     (unsigned int)-1,
-    //     glm::vec3(0.0f, 0.0f, 0.0f),
-    //     glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-    //     glm::vec3(1.0f ,1.0f ,1.0f),
-    //     glm::vec4(0.2f, 0.6f, 0.4f, 1.0f),
-    //     0.0f,
-    //     false,
-    //     false
-    // ));
-
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
@@ -910,6 +879,8 @@ void TestScene006::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
         cameraPtr->SetLeftCutoff(newLeftCutoff);
         cameraPtr->SetRightCutoff(newRightCutoff);
     }
+
+    scrollEvent.handled = true;
 }
 
 void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -917,7 +888,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     unsigned long timestep_ns = updateEvent.timestep_ns;
 
     UpdatedSelectedEntityPosition(timestep_ns);
-    Sync_RenderedModel_CollisionBody2D_Components();
+    Sync_RenderedModel_CollisionBody_Components();
 
     DetectCollisions();
 }
@@ -929,6 +900,8 @@ void TestScene006::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
     float speedConstant = cameraPtr->GetTopCutoff();
+    glm::vec2 cameraUp = cameraPtr->GetUpVector();
+    glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
 
     float translationSpeed = speedConstant * timestep_s;
     float rotationSpeed = speedConstant * 2.0f * timestep_s;
@@ -949,33 +922,37 @@ void TestScene006::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
 
         if (movingLeft)
         {
-            collisionBodyPtr->AddTranslationX(-1.0f * translationSpeed);
+            // collisionBodyPtr->TranslateRight(-1.0f * translationSpeed);
+            collisionBodyPtr->AddTranslation(cameraLeft * translationSpeed);
         }
 
         if (movingRight)
         {
-            collisionBodyPtr->AddTranslationX(translationSpeed);
+            // collisionBodyPtr->TranslateRight(translationSpeed);
+            collisionBodyPtr->AddTranslation(cameraLeft * -1.0f * translationSpeed);
         }
 
         if (movingUp)
         {
-            collisionBodyPtr->AddTranslationY(translationSpeed);
+            // collisionBodyPtr->TranslateUp(translationSpeed);
+            collisionBodyPtr->AddTranslation(cameraUp * translationSpeed);
         }
 
         if (movingDown)
         {
-            collisionBodyPtr->AddTranslationY(-1.0f * translationSpeed);
+            // collisionBodyPtr->TranslateUp(-1.0f * translationSpeed);
+            collisionBodyPtr->AddTranslation(cameraUp * -1.0f * translationSpeed);
         }
 
-        // if (rollingLeft)
-        // {
-        //     collisionBodyPtr->AddWorldRotationZ(rotationSpeed);
-        // }
+        if (rollingLeft)
+        {
+            collisionBodyPtr->AddRotation(rotationSpeed);
+        }
 
-        // if (rollingRight)
-        // {
-        //     collisionBodyPtr->AddWorldRotationZ(-1.0f * rotationSpeed);
-        // }
+        if (rollingRight)
+        {
+            collisionBodyPtr->AddRotation(-1.0f * rotationSpeed);
+        }
     }
     else
     {
@@ -1002,15 +979,15 @@ void TestScene006::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
             cameraPtr->MoveDown(translationSpeed);
         }
 
-        // if (rollingLeft)
-        // {
-        //     cameraPtr->AddRoll(-1.0f * rotationSpeed);
-        // }
-        // 
-        // if (rollingRight)
-        // {
-        //     cameraPtr->AddRoll(rotationSpeed);
-        // }
+        if (rollingLeft)
+        {
+            cameraPtr->AddRoll(-1.0f * rotationSpeed);
+        }
+
+        if (rollingRight)
+        {
+            cameraPtr->AddRoll(rotationSpeed);
+        }
     }
 }
 
@@ -1028,13 +1005,16 @@ void TestScene006::DetectCollisions()
         currentCollisionBody2D.SetColliding(false);
     }
 
-    for (unsigned int i = 0; i < collisionBodyCount - 1; ++i)
+    if (collisionBodyCount > 0)
     {
-        Project001::CollisionBody2D& firstCollisionBody2D = collisionBody2DArray[i];
-        for (unsigned int j = i + 1; j < collisionBodyCount; ++j)
+        for (unsigned int i = 0; i < collisionBodyCount - 1; ++i)
         {
-            Project001::CollisionBody2D& secondCollisionBody2D = collisionBody2DArray[j];
-            firstCollisionBody2D.CalculateCollision(secondCollisionBody2D);
+            Project001::CollisionBody2D& firstCollisionBody2D = collisionBody2DArray[i];
+            for (unsigned int j = i + 1; j < collisionBodyCount; ++j)
+            {
+                Project001::CollisionBody2D& secondCollisionBody2D = collisionBody2DArray[j];
+                firstCollisionBody2D.CalculateCollision(secondCollisionBody2D);
+            }
         }
     }
 
@@ -1072,7 +1052,7 @@ void TestScene006::DetectCollisions()
     }
 }
 
-void TestScene006::Sync_RenderedModel_CollisionBody2D_Components()
+void TestScene006::Sync_RenderedModel_CollisionBody_Components()
 {
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
@@ -1092,6 +1072,9 @@ void TestScene006::Sync_RenderedModel_CollisionBody2D_Components()
             const float& positionX = collisionBody2D.GetPosition().x;
             const float& positionY = collisionBody2D.GetPosition().y;
             renderedModelPtr->SetPosition(positionX, positionY, 0.0f);
+            const float& rotation = collisionBody2D.GetRotation();
+            renderedModelPtr->ResetOrientation();
+            renderedModelPtr->AddWorldRotationZ(rotation);
         }
     }
 }

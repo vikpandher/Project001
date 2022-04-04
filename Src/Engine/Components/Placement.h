@@ -29,6 +29,10 @@ namespace Project001
         // Orientation Controls
         // ---------------------------------------------------------------------
         // Rotation follows the right hand rule.
+        // 
+        // The world is a Right-Handed Coordinate system.
+        // If x is positive to the right and y is positive to the top,
+        // z is positive sticking out of the screen.
 
         void ResetOrientation();
 
@@ -221,12 +225,16 @@ namespace Project001
 
     inline void Placement::LookAt(const glm::vec3& direction, const glm::vec3& up)
     {
-        orientation_ = glm::quatLookAtLH(glm::normalize(direction), glm::normalize(up));
+        glm::mat3 orientation;
+        orientation[2] = direction;
+        orientation[0] = glm::normalize(glm::cross(up, orientation[2]));
+        orientation[1] = glm::cross(orientation[2], orientation[0]);
+        orientation_ = glm::quat_cast(orientation);
     }
 
     inline void Placement::LookAt(const glm::vec3& direction)
     {
-        orientation_ = glm::quatLookAtLH(glm::normalize(direction), GetUpVector());
+        LookAt(glm::normalize(direction), GetUpVector());
     }
 
     inline glm::vec3 Placement::GetForwardVector() const

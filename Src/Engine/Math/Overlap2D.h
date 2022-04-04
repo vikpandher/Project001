@@ -2,44 +2,47 @@
 
 #include "glm/glm.hpp"
 
-#include "Engine/Math/FloatsEqual.h"
+#include "Engine/Math/FloatComparators.h"
 #include "Engine/Math/VectorAngles.h"
 
 
 
+// 2D Shape List ---------------------------------------------------------------
+// * Point
+// * Line
+// * LineSegment
+// * Rectangle
+// * OrientedRectangle
+// * Circle
+// * Capsule
+// * Triangle
+// * ConvexPolygon (TODO)
+// 
+// Overlap Functions:
+//                | Poi | Lin | LiS | Rec | OrR | Cir | Cap | Tri | CoP |
+// Point          |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |     |
+// Line           | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |     |
+// LineSegment    | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |     |
+// Rectangle      | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |     |
+// O. Rectangle   | --- | --- | --- | --- |  \  |  \  |  \  |  \  |     |
+// Circle         | --- | --- | --- | --- | --- |  \  |  \  |  \  |     |
+// Capsule        | --- | --- | --- | --- | --- | --- |  \  |  \  |     |
+// Triangle       | --- | --- | --- | --- | --- | --- | --- |  \  |     |
+// Convex Polygon | --- | --- | --- | --- | --- | --- | --- | --- |     |
+// 
+// Intersection Functions:
+//                | Lin | LiS | Rec | OrR | Cir | Cap | Tri | Con |
+// Line           |  \  |     |     |     |     |     |     |     |
+// LineSegment    | --- |     |     |     |     |     |     |     |
+// Rectangle      | --- | --- |     |     |     |     |     |     |
+// O. Rectangle   | --- | --- | --- |     |     |     |     |     |
+// Circle         | --- | --- | --- | --- |     |     |     |     |
+// Capsule        | --- | --- | --- | --- | --- |     |     |     |
+// Triangle       | --- | --- | --- | --- | --- | --- |     |     |
+// Convex Polygon | --- | --- | --- | --- | --- | --- | --- |     |
+
 namespace Project001
 {
-    // 2D Shape List -----------------------------------------------------------
-    // * Point
-    // * Line
-    // * LineSegment
-    // * Rectangle
-    // * OrientedRectangle
-    // * Circle
-    // * Capsule
-    // * Triangle
-    // 
-    // Overlap Functions:
-    //              | Poi | Lin | LiS | Rec | OrR | Cir | Cap | Tri |
-    // Point        |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |
-    // Line         | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |
-    // LineSegment  | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |
-    // Rectangle    | --- | --- | --- |  X  |  X  |  X  |  X  |  X  |
-    // O. Rectangle | --- | --- | --- | --- |  X  |  X  |  X  |  X  |
-    // Circle       | --- | --- | --- | --- | --- |  X  |  X  |  X  |
-    // Capsule      | --- | --- | --- | --- | --- | --- |  X  |  X  |
-    // Triangle     | --- | --- | --- | --- | --- | --- | --- |  X  |
-    // 
-    // Intersection Functions:
-    //              | Lin | LiS | Rec | OrR | Cir | Cap | Tri |
-    // Line         |  X  |     |     |     |     |     |     |
-    // LineSegment  | --- |     |     |     |     |     |     |
-    // Rectangle    | --- | --- |     |     |     |     |     |
-    // O. Rectangle | --- | --- | --- |     |     |     |     |
-    // Circle       | --- | --- | --- | --- |     |     |     |
-    // Capsule      | --- | --- | --- | --- | --- |     |     |
-    // Triangle     | --- | --- | --- | --- | --- | --- |     |
-
     // Checking Point overlap --------------------------------------------------
 
     bool Check2D_Point_Point_Overlap(

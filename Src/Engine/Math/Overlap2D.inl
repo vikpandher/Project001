@@ -9,8 +9,8 @@ namespace Project001
         const glm::vec2& pointA_position,
         const glm::vec2& pointB_position)
     {
-        return FloatsEqual(pointA_position.x, pointB_position.x) &&
-            FloatsEqual(pointA_position.y, pointB_position.y);
+        return FloatEqualToFloat(pointA_position.x, pointB_position.x) &&
+            FloatEqualToFloat(pointA_position.y, pointB_position.y);
     }
 
     inline bool Check2D_Point_Line_Overlap(
@@ -21,7 +21,7 @@ namespace Project001
         if (line_slope == INFINITY)
         {
             // vertical slope, so just compare x
-            return FloatsEqual(point_position.x, line_position.x);
+            return FloatEqualToFloat(point_position.x, line_position.x);
         }
         else
         {
@@ -31,7 +31,7 @@ namespace Project001
             // y2 = m * x2 + b
             float expectedY = line_slope * point_position.x + yIntercept;
 
-            return FloatsEqual(point_position.y, expectedY);
+            return FloatEqualToFloat(point_position.y, expectedY);
         }
     }
 
@@ -50,7 +50,7 @@ namespace Project001
         if (slopeDemoninator == 0.0f)
         {
             // vertical slope, so just compare x
-            return FloatsEqual(point_position.x, lineSegment_start.x);
+            return FloatEqualToFloat(point_position.x, lineSegment_start.x);
         }
 
         float slope = (lineSegment_end.y - lineSegment_start.y) / slopeDemoninator;
@@ -61,7 +61,7 @@ namespace Project001
         // y2 = m * x2 + b
         float expectedY = slope * point_position.x + yIntercept;
 
-        return FloatsEqual(point_position.y, expectedY);
+        return FloatEqualToFloat(point_position.y, expectedY);
     }
 
     inline bool Check2D_Point_Rectangle_Overlap(
@@ -200,8 +200,8 @@ namespace Project001
         float lineSegment_end_yInterceptOffset =
             lineSegment_end.y - line_slope * lineSegment_end.x - line_yIntercept;
 
-        if (FloatsEqual(lineSegment_start_yInterceptOffset, 0.0f) ||
-            FloatsEqual(lineSegment_end_yInterceptOffset, 0.0f))
+        if (FloatEqualToFloat(lineSegment_start_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(lineSegment_end_yInterceptOffset, 0.0f))
         {
             // start or end of lineSegment on line
             return true;
@@ -235,10 +235,10 @@ namespace Project001
         float rectangle_topLeft_yInterceptOffset =
             rectangle_topRight.y - line_slope * rectangle_bottomLeft.x - line_yIntercept;
 
-        if (FloatsEqual(rectangle_bottomLeft_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_bottomRight_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_topRight_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_topLeft_yInterceptOffset, 0.0f))
+        if (FloatEqualToFloat(rectangle_bottomLeft_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_bottomRight_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_topRight_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_topLeft_yInterceptOffset, 0.0f))
         {
             // a rectangle corner is on line
             return true;
@@ -285,10 +285,10 @@ namespace Project001
         float rectangle_topLeft_yInterceptOffset =
             orientedRectangle_halfSize.y - transformed_line_slope * -1.0f * orientedRectangle_halfSize.x - line_yIntercept;
 
-        if (FloatsEqual(rectangle_bottomLeft_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_bottomRight_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_topRight_yInterceptOffset, 0.0f) ||
-            FloatsEqual(rectangle_topLeft_yInterceptOffset, 0.0f))
+        if (FloatEqualToFloat(rectangle_bottomLeft_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_bottomRight_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_topRight_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(rectangle_topLeft_yInterceptOffset, 0.0f))
         {
             // a rectangle corner is on line
             return true;
@@ -331,8 +331,8 @@ namespace Project001
         float capsule_end_yInterceptOffset =
             capsule_end.y - line_slope * capsule_end.x - yIntercept1;
 
-        if (FloatsEqual(capsule_start_yInterceptOffset, 0.0f) ||
-            FloatsEqual(capsule_end_yInterceptOffset, 0.0f))
+        if (FloatEqualToFloat(capsule_start_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(capsule_end_yInterceptOffset, 0.0f))
         {
             // start or end of capsule on line
             return true;
@@ -381,9 +381,9 @@ namespace Project001
         float triangle_corner3_yInterceptOffset =
             triangle_corner3.y - line_slope * triangle_corner3.x - line_yIntercept;
 
-        if (FloatsEqual(triangle_corner1_yInterceptOffset, 0.0f) ||
-            FloatsEqual(triangle_corner2_yInterceptOffset, 0.0f) ||
-            FloatsEqual(triangle_corner3_yInterceptOffset, 0.0f))
+        if (FloatEqualToFloat(triangle_corner1_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(triangle_corner2_yInterceptOffset, 0.0f) ||
+            FloatEqualToFloat(triangle_corner3_yInterceptOffset, 0.0f))
         {
             // a triangle corner is on line
             return true;
@@ -1213,10 +1213,12 @@ namespace Project001
         const glm::vec2& rectangle_oppositeCorner1,
         const glm::vec2& rectangle_oppositeCorner2)
     {
-        return point_position.x > GetMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) ||
-            point_position.x < GetMin(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) ||
-            point_position.y > GetMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y) ||
-            point_position.y < GetMin(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y);
+        float maxX, minX, maxY, minY;
+        GetMinMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x, minX, maxX);
+        GetMinMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y, minY, maxY);
+
+        return point_position.x > maxX || point_position.x < minX ||
+            point_position.y > maxY || point_position.y < minY;
     }
 
     inline bool Check2D_Point_Rectangle_Overlap_H(
@@ -1224,10 +1226,12 @@ namespace Project001
         const glm::vec2& rectangle_oppositeCorner1,
         const glm::vec2& rectangle_oppositeCorner2)
     {
-        return point_position.x <= GetMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) &&
-            point_position.x >= GetMin(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x) &&
-            point_position.y <= GetMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y) &&
-            point_position.y >= GetMin(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y);
+        float maxX, minX, maxY, minY;
+        GetMinMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x, minX, maxX);
+        GetMinMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y, minY, maxY);
+
+        return point_position.x <= maxX && point_position.x >= minX &&
+            point_position.y <= maxY && point_position.y >= minY;
     }
 
     inline bool Check2D_Point_Triangle_Overlap_Alt(
@@ -1242,7 +1246,7 @@ namespace Project001
         float area3 = Get2D_Triangle_Area(point_position, triangle_corner2, triangle_corner3);
         float areaSum = area1 + area2 + area3;
 
-        return FloatsEqual(triangleArea, areaSum);
+        return FloatEqualToFloat(triangleArea, areaSum);
     }
 
     inline bool Check2D_Rectangle_Rectangle_Overlap_Alt(
