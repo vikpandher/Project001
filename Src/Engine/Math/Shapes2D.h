@@ -41,6 +41,25 @@ namespace Project001
         , slope(slope)
     {}
 
+    struct Ray2D
+    {
+        Ray2D();
+        Ray2D(const glm::vec2& position, const glm::vec2& direction);
+
+        glm::vec2 position;
+        glm::vec2 direction; // keep this normalized (a unit vector)
+    };
+
+    inline Ray2D::Ray2D()
+        : position(0.0f, 0.0f)
+        , direction(1.0f, 0.0f)
+    {}
+
+    inline Ray2D::Ray2D(const glm::vec2& position, const glm::vec2& direction)
+        : position(position)
+        , direction(direction)
+    {}
+
     struct LineSegment2D
     {
         LineSegment2D();

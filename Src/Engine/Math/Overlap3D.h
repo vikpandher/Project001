@@ -8,7 +8,7 @@
 
 // 3D Shape List ---------------------------------------------------------------
 // 
-// * Point
+// * Point (TODO)
 // * Line (TODO)
 // * Ray (TODO)
 // * LineSegment (TODO)

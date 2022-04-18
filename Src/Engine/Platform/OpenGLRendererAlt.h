@@ -100,8 +100,8 @@ namespace Project001
     protected:
         void CreateFramebuffer();
 
-        static const bool s_drawWireframe = true;
-        static const bool s_drawNormals = true;
+        static const bool s_drawWireframe = false;
+        static const bool s_drawNormals = false;
 
         static const unsigned int s_indexBufferCapacity_ = 4194304; // 8192;
         static const unsigned int s_vertexBufferCapacity_ = 4194304; // 6144;

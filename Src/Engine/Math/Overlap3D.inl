@@ -19,9 +19,7 @@ namespace Project001
         const glm::vec3& line_position,
         const glm::vec3& line_direction)
     {
-        if (FloatEqualToFloat(point_position.x, line_position.x) &&
-            FloatEqualToFloat(point_position.y, line_position.y) &&
-            FloatEqualToFloat(point_position.z, line_position.z))
+        if (Check3D_Point_Point_Overlap(point_position, line_position))
         {
             return true;
         }
@@ -42,9 +40,7 @@ namespace Project001
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction)
     {
-        if (FloatEqualToFloat(point_position.x, ray_position.x) &&
-            FloatEqualToFloat(point_position.y, ray_position.y) &&
-            FloatEqualToFloat(point_position.z, ray_position.z))
+        if (Check3D_Point_Point_Overlap(point_position, ray_position))
         {
             return true;
         }
@@ -269,7 +265,7 @@ namespace Project001
         // intersectionPoint = d2 * t2 + o2;
         // a negative t2 would mean the intersection point is behind the ray,
         // in the opposite direction to the ray's direction
-        return t2 >= 0.0f;
+        return FloatGreaterThanOrEqualToFloat(t2, 0.0f);
     }
 
     inline bool Check3D_Line_LineSegment_Overlap(

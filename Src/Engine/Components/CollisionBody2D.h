@@ -22,6 +22,10 @@ namespace Project001
         Line2D& GetLine(size_t index);
         std::vector<Line2D>& GetLines();
 
+        size_t AddRay(const Ray2D& ray);
+        Ray2D& GetRay(size_t index);
+        std::vector<Ray2D>& GetRays();
+
         size_t AddLineSegment(const LineSegment2D& lineSegment);
         LineSegment2D& GetLineSegment(size_t index);
         std::vector<LineSegment2D>& GetLineSegments();
@@ -46,6 +50,14 @@ namespace Project001
         Triangle2D& GetTriangle(size_t index);
         std::vector<Triangle2D>& GetTriangles();
 
+        size_t AddPolygon(const std::vector<glm::vec2>& polygon);
+        std::vector<glm::vec2>& GetPolygon(size_t index);
+        std::vector<std::vector<glm::vec2>>& GetPolygons();
+
+        size_t AddConvexPolygon(const std::vector<glm::vec2>& convexPolygon);
+        std::vector<glm::vec2>& GetConvexPolygon(size_t index);
+        std::vector<std::vector<glm::vec2>>& GetConvexPolygons();
+
         void CalculateBoundingRadius();
         float GetBoundingRadius() const;
         void SetBoundingRadius(float boundingRadius);
@@ -66,21 +78,27 @@ namespace Project001
 
         std::vector<Point2D> points_;
         std::vector<Line2D> lines_;
+        std::vector<Ray2D> rays_;
         std::vector<LineSegment2D> lineSegments_;
         std::vector<Rectangle2D> rectangles_;
         std::vector<OrientedRectangle2D> orientedRectangles_;
         std::vector<Circle2D> circles_;
         std::vector<Capsule2D> capsules_;
         std::vector<Triangle2D> triangles_;
+        std::vector<std::vector<glm::vec2>> polygons_;
+        std::vector<std::vector<glm::vec2>> convexPolygons_;
 
         std::vector<Point2D> transformedPoints_;
         std::vector<Line2D> transformedLines_;
+        std::vector<Ray2D> transformedRays_;
         std::vector<LineSegment2D> transformedLineSegments_;
         std::vector<Rectangle2D> transformedRectangles_;
         std::vector<OrientedRectangle2D> transformedOrientedRectangles_;
         std::vector<Circle2D> transformedCircles_;
         std::vector<Capsule2D> transformedCapsules_;
         std::vector<Triangle2D> transformedTriangles_;
+        std::vector<std::vector<glm::vec2>> transformedPolygons_;
+        std::vector<std::vector<glm::vec2>> transformedConvexPolygons_;
 
         float boundingRadius_;
 
@@ -122,6 +140,22 @@ namespace Project001
     inline std::vector<Line2D>& CollisionBody2D::GetLines()
     {
         return lines_;
+    }
+
+    inline size_t CollisionBody2D::AddRay(const Ray2D& ray)
+    {
+        rays_.push_back(ray);
+        return rays_.size() - 1;
+    }
+
+    inline Ray2D& CollisionBody2D::GetRay(size_t index)
+    {
+        return rays_[index];
+    }
+
+    inline std::vector<Ray2D>& CollisionBody2D::GetRays()
+    {
+        return rays_;
     }
 
     inline size_t CollisionBody2D::AddLineSegment(const LineSegment2D& lineSegment)
@@ -218,6 +252,38 @@ namespace Project001
     inline std::vector<Triangle2D>& CollisionBody2D::GetTriangles()
     {
         return triangles_;
+    }
+
+    inline size_t CollisionBody2D::AddPolygon(const std::vector<glm::vec2>& polygon)
+    {
+        polygons_.push_back(polygon);
+        return polygons_.size() - 1;
+    }
+
+    inline std::vector<glm::vec2>& CollisionBody2D::GetPolygon(size_t index)
+    {
+        return polygons_[index];
+    }
+
+    inline std::vector<std::vector<glm::vec2>>& CollisionBody2D::GetPolygons()
+    {
+        return polygons_;
+    }
+
+    inline size_t CollisionBody2D::AddConvexPolygon(const std::vector<glm::vec2>& convexPolygon)
+    {
+        convexPolygons_.push_back(convexPolygon);
+        return polygons_.size() - 1;
+    }
+
+    inline std::vector<glm::vec2>& CollisionBody2D::GetConvexPolygon(size_t index)
+    {
+        return convexPolygons_[index];
+    }
+
+    inline std::vector<std::vector<glm::vec2>>& CollisionBody2D::GetConvexPolygons()
+    {
+        return convexPolygons_;
     }
 
     inline float CollisionBody2D::GetBoundingRadius() const
