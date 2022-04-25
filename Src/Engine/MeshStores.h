@@ -66,7 +66,7 @@ namespace Project001
             const std::string& path,
             bool normalizeSize = true,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool LoadTriangleMesh(
             unsigned int& index,
@@ -81,7 +81,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DTriangles(
             unsigned int& index,
@@ -94,7 +94,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         // Arc grows according to right hand rule
         bool Generate2DArc(
@@ -105,7 +105,7 @@ namespace Project001
             float startAngle,
             float endAngle,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         bool Generate2DCapsule(
@@ -113,7 +113,7 @@ namespace Project001
             float rectangleHeight,
             float capsuleWidth,
             size_t radialSections,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DLine(
             unsigned int& index,
@@ -121,7 +121,7 @@ namespace Project001
             float width,
             bool beveledCorners = true,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         bool Generate2DLineLoop(
@@ -130,7 +130,7 @@ namespace Project001
             float width,
             bool beveledCorners = true,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         bool Generate2DRegularPolygon(
@@ -138,17 +138,27 @@ namespace Project001
             float radius,
             size_t sides,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
-        bool GenerateBezeledRectangle(
+        bool Generate2DBezeledRectangle(
             unsigned int& index,
             float width,
             float height,
             float bezelSize,
             float bezelSections,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
+
+        bool Generate2DSprite(
+            unsigned int& index,
+            float width,
+            float height,
+            float textureBottom,
+            float textureTop,
+            float textureLeft,
+            float textureRight,
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateBox(
             unsigned int& index,
@@ -156,7 +166,7 @@ namespace Project001
             float yLength,
             float zLength,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateCapsule(
             unsigned int& index,
@@ -165,7 +175,7 @@ namespace Project001
             size_t faces,
             size_t stacks,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateCone(
             unsigned int& index,
@@ -173,7 +183,7 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateCylinder(
             unsigned int& index,
@@ -181,14 +191,14 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateIcosphere(
             unsigned int& index,
             float radius,
             size_t subdivisions,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool GenerateSphere(
             unsigned int& index,
@@ -196,7 +206,7 @@ namespace Project001
             size_t longitudinalSections,
             size_t latitudinalSections,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool NormalizeMeshSize(unsigned int& index);
 
@@ -225,7 +235,7 @@ namespace Project001
             const std::string& path,
             bool normalizeSize = true,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool LoadTriangleMesh(
             MeshData& meshData,
@@ -244,7 +254,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DTriangles(
             MeshData& meshData,
@@ -261,7 +271,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             const std::vector<glm::vec2>& textureCoordinates,
             bool recenter = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DArc(
             MeshData& meshData,
@@ -273,7 +283,7 @@ namespace Project001
             float startAngle,
             float endAngle,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         static bool Generate2DCapsule(
@@ -283,7 +293,7 @@ namespace Project001
             float rectangleHeight,
             float capsuleWidth,
             size_t radialSections,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DLine(
             MeshData& meshData,
@@ -293,7 +303,7 @@ namespace Project001
             float width,
             bool beveledCorners = true,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         static bool Generate2DLineLoop(
@@ -304,7 +314,7 @@ namespace Project001
             float width,
             bool beveledCorners = true,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
         static bool Generate2DRegularPolygon(
@@ -314,10 +324,10 @@ namespace Project001
             float radius,
             size_t sides,
             bool recenter = true,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
 
-        static bool GenerateBezeledRectangle(
+        static bool Generate2DBezeledRectangle(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
@@ -325,8 +335,20 @@ namespace Project001
             float height,
             float bezelSize,
             float bezelSections,
-            bool triangulate = true,
+            bool trangulate = s_triangulateByDefault,
             bool positionalTexture = true);
+
+        static bool Generate2DSprite(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            std::vector<unsigned int>& meshIndexArray,
+            float width,
+            float height,
+            float textureBottom,
+            float textureTop,
+            float textureLeft,
+            float textureRight,
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateBox(
             MeshData& meshData,
@@ -336,7 +358,7 @@ namespace Project001
             float yLength,
             float zLength,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateCapsule(
             MeshData& meshData,
@@ -347,7 +369,7 @@ namespace Project001
             size_t faces,
             size_t stacks,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateCone(
             MeshData& meshData,
@@ -357,7 +379,7 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateCylinder(
             MeshData& meshData,
@@ -367,7 +389,7 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateIcosphere(
             MeshData& meshData,
@@ -376,7 +398,7 @@ namespace Project001
             float radius,
             size_t subdivisions,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool GenerateSphere(
             MeshData& meshData,
@@ -386,7 +408,7 @@ namespace Project001
             size_t longitudinalSections,
             size_t latitudinalSections,
             bool smoothNormals = true,
-            bool triangulate = true);
+            bool trangulate = s_triangulateByDefault);
 
         static void NormalizeMeshSize(
             MeshData& meshData,
@@ -435,7 +457,7 @@ namespace Project001
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
-            bool wasTriangulated = true);
+            bool wasTriangulated = s_triangulateByDefault);
 
     protected:
         // used by LoadMeshOBJ
@@ -452,6 +474,8 @@ namespace Project001
             const float& slope1,
             const glm::vec2& point2,
             const float& slope2);
+
+        static const bool s_triangulateByDefault = true;
 
         std::vector<MeshVertex> meshVertexArray_;
         std::vector<unsigned int> meshIndexArray_;

@@ -234,98 +234,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     rendererPtr_->ClearPointLights();
     rendererPtr_->ClearSpotLights();
 
-    rendererPtr_->ClearLocalBuffers();
-
-    Project001::LightSource* lightSourceArray = nullptr;
-    size_t lightSourceCount = 0;
-
-    _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount));
-
-    for (unsigned int i = 0; i < lightSourceCount; ++i)
-    {
-        Project001::LightSource& currentLightSource = lightSourceArray[i];
-        if (currentLightSource.IsTurnedOn())
-        {
-            if (currentLightSource.IsLightTypeDirectional())
-            {
-                rendererPtr_->SetDirectionalLight(
-                    currentLightSource.GetDirection(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
-                );
-            }
-            else if (currentLightSource.IsLightTypePoint())
-            {
-                rendererPtr_->AddPointLight(
-                    currentLightSource.GetPosition(),
-                    currentLightSource.GetAttenuationConstant(),
-                    currentLightSource.GetLinearAttenuation(),
-                    currentLightSource.GetQuadraticAttenuation(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
-                );
-            }
-            else if (currentLightSource.IsLightTypeSpot())
-            {
-                rendererPtr_->AddSpotLight(
-                    currentLightSource.GetPosition(),
-                    currentLightSource.GetDirection(),
-                    currentLightSource.GetCutoff(),
-                    currentLightSource.GetOuterCutoff(),
-                    currentLightSource.GetAttenuationConstant(),
-                    currentLightSource.GetLinearAttenuation(),
-                    currentLightSource.GetQuadraticAttenuation(),
-                    currentLightSource.GetAmbientColor(),
-                    currentLightSource.GetDiffuseColor(),
-                    currentLightSource.GetSpecularColor()
-                );
-            }
-        }
-    }
-
-    Project001::RenderedModel* renderedModelArray = nullptr;
-    size_t renderedModelCount = 0;
-
-    componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
-
-    for (unsigned int i = 0; i < renderedModelCount; ++i)
-    {
-        Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
-
-        if (currentRenderedModel.IsVisible())
-        {
-            const Project001::MeshVertex* meshVerticies = nullptr;
-            unsigned int meshVertexCount = 0;
-            const unsigned int* meshIndicies = nullptr;
-            unsigned int meshIndexCount = 0;
-
-            _FAIL_CHECK(meshStoresPtr_->GetMesh(
-                currentRenderedModel.GetMeshIndex(),
-                meshVerticies,
-                meshVertexCount,
-                meshIndicies,
-                meshIndexCount
-            ));
-
-            _FAIL_CHECK(rendererPtr_->AddMesh(
-                meshVerticies,
-                meshVertexCount,
-                meshIndicies,
-                meshIndexCount,
-                currentRenderedModel.GetTextureIndex(),
-                currentRenderedModel.GetSpecularIndex(),
-                currentRenderedModel.GetPosition(),
-                currentRenderedModel.GetOrientation(),
-                currentRenderedModel.GetScale(),
-                currentRenderedModel.GetColor(),
-                currentRenderedModel.GetShininess(),
-                currentRenderedModel.GetTranslucent(),
-                currentRenderedModel.GetLit()
-            ));
-        }
-    }
+    rendererPtr_->Clear();
 
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
@@ -336,6 +245,113 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
         rendererPtr_->PrepareCapabilities();
+
+        Project001::LightSource* lightSourceArray = nullptr;
+        size_t lightSourceCount = 0;
+
+        _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount));
+
+        for (unsigned int i = 0; i < lightSourceCount; ++i)
+        {
+            Project001::LightSource& currentLightSource = lightSourceArray[i];
+            if (currentLightSource.IsTurnedOn())
+            {
+                if (currentLightSource.IsLightTypeDirectional())
+                {
+                    rendererPtr_->SetDirectionalLight(
+                        currentLightSource.GetDirection(),
+                        currentLightSource.GetAmbientColor(),
+                        currentLightSource.GetDiffuseColor(),
+                        currentLightSource.GetSpecularColor()
+                    );
+                }
+                else if (currentLightSource.IsLightTypePoint())
+                {
+                    rendererPtr_->AddPointLight(
+                        currentLightSource.GetPosition(),
+                        currentLightSource.GetAttenuationConstant(),
+                        currentLightSource.GetLinearAttenuation(),
+                        currentLightSource.GetQuadraticAttenuation(),
+                        currentLightSource.GetAmbientColor(),
+                        currentLightSource.GetDiffuseColor(),
+                        currentLightSource.GetSpecularColor()
+                    );
+                }
+                else if (currentLightSource.IsLightTypeSpot())
+                {
+                    rendererPtr_->AddSpotLight(
+                        currentLightSource.GetPosition(),
+                        currentLightSource.GetDirection(),
+                        currentLightSource.GetCutoff(),
+                        currentLightSource.GetOuterCutoff(),
+                        currentLightSource.GetAttenuationConstant(),
+                        currentLightSource.GetLinearAttenuation(),
+                        currentLightSource.GetQuadraticAttenuation(),
+                        currentLightSource.GetAmbientColor(),
+                        currentLightSource.GetDiffuseColor(),
+                        currentLightSource.GetSpecularColor()
+                    );
+                }
+            }
+        }
+
+        Project001::RenderedModel* renderedModelArray = nullptr;
+        size_t renderedModelCount = 0;
+
+        componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
+
+        for (unsigned int i = 0; i < renderedModelCount; ++i)
+        {
+            Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
+
+            if (currentRenderedModel.IsVisible())
+            {
+                const Project001::MeshVertex* meshVerticies = nullptr;
+                unsigned int meshVertexCount = 0;
+                const unsigned int* meshIndicies = nullptr;
+                unsigned int meshIndexCount = 0;
+
+                _FAIL_CHECK(meshStoresPtr_->GetMesh(
+                    currentRenderedModel.GetMeshIndex(),
+                    meshVerticies,
+                    meshVertexCount,
+                    meshIndicies,
+                    meshIndexCount));
+
+                if (!rendererPtr_->AddMesh(
+                    meshVerticies,
+                    meshVertexCount,
+                    meshIndicies,
+                    meshIndexCount,
+                    currentRenderedModel.GetTextureIndex(),
+                    currentRenderedModel.GetSpecularIndex(),
+                    currentRenderedModel.GetPosition(),
+                    currentRenderedModel.GetOrientation(),
+                    currentRenderedModel.GetScale(),
+                    currentRenderedModel.GetColor(),
+                    currentRenderedModel.GetShininess(),
+                    currentRenderedModel.GetTranslucent(),
+                    currentRenderedModel.GetLit()))
+                {
+                    rendererPtr_->Render();
+                    rendererPtr_->AddMesh(
+                        meshVerticies,
+                        meshVertexCount,
+                        meshIndicies,
+                        meshIndexCount,
+                        currentRenderedModel.GetTextureIndex(),
+                        currentRenderedModel.GetSpecularIndex(),
+                        currentRenderedModel.GetPosition(),
+                        currentRenderedModel.GetOrientation(),
+                        currentRenderedModel.GetScale(),
+                        currentRenderedModel.GetColor(),
+                        currentRenderedModel.GetShininess(),
+                        currentRenderedModel.GetTranslucent(),
+                        currentRenderedModel.GetLit());
+                }
+            }
+        }
+
         rendererPtr_->Render();
     }
 

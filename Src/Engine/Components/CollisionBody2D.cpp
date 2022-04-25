@@ -210,6 +210,7 @@ namespace Project001
         transformedCapsules_.clear();
         transformedTriangles_.clear();
         transformedPolygons_.clear();
+        transformedConvexPolygons_.clear();
 
         for (size_t i = 0; i < points_.size(); ++i)
         {
@@ -370,6 +371,20 @@ namespace Project001
                 const glm::vec2& currentCorner = currentPolygon[j];
                 glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
                 transformedPolygon.push_back(newCorner);
+            }
+        }
+
+        for (size_t i = 0; i < convexPolygons_.size(); ++i)
+        {
+            const std::vector<glm::vec2>& currentConvexPolygon = convexPolygons_[i];
+            transformedConvexPolygons_.emplace_back();
+            std::vector<glm::vec2>& transformedConvexPolygon = transformedConvexPolygons_.back();
+            transformedConvexPolygon.reserve(currentConvexPolygon.size());
+            for (size_t j = 0; j < currentConvexPolygon.size(); ++j)
+            {
+                const glm::vec2& currentCorner = currentConvexPolygon[j];
+                glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
+                transformedConvexPolygon.push_back(newCorner);
             }
         }
     }
@@ -585,11 +600,35 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Point_Polygon_Overlap(
                         currentPoint.position,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // point & other convexPolygon
+            for (size_t i = 0; i < transformedPoints_.size(); ++i)
+            {
+                const Point2D& currentPoint = transformedPoints_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Point_ConvexPolygon_Overlap(
+                        currentPoint.position,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -816,12 +855,37 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Line_Polygon_Overlap(
                         currentLine.position,
                         currentLine.slope,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // line & other convexPolygon
+            for (size_t i = 0; i < transformedLines_.size(); ++i)
+            {
+                const Line2D& currentLine = transformedLines_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Line_ConvexPolygon_Overlap(
+                        currentLine.position,
+                        currentLine.slope,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -1048,12 +1112,37 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Ray_Polygon_Overlap(
                         currentRay.position,
                         currentRay.direction,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // ray & other convexPolygon
+            for (size_t i = 0; i < transformedRays_.size(); ++i)
+            {
+                const Ray2D& currentRay = transformedRays_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Ray_ConvexPolygon_Overlap(
+                        currentRay.position,
+                        currentRay.direction,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -1280,12 +1369,37 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_LineSegment_Polygon_Overlap(
                         currentLineSegment.start,
                         currentLineSegment.end,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // lineSegment & other convexPolygon
+            for (size_t i = 0; i < transformedLineSegments_.size(); ++i)
+            {
+                const LineSegment2D& currentLineSegment = transformedLineSegments_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_LineSegment_ConvexPolygon_Overlap(
+                        currentLineSegment.start,
+                        currentLineSegment.end,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -1512,12 +1626,37 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Rectangle_Polygon_Overlap(
                         currentRectangle.bottomLeft,
                         currentRectangle.topRight,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // rectangle & other convexPolygon
+            for (size_t i = 0; i < transformedRectangles_.size(); ++i)
+            {
+                const Rectangle2D& currentRectangle = transformedRectangles_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Rectangle_ConvexPolygon_Overlap(
+                        currentRectangle.bottomLeft,
+                        currentRectangle.topRight,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -1753,13 +1892,39 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_OrientedRectangle_Polygon_Overlap(
                         currentOrientedRectangle.halfSize,
                         currentOrientedRectangle.position,
                         currentOrientedRectangle.rotation,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // orientedRectangle & other convexPolygon
+            for (size_t i = 0; i < transformedOrientedRectangles_.size(); ++i)
+            {
+                const OrientedRectangle2D& currentOrientedRectangle = transformedOrientedRectangles_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_OrientedRectangle_ConvexPolygon_Overlap(
+                        currentOrientedRectangle.halfSize,
+                        currentOrientedRectangle.position,
+                        currentOrientedRectangle.rotation,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -1986,12 +2151,37 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Circle_Polygon_Overlap(
                         currentCircle.position,
                         currentCircle.radius,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // circle & other convexPolygon
+            for (size_t i = 0; i < transformedCircles_.size(); ++i)
+            {
+                const Circle2D& currentCircle = transformedCircles_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Circle_ConvexPolygon_Overlap(
+                        currentCircle.position,
+                        currentCircle.radius,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -2227,13 +2417,39 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Capsule_Polygon_Overlap(
                         currentCapsule.start,
                         currentCapsule.end,
                         currentCapsule.radius,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // capsule & other convexPolygon
+            for (size_t i = 0; i < transformedCapsules_.size(); ++i)
+            {
+                const Capsule2D& currentCapsule = transformedCapsules_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Capsule_ConvexPolygon_Overlap(
+                        currentCapsule.start,
+                        currentCapsule.end,
+                        currentCapsule.radius,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -2469,13 +2685,39 @@ namespace Project001
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Triangle_Polygon_Overlap(
                         currentTriangle.corner1,
                         currentTriangle.corner2,
                         currentTriangle.corner3,
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // triangle & other convexPolygon
+            for (size_t i = 0; i < transformedTriangles_.size(); ++i)
+            {
+                const Triangle2D& currentTriangle = transformedTriangles_[i];
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
+                        currentTriangle.corner1,
+                        currentTriangle.corner2,
+                        currentTriangle.corner3,
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -2490,12 +2732,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedPoints_.size(); ++j)
                 {
                     const Point2D& otherPoint = other.transformedPoints_[j];
 
                     bool collisionFound = Check2D_Polygon_Point_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherPoint.position);
 
@@ -2512,12 +2755,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedLines_.size(); ++j)
                 {
                     const Line2D& otherLine = other.transformedLines_[j];
 
                     bool collisionFound = Check2D_Polygon_Line_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherLine.position,
                         otherLine.slope);
@@ -2535,12 +2779,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedRays_.size(); ++j)
                 {
                     const Ray2D& otherRay = other.transformedRays_[j];
 
                     bool collisionFound = Check2D_Polygon_Ray_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherRay.position,
                         otherRay.direction);
@@ -2558,12 +2803,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedLineSegments_.size(); ++j)
                 {
                     const LineSegment2D& otherLineSegment = other.transformedLineSegments_[j];
 
                     bool collisionFound = Check2D_Polygon_LineSegment_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherLineSegment.start,
                         otherLineSegment.end);
@@ -2581,12 +2827,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedRectangles_.size(); ++j)
                 {
                     const Rectangle2D& otherRectangle = other.transformedRectangles_[j];
 
                     bool collisionFound = Check2D_Polygon_Rectangle_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherRectangle.bottomLeft,
                         otherRectangle.topRight);
@@ -2604,12 +2851,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedOrientedRectangles_.size(); ++j)
                 {
                     const OrientedRectangle2D& otherOrientedRectangle = other.transformedOrientedRectangles_[j];
 
                     bool collisionFound = Check2D_Polygon_OrientedRectangle_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherOrientedRectangle.halfSize,
                         otherOrientedRectangle.position,
@@ -2628,12 +2876,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedCircles_.size(); ++j)
                 {
                     const Circle2D& otherCircle = other.transformedCircles_[j];
 
                     bool collisionFound = Check2D_Polygon_Circle_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherCircle.position,
                         otherCircle.radius);
@@ -2651,12 +2900,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedCapsules_.size(); ++j)
                 {
                     const Capsule2D& otherCapsule = other.transformedCapsules_[j];
 
                     bool collisionFound = Check2D_Polygon_Capsule_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherCapsule.start,
                         otherCapsule.end,
@@ -2675,12 +2925,13 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedTriangles_.size(); ++j)
                 {
                     const Triangle2D& otherTriangle = other.transformedTriangles_[j];
 
                     bool collisionFound = Check2D_Polygon_Triangle_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
                         otherTriangle.corner1,
                         otherTriangle.corner2,
@@ -2699,15 +2950,310 @@ namespace Project001
             for (size_t i = 0; i < transformedPolygons_.size(); ++i)
             {
                 const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
                 for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
                 {
                     const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
 
                     bool collisionFound = Check2D_Polygon_Polygon_Overlap(
-                        currentPolygon.data(),
+                        currentPolygonData,
                         currentPolygon.size(),
-                        otherPolygon.data(),
+                        otherPolygonData,
                         otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // polygon & other convexPolygon
+            for (size_t i = 0; i < transformedPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+                const glm::vec2* currentPolygonData = currentPolygon.data();
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_Polygon_ConvexPolygon_Overlap(
+                        currentPolygonData,
+                        currentPolygon.size(),
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other point -------------------------------------------
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedPoints_.size(); ++j)
+                {
+                    const Point2D& otherPoint = other.transformedPoints_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Point_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherPoint.position);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other line
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedLines_.size(); ++j)
+                {
+                    const Line2D& otherLine = other.transformedLines_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Line_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherLine.position,
+                        otherLine.slope);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other ray
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedRays_.size(); ++j)
+                {
+                    const Ray2D& otherRay = other.transformedRays_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherRay.position,
+                        otherRay.direction);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other lineSegment
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedLineSegments_.size(); ++j)
+                {
+                    const LineSegment2D& otherLineSegment = other.transformedLineSegments_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_LineSegment_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherLineSegment.start,
+                        otherLineSegment.end);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other rectangle
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedRectangles_.size(); ++j)
+                {
+                    const Rectangle2D& otherRectangle = other.transformedRectangles_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Rectangle_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherRectangle.bottomLeft,
+                        otherRectangle.topRight);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other orientedRectangle
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedOrientedRectangles_.size(); ++j)
+                {
+                    const OrientedRectangle2D& otherOrientedRectangle = other.transformedOrientedRectangles_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_OrientedRectangle_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherOrientedRectangle.halfSize,
+                        otherOrientedRectangle.position,
+                        otherOrientedRectangle.rotation);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other circle
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedCircles_.size(); ++j)
+                {
+                    const Circle2D& otherCircle = other.transformedCircles_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Circle_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherCircle.position,
+                        otherCircle.radius);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other capsule
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedCapsules_.size(); ++j)
+                {
+                    const Capsule2D& otherCapsule = other.transformedCapsules_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Capsule_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherCapsule.start,
+                        otherCapsule.end,
+                        otherCapsule.radius);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other triangle
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedTriangles_.size(); ++j)
+                {
+                    const Triangle2D& otherTriangle = other.transformedTriangles_[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherTriangle.corner1,
+                        otherTriangle.corner2,
+                        otherTriangle.corner3);
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other polygon
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherPolygon = other.transformedPolygons_[j];
+                    const glm::vec2* otherPolygonData = otherPolygon.data();
+
+                    bool collisionFound = Check2D_ConvexPolygon_Polygon_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherPolygonData,
+                        otherPolygon.size());
+
+                    if (collisionFound)
+                    {
+                        colliding_ = true;
+                        other.colliding_ = true;
+                        return;
+                    }
+                }
+            }
+
+            // convexPolygon & other convexPolygon
+            for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
+            {
+                const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+                const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+                for (size_t j = 0; j < other.transformedConvexPolygons_.size(); ++j)
+                {
+                    const std::vector<glm::vec2>& otherConvexPolygon = other.transformedConvexPolygons_[j];
+                    const glm::vec2* otherConvexPolygonData = otherConvexPolygon.data();
+
+                    bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
+                        currentConvexPolygonData,
+                        currentConvexPolygon.size(),
+                        otherConvexPolygonData,
+                        otherConvexPolygon.size());
 
                     if (collisionFound)
                     {
@@ -2726,6 +3272,7 @@ namespace Project001
         for (size_t i = 0; i < transformedPoints_.size(); ++i)
         {
             const Point2D& currentPoint = transformedPoints_[i];
+
             bool collisionFound = Check2D_Point_Point_Overlap(
                 currentPoint.position,
                 point.position);
@@ -2739,6 +3286,7 @@ namespace Project001
         for (size_t i = 0; i < transformedLines_.size(); ++i)
         {
             const Line2D& currentLine = transformedLines_[i];
+
             bool collisionFound = Check2D_Line_Point_Overlap(
                 currentLine.position,
                 currentLine.slope,
@@ -2753,6 +3301,7 @@ namespace Project001
         for (size_t i = 0; i < transformedRays_.size(); ++i)
         {
             const Ray2D& currentRay = transformedRays_[i];
+
             bool collisionFound = Check2D_Ray_Point_Overlap(
                 currentRay.position,
                 currentRay.direction,
@@ -2767,6 +3316,7 @@ namespace Project001
         for (size_t i = 0; i < transformedLineSegments_.size(); ++i)
         {
             const LineSegment2D& currentLineSegment = transformedLineSegments_[i];
+
             bool collisionFound = Check2D_LineSegment_Point_Overlap(
                 currentLineSegment.start,
                 currentLineSegment.end,
@@ -2781,6 +3331,7 @@ namespace Project001
         for (size_t i = 0; i < transformedRectangles_.size(); ++i)
         {
             const Rectangle2D& currentRectangle = transformedRectangles_[i];
+
             bool collisionFound = Check2D_Rectangle_Point_Overlap(
                 currentRectangle.bottomLeft,
                 currentRectangle.topRight,
@@ -2795,6 +3346,7 @@ namespace Project001
         for (size_t i = 0; i < transformedOrientedRectangles_.size(); ++i)
         {
             const OrientedRectangle2D& currentOrientedRectangle = transformedOrientedRectangles_[i];
+
             bool collisionFound = Check2D_OrientedRectangle_Point_Overlap(
                 currentOrientedRectangle.halfSize,
                 currentOrientedRectangle.position,
@@ -2810,6 +3362,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCircles_.size(); ++i)
         {
             const Circle2D& currentCircle = transformedCircles_[i];
+
             bool collisionFound = Check2D_Circle_Point_Overlap(
                 currentCircle.position,
                 currentCircle.radius,
@@ -2824,6 +3377,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCapsules_.size(); ++i)
         {
             const Capsule2D& currentCapsule = transformedCapsules_[i];
+
             bool collisionFound = Check2D_Capsule_Point_Overlap(
                 currentCapsule.start,
                 currentCapsule.end,
@@ -2839,6 +3393,7 @@ namespace Project001
         for (size_t i = 0; i < transformedTriangles_.size(); ++i)
         {
             const Triangle2D& currentTriangle = transformedTriangles_[i];
+
             bool collisionFound = Check2D_Triangle_Point_Overlap(
                 currentTriangle.corner1,
                 currentTriangle.corner2,
@@ -2854,8 +3409,10 @@ namespace Project001
         for (size_t i = 0; i < transformedPolygons_.size(); ++i)
         {
             const std::vector<glm::vec2>& currentPolygon = transformedPolygons_[i];
+            const glm::vec2* currentPolygonData = currentPolygon.data();
+
             bool collisionFound = Check2D_Polygon_Point_Overlap(
-                currentPolygon.data(),
+                currentPolygonData,
                 currentPolygon.size(),
                 point.position);
             if (collisionFound)
@@ -2868,8 +3425,10 @@ namespace Project001
         for (size_t i = 0; i < transformedConvexPolygons_.size(); ++i)
         {
             const std::vector<glm::vec2>& currentConvexPolygon = transformedConvexPolygons_[i];
+            const glm::vec2* currentConvexPolygonData = currentConvexPolygon.data();
+
             bool collisionFound = Check2D_ConvexPolygon_Point_Overlap(
-                currentConvexPolygon.data(),
+                currentConvexPolygonData,
                 currentConvexPolygon.size(),
                 point.position);
             if (collisionFound)

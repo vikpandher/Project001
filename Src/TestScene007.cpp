@@ -410,7 +410,7 @@ void TestScene007::Initialize()
         loopPoints.emplace_back(4.0f, -1.0f);
         for (size_t i = 0; i < loopPoints.size(); ++i)
         {
-            loopPoints[i] *= 0.32f;
+            loopPoints[i] *= 0.16f;
         }
         _FAIL_CHECK(meshStoresPtr_->Generate2DLineLoop(tempMeshIndex, loopPoints, 0.01f, true, false));
         meshIndicies_.push_back(tempMeshIndex);
@@ -437,60 +437,6 @@ void TestScene007::Initialize()
     }
 
     // polygon 2
-    {
-        unsigned int tempMeshIndex;
-        std::vector<glm::vec2> loopPoints;
-        loopPoints.emplace_back(5.0f, 1.0f);
-        loopPoints.emplace_back(5.0f, 2.0f);
-        loopPoints.emplace_back(4.0f, 1.0f);
-        loopPoints.emplace_back(3.0f, 1.0f);
-        loopPoints.emplace_back(3.0f, 3.0f);
-        loopPoints.emplace_back(2.0f, 1.0f);
-        loopPoints.emplace_back(0.0f, 2.0f);
-        loopPoints.emplace_back(2.0f, 0.0f);
-        loopPoints.emplace_back(0.0f, 1.0f);
-        loopPoints.emplace_back(-1.0f, 1.0f);
-        loopPoints.emplace_back(-5.0f, -1.0f);
-        loopPoints.emplace_back(-3.0f, -1.0f);
-        loopPoints.emplace_back(-2.0f, -2.0f);
-        loopPoints.emplace_back(-2.0f, -3.0f);
-        loopPoints.emplace_back(-1.0f, -2.0f);
-        loopPoints.emplace_back(-1.0f, -3.0f);
-        loopPoints.emplace_back(0.0f, -2.0f);
-        loopPoints.emplace_back(1.0f, -2.0f);
-        loopPoints.emplace_back(2.0f, -3.0f);
-        loopPoints.emplace_back(2.0f, -2.0f);
-        loopPoints.emplace_back(3.0f, -3.0f);
-        loopPoints.emplace_back(3.0f, -1.0f);
-        for (size_t i = 0; i < loopPoints.size(); ++i)
-        {
-            loopPoints[i] *= 0.32f;
-        }
-        _FAIL_CHECK(meshStoresPtr_->Generate2DLineLoop(tempMeshIndex, loopPoints, 0.01f, true, false));
-        meshIndicies_.push_back(tempMeshIndex);
-
-        unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
-        entityIds_.push_back(tempEntityId);
-
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshIndex(tempMeshIndex);
-        renderedModelPtr->SetLit(false);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
-        Project001::CollisionBody2D* collisionBody2DPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
-        collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddPolygon(loopPoints);
-        collisionBody2DPtr->CalculateBoundingRadius();
-    }
-
-    // polygon 3
     {
         unsigned int tempMeshIndex;
         std::vector<glm::vec2> fanPoints;
@@ -527,6 +473,206 @@ void TestScene007::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
         collisionBody2DPtr->AddPolygon(fanPoints);
+        collisionBody2DPtr->CalculateBoundingRadius();
+    }
+
+    // polygon 3
+    {
+        unsigned int tempMeshIndex;
+        std::vector<glm::vec2> loopPoints;
+        loopPoints.emplace_back(5.0f, 1.0f);
+        loopPoints.emplace_back(5.0f, 2.0f);
+        loopPoints.emplace_back(4.0f, 1.0f);
+        loopPoints.emplace_back(3.0f, 1.0f);
+        loopPoints.emplace_back(3.0f, 3.0f);
+        loopPoints.emplace_back(2.0f, 1.0f);
+        loopPoints.emplace_back(0.0f, 2.0f);
+        loopPoints.emplace_back(2.0f, 0.0f);
+        loopPoints.emplace_back(0.0f, 1.0f);
+        loopPoints.emplace_back(-1.0f, 1.0f);
+        loopPoints.emplace_back(-5.0f, -1.0f);
+        loopPoints.emplace_back(-3.0f, -1.0f);
+        loopPoints.emplace_back(-2.0f, -2.0f);
+        loopPoints.emplace_back(-2.0f, -3.0f);
+        loopPoints.emplace_back(-1.0f, -2.0f);
+        loopPoints.emplace_back(-1.0f, -3.0f);
+        loopPoints.emplace_back(0.0f, -2.0f);
+        loopPoints.emplace_back(1.0f, -2.0f);
+        loopPoints.emplace_back(2.0f, -3.0f);
+        loopPoints.emplace_back(2.0f, -2.0f);
+        loopPoints.emplace_back(3.0f, -3.0f);
+        loopPoints.emplace_back(3.0f, -1.0f);
+        for (size_t i = 0; i < loopPoints.size(); ++i)
+        {
+            loopPoints[i] *= 0.16f;
+        }
+        _FAIL_CHECK(meshStoresPtr_->Generate2DLineLoop(tempMeshIndex, loopPoints, 0.01f, true, false));
+        meshIndicies_.push_back(tempMeshIndex);
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(currentPosition);
+        renderedModelPtr->SetMeshIndex(tempMeshIndex);
+        renderedModelPtr->SetLit(false);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
+        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->AddPolygon(loopPoints);
+        collisionBody2DPtr->CalculateBoundingRadius();
+    }
+
+    // convexPolygon 1 (pentagon)
+    {
+        unsigned int tempMeshIndex;
+        std::vector<glm::vec2> shapePoints;
+
+        int sides = 5;
+        float radius = 0.24f;
+        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+
+        glm::vec2 radialVector(0.0f, radius);
+        shapePoints.push_back(radialVector);
+
+        for (size_t i = 0; i < sides - 1; ++i)
+        {
+            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
+            shapePoints.push_back(radialVector);
+        }
+
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints, false));
+        meshIndicies_.push_back(tempMeshIndex);
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(currentPosition);
+        renderedModelPtr->SetMeshIndex(tempMeshIndex);
+        renderedModelPtr->SetLit(false);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
+        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->AddConvexPolygon(shapePoints);
+        collisionBody2DPtr->CalculateBoundingRadius();
+    }
+
+    // convexPolygon 2 (hexagon)
+    {
+        unsigned int tempMeshIndex;
+        std::vector<glm::vec2> shapePoints;
+
+        int sides = 6;
+        float radius = 0.32f;
+        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+
+        glm::vec2 radialVector(0.0f, radius);
+        shapePoints.push_back(radialVector);
+
+        for (size_t i = 0; i < sides - 1; ++i)
+        {
+            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
+            shapePoints.push_back(radialVector);
+        }
+
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints, false));
+        meshIndicies_.push_back(tempMeshIndex);
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(currentPosition);
+        renderedModelPtr->SetMeshIndex(tempMeshIndex);
+        renderedModelPtr->SetLit(false);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
+        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->AddConvexPolygon(shapePoints);
+        collisionBody2DPtr->CalculateBoundingRadius();
+    }
+
+    // convexPolygon 3 (lineSegment)
+    {
+        unsigned int tempMeshIndex;
+        std::vector<glm::vec2> linePoints;
+        linePoints.emplace_back(0.32f, 0.32f);
+        linePoints.emplace_back(-0.32f, -0.32f);
+
+        _FAIL_CHECK(meshStoresPtr_->Generate2DLine(tempMeshIndex, linePoints, 0.01f, true, false));
+        meshIndicies_.push_back(tempMeshIndex);
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(currentPosition);
+        renderedModelPtr->SetMeshIndex(tempMeshIndex);
+        renderedModelPtr->SetLit(false);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
+        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->AddConvexPolygon(linePoints);
+        collisionBody2DPtr->CalculateBoundingRadius();
+    }
+
+    // convexPolygon 4 (lineSegment)
+    {
+        unsigned int tempMeshIndex;
+        std::vector<glm::vec2> linePoints;
+        linePoints.emplace_back(0.32f, -0.32f);
+        linePoints.emplace_back(-0.32f, 0.32f);
+
+        _FAIL_CHECK(meshStoresPtr_->Generate2DLine(tempMeshIndex, linePoints, 0.01f, true, false));
+        meshIndicies_.push_back(tempMeshIndex);
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(currentPosition);
+        renderedModelPtr->SetMeshIndex(tempMeshIndex);
+        renderedModelPtr->SetLit(false);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
+        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->AddConvexPolygon(linePoints);
         collisionBody2DPtr->CalculateBoundingRadius();
     }
 }

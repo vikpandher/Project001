@@ -267,7 +267,7 @@ namespace Project001
         return false;
     }
 
-    bool MeshStores::GenerateBezeledRectangle(
+    bool MeshStores::Generate2DBezeledRectangle(
         unsigned int& index,
         float width,
         float height,
@@ -277,7 +277,29 @@ namespace Project001
         bool positionalTexture)
     {
         MeshData newMeshData;
-        if (GenerateBezeledRectangle(newMeshData, meshVertexArray_, meshIndexArray_, width, height, bezelSize, bezelSections, triangulate, positionalTexture))
+        if (Generate2DBezeledRectangle(newMeshData, meshVertexArray_, meshIndexArray_, width, height, bezelSize, bezelSections, triangulate, positionalTexture))
+        {
+            meshDataArray_.push_back(newMeshData);
+            index = (unsigned int)(meshDataArray_.size() - 1);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool MeshStores::Generate2DSprite(
+        unsigned int& index,
+        float width,
+        float height,
+        float textureBottom,
+        float textureTop,
+        float textureLeft,
+        float textureRight,
+        bool triangulate)
+    {
+        MeshData newMeshData;
+        if (Generate2DSprite(newMeshData, meshVertexArray_, meshIndexArray_, width, height, textureBottom, textureTop, textureLeft, textureRight, triangulate))
         {
             meshDataArray_.push_back(newMeshData);
             index = (unsigned int)(meshDataArray_.size() - 1);
@@ -2119,7 +2141,7 @@ namespace Project001
         return success;
     }
 
-    bool MeshStores::GenerateBezeledRectangle(
+    bool MeshStores::Generate2DBezeledRectangle(
         MeshData& meshData,
         std::vector<MeshVertex>& meshVertexArray,
         std::vector<unsigned int>& meshIndexArray,
@@ -2198,6 +2220,103 @@ namespace Project001
         }
 
         return success;
+    }
+
+    bool MeshStores::Generate2DSprite(
+        MeshData& meshData,
+        std::vector<MeshVertex>& meshVertexArray,
+        std::vector<unsigned int>& meshIndexArray,
+        float width,
+        float height,
+        float textureBottom,
+        float textureTop,
+        float textureLeft,
+        float textureRight,
+        bool triangulate)
+    {
+        if (width <= 0.0f || height <= 0.0f)
+        {
+            return false;
+        }
+
+        float halfWidth = width / 2.0f;
+        float halfHeight = height / 2.0f;
+
+        meshData.vertexIndex = (unsigned int)meshVertexArray.size();
+        meshData.indexIndex = (unsigned int)meshIndexArray.size();
+        meshData.maxVertexPosition.x = halfWidth;
+        meshData.maxVertexPosition.y = halfHeight;
+        meshData.maxVertexPosition.z = 0.0f;
+        meshData.minVertexPosition.x = -halfWidth;
+        meshData.minVertexPosition.y = -halfHeight;
+        meshData.minVertexPosition.z = 0.0f;
+
+        MeshVertex topLeftVertex;
+        topLeftVertex.position.x = -halfWidth;
+        topLeftVertex.position.y = halfHeight;
+        topLeftVertex.textureCoordinate.x = textureLeft;
+        topLeftVertex.textureCoordinate.y = textureTop;
+        topLeftVertex.normal.z = 1.0f;
+
+        MeshVertex topRightVertex;
+        topRightVertex.position.x = halfWidth;
+        topRightVertex.position.y = halfHeight;
+        topRightVertex.textureCoordinate.x = textureRight;
+        topRightVertex.textureCoordinate.y = textureTop;
+        topRightVertex.normal.z = 1.0f;
+
+        MeshVertex bottomLeftVertex;
+        bottomLeftVertex.position.x = -halfWidth;
+        bottomLeftVertex.position.y = -halfHeight;
+        bottomLeftVertex.textureCoordinate.x = textureLeft;
+        bottomLeftVertex.textureCoordinate.y = textureBottom;
+        bottomLeftVertex.normal.z = 1.0f;
+
+        MeshVertex bottomRightVertex;
+        bottomRightVertex.position.x = halfWidth;
+        bottomRightVertex.position.y = -halfHeight;
+        bottomRightVertex.textureCoordinate.x = textureRight;
+        bottomRightVertex.textureCoordinate.y = textureBottom;
+        bottomRightVertex.normal.z = 1.0f;
+
+        if (triangulate)
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+
+            meshIndexArray.push_back(0);
+            meshIndexArray.push_back(1);
+            meshIndexArray.push_back(2);
+            meshIndexArray.push_back(3);
+            meshIndexArray.push_back(4);
+            meshIndexArray.push_back(5);
+
+            meshData.vertexCount = 6;
+            meshData.indexCount = 6;
+        }
+        else
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+
+            meshIndexArray.push_back(0);
+            meshIndexArray.push_back(1);
+            meshIndexArray.push_back(3);
+            meshIndexArray.push_back(2);
+            meshIndexArray.push_back(3);
+            meshIndexArray.push_back(1);
+
+            meshData.vertexCount = 4;
+            meshData.indexCount = 6;
+        }
+
+        return true;
     }
 
     bool MeshStores::GenerateBox(
@@ -4716,6 +4835,24 @@ namespace Project001
     {
         glm::vec2 intersectionPoint;
 
+        float& x = intersectionPoint.x;
+        float& y = intersectionPoint.y;
+        const float& x1 = point1.x;
+        const float& y1 = point1.y;
+        const float& x2 = point2.x;
+        const float& y2 = point2.y;
+        const float& m1 = slope1;
+        const float& m2 = slope2;
+
+        // y - y1 = m1 * (x - x1)
+        // y - y2 = m2 * (x - x2)
+        // 
+        // y = m1 * (x - x1) + y1
+        // y = m2 * (x - x2) + y2
+        // 
+        // x = (1 / m1) * (y - y1) + x1
+        // x = (1 / m2) * (y - y2) + x2
+
         if (slope1 == slope2)
         {
             intersectionPoint.x = NAN;
@@ -4723,37 +4860,23 @@ namespace Project001
         }
         else if (slope1 == INFINITY || slope1 == -INFINITY)
         {
-            // x = x1
-            // y = m2 * (x - x2) + y2
-            // y = m2 * (x1 - x2) + y2
-            intersectionPoint.x = point1.x;
-            intersectionPoint.y = slope2 * (point1.x - point2.x) + point2.y;
+            x = x1;
+            y = m2 * (x1 - x2) + y2;
         }
         else if (slope2 == INFINITY || slope2 == -INFINITY)
         {
-            // y = m1 * (x - x1) + y1
-            // x = x2
-            // y = m1 * (x2 - x1) + y1
-            intersectionPoint.x = point2.x;
-            intersectionPoint.y = slope1 * (point2.x - point1.x) + point1.y;
+            x = x2;
+            y = m1 * (x2 - x1) + y1;
         }
-        else if (slope1 != 0.0f)
+        else
         {
-            // x = (1 / m1) * (y - y1) + x1
-            // y = m2 * (x - x2) + y2
-            // y = m2 * ((1 / m1) * (y - y1) + x1 - x2) + y2
-            // y = (m2 * m1 * x2 - m2 * m1 * x1 + m2 * y1 - m1 * y2) / (m2 - m1)
-            intersectionPoint.y = (slope2 * slope1 * point2.x - slope2 * slope1 * point1.x + slope2 * point1.y - slope1 * point2.y) / (slope2 - slope1);
-            intersectionPoint.x = (1 / slope1) * (intersectionPoint.y - point1.y) + point1.x;
-        }
-        else if (slope2 != 0.0f)
-        {
-            // y = m1 * (x - x1) + y1
-            // x = (1 / m2) * (y - y2) + x2
-            // y = m1 * ((1 / m2) * (y - y2) + x2 - x1) + y1
-            // y = (m1 * m2 * x1 - m1 * m2 * x2 + m1 * y2 - m2 * y1) / (m1 - m2)
-            intersectionPoint.y = (slope1 * slope2 * point1.x - slope1 * slope2 * point2.x + slope1 * point2.y - slope2 * point1.y) / (slope1 - slope2);
-            intersectionPoint.x = (1 / slope2) * (intersectionPoint.y - point2.y) + point2.x;
+            // y = y
+            // m1 * (x - x1) + y1 = m2 * (x - x2) + y2
+            // m1 * x - m1 * x1 + y1 = m2 * x - m2 * x2 + y2
+            // m1 * x - m2 * x = m1 * x1 - y1 - m2 * x2 + y2
+            // x * (m1 - m2) = m1 * x1 - y1 - m2 * x2 + y2
+            x = (m1 * x1 - y1 - m2 * x2 + y2) / (m1 - m2);
+            y = m1 * (x - x1) + y1;
         }
 
         return intersectionPoint;

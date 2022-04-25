@@ -93,20 +93,25 @@ namespace Project001
 
         void PrepareCapabilities() override;
 
-        void ClearLocalBuffers() override;
+        void Clear() override;
 
         void Render() override;
 
     protected:
         void CreateFramebuffer();
 
-        static const bool s_drawWireframe = false;
-        static const bool s_drawNormals = false;
+        bool GetTextureUnit(unsigned int textureIndex, float& textureUnit);
+
+        bool GetStalestTextureUnit(unsigned int& textureUnit) const;
+        void IncreaseTectureUnitStaleness();
+
+        static const bool s_drawWireframe = true;
+        static const bool s_drawNormals = true;
 
         static const unsigned int s_indexBufferCapacity_ = 4194304; // 8192;
         static const unsigned int s_vertexBufferCapacity_ = 4194304; // 6144;
 
-        static const unsigned int s_numberOfTextureSlots_ = 16;
+        static const unsigned int s_numberOfTextureUnits_ = 16;
 
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
@@ -140,6 +145,7 @@ namespace Project001
 
         std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;
+        std::vector<unsigned int> tectureUnitStalenessValues_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
@@ -265,11 +271,5 @@ namespace Project001
     inline void OpenGLRendererAlt::ClearSpotLights()
     {
         spotLights_.clear();
-    }
-
-    inline void OpenGLRendererAlt::ClearLocalBuffers()
-    {
-        vertexBuffer_.clear();
-        indexBuffer_.clear();
     }
 }

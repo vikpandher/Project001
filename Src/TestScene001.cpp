@@ -228,10 +228,10 @@ void TestScene001::Initialize()
     _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape23MeshIndex_, 0.32f, 0.32f, 4));
     _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape24MeshIndex_, 0.32f, 0.32f, 8));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape25MeshIndex_, 0.64f, 0.64f, 0.16f, 1));
-    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape26MeshIndex_, 0.64f, 0.64f, 0.16f, 2));
-    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape27MeshIndex_, 0.64f, 0.64f, 0.16f, 3));
-    _FAIL_CHECK(meshStoresPtr_->GenerateBezeledRectangle(shape28MeshIndex_, 0.64f, 0.48f, 0.16f, 4));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape25MeshIndex_, 0.64f, 0.64f, 0.16f, 1));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape26MeshIndex_, 0.64f, 0.64f, 0.16f, 2));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape27MeshIndex_, 0.64f, 0.64f, 0.16f, 3));
+    _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape28MeshIndex_, 0.64f, 0.48f, 0.16f, 4));
 
     // Load textures
     // -------------------------------------------------------------------------

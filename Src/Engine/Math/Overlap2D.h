@@ -5,36 +5,34 @@
 #include "Engine/Math/FloatComparators.h"
 #include "Engine/Math/VectorAngles.h"
 
-#include <vector>
-
 
 
 // 2D Shape List ---------------------------------------------------------------
-// * Point (TODO)
-// * Line (TODO)
-// * Ray (TODO)
-// * LineSegment (TODO)
-// * Rectangle (TODO)
-// * OrientedRectangle (TODO)
-// * Circle (TODO)
-// * Capsule (TODO)
-// * Triangle (TODO)
-// * Polygon (TODO)
-// * Convex Polygon (TODO)
+// * Point
+// * Line
+// * Ray
+// * LineSegment
+// * Rectangle
+// * OrientedRectangle
+// * Circle
+// * Capsule
+// * Triangle
+// * Polygon
+// * Convex Polygon
 // 
 // Overlap Functions:
 //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
-// Point          |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  i  |
-// Line           | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  i  |
-// Ray            | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  i  |
-// LineSegment    | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  i  |
-// Rectangle      | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |     |
-// O. Rectangle   | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |     |
-// Circle         | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  i  |
-// Capsule        | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |  i  |
-// Triangle       | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |     |
-// Polygon        | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |     |
-// Convex Polygon | --- | --- | --- | --- | - - | - - | --- | --- | - - | - - |     |
+// Point          |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Line           | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Ray            | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// LineSegment    | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Rectangle      | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// O. Rectangle   | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |
+// Circle         | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |
+// Capsule        | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |
+// Triangle       | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |
+// Polygon        | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |
+// Convex Polygon | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |
 
 namespace Project001
 {
@@ -90,12 +88,12 @@ namespace Project001
 
     bool Check2D_Point_Polygon_Overlap(
         const glm::vec2& point_position,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     bool Check2D_Point_ConvexPolygon_Overlap(
         const glm::vec2& point_position,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking Line overlap ---------------------------------------------------
@@ -160,13 +158,13 @@ namespace Project001
     bool Check2D_Line_Polygon_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     bool Check2D_Line_ConvexPolygon_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking Ray overlap ----------------------------------------------------
@@ -240,14 +238,14 @@ namespace Project001
     bool Check2D_Ray_Polygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     // ray_direction needs to be a unit vector
     bool Check2D_Ray_ConvexPolygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking LineSegment overlap --------------------------------------------
@@ -312,13 +310,13 @@ namespace Project001
     bool Check2D_LineSegment_Polygon_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     bool Check2D_LineSegment_ConvexPolygon_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking Rectangle overlap ----------------------------------------------
@@ -383,8 +381,14 @@ namespace Project001
     bool Check2D_Rectangle_Polygon_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
+
+    bool Check2D_Rectangle_ConvexPolygon_Overlap(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
 
     // Checking OrientedRectangle overlap --------------------------------------
 
@@ -458,8 +462,15 @@ namespace Project001
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
+
+    bool Check2D_OrientedRectangle_ConvexPolygon_Overlap(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
 
     // Checking Circle overlap -------------------------------------------------
 
@@ -523,13 +534,13 @@ namespace Project001
     bool Check2D_Circle_Polygon_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     bool Check2D_Circle_ConvexPolygon_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking Capsule overlap ------------------------------------------------
@@ -604,14 +615,14 @@ namespace Project001
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
 
     bool Check2D_Capsule_ConvexPolygon_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
     // Checking Triangle overlap -----------------------------------------------
@@ -686,112 +697,157 @@ namespace Project001
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount);
+
+    bool Check2D_Triangle_ConvexPolygon_Overlap(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
 
     // Checking Polygon overlap ------------------------------------------------
 
     bool Check2D_Polygon_Point_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& point_position);
 
     bool Check2D_Polygon_Line_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& line_position,
         const float& line_slope);
 
     // ray_direction needs to be a unit vector
     bool Check2D_Polygon_Ray_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction);
 
     bool Check2D_Polygon_LineSegment_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
 
     bool Check2D_Polygon_Rectangle_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight);
 
     bool Check2D_Polygon_OrientedRectangle_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation);
 
     bool Check2D_Polygon_Circle_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& circle_position,
         const float& circle_radius);
 
     bool Check2D_Polygon_Capsule_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius);
 
     bool Check2D_Polygon_Triangle_Overlap(
-        const glm::vec2* polygon_corners,
+        const glm::vec2*& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
     bool Check2D_Polygon_Polygon_Overlap(
-        const glm::vec2* polygonA_corners,
+        const glm::vec2*& polygonA_corners,
         const size_t& polygonA_cornerCount,
-        const glm::vec2* polygonB_corners,
+        const glm::vec2*& polygonB_corners,
         const size_t& polygonB_cornerCount);
+
+    bool Check2D_Polygon_ConvexPolygon_Overlap(
+        const glm::vec2*& polygon_corners,
+        const size_t& polygon_cornerCount,
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
 
     // Checking Convex Polygon overlap -----------------------------------------
 
     bool Check2D_ConvexPolygon_Point_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& point_position);
 
     bool Check2D_ConvexPolygon_Line_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& line_position,
         const float& line_slope);
 
     // ray_direction needs to be a unit vector
     bool Check2D_ConvexPolygon_Ray_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction);
 
     bool Check2D_ConvexPolygon_LineSegment_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
 
+    bool Check2D_ConvexPolygon_Rectangle_Overlap(
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight);
+
+    bool Check2D_ConvexPolygon_OrientedRectangle_Overlap(
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation);
+
     bool Check2D_ConvexPolygon_Circle_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& circle_position,
         const float& circle_radius);
 
     bool Check2D_ConvexPolygon_Capsule_Overlap(
-        const glm::vec2* convexPolygon_corners,
+        const glm::vec2*& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius);
+
+    bool Check2D_ConvexPolygon_Triangle_Overlap(
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3);
+
+    bool Check2D_ConvexPolygon_Polygon_Overlap(
+        const glm::vec2*& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2*& polygon_corners,
+        const size_t& polygon_cornerCount);
+
+    bool Check2D_ConvexPolygon_ConvexPolygon_Overlap(
+        const glm::vec2*& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2*& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount);
 
     // Helper Functions --------------------------------------------------------
 
@@ -888,6 +944,16 @@ namespace Project001
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
+
+
+    // returns true if any convexPolygonA's axes of seperation seperate it from
+    // convexPolygonB. (half of the tests for the SAT) this doesn't preform any
+    // checks on the passed peramerters
+    bool Check2D_ConvexPolygon_ConvexPolygon_SeparatedAxisTheorem(
+        const glm::vec2*& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2*& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount);
 
     // Unused
     float RotateSlope(float slope, float rotationInRadians);

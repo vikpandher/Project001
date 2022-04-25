@@ -162,8 +162,8 @@ namespace Project001
             , textureCoordinate(0.0f, 0.0f)
             , normal(0.0f, 0.0f, 0.0f)
             , color(1.0f, 1.0f, 1.0f, 1.0f)
-            , textureSlot(-1.0f)
-            , specularSlot(99.0f)
+            , textureUnit(-1.0f)
+            , specularUnit(99.0f)
             , shininess(32.0f)
             , scale(1.0f, 1.0f, 1.0f)
             , translation(0.0f, 0.0f, 0.0f)
@@ -175,8 +175,8 @@ namespace Project001
         glm::vec2 textureCoordinate;
         glm::vec3 normal;
         glm::vec4 color;
-        float textureSlot;
-        float specularSlot;
+        float textureUnit;
+        float specularUnit;
         float shininess;
         glm::vec3 scale;
         glm::vec3 translation;

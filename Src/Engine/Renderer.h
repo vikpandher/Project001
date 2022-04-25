@@ -38,7 +38,7 @@ namespace Project001
 
         virtual bool BindTexture(
             unsigned int textureIndex,
-            unsigned int textureSlot) = 0;
+            unsigned int textureUnit) = 0;
 
         virtual void ClearTextures() = 0;
 
@@ -92,7 +92,7 @@ namespace Project001
 
         virtual void PrepareCapabilities() = 0;
 
-        virtual void ClearLocalBuffers() = 0;
+        virtual void Clear() = 0;
 
         virtual void Render() = 0;
 

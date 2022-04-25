@@ -93,7 +93,7 @@ namespace Project001
 
         void PrepareCapabilities() override;
 
-        void ClearLocalBuffers() override;
+        void Clear() override;
 
         void Render() override;
 
@@ -102,11 +102,14 @@ namespace Project001
 
         void RenderTriangles(const std::vector<VertexData>& vertexBuffer);
 
-        static const bool s_wireFrameMode = false;
+        bool GetTextureUnit(unsigned int textureIndex, float& textureUnit);
+
+        bool GetStalestTextureUnit(unsigned int& textureUnit) const;
+        void IncreaseTectureUnitStaleness();
 
         static const unsigned int s_bufferCapacity_ = 36 * 10;
 
-        static const unsigned int s_numberOfTextureSlots_ = 16;
+        static const unsigned int s_numberOfTextureUnits_ = 16;
 
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
@@ -137,6 +140,7 @@ namespace Project001
 
         std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;
+        std::vector<unsigned int> tectureUnitStalenessValues_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
@@ -262,11 +266,5 @@ namespace Project001
     inline void OpenGLRenderer::ClearSpotLights()
     {
         spotLights_.clear();
-    }
-
-    inline void OpenGLRenderer::ClearLocalBuffers()
-    {
-        vertexBuffer_.clear();
-        translucentVertexBuffer_.clear();
     }
 }

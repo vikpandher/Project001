@@ -70,9 +70,30 @@ protected:
 
     // Texture Indicies: -------------------------------------------------------
 
-    unsigned int _100x100TextureIndex_;
-    unsigned int earthTextureIndex_;
-    unsigned int rgb120x60TextureIndex_;
+    unsigned int _32x32_00_TextureIndex_;
+    unsigned int _32x32_01_TextureIndex_;
+    unsigned int _32x32_02_TextureIndex_;
+    unsigned int _32x32_03_TextureIndex_;
+    unsigned int _32x32_04_TextureIndex_;
+    unsigned int _32x32_05_TextureIndex_;
+    unsigned int _32x32_06_TextureIndex_;
+    unsigned int _32x32_07_TextureIndex_;
+    unsigned int _32x32_08_TextureIndex_;
+    unsigned int _32x32_09_TextureIndex_;
+    unsigned int _32x32_10_TextureIndex_;
+    unsigned int _32x32_11_TextureIndex_;
+    unsigned int _32x32_12_TextureIndex_;
+    unsigned int _32x32_13_TextureIndex_;
+    unsigned int _32x32_14_TextureIndex_;
+    unsigned int _32x32_15_TextureIndex_;
+    unsigned int _32x32_16_TextureIndex_;
+    unsigned int _32x32_17_TextureIndex_;
+    unsigned int _32x32_18_TextureIndex_;
+    unsigned int _32x32_19_TextureIndex_;
+    unsigned int _32x32_20_TextureIndex_;
+    unsigned int _32x32_21_TextureIndex_;
+    unsigned int _32x32_22_TextureIndex_;
+    unsigned int _32x32_23_TextureIndex_;
 
     // Entity Ids: -------------------------------------------------------------
 

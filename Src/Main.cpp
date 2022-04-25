@@ -18,22 +18,6 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
-    // tests 2d shape overlap
-    TestScene007* testScene007Ptr = new TestScene007();
-    applicationPtr->AddScene(testScene007Ptr);
-
-    // 
-    TestScene008* testScene008Ptr = new TestScene008();
-    applicationPtr->AddScene(testScene008Ptr);
-
-    // tests shape generation
-    TestScene001* testScene001Ptr = new TestScene001();
-    applicationPtr->AddScene(testScene001Ptr);
-
-    // tests 3d shape generation
-    TestScene002* testScene002Ptr = new TestScene002();
-    applicationPtr->AddScene(testScene002Ptr);
-
     // tests more shape generation
     TestScene003* testScene003Ptr = new TestScene003();
     applicationPtr->AddScene(testScene003Ptr);
@@ -49,6 +33,22 @@ int main(int argc, char** argv)
     // tests 2d shape overlap
     TestScene006* testScene006Ptr = new TestScene006();
     applicationPtr->AddScene(testScene006Ptr);
+
+    // tests 2d shape overlap
+    TestScene007* testScene007Ptr = new TestScene007();
+    applicationPtr->AddScene(testScene007Ptr);
+
+    // tests 3d shape overlap (TODO)
+    TestScene008* testScene008Ptr = new TestScene008();
+    applicationPtr->AddScene(testScene008Ptr);
+
+    // tests shape generation
+    TestScene001* testScene001Ptr = new TestScene001();
+    applicationPtr->AddScene(testScene001Ptr);
+
+    // tests 3d shape generation
+    TestScene002* testScene002Ptr = new TestScene002();
+    applicationPtr->AddScene(testScene002Ptr);
 
     applicationPtr->Run();
 

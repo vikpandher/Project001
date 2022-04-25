@@ -67,8 +67,8 @@ namespace Project001
         GLuint textureCoordinateAttributeIndex = 1;
         GLuint normalAttributeIndex = 2;
         GLuint colorAttributeIndex = 3;
-        GLuint textureSlotAttributeIndex = 4;
-        GLuint specularSlotAttributeIndex = 5;
+        GLuint textureUnitAttributeIndex = 4;
+        GLuint specularUnitAttributeIndex = 5;
         GLuint shininessAttributeIndex = 6;
         GLuint scaleAttributeIndex = 7;
         GLuint translationAttributeIndex = 8;
@@ -93,12 +93,12 @@ namespace Project001
         glEnableVertexAttribArray(colorAttributeIndex);
         attributeOffset += sizeof(glm::vec4);
 
-        glVertexAttribPointer(textureSlotAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureSlotAttributeIndex);
+        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureUnitAttributeIndex);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(specularSlotAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(specularSlotAttributeIndex);
+        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(specularUnitAttributeIndex);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
@@ -148,7 +148,7 @@ namespace Project001
         );
         primaryShaderPtr_->Use();
 
-        for (int i = 0; i < s_numberOfTextureSlots_; ++i)
+        for (int i = 0; i < s_numberOfTextureUnits_; ++i)
         {
             std::string uniformName;
             uniformName.append("u_Textures[");
@@ -165,6 +165,9 @@ namespace Project001
         screenShaderPtr_->SetInt("u_ScreenTexture", 0);
 
         CreateFramebuffer();
+
+        tectureUnitStalenessValues_.push_back(0);
+        tectureUnitStalenessValues_.resize(s_numberOfTextureUnits_, 1);
 
         pointLights_.reserve(s_numberOfPointLights_);
         spotLights_.reserve(s_numberOfSpotLights_);
@@ -210,7 +213,7 @@ namespace Project001
         unsigned int height,
         unsigned int numberOfComponents)
     {
-        if (textureUnit < s_numberOfTextureSlots_ && textureUnit > 0) // temp. reserving 0 for the screenTexture
+        if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
             if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
             {
@@ -232,9 +235,8 @@ namespace Project001
         unsigned int textureIndex,
         unsigned int textureUnit)
     {
-        if (textureUnit < s_numberOfTextureSlots_ && textureUnit > 0) // temp. reserving 0 for the screenTexture
+        if (0 < textureUnit && textureUnit < s_numberOfTextureUnits_) // reserving 0 for the screenTexture
         {
-
             if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
             {
                 texturePtrMap_[textureIndex]->Bind(textureUnit);
@@ -278,16 +280,16 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        float textureSlot = -1.0f;
-        if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureSlot
+        float textureUnit = -1.0f;
+        if (textureIndex != (unsigned int)-1 && !GetTextureUnit(textureIndex, textureUnit))
         {
-            textureSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
+            return false;
         }
 
-        float specularSlot = -1.0f;
-        if (textureIndexToUnitBiMap_.Find_X(specularIndex)) // convert specularIndex to textureSlot
+        float specularUnit = -1.0f;
+        if (specularIndex != (unsigned int)-1 && !GetTextureUnit(specularIndex, specularUnit))
         {
-            specularSlot = (float)textureIndexToUnitBiMap_.Get_Using_X(specularIndex);
+            return false;
         }
 
         for (size_t j = 0; j < meshVertexCount; ++j)
@@ -299,8 +301,8 @@ namespace Project001
             newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
             newVertex.normal = currentMeshVertex.normal;
             newVertex.color = color;
-            newVertex.textureSlot = textureSlot;
-            newVertex.specularSlot = specularSlot;
+            newVertex.textureUnit = textureUnit;
+            newVertex.specularUnit = specularUnit;
             newVertex.shininess = shininess;
             newVertex.scale = scale;
             newVertex.translation = position;
@@ -347,6 +349,14 @@ namespace Project001
         // bind the texture attached to frameBufferId_
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, screenTextureColorBufferId_);
+    }
+
+    void OpenGLRenderer::Clear()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGLRenderer::Render()
@@ -409,11 +419,6 @@ namespace Project001
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
-        if (s_wireFrameMode)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
-
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
@@ -423,9 +428,6 @@ namespace Project001
             // enable using the z buffer
             glEnable(GL_DEPTH_TEST);
         }
-
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         primaryShaderPtr_->Use();
 
@@ -522,11 +524,6 @@ namespace Project001
         // Render to screen frameBuffer
         // ---------------------------------------------------------------------
 
-        if (s_wireFrameMode)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
-
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -540,6 +537,14 @@ namespace Project001
         glBindVertexArray(screenVertexArrayId_);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // Clear local buffers
+        // ---------------------------------------------------------------------
+
+        IncreaseTectureUnitStaleness();
+
+        vertexBuffer_.clear();
+        translucentVertexBuffer_.clear();
     }
 
     // protected ---------------------------------------------------------------
@@ -613,6 +618,63 @@ namespace Project001
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)numberOfVerticiesDrawnThisDrawCall);
 
             numberOfVerticiesLeft -= numberOfVerticiesDrawnThisDrawCall;
+        }
+    }
+
+    bool OpenGLRenderer::GetTextureUnit(unsigned int textureIndex, float& textureUnit)
+    {
+        if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureUnit
+        {
+            textureUnit = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
+            tectureUnitStalenessValues_[textureUnit] = 0;
+        }
+        else
+        {
+            unsigned int newTextureUnit = 1;
+            if (GetStalestTextureUnit(newTextureUnit))
+            {
+                if (BindTexture(textureIndex, newTextureUnit))
+                {
+                    textureUnit = (float)newTextureUnit;
+                    tectureUnitStalenessValues_[newTextureUnit] = 0;
+                }
+                else
+                {
+                    // texture doesn't exist
+                    return false;
+                }
+            }
+            else
+            {
+                // no more room for this texture
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool OpenGLRenderer::GetStalestTextureUnit(unsigned int& textureUnit) const
+    {
+        int stalestValue = 0;
+
+        for (size_t i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
+        {
+            if (tectureUnitStalenessValues_[i] > stalestValue)
+            {
+                textureUnit = i;
+                stalestValue = tectureUnitStalenessValues_[i];
+            }
+        }
+
+        return stalestValue > 0;
+    }
+
+    void OpenGLRenderer::IncreaseTectureUnitStaleness()
+    {
+        for (size_t i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
+        {
+            tectureUnitStalenessValues_[i]++;
         }
     }
 }

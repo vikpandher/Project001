@@ -84,7 +84,7 @@ namespace Project001
 
         size_t Size()
         {
-            return mapYX_.size();
+            return mapXY_.size();
         }
         
     protected:
