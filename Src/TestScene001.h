@@ -114,7 +114,6 @@ private:
     void BiMapTest() const;
     void ComponentContainerTest() const;
     void ComponentStoresTest() const;
-    void LRUArrayTest() const;
     void MeshStoresTest() const;
     void TextureStoresTest() const;
 };

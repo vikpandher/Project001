@@ -2,6 +2,8 @@
 
 #include "TestSceneBase001.h"
 
+#include <vector>
+
 
 namespace Project001
 {
@@ -29,24 +31,18 @@ protected:
     void ClearIndiciesAndEntityIds();
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
-
-    void UpdateShape01EntityPosition(unsigned long timestep_ns);
 
     // Mesh Indicies: ----------------------------------------------------------
 
-    unsigned int shape01MeshIndex_;
-
-    // Sound Indicies: ---------------------------------------------------------
-
-    unsigned int song01SoundIndex_;
+    std::vector<unsigned int> meshIndicies_;
 
     // Texture Indicies: -------------------------------------------------------
 
+    unsigned int _32x32_123abc_TextureIndex_;
+
     // Entity Ids: -------------------------------------------------------------
 
-    unsigned int shape01EntityId_;
+    std::vector<unsigned int> entityIds_;
 
 private:
-    void TestOpenAL() const;
 };

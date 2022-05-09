@@ -114,5 +114,36 @@ namespace Project001
         unsigned int* lastRecentlyUsedValuesPtr_;
 
     private:
+        void LRUArrayTest();
     };
+
+    inline void LRUArray::LRUArrayTest()
+    {
+        Project001::LRUArray<unsigned int> testLRUArray(4);
+        testLRUArray.Add(0);
+        testLRUArray.Add(1);
+        testLRUArray.Add(2);
+        testLRUArray.Add(3);
+        unsigned int x0 = testLRUArray.Get(0);
+        unsigned int x1 = testLRUArray.Get(1);
+        unsigned int x2 = testLRUArray.Get(2);
+        unsigned int x3 = testLRUArray.Get(3);
+        size_t size = testLRUArray.Size();
+
+        unsigned int temp = testLRUArray.Get(0);
+        testLRUArray.Add(4);
+        temp = testLRUArray.Get(2);
+        testLRUArray.Add(5);
+        testLRUArray.Add(6);
+
+        x0 = testLRUArray[0];
+        x1 = testLRUArray[1];
+        x2 = testLRUArray[2];
+        x3 = testLRUArray[3];
+
+        testLRUArray[0] = 0;
+        testLRUArray[1] = 1;
+        testLRUArray[2] = 2;
+        testLRUArray[3] = 3;
+    }
 }

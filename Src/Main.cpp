@@ -10,7 +10,8 @@
 #include "TestScene005.h"
 #include "TestScene006.h"
 #include "TestScene007.h"
-#include "TestScene008.h"
+#include "TestScene009.h"
+#include "TestScene010.h"
 
 
 
@@ -18,11 +19,7 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
 
-    // tests more shape generation
-    TestScene003* testScene003Ptr = new TestScene003();
-    applicationPtr->AddScene(testScene003Ptr);
-
-    // tests sound
+    // 
     TestScene004* testScene004Ptr = new TestScene004();
     applicationPtr->AddScene(testScene004Ptr);
 
@@ -39,8 +36,12 @@ int main(int argc, char** argv)
     applicationPtr->AddScene(testScene007Ptr);
 
     // tests 3d shape overlap (TODO)
-    TestScene008* testScene008Ptr = new TestScene008();
-    applicationPtr->AddScene(testScene008Ptr);
+    TestScene009* testScene009Ptr = new TestScene009();
+    applicationPtr->AddScene(testScene009Ptr);
+
+    // tests sound
+    TestScene010* testScene010Ptr = new TestScene010();
+    applicationPtr->AddScene(testScene010Ptr);
 
     // tests shape generation
     TestScene001* testScene001Ptr = new TestScene001();
@@ -49,6 +50,10 @@ int main(int argc, char** argv)
     // tests 3d shape generation
     TestScene002* testScene002Ptr = new TestScene002();
     applicationPtr->AddScene(testScene002Ptr);
+
+    // tests additional shape generation and rendering 35 textures
+    TestScene003* testScene003Ptr = new TestScene003();
+    applicationPtr->AddScene(testScene003Ptr);
 
     applicationPtr->Run();
 
@@ -60,7 +65,8 @@ int main(int argc, char** argv)
     delete testScene005Ptr;
     delete testScene006Ptr;
     delete testScene007Ptr;
-    delete testScene008Ptr;
+    delete testScene009Ptr;
+    delete testScene010Ptr;
 
     return 0;
 }

@@ -54,7 +54,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -89,7 +89,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, 0.32f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         _FAIL_CHECK(meshStoresPtr_->RotateMeshZ(tempMeshIndex, glm::quarter_pi<float>()));
         meshIndicies_.push_back(tempMeshIndex);
 
@@ -186,7 +186,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -222,7 +222,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, 0.32f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -257,7 +257,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         _FAIL_CHECK(meshStoresPtr_->RotateMeshZ(tempMeshIndex, -1.0f * glm::quarter_pi<float>()));
         meshIndicies_.push_back(tempMeshIndex);
 
@@ -355,7 +355,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.32f, 0.32f);
         shapePoints.emplace_back(0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -391,7 +391,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -426,7 +426,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         _FAIL_CHECK(meshStoresPtr_->RotateMeshZ(tempMeshIndex, glm::quarter_pi<float>()));
         meshIndicies_.push_back(tempMeshIndex);
 
@@ -523,7 +523,7 @@ void TestScene006::Initialize()
         shapePoints.emplace_back(-0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.32f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;

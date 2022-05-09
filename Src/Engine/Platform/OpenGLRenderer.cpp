@@ -23,10 +23,6 @@ namespace Project001
         : depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
-        , viewportX_(0)
-        , viewportY_(0)
-        , viewportWidth_(width)
-        , viewportHeight_(height)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
@@ -166,6 +162,13 @@ namespace Project001
 
         CreateFramebuffer();
 
+        GLint viewPortData[4];
+        glGetIntegerv(GL_VIEWPORT, viewPortData);
+        viewportX_ = viewPortData[0];
+        viewportY_ = viewPortData[1];
+        viewportWidth_ = viewPortData[2];
+        viewportHeight_ = viewPortData[3];
+
         tectureUnitStalenessValues_.push_back(0);
         tectureUnitStalenessValues_.resize(s_numberOfTextureUnits_, 1);
 
@@ -206,7 +209,7 @@ namespace Project001
     }
 
     bool OpenGLRenderer::AddTexture(
-        unsigned int textureIndex,
+        unsigned int textureId,
         unsigned int textureUnit,
         unsigned char* data,
         unsigned int width,
@@ -215,13 +218,13 @@ namespace Project001
     {
         if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
+            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
             {
-                delete texturePtrMap_[textureIndex];
+                delete texturePtrMap_[textureId];
             }
 
-            texturePtrMap_[textureIndex] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
-            textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
+            textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;
         }
@@ -232,15 +235,15 @@ namespace Project001
     }
 
     bool OpenGLRenderer::BindTexture(
-        unsigned int textureIndex,
+        unsigned int textureId,
         unsigned int textureUnit)
     {
         if (0 < textureUnit && textureUnit < s_numberOfTextureUnits_) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
+            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
             {
-                texturePtrMap_[textureIndex]->Bind(textureUnit);
-                textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+                texturePtrMap_[textureId]->Bind(textureUnit);
+                textureIdToUnitBiMap_.Add(textureId, textureUnit);
                 return true;
             }
             else
@@ -262,7 +265,7 @@ namespace Project001
             delete iter->second;
         }
         texturePtrMap_.clear();
-        textureIndexToUnitBiMap_.Clear();
+        textureIdToUnitBiMap_.Clear();
     }
 
     bool OpenGLRenderer::AddMesh(
@@ -270,8 +273,8 @@ namespace Project001
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
         unsigned int meshIndexCount,
-        unsigned int textureIndex,
-        unsigned int specularIndex,
+        unsigned int textureId,
+        unsigned int specularId,
         const glm::vec3& position,
         const glm::quat& orientation,
         const glm::vec3& scale,
@@ -280,14 +283,19 @@ namespace Project001
         bool translucent,
         bool lit)
     {
+        if (meshVertexCount >= s_bufferCapacity_)
+        {
+            return false;
+        }
+
         float textureUnit = -1.0f;
-        if (textureIndex != (unsigned int)-1 && !GetTextureUnit(textureIndex, textureUnit))
+        if (textureId != (unsigned int)-1 && GetTextureUnit(textureId, textureUnit))
         {
             return false;
         }
 
         float specularUnit = -1.0f;
-        if (specularIndex != (unsigned int)-1 && !GetTextureUnit(specularIndex, specularUnit))
+        if (specularId != (unsigned int)-1 && GetTextureUnit(specularId, specularUnit))
         {
             return false;
         }
@@ -621,11 +629,11 @@ namespace Project001
         }
     }
 
-    bool OpenGLRenderer::GetTextureUnit(unsigned int textureIndex, float& textureUnit)
+    int OpenGLRenderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
-        if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureUnit
+        if (textureIdToUnitBiMap_.Find_X(textureId))
         {
-            textureUnit = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
+            textureUnit = (float)textureIdToUnitBiMap_.Get_Using_X(textureId);
             tectureUnitStalenessValues_[textureUnit] = 0;
         }
         else
@@ -633,7 +641,7 @@ namespace Project001
             unsigned int newTextureUnit = 1;
             if (GetStalestTextureUnit(newTextureUnit))
             {
-                if (BindTexture(textureIndex, newTextureUnit))
+                if (BindTexture(textureId, newTextureUnit))
                 {
                     textureUnit = (float)newTextureUnit;
                     tectureUnitStalenessValues_[newTextureUnit] = 0;
@@ -641,17 +649,17 @@ namespace Project001
                 else
                 {
                     // texture doesn't exist
-                    return false;
+                    return 2;
                 }
             }
             else
             {
                 // no more room for this texture
-                return false;
+                return 1;
             }
         }
 
-        return true;
+        return 0;
     }
 
     bool OpenGLRenderer::GetStalestTextureUnit(unsigned int& textureUnit) const

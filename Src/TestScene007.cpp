@@ -204,7 +204,7 @@ void TestScene007::Initialize()
         shapePoints.emplace_back(-0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -239,7 +239,7 @@ void TestScene007::Initialize()
         shapePoints.emplace_back(-0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, 0.32f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         _FAIL_CHECK(meshStoresPtr_->RotateMeshZ(tempMeshIndex, glm::quarter_pi<float>()));
         meshIndicies_.push_back(tempMeshIndex);
 
@@ -336,7 +336,7 @@ void TestScene007::Initialize()
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -452,7 +452,7 @@ void TestScene007::Initialize()
         {
             fanPoints[i] *= 0.08f;
         }
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, fanPoints, fanPoints, false));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, fanPoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -548,7 +548,7 @@ void TestScene007::Initialize()
             shapePoints.push_back(radialVector);
         }
 
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints, false));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -590,7 +590,7 @@ void TestScene007::Initialize()
             shapePoints.push_back(radialVector);
         }
 
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints, shapePoints, false));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(tempMeshIndex, shapePoints));
         meshIndicies_.push_back(tempMeshIndex);
 
         unsigned int tempEntityId;
@@ -701,11 +701,11 @@ void TestScene007::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene008"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene009"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene008"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene009"));
             }
         }
     }

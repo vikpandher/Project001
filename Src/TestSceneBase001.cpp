@@ -48,10 +48,6 @@ void TestSceneBase001::Initialize()
 
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
 
-    int windowWidth, windowHeight;
-    windowPtr_->GetWindowSize(windowWidth, windowHeight);
-    windowPtr_->SetAspectRatio(windowWidth, windowHeight);
-
     // scene data entity
     // -------------------------------------------------------------------------
     {
@@ -67,11 +63,14 @@ void TestSceneBase001::Initialize()
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-        int framebufferWidth;
-        int framebufferHeight;
-        windowPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
-        float aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
-        cameraPtr->SetAspectRatio(aspectRatio);
+        int aspectRatioNumerator;
+        int aspectRatioDenominator;
+        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            cameraPtr->SetAspectRatio(aspectRatio);
+        }
         cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
         cameraPtr->AddYaw(glm::pi<float>());
         // cameraPtr->SetProjectionToOrthographic();
@@ -140,8 +139,8 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         TestSceneData* TestSceneDataPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, TestSceneDataPtr));
 
-        float& prevousXPosition = TestSceneDataPtr->previousCursorDownPosition.x;
-        float& prevousYPosition = TestSceneDataPtr->previousCursorDownPosition.y;
+        float& prevousXPosition = TestSceneDataPtr->previousWindowCursorDownPosition.x;
+        float& prevousYPosition = TestSceneDataPtr->previousWindowCursorDownPosition.y;
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
@@ -197,12 +196,12 @@ void TestSceneBase001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEv
         int lowerLeftY = (height - adjustedHeight) / 2;
 
         rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
-        rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+        rendererPtr_->SetViewport(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
     }
     else
     {
         rendererPtr_->SetFramebufferSize(width, height);
-        rendererPtr_->SetViewportSize(0, 0, width, height);
+        rendererPtr_->SetViewport(0, 0, width, height);
     }
 
     frameBufferSizeEvent.handled = true;
@@ -219,8 +218,8 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
         TestSceneData* TestSceneDataPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, TestSceneDataPtr));
 
-        float& prevousXPosition = TestSceneDataPtr->previousCursorDownPosition.x;
-        float& prevousYPosition = TestSceneDataPtr->previousCursorDownPosition.y;
+        float& prevousXPosition = TestSceneDataPtr->previousWindowCursorDownPosition.x;
+        float& prevousYPosition = TestSceneDataPtr->previousWindowCursorDownPosition.y;
 
         windowPtr_->GetCursorPosition(prevousXPosition, prevousYPosition);
     }
@@ -318,7 +317,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                     meshIndicies,
                     meshIndexCount));
 
-                if (!rendererPtr_->AddMesh(
+                _FAIL_CHECK(rendererPtr_->AddMesh(
                     meshVerticies,
                     meshVertexCount,
                     meshIndicies,
@@ -331,24 +330,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                     currentRenderedModel.GetColor(),
                     currentRenderedModel.GetShininess(),
                     currentRenderedModel.GetTranslucent(),
-                    currentRenderedModel.GetLit()))
-                {
-                    rendererPtr_->Render();
-                    rendererPtr_->AddMesh(
-                        meshVerticies,
-                        meshVertexCount,
-                        meshIndicies,
-                        meshIndexCount,
-                        currentRenderedModel.GetTextureIndex(),
-                        currentRenderedModel.GetSpecularIndex(),
-                        currentRenderedModel.GetPosition(),
-                        currentRenderedModel.GetOrientation(),
-                        currentRenderedModel.GetScale(),
-                        currentRenderedModel.GetColor(),
-                        currentRenderedModel.GetShininess(),
-                        currentRenderedModel.GetTranslucent(),
-                        currentRenderedModel.GetLit());
-                }
+                    currentRenderedModel.GetLit()));
             }
         }
 

@@ -76,7 +76,7 @@ protected:
     // Scene Data: -------------------------------------------------------------
 
     bool cursorGrabbingEntity_;
-    glm::vec2 previousCursorDownPosition_;
+    glm::vec2 previousWorldCursorDownPosition_;
 
 private:
 };

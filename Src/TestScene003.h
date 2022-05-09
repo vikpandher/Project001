@@ -94,6 +94,17 @@ protected:
     unsigned int _32x32_21_TextureIndex_;
     unsigned int _32x32_22_TextureIndex_;
     unsigned int _32x32_23_TextureIndex_;
+    unsigned int _32x32_24_TextureIndex_;
+    unsigned int _32x32_25_TextureIndex_;
+    unsigned int _32x32_26_TextureIndex_;
+    unsigned int _32x32_27_TextureIndex_;
+    unsigned int _32x32_28_TextureIndex_;
+    unsigned int _32x32_29_TextureIndex_;
+    unsigned int _32x32_30_TextureIndex_;
+    unsigned int _32x32_31_TextureIndex_;
+    unsigned int _32x32_32_TextureIndex_;
+    unsigned int _32x32_33_TextureIndex_;
+    unsigned int _32x32_34_TextureIndex_;
 
     // Entity Ids: -------------------------------------------------------------
 

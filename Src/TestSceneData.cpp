@@ -3,5 +3,5 @@
 
 
 TestSceneData::TestSceneData()
-    : previousCursorDownPosition(0.0f, 0.0f)
+    : previousWindowCursorDownPosition(0.0f, 0.0f)
 {}

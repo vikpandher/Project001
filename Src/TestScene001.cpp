@@ -8,7 +8,6 @@
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
-#include "Engine/LRUArray.h"
 #include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
 #include "Engine/TextureStores.h"
@@ -25,7 +24,6 @@ TestScene001::TestScene001()
     BiMapTest();
     ComponentContainerTest();
     ComponentStoresTest();
-    LRUArrayTest();
     MeshStoresTest();
     TextureStoresTest();
 }
@@ -45,7 +43,7 @@ void TestScene001::Initialize()
     // Load meshes
     // -------------------------------------------------------------------------
 
-    _FAIL_CHECK(meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Cube.obj", false));
+    _FAIL_CHECK(meshStoresPtr_->LoadMeshOBJ(cubeMeshIndex_, "../Models/Cube.obj"));
 
     {
         std::vector<glm::vec2> positions;
@@ -61,7 +59,9 @@ void TestScene001::Initialize()
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(shape01MeshIndex_, positions, positions));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleFan(shape01MeshIndex_, positions));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape01MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape01MeshIndex_));
     }
 
     {
@@ -86,7 +86,9 @@ void TestScene001::Initialize()
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleStrip(shape02MeshIndex_, positions, positions));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangleStrip(shape02MeshIndex_, positions));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape02MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape02MeshIndex_));
     }
 
     {
@@ -107,7 +109,9 @@ void TestScene001::Initialize()
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangles(shape03MeshIndex_, positions, positions));
+        _FAIL_CHECK(meshStoresPtr_->Generate2DTriangles(shape03MeshIndex_, positions));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape03MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape03MeshIndex_));
     }
 
     {
@@ -138,6 +142,8 @@ void TestScene001::Initialize()
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
         _FAIL_CHECK(meshStoresPtr_->Generate2DLine(shape04MeshIndex_, positions, 0.08f));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape04MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape04MeshIndex_));
     }
 
     {
@@ -164,6 +170,8 @@ void TestScene001::Initialize()
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
         _FAIL_CHECK(meshStoresPtr_->Generate2DLine(shape05MeshIndex_, positions, 0.04f));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape05MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape05MeshIndex_));
     }
 
     {
@@ -177,6 +185,8 @@ void TestScene001::Initialize()
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
         _FAIL_CHECK(meshStoresPtr_->Generate2DLine(shape06MeshIndex_, positions, 0.12f));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape06MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape06MeshIndex_));
     }
 
     {
@@ -200,16 +210,37 @@ void TestScene001::Initialize()
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
         _FAIL_CHECK(meshStoresPtr_->Generate2DLine(shape07MeshIndex_, positions, 0.04f));
+        _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape07MeshIndex_));
+        _FAIL_CHECK(meshStoresPtr_->RecenterMesh(shape07MeshIndex_));
     }
 
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape08MeshIndex_, 0.32f, 3));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape08MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape08MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape09MeshIndex_, 0.32f, 4));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape09MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape09MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape10MeshIndex_, 0.32f, 5));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape10MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape10MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape11MeshIndex_, 0.32f, 6));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape11MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape11MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape12MeshIndex_, 0.32f, 7));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape12MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape12MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape13MeshIndex_, 0.32f, 8));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape13MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape13MeshIndex_, glm::vec2(0.5f, 0.5f)));
     
     _FAIL_CHECK(meshStoresPtr_->Generate2DRegularPolygon(shape14MeshIndex_, 0.32f, 24));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape14MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape14MeshIndex_, glm::vec2(0.5f, 0.5f)));
     _FAIL_CHECK(meshStoresPtr_->ScaleMesh(shape14MeshIndex_, glm::vec3(2.0f, 1.5f, 1.0f)));
     _FAIL_CHECK(meshStoresPtr_->RotateMesh(shape14MeshIndex_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 0.0f, 1.0f))));
     _FAIL_CHECK(meshStoresPtr_->RotateMesh(shape14MeshIndex_, glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::pi<float>() / -4.0f, glm::vec3(0.0f, 1.0f, 0.0f))));
@@ -217,21 +248,60 @@ void TestScene001::Initialize()
     _FAIL_CHECK(meshStoresPtr_->TranslateMesh(shape14MeshIndex_, glm::vec3(0.16f, 0.0f, 0.0f)));
 
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape15MeshIndex_, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape15MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape15MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape16MeshIndex_, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape16MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape16MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape17MeshIndex_, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape17MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape17MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape18MeshIndex_, 0.08f, 0.32f, 4, 0.0f, 2.0f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape18MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape18MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape19MeshIndex_, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape19MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape19MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape20MeshIndex_, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape20MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape20MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DArc(shape21MeshIndex_, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape21MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape21MeshIndex_, glm::vec2(0.5f, 0.5f)));
 
     _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape22MeshIndex_, 0.32f, 0.32f, 2));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape22MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape22MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape23MeshIndex_, 0.32f, 0.32f, 4));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape23MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape23MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DCapsule(shape24MeshIndex_, 0.32f, 0.32f, 8));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape24MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape24MeshIndex_, glm::vec2(0.5f, 0.5f)));
 
     _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape25MeshIndex_, 0.64f, 0.64f, 0.16f, 1));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape25MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape25MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape26MeshIndex_, 0.64f, 0.64f, 0.16f, 2));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape26MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape26MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape27MeshIndex_, 0.64f, 0.64f, 0.16f, 3));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape27MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape27MeshIndex_, glm::vec2(0.5f, 0.5f)));
+
     _FAIL_CHECK(meshStoresPtr_->Generate2DBezeledRectangle(shape28MeshIndex_, 0.64f, 0.48f, 0.16f, 4));
+    _FAIL_CHECK(meshStoresPtr_->ApplyPositionalTextureCoordinates(shape28MeshIndex_));
+    _FAIL_CHECK(meshStoresPtr_->TranslateTextureCoordinates(shape28MeshIndex_, glm::vec2(0.5f, 0.5f)));
 
     // Load textures
     // -------------------------------------------------------------------------
@@ -700,6 +770,8 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape22EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape22MeshIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 23
@@ -711,6 +783,8 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape23EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape23MeshIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 24
@@ -722,6 +796,8 @@ void TestScene001::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape24EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape24MeshIndex_);
+        renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 25
@@ -734,6 +810,7 @@ void TestScene001::Initialize()
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape25MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 26
@@ -746,6 +823,7 @@ void TestScene001::Initialize()
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape26MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 27
@@ -758,6 +836,7 @@ void TestScene001::Initialize()
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape27MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 
     // generated shape entity 28
@@ -770,6 +849,7 @@ void TestScene001::Initialize()
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshIndex(shape28MeshIndex_);
         renderedModelPtr->SetTextureIndex(_100x100TextureIndex_);
+        renderedModelPtr->SetTranslucent(true);
     }
 }
 
@@ -1074,36 +1154,6 @@ void TestScene001::ComponentStoresTest() const
     testBool = testComponentStores.GetAllComponents<TestComponent00>(allTestComponents, count);
 
     testBool = testComponentStores.GetComponentEntityId<TestComponent00>(&allTestComponents[2], testEntityId2);
-}
-
-void TestScene001::LRUArrayTest() const
-{
-    Project001::LRUArray<unsigned int> testLRUArray(4);
-    testLRUArray.Add(0);
-    testLRUArray.Add(1);
-    testLRUArray.Add(2);
-    testLRUArray.Add(3);
-    unsigned int x0 = testLRUArray.Get(0);
-    unsigned int x1 = testLRUArray.Get(1);
-    unsigned int x2 = testLRUArray.Get(2);
-    unsigned int x3 = testLRUArray.Get(3);
-    size_t size = testLRUArray.Size();
-
-    unsigned int temp = testLRUArray.Get(0);
-    testLRUArray.Add(4);
-    temp = testLRUArray.Get(2);
-    testLRUArray.Add(5);
-    testLRUArray.Add(6);
-
-    x0 = testLRUArray[0];
-    x1 = testLRUArray[1];
-    x2 = testLRUArray[2];
-    x3 = testLRUArray[3];
-
-    testLRUArray[0] = 0;
-    testLRUArray[1] = 1;
-    testLRUArray[2] = 2;
-    testLRUArray[3] = 3;
 }
 
 void TestScene001::MeshStoresTest() const

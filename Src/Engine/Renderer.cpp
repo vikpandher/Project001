@@ -1,7 +1,12 @@
 #include "Engine/Renderer.h"
 
-// #include "Engine/Platform/OpenGLRenderer.h"
+#define SELECTED_RENDERER 2
+
+#if SELECTED_RENDERER == 1
+#include "Engine/Platform/OpenGLRenderer.h"
+#else
 #include "Engine/Platform/OpenGLRendererAlt.h"
+#endif
 
 
 
@@ -11,8 +16,11 @@ namespace Project001
 
     Renderer* Renderer::Create(unsigned int width, unsigned int height)
     {
-        // return new OpenGLRenderer(width, height);
+#if SELECTED_RENDERER == 1
+        return new OpenGLRenderer(width, height);
+#else
         return new OpenGLRendererAlt(width, height);
+#endif
     }
 
     Renderer::~Renderer()

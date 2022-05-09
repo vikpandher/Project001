@@ -56,7 +56,7 @@ namespace Project001
 
         glm::mat4 GetProjectionMatrix() const;
 
-        glm::vec2 ConvertPointFromWindowToOrthoWorld(int windowWidth, int windowHeight, glm::vec2 windowPoint) const;
+        glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const;
 
     protected:
         // Inherited:
@@ -250,10 +250,13 @@ namespace Project001
         }
     }
 
-    inline glm::vec2 Camera::ConvertPointFromWindowToOrthoWorld(int windowWidth, int windowHeight, glm::vec2 windowPoint) const
+    inline glm::vec2 Camera::ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const
     {
-        glm::vec2 orthoPoint((windowPoint.x / (float)windowWidth - 0.5f) * (rightCutoff_ - leftCutoff_),
-            (((float)windowHeight - windowPoint.y) / (float)windowHeight - 0.5f) * (topCutoff_ - bottomCutoff_));
+        float cutoffWidth = rightCutoff_ - leftCutoff_;
+        float cutoffHeight = topCutoff_ - bottomCutoff_;
+        glm::vec2 orthoPoint(
+            cutoffWidth * (float)windowPoint.x / (float)viewportWidth - rightCutoff_,
+            cutoffHeight * (float)windowPoint.y / (float)viewportHeight - topCutoff_);
         orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
         orthoPoint.x += position_.x;
         orthoPoint.y += position_.y;

@@ -23,14 +23,20 @@ namespace Project001
             unsigned int width,
             unsigned int height) override;
 
-        void SetViewportSize(
+        void GetViewport(
+            unsigned int& x,
+            unsigned int& y,
+            unsigned int& width,
+            unsigned int& height) override;
+
+        void SetViewport(
             unsigned int x,
             unsigned int y,
             unsigned int width,
             unsigned int height) override;
 
         bool AddTexture(
-            unsigned int textureIndex,
+            unsigned int textureId,
             unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
@@ -38,7 +44,7 @@ namespace Project001
             unsigned int numberOfComponents) override;
 
         bool BindTexture(
-            unsigned int textureIndex,
+            unsigned int textureId,
             unsigned int textureUnit) override;
 
         void ClearTextures() override;
@@ -76,13 +82,15 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
+        // returns false if the textureId isn't found or if the mesh is too big
+        //         to fit in a single buffer
         bool AddMesh(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
             const unsigned int* meshIndicies,
             unsigned int meshIndexCount,
-            unsigned int textureIndex,
-            unsigned int specularIndex,
+            unsigned int textureId,
+            unsigned int specularId,
             const glm::vec3& position,
             const glm::quat& orientation,
             const glm::vec3& scale,
@@ -100,7 +108,11 @@ namespace Project001
     protected:
         void CreateFramebuffer();
 
-        bool GetTextureUnit(unsigned int textureIndex, float& textureUnit);
+        // returns 0 if texture successfuly bound to unit
+        // returns 1 if texture failed to bind because all texture units are
+        //           occupied
+        // returns 2 if texture failed to bind because textureId isn't found
+        int GetTextureUnit(unsigned int textureId, float& textureUnit);
 
         bool GetStalestTextureUnit(unsigned int& textureUnit) const;
         void IncreaseTectureUnitStaleness();
@@ -144,7 +156,7 @@ namespace Project001
         unsigned int renderBufferId_;
 
         std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
-        BiMap<unsigned int, unsigned int> textureIndexToUnitBiMap_;
+        BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> tectureUnitStalenessValues_;
 
         glm::mat4 viewMatrix_;
@@ -166,7 +178,19 @@ namespace Project001
         depthTesting_ = depthTesting;
     }
 
-    inline void OpenGLRendererAlt::SetViewportSize(
+    inline void OpenGLRendererAlt::GetViewport(
+        unsigned int& x,
+        unsigned int& y,
+        unsigned int& width,
+        unsigned int& height)
+    {
+        x = viewportX_;
+        y = viewportY_;
+        width = viewportWidth_;
+        height = viewportHeight_;
+    }
+
+    inline void OpenGLRendererAlt::SetViewport(
         unsigned int x,
         unsigned int y,
         unsigned int width,

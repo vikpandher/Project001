@@ -22,14 +22,21 @@ namespace Project001
             unsigned int width,
             unsigned int height) = 0;
 
-        virtual void SetViewportSize(
+        // viewport origin is the bottom left corner
+        virtual void GetViewport(
+            unsigned int& x,
+            unsigned int& y,
+            unsigned int& width,
+            unsigned int& height) = 0;
+
+        virtual void SetViewport(
             unsigned int x,
             unsigned int y,
             unsigned int width,
             unsigned int height) = 0;
 
         virtual bool AddTexture(
-            unsigned int textureIndex,
+            unsigned int textureId,
             unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,

@@ -19,14 +19,14 @@ namespace Project001
     struct UpdateEvent;
 }
 
-class TestScene008 : public Project001::Scene
+class TestScene009 : public Project001::Scene
 {
 public:
-    TestScene008();
-    ~TestScene008();
+    TestScene009();
+    ~TestScene009();
 
-    TestScene008(TestScene008& other) = delete;
-    void operator=(const TestScene008&) = delete;
+    TestScene009(TestScene009& other) = delete;
+    void operator=(const TestScene009&) = delete;
 
     const char* Name() override;
 
@@ -76,7 +76,7 @@ protected:
     // Scene Data: -------------------------------------------------------------
 
     bool cursorGrabbingEntity_;
-    glm::vec2 previousCursorDownPosition_;
+    glm::vec2 previousWorldCursorDownPosition_;
 
 private:
     void Run_UnitTests() const;

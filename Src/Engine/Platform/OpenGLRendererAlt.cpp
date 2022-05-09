@@ -174,10 +174,12 @@ namespace Project001
 
         CreateFramebuffer();
 
-        viewportX_ = 0;
-        viewportY_ = 0;
-        viewportWidth_ = frameBufferWidth_;
-        viewportHeight_ = frameBufferHeight_;
+        GLint viewPortData[4];
+        glGetIntegerv(GL_VIEWPORT, viewPortData);
+        viewportX_ = viewPortData[0];
+        viewportY_ = viewPortData[1];
+        viewportWidth_ = viewPortData[2];
+        viewportHeight_ = viewPortData[3];
 
         tectureUnitStalenessValues_.push_back(0);
         tectureUnitStalenessValues_.resize(s_numberOfTextureUnits_, 1);
@@ -222,7 +224,7 @@ namespace Project001
     }
 
     bool OpenGLRendererAlt::AddTexture(
-        unsigned int textureIndex, // rename this textureId
+        unsigned int textureId,
         unsigned int textureUnit,
         unsigned char* data,
         unsigned int width,
@@ -231,13 +233,13 @@ namespace Project001
     {
         if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
+            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
             {
-                delete texturePtrMap_[textureIndex];
+                delete texturePtrMap_[textureId];
             }
 
-            texturePtrMap_[textureIndex] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
-            textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
+            textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;
         }
@@ -248,15 +250,15 @@ namespace Project001
     }
 
     bool OpenGLRendererAlt::BindTexture(
-        unsigned int textureIndex,
+        unsigned int textureId,
         unsigned int textureUnit)
     {
         if (0 < textureUnit && textureUnit < s_numberOfTextureUnits_) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureIndex) != texturePtrMap_.end())
+            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
             {
-                texturePtrMap_[textureIndex]->Bind(textureUnit);
-                textureIndexToUnitBiMap_.Add(textureIndex, textureUnit);
+                texturePtrMap_[textureId]->Bind(textureUnit);
+                textureIdToUnitBiMap_.Add(textureId, textureUnit);
                 return true;
             }
             else
@@ -278,7 +280,7 @@ namespace Project001
             delete iter->second;
         }
         texturePtrMap_.clear();
-        textureIndexToUnitBiMap_.Clear();
+        textureIdToUnitBiMap_.Clear();
     }
 
     bool OpenGLRendererAlt::AddMesh(
@@ -286,8 +288,8 @@ namespace Project001
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
         unsigned int meshIndexCount,
-        unsigned int textureIndex,
-        unsigned int specularIndex,
+        unsigned int textureId,
+        unsigned int specularId,
         const glm::vec3& position,
         const glm::quat& orientation,
         const glm::vec3& scale,
@@ -301,55 +303,86 @@ namespace Project001
         //     _LOG_ERROR("OpenGLRendererAlt doesn't handle translucent meshes");
         // }
 
-        if ((vertexBuffer_.size() + meshVertexCount) < s_vertexBufferCapacity_ &&
-            (indexBuffer_.size() + meshIndexCount) < s_indexBufferCapacity_)
+        if ((vertexBuffer_.size() + meshVertexCount) >= s_vertexBufferCapacity_ ||
+            (indexBuffer_.size() + meshIndexCount) >= s_indexBufferCapacity_)
         {
-            float textureUnit = -1.0f;
-            if (textureIndex != (unsigned int)-1 && !GetTextureUnit(textureIndex, textureUnit))
+            if (meshVertexCount >= s_vertexBufferCapacity_ ||
+                meshIndexCount >= s_indexBufferCapacity_)
             {
                 return false;
             }
 
-            float specularUnit = -1.0f;
-            if (specularIndex != (unsigned int)-1 && !GetTextureUnit(specularIndex, specularUnit))
-            {
-                return false;
-            }
-
-            unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
-
-            for (size_t j = 0; j < meshVertexCount; ++j)
-            {
-                const MeshVertex& currentMeshVertex = meshVerticies[j];
-
-                VertexData newVertex;
-                newVertex.position = currentMeshVertex.position;
-                newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
-                newVertex.normal = currentMeshVertex.normal;
-                newVertex.color = color;
-                newVertex.textureUnit = textureUnit;
-                newVertex.specularUnit = specularUnit;
-                newVertex.shininess = shininess;
-                newVertex.scale = scale;
-                newVertex.translation = position;
-                newVertex.orientation.x = orientation.x;
-                newVertex.orientation.y = orientation.y;
-                newVertex.orientation.z = orientation.z;
-                newVertex.orientation.w = orientation.w;
-                newVertex.lit = lit;
-
-                vertexBuffer_.push_back(newVertex);
-            }
-
-            for (unsigned int j = 0; j < meshIndexCount; ++j)
-            {
-                indexBuffer_.push_back(vertexBufferOffset + meshIndicies[j]);
-            }
-
-            return true;
+            Render();
         }
 
-        return false;
+        bool getTextureFailed = false;
+
+        float textureUnit = -1.0f;
+        if (textureId != (unsigned int)-1)
+        {
+            int getTextureUnitResult = GetTextureUnit(textureId, textureUnit);
+            if (getTextureUnitResult == 1)
+            {
+                getTextureFailed = true;
+            }
+            else if (getTextureUnitResult == 2)
+            {
+                return false;
+            }
+        }
+
+        float specularUnit = -1.0f;
+        if (specularId != (unsigned int)-1)
+        {
+            int getTextureUnitResult = GetTextureUnit(specularId, specularUnit);
+            if (getTextureUnitResult == 1)
+            {
+                getTextureFailed = true;
+            }
+            else if (getTextureUnitResult == 2)
+            {
+                return false;
+            }
+        }
+
+        if (getTextureFailed)
+        {
+            Render();
+            GetTextureUnit(textureId, textureUnit);
+            GetTextureUnit(specularId, specularUnit);
+        }
+
+        unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
+
+        for (size_t j = 0; j < meshVertexCount; ++j)
+        {
+            const MeshVertex& currentMeshVertex = meshVerticies[j];
+
+            VertexData newVertex;
+            newVertex.position = currentMeshVertex.position;
+            newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
+            newVertex.normal = currentMeshVertex.normal;
+            newVertex.color = color;
+            newVertex.textureUnit = textureUnit;
+            newVertex.specularUnit = specularUnit;
+            newVertex.shininess = shininess;
+            newVertex.scale = scale;
+            newVertex.translation = position;
+            newVertex.orientation.x = orientation.x;
+            newVertex.orientation.y = orientation.y;
+            newVertex.orientation.z = orientation.z;
+            newVertex.orientation.w = orientation.w;
+            newVertex.lit = lit;
+
+            vertexBuffer_.push_back(newVertex);
+        }
+
+        for (unsigned int j = 0; j < meshIndexCount; ++j)
+        {
+            indexBuffer_.push_back(vertexBufferOffset + meshIndicies[j]);
+        }
+
+        return true;
     }
 
     void OpenGLRendererAlt::PrepareCapabilities()
@@ -565,11 +598,11 @@ namespace Project001
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    bool OpenGLRendererAlt::GetTextureUnit(unsigned int textureIndex, float& textureUnit)
+    int OpenGLRendererAlt::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
-        if (textureIndexToUnitBiMap_.Find_X(textureIndex)) // convert textureIndex to textureUnit
+        if (textureIdToUnitBiMap_.Find_X(textureId))
         {
-            textureUnit = (float)textureIndexToUnitBiMap_.Get_Using_X(textureIndex);
+            textureUnit = (float)textureIdToUnitBiMap_.Get_Using_X(textureId);
             tectureUnitStalenessValues_[textureUnit] = 0;
         }
         else
@@ -577,7 +610,7 @@ namespace Project001
             unsigned int newTextureUnit = 1;
             if (GetStalestTextureUnit(newTextureUnit))
             {
-                if (BindTexture(textureIndex, newTextureUnit))
+                if (BindTexture(textureId, newTextureUnit))
                 {
                     textureUnit = (float)newTextureUnit;
                     tectureUnitStalenessValues_[newTextureUnit] = 0;
@@ -585,17 +618,17 @@ namespace Project001
                 else
                 {
                     // texture doesn't exist
-                    return false;
+                    return 2;
                 }
             }
             else
             {
                 // no more room for this texture
-                return false;
+                return 1;
             }
         }
 
-        return true;
+        return 0;
     }
 
     bool OpenGLRendererAlt::GetStalestTextureUnit(unsigned int& textureUnit) const

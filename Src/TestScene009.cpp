@@ -1,4 +1,4 @@
-#include "TestScene008.h"
+#include "TestScene009.h"
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody.h"
@@ -19,24 +19,24 @@
 
 // public: ---------------------------------------------------------------------
 
-TestScene008::TestScene008()
+TestScene009::TestScene009()
     : cursorGrabbingEntity_(false)
-    , previousCursorDownPosition_(0.0f, 0.0f)
+    , previousWorldCursorDownPosition_(0.0f, 0.0f)
 {
     ClearIndiciesAndEntityIds();
 
     Run_UnitTests();
 }
 
-TestScene008::~TestScene008()
+TestScene009::~TestScene009()
 {}
 
-const char* TestScene008::Name()
+const char* TestScene009::Name()
 {
-    return "TestScene008";
+    return "TestScene009";
 }
 
-void TestScene008::Initialize()
+void TestScene009::Initialize()
 {
     windowPtr_ = GetApplicationWindowPtr();
 
@@ -46,10 +46,6 @@ void TestScene008::Initialize()
     rendererPtr_ = GetApplicationRendererPtr();
     rendererPtr_->SetDepthTesting(true);
 
-    int windowWidth, windowHeight;
-    windowPtr_->GetWindowSize(windowWidth, windowHeight);
-    windowPtr_->SetAspectRatio(windowWidth, windowHeight);
-
     // main camera entity
     // -------------------------------------------------------------------------
     {
@@ -58,11 +54,14 @@ void TestScene008::Initialize()
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-        int framebufferWidth;
-        int framebufferHeight;
-        windowPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
-        float aspectRatio = (float)framebufferWidth / (float)framebufferHeight;
-        cameraPtr->SetAspectRatio(aspectRatio);
+        int aspectRatioNumerator;
+        int aspectRatioDenominator;
+        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            cameraPtr->SetAspectRatio(aspectRatio);
+        }
         cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->TurnOn();
@@ -104,7 +103,7 @@ void TestScene008::Initialize()
     }
 }
 
-void TestScene008::Deinitialize()
+void TestScene009::Deinitialize()
 {
     componentStoresPtr_->DeleteAllEntities();
     meshStoresPtr_->ClearMeshes();
@@ -113,20 +112,20 @@ void TestScene008::Deinitialize()
     ClearIndiciesAndEntityIds();
 }
 
-void TestScene008::OnEvent(Project001::Event& event)
+void TestScene009::OnEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene008::ProcessCursorPositionEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestScene008::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene008::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene008::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene008::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestScene008::ProcessScrollEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene008::ProcessUpdateEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene009::ProcessCursorPositionEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestScene009::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene009::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene009::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene009::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestScene009::ProcessScrollEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene009::ProcessUpdateEvent, this, std::placeholders::_1));
 }
 
 // protected: ------------------------------------------------------------------
 
-void TestScene008::ClearIndiciesAndEntityIds()
+void TestScene009::ClearIndiciesAndEntityIds()
 {
     selectedEntityIdIndex_ = (unsigned int)-1;
     meshIndicies_.clear();
@@ -135,7 +134,7 @@ void TestScene008::ClearIndiciesAndEntityIds()
     entityIds_.clear();
 }
 
-void TestScene008::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
+void TestScene009::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
 {
     bool mouseButton1Pressed = windowPtr_->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_1);
 
@@ -151,8 +150,8 @@ void TestScene008::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
 
         float speedConstant = 0.005f;
 
-        float xOffset = currentPosition.x - previousCursorDownPosition_.x;
-        float yOffset = currentPosition.y - previousCursorDownPosition_.y;
+        float xOffset = currentPosition.x - previousWorldCursorDownPosition_.x;
+        float yOffset = currentPosition.y - previousWorldCursorDownPosition_.y;
 
         // moving cursor right = positive xOffset
         // moving cursor up = positive yOffset
@@ -164,14 +163,14 @@ void TestScene008::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
         // cameraPtr->AddWorldRotationY(cameraYaw); // for fps camera
         cameraPtr->AddPitch(cameraPitch);
 
-        previousCursorDownPosition_.x = currentPosition.x;
-        previousCursorDownPosition_.y = currentPosition.y;
+        previousWorldCursorDownPosition_.x = currentPosition.x;
+        previousWorldCursorDownPosition_.y = currentPosition.y;
     }
 
     cursorButtonEvent.handled = true;
 }
 
-void TestScene008::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
+void TestScene009::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
 {
     const int& height = frameBufferSizeEvent.height;
     const int& width = frameBufferSizeEvent.width;
@@ -200,18 +199,18 @@ void TestScene008::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent&
         int lowerLeftY = (height - adjustedHeight) / 2;
 
         rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
-        rendererPtr_->SetViewportSize(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+        rendererPtr_->SetViewport(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
     }
     else
     {
         rendererPtr_->SetFramebufferSize(width, height);
-        rendererPtr_->SetViewportSize(0, 0, width, height);
+        rendererPtr_->SetViewport(0, 0, width, height);
     }
 
     frameBufferSizeEvent.handled = true;
 }
 
-void TestScene008::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+void TestScene009::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     Project001::KeyCode& keyCode = keyEvent.keyCode;
     Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
@@ -221,11 +220,11 @@ void TestScene008::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene010"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene010"));
             }
         }
         else if (keyCode == Project001::KeyCode::KEY_CODE_N)
@@ -254,7 +253,7 @@ void TestScene008::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     }
 }
 
-void TestScene008::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+void TestScene009::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
     Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
@@ -266,7 +265,7 @@ void TestScene008::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        windowPtr_->GetCursorPosition(previousCursorDownPosition_.x, previousCursorDownPosition_.y);
+        windowPtr_->GetCursorPosition(previousWorldCursorDownPosition_.x, previousWorldCursorDownPosition_.y);
 
         // Project001::Camera* cameraPtr;
         // _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
@@ -276,7 +275,7 @@ void TestScene008::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     }
 }
 
-void TestScene008::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
+void TestScene009::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     rendererPtr_->ClearDirectionalLight();
     rendererPtr_->ClearPointLights();
@@ -363,7 +362,7 @@ void TestScene008::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     renderEvent.handled = true;
 }
 
-void TestScene008::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
+void TestScene009::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
 
@@ -377,7 +376,7 @@ void TestScene008::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
     scrollEvent.handled = true;
 }
 
-void TestScene008::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+void TestScene009::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     unsigned long timestep_ns = updateEvent.timestep_ns;
 
@@ -387,7 +386,7 @@ void TestScene008::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     DetectCollisions();
 }
 
-void TestScene008::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
+void TestScene009::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
     float speedConstant = 5.0f;
@@ -438,19 +437,19 @@ void TestScene008::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
     }
 }
 
-void TestScene008::DetectCollisions()
+void TestScene009::DetectCollisions()
 {
 
 }
 
-void TestScene008::Sync_RenderedModel_CollisionBody_Components()
+void TestScene009::Sync_RenderedModel_CollisionBody_Components()
 {
 
 }
 
 // private: ------------------------------------------------------------------
 
-void TestScene008::Run_UnitTests() const
+void TestScene009::Run_UnitTests() const
 {
     int result;
 

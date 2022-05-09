@@ -8,5 +8,5 @@ struct TestSceneData
 {
     TestSceneData();
 
-    glm::vec2 previousCursorDownPosition;
+    glm::vec2 previousWindowCursorDownPosition;
 };

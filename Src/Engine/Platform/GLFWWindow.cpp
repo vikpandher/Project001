@@ -27,8 +27,9 @@ namespace Project001
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // 6
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-            // glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+            // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
             glfwSetErrorCallback([](int errorCode, const char* description)
             {

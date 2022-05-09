@@ -51,49 +51,39 @@ namespace Project001
 
         // If more meshes are added, the pointers returned are nolonger valid.
         bool GetMesh(
-            unsigned int index,
+            const unsigned int& index,
             const MeshVertex*& firstVertexPtr,
             unsigned int& vertexCount,
             const unsigned int*& firstIndexPtr,
             unsigned int& indexCount) const;
 
         bool GetMeshData(
-            unsigned int index,
+            unsigned int& index,
             MeshData& meshData) const;
 
         bool LoadMeshOBJ(
             unsigned int& index,
             const std::string& path,
-            bool normalizeSize = true,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         bool LoadTriangleMesh(
             unsigned int& index,
             std::vector<glm::vec3>& positions,
             std::vector<glm::vec3>& normals,
-            std::vector<glm::ivec2>& faces,
-            bool normalizeSize = true,
-            bool recenter = true);
+            std::vector<glm::ivec2>& faces);
 
         bool Generate2DTriangleFan(
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         bool Generate2DTriangles(
             unsigned int& index,
-            const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true);
+            const std::vector<glm::vec2>& positions);
 
         bool Generate2DTriangleStrip(
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         // Arc grows according to right hand rule
@@ -104,9 +94,7 @@ namespace Project001
             size_t subdivisions,
             float startAngle,
             float endAngle,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DCapsule(
             unsigned int& index,
@@ -120,26 +108,20 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DLineLoop(
             unsigned int& index,
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DRegularPolygon(
             unsigned int& index,
             float radius,
             size_t sides,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DBezeledRectangle(
             unsigned int& index,
@@ -147,17 +129,16 @@ namespace Project001
             float height,
             float bezelSize,
             float bezelSections,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         bool Generate2DSprite(
             unsigned int& index,
             float width,
             float height,
-            float textureBottom,
-            float textureTop,
             float textureLeft,
             float textureRight,
+            float textureBottom,
+            float textureTop,
             bool trangulate = s_triangulateByDefault);
 
         bool GenerateBox(
@@ -208,11 +189,13 @@ namespace Project001
             bool smoothNormals = true,
             bool trangulate = s_triangulateByDefault);
 
+        bool CopyMesh(
+            unsigned int& index,
+            const unsigned int& sourceIndex);
+
         bool NormalizeMeshSize(unsigned int& index);
 
         bool RecenterMesh(unsigned int& index);
-
-        bool TranslateMesh(unsigned int& index, glm::vec3 translation);
 
         bool RotateMesh(unsigned int& index, glm::quat rotation);
 
@@ -224,17 +207,29 @@ namespace Project001
 
         bool ScaleMesh(unsigned int& index, glm::vec3 scale);
 
+        bool TranslateMesh(unsigned int& index, glm::vec3 translation);
+
         bool SizeMeshAlongNormals(unsigned int& index, float size);
 
         bool TurnInsideOut(unsigned int& index, bool wasTriangulated = true);
+
+        bool ApplyTextureCoordinates(
+            unsigned int& index,
+            const std::vector<glm::vec2>& textureCoordinates);
+
+        bool ApplyPositionalTextureCoordinates(unsigned int& index);
+
+        bool RotateTextureCoordinates(unsigned int& index, float rotation);
+
+        bool ScaleTextureCoordinates(unsigned int& index, glm::vec2 scale);
+
+        bool TranslateTextureCoordinates(unsigned int& index, glm::vec2 translation);
 
         static bool LoadMeshOBJ(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
             const std::string& path,
-            bool normalizeSize = true,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         static bool LoadTriangleMesh(
@@ -243,34 +238,26 @@ namespace Project001
             std::vector<unsigned int>& meshIndexArray,
             std::vector<glm::vec3>& positions,
             std::vector<glm::vec3>& normals,
-            std::vector<glm::ivec2>& faces,
-            bool normalizeSize = true,
-            bool recenter = true);
+            std::vector<glm::ivec2>& faces);
 
         static bool Generate2DTriangleFan(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DTriangles(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
-            const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true);
+            const std::vector<glm::vec2>& positions);
 
         static bool Generate2DTriangleStrip(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
             const std::vector<glm::vec2>& positions,
-            const std::vector<glm::vec2>& textureCoordinates,
-            bool recenter = true,
             bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DArc(
@@ -282,9 +269,7 @@ namespace Project001
             size_t subdivisions,
             float startAngle,
             float endAngle,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DCapsule(
             MeshData& meshData,
@@ -302,9 +287,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DLineLoop(
             MeshData& meshData,
@@ -313,9 +296,7 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DRegularPolygon(
             MeshData& meshData,
@@ -323,9 +304,7 @@ namespace Project001
             std::vector<unsigned int>& meshIndexArray,
             float radius,
             size_t sides,
-            bool recenter = true,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
         static bool Generate2DBezeledRectangle(
             MeshData& meshData,
@@ -335,19 +314,19 @@ namespace Project001
             float height,
             float bezelSize,
             float bezelSections,
-            bool trangulate = s_triangulateByDefault,
-            bool positionalTexture = true);
+            bool trangulate = s_triangulateByDefault);
 
+        // texture origin is bottom left
         static bool Generate2DSprite(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
             float width,
             float height,
-            float textureBottom,
-            float textureTop,
             float textureLeft,
             float textureRight,
+            float textureBottom,
+            float textureTop,
             bool trangulate = s_triangulateByDefault);
 
         static bool GenerateBox(
@@ -410,6 +389,14 @@ namespace Project001
             bool smoothNormals = true,
             bool trangulate = s_triangulateByDefault);
 
+        static void CopyMesh(
+            MeshData& destinationMeshData,
+            std::vector<MeshVertex>& destinationMeshVertexArray,
+            std::vector<unsigned int>& destinationMeshIndexArray,
+            const MeshData& sourceMeshData,
+            const std::vector<MeshVertex>& sourceMeshVertexArray,
+            const std::vector<unsigned int>& sourceMeshIndexArray);
+
         static void NormalizeMeshSize(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray);
@@ -417,11 +404,6 @@ namespace Project001
         static void RecenterMesh(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray);
-
-        static void TranslateMesh(
-            MeshData& meshData,
-            std::vector<MeshVertex>& meshVertexArray,
-            glm::vec3 translation);
 
         static void RotateMesh(
             MeshData& meshData,
@@ -448,6 +430,11 @@ namespace Project001
             std::vector<MeshVertex>& meshVertexArray,
             glm::vec3 scale);
 
+        static void TranslateMesh(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::vec3 translation);
+
         static void SizeMeshAlongNormals(
             MeshData& meshData,
             std::vector<MeshVertex>& meshVertexArray,
@@ -458,6 +445,30 @@ namespace Project001
             std::vector<MeshVertex>& meshVertexArray,
             std::vector<unsigned int>& meshIndexArray,
             bool wasTriangulated = s_triangulateByDefault);
+
+        static void ApplyTextureCoordinates(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            const std::vector<glm::vec2>& textureCoordinates);
+
+        static void ApplyPositionalTextureCoordinates(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray);
+
+        static void RotateTextureCoordinates(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            float rotation);
+
+        static void ScaleTextureCoordinates(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::vec2 scale);
+
+        static void TranslateTextureCoordinates(
+            MeshData& meshData,
+            std::vector<MeshVertex>& meshVertexArray,
+            glm::vec2 translation);
 
     protected:
         // used by LoadMeshOBJ
@@ -475,7 +486,7 @@ namespace Project001
             const glm::vec2& point2,
             const float& slope2);
 
-        static const bool s_triangulateByDefault = true;
+        static const bool s_triangulateByDefault = false;
 
         std::vector<MeshVertex> meshVertexArray_;
         std::vector<unsigned int> meshIndexArray_;
