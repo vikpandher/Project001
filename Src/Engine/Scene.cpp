@@ -10,31 +10,6 @@ namespace Project001
         : applicationPtr_(nullptr)
     {}
 
-    Window* Scene::GetApplicationWindowPtr()
-    {
-        return applicationPtr_->windowPtr_;
-    }
-
-    ComponentStores* Scene::GetApplicationComponentStoresPtr()
-    {
-        return applicationPtr_->componentStoresPtr_;
-    }
-
-    MeshStores* Scene::GetApplicationMeshStoresPtr()
-    {
-        return applicationPtr_->meshStoresPtr_;
-    }
-
-    SoundStores* Scene::GetApplicationSoundStoresPtr()
-    {
-        return applicationPtr_->soundStoresPtr_;
-    }
-
-    TextureStores* Scene::GetApplicationTextureStoresPtr()
-    {
-        return applicationPtr_->textureStoresPtr_;
-    }
-
     Renderer* Scene::GetApplicationRendererPtr()
     {
         return applicationPtr_->rendererPtr_;
@@ -43,6 +18,21 @@ namespace Project001
     SoundPlayer* Scene::GetApplicationSoundPlayerPtr()
     {
         return applicationPtr_->soundPlayerPtr_;
+    }
+
+    Window* Scene::GetApplicationWindowPtr()
+    {
+        return applicationPtr_->windowPtr_;
+    }
+
+    Scene* Scene::GetScene(const std::string& name)
+    {
+        if (applicationPtr_->sceneMap_.find(name) != applicationPtr_->sceneMap_.end())
+        {
+            return applicationPtr_->sceneMap_[name];
+        }
+
+        return nullptr;
     }
 
     bool Scene::IsActiveScene()

@@ -3,6 +3,7 @@
 #include "Engine/BiMap.h"
 #include "Engine/Renderer.h"
 
+#include <deque>
 
 
 namespace Project001
@@ -35,19 +36,21 @@ namespace Project001
             unsigned int width,
             unsigned int height) override;
 
-        bool AddTexture(
-            unsigned int textureId,
+        bool CreateTexture(
+            unsigned int& textureId,
             unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int numberOfComponents) override;
+            unsigned int bytesPerPixel) override;
 
         bool BindTexture(
             unsigned int textureId,
             unsigned int textureUnit) override;
 
-        void ClearTextures() override;
+        bool DeleteTexture(unsigned int textureId) override;
+
+        void DeleteAllTextures() override;
 
         void SetViewMatrix(const glm::mat4& viewMatrix) override;
         void SetViewPosition(const glm::vec3& viewPosition) override;
@@ -150,6 +153,7 @@ namespace Project001
 
         unsigned int renderBufferId_;
 
+        std::deque<unsigned int> recycledTextureIds_;
         std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> tectureUnitStalenessValues_;

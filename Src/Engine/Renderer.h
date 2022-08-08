@@ -35,19 +35,21 @@ namespace Project001
             unsigned int width,
             unsigned int height) = 0;
 
-        virtual bool AddTexture(
-            unsigned int textureId,
+        virtual bool CreateTexture(
+            unsigned int& textureId,
             unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int numberOfComponents) = 0;
+            unsigned int bytesPerPixel) = 0;
 
         virtual bool BindTexture(
-            unsigned int textureIndex,
+            unsigned int textureId,
             unsigned int textureUnit) = 0;
 
-        virtual void ClearTextures() = 0;
+        virtual bool DeleteTexture(unsigned int textureId) = 0;
+
+        virtual void DeleteAllTextures() = 0;
 
         virtual void SetViewMatrix(const glm::mat4& viewMatrix) = 0;
         virtual void SetViewPosition(const glm::vec3& viewPosition) = 0;

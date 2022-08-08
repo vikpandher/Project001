@@ -1,17 +1,14 @@
 #pragma once
 
 #include <functional>
+#include <string>
 
 
 
 namespace Project001
 {
-    class ComponentStores;
-    class MeshStores;
     class Renderer;
     class SoundPlayer;
-    class SoundStores;
-    class TextureStores;
     class Window;
 
     struct Event;
@@ -35,19 +32,13 @@ namespace Project001
         virtual void OnEvent(Event& event) = 0;
 
     protected:
-        Window* GetApplicationWindowPtr();
-
-        ComponentStores* GetApplicationComponentStoresPtr();
-
-        MeshStores* GetApplicationMeshStoresPtr();
-
-        SoundStores* GetApplicationSoundStoresPtr();
-
-        TextureStores* GetApplicationTextureStoresPtr();
-
         Renderer* GetApplicationRendererPtr();
 
         SoundPlayer* GetApplicationSoundPlayerPtr();
+
+        Window* GetApplicationWindowPtr();
+
+        Scene* GetScene(const std::string& name);
 
         bool IsActiveScene();
 

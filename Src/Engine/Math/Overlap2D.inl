@@ -2151,12 +2151,12 @@ namespace Project001
         {
             if (convexPolygonB_cornerCount > 1)
             {
-                return Check2D_ConvexPolygon_ConvexPolygon_SeparatedAxisTheorem(
+                return Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
                     convexPolygonA_corners,
                     convexPolygonA_cornerCount,
                     convexPolygonB_corners,
                     convexPolygonB_cornerCount) &&
-                    Check2D_ConvexPolygon_ConvexPolygon_SeparatedAxisTheorem(
+                    Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
                         convexPolygonB_corners,
                         convexPolygonB_cornerCount,
                         convexPolygonA_corners,
@@ -2515,7 +2515,7 @@ namespace Project001
             triangle_corner3.x * (triangle_corner1.y - triangle_corner2.y)) / 2.0f);
     }
 
-    inline bool Check2D_ConvexPolygon_ConvexPolygon_SeparatedAxisTheorem(
+    inline bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
         const glm::vec2*& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2*& convexPolygonB_corners,
@@ -2526,7 +2526,6 @@ namespace Project001
         {
             const glm::vec2& lineSegmentA_start = convexPolygonA_corners[start_indexA];
             const glm::vec2& lineSegmentA_end = convexPolygonA_corners[end_indexA];
-
             glm::vec2 axisOfSeparation(-(lineSegmentA_end.y - lineSegmentA_start.y), lineSegmentA_end.x - lineSegmentA_start.x);
 
             float projectionA_max = -INFINITY;
@@ -2569,6 +2568,8 @@ namespace Project001
                 // projections don't overlap on axis of separation
                 return false;
             }
+
+            start_indexA = end_indexA;
         }
 
         return true;

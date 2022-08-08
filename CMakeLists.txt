@@ -3,6 +3,19 @@ cmake_minimum_required(VERSION 3.14.5)
 
 option(PRINT_DEBUG_OUTPUT "" TRUE)
 
+# https://github.com/freetype/freetype.git
+set(CMAKE_FREETYPE_REPO "C:/Users/vikpa/Documents/Dev/freetype")
+# https://glad.dav1d.de/
+set(CMAKE_GLAD_FILES "C:/Users/vikpa/Documents/Dev/glad")
+# https://github.com/glfw/glfw.git
+set(CMAKE_GLFW_REPO "C:/Users/vikpa/Documents/Dev/glfw")
+# https://github.com/g-truc/glm.git
+set(CMAKE_GLM_REPO "C:/Users/vikpa/Documents/Dev/glm")
+# https://github.com/kcat/openal-soft
+set(CMAKE_OPENAL_REPO "C:/Users/vikpa/Documents/Dev/openal-soft")
+# https://github.com/nothings/stb.git
+set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
+
 project("Project001" # ${PROJECT_NAME}
     VERSION 0.1.0.0
     DESCRIPTION "This is project 001."
@@ -37,14 +50,16 @@ set(SOURCE_FILES
     "Src/TestScene004.h"
     "Src/TestScene005.cpp"
     "Src/TestScene005.h"
-    "Src/TestScene006.cpp"
-    "Src/TestScene006.h"
-    "Src/TestScene007.cpp"
-    "Src/TestScene007.h"
-    "Src/TestScene009.cpp"
-    "Src/TestScene009.h"
     "Src/TestScene010.cpp"
     "Src/TestScene010.h"
+    "Src/TestScene011.cpp"
+    "Src/TestScene011.h"
+    "Src/TestScene012.cpp"
+    "Src/TestScene012.h"
+    "Src/TestScene013.cpp"
+    "Src/TestScene013.h"
+    "Src/TestScene020.cpp"
+    "Src/TestScene020.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
@@ -64,22 +79,28 @@ set(ENGINE_FILES
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
+    "Src/Engine/FontData.h"
+    "Src/Engine/FreetypeTextLoader.cpp"
+    "Src/Engine/FreetypeTextLoader.h"
     "Src/Engine/Logger.cpp"
     "Src/Engine/Logger.h"
-    "Src/Engine/MeshStores.cpp"
-    "Src/Engine/MeshStores.h"
+    "Src/Engine/MeshData.h"
+    "Src/Engine/MeshLoader.cpp"
+    "Src/Engine/MeshLoader.h"
     "Src/Engine/MeshVertex.h"
     "Src/Engine/RenderData.h"
     "Src/Engine/Renderer.cpp"
     "Src/Engine/Renderer.h"
     "Src/Engine/Scene.cpp"
     "Src/Engine/Scene.h"
+    "Src/Engine/SoundData.h"
+    "Src/Engine/SoundLoader.cpp"
+    "Src/Engine/SoundLoader.h"
     "Src/Engine/SoundPlayer.cpp"
     "Src/Engine/SoundPlayer.h"
-    "Src/Engine/SoundStores.cpp"
-    "Src/Engine/SoundStores.h"
-    "Src/Engine/TextureStores.cpp"
-    "Src/Engine/TextureStores.h"
+    "Src/Engine/TextureData.h"
+    "Src/Engine/TextureLoader.cpp"
+    "Src/Engine/TextureLoader.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
 )
@@ -115,14 +136,14 @@ set (MATH_FILES
     "Src/Engine/Math/Overlap3D_UnitTests.inl"
     "Src/Engine/Math/Shapes2D.h"
     "Src/Engine/Math/Shapes3D.h"
-    "Src/Engine/Math/VectorAngles.h"
-    "Src/Engine/Math/VectorAngles.inl"
+    "Src/Engine/Math/VectorUtilities.h"
+    "Src/Engine/Math/VectorUtilities.inl"
 )
 
 source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_FILES
-    "Src/Engine/Platform/glad.c"
+    "${CMAKE_GLAD_FILES}/src/glad.c"
     "Src/Engine/Platform/GLFWWindow.cpp"
     "Src/Engine/Platform/GLFWWindow.h"
     "Src/Engine/Platform/OpenALError.h"
@@ -162,13 +183,17 @@ add_executable("${PROJECT_NAME}" # WIN32
 
 target_include_directories("${PROJECT_NAME}"
     PUBLIC 
-    "Include"
+    "${CMAKE_FREETYPE_REPO}/include"
+    "${CMAKE_GLAD_FILES}/include"
+    "${CMAKE_GLFW_REPO}/include"
+    "${CMAKE_GLM_REPO}"
+    "${CMAKE_OPENAL_REPO}/include"
+    "${CMAKE_STB_REPO}"
     "Src"
 )
 
 target_link_directories("${PROJECT_NAME}"
     PUBLIC
-    "Lib"
 )
 
 # Getting a linker warning when building debug only:
@@ -176,8 +201,9 @@ target_link_directories("${PROJECT_NAME}"
     # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
-    "x64/glfw3"
-    "x64/OpenAL32"
+    "${CMAKE_FREETYPE_REPO}/objs/x64/Release/freetype.lib"
+    "${CMAKE_GLFW_REPO}/build/src/Release/glfw3.lib"
+    "${CMAKE_OPENAL_REPO}/build/Release/OpenAL32.lib"
 )
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
@@ -192,6 +218,13 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 
 if(${PRINT_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
+
+    message("CMAKE_FREETYPE_REPO: ${CMAKE_FREETYPE_REPO}")
+    message("CMAKE_GLAD_FILES: ${CMAKE_GLAD_FILES}")
+    message("CMAKE_GLFW_REPO: ${CMAKE_GLFW_REPO}")
+    message("CMAKE_GLM_REPO: ${CMAKE_GLM_REPO}")
+    message("CMAKE_OPENAL_REPO: ${CMAKE_OPENAL_REPO}")
+    message("CMAKE_STB_REPO: ${CMAKE_STB_REPO}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")

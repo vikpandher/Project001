@@ -1,10 +1,23 @@
 #pragma once
 
-#include "TestSceneBase002.h"
+#include "TestSceneBase001.h"
+
+#include "Engine/FontData.h"
+#include "Engine/TextureData.h"
+
+#include <map>
+#include <vector>
 
 
 
-class TestScene005 : public TestSceneBase002
+namespace Project001
+{
+    struct MeshData;
+
+    struct KeyEvent;
+}
+
+class TestScene005 : public TestSceneBase001
 {
 public:
     TestScene005();
@@ -22,19 +35,29 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
+    void ClearIndiciesAndEntityIds();
+
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
+    // Mesh Data: --------------------------------------------------------------
+
+    std::vector<Project001::MeshData*> meshDataPtrArray_;
+
+    // Font Data: --------------------------------------------------------------
+
+    Project001::FontData fontData_;
+
+    // Texture Data: -----------------------------------------------------------
+
+    Project001::TextureData fontTextureData_;
+
+    // Texture Ids: ------------------------------------------------------------
+
+    unsigned int fontTextureId_;
+
+    // Entity Ids: -------------------------------------------------------------
+
+    std::vector<unsigned int> entityIds_;
+
 private:
-    void Test_GetCameraRollPitchYaw() const;
-
-    void Test_CartesianToPolar() const;
-    void Test_PolarToCartesian() const;
-    void Test_Get2DVectorAngle() const;
-
-    void TestCollision2D() const;
-    void Test_Get2D_Point_Line_Distance() const;
-    void Test_Get2D_Point_LineSegment_Distance() const;
-    void Test_RotateSlope() const;
-
-    void Test_Misc() const;
 };

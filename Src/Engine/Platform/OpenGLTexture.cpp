@@ -8,22 +8,22 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLTexture::OpenGLTexture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int numberOfComponents)
+    OpenGLTexture::OpenGLTexture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel)
     {
         glGenTextures(1, &textureId_);
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D, textureId_);
 
         glm::uint format = 0;
-        if (numberOfComponents == 1)
+        if (bytesPerPixel == 1)
         {
             format = GL_RED;
         }
-        else if (numberOfComponents == 3)
+        else if (bytesPerPixel == 3)
         {
             format = GL_RGB;
         }
-        else if (numberOfComponents == 4)
+        else if (bytesPerPixel == 4)
         {
             format = GL_RGBA;
         }

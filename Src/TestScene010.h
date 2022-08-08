@@ -1,14 +1,10 @@
 #pragma once
 
-#include "TestSceneBase001.h"
+#include "TestSceneBase002.h"
 
 
-namespace Project001
-{
-    struct KeyEvent;
-}
 
-class TestScene010 : public TestSceneBase001
+class TestScene010 : public TestSceneBase002
 {
 public:
     TestScene010();
@@ -26,27 +22,19 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
-    void ClearIndiciesAndEntityIds();
-
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
-
-    void UpdateShape01EntityPosition(unsigned long timestep_ns);
-
-    // Mesh Indicies: ----------------------------------------------------------
-
-    unsigned int shape01MeshIndex_;
-
-    // Sound Indicies: ---------------------------------------------------------
-
-    unsigned int song01SoundIndex_;
-
-    // Texture Indicies: -------------------------------------------------------
-
-    // Entity Ids: -------------------------------------------------------------
-
-    unsigned int shape01EntityId_;
 
 private:
-    void TestOpenAL() const;
+    void Test_GetCameraRollPitchYaw() const;
+
+    void Test_CartesianToPolar() const;
+    void Test_PolarToCartesian() const;
+    void Test_Get2DVectorAngle() const;
+
+    void TestCollision2D() const;
+    void Test_Get2D_Point_Line_Distance() const;
+    void Test_Get2D_Point_LineSegment_Distance() const;
+    void Test_RotateSlope() const;
+
+    void Test_Misc() const;
 };

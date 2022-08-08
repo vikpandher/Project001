@@ -972,6 +972,77 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_Line_Sphere_Overlap()
+    {
+        // 01: line passing through sphere at origin
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: sphere at origin, line passing through its edge
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(0.0f, 2.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: sphere at origin, line passing not through it
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(0.0f, 3.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 3;
+        }
+
+        // 04: line passing through a sphere
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(0.0f, -1.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f)),
+                glm::vec3(2.0f, -2.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 4;
+        }
+
+        // 05: line passing through a sphere edge
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(1.0f, 1.0f, 0.0f),
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                glm::vec3(2.0f, -2.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 5;
+        }
+
+        // 06: line not passing through a sphere
+        {
+            bool result = Check3D_Line_Sphere_Overlap(
+                glm::vec3(0.0f, -2.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)),
+                glm::vec3(2.0f, -2.0f, 0.0f),
+                1.0f);
+
+            if (result != false) return 6;
+        }
+
+        return 0;
+    }
+
     // -------------------------------------------------------------------------
 
     inline int UnitTest_Check3D_Ray_Ray_Overlap()
@@ -1431,6 +1502,77 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_Ray_Sphere_Overlap()
+    {
+        // 01: ray passing through sphere at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-3.0f, -3.0f, -3.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: ray not passing through sphere at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-3.0f, -3.0f, -3.0f),
+                glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 2;
+        }
+
+        // 03: ray passing through sphere edge at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-3.0f, -2.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: ray not passing through sphere edge at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-3.0f, -2.0f, 0.0f),
+                glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 4;
+        }
+
+        // 05: ray not passing through sphere at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-2.0f, -3.0f, 0.0f),
+                glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 5;
+        }
+
+        // 06: ray not passing through sphere at origin
+        {
+            bool result = Check3D_Ray_Sphere_Overlap(
+                glm::vec3(-2.0f, -3.0f, 0.0f),
+                glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 6;
+        }
+
+        return 0;
+    }
+
     // -------------------------------------------------------------------------
 
     inline int UnitTest_Check3D_LineSegment_LineSegment_Overlap()
@@ -1682,6 +1824,110 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_LineSegment_Sphere_Overlap()
+    {
+        // 01: lineSegment inside sphere at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: lineSegment crossing sphere at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: lineSegment crossing sphere at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: lineSegment end touching sphere edge at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-2.0f, 2.0f, 0.0f),
+                glm::vec3(0.0f, 2.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 4;
+        }
+
+        // 05: lineSegment start touching sphere edge at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(2.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 5;
+        }
+
+        // 06: lineSegment touching sphere edge at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(2.0f, -2.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 6;
+        }
+
+        // 07: lineSegment not touching sphere at origin
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-3.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 3.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 7;
+        }
+
+        // 08: lineSegment overlapping infinitly small circle
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(-3.0f, -3.0f, -3.0f),
+                glm::vec3(3.0f, 3.0f, 3.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 8;
+        }
+
+        // 09: infinitly shortlineSegment overlapping infinitly small circle
+        {
+            bool result = Check3D_LineSegment_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 9;
+        }
+
+        return 0;
+    }
+
     // -------------------------------------------------------------------------
 
     inline int UnitTest_Check3D_Plane_Plane_Overlap()
@@ -1717,6 +1963,540 @@ namespace Project001
                 1.0f / std::sqrtf(3.0f));
 
             if (result != true) return 3;
+        }
+
+        return 0;
+    }
+
+    inline int UnitTest_Check3D_Plane_Sphere_Overlap()
+    {
+        // 01: plane at origin overlaps sphere at origin
+        {
+            bool result = Check3D_Plane_Sphere_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.0f,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: plane at origin and doesn't overlap sphere
+        {
+            bool result = Check3D_Plane_Sphere_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.0f,
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                2.0f);
+
+            if (result != false) return 2;
+        }
+
+        // 03: plane at origin touches the edge of the sphere
+        {
+            bool result = Check3D_Plane_Sphere_Overlap(
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                0.0f,
+                glm::vec3(0.0f, 2.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: sphere below plane at origin
+        {
+            bool result = Check3D_Plane_Sphere_Overlap(
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                0.0f,
+                glm::vec3(0.0f, -3.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 4;
+        }
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+
+    inline int UnitTest_Check3D_Triangle_Sphere_Overlap()
+    {
+        // 01: triangle inside sphere at origin
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(1.0f, 1.0f, 0.0f),
+                glm::vec3(-1.0f, 1.0f, 0.0f),
+                glm::vec3(-1.0f, -1.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: triangle touching sphere at origin's edge
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(-1.0f, -4.0f, 0.0f),
+                glm::vec3(1.0f, -4.0f, 0.0f),
+                glm::vec3(0.0f, -2.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: triangle overlaping sphere at origin's edge
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, -2.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: triangle not overlaping sphere at origin
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(-3.0f, 0.0f, 0.0f),
+                glm::vec3(-3.0f, 3.0f, 0.0f),
+                glm::vec3(0.0f, 3.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 4;
+        }
+
+        // 05: triangle not overlaping sphere
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(0.0f, 3.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 3.0f, 0.0f),
+                1.0f);
+
+            if (result != false) return 5;
+        }
+
+        // 06: triangle overlaping infinitly small sphere
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(0.0f, 3.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 6;
+        }
+
+        // 07: point triangle overlaping infinitly small sphere
+        {
+            bool result = Check3D_Triangle_Sphere_Overlap(
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 7;
+        }
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+
+    inline int UnitTest_Check3D_AABB_AABB_Overlap()
+    {
+        // 01: AABB inside AABB
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+
+            if (result != true) return 1;
+        }
+
+        // 02: point AABB inside AABB
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f));
+
+            if (result != true) return 2;
+        }
+
+        // 03: AABB overlapping AABB
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f));
+
+            if (result != true) return 3;
+        }
+
+        // 04: AABB not overlapping AABB
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f));
+
+            if (result != false) return 4;
+        }
+
+        // 05: point AABB overlapping point AABB
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f));
+
+            if (result != true) return 5;
+        }
+
+        // 06: AABB touching AABB corner
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(4.0f, 4.0f, 4.0f));
+
+            if (result != true) return 6;
+        }
+
+        // 07: AABB touching AABB corner
+        {
+            bool result = Check3D_AABB_AABB_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(0.0f, 1.0f, 1.0f),
+                glm::vec3(2.0f, 3.0f, 3.0f));
+
+            if (result != true) return 7;
+        }
+
+        return 0;
+    }
+
+    inline int UnitTest_Check3D_AABB_Sphere_Overlap()
+    {
+        // 01: point AABB overlapping point Sphere
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                0.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: AABB corner touching point Sphere
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(-1.0f, -2.0f, -3.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                0.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: point AABB touching Sphere edge
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(-1.0f, 0.0f, 0.0f),
+                glm::vec3(-1.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: AABB overlapping Sphere
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(3.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 4;
+        }
+
+        // 05: AABB not overlapping Sphere
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(-2.0f, -2.0f, -2.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(4.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != false) return 5;
+        }
+
+        // 06: AABB inside Sphere
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                4.0f);
+
+            if (result != true) return 6;
+        }
+
+        // 07: Sphere inside AABB
+        {
+            bool result = Check3D_AABB_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(4.0f, 4.0f, 4.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                1.0f);
+
+            if (result != true) return 7;
+        }
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+
+    inline int UnitTest_Check3D_OBB_Sphere_Overlap()
+    {
+        // 01: point OBB overlapping point Sphere
+        {
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                0.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: point OBB touching Sphere edge
+        {
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: thin OBB's edge touching point Sphere
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(4.0f, 1.0f, 0.0f),
+                glm::vec3(4.0f, 4.0f, 0.0f),
+                rotation,
+                glm::vec3(4.0f * std::sqrtf(2.0f) - 4.0f, 4.0f * std::sqrtf(2.0f) - 4.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: thin OBB's edge not touching point Sphere
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(4.0f, 1.0f, 0.0f),
+                glm::vec3(4.0f, 4.0f, 0.0f),
+                rotation,
+                glm::vec3(1.0f, 1.0f, 0.0f),
+                0.0f);
+
+            if (result != false) return 4;
+        }
+
+        // 05: thin OBB's edge touching Sphere at origin
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(4.0f, 1.0f, 0.0f),
+                glm::vec3(4.0f, 4.0f, 0.0f),
+                rotation,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                4.0f * std::sqrtf(2.0f) - 4.0f);
+
+            if (result != true) return 5;
+        }
+
+        // 06: thin OBB's edge not touching Sphere at origin
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(4.0f, 1.0f, 0.0f),
+                glm::vec3(4.0f, 4.0f, 0.0f),
+                rotation,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != false) return 6;
+        }
+
+        // 07: OBB at origin overlapping Sphere at origin
+        {
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(2.0f, -1.0f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 7;
+        }
+
+        // 08: OBB not overlapping Sphere
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(3.0f, 1.0f, 1.0f),
+                glm::vec3(5.0f, 5.0f, 0.0f),
+                rotation,
+                glm::vec3(3.0f, 1.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 8;
+        }
+
+        // 09: OBB overlapping Sphere
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(3.0f, 1.0f, 1.0f),
+                glm::vec3(5.0f, 5.0f, 0.0f),
+                rotation,
+                glm::vec3(3.0f, 9.0f, 0.0f),
+                2.0f);
+
+            if (result != true) return 9;
+        }
+
+        // 10: OBB not overlapping Sphere
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_Sphere_Overlap(
+                glm::vec3(3.0f, 1.0f, 1.0f),
+                glm::vec3(5.0f, 5.0f, 0.0f),
+                rotation,
+                glm::vec3(9.0f, 6.0f, 0.0f),
+                2.0f);
+
+            if (result != false) return 10;
+        }
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+
+    inline int UnitTest_Check3D_Sphere_Sphere_Overlap()
+    {
+        // 01: point Sphere overlapping point Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(-1.0f, -2.0f, -3.0f),
+                0.0f,
+                glm::vec3(-1.0f, -2.0f, -3.0f),
+                0.0f);
+
+            if (result != true) return 1;
+        }
+
+        // 02: Sphere overlapping point Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(-1.0f, 0.0f, 0.0f),
+                2.0f,
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                0.0f);
+
+            if (result != true) return 2;
+        }
+
+        // 03: Sphere inside Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                1.0f,
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                4.0f);
+
+            if (result != true) return 3;
+        }
+
+        // 04: Sphere touching Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(-1.0f, 0.0f, 0.0f),
+                1.0f,
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != true) return 4;
+        }
+
+        // 05: Sphere overlapping Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(-2.0f, 0.0f, 0.0f),
+                3.0f,
+                glm::vec3(2.0f, 0.0f, 0.0f),
+                3.0f);
+
+            if (result != true) return 5;
+        }
+
+        // 06: Sphere not overlapping Sphere
+        {
+            bool result = Check3D_Sphere_Sphere_Overlap(
+                glm::vec3(-2.0f, 0.0f, 0.0f),
+                1.0f,
+                glm::vec3(2.0f, 0.0f, 0.0f),
+                1.0f);
+
+            if (result != false) return 6;
         }
 
         return 0;

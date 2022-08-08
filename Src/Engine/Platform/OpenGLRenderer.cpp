@@ -181,7 +181,7 @@ namespace Project001
         delete primaryShaderPtr_;
         delete screenShaderPtr_;
 
-        ClearTextures();
+        DeleteAllTextures();
 
         glDeleteBuffers(1, &vertexBufferId_);
         glDeleteVertexArrays(1, &vertexArrayId_);
@@ -208,22 +208,27 @@ namespace Project001
         CreateFramebuffer();
     }
 
-    bool OpenGLRenderer::AddTexture(
-        unsigned int textureId,
+    bool OpenGLRenderer::CreateTexture(
+        unsigned int& textureId,
         unsigned int textureUnit,
         unsigned char* data,
         unsigned int width,
         unsigned int height,
-        unsigned int numberOfComponents)
+        unsigned int bytesPerPixel)
     {
         if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
+            if (recycledTextureIds_.empty())
             {
-                delete texturePtrMap_[textureId];
+                textureId = (unsigned int)texturePtrMap_.size();
+            }
+            else
+            {
+                textureId = recycledTextureIds_.front();
+                recycledTextureIds_.pop_front();
             }
 
-            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, numberOfComponents);
+            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, bytesPerPixel);
             textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;
@@ -257,7 +262,19 @@ namespace Project001
         }
     }
 
-    void OpenGLRenderer::ClearTextures()
+    bool OpenGLRenderer::DeleteTexture(unsigned int textureId)
+    {
+        if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
+        {
+            delete texturePtrMap_[textureId];
+            textureIdToUnitBiMap_.Remove_Using_X(textureId);
+            return true;
+        }
+
+        return false;
+    }
+
+    void OpenGLRenderer::DeleteAllTextures()
     {
         for (std::map<unsigned int, OpenGLTexture*>::iterator iter = texturePtrMap_.begin();
             iter != texturePtrMap_.end(); ++iter)
@@ -266,6 +283,7 @@ namespace Project001
         }
         texturePtrMap_.clear();
         textureIdToUnitBiMap_.Clear();
+        recycledTextureIds_.clear();
     }
 
     bool OpenGLRenderer::AddMesh(
@@ -633,8 +651,9 @@ namespace Project001
     {
         if (textureIdToUnitBiMap_.Find_X(textureId))
         {
-            textureUnit = (float)textureIdToUnitBiMap_.Get_Using_X(textureId);
-            tectureUnitStalenessValues_[textureUnit] = 0;
+            unsigned int textureUnit_uint = textureIdToUnitBiMap_.Get_Using_X(textureId);
+            tectureUnitStalenessValues_[textureUnit_uint] = 0;
+            textureUnit = (float)textureUnit_uint;
         }
         else
         {
@@ -664,9 +683,9 @@ namespace Project001
 
     bool OpenGLRenderer::GetStalestTextureUnit(unsigned int& textureUnit) const
     {
-        int stalestValue = 0;
+        unsigned int stalestValue = 0;
 
-        for (size_t i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
+        for (unsigned int i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
         {
             if (tectureUnitStalenessValues_[i] > stalestValue)
             {

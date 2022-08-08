@@ -25,14 +25,14 @@
 // Overlap Functions:
 //             | Poi | Lin | Ray | LiS | Pla | Tri | AAB | OBB | Sph | Cap |
 // Point       |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |     |
-// Line        | --- |  X  |  X  |  X  |  X  |  X  |     |     |  \  |     |
-// Ray         | --- | --- |  X  |  X  |  X  |  X  |     |     |  \  |     |
-// LineSegment | --- | --- | --- |  X  |  X  |  X  |     |     |  \  |     |
-// Plane       | --- | --- | --- | --- |  X  |     |     |     |  \  |     |
-// Triangle    | --- | --- | --- | --- | - - |     |     |     |  \  |     |
-// AABB        | --- | - - | - - | - - | - - | - - |  \  |     |  \  |     |
-// OBB         | --- | - - | - - | - - | - - | - - | - - |     |  \  |     |
-// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  \  |     |
+// Line        | --- |  X  |  X  |  X  |  X  |  X  |     |     |  X  |     |
+// Ray         | --- | --- |  X  |  X  |  X  |  X  |     |     |  X  |     |
+// LineSegment | --- | --- | --- |  X  |  X  |  X  |     |     |  X  |     |
+// Plane       | --- | --- | --- | --- |  X  |     |     |     |  X  |     |
+// Triangle    | --- | --- | --- | --- | - - |     |     |     |  X  |     |
+// AABB        | --- | - - | - - | - - | - - | - - |  X  |     |  X  |     |
+// OBB         | --- | - - | - - | - - | - - | - - | - - |     |  X  |     |
+// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  X  |     |
 // Capsule     | - - | - - | - - | - - | - - | - - | - - | - - | - - |     |
 // 
 // Closest Point Functions:
@@ -488,6 +488,15 @@ namespace Project001
         const glm::vec3& planeC_normal,
         const float& planeC_distance,
         glm::vec3& intersectionPoint_position);
+
+    // Unused
+    bool Get3D_Plane_Plane_Intersection_H(
+        const glm::vec3& planeA_normal,
+        const float& planeA_distance,
+        const glm::vec3& planeB_normal,
+        const float& planeB_distance,
+        glm::vec3& line_position,
+        glm::vec3& line_direction);
 
     // This version doesn't care which 2 cornors AS LONG AS they are diagonally opposite
     bool Check3D_Point_Box_Overlap_H(

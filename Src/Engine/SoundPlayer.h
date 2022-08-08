@@ -20,39 +20,43 @@ namespace Project001
             const glm::vec3& velocity,
             float gain) = 0;
 
-        virtual void RemoveAllSoundBuffers() = 0;
-
         virtual bool CreateSoundBuffer(
-            unsigned int soundBufferIndex,
+            unsigned int& soundBufferId,
             void* data,
             int numberOfChannels,
             int sampleRate,
             int bitsPerSample,
             int size) = 0;
 
-        virtual bool CreateSoundSource(unsigned int& soundSourceIndex) = 0;
+        virtual bool DeleteSoundBuffer(unsigned int soundBufferId) = 0;
+
+        virtual void DeleteAllSoundBuffers() = 0;
+
+        virtual bool CreateSoundSource(unsigned int& soundSourceId) = 0;
+
+        virtual bool DeleteSoundSource(unsigned int soundSourceId) = 0;
+
+        virtual void DeleteAllSoundSources() = 0;
 
         virtual bool LinkSoundBufferToSoundSource(
-            unsigned int soundBufferIndex,
-            unsigned int soundSourceIndex) = 0;
+            unsigned int soundBufferId,
+            unsigned int soundSourceId) = 0;
 
         virtual bool UpdateSoundSource(
-            unsigned int soundSourceIndex,
+            unsigned int soundSourceId,
             const glm::vec3& position,
             const glm::vec3& velocity,
             float pitch,
             float gain,
             bool loop) = 0;
 
-        virtual void RemoveAllSoundSources() = 0;
+        virtual bool PlaySoundSource(unsigned int soundSourceId) = 0;
 
-        virtual bool PlaySoundSource(unsigned int soundSourceIndex) = 0;
+        virtual bool PauseSoundSource(unsigned int soundSourceId) = 0;
 
-        virtual bool PauseSoundSource(unsigned int soundSourceIndex) = 0;
+        virtual bool RewindSoundSource(unsigned int soundSourceId) = 0;
 
-        virtual bool RewindSoundSource(unsigned int soundSourceIndex) = 0;
-
-        virtual bool StopSoundSource(unsigned int soundSourceIndex) = 0;
+        virtual bool StopSoundSource(unsigned int soundSourceId) = 0;
 
     protected:
 

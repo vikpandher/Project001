@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 
 #include "Engine/Math/FloatComparators.h"
-#include "Engine/Math/VectorAngles.h"
+#include "Engine/Math/VectorUtilities.h"
 
 
 
@@ -945,11 +945,10 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-
-    // returns true if any convexPolygonA's axes of seperation seperate it from
-    // convexPolygonB. (half of the tests for the SAT) this doesn't preform any
-    // checks on the passed peramerters
-    bool Check2D_ConvexPolygon_ConvexPolygon_SeparatedAxisTheorem(
+    // Preforms have of the seperate axis theorm check, using perpendiculars
+    // from only convexPolygonA to generate and check seperation axis. Returns
+    // false if a axis of seperation has been found.
+    bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
         const glm::vec2*& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2*& convexPolygonB_corners,

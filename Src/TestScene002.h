@@ -2,6 +2,9 @@
 
 #include "TestSceneBase001.h"
 
+#include "Engine/MeshData.h"
+
+
 
 namespace Project001
 {
@@ -30,48 +33,48 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Mesh Indicies: ----------------------------------------------------------
+    // Mesh Data: --------------------------------------------------------------
 
-    unsigned int shape01MeshIndex_;
-    unsigned int shape02MeshIndex_;
-    unsigned int shape03MeshIndex_;
-    unsigned int shape04MeshIndex_;
-    unsigned int shape05MeshIndex_;
-    unsigned int shape06MeshIndex_;
-    unsigned int shape07MeshIndex_;
-    unsigned int shape08MeshIndex_;
-    unsigned int shape09MeshIndex_;
-    unsigned int shape10MeshIndex_;
-    unsigned int shape11MeshIndex_;
-    unsigned int shape12MeshIndex_;
-    unsigned int shape13MeshIndex_;
-    unsigned int shape14MeshIndex_;
-    unsigned int shape15MeshIndex_;
-    unsigned int shape16MeshIndex_;
-    unsigned int shape17MeshIndex_;
-    unsigned int shape18MeshIndex_;
-    unsigned int shape19MeshIndex_;
-    unsigned int shape20MeshIndex_;
-    unsigned int shape21MeshIndex_;
-    unsigned int shape22MeshIndex_;
-    unsigned int shape23MeshIndex_;
-    unsigned int shape24MeshIndex_;
-    unsigned int shape25MeshIndex_;
-    unsigned int shape26MeshIndex_;
-    unsigned int shape27MeshIndex_;
-    unsigned int shape28MeshIndex_;
-    unsigned int shape29MeshIndex_;
-    unsigned int shape30MeshIndex_;
-    unsigned int shape31MeshIndex_;
-    unsigned int shape32MeshIndex_;
-    unsigned int shape33MeshIndex_;
-    unsigned int shape34MeshIndex_;
-    unsigned int shape35MeshIndex_;
+    Project001::MeshData shape01Mesh_;
+    Project001::MeshData shape02Mesh_;
+    Project001::MeshData shape03Mesh_;
+    Project001::MeshData shape04Mesh_;
+    Project001::MeshData shape05Mesh_;
+    Project001::MeshData shape06Mesh_;
+    Project001::MeshData shape07Mesh_;
+    Project001::MeshData shape08Mesh_;
+    Project001::MeshData shape09Mesh_;
+    Project001::MeshData shape10Mesh_;
+    Project001::MeshData shape11Mesh_;
+    Project001::MeshData shape12Mesh_;
+    Project001::MeshData shape13Mesh_;
+    Project001::MeshData shape14Mesh_;
+    Project001::MeshData shape15Mesh_;
+    Project001::MeshData shape16Mesh_;
+    Project001::MeshData shape17Mesh_;
+    Project001::MeshData shape18Mesh_;
+    Project001::MeshData shape19Mesh_;
+    Project001::MeshData shape20Mesh_;
+    Project001::MeshData shape21Mesh_;
+    Project001::MeshData shape22Mesh_;
+    Project001::MeshData shape23Mesh_;
+    Project001::MeshData shape24Mesh_;
+    Project001::MeshData shape25Mesh_;
+    Project001::MeshData shape26Mesh_;
+    Project001::MeshData shape27Mesh_;
+    Project001::MeshData shape28Mesh_;
+    Project001::MeshData shape29Mesh_;
+    Project001::MeshData shape30Mesh_;
+    Project001::MeshData shape31Mesh_;
+    Project001::MeshData shape32Mesh_;
+    Project001::MeshData shape33Mesh_;
+    Project001::MeshData shape34Mesh_;
+    Project001::MeshData shape35Mesh_;
 
-    // Texture Indicies: -------------------------------------------------------
+    // Texture Ids: ------------------------------------------------------------
 
-    unsigned int earthTextureIndex_;
-    unsigned int rgb120x60TextureIndex_;
+    unsigned int earthTextureId_;
+    unsigned int rgb120x60TextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 

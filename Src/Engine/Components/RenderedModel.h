@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Components/Placement.h"
+#include "Engine/MeshData.h"
 
 
 
@@ -14,14 +15,14 @@ namespace Project001
         bool IsVisible() const;
         void SetVisibility(bool visible);
 
-        unsigned int GetMeshIndex() const;
-        void SetMeshIndex(unsigned int meshIndex);
+        const MeshData* GetMeshDataPtr() const;
+        void SetMeshDataPtr(const MeshData* meshData);
 
-        unsigned int GetTextureIndex() const;
-        void SetTextureIndex(unsigned int textureIndex);
+        unsigned int GetTextureId() const;
+        void SetTextureId(unsigned int textureId);
 
-        unsigned int GetSpecularIndex() const;
-        void SetSpecularIndex(unsigned int specularIndex);
+        unsigned int GetSpecularId() const;
+        void SetSpecularId(unsigned int specularId);
 
         const glm::vec3& GetScale() const;
         void SetScale(const glm::vec3& scale);
@@ -50,9 +51,9 @@ namespace Project001
         // glm::quat orientation_;
 
         bool visible_;
-        unsigned int meshIndex_;
-        unsigned int textureIndex_;
-        unsigned int specularIndex_;
+        const MeshData* meshDataPtr_;
+        unsigned int textureId_;
+        unsigned int specularId_;
         glm::vec3 scale_;
         float shininess_; // 32.0f looks good
         glm::vec4 color_;
@@ -62,9 +63,9 @@ namespace Project001
 
     inline RenderedModel::RenderedModel()
         : visible_(true)
-        , meshIndex_((unsigned int)-1)
-        , textureIndex_((unsigned int)-1)
-        , specularIndex_((unsigned int)-1)
+        , meshDataPtr_(nullptr)
+        , textureId_((unsigned int)-1)
+        , specularId_((unsigned int)-1)
         , scale_(1.0f, 1.0f, 1.0f)
         , color_(1.0f, 1.0f, 1.0f, 1.0f)
         , shininess_(0.0f)
@@ -82,34 +83,34 @@ namespace Project001
         visible_ = visible;
     }
 
-    inline unsigned int RenderedModel::GetMeshIndex() const
+    inline const MeshData* RenderedModel::GetMeshDataPtr() const
     {
-        return meshIndex_;
+        return meshDataPtr_;
     }
 
-    inline void RenderedModel::SetMeshIndex(unsigned int meshIndex)
+    inline void RenderedModel::SetMeshDataPtr(const MeshData* meshDataPtr)
     {
-        meshIndex_ = meshIndex;
+        meshDataPtr_ = meshDataPtr;
     }
 
-    inline unsigned int RenderedModel::GetTextureIndex() const
+    inline unsigned int RenderedModel::GetTextureId() const
     {
-        return textureIndex_;
+        return textureId_;
     }
 
-    inline void RenderedModel::SetTextureIndex(unsigned int textureIndex)
+    inline void RenderedModel::SetTextureId(unsigned int textureId)
     {
-        textureIndex_ = textureIndex;
+        textureId_ = textureId;
     }
 
-    inline unsigned int RenderedModel::GetSpecularIndex() const
+    inline unsigned int RenderedModel::GetSpecularId() const
     {
-        return specularIndex_;
+        return specularId_;
     }
 
-    inline void RenderedModel::SetSpecularIndex(unsigned int specularIndex)
+    inline void RenderedModel::SetSpecularId(unsigned int specularId)
     {
-        specularIndex_ = specularIndex;
+        specularId_ = specularId;
     }
 
     inline const glm::vec3& RenderedModel::GetScale() const

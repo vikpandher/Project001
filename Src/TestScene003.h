@@ -2,6 +2,9 @@
 
 #include "TestSceneBase001.h"
 
+#include "Engine/MeshData.h"
+
+
 
 namespace Project001
 {
@@ -30,81 +33,81 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Mesh Indicies: ----------------------------------------------------------
+    // Mesh Data: --------------------------------------------------------------
 
-    unsigned int shape01MeshIndex_;
-    unsigned int shape02MeshIndex_;
-    unsigned int shape03MeshIndex_;
-    unsigned int shape04MeshIndex_;
-    unsigned int shape05MeshIndex_;
-    unsigned int shape06MeshIndex_;
-    unsigned int shape07MeshIndex_;
-    unsigned int shape08MeshIndex_;
-    unsigned int shape09MeshIndex_;
-    unsigned int shape10MeshIndex_;
-    unsigned int shape11MeshIndex_;
-    unsigned int shape12MeshIndex_;
-    unsigned int shape13MeshIndex_;
-    unsigned int shape14MeshIndex_;
-    unsigned int shape15MeshIndex_;
-    unsigned int shape16MeshIndex_;
-    unsigned int shape17MeshIndex_;
-    unsigned int shape18MeshIndex_;
-    unsigned int shape19MeshIndex_;
-    unsigned int shape20MeshIndex_;
-    unsigned int shape21MeshIndex_;
-    unsigned int shape22MeshIndex_;
-    unsigned int shape23MeshIndex_;
-    unsigned int shape24MeshIndex_;
-    unsigned int shape25MeshIndex_;
-    unsigned int shape26MeshIndex_;
-    unsigned int shape27MeshIndex_;
-    unsigned int shape28MeshIndex_;
-    unsigned int shape29MeshIndex_;
-    unsigned int shape30MeshIndex_;
-    unsigned int shape31MeshIndex_;
-    unsigned int shape32MeshIndex_;
-    unsigned int shape33MeshIndex_;
-    unsigned int shape34MeshIndex_;
-    unsigned int shape35MeshIndex_;
+    Project001::MeshData shape01Mesh_;
+    Project001::MeshData shape02Mesh_;
+    Project001::MeshData shape03Mesh_;
+    Project001::MeshData shape04Mesh_;
+    Project001::MeshData shape05Mesh_;
+    Project001::MeshData shape06Mesh_;
+    Project001::MeshData shape07Mesh_;
+    Project001::MeshData shape08Mesh_;
+    Project001::MeshData shape09Mesh_;
+    Project001::MeshData shape10Mesh_;
+    Project001::MeshData shape11Mesh_;
+    Project001::MeshData shape12Mesh_;
+    Project001::MeshData shape13Mesh_;
+    Project001::MeshData shape14Mesh_;
+    Project001::MeshData shape15Mesh_;
+    Project001::MeshData shape16Mesh_;
+    Project001::MeshData shape17Mesh_;
+    Project001::MeshData shape18Mesh_;
+    Project001::MeshData shape19Mesh_;
+    Project001::MeshData shape20Mesh_;
+    Project001::MeshData shape21Mesh_;
+    Project001::MeshData shape22Mesh_;
+    Project001::MeshData shape23Mesh_;
+    Project001::MeshData shape24Mesh_;
+    Project001::MeshData shape25Mesh_;
+    Project001::MeshData shape26Mesh_;
+    Project001::MeshData shape27Mesh_;
+    Project001::MeshData shape28Mesh_;
+    Project001::MeshData shape29Mesh_;
+    Project001::MeshData shape30Mesh_;
+    Project001::MeshData shape31Mesh_;
+    Project001::MeshData shape32Mesh_;
+    Project001::MeshData shape33Mesh_;
+    Project001::MeshData shape34Mesh_;
+    Project001::MeshData shape35Mesh_;
 
-    // Texture Indicies: -------------------------------------------------------
+    // Texture Ids: ------------------------------------------------------------
 
-    unsigned int _32x32_00_TextureIndex_;
-    unsigned int _32x32_01_TextureIndex_;
-    unsigned int _32x32_02_TextureIndex_;
-    unsigned int _32x32_03_TextureIndex_;
-    unsigned int _32x32_04_TextureIndex_;
-    unsigned int _32x32_05_TextureIndex_;
-    unsigned int _32x32_06_TextureIndex_;
-    unsigned int _32x32_07_TextureIndex_;
-    unsigned int _32x32_08_TextureIndex_;
-    unsigned int _32x32_09_TextureIndex_;
-    unsigned int _32x32_10_TextureIndex_;
-    unsigned int _32x32_11_TextureIndex_;
-    unsigned int _32x32_12_TextureIndex_;
-    unsigned int _32x32_13_TextureIndex_;
-    unsigned int _32x32_14_TextureIndex_;
-    unsigned int _32x32_15_TextureIndex_;
-    unsigned int _32x32_16_TextureIndex_;
-    unsigned int _32x32_17_TextureIndex_;
-    unsigned int _32x32_18_TextureIndex_;
-    unsigned int _32x32_19_TextureIndex_;
-    unsigned int _32x32_20_TextureIndex_;
-    unsigned int _32x32_21_TextureIndex_;
-    unsigned int _32x32_22_TextureIndex_;
-    unsigned int _32x32_23_TextureIndex_;
-    unsigned int _32x32_24_TextureIndex_;
-    unsigned int _32x32_25_TextureIndex_;
-    unsigned int _32x32_26_TextureIndex_;
-    unsigned int _32x32_27_TextureIndex_;
-    unsigned int _32x32_28_TextureIndex_;
-    unsigned int _32x32_29_TextureIndex_;
-    unsigned int _32x32_30_TextureIndex_;
-    unsigned int _32x32_31_TextureIndex_;
-    unsigned int _32x32_32_TextureIndex_;
-    unsigned int _32x32_33_TextureIndex_;
-    unsigned int _32x32_34_TextureIndex_;
+    unsigned int _32x32_00_TextureId_;
+    unsigned int _32x32_01_TextureId_;
+    unsigned int _32x32_02_TextureId_;
+    unsigned int _32x32_03_TextureId_;
+    unsigned int _32x32_04_TextureId_;
+    unsigned int _32x32_05_TextureId_;
+    unsigned int _32x32_06_TextureId_;
+    unsigned int _32x32_07_TextureId_;
+    unsigned int _32x32_08_TextureId_;
+    unsigned int _32x32_09_TextureId_;
+    unsigned int _32x32_10_TextureId_;
+    unsigned int _32x32_11_TextureId_;
+    unsigned int _32x32_12_TextureId_;
+    unsigned int _32x32_13_TextureId_;
+    unsigned int _32x32_14_TextureId_;
+    unsigned int _32x32_15_TextureId_;
+    unsigned int _32x32_16_TextureId_;
+    unsigned int _32x32_17_TextureId_;
+    unsigned int _32x32_18_TextureId_;
+    unsigned int _32x32_19_TextureId_;
+    unsigned int _32x32_20_TextureId_;
+    unsigned int _32x32_21_TextureId_;
+    unsigned int _32x32_22_TextureId_;
+    unsigned int _32x32_23_TextureId_;
+    unsigned int _32x32_24_TextureId_;
+    unsigned int _32x32_25_TextureId_;
+    unsigned int _32x32_26_TextureId_;
+    unsigned int _32x32_27_TextureId_;
+    unsigned int _32x32_28_TextureId_;
+    unsigned int _32x32_29_TextureId_;
+    unsigned int _32x32_30_TextureId_;
+    unsigned int _32x32_31_TextureId_;
+    unsigned int _32x32_32_TextureId_;
+    unsigned int _32x32_33_TextureId_;
+    unsigned int _32x32_34_TextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 

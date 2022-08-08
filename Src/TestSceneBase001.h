@@ -3,8 +3,11 @@
 #include "Engine/Scene.h"
 
 
+
 namespace Project001
 {
+    class ComponentStores;
+
     struct CursorPositionEvent;
     struct FrameBufferSizeEvent;
     struct MouseButtonEvent;
@@ -29,7 +32,7 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
-    void ClearIndiciesAndEntityIds();
+    void ClearResources();
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
@@ -49,9 +52,6 @@ protected:
     Project001::Window* windowPtr_;
 
     Project001::ComponentStores* componentStoresPtr_;
-    Project001::MeshStores* meshStoresPtr_;
-    Project001::SoundStores* soundStoresPtr_;
-    Project001::TextureStores* textureStoresPtr_;
 
     Project001::Renderer* rendererPtr_;
     Project001::SoundPlayer* soundPlayerPtr_;

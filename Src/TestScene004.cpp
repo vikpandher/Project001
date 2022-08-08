@@ -5,9 +5,9 @@
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
-#include "Engine/MeshStores.h"
+#include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
-#include "Engine/TextureStores.h"
+#include "Engine/TextureLoader.h"
 #include "Engine/Window.h"
 
 
@@ -35,31 +35,39 @@ void TestScene004::Initialize()
     // -------------------------------------------------------------------------
 
     {
-        _FAIL_CHECK(textureStoresPtr_->LoadTexture(_32x32_123abc_TextureIndex_, "../Textures/123456789abcdefghij.png"));
         Project001::TextureData textureData;
-        _FAIL_CHECK(textureStoresPtr_->GetTexture(_32x32_123abc_TextureIndex_, textureData));
-        _FAIL_CHECK(rendererPtr_->AddTexture(_32x32_123abc_TextureIndex_, 1, textureData.data, textureData.width, textureData.height, textureData.numberOfComponents));
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel));
     }
 
     // Calculating positions
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
-    for (int i = 2; i >= -2; --i)
-    {
-        for (int j = -3; j <= 3; ++j)
-        {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
-        }
-    }
+    modelEntityPositions.emplace_back(0.0f, 0.0f, 0.0f);
+    // for (int i = 2; i >= -2; --i)
+    // {
+    //     for (int j = -3; j <= 3; ++j)
+    //     {
+    //         modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+    //     }
+    // }
     size_t positionPosition = 0;
 
     // generated shape entity 01
     // -------------------------------------------------------------------------
     {
-        unsigned int tempMeshIndex;
-        _FAIL_CHECK(meshStoresPtr_->Generate2DSprite(tempMeshIndex, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
-        meshIndicies_.push_back(tempMeshIndex);
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> positions;
+        positions.emplace_back(0.0f, 0.0f);
+        positions.emplace_back(0.32f, 0.0f);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine_v2(*newMeshDataPtr, positions, 0.08f, 4));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        // _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*tempMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
+
+        // _LOG_MESSAGE("VertexCount = %i, IndexCount = %i", newMeshData.vertexCount, newMeshData.indexCount);
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -71,8 +79,8 @@ void TestScene004::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
         renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshIndex(tempMeshIndex);
-        renderedModelPtr->SetTextureIndex(_32x32_123abc_TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedModelPtr->SetTextureId(_32x32_123abc_TextureId_);
     }
 }
 
@@ -94,9 +102,13 @@ void TestScene004::OnEvent(Project001::Event& event)
 
 void TestScene004::ClearIndiciesAndEntityIds()
 {
-    meshIndicies_.clear();
+    for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
+    {
+        delete meshDataPtrArray_[i];
+    }
+    meshDataPtrArray_.clear();
 
-    _32x32_123abc_TextureIndex_ = (unsigned int)-1;
+    _32x32_123abc_TextureId_ = (unsigned int)-1;
 
     entityIds_.clear();
 }

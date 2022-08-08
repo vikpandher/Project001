@@ -5,14 +5,12 @@
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
-#include "Engine/Math/VectorAngles.h"
+#include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
-#include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
-#include "Engine/TextureStores.h"
 #include "Engine/Window.h"
 
 
@@ -23,11 +21,14 @@ TestSceneBase002::TestSceneBase002()
     : cursorGrabbingEntity_(false)
     , previousWorldCursorDownPosition_(0.0f, 0.0f)
 {
-    ClearIndiciesAndEntityIds();
+    componentStoresPtr_ = new Project001::ComponentStores();
+    ClearResources();
 }
 
 TestSceneBase002::~TestSceneBase002()
-{}
+{
+    delete componentStoresPtr_;
+}
 
 const char* TestSceneBase002::Name()
 {
@@ -36,10 +37,9 @@ const char* TestSceneBase002::Name()
 
 void TestSceneBase002::Initialize()
 {
-    windowPtr_ = GetApplicationWindowPtr();
+    _LOG_MESSAGE("INITIALIZING: %s", Name());
 
-    componentStoresPtr_ = GetApplicationComponentStoresPtr();
-    meshStoresPtr_ = GetApplicationMeshStoresPtr();
+    windowPtr_ = GetApplicationWindowPtr();
 
     rendererPtr_ = GetApplicationRendererPtr();
     rendererPtr_->SetDepthTesting(false);
@@ -74,10 +74,9 @@ void TestSceneBase002::Initialize()
 void TestSceneBase002::Deinitialize()
 {
     componentStoresPtr_->DeleteAllEntities();
-    meshStoresPtr_->ClearMeshes();
-    rendererPtr_->ClearTextures();
+    rendererPtr_->DeleteAllTextures();
 
-    ClearIndiciesAndEntityIds();
+    ClearResources();
 }
 
 void TestSceneBase002::OnEvent(Project001::Event& event)
@@ -93,10 +92,15 @@ void TestSceneBase002::OnEvent(Project001::Event& event)
 
 // protected: ------------------------------------------------------------------
 
-void TestSceneBase002::ClearIndiciesAndEntityIds()
+void TestSceneBase002::ClearResources()
 {
     selectedEntityIdIndex_ = (unsigned int)-1;
-    meshIndicies_.clear();
+
+    for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
+    {
+        delete meshDataPtrArray_[i];
+    }
+    meshDataPtrArray_.clear();
 
     mainCameraEntityId_ = (unsigned int)-1;
     entityIds_.clear();
@@ -311,33 +315,41 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
             if (currentRenderedModel.IsVisible())
             {
-                const Project001::MeshVertex* meshVerticies = nullptr;
-                unsigned int meshVertexCount = 0;
-                const unsigned int* meshIndicies = nullptr;
-                unsigned int meshIndexCount = 0;
-
-                _FAIL_CHECK(meshStoresPtr_->GetMesh(
-                    currentRenderedModel.GetMeshIndex(),
-                    meshVerticies,
-                    meshVertexCount,
-                    meshIndicies,
-                    meshIndexCount
-                ));
-
-                _FAIL_CHECK(rendererPtr_->AddMesh(
-                    meshVerticies,
-                    meshVertexCount,
-                    meshIndicies,
-                    meshIndexCount,
-                    currentRenderedModel.GetTextureIndex(),
-                    currentRenderedModel.GetSpecularIndex(),
-                    currentRenderedModel.GetPosition(),
-                    currentRenderedModel.GetOrientation(),
-                    currentRenderedModel.GetScale(),
-                    currentRenderedModel.GetColor(),
-                    currentRenderedModel.GetShininess(),
-                    currentRenderedModel.GetTranslucent(),
-                    currentRenderedModel.GetLit()));
+                const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
+                if (currentMeshDataPtr != nullptr)
+                {
+                    if (!rendererPtr_->AddMesh(
+                        currentMeshDataPtr->meshVertexArray.data(),
+                        (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                        currentMeshDataPtr->meshIndexArray.data(),
+                        (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                        currentRenderedModel.GetTextureId(),
+                        currentRenderedModel.GetSpecularId(),
+                        currentRenderedModel.GetPosition(),
+                        currentRenderedModel.GetOrientation(),
+                        currentRenderedModel.GetScale(),
+                        currentRenderedModel.GetColor(),
+                        currentRenderedModel.GetShininess(),
+                        currentRenderedModel.GetTranslucent(),
+                        currentRenderedModel.GetLit()))
+                    {
+                        rendererPtr_->Render();
+                        _FAIL_CHECK(rendererPtr_->AddMesh(
+                            currentMeshDataPtr->meshVertexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                            currentMeshDataPtr->meshIndexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                            currentRenderedModel.GetTextureId(),
+                            currentRenderedModel.GetSpecularId(),
+                            currentRenderedModel.GetPosition(),
+                            currentRenderedModel.GetOrientation(),
+                            currentRenderedModel.GetScale(),
+                            currentRenderedModel.GetColor(),
+                            currentRenderedModel.GetShininess(),
+                            currentRenderedModel.GetTranslucent(),
+                            currentRenderedModel.GetLit()));
+                    }
+                }
             }
         }
 

@@ -4,12 +4,15 @@
 
 #include "glm/glm.hpp"
 
-#include <map>
 #include <vector>
+
 
 
 namespace Project001
 {
+    class ComponentStores;
+    struct MeshData;
+
     struct CursorPositionEvent;
     struct FrameBufferSizeEvent;
     struct KeyEvent;
@@ -37,7 +40,7 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
-    void ClearIndiciesAndEntityIds();
+    void ClearResources();
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
@@ -58,14 +61,14 @@ protected:
     Project001::Window* windowPtr_;
 
     Project001::ComponentStores* componentStoresPtr_;
-    Project001::MeshStores* meshStoresPtr_;
+
     Project001::Renderer* rendererPtr_;
 
-    // Mesh Indicies: ----------------------------------------------------------
+    // Mesh Data: --------------------------------------------------------------
 
     unsigned int selectedEntityIdIndex_;
 
-    std::vector<unsigned int> meshIndicies_;
+    std::vector<Project001::MeshData*> meshDataPtrArray_;
 
     // Entity Ids: -------------------------------------------------------------
 

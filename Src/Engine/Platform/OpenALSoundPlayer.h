@@ -1,12 +1,13 @@
 #pragma once
 
-#include <map>
-#include <vector>
+#include "Engine/SoundPlayer.h"
 
 #include "AL/al.h"
 #include "AL/alc.h"
 
-#include "Engine/SoundPlayer.h"
+#include <deque>
+#include <map>
+#include <vector>
 
 
 
@@ -26,47 +27,54 @@ namespace Project001
             const glm::vec3& velocity,
             float gain);
 
-        void RemoveAllSoundBuffers();
-
         bool CreateSoundBuffer(
-            unsigned int soundBufferIndex,
+            unsigned int& soundBufferId,
             void* data,
             int numberOfChannels,
             int sampleRate,
             int bitsPerSample,
             int size);
 
-        bool CreateSoundSource(unsigned int& soundSourceIndex);
+        bool DeleteSoundBuffer(unsigned int soundBufferId);
+
+        void DeleteAllSoundBuffers();
+
+        bool CreateSoundSource(unsigned int& soundSourceId);
+
+        bool DeleteSoundSource(unsigned int soundSourceId);
+
+        void DeleteAllSoundSources();
 
         bool LinkSoundBufferToSoundSource(
-            unsigned int soundBufferIndex,
-            unsigned int soundSourceIndex);
+            unsigned int soundBufferId,
+            unsigned int soundSourceId);
 
         bool UpdateSoundSource(
-            unsigned int soundSourceIndex,
+            unsigned int soundSourceId,
             const glm::vec3& position,
             const glm::vec3& velocity,
             float pitch,
             float gain,
             bool loop);
 
-        void RemoveAllSoundSources();
+        bool PlaySoundSource(unsigned int soundSourceId);
 
-        bool PlaySoundSource(unsigned int soundSourceIndex);
+        bool PauseSoundSource(unsigned int soundSourceId);
 
-        bool PauseSoundSource(unsigned int soundSourceIndex);
+        bool RewindSoundSource(unsigned int soundSourceId);
 
-        bool RewindSoundSource(unsigned int soundSourceIndex);
-
-        bool StopSoundSource(unsigned int soundSourceIndex);
+        bool StopSoundSource(unsigned int soundSourceId);
 
     protected:
         static size_t s_instanceCount_;
         static ALCdevice* s_devicePtr_;
         static ALCcontext* s_contextPtr_;
 
+        std::deque<unsigned int> recycledSoundBufferIds_;
         std::map<unsigned int, ALuint> soundBufferIdMap_;
-        std::vector<ALuint> soundSourceIds_;
+
+        std::deque<unsigned int> recycledSoundSourceIds_;
+        std::map<unsigned int, ALuint> soundSourceIdMap_;
 
     private:
     };

@@ -1,17 +1,14 @@
 #include "Application.h"
 
-#include <functional>
-#include <thread>
-
-#include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
-#include "Engine/MeshStores.h"
 #include "Engine/Renderer.h"
 #include "Engine/SoundPlayer.h"
-#include "Engine/SoundStores.h"
 #include "Engine/Scene.h"
-#include "Engine/TextureStores.h"
 #include "Engine/Window.h"
+
+
+#include <functional>
+#include <thread>
 
 
 
@@ -41,41 +38,15 @@ namespace Project001
             windowPtr_->SetWindowPosition((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2);
         }
 
-        componentStoresPtr_ = new ComponentStores();
-        meshStoresPtr_ = new MeshStores();
-        soundStoresPtr_ = new SoundStores();
-        textureStoresPtr_ = new TextureStores();
-
         rendererPtr_ = Renderer::Create(windowWidth, windowHeight);
         soundPlayerPtr_ = SoundPlayer::Create();
     }
 
     Application::~Application()
     {
-        if (componentStoresPtr_ != nullptr)
-        {
-            delete componentStoresPtr_;
-        }
-
-        if (meshStoresPtr_ != nullptr)
-        {
-            delete meshStoresPtr_;
-        }
-
-        if (textureStoresPtr_ != nullptr)
-        {
-            delete textureStoresPtr_;
-        }
-
-        if (rendererPtr_ != nullptr)
-        {
-            delete rendererPtr_;
-        }
-
-        if (windowPtr_ != nullptr)
-        {
-            delete windowPtr_;
-        }
+        delete rendererPtr_;
+        delete soundPlayerPtr_;
+        delete windowPtr_;
     }
 
     void Application::AddScene(Scene* scenePtr)

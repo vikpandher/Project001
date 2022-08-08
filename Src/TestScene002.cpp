@@ -5,9 +5,9 @@
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
-#include "Engine/MeshStores.h"
+#include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
-#include "Engine/TextureStores.h"
+#include "Engine/TextureLoader.h"
 #include "Engine/Window.h"
 
 
@@ -34,151 +34,149 @@ void TestScene002::Initialize()
     // Load meshes
     // -------------------------------------------------------------------------
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape01MeshIndex_, 0.64f, 0.48f, 0.32f, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(shape01Mesh_, 0.64f, 0.48f, 0.32f, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape02MeshIndex_, 0.32f, 3, 2));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape03MeshIndex_, 0.32f, 4, 4));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape04MeshIndex_, 0.32f, 8, 8));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape02Mesh_, 0.32f, 3, 2));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape03Mesh_, 0.32f, 4, 4));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape04Mesh_, 0.32f, 8, 8));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape05MeshIndex_, 0.32f, 3, 2, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape06MeshIndex_, 0.32f, 4, 4, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateSphere(shape07MeshIndex_, 0.32f, 8, 8, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape05Mesh_, 0.32f, 3, 2, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape06Mesh_, 0.32f, 4, 4, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(shape07Mesh_, 0.32f, 8, 8, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape08MeshIndex_, 0.64f, 0.64f, 0.64f, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(shape08Mesh_, 0.64f, 0.64f, 0.64f, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape09MeshIndex_, 0.32f, 0));
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape10MeshIndex_, 0.32f, 1));
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape11MeshIndex_, 0.32f, 2));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape09Mesh_, 0.32f, 0));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape10Mesh_, 0.32f, 1));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape11Mesh_, 0.32f, 2));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape12MeshIndex_, 0.32f, 0, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape13MeshIndex_, 0.32f, 1, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateIcosphere(shape14MeshIndex_, 0.32f, 2, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape12Mesh_, 0.32f, 0, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape13Mesh_, 0.32f, 1, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(shape14Mesh_, 0.32f, 2, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape15MeshIndex_, 0.64f, 0.48f, 0.32f));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(shape15Mesh_, 0.64f, 0.48f, 0.32f));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape16MeshIndex_, 0.64f, 0.32f, 3));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape17MeshIndex_, 0.64f, 0.32f, 4));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape18MeshIndex_, 0.64f, 0.32f, 8));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape16Mesh_, 0.64f, 0.32f, 3));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape17Mesh_, 0.64f, 0.32f, 4));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape18Mesh_, 0.64f, 0.32f, 8));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape19MeshIndex_, 0.64f, 0.32f, 3, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape20MeshIndex_, 0.64f, 0.32f, 4, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCylinder(shape21MeshIndex_, 0.64f, 0.32f, 8, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape19Mesh_, 0.64f, 0.32f, 3, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape20Mesh_, 0.64f, 0.32f, 4, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(shape21Mesh_, 0.64f, 0.32f, 8, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape22MeshIndex_, 0.64f, 0.64f, 0.64f));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(shape22Mesh_, 0.64f, 0.64f, 0.64f));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape23MeshIndex_, 0.32f, 0.16f, 3, 1));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape24MeshIndex_, 0.32f, 0.16f, 4, 2));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape25MeshIndex_, 0.32f, 0.16f, 8, 4));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape23Mesh_, 0.32f, 0.16f, 3, 1));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape24Mesh_, 0.32f, 0.16f, 4, 2));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape25Mesh_, 0.32f, 0.16f, 8, 4));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape26MeshIndex_, 0.32f, 0.16f, 3, 1, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape27MeshIndex_, 0.32f, 0.16f, 4, 2, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCapsule(shape28MeshIndex_, 0.32f, 0.16f, 8, 4, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape26Mesh_, 0.32f, 0.16f, 3, 1, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape27Mesh_, 0.32f, 0.16f, 4, 2, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(shape28Mesh_, 0.32f, 0.16f, 8, 4, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateBox(shape29MeshIndex_, 0.32f, 0.32f, 0.32f, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(shape29Mesh_, 0.32f, 0.32f, 0.32f, false));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape30MeshIndex_, 0.64f, 0.32f, 3));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape31MeshIndex_, 0.64f, 0.32f, 4));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape32MeshIndex_, 0.64f, 0.32f, 8));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape30Mesh_, 0.64f, 0.32f, 3));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape31Mesh_, 0.64f, 0.32f, 4));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape32Mesh_, 0.64f, 0.32f, 8));
 
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape33MeshIndex_, 0.64f, 0.32f, 3, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape34MeshIndex_, 0.64f, 0.32f, 4, false));
-    _FAIL_CHECK(meshStoresPtr_->GenerateCone(shape35MeshIndex_, 0.64f, 0.32f, 8, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape33Mesh_, 0.64f, 0.32f, 3, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape34Mesh_, 0.64f, 0.32f, 4, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateCone(shape35Mesh_, 0.64f, 0.32f, 8, false));
 
     // test TurnInsideOut
     if (false)
     {
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape01MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape02MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape03MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape04MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape05MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape06MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape07MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape08MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape09MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape10MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape11MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape12MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape13MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape14MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape15MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape16MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape17MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape18MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape19MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape20MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape21MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape22MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape23MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape24MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape25MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape26MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape27MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape28MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape29MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape30MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape31MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape32MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape33MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape34MeshIndex_));
-        _FAIL_CHECK(meshStoresPtr_->TurnInsideOut(shape35MeshIndex_));
+        Project001::MeshLoader::TurnInsideOut(shape01Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape02Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape03Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape04Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape05Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape06Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape07Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape08Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape09Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape10Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape11Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape12Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape13Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape14Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape15Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape16Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape17Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape18Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape19Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape20Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape21Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape22Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape23Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape24Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape25Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape26Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape27Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape28Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape29Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape30Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape31Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape32Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape33Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape34Mesh_);
+        Project001::MeshLoader::TurnInsideOut(shape35Mesh_);
     }
 
     // test SizeMeshAlongNormals
     if (false)
     {
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape01MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape02MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape03MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape04MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape05MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape06MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape07MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape08MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape09MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape10MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape11MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape12MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape13MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape14MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape15MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape16MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape17MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape18MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape19MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape20MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape21MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape22MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape23MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape24MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape25MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape26MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape27MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape28MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape29MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape30MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape31MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape32MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape33MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape34MeshIndex_, 0.16f));
-        _FAIL_CHECK(meshStoresPtr_->SizeMeshAlongNormals(shape35MeshIndex_, 0.16f));
+        Project001::MeshLoader::SizeMeshAlongNormals(shape01Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape02Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape03Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape04Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape05Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape06Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape07Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape08Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape09Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape10Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape11Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape12Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape13Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape14Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape15Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape16Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape17Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape18Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape19Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape20Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape21Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape22Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape23Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape24Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape25Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape26Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape27Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape28Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape29Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape30Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape31Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape32Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape33Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape34Mesh_, 0.16f);
+        Project001::MeshLoader::SizeMeshAlongNormals(shape35Mesh_, 0.16f);
     }
 
     // Load textures
     // -------------------------------------------------------------------------
 
     {
-        _FAIL_CHECK(textureStoresPtr_->LoadTexture(earthTextureIndex_, "../Textures/earth.png"));
         Project001::TextureData textureData;
-        _FAIL_CHECK(textureStoresPtr_->GetTexture(earthTextureIndex_, textureData));
-        _FAIL_CHECK(rendererPtr_->AddTexture(earthTextureIndex_, 1, textureData.data, textureData.width, textureData.height, textureData.numberOfComponents));
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(earthTextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel));
     }
 
     {
-        _FAIL_CHECK(textureStoresPtr_->LoadTexture(rgb120x60TextureIndex_, "../Textures/120_60_rgb.png"));
         Project001::TextureData textureData;
-        _FAIL_CHECK(textureStoresPtr_->GetTexture(rgb120x60TextureIndex_, textureData));
-        _FAIL_CHECK(rendererPtr_->AddTexture(rgb120x60TextureIndex_, 2, textureData.data, textureData.width, textureData.height, textureData.numberOfComponents));
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/120_60_rgb.png"));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(rgb120x60TextureId_, 2, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel));
     }
 
     // Calculating positions
@@ -203,7 +201,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape01MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape01Mesh_);
     }
 
     // generated shape entity 02
@@ -215,8 +213,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape02EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape02MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape02Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 03
@@ -228,8 +226,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape03EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape03MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape03Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 04
@@ -241,8 +239,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape04EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape04MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape04Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 05
@@ -254,8 +252,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape05EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape05MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape05Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 06
@@ -267,8 +265,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape06EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape06MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape06Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 07
@@ -280,8 +278,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape07EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape07MeshIndex_);
-        renderedModelPtr->SetTextureIndex(earthTextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape07Mesh_);
+        renderedModelPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 08
@@ -293,7 +291,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape08EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape08MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape08Mesh_);
     }
 
     // generated shape entity 09
@@ -305,8 +303,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape09EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape09MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape09Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 10
@@ -318,8 +316,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape10EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape10MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape10Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 11
@@ -331,8 +329,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape11EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape11MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape11Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 12
@@ -344,8 +342,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape12EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape12MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape12Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 13
@@ -357,8 +355,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape13EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape13MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape13Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 14
@@ -370,8 +368,8 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape14EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape14MeshIndex_);
-        renderedModelPtr->SetTextureIndex(rgb120x60TextureIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape14Mesh_);
+        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 15
@@ -383,7 +381,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape15EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape15MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape15Mesh_);
     }
 
     // generated shape entity 16
@@ -395,7 +393,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape16EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape16MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape16Mesh_);
     }
 
     // generated shape entity 17
@@ -407,7 +405,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape17EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape17MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape17Mesh_);
     }
 
     // generated shape entity 18
@@ -419,7 +417,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape18EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape18MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape18Mesh_);
     }
 
     // generated shape entity 19
@@ -431,7 +429,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape19EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape19MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape19Mesh_);
     }
 
     // generated shape entity 20
@@ -443,7 +441,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape20EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape20MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape20Mesh_);
     }
 
     // generated shape entity 21
@@ -455,7 +453,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape21EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape21MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape21Mesh_);
     }
 
     // generated shape entity 22
@@ -467,7 +465,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape22EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape22MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape22Mesh_);
     }
 
     // generated shape entity 23
@@ -479,7 +477,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape23EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape23MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape23Mesh_);
     }
 
     // generated shape entity 24
@@ -491,7 +489,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape24EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape24MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape24Mesh_);
     }
 
     // generated shape entity 25
@@ -503,7 +501,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape25EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape25MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape25Mesh_);
     }
 
     // generated shape entity 26
@@ -515,7 +513,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape26EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape26MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape26Mesh_);
     }
 
     // generated shape entity 27
@@ -527,7 +525,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape27EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape27MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape27Mesh_);
     }
 
     // generated shape entity 28
@@ -539,7 +537,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape28EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape28MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape28Mesh_);
     }
 
     // generated shape entity 29
@@ -551,7 +549,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape29EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape29MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape29Mesh_);
     }
 
     // generated shape entity 30
@@ -563,7 +561,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape30EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape30MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape30Mesh_);
     }
 
     // generated shape entity 31
@@ -575,7 +573,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape31EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape31MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape31Mesh_);
     }
 
     // generated shape entity 32
@@ -587,7 +585,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape32EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape32MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape32Mesh_);
     }
 
     // generated shape entity 33
@@ -599,7 +597,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape33EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape33MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape33Mesh_);
     }
 
     // generated shape entity 34
@@ -611,7 +609,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape34EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape34MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape34Mesh_);
     }
 
     // generated shape entity 35
@@ -623,7 +621,7 @@ void TestScene002::Initialize()
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape35EntityId_, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshIndex(shape35MeshIndex_);
+        renderedModelPtr->SetMeshDataPtr(&shape35Mesh_);
     }
 }
 
@@ -645,44 +643,44 @@ void TestScene002::OnEvent(Project001::Event& event)
 
 void TestScene002::ClearIndiciesAndEntityIds()
 {
-    shape01MeshIndex_ = (unsigned int)-1;
-    shape02MeshIndex_ = (unsigned int)-1;
-    shape03MeshIndex_ = (unsigned int)-1;
-    shape04MeshIndex_ = (unsigned int)-1;
-    shape05MeshIndex_ = (unsigned int)-1;
-    shape06MeshIndex_ = (unsigned int)-1;
-    shape07MeshIndex_ = (unsigned int)-1;
-    shape08MeshIndex_ = (unsigned int)-1;
-    shape09MeshIndex_ = (unsigned int)-1;
-    shape10MeshIndex_ = (unsigned int)-1;
-    shape11MeshIndex_ = (unsigned int)-1;
-    shape12MeshIndex_ = (unsigned int)-1;
-    shape13MeshIndex_ = (unsigned int)-1;
-    shape14MeshIndex_ = (unsigned int)-1;
-    shape15MeshIndex_ = (unsigned int)-1;
-    shape16MeshIndex_ = (unsigned int)-1;
-    shape17MeshIndex_ = (unsigned int)-1;
-    shape18MeshIndex_ = (unsigned int)-1;
-    shape19MeshIndex_ = (unsigned int)-1;
-    shape20MeshIndex_ = (unsigned int)-1;
-    shape21MeshIndex_ = (unsigned int)-1;
-    shape22MeshIndex_ = (unsigned int)-1;
-    shape23MeshIndex_ = (unsigned int)-1;
-    shape24MeshIndex_ = (unsigned int)-1;
-    shape25MeshIndex_ = (unsigned int)-1;
-    shape26MeshIndex_ = (unsigned int)-1;
-    shape27MeshIndex_ = (unsigned int)-1;
-    shape28MeshIndex_ = (unsigned int)-1;
-    shape29MeshIndex_ = (unsigned int)-1;
-    shape30MeshIndex_ = (unsigned int)-1;
-    shape31MeshIndex_ = (unsigned int)-1;
-    shape32MeshIndex_ = (unsigned int)-1;
-    shape33MeshIndex_ = (unsigned int)-1;
-    shape34MeshIndex_ = (unsigned int)-1;
-    shape35MeshIndex_ = (unsigned int)-1;
+    shape01Mesh_.Clear();
+    shape02Mesh_.Clear();
+    shape03Mesh_.Clear();
+    shape04Mesh_.Clear();
+    shape05Mesh_.Clear();
+    shape06Mesh_.Clear();
+    shape07Mesh_.Clear();
+    shape08Mesh_.Clear();
+    shape09Mesh_.Clear();
+    shape10Mesh_.Clear();
+    shape11Mesh_.Clear();
+    shape12Mesh_.Clear();
+    shape13Mesh_.Clear();
+    shape14Mesh_.Clear();
+    shape15Mesh_.Clear();
+    shape16Mesh_.Clear();
+    shape17Mesh_.Clear();
+    shape18Mesh_.Clear();
+    shape19Mesh_.Clear();
+    shape20Mesh_.Clear();
+    shape21Mesh_.Clear();
+    shape22Mesh_.Clear();
+    shape23Mesh_.Clear();
+    shape24Mesh_.Clear();
+    shape25Mesh_.Clear();
+    shape26Mesh_.Clear();
+    shape27Mesh_.Clear();
+    shape28Mesh_.Clear();
+    shape29Mesh_.Clear();
+    shape30Mesh_.Clear();
+    shape31Mesh_.Clear();
+    shape32Mesh_.Clear();
+    shape33Mesh_.Clear();
+    shape34Mesh_.Clear();
+    shape35Mesh_.Clear();
 
-    earthTextureIndex_ = (unsigned int)-1;
-    rgb120x60TextureIndex_ = (unsigned int)-1;
+    earthTextureId_ = (unsigned int)-1;
+    rgb120x60TextureId_ = (unsigned int)-1;
 
     shape01EntityId_ = (unsigned int)-1;
     shape02EntityId_ = (unsigned int)-1;

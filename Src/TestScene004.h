@@ -5,8 +5,11 @@
 #include <vector>
 
 
+
 namespace Project001
 {
+    struct MeshData;
+
     struct KeyEvent;
 }
 
@@ -32,13 +35,13 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Mesh Indicies: ----------------------------------------------------------
+    // Mesh Data: --------------------------------------------------------------
 
-    std::vector<unsigned int> meshIndicies_;
+    std::vector<Project001::MeshData*> meshDataPtrArray_;
 
-    // Texture Indicies: -------------------------------------------------------
+    // Texture Ids: ------------------------------------------------------------
 
-    unsigned int _32x32_123abc_TextureIndex_;
+    unsigned int _32x32_123abc_TextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 

@@ -17,7 +17,7 @@ namespace Project001
         template <typename Component, typename... Args>
         bool CreateComponent(const unsigned int entityId, Args... args)
         {
-            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            size_t componentTypeId = typeid(Component).hash_code();
             if (componentMemory_.empty())
             {
                 typeId_ = componentTypeId;
@@ -54,7 +54,7 @@ namespace Project001
         template <typename Component>
         bool GetAllComponents(Component*& componentPtrs, size_t& count)
         {
-            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            size_t componentTypeId = typeid(Component).hash_code();
             if (!TypeIdValid(componentTypeId))
             {
                 count = 0;
@@ -70,7 +70,7 @@ namespace Project001
         template <typename Component>
         bool GetComponent(const unsigned int entityId, Component*& componentPtr)
         {
-            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            size_t componentTypeId = typeid(Component).hash_code();
             if (!TypeIdValid(componentTypeId) || !ComponentExists(entityId))
             {
                 return false;
@@ -84,7 +84,7 @@ namespace Project001
         template <typename Component>
         bool GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId)
         {
-            unsigned componentTypeId = (unsigned int)typeid(Component).hash_code();
+            size_t componentTypeId = typeid(Component).hash_code();
             if (!TypeIdValid(componentTypeId))
             {
                 return false;
@@ -123,7 +123,7 @@ namespace Project001
             return entityId < entityIdToComponentMemoryIndicies_.size() && entityIdToComponentMemoryIndicies_[entityId] >= 0;
         }
 
-        inline bool TypeIdValid(int testTypeId) const
+        inline bool TypeIdValid(size_t testTypeId) const
         {
             return typeId_ == testTypeId;
         }
@@ -131,7 +131,7 @@ namespace Project001
         // This is the typeId of the components stored.
         // It's used to ensure the "ComponentContainer" only
         // contains one type of component at a time.
-        unsigned int typeId_;
+        size_t typeId_;
 
         // This is required when deleting components and not knowing the type.
         size_t componentSize_;

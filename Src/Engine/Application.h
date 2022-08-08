@@ -7,12 +7,8 @@
 
 namespace Project001
 {
-    class ComponentStores;
-    class MeshStores;
     class Renderer;
     class SoundPlayer;
-    class SoundStores;
-    class TextureStores;
     class Window;
 
     struct Event;
@@ -54,12 +50,6 @@ namespace Project001
         bool running_;
 
         Window* windowPtr_;
-
-        ComponentStores* componentStoresPtr_;
-        MeshStores* meshStoresPtr_;
-        SoundStores* soundStoresPtr_;
-        TextureStores* textureStoresPtr_;
-
         Renderer* rendererPtr_;
         SoundPlayer* soundPlayerPtr_;
 

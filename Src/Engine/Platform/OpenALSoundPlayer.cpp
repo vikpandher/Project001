@@ -39,8 +39,8 @@ namespace Project001
 
     OpenALSoundPlayer::~OpenALSoundPlayer()
     {
-        RemoveAllSoundSources();
-        RemoveAllSoundBuffers();
+        DeleteAllSoundSources();
+        DeleteAllSoundBuffers();
 
         if (s_instanceCount_ == 1)
         {
@@ -95,34 +95,16 @@ namespace Project001
         return true;
     }
 
-    void OpenALSoundPlayer::RemoveAllSoundBuffers()
-    {
-        std::map<unsigned int, ALuint>::iterator iter;
-        for (iter = soundBufferIdMap_.begin(); iter != soundBufferIdMap_.end(); ++iter)
-        {
-            ALuint currentBufferId = iter->second;
-
-            alDeleteBuffers(1, &currentBufferId);
-            alCheckError();
-        }
-        soundBufferIdMap_.clear();
-    }
-
     bool OpenALSoundPlayer::CreateSoundBuffer(
-        unsigned int soundBufferIndex,
+        unsigned int& soundBufferId,
         void* data,
         int numberOfChannels,
         int sampleRate,
         int bitsPerSample,
         int size)
     {
-        if (soundBufferIdMap_.find(soundBufferIndex) != soundBufferIdMap_.end())
-        {
-            return false;
-        }
-
-        ALuint soundBufferId;
-        alGenBuffers(1, &soundBufferId);
+        ALuint al_soundBufferId;
+        alGenBuffers(1, &al_soundBufferId);
         if (alCheckError())
         {
             return false;
@@ -156,52 +138,98 @@ namespace Project001
         // }
         else
         {
-            alDeleteBuffers(1, &soundBufferId);
+            alDeleteBuffers(1, &al_soundBufferId);
             alLogError();
 
             return false;
         }
 
-        alBufferData(soundBufferId, format, data, size, sampleRate);
+        alBufferData(al_soundBufferId, format, data, size, sampleRate);
         if (alCheckError())
         {
             return false;
         }
 
-        soundBufferIdMap_[soundBufferIndex] = soundBufferId;
+        if (recycledSoundBufferIds_.empty())
+        {
+            soundBufferId = (unsigned int)soundBufferIdMap_.size();
+        }
+        else
+        {
+            soundBufferId = recycledSoundBufferIds_.front();
+            recycledSoundBufferIds_.pop_front();
+        }
+
+        soundBufferIdMap_[soundBufferId] = al_soundBufferId;
 
         return true;
     }
 
-    bool OpenALSoundPlayer::CreateSoundSource(unsigned int& soundSourceIndex)
+    bool OpenALSoundPlayer::DeleteSoundBuffer(unsigned int soundBufferId)
     {
-        ALuint soundSourceId;
-        alGenSources(1, &soundSourceId);
+        if (soundBufferIdMap_.find(soundBufferId) != soundBufferIdMap_.end())
+        {
+            alDeleteBuffers(1, &soundBufferIdMap_[soundBufferId]);
+            recycledSoundBufferIds_.push_back(soundBufferId);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void OpenALSoundPlayer::DeleteAllSoundBuffers()
+    {
+        std::map<unsigned int, ALuint>::iterator iter;
+        for (iter = soundBufferIdMap_.begin(); iter != soundBufferIdMap_.end(); ++iter)
+        {
+            ALuint currentSoundBufferId = iter->second;
+            alDeleteBuffers(1, &currentSoundBufferId);
+            alCheckError();
+        }
+        soundBufferIdMap_.clear();
+        recycledSoundBufferIds_.clear();
+    }
+
+    bool OpenALSoundPlayer::CreateSoundSource(unsigned int& soundSourceId)
+    {
+        ALuint al_soundSourceId;
+        alGenSources(1, &al_soundSourceId);
         if (alCheckError())
         {
             return false;
         }
 
-        soundSourceIds_.push_back(soundSourceId);
-        soundSourceIndex = (unsigned int)(soundSourceIds_.size() - 1);
+        if (recycledSoundSourceIds_.empty())
+        {
+            soundSourceId = (unsigned int)soundSourceIdMap_.size();
+        }
+        else
+        {
+            soundSourceId = recycledSoundSourceIds_.front();
+            recycledSoundSourceIds_.pop_front();
+        }
+
+        soundSourceIdMap_[soundSourceId] = al_soundSourceId;
 
         return true;
     }
 
     bool OpenALSoundPlayer::LinkSoundBufferToSoundSource(
-        unsigned int soundBufferIndex,
-        unsigned int soundSourceIndex)
+        unsigned int soundBufferId,
+        unsigned int soundSourceId)
     {
-        if (soundSourceIndex > soundSourceIds_.size() - 1 ||
-            soundBufferIdMap_.find(soundBufferIndex) == soundBufferIdMap_.end())
+        if (soundBufferIdMap_.find(soundBufferId) == soundBufferIdMap_.end() ||
+            soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
         {
             return false;
         }
 
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
-        ALuint soundBufferId = soundBufferIdMap_[soundBufferIndex];
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
+        ALuint al_soundBufferId = soundBufferIdMap_[soundBufferId];
 
-        alSourcei(soundSourceId, AL_BUFFER, soundBufferId);
+        alSourcei(al_soundSourceId, AL_BUFFER, al_soundBufferId);
         if (alCheckError())
         {
             return false;
@@ -211,69 +239,41 @@ namespace Project001
     }
 
     bool OpenALSoundPlayer::UpdateSoundSource(
-        unsigned int soundSourceIndex,
+        unsigned int soundSourceId,
         const glm::vec3& position,
         const glm::vec3& velocity,
         float pitch,
         float gain,
         bool loop)
     {
-        if (soundSourceIndex > soundSourceIds_.size() - 1)
+        if (soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
         {
             return false;
         }
 
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
 
-        alSource3f(soundSourceId, AL_POSITION, position.x, position.y, position.z);
+        alSource3f(al_soundSourceId, AL_POSITION, position.x, position.y, position.z);
         if (alCheckError())
         {
             return false;
         }
-        alSource3f(soundSourceId, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
+        alSource3f(al_soundSourceId, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
         if (alCheckError())
         {
             return false;
         }
-        alSourcef(soundSourceId, AL_PITCH, pitch);
+        alSourcef(al_soundSourceId, AL_PITCH, pitch);
         if (alCheckError())
         {
             return false;
         }
-        alSourcef(soundSourceId, AL_GAIN, gain);
+        alSourcef(al_soundSourceId, AL_GAIN, gain);
         if (alCheckError())
         {
             return false;
         }
-        alSourcei(soundSourceId, AL_LOOPING, loop);
-        if (alCheckError())
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    void OpenALSoundPlayer::RemoveAllSoundSources()
-    {
-        for (size_t i = 0; i < soundSourceIds_.size(); ++i)
-        {
-            ALuint soundSourceId = soundSourceIds_[i];
-            alDeleteSources(1, &soundSourceId);
-        }
-        soundSourceIds_.clear();
-    }
-
-    bool OpenALSoundPlayer::PlaySoundSource(unsigned int soundSourceIndex)
-    {
-        if (soundSourceIndex > soundSourceIds_.size() - 1)
-        {
-            return false;
-        }
-
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
-
-        alSourcePlay(soundSourceId);
+        alSourcei(al_soundSourceId, AL_LOOPING, loop);
         if (alCheckError())
         {
             return false;
@@ -282,16 +282,43 @@ namespace Project001
         return true;
     }
 
-    bool OpenALSoundPlayer::PauseSoundSource(unsigned int soundSourceIndex)
+    bool OpenALSoundPlayer::DeleteSoundSource(unsigned int soundSourceId)
     {
-        if (soundSourceIndex > soundSourceIds_.size() - 1)
+        if (soundSourceIdMap_.find(soundSourceId) != soundSourceIdMap_.end())
+        {
+            alDeleteSources(1, &soundSourceIdMap_[soundSourceId]);
+            recycledSoundSourceIds_.push_back(soundSourceId);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void OpenALSoundPlayer::DeleteAllSoundSources()
+    {
+        std::map<unsigned int, ALuint>::iterator iter;
+        for (iter = soundSourceIdMap_.begin(); iter != soundSourceIdMap_.end(); ++iter)
+        {
+            ALuint currentSoundSourceId = iter->second;
+            alDeleteSources(1, &currentSoundSourceId);
+            alCheckError();
+        }
+        soundSourceIdMap_.clear();
+        recycledSoundSourceIds_.clear();
+    }
+
+    bool OpenALSoundPlayer::PlaySoundSource(unsigned int soundSourceId)
+    {
+        if (soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
         {
             return false;
         }
 
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
 
-        alSourcePause(soundSourceId);
+        alSourcePlay(al_soundSourceId);
         if (alCheckError())
         {
             return false;
@@ -300,16 +327,16 @@ namespace Project001
         return true;
     }
 
-    bool OpenALSoundPlayer::RewindSoundSource(unsigned int soundSourceIndex)
+    bool OpenALSoundPlayer::PauseSoundSource(unsigned int soundSourceId)
     {
-        if (soundSourceIndex > soundSourceIds_.size() - 1)
+        if (soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
         {
             return false;
         }
 
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
 
-        alSourceRewind(soundSourceId);
+        alSourcePause(al_soundSourceId);
         if (alCheckError())
         {
             return false;
@@ -318,16 +345,34 @@ namespace Project001
         return true;
     }
 
-    bool OpenALSoundPlayer::StopSoundSource(unsigned int soundSourceIndex)
+    bool OpenALSoundPlayer::RewindSoundSource(unsigned int soundSourceId)
     {
-        if (soundSourceIndex > soundSourceIds_.size() - 1)
+        if (soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
         {
             return false;
         }
 
-        ALuint soundSourceId = soundSourceIds_[soundSourceIndex];
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
 
-        alSourceStop(soundSourceId);
+        alSourceRewind(al_soundSourceId);
+        if (alCheckError())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool OpenALSoundPlayer::StopSoundSource(unsigned int soundSourceId)
+    {
+        if (soundSourceIdMap_.find(soundSourceId) == soundSourceIdMap_.end())
+        {
+            return false;
+        }
+
+        ALuint al_soundSourceId = soundSourceIdMap_[soundSourceId];
+
+        alSourceStop(al_soundSourceId);
         if (alCheckError())
         {
             return false;
