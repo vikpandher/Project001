@@ -4,7 +4,6 @@
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
-#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -36,14 +35,24 @@ void TestScene005::Initialize()
     // -------------------------------------------------------------------------
 
     {
-        std::vector<unsigned char> characterList;
-        for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-        {
-            characterList.push_back(c);
-        }
-        _FAIL_CHECK(Project001::FreetypeTextLoader::GenerateTexture(fontTextureData_, fontData_, characterList, "../Fonts/Antonio-Regular.ttf", 48));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(fontTextureId_, 1, fontTextureData_.data, fontTextureData_.width, fontTextureData_.height, fontTextureData_.bytesPerPixel));
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel));
     }
+
+    // Calculating positions
+    // -------------------------------------------------------------------------
+
+    std::vector<glm::vec3> modelEntityPositions;
+    modelEntityPositions.emplace_back(0.0f, 0.0f, 0.0f);
+    // for (int i = 2; i >= -2; --i)
+    // {
+    //     for (int j = -3; j <= 3; ++j)
+    //     {
+    //         modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+    //     }
+    // }
+    size_t positionPosition = 0;
 
     // generated shape entity 01
     // -------------------------------------------------------------------------
@@ -51,67 +60,27 @@ void TestScene005::Initialize()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
-        float width = 0.005f * fontTextureData_.width;
-        float height = 0.005f * fontTextureData_.height;
-        positions.emplace_back(0.5f * width, 0.5f * height);
-        positions.emplace_back(-0.5f * width, 0.5f * height);
-        positions.emplace_back(-0.5f * width, -0.5f * height);
-        positions.emplace_back(0.5f * width, -0.5f * height);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, positions));
-        std::vector<glm::vec2> textureCoordinates;
-        textureCoordinates.emplace_back(1.0f, 1.0f);
-        textureCoordinates.emplace_back(0.0f, 1.0f);
-        textureCoordinates.emplace_back(0.0f, 0.0f);
-        textureCoordinates.emplace_back(1.0f, 0.0f);
-        Project001::MeshLoader::ApplyTextureCoordinates(*newMeshDataPtr, textureCoordinates);
+        positions.emplace_back(0.0f, 0.0f);
+        positions.emplace_back(0.32f, 0.0f);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine_v2(*newMeshDataPtr, positions, 0.08f, 4));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        // _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*tempMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
+
+        // _LOG_MESSAGE("VertexCount = %i, IndexCount = %i", newMeshData.vertexCount, newMeshData.indexCount);
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 2.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
-    }
-
-    // generated shape entity 02
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        const Project001::GlyphMetrics& currentGlyph = fontData_.glyphMetricsMap['A'];
-        float width = 0.005f * currentGlyph.width_px;
-        float height = 0.005f * currentGlyph.height_px;
-        std::vector<glm::vec2> positions;
-        positions.emplace_back(0.5f * width, 0.5f * height);
-        positions.emplace_back(-0.5f * width, 0.5f * height);
-        positions.emplace_back(-0.5f * width, -0.5f * height);
-        positions.emplace_back(0.5f * width, -0.5f * height);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, positions));
-        std::vector<glm::vec2> textureCoordinates;
-        const float& textureBottom = currentGlyph.textureBottomLeft.y;
-        const float& textureLeft = currentGlyph.textureBottomLeft.x;
-        const float& textureTop = currentGlyph.textureTopRight.y;
-        const float& textureRight = currentGlyph.textureTopRight.x;
-        textureCoordinates.emplace_back(textureRight, textureTop);
-        textureCoordinates.emplace_back(textureLeft, textureTop);
-        textureCoordinates.emplace_back(textureLeft, textureBottom);
-        textureCoordinates.emplace_back(textureRight, textureBottom);
-        Project001::MeshLoader::ApplyTextureCoordinates(*newMeshDataPtr, textureCoordinates);
-
-        unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
-        entityIds_.push_back(tempEntityId);
+        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 1.0f, 0.0f);
+        renderedModelPtr->SetPosition(currentPosition);
         renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
+        renderedModelPtr->SetTextureId(_32x32_123abc_TextureId_);
     }
 }
 
@@ -139,11 +108,7 @@ void TestScene005::ClearIndiciesAndEntityIds()
     }
     meshDataPtrArray_.clear();
 
-    fontData_.Clear();
-
-    fontTextureData_.Clear();
-
-    fontTextureId_ = (unsigned int)-1;
+    _32x32_123abc_TextureId_ = (unsigned int)-1;
 
     entityIds_.clear();
 }
@@ -158,11 +123,11 @@ void TestScene005::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene010"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene006"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene010"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene006"));
             }
         }
     }

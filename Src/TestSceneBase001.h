@@ -2,6 +2,8 @@
 
 #include "Engine/Scene.h"
 
+#include "glm/glm.hpp"
+
 
 
 namespace Project001
@@ -25,6 +27,8 @@ public:
     TestSceneBase001(TestSceneBase001& other) = delete;
     void operator=(const TestSceneBase001&) = delete;
 
+    const char* Name() override;
+
     void Initialize() override;
 
     void Deinitialize() override;
@@ -43,24 +47,26 @@ protected:
 
     void UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns);
 
-    void SyncComponentPositions();
+    void SyncLightSourcePosition();
 
-    void DeleteDeadEntities();
-
-    // Pointers from Application: ----------------------------------------------
+    // -------------------------------------------------------------------------
 
     Project001::Window* windowPtr_;
 
-    Project001::ComponentStores* componentStoresPtr_;
-
     Project001::Renderer* rendererPtr_;
+
     Project001::SoundPlayer* soundPlayerPtr_;
+
+    Project001::ComponentStores* componentStoresPtr_;
 
     // Entity Ids: -------------------------------------------------------------
 
-    unsigned int sceneDataEntityId_;
     unsigned int mainCameraEntityId_;
     unsigned int lightSourceEntityId_;
+
+    // Scene Data: -------------------------------------------------------------
+
+    glm::vec2 previousWorldCursorDownPosition_;
 
 private:
 };

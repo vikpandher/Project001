@@ -35,6 +35,7 @@ protected:
 
     // Mesh Data: --------------------------------------------------------------
 
+    Project001::MeshData cubeMesh_;
     Project001::MeshData shape01Mesh_;
     Project001::MeshData shape02Mesh_;
     Project001::MeshData shape03Mesh_;
@@ -63,21 +64,26 @@ protected:
     Project001::MeshData shape26Mesh_;
     Project001::MeshData shape27Mesh_;
     Project001::MeshData shape28Mesh_;
-    Project001::MeshData shape29Mesh_;
-    Project001::MeshData shape30Mesh_;
-    Project001::MeshData shape31Mesh_;
-    Project001::MeshData shape32Mesh_;
-    Project001::MeshData shape33Mesh_;
-    Project001::MeshData shape34Mesh_;
-    Project001::MeshData shape35Mesh_;
 
     // Texture Ids: ------------------------------------------------------------
 
-    unsigned int earthTextureId_;
-    unsigned int rgb120x60TextureId_;
+    unsigned int dice01TextureId_;
+    unsigned int dice02TextureId_;
+    unsigned int thonkTextureId_;
+    unsigned int _100x100TextureId_;
+    unsigned int patternSpecular01TextureId_;
+    unsigned int patternSpecular02TextureId_;
+    unsigned int thonkSpecularTextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 
+    unsigned int cubeEntity01Id_;
+    unsigned int cubeEntity02Id_;
+    unsigned int cubeEntity03Id_;
+    unsigned int cubeEntity04Id_;
+    unsigned int cubeEntity05Id_;
+    unsigned int cubeEntity06Id_;
+    unsigned int cubeEntity07Id_;
     unsigned int shape01EntityId_;
     unsigned int shape02EntityId_;
     unsigned int shape03EntityId_;
@@ -106,13 +112,11 @@ protected:
     unsigned int shape26EntityId_;
     unsigned int shape27EntityId_;
     unsigned int shape28EntityId_;
-    unsigned int shape29EntityId_;
-    unsigned int shape30EntityId_;
-    unsigned int shape31EntityId_;
-    unsigned int shape32EntityId_;
-    unsigned int shape33EntityId_;
-    unsigned int shape34EntityId_;
-    unsigned int shape35EntityId_;
 
 private:
+    void BiMapTest() const;
+    void ComponentContainerTest() const;
+    void ComponentStoresTest() const;
+    void MeshLoaderTest() const;
+    void TextureLoaderTest() const;
 };

@@ -10,6 +10,11 @@ namespace Project001
         : applicationPtr_(nullptr)
     {}
 
+    ComponentStores* Scene::GetApplicaitonComponentStoresPtr()
+    {
+        return applicationPtr_->componentStoresPtr_;
+    }
+
     Renderer* Scene::GetApplicationRendererPtr()
     {
         return applicationPtr_->rendererPtr_;

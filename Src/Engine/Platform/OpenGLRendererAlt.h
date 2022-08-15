@@ -121,6 +121,7 @@ namespace Project001
         bool GetStalestTextureUnit(unsigned int& textureUnit) const;
         void IncreaseTectureUnitStaleness();
 
+        static const bool s_cullBackface = false;
         static const bool s_drawWireframe = true;
         static const bool s_drawNormals = true;
 

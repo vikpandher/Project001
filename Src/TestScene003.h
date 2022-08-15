@@ -73,41 +73,8 @@ protected:
 
     // Texture Ids: ------------------------------------------------------------
 
-    unsigned int _32x32_00_TextureId_;
-    unsigned int _32x32_01_TextureId_;
-    unsigned int _32x32_02_TextureId_;
-    unsigned int _32x32_03_TextureId_;
-    unsigned int _32x32_04_TextureId_;
-    unsigned int _32x32_05_TextureId_;
-    unsigned int _32x32_06_TextureId_;
-    unsigned int _32x32_07_TextureId_;
-    unsigned int _32x32_08_TextureId_;
-    unsigned int _32x32_09_TextureId_;
-    unsigned int _32x32_10_TextureId_;
-    unsigned int _32x32_11_TextureId_;
-    unsigned int _32x32_12_TextureId_;
-    unsigned int _32x32_13_TextureId_;
-    unsigned int _32x32_14_TextureId_;
-    unsigned int _32x32_15_TextureId_;
-    unsigned int _32x32_16_TextureId_;
-    unsigned int _32x32_17_TextureId_;
-    unsigned int _32x32_18_TextureId_;
-    unsigned int _32x32_19_TextureId_;
-    unsigned int _32x32_20_TextureId_;
-    unsigned int _32x32_21_TextureId_;
-    unsigned int _32x32_22_TextureId_;
-    unsigned int _32x32_23_TextureId_;
-    unsigned int _32x32_24_TextureId_;
-    unsigned int _32x32_25_TextureId_;
-    unsigned int _32x32_26_TextureId_;
-    unsigned int _32x32_27_TextureId_;
-    unsigned int _32x32_28_TextureId_;
-    unsigned int _32x32_29_TextureId_;
-    unsigned int _32x32_30_TextureId_;
-    unsigned int _32x32_31_TextureId_;
-    unsigned int _32x32_32_TextureId_;
-    unsigned int _32x32_33_TextureId_;
-    unsigned int _32x32_34_TextureId_;
+    unsigned int earthTextureId_;
+    unsigned int rgb120x60TextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 

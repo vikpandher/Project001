@@ -14,6 +14,8 @@ namespace Project001
 
         ~ComponentContainer();
 
+        // Note that creating a Component voids all previously aquired Component
+        // ptrs.
         template <typename Component, typename... Args>
         bool CreateComponent(const unsigned int entityId, Args... args)
         {
@@ -52,7 +54,7 @@ namespace Project001
         }
 
         template <typename Component>
-        bool GetAllComponents(Component*& componentPtrs, size_t& count)
+        bool GetAllComponents(Component*& componentPtr, size_t& count)
         {
             size_t componentTypeId = typeid(Component).hash_code();
             if (!TypeIdValid(componentTypeId))
@@ -61,7 +63,7 @@ namespace Project001
                 return false;
             }
 
-            componentPtrs = (Component*)componentMemory_.data();
+            componentPtr = (Component*)componentMemory_.data();
             count = componentMemory_.size() / sizeof(Component);
 
             return true;

@@ -7,6 +7,7 @@
 
 namespace Project001
 {
+    class ComponentStores;
     class Renderer;
     class SoundPlayer;
     class Window;
@@ -32,6 +33,8 @@ namespace Project001
         virtual void OnEvent(Event& event) = 0;
 
     protected:
+        ComponentStores* GetApplicaitonComponentStoresPtr();
+
         Renderer* GetApplicationRendererPtr();
 
         SoundPlayer* GetApplicationSoundPlayerPtr();

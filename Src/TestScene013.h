@@ -56,13 +56,13 @@ protected:
 
     void Sync_RenderedModel_CollisionBody_Components();
 
-    // Pointers from Application: ----------------------------------------------
+    // -------------------------------------------------------------------------
 
     Project001::Window* windowPtr_;
 
-    Project001::ComponentStores* componentStoresPtr_;
-
     Project001::Renderer* rendererPtr_;
+
+    Project001::ComponentStores* componentStoresPtr_;
 
     // Mesh Data: --------------------------------------------------------------
 

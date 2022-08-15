@@ -29,6 +29,8 @@ namespace Project001
 
         // Component Functions: ------------------------------------------------
 
+        // Note that creating a Component voids all previously aquired Component
+        // ptrs.
         template <typename Component, typename... Args>
         bool CreateComponent(unsigned int entityId, Args... args)
         {

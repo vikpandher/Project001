@@ -7,6 +7,7 @@
 
 namespace Project001
 {
+    class ComponentStores;
     class Renderer;
     class SoundPlayer;
     class Window;
@@ -52,6 +53,7 @@ namespace Project001
         Window* windowPtr_;
         Renderer* rendererPtr_;
         SoundPlayer* soundPlayerPtr_;
+        ComponentStores* componentStoresPtr_;
 
         Scene* activeScenePtr_;
         std::map<std::string, Scene*> sceneMap_;

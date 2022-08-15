@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Renderer.h"
 #include "Engine/SoundPlayer.h"
@@ -40,12 +41,14 @@ namespace Project001
 
         rendererPtr_ = Renderer::Create(windowWidth, windowHeight);
         soundPlayerPtr_ = SoundPlayer::Create();
+        componentStoresPtr_ = new ComponentStores();
     }
 
     Application::~Application()
     {
-        delete rendererPtr_;
+        delete componentStoresPtr_;
         delete soundPlayerPtr_;
+        delete rendererPtr_;
         delete windowPtr_;
     }
 

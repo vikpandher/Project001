@@ -42,7 +42,7 @@ public:
 protected:
     void ClearResources();
 
-    void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent);
+    void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
@@ -56,13 +56,13 @@ protected:
 
     void Sync_RenderedModel_CollisionBody_Components();
 
-    // Pointers from Application: ----------------------------------------------
+    // -------------------------------------------------------------------------
 
     Project001::Window* windowPtr_;
 
-    Project001::ComponentStores* componentStoresPtr_;
-
     Project001::Renderer* rendererPtr_;
+
+    Project001::ComponentStores* componentStoresPtr_;
 
     // Mesh Data: --------------------------------------------------------------
 

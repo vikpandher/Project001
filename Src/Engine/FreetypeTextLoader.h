@@ -5,6 +5,7 @@
 #include "Engine/TextureData.h"
 
 #include <map>
+#include <string>
 
 
 
@@ -13,21 +14,24 @@ namespace Project001
     class FreetypeTextLoader
     {
     public:
-        static bool GenerateTexture(
+        static bool LoadTexture(
             TextureData& textureData,
             FontData& fontData,
             std::vector<unsigned char> characterList,
             const char* fontPath,
             unsigned int fontHeightInPixels = 48);
 
-        // TODO: 
-        static bool GenerateMesh(
+        static bool LoadMesh(
             MeshData& meshData,
             FontData& fontData,
-            float pixelSize = 0.01f);
+            const std::string& text,
+            float pixelSize = 0.01f,
+            bool centeredLines = false,
+            bool trangulate = s_triangulate);
 
     protected:
         static const bool s_flipVerticalyOnLoad = true;
+        static const bool s_triangulate = false;
 
     private:
     };

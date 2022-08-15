@@ -2,6 +2,10 @@
 
 #include "TestSceneBase001.h"
 
+#include "Engine/FontData.h"
+#include "Engine/TextureData.h"
+
+#include <map>
 #include <vector>
 
 
@@ -13,14 +17,14 @@ namespace Project001
     struct KeyEvent;
 }
 
-class TestScene005 : public TestSceneBase001
+class TestScene006 : public TestSceneBase001
 {
 public:
-    TestScene005();
-    ~TestScene005();
+    TestScene006();
+    ~TestScene006();
 
-    TestScene005(TestScene005& other) = delete;
-    void operator=(const TestScene005&) = delete;
+    TestScene006(TestScene006& other) = delete;
+    void operator=(const TestScene006&) = delete;
 
     const char* Name() override;
 
@@ -39,9 +43,17 @@ protected:
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
+    // Font Data: --------------------------------------------------------------
+
+    Project001::FontData fontData_;
+
+    // Texture Data: -----------------------------------------------------------
+
+    Project001::TextureData fontTextureData_;
+
     // Texture Ids: ------------------------------------------------------------
 
-    unsigned int _32x32_123abc_TextureId_;
+    unsigned int fontTextureId_;
 
     // Entity Ids: -------------------------------------------------------------
 

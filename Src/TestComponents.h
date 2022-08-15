@@ -8,7 +8,7 @@ struct TestComponent00
 {
     TestComponent00(int a, int b, int c);
 
-    inline int GetSum()
+    inline int GetSum() const
     {
         return a + b + c;
     }

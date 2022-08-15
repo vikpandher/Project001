@@ -11,7 +11,7 @@ set(CMAKE_GLAD_FILES "C:/Users/vikpa/Documents/Dev/glad")
 set(CMAKE_GLFW_REPO "C:/Users/vikpa/Documents/Dev/glfw")
 # https://github.com/g-truc/glm.git
 set(CMAKE_GLM_REPO "C:/Users/vikpa/Documents/Dev/glm")
-# https://github.com/kcat/openal-soft
+# https://github.com/kcat/openal-soft.git
 set(CMAKE_OPENAL_REPO "C:/Users/vikpa/Documents/Dev/openal-soft")
 # https://github.com/nothings/stb.git
 set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
@@ -36,12 +36,8 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 set(SOURCE_FILES
     "Src/Main.cpp"
-    "Src/DeathFlag.cpp"
-    "Src/DeathFlag.h"
     "Src/TestComponents.cpp"
     "Src/TestComponents.h"
-    "Src/TestScene001.cpp"
-    "Src/TestScene001.h"
     "Src/TestScene002.cpp"
     "Src/TestScene002.h"
     "Src/TestScene003.cpp"
@@ -50,6 +46,8 @@ set(SOURCE_FILES
     "Src/TestScene004.h"
     "Src/TestScene005.cpp"
     "Src/TestScene005.h"
+    "Src/TestScene006.cpp"
+    "Src/TestScene006.h"
     "Src/TestScene010.cpp"
     "Src/TestScene010.h"
     "Src/TestScene011.cpp"
@@ -64,8 +62,6 @@ set(SOURCE_FILES
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
     "Src/TestSceneBase002.h"
-    "Src/TestSceneData.cpp"
-    "Src/TestSceneData.h"
 )
 
 source_group("Src" FILES ${SOURCE_FILES})

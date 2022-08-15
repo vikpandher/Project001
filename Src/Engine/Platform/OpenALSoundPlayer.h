@@ -35,8 +35,10 @@ namespace Project001
             int bitsPerSample,
             int size);
 
+        // Buffers attached to Sources cannot be deleted!
         bool DeleteSoundBuffer(unsigned int soundBufferId);
 
+        // Buffers attached to Sources cannot be deleted!
         void DeleteAllSoundBuffers();
 
         bool CreateSoundSource(unsigned int& soundSourceId);

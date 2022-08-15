@@ -411,7 +411,6 @@ namespace Project001
         glDepthMask(GL_TRUE);
 
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -540,6 +539,12 @@ namespace Project001
             glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * indexBuffer_.size(), &indexBuffer_[0]);
         }
 
+        if (!s_cullBackface)
+        {
+            glCullFace(GL_FRONT);
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+        glCullFace(GL_BACK);
         glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
 
 

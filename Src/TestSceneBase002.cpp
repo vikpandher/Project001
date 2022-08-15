@@ -21,14 +21,11 @@ TestSceneBase002::TestSceneBase002()
     : cursorGrabbingEntity_(false)
     , previousWorldCursorDownPosition_(0.0f, 0.0f)
 {
-    componentStoresPtr_ = new Project001::ComponentStores();
     ClearResources();
 }
 
 TestSceneBase002::~TestSceneBase002()
-{
-    delete componentStoresPtr_;
-}
+{}
 
 const char* TestSceneBase002::Name()
 {
@@ -43,6 +40,8 @@ void TestSceneBase002::Initialize()
 
     rendererPtr_ = GetApplicationRendererPtr();
     rendererPtr_->SetDepthTesting(false);
+
+    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // main camera entity
     // -------------------------------------------------------------------------
@@ -73,9 +72,8 @@ void TestSceneBase002::Initialize()
 
 void TestSceneBase002::Deinitialize()
 {
-    componentStoresPtr_->DeleteAllEntities();
     rendererPtr_->DeleteAllTextures();
-
+    componentStoresPtr_->DeleteAllEntities();
     ClearResources();
 }
 
@@ -106,11 +104,11 @@ void TestSceneBase002::ClearResources()
     entityIds_.clear();
 }
 
-void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
+void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
 {
     if (cursorGrabbingEntity_)
     {
-        glm::vec2 cursorPosition(cursorButtonEvent.xPosition, cursorButtonEvent.yPosition);
+        glm::vec2 cursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
         int windowWidth, windowHeight;
         windowPtr_->GetWindowSize(windowWidth, windowHeight);
@@ -146,7 +144,7 @@ void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEven
         }
     }
 
-    cursorButtonEvent.handled = true;
+    cursorPositionEvent.handled = true;
 }
 
 void TestSceneBase002::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)

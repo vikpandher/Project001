@@ -170,6 +170,7 @@ namespace Project001
         if (soundBufferIdMap_.find(soundBufferId) != soundBufferIdMap_.end())
         {
             alDeleteBuffers(1, &soundBufferIdMap_[soundBufferId]);
+            alLogError();
             recycledSoundBufferIds_.push_back(soundBufferId);
             return true;
         }
@@ -186,7 +187,7 @@ namespace Project001
         {
             ALuint currentSoundBufferId = iter->second;
             alDeleteBuffers(1, &currentSoundBufferId);
-            alCheckError();
+            alLogError();
         }
         soundBufferIdMap_.clear();
         recycledSoundBufferIds_.clear();
@@ -287,6 +288,7 @@ namespace Project001
         if (soundSourceIdMap_.find(soundSourceId) != soundSourceIdMap_.end())
         {
             alDeleteSources(1, &soundSourceIdMap_[soundSourceId]);
+            alLogError();
             recycledSoundSourceIds_.push_back(soundSourceId);
             return true;
         }
@@ -303,7 +305,7 @@ namespace Project001
         {
             ALuint currentSoundSourceId = iter->second;
             alDeleteSources(1, &currentSoundSourceId);
-            alCheckError();
+            alLogError();
         }
         soundSourceIdMap_.clear();
         recycledSoundSourceIds_.clear();

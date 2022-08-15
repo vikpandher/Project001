@@ -22,16 +22,13 @@ TestScene013::TestScene013()
     : cursorGrabbingEntity_(false)
     , previousWorldCursorDownPosition_(0.0f, 0.0f)
 {
-    componentStoresPtr_ = new Project001::ComponentStores();
     ClearResources();
 
     Run_UnitTests();
 }
 
 TestScene013::~TestScene013()
-{
-    delete componentStoresPtr_;
-}
+{}
 
 const char* TestScene013::Name()
 {
@@ -46,6 +43,8 @@ void TestScene013::Initialize()
 
     rendererPtr_ = GetApplicationRendererPtr();
     rendererPtr_->SetDepthTesting(true);
+
+    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // main camera entity
     // -------------------------------------------------------------------------

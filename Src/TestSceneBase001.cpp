@@ -1,8 +1,5 @@
 #include "TestSceneBase001.h"
 
-#include "DeathFlag.h"
-#include "TestSceneData.h"
-
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedModel.h"
@@ -22,14 +19,17 @@ TestSceneBase001::TestSceneBase001()
     : componentStoresPtr_(nullptr)
     , rendererPtr_(nullptr)
     , windowPtr_(nullptr)
+    , previousWorldCursorDownPosition_(0.0f)
 {
-    componentStoresPtr_ = new Project001::ComponentStores();
     ClearResources();
 }
 
 TestSceneBase001::~TestSceneBase001()
+{}
+
+const char* TestSceneBase001::Name()
 {
-    delete componentStoresPtr_;
+    return "TestSceneBase001";
 }
 
 void TestSceneBase001::Initialize()
@@ -43,12 +43,7 @@ void TestSceneBase001::Initialize()
 
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
 
-    // scene data entity
-    // -------------------------------------------------------------------------
-    {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(sceneDataEntityId_));
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<TestSceneData>(sceneDataEntityId_));
-    }
+    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // main camera entity
     // -------------------------------------------------------------------------
@@ -92,11 +87,10 @@ void TestSceneBase001::Initialize()
 
 void TestSceneBase001::Deinitialize()
 {
-    componentStoresPtr_->DeleteAllEntities();
     rendererPtr_->DeleteAllTextures();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
-
+    componentStoresPtr_->DeleteAllEntities();
     ClearResources();
 }
 
@@ -114,7 +108,6 @@ void TestSceneBase001::OnEvent(Project001::Event& event)
 
 void TestSceneBase001::ClearResources()
 {
-    sceneDataEntityId_ = (unsigned int)-1;
     mainCameraEntityId_ = (unsigned int)-1;
     lightSourceEntityId_ = (unsigned int)-1;
 }
@@ -128,19 +121,13 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         float& currentXPosition = cursorButtonEvent.xPosition;
         float& currentYPosition = cursorButtonEvent.yPosition;
 
-        TestSceneData* TestSceneDataPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, TestSceneDataPtr));
-
-        float& prevousXPosition = TestSceneDataPtr->previousWindowCursorDownPosition.x;
-        float& prevousYPosition = TestSceneDataPtr->previousWindowCursorDownPosition.y;
-
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
         float speedConstant = 0.005f;
 
-        float xOffset = currentXPosition - prevousXPosition;
-        float yOffset = currentYPosition - prevousYPosition;
+        float xOffset = currentXPosition - previousWorldCursorDownPosition_.x;
+        float yOffset = currentYPosition - previousWorldCursorDownPosition_.y;
 
         // moving cursor right = positive xOffset
         // moving cursor up = negative yOffset
@@ -152,8 +139,8 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         // cameraPtr->AddWorldRotationY(cameraYaw); // for fps camera
         cameraPtr->AddPitch(cameraPitch);
 
-        prevousXPosition = currentXPosition;
-        prevousYPosition = currentYPosition;
+        previousWorldCursorDownPosition_.x = currentXPosition;
+        previousWorldCursorDownPosition_.y = currentYPosition;
     }
 
     cursorButtonEvent.handled = true;
@@ -207,13 +194,7 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1 &&
         buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
     {
-        TestSceneData* TestSceneDataPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<TestSceneData>(sceneDataEntityId_, TestSceneDataPtr));
-
-        float& prevousXPosition = TestSceneDataPtr->previousWindowCursorDownPosition.x;
-        float& prevousYPosition = TestSceneDataPtr->previousWindowCursorDownPosition.y;
-
-        windowPtr_->GetCursorPosition(prevousXPosition, prevousYPosition);
+        windowPtr_->GetCursorPosition(previousWorldCursorDownPosition_.x, previousWorldCursorDownPosition_.y);
     }
 
     mouseButtonEvent.handled = true;
@@ -239,7 +220,6 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
         Project001::LightSource* lightSourceArray = nullptr;
         size_t lightSourceCount = 0;
-
         _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount));
 
         for (unsigned int i = 0; i < lightSourceCount; ++i)
@@ -288,16 +268,29 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
         Project001::RenderedModel* renderedModelArray = nullptr;
         size_t renderedModelCount = 0;
+        _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount));
 
-        componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
-
-        for (unsigned int i = 0; i < renderedModelCount; ++i)
+        std::vector<Project001::RenderedModel*> renderedModelPtrs;
+        for (size_t i = 0; i < renderedModelCount; ++i)
         {
-            Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
-
-            if (currentRenderedModel.IsVisible())
+            renderedModelPtrs.emplace_back(&renderedModelArray[i]);
+        }
+        std::sort(renderedModelPtrs.begin(), renderedModelPtrs.end(),
+            [cameraPtr](Project001::RenderedModel* a, Project001::RenderedModel* b)->bool
             {
-                const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
+                glm::vec3 cameraPosition = cameraPtr->GetPosition();
+                size_t disatanceA = glm::length(cameraPosition - a->GetPosition());
+                size_t disatanceB = glm::length(cameraPosition - b->GetPosition());
+                return disatanceA > disatanceB;
+            });
+
+        for (unsigned int i = 0; i < renderedModelPtrs.size(); ++i)
+        {
+            Project001::RenderedModel*& currentRenderedModelPtr = renderedModelPtrs[i];
+
+            if (currentRenderedModelPtr->IsVisible())
+            {
+                const Project001::MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
                 if (currentMeshDataPtr != nullptr)
                 {
                     if (!rendererPtr_->AddMesh(
@@ -305,15 +298,15 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                         (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                         currentMeshDataPtr->meshIndexArray.data(),
                         (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                        currentRenderedModel.GetTextureId(),
-                        currentRenderedModel.GetSpecularId(),
-                        currentRenderedModel.GetPosition(),
-                        currentRenderedModel.GetOrientation(),
-                        currentRenderedModel.GetScale(),
-                        currentRenderedModel.GetColor(),
-                        currentRenderedModel.GetShininess(),
-                        currentRenderedModel.GetTranslucent(),
-                        currentRenderedModel.GetLit()))
+                        currentRenderedModelPtr->GetTextureId(),
+                        currentRenderedModelPtr->GetSpecularId(),
+                        currentRenderedModelPtr->GetPosition(),
+                        currentRenderedModelPtr->GetOrientation(),
+                        currentRenderedModelPtr->GetScale(),
+                        currentRenderedModelPtr->GetColor(),
+                        currentRenderedModelPtr->GetShininess(),
+                        currentRenderedModelPtr->GetTranslucent(),
+                        currentRenderedModelPtr->GetLit()))
                     {
                         rendererPtr_->Render();
                         _FAIL_CHECK(rendererPtr_->AddMesh(
@@ -321,15 +314,15 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                             (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                             currentMeshDataPtr->meshIndexArray.data(),
                             (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                            currentRenderedModel.GetTextureId(),
-                            currentRenderedModel.GetSpecularId(),
-                            currentRenderedModel.GetPosition(),
-                            currentRenderedModel.GetOrientation(),
-                            currentRenderedModel.GetScale(),
-                            currentRenderedModel.GetColor(),
-                            currentRenderedModel.GetShininess(),
-                            currentRenderedModel.GetTranslucent(),
-                            currentRenderedModel.GetLit()));
+                            currentRenderedModelPtr->GetTextureId(),
+                            currentRenderedModelPtr->GetSpecularId(),
+                            currentRenderedModelPtr->GetPosition(),
+                            currentRenderedModelPtr->GetOrientation(),
+                            currentRenderedModelPtr->GetScale(),
+                            currentRenderedModelPtr->GetColor(),
+                            currentRenderedModelPtr->GetShininess(),
+                            currentRenderedModelPtr->GetTranslucent(),
+                            currentRenderedModelPtr->GetLit()));
                     }
                 }
             }
@@ -364,7 +357,7 @@ void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // Update Entities
     UpdateMainCameraEntityPositionAndRoll(timestep_ns);
 
-    SyncComponentPositions();
+    SyncLightSourcePosition();
 
     // Delete all entities with marked for deletion component
     // DeleteDeadEntities();
@@ -427,7 +420,7 @@ void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long times
     // cameraPtr->LookAt(-1.0f * cameraPtr->GetPosition()); // add for hacky orbit
 }
 
-void TestSceneBase001::SyncComponentPositions()
+void TestSceneBase001::SyncLightSourcePosition()
 {
     Project001::LightSource* lightSourcePtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
@@ -444,23 +437,4 @@ void TestSceneBase001::SyncComponentPositions()
         glm::vec3(0.0f, 0.0f, 0.0f),
         1.0f
     );
-}
-
-void TestSceneBase001::DeleteDeadEntities()
-{
-    DeathFlag* deathFlagArray = nullptr;
-    size_t deathFlagCount = 0;
-
-    _FAIL_CHECK(componentStoresPtr_->GetAllComponents<DeathFlag>(deathFlagArray, deathFlagCount));
-
-    for (unsigned int i = 0; i < deathFlagCount; ++i)
-    {
-        DeathFlag& currentDeathFlag = deathFlagArray[i];
-        if (currentDeathFlag.dead)
-        {
-            unsigned int entityId = (unsigned int)-1;
-            _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId<DeathFlag>(&currentDeathFlag, entityId));
-            componentStoresPtr_->DeleteEntity(entityId);
-        }
-    }
 }

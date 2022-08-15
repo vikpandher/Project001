@@ -142,11 +142,11 @@ void TestScene020::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene002"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene002"));
             }
         }
     }
