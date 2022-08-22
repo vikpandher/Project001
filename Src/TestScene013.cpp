@@ -70,15 +70,15 @@ void TestScene013::Initialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
-    for (int i = 1; i >= -1; --i)
-    {
-        for (int j = -2; j <= 2; ++j)
-        {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
-        }
-    }
-    size_t positionPosition = 0;
+    // std::vector<glm::vec3> modelEntityPositions;
+    // for (int i = 1; i >= -1; --i)
+    // {
+    //     for (int j = -2; j <= 2; ++j)
+    //     {
+    //         modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+    //     }
+    // }
+    // size_t positionPosition = 0;
 
     // -------------------------------------------------------------------------
 
@@ -86,18 +86,34 @@ void TestScene013::Initialize()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.48f, 0.32f, 0.24f, false));
+        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.5f, 1.0f, 2.0f, false));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedModelPtr->SetLit(false);
+    }
+
+    // rectangle 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.5f, 1.0f, 2.0f, false));
+        Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>());
+        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(1.25f, 1.25f, 1.25f));
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
         renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedModelPtr->SetLit(false);
     }
@@ -502,6 +518,12 @@ void TestScene013::Run_UnitTests() const
         _LOG_MESSAGE("UnitTest_Check3D_Point_Sphere_Overlap FAILED (%d)", result);
     }
 
+    result = Project001::UnitTest_Check3D_Point_Capsule_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Point_Capsule_Overlap FAILED (%d)", result);
+    }
+
     // -------------------------------------------------------------------------
 
     result = Project001::UnitTest_Check3D_Line_Line_Overlap();
@@ -606,6 +628,12 @@ void TestScene013::Run_UnitTests() const
         _LOG_MESSAGE("UnitTest_Check3D_Plane_Plane_Overlap FAILED (%d)", result);
     }
 
+    result = Project001::UnitTest_Check3D_Plane_Triangle_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Plane_Triangle_Ovelap FAILED (%d)", result);
+    }
+
     result = Project001::UnitTest_Check3D_Plane_Sphere_Overlap();
     if (result != 0)
     {
@@ -626,6 +654,12 @@ void TestScene013::Run_UnitTests() const
     if (result != 0)
     {
         _LOG_MESSAGE("UnitTest_Check3D_AABB_AABB_Overlap FAILED (%d)", result);
+    }
+
+    result = Project001::UnitTest_Check3D_AABB_OBB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_AABB_OBB_Overlap FAILED (%d)", result);
     }
 
     result = Project001::UnitTest_Check3D_AABB_Sphere_Overlap();

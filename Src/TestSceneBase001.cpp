@@ -19,7 +19,7 @@ TestSceneBase001::TestSceneBase001()
     : componentStoresPtr_(nullptr)
     , rendererPtr_(nullptr)
     , windowPtr_(nullptr)
-    , previousWorldCursorDownPosition_(0.0f)
+    , previousCursorDownPosition_(0.0f)
 {
     ClearResources();
 }
@@ -126,8 +126,8 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
 
         float speedConstant = 0.005f;
 
-        float xOffset = currentXPosition - previousWorldCursorDownPosition_.x;
-        float yOffset = currentYPosition - previousWorldCursorDownPosition_.y;
+        float xOffset = currentXPosition - previousCursorDownPosition_.x;
+        float yOffset = currentYPosition - previousCursorDownPosition_.y;
 
         // moving cursor right = positive xOffset
         // moving cursor up = negative yOffset
@@ -139,8 +139,8 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         // cameraPtr->AddWorldRotationY(cameraYaw); // for fps camera
         cameraPtr->AddPitch(cameraPitch);
 
-        previousWorldCursorDownPosition_.x = currentXPosition;
-        previousWorldCursorDownPosition_.y = currentYPosition;
+        previousCursorDownPosition_.x = currentXPosition;
+        previousCursorDownPosition_.y = currentYPosition;
     }
 
     cursorButtonEvent.handled = true;
@@ -194,7 +194,7 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1 &&
         buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
     {
-        windowPtr_->GetCursorPosition(previousWorldCursorDownPosition_.x, previousWorldCursorDownPosition_.y);
+        windowPtr_->GetCursorPosition(previousCursorDownPosition_.x, previousCursorDownPosition_.y);
     }
 
     mouseButtonEvent.handled = true;
@@ -271,6 +271,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount));
 
         std::vector<Project001::RenderedModel*> renderedModelPtrs;
+        renderedModelPtrs.reserve(renderedModelCount);
         for (size_t i = 0; i < renderedModelCount; ++i)
         {
             renderedModelPtrs.emplace_back(&renderedModelArray[i]);
@@ -278,10 +279,37 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         std::sort(renderedModelPtrs.begin(), renderedModelPtrs.end(),
             [cameraPtr](Project001::RenderedModel* a, Project001::RenderedModel* b)->bool
             {
-                glm::vec3 cameraPosition = cameraPtr->GetPosition();
-                size_t disatanceA = glm::length(cameraPosition - a->GetPosition());
-                size_t disatanceB = glm::length(cameraPosition - b->GetPosition());
-                return disatanceA > disatanceB;
+                bool aTranslucent = a->GetTranslucent();
+                bool bTranslucent = b->GetTranslucent();
+                if (aTranslucent)
+                {
+                    if (bTranslucent)
+                    {
+                        // both are translucent so the farther is drawn first
+                        glm::vec3 cameraPosition = cameraPtr->GetPosition();
+                        size_t disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                        size_t disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                        return disatanceSquaredA > disatanceSquaredB;
+                    }
+                    else
+                    {
+                        // the one that is translucent is drawn last
+                        return false;
+                    }
+                }
+                if (bTranslucent)
+                {
+                    // the one that is translucent is drawn last
+                    return true;
+                }
+                else
+                {
+                    // both are not translucent so the closer is drawn first
+                    glm::vec3 cameraPosition = cameraPtr->GetPosition();
+                    size_t disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                    size_t disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                    return disatanceSquaredA < disatanceSquaredB;
+                }
             });
 
         for (unsigned int i = 0; i < renderedModelPtrs.size(); ++i)

@@ -64,9 +64,9 @@ protected:
     unsigned int mainCameraEntityId_;
     unsigned int lightSourceEntityId_;
 
-    // Scene Data: -------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-    glm::vec2 previousWorldCursorDownPosition_;
+    glm::vec2 previousCursorDownPosition_;
 
 private:
 };

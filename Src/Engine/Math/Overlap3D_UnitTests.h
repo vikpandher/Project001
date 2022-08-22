@@ -26,6 +26,8 @@ namespace Project001
 
     int UnitTest_Check3D_Point_Sphere_Overlap();
 
+    int UnitTest_Check3D_Point_Capsule_Overlap();
+
     // -------------------------------------------------------------------------
 
     int UnitTest_Check3D_Line_Line_Overlap();
@@ -66,6 +68,8 @@ namespace Project001
 
     int UnitTest_Check3D_Plane_Plane_Overlap();
 
+    int UnitTest_Check3D_Plane_Triangle_Overlap();
+
     int UnitTest_Check3D_Plane_Sphere_Overlap();
 
     // -------------------------------------------------------------------------
@@ -75,6 +79,8 @@ namespace Project001
     // -------------------------------------------------------------------------
 
     int UnitTest_Check3D_AABB_AABB_Overlap();
+
+    int UnitTest_Check3D_AABB_OBB_Overlap();
 
     int UnitTest_Check3D_AABB_Sphere_Overlap();
 
