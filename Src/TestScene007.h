@@ -6,17 +6,19 @@
 
 namespace Project001
 {
+    struct MeshData;
+
     struct KeyEvent;
 }
 
-class TestScene004 : public TestSceneBase001
+class TestScene007 : public TestSceneBase001
 {
 public:
-    TestScene004();
-    ~TestScene004();
+    TestScene007();
+    ~TestScene007();
 
-    TestScene004(TestScene004& other) = delete;
-    void operator=(const TestScene004&) = delete;
+    TestScene007(TestScene007& other) = delete;
+    void operator=(const TestScene007&) = delete;
 
     const char* Name() override;
 
@@ -33,7 +35,7 @@ protected:
 
     // Texture Ids: ------------------------------------------------------------
 
-    std::vector<unsigned int> _32x23_TextureIds_;
+    unsigned int _32x32_123abc_TextureId_;
 
 private:
 };

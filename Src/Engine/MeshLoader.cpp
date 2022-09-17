@@ -93,10 +93,7 @@ namespace Project001
             {
                 if (splitValues.size() >= 3)
                 {
-                    glm::vec3 newPosition;
-                    newPosition.x = std::stof(splitValues[0]);
-                    newPosition.y = std::stof(splitValues[1]);
-                    newPosition.z = std::stof(splitValues[2]);
+                    glm::vec3 newPosition(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
 
                     maxVertexPosition.x = std::max(maxVertexPosition.x, newPosition.x);
                     maxVertexPosition.y = std::max(maxVertexPosition.y, newPosition.y);
@@ -113,9 +110,7 @@ namespace Project001
             {
                 if (splitValues.size() >= 2)
                 {
-                    glm::vec2 newTextureCoordinate;
-                    newTextureCoordinate.x = std::stof(splitValues[0]);
-                    newTextureCoordinate.y = std::stof(splitValues[1]);
+                    glm::vec2 newTextureCoordinate(std::stof(splitValues[0]), std::stof(splitValues[1]));
 
                     textureCoordinates.push_back(newTextureCoordinate);
                 }
@@ -124,10 +119,7 @@ namespace Project001
             {
                 if (splitValues.size() >= 3)
                 {
-                    glm::vec3 newNormal;
-                    newNormal.x = std::stof(splitValues[0]);
-                    newNormal.y = std::stof(splitValues[1]);
-                    newNormal.z = std::stof(splitValues[2]);
+                    glm::vec3 newNormal(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
 
                     normals.push_back(newNormal);
                 }
@@ -835,6 +827,8 @@ namespace Project001
                         meshIndexArray.push_back(currentVertexCount + 2);
                         meshIndexArray.push_back(currentVertexCount + 3);
                     }
+
+                    currentVertexCount += 4;
                 }
                 else
                 {
@@ -1829,43 +1823,42 @@ namespace Project001
 
     bool MeshLoader::GenerateBox(
         MeshData& meshData,
-        float xLength,
-        float yLength,
-        float zLength,
+        const glm::vec3& min,
+        const glm::vec3& max,
         bool smoothNormals,
         bool triangulate)
     {
-        if (xLength <= 0.0f || yLength <= 0.0f || zLength <= 0.0f)
+        if (min.x >= max.x || min.y >= max.y || min.z >= max.z)
         {
             return false;
         }
 
-        glm::vec3 octant_posX_posY_posZ(xLength / 2.0f, yLength / 2.0f, zLength / 2.0f);
-        glm::vec3 octant_posX_posY_negZ(xLength / 2.0f, yLength / 2.0f, zLength / -2.0f);
-        glm::vec3 octant_posX_negY_posZ(xLength / 2.0f, yLength / -2.0f, zLength / 2.0f);
-        glm::vec3 octant_posX_negY_negZ(xLength / 2.0f, yLength / -2.0f, zLength / -2.0f);
-        glm::vec3 octant_negX_posY_posZ(xLength / -2.0f, yLength / 2.0f, zLength / 2.0f);
-        glm::vec3 octant_negX_posY_negZ(xLength / -2.0f, yLength / 2.0f, zLength / -2.0f);
-        glm::vec3 octant_negX_negY_posZ(xLength / -2.0f, yLength / -2.0f, zLength / 2.0f);
-        glm::vec3 octant_negX_negY_negZ(xLength / -2.0f, yLength / -2.0f, zLength / -2.0f);
+        glm::vec3 octant_posX_posY_posZ(max);
+        glm::vec3 octant_posX_posY_negZ(max.x, max.y, min.z);
+        glm::vec3 octant_posX_negY_posZ(max.x, min.y, max.z);
+        glm::vec3 octant_posX_negY_negZ(max.x, min.y, min.z);
+        glm::vec3 octant_negX_posY_posZ(min.x, max.y, max.z);
+        glm::vec3 octant_negX_posY_negZ(min.x, max.y, min.z);
+        glm::vec3 octant_negX_negY_posZ(min.x, min.y, max.z);
+        glm::vec3 octant_negX_negY_negZ(min);
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.x = std::max(maxVertexPosition.x, xLength / 2.0f);
-        maxVertexPosition.y = std::max(maxVertexPosition.y, yLength / 2.0f);
-        maxVertexPosition.z = std::max(maxVertexPosition.z, zLength / 2.0f);
+        maxVertexPosition.x = std::max(maxVertexPosition.x, max.x);
+        maxVertexPosition.y = std::max(maxVertexPosition.y, max.y);
+        maxVertexPosition.z = std::max(maxVertexPosition.z, max.z);
 
-        minVertexPosition.x = std::min(maxVertexPosition.x, xLength / -2.0f);
-        minVertexPosition.y = std::min(maxVertexPosition.y, yLength / -2.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, zLength / -2.0f);
+        minVertexPosition.x = std::min(maxVertexPosition.x, min.x);
+        minVertexPosition.y = std::min(maxVertexPosition.y, min.y);
+        minVertexPosition.z = std::min(minVertexPosition.z, min.z);
 
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
         if (smoothNormals)
         {
-            float dimensionLength = 1.0f / std::sqrtf(3.0f);
+            const float& dimensionLength = 1.0f / std::sqrtf(3.0f);
 
             glm::vec3 normal_posX_posY_posZ(dimensionLength, dimensionLength, dimensionLength);
             glm::vec3 normal_posX_posY_negZ(dimensionLength, dimensionLength, -dimensionLength);
@@ -2014,6 +2007,8 @@ namespace Project001
                 meshIndexArray.push_back(currentVertexCount + 7);
                 meshIndexArray.push_back(currentVertexCount + 5);
                 meshIndexArray.push_back(currentVertexCount + 3);
+
+                // currentVertexCount += 8;
             }
         }
         else
@@ -2226,6 +2221,416 @@ namespace Project001
                 meshIndexArray.push_back(currentVertexCount + 23);
                 meshIndexArray.push_back(currentVertexCount + 22);
             }
+
+            // currentVertexCount += 24;
+        }
+
+        return true;
+    }
+
+    bool MeshLoader::GenerateBox(
+        MeshData& meshData,
+        float xLength,
+        float yLength,
+        float zLength,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (xLength <= 0.0f || yLength <= 0.0f || zLength <= 0.0f)
+        {
+            return false;
+        }
+
+        glm::vec3 octant_posX_posY_posZ(xLength / 2.0f, yLength / 2.0f, zLength / 2.0f);
+        glm::vec3 octant_posX_posY_negZ(xLength / 2.0f, yLength / 2.0f, zLength / -2.0f);
+        glm::vec3 octant_posX_negY_posZ(xLength / 2.0f, yLength / -2.0f, zLength / 2.0f);
+        glm::vec3 octant_posX_negY_negZ(xLength / 2.0f, yLength / -2.0f, zLength / -2.0f);
+        glm::vec3 octant_negX_posY_posZ(xLength / -2.0f, yLength / 2.0f, zLength / 2.0f);
+        glm::vec3 octant_negX_posY_negZ(xLength / -2.0f, yLength / 2.0f, zLength / -2.0f);
+        glm::vec3 octant_negX_negY_posZ(xLength / -2.0f, yLength / -2.0f, zLength / 2.0f);
+        glm::vec3 octant_negX_negY_negZ(xLength / -2.0f, yLength / -2.0f, zLength / -2.0f);
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        maxVertexPosition.x = std::max(maxVertexPosition.x, xLength / 2.0f);
+        maxVertexPosition.y = std::max(maxVertexPosition.y, yLength / 2.0f);
+        maxVertexPosition.z = std::max(maxVertexPosition.z, zLength / 2.0f);
+
+        minVertexPosition.x = std::min(maxVertexPosition.x, xLength / -2.0f);
+        minVertexPosition.y = std::min(maxVertexPosition.y, yLength / -2.0f);
+        minVertexPosition.z = std::min(minVertexPosition.z, zLength / -2.0f);
+
+        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        if (smoothNormals)
+        {
+            const float& dimensionLength = 1.0f / std::sqrtf(3.0f);
+
+            glm::vec3 normal_posX_posY_posZ(dimensionLength, dimensionLength, dimensionLength);
+            glm::vec3 normal_posX_posY_negZ(dimensionLength, dimensionLength, -dimensionLength);
+            glm::vec3 normal_posX_negY_posZ(dimensionLength, -dimensionLength, dimensionLength);
+            glm::vec3 normal_posX_negY_negZ(dimensionLength, -dimensionLength, -dimensionLength);
+            glm::vec3 normal_negX_posY_posZ(-dimensionLength, dimensionLength, dimensionLength);
+            glm::vec3 normal_negX_posY_negZ(-dimensionLength, dimensionLength, -dimensionLength);
+            glm::vec3 normal_negX_negY_posZ(-dimensionLength, -dimensionLength, dimensionLength);
+            glm::vec3 normal_negX_negY_negZ(-dimensionLength, -dimensionLength, -dimensionLength);
+
+            MeshVertex meshVertex_posX_posY_posZ;
+            meshVertex_posX_posY_posZ.position = octant_posX_posY_posZ;
+            meshVertex_posX_posY_posZ.normal = normal_posX_posY_posZ;
+            MeshVertex meshVertex_posX_posY_negZ;
+            meshVertex_posX_posY_negZ.position = octant_posX_posY_negZ;
+            meshVertex_posX_posY_negZ.normal = normal_posX_posY_negZ;
+            MeshVertex meshVertex_posX_negY_posZ;
+            meshVertex_posX_negY_posZ.position = octant_posX_negY_posZ;
+            meshVertex_posX_negY_posZ.normal = normal_posX_negY_posZ;
+            MeshVertex meshVertex_posX_negY_negZ;
+            meshVertex_posX_negY_negZ.position = octant_posX_negY_negZ;
+            meshVertex_posX_negY_negZ.normal = normal_posX_negY_negZ;
+            MeshVertex meshVertex_negX_posY_posZ;
+            meshVertex_negX_posY_posZ.position = octant_negX_posY_posZ;
+            meshVertex_negX_posY_posZ.normal = normal_negX_posY_posZ;
+            MeshVertex meshVertex_negX_posY_negZ;
+            meshVertex_negX_posY_negZ.position = octant_negX_posY_negZ;
+            meshVertex_negX_posY_negZ.normal = normal_negX_posY_negZ;
+            MeshVertex meshVertex_negX_negY_posZ;
+            meshVertex_negX_negY_posZ.position = octant_negX_negY_posZ;
+            meshVertex_negX_negY_posZ.normal = normal_negX_negY_posZ;
+            MeshVertex meshVertex_negX_negY_negZ;
+            meshVertex_negX_negY_negZ.position = octant_negX_negY_negZ;
+            meshVertex_negX_negY_negZ.normal = normal_negX_negY_negZ;
+
+            if (triangulate)
+            {
+                // front
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_posZ);
+
+                // right
+                meshVertexArray.push_back(meshVertex_posX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ);
+
+                // left
+                meshVertexArray.push_back(meshVertex_negX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ);
+
+                // top
+                meshVertexArray.push_back(meshVertex_negX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ);
+
+                // bottom
+                meshVertexArray.push_back(meshVertex_negX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ);
+
+                // back
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ);
+                meshVertexArray.push_back(meshVertex_negX_posY_negZ);
+                meshVertexArray.push_back(meshVertex_posX_negY_negZ);
+
+                for (size_t i = 0; i < 36; ++i)
+                {
+                    meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                }
+            }
+            else
+            {
+                meshVertexArray.push_back(meshVertex_posX_posY_posZ); // 0
+                meshVertexArray.push_back(meshVertex_posX_posY_negZ); // 1
+                meshVertexArray.push_back(meshVertex_posX_negY_posZ); // 2
+                meshVertexArray.push_back(meshVertex_posX_negY_negZ); // 3
+                meshVertexArray.push_back(meshVertex_negX_posY_posZ); // 4
+                meshVertexArray.push_back(meshVertex_negX_posY_negZ); // 5
+                meshVertexArray.push_back(meshVertex_negX_negY_posZ); // 6
+                meshVertexArray.push_back(meshVertex_negX_negY_negZ); // 7
+
+                // front
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 6);
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 6);
+
+                // right
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 2);
+
+                // left
+                meshIndexArray.push_back(currentVertexCount + 5);
+                meshIndexArray.push_back(currentVertexCount + 7);
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 6);
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 7);
+
+                // top
+                meshIndexArray.push_back(currentVertexCount + 5);
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 4);
+
+                // bottom
+                meshIndexArray.push_back(currentVertexCount + 6);
+                meshIndexArray.push_back(currentVertexCount + 7);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 7);
+
+                // back
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 5);
+                meshIndexArray.push_back(currentVertexCount + 7);
+                meshIndexArray.push_back(currentVertexCount + 5);
+                meshIndexArray.push_back(currentVertexCount + 3);
+
+                // currentVertexCount += 8;
+            }
+        }
+        else
+        {
+            glm::vec3 normal_posX(1.0f, 0.0f, 0.0f);
+            glm::vec3 normal_negX(-1.0f, 0.0f, 0.0f);
+            glm::vec3 normal_posY(0.0f, 1.0f, 0.0f);
+            glm::vec3 normal_negY(0.0f, -1.0f, 0.0f);
+            glm::vec3 normal_posZ(0.0f, 0.0f, 1.0f);
+            glm::vec3 normal_negZ(0.0f, 0.0f, -1.0f);
+
+            MeshVertex meshVertex_frontFace_topRight;
+            meshVertex_frontFace_topRight.position = octant_posX_posY_posZ;
+            meshVertex_frontFace_topRight.normal = normal_posZ;
+            MeshVertex meshVertex_frontFace_topLeft;
+            meshVertex_frontFace_topLeft.position = octant_negX_posY_posZ;
+            meshVertex_frontFace_topLeft.normal = normal_posZ;
+            MeshVertex meshVertex_frontFace_bottomRight;
+            meshVertex_frontFace_bottomRight.position = octant_posX_negY_posZ;
+            meshVertex_frontFace_bottomRight.normal = normal_posZ;
+            MeshVertex meshVertex_frontFace_bottomLeft;
+            meshVertex_frontFace_bottomLeft.position = octant_negX_negY_posZ;
+            meshVertex_frontFace_bottomLeft.normal = normal_posZ;
+
+            MeshVertex meshVertex_rightFace_topRight;
+            meshVertex_rightFace_topRight.position = octant_posX_posY_negZ;
+            meshVertex_rightFace_topRight.normal = normal_posX;
+            MeshVertex meshVertex_rightFace_topLeft;
+            meshVertex_rightFace_topLeft.position = octant_posX_posY_posZ;
+            meshVertex_rightFace_topLeft.normal = normal_posX;
+            MeshVertex meshVertex_rightFace_bottomRight;
+            meshVertex_rightFace_bottomRight.position = octant_posX_negY_negZ;
+            meshVertex_rightFace_bottomRight.normal = normal_posX;
+            MeshVertex meshVertex_rightFace_bottomLeft;
+            meshVertex_rightFace_bottomLeft.position = octant_posX_negY_posZ;
+            meshVertex_rightFace_bottomLeft.normal = normal_posX;
+
+            MeshVertex meshVertex_backFace_topRight;
+            meshVertex_backFace_topRight.position = octant_negX_posY_negZ;
+            meshVertex_backFace_topRight.normal = normal_negZ;
+            MeshVertex meshVertex_backFace_topLeft;
+            meshVertex_backFace_topLeft.position = octant_posX_posY_negZ;
+            meshVertex_backFace_topLeft.normal = normal_negZ;
+            MeshVertex meshVertex_backFace_bottomRight;
+            meshVertex_backFace_bottomRight.position = octant_negX_negY_negZ;
+            meshVertex_backFace_bottomRight.normal = normal_negZ;
+            MeshVertex meshVertex_backFace_bottomLeft;
+            meshVertex_backFace_bottomLeft.position = octant_posX_negY_negZ;
+            meshVertex_backFace_bottomLeft.normal = normal_negZ;
+
+            MeshVertex meshVertex_leftFace_topRight;
+            meshVertex_leftFace_topRight.position = octant_negX_posY_posZ;
+            meshVertex_leftFace_topRight.normal = normal_negX;
+            MeshVertex meshVertex_leftFace_topLeft;
+            meshVertex_leftFace_topLeft.position = octant_negX_posY_negZ;
+            meshVertex_leftFace_topLeft.normal = normal_negX;
+            MeshVertex meshVertex_leftFace_bottomRight;
+            meshVertex_leftFace_bottomRight.position = octant_negX_negY_posZ;
+            meshVertex_leftFace_bottomRight.normal = normal_negX;
+            MeshVertex meshVertex_leftFace_bottomLeft;
+            meshVertex_leftFace_bottomLeft.position = octant_negX_negY_negZ;
+            meshVertex_leftFace_bottomLeft.normal = normal_negX;
+
+            MeshVertex meshVertex_topFace_topRight;
+            meshVertex_topFace_topRight.position = octant_posX_posY_negZ;
+            meshVertex_topFace_topRight.normal = normal_posY;
+            MeshVertex meshVertex_topFace_topLeft;
+            meshVertex_topFace_topLeft.position = octant_negX_posY_negZ;
+            meshVertex_topFace_topLeft.normal = normal_posY;
+            MeshVertex meshVertex_topFace_bottomRight;
+            meshVertex_topFace_bottomRight.position = octant_posX_posY_posZ;
+            meshVertex_topFace_bottomRight.normal = normal_posY;
+            MeshVertex meshVertex_topFace_bottomLeft;
+            meshVertex_topFace_bottomLeft.position = octant_negX_posY_posZ;
+            meshVertex_topFace_bottomLeft.normal = normal_posY;
+
+            MeshVertex meshVertex_bottomFace_topRight;
+            meshVertex_bottomFace_topRight.position = octant_posX_negY_posZ;
+            meshVertex_bottomFace_topRight.normal = normal_negY;
+            MeshVertex meshVertex_bottomFace_topLeft;
+            meshVertex_bottomFace_topLeft.position = octant_negX_negY_posZ;
+            meshVertex_bottomFace_topLeft.normal = normal_negY;
+            MeshVertex meshVertex_bottomFace_bottomRight;
+            meshVertex_bottomFace_bottomRight.position = octant_posX_negY_negZ;
+            meshVertex_bottomFace_bottomRight.normal = normal_negY;
+            MeshVertex meshVertex_bottomFace_bottomLeft;
+            meshVertex_bottomFace_bottomLeft.position = octant_negX_negY_negZ;
+            meshVertex_bottomFace_bottomLeft.normal = normal_negY;
+
+            if (triangulate)
+            {
+                meshVertexArray.push_back(meshVertex_frontFace_topRight);
+                meshVertexArray.push_back(meshVertex_frontFace_topLeft);
+                meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_frontFace_topRight);
+                meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_frontFace_bottomRight);
+
+                meshVertexArray.push_back(meshVertex_rightFace_topRight);
+                meshVertexArray.push_back(meshVertex_rightFace_topLeft);
+                meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_rightFace_topRight);
+                meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_rightFace_bottomRight);
+
+                meshVertexArray.push_back(meshVertex_backFace_topRight);
+                meshVertexArray.push_back(meshVertex_backFace_topLeft);
+                meshVertexArray.push_back(meshVertex_backFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_backFace_topRight);
+                meshVertexArray.push_back(meshVertex_backFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_backFace_bottomRight);
+
+                meshVertexArray.push_back(meshVertex_leftFace_topRight);
+                meshVertexArray.push_back(meshVertex_leftFace_topLeft);
+                meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_leftFace_topRight);
+                meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_leftFace_bottomRight);
+
+                meshVertexArray.push_back(meshVertex_topFace_topRight);
+                meshVertexArray.push_back(meshVertex_topFace_topLeft);
+                meshVertexArray.push_back(meshVertex_topFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_topFace_topRight);
+                meshVertexArray.push_back(meshVertex_topFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_topFace_bottomRight);
+
+                meshVertexArray.push_back(meshVertex_bottomFace_topRight);
+                meshVertexArray.push_back(meshVertex_bottomFace_topLeft);
+                meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_bottomFace_topRight);
+                meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);
+                meshVertexArray.push_back(meshVertex_bottomFace_bottomRight);
+
+                for (size_t i = 0; i < 36; ++i)
+                {
+                    meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                }
+            }
+            else
+            {
+                meshVertexArray.push_back(meshVertex_frontFace_topRight);     // 0
+                meshVertexArray.push_back(meshVertex_frontFace_topLeft);      // 1
+                meshVertexArray.push_back(meshVertex_frontFace_bottomRight);  // 2
+                meshVertexArray.push_back(meshVertex_frontFace_bottomLeft);   // 3
+
+                meshVertexArray.push_back(meshVertex_rightFace_topRight);     // 4
+                meshVertexArray.push_back(meshVertex_rightFace_topLeft);      // 5
+                meshVertexArray.push_back(meshVertex_rightFace_bottomRight);  // 6
+                meshVertexArray.push_back(meshVertex_rightFace_bottomLeft);   // 7
+
+                meshVertexArray.push_back(meshVertex_backFace_topRight);      // 8
+                meshVertexArray.push_back(meshVertex_backFace_topLeft);       // 9
+                meshVertexArray.push_back(meshVertex_backFace_bottomRight);   // 10
+                meshVertexArray.push_back(meshVertex_backFace_bottomLeft);    // 11
+
+                meshVertexArray.push_back(meshVertex_leftFace_topRight);      // 12
+                meshVertexArray.push_back(meshVertex_leftFace_topLeft);       // 13
+                meshVertexArray.push_back(meshVertex_leftFace_bottomRight);   // 14
+                meshVertexArray.push_back(meshVertex_leftFace_bottomLeft);    // 15
+
+                meshVertexArray.push_back(meshVertex_topFace_topRight);       // 16
+                meshVertexArray.push_back(meshVertex_topFace_topLeft);        // 17
+                meshVertexArray.push_back(meshVertex_topFace_bottomRight);    // 18
+                meshVertexArray.push_back(meshVertex_topFace_bottomLeft);     // 19
+
+                meshVertexArray.push_back(meshVertex_bottomFace_topRight);    // 20
+                meshVertexArray.push_back(meshVertex_bottomFace_topLeft);     // 21
+                meshVertexArray.push_back(meshVertex_bottomFace_bottomRight); // 22
+                meshVertexArray.push_back(meshVertex_bottomFace_bottomLeft);  // 23
+
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 0);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 2);
+
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 5);
+                meshIndexArray.push_back(currentVertexCount + 7);
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 7);
+                meshIndexArray.push_back(currentVertexCount + 6);
+
+                meshIndexArray.push_back(currentVertexCount + 8);
+                meshIndexArray.push_back(currentVertexCount + 9);
+                meshIndexArray.push_back(currentVertexCount + 11);
+                meshIndexArray.push_back(currentVertexCount + 8);
+                meshIndexArray.push_back(currentVertexCount + 11);
+                meshIndexArray.push_back(currentVertexCount + 10);
+
+                meshIndexArray.push_back(currentVertexCount + 12);
+                meshIndexArray.push_back(currentVertexCount + 13);
+                meshIndexArray.push_back(currentVertexCount + 15);
+                meshIndexArray.push_back(currentVertexCount + 12);
+                meshIndexArray.push_back(currentVertexCount + 15);
+                meshIndexArray.push_back(currentVertexCount + 14);
+
+                meshIndexArray.push_back(currentVertexCount + 16);
+                meshIndexArray.push_back(currentVertexCount + 17);
+                meshIndexArray.push_back(currentVertexCount + 19);
+                meshIndexArray.push_back(currentVertexCount + 16);
+                meshIndexArray.push_back(currentVertexCount + 19);
+                meshIndexArray.push_back(currentVertexCount + 18);
+
+                meshIndexArray.push_back(currentVertexCount + 20);
+                meshIndexArray.push_back(currentVertexCount + 21);
+                meshIndexArray.push_back(currentVertexCount + 23);
+                meshIndexArray.push_back(currentVertexCount + 20);
+                meshIndexArray.push_back(currentVertexCount + 23);
+                meshIndexArray.push_back(currentVertexCount + 22);
+            }
+
+            // currentVertexCount += 24;
         }
 
         return true;
@@ -3045,8 +3450,6 @@ namespace Project001
 
             if (triangulate)
             {
-                unsigned int previousVertexCount = (unsigned int)meshVertexArray.size();
-
                 // top
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
@@ -3080,11 +3483,11 @@ namespace Project001
                     meshVertexArray.push_back(tempMeshVertexArray[1]);
                 }
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-                for (unsigned int i = previousVertexCount; i < currentVertexCount; ++i)
-                {
-                    meshIndexArray.push_back(i);
-                }
+                // unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                // for (unsigned int i = (unsigned int)initialVertexCount; i < currentVertexCount; ++i)
+                // {
+                //     meshIndexArray.push_back(i);
+                // }
 
                 for (size_t i = 0; i < (faces - 1) * 12; ++i)
                 {
@@ -3123,7 +3526,7 @@ namespace Project001
                 {
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 2) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back(1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount) + 1);
                 }
             }
         }
@@ -3197,8 +3600,6 @@ namespace Project001
 
             if (triangulate)
             {
-                unsigned int previousVertexCount = (unsigned int)meshVertexArray.size();
-
                 // top
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
@@ -3427,41 +3828,26 @@ namespace Project001
                 const glm::vec3& position2 = positions[index2];
                 const glm::vec2& textureCoordinate2 = textureCoordinates[index2];
 
-                glm::vec3 positionA;
-                positionA.x = position0.x + position1.x;
-                positionA.y = position0.y + position1.y;
-                positionA.z = position0.z + position1.z;
+                glm::vec3 positionA(position0.x + position1.x, position0.y + position1.y, position0.z + position1.z);
                 float scaleA = radius / sqrtf(positionA.x * positionA.x + positionA.y * positionA.y + positionA.z * positionA.z);
                 positionA.x *= scaleA;
                 positionA.y *= scaleA;
                 positionA.z *= scaleA;
-                glm::vec2 textureCoordinateA;
-                textureCoordinateA.x = (textureCoordinate0.x + textureCoordinate1.x) / 2.0f;
-                textureCoordinateA.y = (textureCoordinate0.y + textureCoordinate1.y) / 2.0f;
+                glm::vec2 textureCoordinateA((textureCoordinate0.x + textureCoordinate1.x) / 2.0f, (textureCoordinate0.y + textureCoordinate1.y) / 2.0f);
 
-                glm::vec3 positionB;
-                positionB.x = position1.x + position2.x;
-                positionB.y = position1.y + position2.y;
-                positionB.z = position1.z + position2.z;
+                glm::vec3 positionB(position1.x + position2.x, position1.y + position2.y, position1.z + position2.z);
                 float scaleB = radius / sqrtf(positionB.x * positionB.x + positionB.y * positionB.y + positionB.z * positionB.z);
                 positionB.x *= scaleB;
                 positionB.y *= scaleB;
                 positionB.z *= scaleB;
-                glm::vec2 textureCoordinateB;
-                textureCoordinateB.x = (textureCoordinate1.x + textureCoordinate2.x) / 2.0f;
-                textureCoordinateB.y = (textureCoordinate1.y + textureCoordinate2.y) / 2.0f;
+                glm::vec2 textureCoordinateB((textureCoordinate1.x + textureCoordinate2.x) / 2.0f, (textureCoordinate1.y + textureCoordinate2.y) / 2.0f);
 
-                glm::vec3 positionC;
-                positionC.x = position2.x + position0.x;
-                positionC.y = position2.y + position0.y;
-                positionC.z = position2.z + position0.z;
+                glm::vec3 positionC(position2.x + position0.x, position2.y + position0.y, position2.z + position0.z);
                 float scaleC = radius / sqrtf(positionC.x * positionC.x + positionC.y * positionC.y + positionC.z * positionC.z);
                 positionC.x *= scaleC;
                 positionC.y *= scaleC;
                 positionC.z *= scaleC;
-                glm::vec2 textureCoordinateC;
-                textureCoordinateC.x = (textureCoordinate2.x + textureCoordinate0.x) / 2.0f;
-                textureCoordinateC.y = (textureCoordinate2.y + textureCoordinate0.y) / 2.0f;
+                glm::vec2 textureCoordinateC((textureCoordinate2.x + textureCoordinate0.x) / 2.0f, (textureCoordinate2.y + textureCoordinate0.y) / 2.0f);
 
                 const unsigned int indexA = (unsigned int)positions.size();
                 const unsigned int indexB = indexA + 1;
@@ -3996,6 +4382,195 @@ namespace Project001
         return true;
     }
 
+    bool MeshLoader::GenerateTube(
+        MeshData& meshData,
+        const glm::vec3& start,
+        const glm::vec3& end,
+        float radius,
+        size_t faces,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius <= 0.0f || faces < 3 || start == end)
+        {
+            return false;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        size_t initialVertexCount = meshVertexArray.size();
+
+        glm::vec3 direction = end - start;
+        glm::vec3 otherDirection(-direction.z, direction.x, direction.y);
+        glm::vec3 unitPerpendicular = glm::normalize(glm::cross(direction, otherDirection));
+
+        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), faceStep, direction);
+
+        if (smoothNormals)
+        {
+            std::vector<MeshVertex> tempMeshVertexArray;
+
+            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            if (triangulate)
+            {
+                tempMeshVertexArray.reserve(faces * 2);
+                destMeshVertexArrayPtr = &tempMeshVertexArray;
+            }
+            else
+            {
+                destMeshVertexArrayPtr = &meshVertexArray;
+            }
+
+            for (size_t i = 0; i < faces; ++i)
+            {
+                glm::vec3 perpendicular = unitPerpendicular * radius;
+
+                MeshVertex topVertex;
+                topVertex.position = start + perpendicular;
+                topVertex.normal = unitPerpendicular;
+                destMeshVertexArrayPtr->push_back(topVertex);
+
+                MeshVertex bottomVertex;
+                bottomVertex.position = end + perpendicular;
+                bottomVertex.normal = unitPerpendicular;
+                destMeshVertexArrayPtr->push_back(bottomVertex);
+
+                unitPerpendicular = rotation * unitPerpendicular;
+            }
+
+            if (triangulate)
+            {
+                for (size_t i = 0; i < faces - 1; ++i)
+                {
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 3]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 1]);
+                }
+                meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 2]);
+                meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
+                meshVertexArray.push_back(tempMeshVertexArray[0]);
+                meshVertexArray.push_back(tempMeshVertexArray[1]);
+                meshVertexArray.push_back(tempMeshVertexArray[0]);
+                meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
+
+                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                for (unsigned int i = (unsigned int)initialVertexCount; i < currentVertexCount; ++i)
+                {
+                    meshIndexArray.push_back(i);
+                }
+
+                for (size_t i = 0; i < faces * 6; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < faces - 1; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 3);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
+                }
+                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 2);
+                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
+                meshIndexArray.push_back((unsigned int)initialVertexCount);
+                meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
+                meshIndexArray.push_back((unsigned int)initialVertexCount);
+                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
+            }
+        }
+        else
+        {
+            std::vector<MeshVertex> tempMeshVertexArray;
+
+            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            if (triangulate)
+            {
+                tempMeshVertexArray.reserve(faces * 4);
+                destMeshVertexArrayPtr = &tempMeshVertexArray;
+            }
+            else
+            {
+                destMeshVertexArrayPtr = &meshVertexArray;
+            }
+
+            const glm::quat halfRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), faceStep * 0.5f, direction);
+
+            for (size_t i = 1; i < faces + 1; ++i)
+            {
+                glm::vec3 perpendicular = unitPerpendicular * radius;
+                glm::vec3 normal = halfRotation * unitPerpendicular;
+
+                MeshVertex topLeftBodyVertex;
+                topLeftBodyVertex.position = start + perpendicular;
+                topLeftBodyVertex.normal = normal;
+                destMeshVertexArrayPtr->push_back(topLeftBodyVertex);
+
+                MeshVertex bottomLeftBodyVertex;
+                bottomLeftBodyVertex.position = end + perpendicular;
+                bottomLeftBodyVertex.normal = normal;
+                destMeshVertexArrayPtr->push_back(bottomLeftBodyVertex);
+
+                unitPerpendicular = rotation * unitPerpendicular;
+                perpendicular = unitPerpendicular * radius;
+
+                MeshVertex topRightBodyVertex;
+                topRightBodyVertex.position = start + perpendicular;
+                topRightBodyVertex.normal = normal;
+                destMeshVertexArrayPtr->push_back(topRightBodyVertex);
+
+                MeshVertex bottomRightBodyVertex;
+                bottomRightBodyVertex.position = end + perpendicular;
+                bottomRightBodyVertex.normal = normal;
+                destMeshVertexArrayPtr->push_back(bottomRightBodyVertex);
+            }
+
+            if (triangulate)
+            {
+                // body
+                for (size_t i = 0; i < faces; ++i)
+                {
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 3]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 1]);
+                }
+
+                for (size_t i = 0; i < faces * 6; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < faces; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 3);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
+                }
+            }
+        }
+
+        return true;
+    }
+
     void MeshLoader::CopyMesh(
         MeshData& destinationMeshData,
         const MeshData& sourceMeshData)
@@ -4322,7 +4897,7 @@ namespace Project001
         const glm::vec2& point2,
         const float& slope2)
     {
-        glm::vec2 intersectionPoint;
+        glm::vec2 intersectionPoint(NAN, NAN);
 
         float& x = intersectionPoint.x;
         float& y = intersectionPoint.y;
@@ -4344,8 +4919,8 @@ namespace Project001
 
         if (slope1 == slope2)
         {
-            intersectionPoint.x = NAN;
-            intersectionPoint.y = NAN;
+            // intersectionPoint.x = NAN;
+            // intersectionPoint.y = NAN;
         }
         else if (slope1 == INFINITY || slope1 == -INFINITY)
         {

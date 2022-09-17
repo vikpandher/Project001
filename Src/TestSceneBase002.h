@@ -66,8 +66,6 @@ protected:
 
     // Mesh Data: --------------------------------------------------------------
 
-    unsigned int selectedEntityIdIndex_;
-
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
     // Entity Ids: -------------------------------------------------------------
@@ -80,6 +78,7 @@ protected:
 
     bool cursorGrabbingEntity_;
     glm::vec2 previousWorldCursorDownPosition_;
+    unsigned int selectedEntityIdIndex_;
 
 private:
 };

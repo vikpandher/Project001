@@ -401,6 +401,29 @@ namespace Project001
         }
     }
 
+    inline bool Check3D_Line_AABB_Overlap(
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max)
+    {
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        return Linecast3D_AABB(line_position, line_direction, aabb_min, aabb_max, hit_scalar_largest_min, hit_scalar_smallest_max);
+    }
+
+    inline bool Check3D_Line_OBB_Overlap(
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation)
+    {
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        return Linecast3D_OBB(line_position, line_direction, obb_halfSize, obb_position, obb_orientation, hit_scalar_largest_min, hit_scalar_smallest_max);
+    }
+
     inline bool Check3D_Line_Sphere_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
@@ -534,27 +557,20 @@ namespace Project001
             return true;
         }
 
-        float rayStartDistanceSquared = glm::dot(ray_position, ray_position);
-        float planeDistanceSquared = plane_distance * plane_distance;
         float nd = glm::dot(ray_direction, plane_normal);
-        float pd = glm::dot(ray_position, plane_normal);
+        float pn = glm::dot(ray_position, plane_normal);
 
-        if (nd >= 0.0f)
+        // if nd == 0, ray is parallel to the plane
+        // if nd > 0, ray is hitting plane from below
+        // if nd < 0, ray is hitting plane from above
+        if (FloatEqualToFloat(nd, 0.0f))
         {
-            // ray and plane_normal point in the same direction, so check if the
-            // ray is closer to the origin. If it is, it'll pass through the
-            // plane.
-
-            return pd < 0.0f || rayStartDistanceSquared < planeDistanceSquared;
+            return false;
         }
-        else
-        {
-            // ray and plane_normal point in the opposite direction, so check if
-            // the ray is farther from the origin. If it is, it'll pass through
-            // the plane.
 
-            return pd >= 0.0f && rayStartDistanceSquared > planeDistanceSquared;
-        }
+        float hit_scalar = (plane_distance - pn) / nd;
+
+        return FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f);
     }
 
     inline bool Check3D_Ray_Triangle_Overlap(
@@ -584,37 +600,67 @@ namespace Project001
             return Check3D_LineSegment_Ray_Overlap(triangle_corner1, triangle_corner2, ray_position, ray_direction);
         }
 
-        glm::vec3 side12 = triangle_corner2 - triangle_corner1;
-        glm::vec3 side13 = triangle_corner3 - triangle_corner1;
-        glm::vec3 plane_normal = glm::normalize(glm::cross(side12, side13));
 
-        float denominator = glm::dot(plane_normal, ray_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        glm::vec3 plane_normal;
+        float plane_distance;
+        Get3D_Triangle_ContainingPlane_H(triangle_corner1, triangle_corner2, triangle_corner3, plane_normal, plane_distance);
+
+        float nd = glm::dot(ray_direction, plane_normal);
+        float pn = glm::dot(ray_position, plane_normal);
+
+        // if nd == 0, ray is parallel to the plane
+        // if nd > 0, ray is hitting plane from below
+        // if nd < 0, ray is hitting plane from above
+        if (FloatEqualToFloat(nd, 0.0f))
         {
-            // ray is parallel to the plane,
             return Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner1, triangle_corner2) ||
                 Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner2, triangle_corner3) ||
                 Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner3, triangle_corner1);
         }
-        else
-        {
-            const glm::vec3& plane_position = triangle_corner1;
-            float numerator = glm::dot(plane_normal, plane_position - ray_position);
-            float u = numerator / denominator;
 
-            if (FloatGreaterThanOrEqualToFloat(u, 0.0f))
-            {
-                glm::vec3 intersection_position = ray_direction * u + ray_position;
-                return Check3D_Point_Triangle_Overlap_H(
-                    intersection_position,
-                    triangle_corner1, triangle_corner2, triangle_corner3);
-            }
-            else
-            {
-                // intersection is behind
-                return false;
-            }
+        float hit_scalar = (plane_distance - pn) / nd;
+
+        if (FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
+        {
+            glm::vec3 hit_point_position = ray_position + ray_direction * hit_scalar;
+
+            return Check3D_Point_Triangle_Overlap_H(hit_point_position, triangle_corner1, triangle_corner2, triangle_corner3);
         }
+
+        return false;
+    }
+
+    inline bool Check3D_Ray_AABB_Overlap(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max)
+    {
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        if (Linecast3D_AABB(ray_position, ray_direction, aabb_min, aabb_max, hit_scalar_largest_min, hit_scalar_smallest_max))
+        {
+            return hit_scalar_smallest_max > 0.0f;
+        }
+
+        return false;
+    }
+
+    inline bool Check3D_Ray_OBB_Overlap(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation)
+    {
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        if (Linecast3D_OBB(ray_position, ray_direction, obb_halfSize, obb_position, obb_orientation, hit_scalar_largest_min, hit_scalar_smallest_max))
+        {
+            return hit_scalar_smallest_max > 0.0f;
+        }
+
+        return false;
     }
 
     inline bool Check3D_Ray_Sphere_Overlap(
@@ -759,6 +805,41 @@ namespace Project001
         return Check3D_LineSegment_Triangle_Overlap_H(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
+    inline bool Check3D_LineSegment_AABB_Overlap(
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max)
+    {
+        glm::vec3 lineSegment_direciton = lineSegment_end - lineSegment_start;
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        if (Linecast3D_AABB(lineSegment_start, lineSegment_direciton, aabb_min, aabb_max, hit_scalar_largest_min, hit_scalar_smallest_max))
+        {
+            return hit_scalar_smallest_max > 0.0f && hit_scalar_largest_min < 1.0f;
+        }
+
+        return false;
+    }
+
+    inline bool Check3D_LineSegment_OBB_Overlap(
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation)
+    {
+        glm::vec3 lineSegment_direciton = lineSegment_end - lineSegment_start;
+        float hit_scalar_largest_min;
+        float hit_scalar_smallest_max;
+        if (Linecast3D_OBB(lineSegment_start, lineSegment_direciton, obb_halfSize, obb_position, obb_orientation, hit_scalar_largest_min, hit_scalar_smallest_max))
+        {
+            return hit_scalar_smallest_max > 0.0f && hit_scalar_largest_min < 1.0f;
+        }
+
+        return false;
+    }
+
     inline bool Check3D_LineSegment_Sphere_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
@@ -804,6 +885,7 @@ namespace Project001
         const glm::vec3& planeB_normal,
         const float& planeB_distance)
     {
+        // This works even with the divide by Zero
         glm::vec3 normal_ratio = planeA_normal / planeB_normal;
         if (FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
             FloatEqualToFloat(normal_ratio.x, normal_ratio.z))
@@ -837,6 +919,51 @@ namespace Project001
         float distance3;
         Get3D_Point_Plane_Distance(triangle_corner3, plane_normal, plane_distance, distance3);
         return FloatEqualToFloat(distance3, 0.0f) || std::signbit(distance1) != std::signbit(distance3);
+    }
+
+    inline bool Check3D_Plane_AABB_Overlap(
+        const glm::vec3& plane_normal,
+        const float& plane_distance,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max)
+    {
+        // project AABB half extents onto plane normal
+        glm::vec3 aabb_halfSize = (aabb_max - aabb_min) * 0.5f;
+        glm::vec3 aabb_position = (aabb_max + aabb_min) * 0.5f;
+        float projection = aabb_halfSize.x * std::abs(plane_normal.x) +
+            aabb_halfSize.y * std::abs(plane_normal.y) +
+            aabb_halfSize.z * std::abs(plane_normal.z);
+
+        // distance from center of AABB to plane
+        float distance = std::abs(glm::dot(plane_normal, aabb_position) - plane_distance);
+
+        return FloatLessThanOrEqualToFloat(distance, projection);
+    }
+
+    inline bool Check3D_Plane_OBB_Overlap(
+        const glm::vec3& plane_normal,
+        const float& plane_distance,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation)
+    {
+        glm::mat3 obb_oritentationMatrix = glm::mat3_cast(obb_orientation);
+        // glm::mat3 obb_oritentationMatrix =
+        // {
+        //     obb_orientation * glm::vec3(1.0f, 0.0f, 0.0f),
+        //     obb_orientation * glm::vec3(0.0f, 1.0f, 0.0f),
+        //     obb_orientation * glm::vec3(0.0f, 0.0f, 1.0f)
+        // };
+
+        // project OBB half extents onto plane normal
+        float projection = obb_halfSize.x * std::abs(glm::dot(plane_normal, obb_oritentationMatrix[0])) +
+            obb_halfSize.y * std::abs(glm::dot(plane_normal, obb_oritentationMatrix[1])) +
+            obb_halfSize.z * std::abs(glm::dot(plane_normal, obb_oritentationMatrix[2]));
+
+        // distance from center of OBB to plane
+        float distance = std::abs(glm::dot(plane_normal, obb_position) - plane_distance);
+
+        return FloatLessThanOrEqualToFloat(distance, projection);
     }
 
     inline bool Check3D_Plane_Sphere_Overlap(
@@ -1024,6 +1151,15 @@ namespace Project001
         return Check3D_Point_AABB_Overlap(point_position, aabb_min, aabb_max);
     }
 
+    inline bool Check3D_AABB_Plane_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& plane_normal,
+        const float& plane_distance)
+    {
+        return Check3D_Plane_AABB_Overlap(plane_normal, plane_distance, aabb_min, aabb_max);
+    }
+
     inline bool Check3D_AABB_AABB_Overlap(
         const glm::vec3& aabbA_min,
         const glm::vec3& aabbA_max,
@@ -1101,6 +1237,16 @@ namespace Project001
         return Check3D_Point_OBB_Overlap(point_position, obb_halfSize, obb_position, obb_orientation);
     }
 
+    inline bool Check3D_OBB_Plane_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& plane_normal,
+        const float& plane_distance)
+    {
+        return Check3D_Plane_OBB_Overlap(plane_normal, plane_distance, obb_halfSize, obb_position, obb_orientation);
+    }
+
     inline bool Check3D_OBB_AABB_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -1109,6 +1255,48 @@ namespace Project001
         const glm::vec3& aabb_max)
     {
         return Check3D_AABB_OBB_Overlap(aabb_min, aabb_max, obb_halfSize, obb_position, obb_orientation);
+    }
+
+    inline bool Check3D_OBB_OBB_Overlap(
+        const glm::vec3& obbA_halfSize,
+        const glm::vec3& obbA_position,
+        const glm::quat& obbA_orientation,
+        const glm::vec3& obbB_halfSize,
+        const glm::vec3& obbB_position,
+        const glm::quat& obbB_orientation)
+    {
+        glm::vec3 testAxes[15] = {
+            obbA_orientation * glm::vec3(1.0f, 0.0f, 0.0f),
+            obbA_orientation * glm::vec3(0.0f, 1.0f, 0.0f),
+            obbA_orientation * glm::vec3(0.0f, 0.0f, 1.0f),
+            obbB_orientation * glm::vec3(1.0f, 0.0f, 0.0f),
+            obbB_orientation * glm::vec3(0.0f, 1.0f, 0.0f),
+            obbB_orientation * glm::vec3(0.0f, 0.0f, 1.0f)
+        };
+
+        for (size_t i = 0; i < 3; ++i)
+        {
+            testAxes[6 + i * 3] = glm::cross(testAxes[i], testAxes[0]);
+            testAxes[6 + i * 3 + 1] = glm::cross(testAxes[i], testAxes[1]);
+            testAxes[6 + i * 3 + 2] = glm::cross(testAxes[i], testAxes[2]);
+        }
+
+        for (size_t i = 0; i < 15; ++i)
+        {
+            float intervalA_min;
+            float intervalA_max;
+            Get3D_OBB_AxisInterval(obbA_halfSize, obbA_position, obbA_orientation, testAxes[i], intervalA_min, intervalA_max);
+            float intervalB_min;
+            float intervalB_max;
+            Get3D_OBB_AxisInterval(obbB_halfSize, obbB_position, obbB_orientation, testAxes[i], intervalB_min, intervalB_max);
+
+            if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     inline bool Check3D_OBB_Sphere_Overlap(
@@ -1418,14 +1606,25 @@ namespace Project001
         const glm::quat& obb_orientation,
         glm::vec3& closestPoint_position)
     {
-        glm::vec3 translated_point_position = point_position - obb_position;
-        glm::quat inverse_orientation = glm::inverse(obb_orientation);
-        glm::vec3 rotated_point_position = inverse_orientation * translated_point_position;
+        closestPoint_position = obb_position;
+        glm::vec3 obb_to_point = point_position - obb_position;
+        glm::mat3 obb_rotation = glm::mat3_cast(obb_orientation);
 
-        Get3D_Point_AABB_ClosestPoint(rotated_point_position, -1.0f * obb_halfSize, obb_halfSize, closestPoint_position);
+        for (glm::length_t i = 0; i < 3; ++i)
+        {
+            glm::vec3 axis = obb_rotation[i];
 
-        closestPoint_position = obb_orientation * closestPoint_position;
-        closestPoint_position += obb_position;
+            float distance = glm::dot(obb_to_point, axis);
+
+            if (distance > obb_halfSize[i]) {
+                distance = obb_halfSize[i];
+            }
+            if (distance < -obb_halfSize[i]) {
+                distance = -obb_halfSize[i];
+            }
+
+            closestPoint_position += (axis * distance);
+        }
     }
 
     inline void Get3D_Point_Sphere_ClosestPoint(
@@ -1450,7 +1649,7 @@ namespace Project001
         }
     }
 
-    inline void Get3d_Point_Sphere_ClosestSurfacePoint(
+    inline void Get3D_Point_Sphere_ClosestSurfacePoint(
         const glm::vec3& point_position,
         const glm::vec3& sphere_position,
         const float& sphere_radius,
@@ -1460,6 +1659,252 @@ namespace Project001
         closestPoint_position = glm::normalize(closestPoint_position);
         closestPoint_position *= sphere_radius;
         closestPoint_position += sphere_position;
+    }
+
+    // Raycast Functions -------------------------------------------------------
+
+    inline bool Raycast3D_Plane(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& plane_normal,
+        const float& plane_distance,
+        float& hit_scalar,
+        glm::vec3& hit_normal)
+    {
+        float nd = glm::dot(ray_direction, plane_normal);
+        float pn = glm::dot(ray_position, plane_normal);
+
+        // if nd == 0, ray is parallel to the plane
+        // if nd > 0, ray is hitting plane from below
+        // if nd < 0, ray is hitting plane from above
+        if (FloatEqualToFloat(nd, 0.0f))
+        {
+            return false;
+        }
+
+        hit_scalar = (plane_distance - pn) / nd;
+
+        if (FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
+        {
+            if (FloatLessThanOrEqualToFloat(nd, 0))
+            {
+                hit_normal = plane_normal;
+            }
+            else
+            {
+                hit_normal = -plane_normal;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    inline bool Raycast3D_Triangle(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3,
+        float& hit_scalar,
+        glm::vec3& hit_normal,
+        glm::vec3& hit_point_position)
+    {
+        if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner2) ||
+            Check3D_Point_Point_Overlap(triangle_corner2, triangle_corner3) ||
+            Check3D_Point_Point_Overlap(triangle_corner3, triangle_corner1))
+        {
+            return false;
+        }
+
+        glm::vec3 plane_normal;
+        float plane_distance;
+        Get3D_Triangle_ContainingPlane_H(triangle_corner1, triangle_corner2, triangle_corner3, plane_normal, plane_distance);
+
+        if (Raycast3D_Plane(ray_position, ray_direction, plane_normal, plane_distance, hit_scalar, hit_normal))
+        {
+            hit_point_position = ray_position + ray_direction * hit_scalar;
+
+            return Check3D_Point_Triangle_Overlap_H(hit_point_position, triangle_corner1, triangle_corner2, triangle_corner3);
+        }
+        
+        return false;
+    }
+
+    inline bool Raycast3D_AABB(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        float& hit_scalar,
+        glm::vec3& hit_normal)
+    {
+        // Any component of direction could be 0
+        // Address this by using a small number, close to
+        // 0 in case any of directions components are 0
+        float t[6] = {
+            (aabb_min.x - ray_position.x) / (FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
+            (aabb_max.x - ray_position.x) / (FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
+            (aabb_min.y - ray_position.y) / (FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
+            (aabb_max.y - ray_position.y) / (FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
+            (aabb_min.z - ray_position.z) / (FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z),
+            (aabb_max.z - ray_position.z) / (FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z)
+        };
+
+        float largest_t_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
+        float smallest_t_max = std::min(std::min(std::max(t[0], t[1]), std::max(t[2], t[3])), std::max(t[4], t[5]));
+
+        // if smallest_t_max < 0, ray would intersect but
+        // it is facing the opposite direction
+        if (smallest_t_max < 0) {
+            return false;
+        }
+
+        // if largest_t_min > smallest_t_max, ray doesn't intersect
+        if (largest_t_min > smallest_t_max) {
+            return false;
+        }
+
+        // If largest_t_min is < 0, tmax is closer
+        if (largest_t_min < 0.0f) {
+            hit_scalar = smallest_t_max;
+        }
+        else
+        {
+            hit_scalar = largest_t_min;
+        }
+
+        glm::vec3 normals[6] = {
+            glm::vec3(-1, 0, 0),
+            glm::vec3(1, 0, 0),
+            glm::vec3(0, -1, 0),
+            glm::vec3(0, 1, 0),
+            glm::vec3(0, 0, -1),
+            glm::vec3(0, 0, 1)
+        };
+        for (int i = 0; i < 6; ++i) {
+            if (FloatEqualToFloat(hit_scalar, t[i])) {
+                hit_normal = normals[i];
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Raycast3D_OBB(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        float& hit_scalar,
+        glm::vec3& hit_normal)
+    {
+        glm::mat3 obb_rotation = glm::mat3_cast(obb_orientation);
+
+        glm::vec3 f(
+            glm::dot(obb_rotation[0], ray_direction),
+            glm::dot(obb_rotation[1], ray_direction),
+            glm::dot(obb_rotation[2], ray_direction)
+        );
+
+        glm::vec3 p = obb_position - ray_position;
+
+        glm::vec3 e(
+            glm::dot(obb_rotation[0], p),
+            glm::dot(obb_rotation[1], p),
+            glm::dot(obb_rotation[2], p)
+        );
+
+        float t[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        for (int i = 0; i < 3; ++i) {
+            if (FloatEqualToFloat(f[i], 0.0f)) {
+                if (-e[i] - obb_halfSize[i] > 0.0f || -e[i] + obb_halfSize[i] < 0.0f) {
+                    return false;
+                }
+                f[i] = 0.00001f; // avoid dividing by 0
+            }
+
+            t[i * 2 + 0] = (e[i] + obb_halfSize[i]) / f[i]; // tmin[x, y, z]
+            t[i * 2 + 1] = (e[i] - obb_halfSize[i]) / f[i]; // tmax[x, y, z]
+        }
+
+        float largest_t_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
+        float smallest_t_max = std::min(std::min(std::max(t[0], t[1]), std::max(t[2], t[3])), std::max(t[4], t[5]));
+
+        // if smallest_t_max < 0, ray would intersect but
+        // it is facing the opposite direction
+        if (smallest_t_max < 0) {
+            return false;
+        }
+
+        // if largest_t_min > smallest_t_max, ray doesn't intersect
+        if (largest_t_min > smallest_t_max) {
+            return false;
+        }
+
+        // If largest_t_min is < 0, tmax is closer
+        if (largest_t_min < 0.0f) {
+            hit_scalar = smallest_t_max;
+        }
+        else
+        {
+            hit_scalar = largest_t_min;
+        }
+
+        glm::vec3 normals[6] = {
+            obb_rotation[0],
+            obb_rotation[0] * -1.0f,
+            obb_rotation[1],
+            obb_rotation[1] * -1.0f,
+            obb_rotation[2],
+            obb_rotation[2] * -1.0f
+        };
+        for (int i = 0; i < 6; ++i) {
+            if (FloatEqualToFloat(hit_scalar, t[i])) {
+                hit_normal = normals[i];
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Raycast3D_Sphere(
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction,
+        const glm::vec3& sphere_position,
+        const float& sphere_radius,
+        float& hit_scalar,
+        glm::vec3& hit_normal,
+        glm::vec3& hit_point_position)
+    {
+        glm::vec3 rayToSphere = sphere_position - ray_position;
+        float rayToSphereSq = glm::dot(rayToSphere, rayToSphere);
+        float sphereRadiusSq = sphere_radius * sphere_radius;
+        float a = glm::dot(rayToSphere, ray_direction);
+        float aSq = a * a;
+        float bSq = rayToSphereSq - (aSq);
+        float f = glm::sqrt(glm::abs((sphereRadiusSq)- bSq));
+
+        if (FloatGreaterThanOrEqualToFloat(sphereRadiusSq - (rayToSphereSq - aSq), 0.0f))
+        {
+            if (rayToSphereSq < sphereRadiusSq) {
+                hit_scalar = a + f;
+            }
+            else
+            {
+                hit_scalar = a - f;
+            }
+
+            hit_point_position = ray_position + ray_direction * hit_scalar;
+            hit_normal = glm::normalize(hit_point_position - sphere_position);
+
+            return true;
+        }
+
+        return false;
     }
 
     // Helper Functions --------------------------------------------------------
@@ -1562,25 +2007,14 @@ namespace Project001
         const glm::quat& obb_orientation,
         glm::vec3& closestPoint_position)
     {
-        closestPoint_position = obb_position;
-        glm::vec3 obb_to_point = point_position - obb_position;
-        glm::mat3 obb_rotation = glm::mat3_cast(obb_orientation);
+        glm::vec3 translated_point_position = point_position - obb_position;
+        glm::quat inverse_orientation = glm::inverse(obb_orientation);
+        glm::vec3 rotated_point_position = inverse_orientation * translated_point_position;
 
-        for (glm::length_t i = 0; i < 3; ++i)
-        {
-            glm::vec3 axis = obb_rotation[i];
+        Get3D_Point_AABB_ClosestPoint(rotated_point_position, -1.0f * obb_halfSize, obb_halfSize, closestPoint_position);
 
-            float distance = glm::dot(obb_to_point, axis);
-
-            if (distance > obb_halfSize[i]) {
-                distance = obb_halfSize[i];
-            }
-            if (distance < -obb_halfSize[i]) {
-                distance = -obb_halfSize[i];
-            }
-
-            closestPoint_position += (axis * distance);
-        }
+        closestPoint_position = obb_orientation * closestPoint_position;
+        closestPoint_position += obb_position;
     }
 
     inline bool Check3D_Line_Plane_Overlap_Alt(
@@ -1821,6 +2255,37 @@ namespace Project001
         }
     }
 
+    inline bool Check3D_LineSegment_Triangle_Overlap_H_Alt(
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3)
+    {
+        glm::vec3 plane_normal;
+        float plane_distance;
+        Get3D_Triangle_ContainingPlane_H(triangle_corner1, triangle_corner2, triangle_corner3, plane_normal, plane_distance);
+
+        glm::vec3 lineSegment_vector = lineSegment_end - lineSegment_start;
+        glm::vec3 lineSegment_direction = glm::normalize(lineSegment_vector);
+        float denominator = glm::dot(plane_normal, lineSegment_direction);
+        if (FloatEqualToFloat(denominator, 0.0f))
+        {
+            // line is parallel to the plane
+            return Check3D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2) ||
+                Check3D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, triangle_corner2, triangle_corner3) ||
+                Check3D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, triangle_corner3, triangle_corner1) ||
+                Check3D_Point_Triangle_Overlap_H(lineSegment_start, triangle_corner1, triangle_corner2, triangle_corner3);
+        }
+        else
+        {
+            float t = (plane_distance - glm::dot(plane_normal, lineSegment_start)) / denominator;
+            float lineSegmentLengthSq = glm::dot(lineSegment_vector, lineSegment_vector);
+            return FloatGreaterThanOrEqualToFloat(t, 0.0f) &&
+                FloatLessThanOrEqualToFloat(t * t, lineSegmentLengthSq);
+        }
+    }
+
     inline void Get3D_Triangle_ContainingPlane_H(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
@@ -1902,12 +2367,12 @@ namespace Project001
         interval_max = interval_min;
 
         float scalarProjection = glm::dot(axis, triangle_corner2);
-        interval_min = GetMin(interval_min, scalarProjection);
-        interval_max = GetMax(interval_max, scalarProjection);
+        interval_min = std::min(interval_min, scalarProjection);
+        interval_max = std::max(interval_max, scalarProjection);
 
         scalarProjection = glm::dot(axis, triangle_corner3);
-        interval_min = GetMin(interval_min, scalarProjection);
-        interval_max = GetMax(interval_max, scalarProjection);
+        interval_min = std::min(interval_min, scalarProjection);
+        interval_max = std::max(interval_max, scalarProjection);
     }
 
     inline void Get3D_AABB_AxisInterval(
@@ -1972,5 +2437,83 @@ namespace Project001
             interval_min = GetMin(interval_min, scalarProjection);
             interval_max = GetMax(interval_max, scalarProjection);
         }
+    }
+
+    inline bool Linecast3D_AABB(
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        float& hit_scalar_largest_min,
+        float& hit_scalar_smallest_max)
+    {
+        // Any component of direction could be 0
+        // Address this by using a small number, close to
+        // 0 in case any of directions components are 0
+        float t[6] = {
+            (aabb_min.x - g_floattMarginOfError - line_position.x) / (FloatEqualToFloat(line_direction.x, 0.0f) ? g_floattMarginOfError : line_direction.x),
+            (aabb_max.x + g_floattMarginOfError - line_position.x) / (FloatEqualToFloat(line_direction.x, 0.0f) ? g_floattMarginOfError : line_direction.x),
+            (aabb_min.y - g_floattMarginOfError - line_position.y) / (FloatEqualToFloat(line_direction.y, 0.0f) ? g_floattMarginOfError : line_direction.y),
+            (aabb_max.y + g_floattMarginOfError - line_position.y) / (FloatEqualToFloat(line_direction.y, 0.0f) ? g_floattMarginOfError : line_direction.y),
+            (aabb_min.z - g_floattMarginOfError - line_position.z) / (FloatEqualToFloat(line_direction.z, 0.0f) ? g_floattMarginOfError : line_direction.z),
+            (aabb_max.z + g_floattMarginOfError - line_position.z) / (FloatEqualToFloat(line_direction.z, 0.0f) ? g_floattMarginOfError : line_direction.z)
+        };
+
+        hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
+        hit_scalar_smallest_max = std::min(std::min(std::max(t[0], t[1]), std::max(t[2], t[3])), std::max(t[4], t[5]));
+
+        if (hit_scalar_largest_min > hit_scalar_smallest_max) {
+            return false;
+        }
+
+        return true;
+    }
+
+    inline bool Linecast3D_OBB(
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        float& hit_scalar_largest_min,
+        float& hit_scalar_smallest_max)
+    {
+        glm::mat3 obb_rotation = glm::mat3_cast(obb_orientation);
+
+        glm::vec3 f(
+            glm::dot(obb_rotation[0], line_direction),
+            glm::dot(obb_rotation[1], line_direction),
+            glm::dot(obb_rotation[2], line_direction)
+        );
+
+        glm::vec3 p = obb_position - line_position;
+
+        glm::vec3 e(
+            glm::dot(obb_rotation[0], p),
+            glm::dot(obb_rotation[1], p),
+            glm::dot(obb_rotation[2], p)
+        );
+
+        float t[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        for (int i = 0; i < 3; ++i) {
+            if (FloatEqualToFloat(f[i], 0.0f)) {
+                if (-e[i] - obb_halfSize[i] - g_floattMarginOfError > 0.0f || -e[i] + obb_halfSize[i] + g_floattMarginOfError < 0.0f) {
+                    return false;
+                }
+                f[i] = g_floattMarginOfError; // avoid dividing by 0
+            }
+
+            t[i * 2 + 0] = (e[i] + obb_halfSize[i]) / f[i]; // tmin[x, y, z]
+            t[i * 2 + 1] = (e[i] - obb_halfSize[i]) / f[i]; // tmax[x, y, z]
+        }
+
+        hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
+        hit_scalar_smallest_max = std::min(std::min(std::max(t[0], t[1]), std::max(t[2], t[3])), std::max(t[4], t[5]));
+
+        if (hit_scalar_largest_min > hit_scalar_smallest_max) {
+            return false;
+        }
+
+        return true;
     }
 }

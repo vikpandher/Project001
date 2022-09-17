@@ -87,11 +87,11 @@ void TestSceneBase001::Initialize()
 
 void TestSceneBase001::Deinitialize()
 {
+    ClearResources();
     rendererPtr_->DeleteAllTextures();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
     componentStoresPtr_->DeleteAllEntities();
-    ClearResources();
 }
 
 void TestSceneBase001::OnEvent(Project001::Event& event)
@@ -108,8 +108,15 @@ void TestSceneBase001::OnEvent(Project001::Event& event)
 
 void TestSceneBase001::ClearResources()
 {
+    for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
+    {
+        delete meshDataPtrArray_[i];
+    }
+    meshDataPtrArray_.clear();
+
     mainCameraEntityId_ = (unsigned int)-1;
     lightSourceEntityId_ = (unsigned int)-1;
+    entityIds_.clear();
 }
 
 void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
@@ -287,8 +294,8 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                     {
                         // both are translucent so the farther is drawn first
                         glm::vec3 cameraPosition = cameraPtr->GetPosition();
-                        size_t disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
-                        size_t disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                        float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                        float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
                         return disatanceSquaredA > disatanceSquaredB;
                     }
                     else
@@ -306,8 +313,8 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                 {
                     // both are not translucent so the closer is drawn first
                     glm::vec3 cameraPosition = cameraPtr->GetPosition();
-                    size_t disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
-                    size_t disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                    float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                    float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
                     return disatanceSquaredA < disatanceSquaredB;
                 }
             });

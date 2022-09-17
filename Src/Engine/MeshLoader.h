@@ -16,7 +16,7 @@ namespace Project001
         static bool LoadMeshOBJ(
             MeshData& meshData,
             const std::string& path,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool LoadTriangleMesh(
             MeshData& meshData,
@@ -27,7 +27,7 @@ namespace Project001
         static bool Generate2DTriangleFan(
             MeshData& meshData,
             const std::vector<glm::vec2>& positions,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DTriangles(
             MeshData& meshData,
@@ -36,7 +36,7 @@ namespace Project001
         static bool Generate2DTriangleStrip(
             MeshData& meshData,
             const std::vector<glm::vec2>& positions,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DArc(
             MeshData& meshData,
@@ -45,21 +45,21 @@ namespace Project001
             size_t subdivisions,
             float startAngle,
             float endAngle,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DCapsule(
             MeshData& meshData,
             float rectangleHeight,
             float capsuleWidth,
             size_t radialSections,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DLine(
             MeshData& meshData,
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         // TODO:
         static bool Generate2DLine_v2(
@@ -76,13 +76,13 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DRegularPolygon(
             MeshData& meshData,
             float radius,
             size_t sides,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool Generate2DBezeledRectangle(
             MeshData& meshData,
@@ -90,7 +90,7 @@ namespace Project001
             float height,
             float bezelSize,
             float bezelSections,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         // texture origin is bottom left
         static bool Generate2DSprite(
@@ -101,7 +101,14 @@ namespace Project001
             float textureRight,
             float textureBottom,
             float textureTop,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
+
+        static bool GenerateBox(
+            MeshData& meshData,
+            const glm::vec3& min,
+            const glm::vec3& max,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
 
         static bool GenerateBox(
             MeshData& meshData,
@@ -109,7 +116,7 @@ namespace Project001
             float yLength,
             float zLength,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool GenerateCapsule(
             MeshData& meshData,
@@ -118,7 +125,7 @@ namespace Project001
             size_t faces,
             size_t stacks,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool GenerateCone(
             MeshData& meshData,
@@ -126,7 +133,7 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool GenerateCylinder(
             MeshData& meshData,
@@ -134,14 +141,14 @@ namespace Project001
             float radius,
             size_t faces,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool GenerateIcosphere(
             MeshData& meshData,
             float radius,
             size_t subdivisions,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
 
         static bool GenerateSphere(
             MeshData& meshData,
@@ -149,7 +156,16 @@ namespace Project001
             size_t longitudinalSections,
             size_t latitudinalSections,
             bool smoothNormals = true,
-            bool trangulate = s_triangulate);
+            bool triangulate = s_triangulate);
+
+        static bool GenerateTube(
+            MeshData& meshData,
+            const glm::vec3& start,
+            const glm::vec3& end,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
 
         static void CopyMesh(
             MeshData& destinationMeshData,

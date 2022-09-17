@@ -133,6 +133,9 @@ namespace Project001
         static const unsigned int s_numberOfPointLights_ = 8;
         static const unsigned int s_numberOfSpotLights_ = 4;
 
+        // TODO: implement a debug view grid
+        // bool redrawGrid_; // set to true in Clear() then drawn and set to false in Render()
+
         bool depthTesting_;
 
         OpenGLShader* primaryShaderPtr_;

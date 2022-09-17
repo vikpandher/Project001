@@ -5,15 +5,10 @@
 #include "Engine/FontData.h"
 #include "Engine/TextureData.h"
 
-#include <map>
-#include <vector>
-
 
 
 namespace Project001
 {
-    struct MeshData;
-
     struct KeyEvent;
 }
 
@@ -35,13 +30,9 @@ public:
     void OnEvent(Project001::Event& event) override;
 
 protected:
-    void ClearIndiciesAndEntityIds();
+    void ClearResources();
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-
-    // Mesh Data: --------------------------------------------------------------
-
-    std::vector<Project001::MeshData*> meshDataPtrArray_;
 
     // Font Data: --------------------------------------------------------------
 
@@ -54,10 +45,6 @@ protected:
     // Texture Ids: ------------------------------------------------------------
 
     unsigned int fontTextureId_;
-
-    // Entity Ids: -------------------------------------------------------------
-
-    std::vector<unsigned int> entityIds_;
 
 private:
 };

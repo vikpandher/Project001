@@ -1,4 +1,4 @@
-#include "TestScene005.h"
+#include "TestScene007.h"
 
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Application.h"
@@ -14,20 +14,20 @@
 
 // public: ---------------------------------------------------------------------
 
-TestScene005::TestScene005()
+TestScene007::TestScene007()
 {
-    ClearIndiciesAndEntityIds();
+    ClearResources();
 }
 
-TestScene005::~TestScene005()
+TestScene007::~TestScene007()
 {}
 
-const char* TestScene005::Name()
+const char* TestScene007::Name()
 {
-    return "TestScene005";
+    return "TestScene007";
 }
 
-void TestScene005::Initialize()
+void TestScene007::Initialize()
 {
     TestSceneBase001::Initialize();
 
@@ -84,36 +84,28 @@ void TestScene005::Initialize()
     }
 }
 
-void TestScene005::Deinitialize()
+void TestScene007::Deinitialize()
 {
     TestSceneBase001::Deinitialize();
 
-    ClearIndiciesAndEntityIds();
+    ClearResources();
 }
 
-void TestScene005::OnEvent(Project001::Event& event)
+void TestScene007::OnEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene005::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene007::ProcessKeyEvent, this, std::placeholders::_1));
 
     TestSceneBase001::OnEvent(event);
 }
 
 // protected: ------------------------------------------------------------------
 
-void TestScene005::ClearIndiciesAndEntityIds()
+void TestScene007::ClearResources()
 {
-    for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
-    {
-        delete meshDataPtrArray_[i];
-    }
-    meshDataPtrArray_.clear();
-
     _32x32_123abc_TextureId_ = (unsigned int)-1;
-
-    entityIds_.clear();
 }
 
-void TestScene005::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+void TestScene007::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     Project001::KeyCode& keyCode = keyEvent.keyCode;
     Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
@@ -123,11 +115,11 @@ void TestScene005::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene006"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene010"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene006"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene010"));
             }
         }
     }

@@ -12,9 +12,9 @@
 #define alCheckError() Project001::ALCheckError(__FILENAME__ , __LINE__)
 #define alcLogError(x) Project001::ALCLogError(x, __FILENAME__ , __LINE__)
 #define alLogError() Project001::ALLogError(__FILENAME__ , __LINE__)
-#elif
+#else
 #define alcCheckError(x) (alcGetError(x) != ALC_NO_ERROR)
-#define alCheckError() (alcGetError() != ALC_NO_ERROR)
+#define alCheckError() (alGetError() != AL_NO_ERROR)
 #define alcLogError(x)
 #define alLogError()
 #endif

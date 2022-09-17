@@ -40,9 +40,13 @@ void TestScene020::Initialize()
     // Load meshes
     // -------------------------------------------------------------------------
 
-    _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(shape01MeshData_, "../Models/saucer.obj"));
-    Project001::MeshLoader::RecenterMesh(shape01MeshData_);
-    Project001::MeshLoader::NormalizeMeshSize(shape01MeshData_);
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/saucer.obj"));
+        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        Project001::MeshLoader::NormalizeMeshSize(*newMeshDataPtr);
+    }
 
     // Load sounds
     // -------------------------------------------------------------------------
@@ -82,13 +86,15 @@ void TestScene020::Initialize()
     // generated shape entity 01
     // -------------------------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(shape01EntityId_));
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(shape01EntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
         renderedModelPtr->SetPosition(1.28f, 0.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(&shape01MeshData_);
+        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
 
         _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(song01SoundSourceId_));
         _FAIL_CHECK(soundPlayerPtr_->LinkSoundBufferToSoundSource(song01SoundBufferId_, song01SoundSourceId_));
@@ -123,13 +129,9 @@ void TestScene020::OnEvent(Project001::Event& event)
 
 void TestScene020::ClearResources()
 {
-    shape01MeshData_.Clear();
-
     song01SoundBufferId_ = (unsigned int)-1;
 
     song01SoundSourceId_ = (unsigned int)-1;
-
-    shape01EntityId_ = (unsigned int)-1;
 }
 
 void TestScene020::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -165,7 +167,7 @@ void TestScene020::UpdateShape01EntityPosition(unsigned long timestep_ns)
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
     Project001::RenderedModel* renderedModelPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(shape01EntityId_, renderedModelPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(entityIds_[0], renderedModelPtr));
     glm::vec3 currentPosition = renderedModelPtr->GetPosition();
 
     glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);

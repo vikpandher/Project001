@@ -1043,6 +1043,165 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_Line_AABB_Overlap()
+    {
+        // 01: line passing through a point AABB at origin
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f));
+
+            if (result != true) return 1;
+        }
+
+        // 02: line passing through a point AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(-1.0f, 0.0f, 1.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(0.0f, 1.0f, 2.0f),
+                glm::vec3(0.0f, 1.0f, 2.0f));
+
+            if (result != true) return 2;
+        }
+
+        // 03: line passing through a AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 3;
+        }
+
+        // 04: line passing through a AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 4;
+        }
+
+        // 05: line NOT passing through a AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(-1.0f, 1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 5;
+        }
+
+        // 06: line NOT passing through a AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(1.0f, -1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 6;
+        }
+
+        // 07: line passing through AABB corner
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(-0.1f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 7;
+        }
+
+        // 08: line passing through AABB corner
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.0f, 0.3f, 0.2f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 8;
+        }
+
+        // 09: line NOT passing through AABB
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.0f, 0.31f, 0.2f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 9;
+        }
+
+        // 10: line passing through AABB edge
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 10;
+        }
+
+        // 11: line passing through AABB edge
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(-0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+        
+            if (result != true) return 11;
+        }
+
+        // 12: line passing on AABB side
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(-0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+        
+            if (result != true) return 12;
+        }
+
+        // 13: line passing inside AABB side
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.3f, 0.1999f, 0.2f),
+                glm::normalize(glm::vec3(-0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 13;
+        }
+
+        // 14: line passing outside AABB side
+        {
+            bool result = Check3D_Line_AABB_Overlap(
+                glm::vec3(0.3f, 0.2001f, 0.2f),
+                glm::normalize(glm::vec3(-0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 14;
+        }
+
+        return 0;
+    }
+
     inline int UnitTest_Check3D_Line_Sphere_Overlap()
     {
         // 01: line passing through sphere at origin
@@ -1573,6 +1732,154 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_Ray_AABB_Overlap()
+    {
+        // 01: ray passing through a point AABB at origin
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f));
+
+            if (result != true) return 1;
+        }
+
+        // 02: ray passing through a point AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(-1.0f, 0.0f, 1.0f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(0.0f, 1.0f, 2.0f),
+                glm::vec3(0.0f, 1.0f, 2.0f));
+
+            if (result != true) return 2;
+        }
+
+        // 03: ray going in opposite direction to point AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(-1.0f, 0.0f, 1.0f),
+                glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)),
+                glm::vec3(0.0f, 1.0f, 2.0f),
+                glm::vec3(0.0f, 1.0f, 2.0f));
+
+            if (result != false) return 3;
+        }
+
+        // 04: ray NOT passing through a AABB (opposite direction)
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 4;
+        }
+
+        // 05: ray passing through a AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 5;
+        }
+
+        // 06: ray NOT passing through a AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(-1.0f, 1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 6;
+        }
+
+        // 07: ray NOT passing through a AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.2f),
+                glm::normalize(glm::vec3(1.0f, -1.0f, -1.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 7;
+        }
+
+        // 08: ray passing through AABB corner, starting at corner
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(-0.1f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 8;
+        }
+
+        // 09: ray NOT passing through AABB corner (going in opposite direction)
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.0f, 0.3f, 0.2f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 9;
+        }
+
+        // 10: ray passing through AABB corner
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.0f, 0.3f, 0.2f),
+                glm::normalize(glm::vec3(-0.1f, -0.1f, 0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 10;
+        }
+
+        // 11: ray NOT passing through AABB
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.0f, 0.31f, 0.2f),
+                glm::normalize(glm::vec3(0.1f, 0.1f, -0.1f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 11;
+        }
+
+        // 12: ray passing through AABB edge
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(-0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != true) return 12;
+        }
+
+        // 13: ray NOT passing through AABB edge (opposite direction)
+        {
+            bool result = Check3D_Ray_AABB_Overlap(
+                glm::vec3(0.2f, 0.2f, 0.3f),
+                glm::normalize(glm::vec3(0.1f, 0.0f, 0.0f)),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+
+            if (result != false) return 13;
+        }
+
+        return 0;
+    }
+
     inline int UnitTest_Check3D_Ray_Sphere_Overlap()
     {
         // 01: ray passing through sphere at origin
@@ -1895,6 +2202,171 @@ namespace Project001
         return 0;
     }
 
+    inline int UnitTest_Check3D_LineSegment_AABB_Overlap()
+    {
+        // 01: point lineSegment on point AABB at origin
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f));
+            if (result != true) return 1;
+        }
+
+        // 02: point lineSegment on Point AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f));
+            if (result != true) return 2;
+        }
+
+        // 03: point lineSegment in AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(2.0f, 3.0f, 4.0f),
+                glm::vec3(2.0f, 3.0f, 4.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(3.0f, 4.0f, 5.0f));
+            if (result != true) return 3;
+        }
+
+        // 04: point lineSegment on AABB corner
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(3.0f, 4.0f, 5.0f),
+                glm::vec3(3.0f, 4.0f, 5.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(3.0f, 4.0f, 5.0f));
+            if (result != true) return 4;
+        }
+
+        // 05: point lineSegment outside AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(3.0f, 4.0f, 5.0f),
+                glm::vec3(3.0f, 4.0f, 5.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(2.0f, 3.0f, 4.0f));
+            if (result != false) return 5;
+        }
+
+        // 06: lineSegment through point AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+            if (result != true) return 6;
+        }
+
+        // 07: lineSegment not through point AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(1.1f, 1.0f, 1.0f),
+                glm::vec3(1.1f, 1.0f, 1.0f));
+            if (result != false) return 7;
+        }
+
+        // 08: lineSegment inside AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(-2.0f, -3.0f, -4.0f),
+                glm::vec3(2.0f, 3.0f, 4.0f));
+            if (result != true) return 8;
+        }
+
+        // 09: LineSegment start in AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 2.0f, 3.0f),
+                glm::vec3(-2.0f, -3.0f, -4.0f),
+                glm::vec3(2.0f, 3.0f, 4.0f));
+            if (result != true) return 9;
+        }
+
+        // 09: LineSegment end in AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.7f),
+                glm::vec3(0.1f, 0.3f, 0.5f),
+                glm::vec3(-0.2f, -0.4f, -0.6f),
+                glm::vec3(0.2f, 0.4f, 0.6f));
+            if (result != true) return 9;
+        }
+
+        // 10: LineSegment not overlapping AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-0.1f, 0.5f, 0.3f),
+                glm::vec3(-0.4f, 0.3f, 0.3f),
+                glm::vec3(-0.2f, -0.4f, -0.6f),
+                glm::vec3(0.2f, 0.4f, 0.6f));
+            if (result != false) return 10;
+        }
+
+        // 11: LineSegment touching corner of AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(0.2f, -0.4f, -0.6f),
+                glm::vec3(0.0f, -0.2f, -0.7f),
+                glm::vec3(-0.2f, -0.4f, -0.6f),
+                glm::vec3(0.2f, 0.4f, 0.6f));
+            if (result != true) return 11;
+        }
+
+        // 12: LineSegment not overlapping AABB
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(0.3f, 0.2f, 0.0f),
+                glm::vec3(-0.3f, 0.2f, 0.0f),
+                glm::vec3(-0.2f, -0.1f, -0.3f),
+                glm::vec3(0.2f, 0.1f, 0.3f));
+            if (result != false) return 12;
+        }
+
+        // 13: LineSegment on AABB edge
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-0.3f, 0.2f, 0.3f),
+                glm::vec3(0.3f, 0.2f, 0.3f),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+            if (result != true) return 13;
+        }
+
+        // 14: LineSegment parallel to AABB edge, but no overlap
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-0.3f, 0.2f, 0.3f),
+                glm::vec3(-0.2f, 0.2f, 0.3f),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+            if (result != false) return 14;
+        }
+
+        // 15: LineSegment near AABB edge
+        {
+            bool result = Check3D_LineSegment_AABB_Overlap(
+                glm::vec3(-0.3f, 0.201f, 0.3f),
+                glm::vec3(0.3f, 0.201f, 0.3f),
+                glm::vec3(-0.1f, -0.2f, -0.3f),
+                glm::vec3(0.1f, 0.2f, 0.3f));
+            if (result != false) return 15;
+        }
+
+        return 0;
+    }
+
     inline int UnitTest_Check3D_LineSegment_Sphere_Overlap()
     {
         // 01: lineSegment inside sphere at origin
@@ -2036,6 +2508,28 @@ namespace Project001
             if (result != true) return 3;
         }
 
+        // 04: 2 planes that are different
+        {
+            bool result = Check3D_Plane_Plane_Overlap(
+                glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)),
+                -1.0f,
+                glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)),
+                -1.0f);
+
+            if (result != true) return 4;
+        }
+
+        // 05: 2 planes that are different
+        {
+            bool result = Check3D_Plane_Plane_Overlap(
+                glm::normalize(glm::vec3(1.0f, 2.0f, 0.0f)),
+                -1.0f,
+                glm::normalize(glm::vec3(2.0f, 1.0f, 0.0f)),
+                -1.0f);
+
+            if (result != true) return 5;
+        }
+
         return 0;
     }
 
@@ -2157,6 +2651,270 @@ namespace Project001
                 glm::vec3(2.0f, 2.0f, 0.0f),
                 glm::vec3(2.0f, 0.0f, 2.0f),
                 glm::vec3(0.0f, 0.0f, -2.0f));
+
+            if (result != true) return 10;
+        }
+
+        return 0;
+    }
+
+    inline int UnitTest_Check3D_Plane_AABB_Overlap()
+    {
+        // 01: plane at origin overlaps tiny AABB at origin
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.0f,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f));
+
+            if (result != true) return 1;
+        }
+
+        // 02: plane at origin not overlapping tiny AABB
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.0f,
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+
+            if (result != false) return 2;
+        }
+
+        // 03: plane not overlapping AABB
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                -1.0f,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(9.0f, 9.0f, 9.0f));
+
+            if (result != false) return 3;
+        }
+
+        // 04: plane not overlapping AABB
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                1.0f,
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f));
+
+            if (result != false) return 4;
+        }
+
+        // 05: plane overlapping AABB
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.5f,
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3( 1.0f, 1.0f, 1.0f));
+
+            if (result != true) return 5;
+        }
+
+        // 06: plane touching AABB corner
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::sqrt(3.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+
+            if (result != true) return 6;
+        }
+
+        // 07: plane touching AABB face
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::vec3(0.0f, 0.0f, 1.0f),
+                -1.0f,
+                glm::vec3(-2.0f, -2.0f, -1.0f),
+                glm::vec3(2.0f, 2.0f, 1.0f));
+
+            if (result != true) return 7;
+        }
+
+        // 08: plane not touching AABB
+        {
+            bool result = Check3D_Plane_AABB_Overlap(
+                glm::vec3(0.0f, 0.0f, 1.0f),
+                -2.0f,
+                glm::vec3(-2.0f, -2.0f, -1.0f),
+                glm::vec3(2.0f, 2.0f, 1.0f));
+
+            if (result != false) return 8;
+        }
+
+        return 0;
+    }
+
+    inline int UnitTest_Check3D_Plane_OBB_Overlap()
+    {
+        // 01: plane at origin overlaps tiny OBB at origin
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                0.0f,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation);
+
+            if (result != true) return 1;
+        }
+
+        // 02: plane overlaps tiny OBB
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                glm::sqrt(3.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                rotation);
+
+            if (result != true) return 2;
+        }
+
+        // 03: plane not overlapping tiny OBB
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
+                -glm::sqrt(3.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                rotation);
+
+            if (result != false) return 3;
+        }
+
+        // 04: plane overlapping OBB
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation);
+
+            if (result != true) return 4;
+        }
+
+        // 05: plane touching OBB (OBB on top)
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                -0.5f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation);
+
+            if (result != true) return 5;
+        }
+
+        // 06: plane not overlapping OBB
+        {
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                rotation);
+
+            if (result != false) return 6;
+        }
+
+        // 07: plane overlapping OBB
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                rotation);
+
+            if (result != true) return 7;
+        }
+
+        // 08: plane not overlapping OBB
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            rotation = glm::rotate(
+                rotation,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation = glm::rotate(
+                rotation,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                rotation);
+
+            if (result != false) return 8;
+        }
+
+        // 09: plane not overlapping OBB
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            rotation = glm::rotate(
+                rotation,
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation = glm::rotate(
+                rotation,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                rotation);
+
+            if (result != false) return 9;
+        }
+
+        // 10: plane overlapping OBB
+        {
+            glm::quat rotation = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            rotation = glm::rotate(
+                rotation,
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation = glm::rotate(
+                rotation,
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            bool result = Check3D_Plane_OBB_Overlap(
+                glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
+                0.0f,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f),
+                rotation);
 
             if (result != true) return 10;
         }
@@ -2707,6 +3465,225 @@ namespace Project001
     }
 
     // -------------------------------------------------------------------------
+
+    inline int UnitTest_Check3D_OBB_OBB_Overlap()
+    {
+        // 01: point OBBs at origin
+        {
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+
+            if (result != true) return 1;
+        }
+
+        // 02: point OBBs at overlapping
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(-1.0f, -2.0f, -3.0f),
+                rotation1,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(-1.0f, -2.0f, -3.0f),
+                rotation2);
+
+            if (result != true) return 2;
+        }
+
+        // 03: OBB touching OBB
+        {
+            glm::quat rotation1 = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                rotation2);
+
+            if (result != true) return 3;
+        }
+
+        // 04: OBB not overlapping OBB
+        {
+            glm::quat rotation1 = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            glm::quat rotation2 = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                rotation2);
+
+            if (result != false) return 4;
+        }
+
+        // 05: OBB overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::quat rotation2 = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                rotation2);
+
+            if (result != true) return 5;
+        }
+
+        // 06: OBB not overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                rotation2);
+
+            if (result != false) return 6;
+        }
+
+        // 07: OBB overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation2 = glm::rotate(
+                rotation2,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                rotation2);
+
+            if (result != false) return 7;
+        }
+
+        // 08: OBB overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation2 = glm::rotate(
+                rotation2,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 1.0f),
+                rotation2);
+
+            if (result != true) return 8;
+        }
+
+        // 09: OBB overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation1 = glm::rotate(
+                rotation1,
+                -glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                glm::half_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation2 = glm::rotate(
+                rotation2,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 1.0f),
+                rotation2);
+
+            if (result != true) return 9;
+        }
+
+        // 10: OBB overlapping OBB
+        {
+            glm::quat rotation1 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation1 = glm::rotate(
+                rotation1,
+                -glm::quarter_pi<float>(),
+                glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotation2 = glm::rotate(
+                glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                -glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation2 = glm::rotate(
+                rotation2,
+                glm::quarter_pi<float>(),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            bool result = Check3D_OBB_OBB_Overlap(
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 0.0f),
+                rotation1,
+                glm::vec3(0.25f, 0.5f, 1.0f),
+                glm::vec3(1.0f, 0.0f, 1.25f),
+                rotation2);
+
+            if (result != false) return 10;
+        }
+
+        return 0;
+    }
 
     inline int UnitTest_Check3D_OBB_Sphere_Overlap()
     {

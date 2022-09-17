@@ -2,8 +2,6 @@
 
 #include "TestSceneBase001.h"
 
-#include "Engine/MeshData.h"
-
 
 
 namespace Project001
@@ -36,10 +34,6 @@ protected:
 
     void UpdateShape01EntityPosition(unsigned long timestep_ns);
 
-    // Mesh Data: --------------------------------------------------------------
-
-    Project001::MeshData shape01MeshData_;
-
     // SoundBuffer Ids: --------------------------------------------------------
 
     unsigned int  song01SoundBufferId_;
@@ -47,12 +41,6 @@ protected:
     // SoundSource Ids: --------------------------------------------------------
 
     unsigned int song01SoundSourceId_;
-
-    // Texture Ids: ------------------------------------------------------------
-
-    // Entity Ids: -------------------------------------------------------------
-
-    unsigned int shape01EntityId_;
 
 private:
     void TestOpenAL() const;

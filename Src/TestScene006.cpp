@@ -17,7 +17,7 @@
 
 TestScene006::TestScene006()
 {
-    ClearIndiciesAndEntityIds();
+    ClearResources();
 }
 
 TestScene006::~TestScene006()
@@ -181,7 +181,7 @@ void TestScene006::Deinitialize()
 {
     TestSceneBase001::Deinitialize();
 
-    ClearIndiciesAndEntityIds();
+    ClearResources();
 }
 
 void TestScene006::OnEvent(Project001::Event& event)
@@ -193,21 +193,13 @@ void TestScene006::OnEvent(Project001::Event& event)
 
 // protected: ------------------------------------------------------------------
 
-void TestScene006::ClearIndiciesAndEntityIds()
+void TestScene006::ClearResources()
 {
-    for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
-    {
-        delete meshDataPtrArray_[i];
-    }
-    meshDataPtrArray_.clear();
-
     fontData_.Clear();
 
     fontTextureData_.Clear();
 
     fontTextureId_ = (unsigned int)-1;
-
-    entityIds_.clear();
 }
 
 void TestScene006::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -220,11 +212,11 @@ void TestScene006::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene010"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene007"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene010"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene007"));
             }
         }
     }

@@ -6,7 +6,7 @@
 
 namespace Project001
 {
-    static const float g_floattMarginOfError = 0.000001f;
+    static const float g_floattMarginOfError = 0.00001f;
     
     bool FloatEqualToFloat(float a, float b, float epsilon = g_floattMarginOfError);
 

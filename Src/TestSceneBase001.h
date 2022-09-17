@@ -4,11 +4,14 @@
 
 #include "glm/glm.hpp"
 
+#include <vector>
+
 
 
 namespace Project001
 {
     class ComponentStores;
+    struct MeshData;
 
     struct CursorPositionEvent;
     struct FrameBufferSizeEvent;
@@ -59,12 +62,18 @@ protected:
 
     Project001::ComponentStores* componentStoresPtr_;
 
+    // Mesh Data: --------------------------------------------------------------
+
+    std::vector<Project001::MeshData*> meshDataPtrArray_;
+
     // Entity Ids: -------------------------------------------------------------
 
     unsigned int mainCameraEntityId_;
     unsigned int lightSourceEntityId_;
 
-    // -------------------------------------------------------------------------
+    std::vector<unsigned int> entityIds_;
+
+    // Scene Data: -------------------------------------------------------------
 
     glm::vec2 previousCursorDownPosition_;
 
