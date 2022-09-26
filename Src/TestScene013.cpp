@@ -52,7 +52,128 @@ void TestScene013::Initialize()
 
     // -------------------------------------------------------------------------
 
-    // shape 1
+    // OBB Box
+    if (true)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
+        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() +  glm::quarter_pi<float>());
+        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
+        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedModelPtr->SetLit(false);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // Line
+    if (false)
+    {
+        glm::vec3 position00(0.1f, 0.2f, 0.3f);
+        glm::vec3 direction00(-1.0f, 0.0f, 0.0f);
+
+        glm::quat rotation1 = glm::rotate(
+            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+            glm::quarter_pi<float>(),
+            glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat rotation2 = glm::rotate(
+            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+            glm::half_pi<float>() + glm::quarter_pi<float>(),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+
+        position00 = rotation2 * rotation1 * position00;
+        direction00 = rotation2 * rotation1 * direction00;
+
+        position00 += glm::vec3(0.3f, 0.2f, 0.1f);
+
+        position00 = glm::vec3(0.0f, 0.4f, 0.0f);
+        direction00 = glm::normalize(glm::vec3(-1.0f, 1.0f, -1.0f));
+
+        // shape 2
+        {
+            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+            meshDataPtrArray_.push_back(newMeshDataPtr);
+            _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
+
+            unsigned int tempEntityId;
+            _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+            entityIds_.push_back(tempEntityId);
+
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+            Project001::RenderedModel* renderedModelPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+            renderedModelPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
+            renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedModelPtr->SetLit(false);
+        }
+
+        // shape 2
+        {
+            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+            meshDataPtrArray_.push_back(newMeshDataPtr);
+            _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
+
+            unsigned int tempEntityId;
+            _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+            entityIds_.push_back(tempEntityId);
+
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+            Project001::RenderedModel* renderedModelPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+            renderedModelPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+            renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedModelPtr->SetLit(false);
+        }
+    }
+
+    // LineSegment
+    if (false)
+    {
+        glm::vec3 position00(-0.8f, 0.2f, 0.3f);
+        glm::vec3 position01(0.8f, 0.2f, 0.3f);
+
+        glm::quat rotation1 = glm::rotate(
+            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+            glm::quarter_pi<float>(),
+            glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat rotation2 = glm::rotate(
+            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+            glm::half_pi<float>() + glm::quarter_pi<float>(),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+
+        position00 = rotation2 * rotation1 * position00;
+        position01 = rotation2 * rotation1 * position01;
+
+        position00 += glm::vec3(0.3f, 0.2f, 0.1f);
+        position01 += glm::vec3(0.3f, 0.2f, 0.1f);
+
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
+        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedModelPtr->SetLit(false);
+    }
+
+    // Box 2
+    if (false)
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -71,14 +192,42 @@ void TestScene013::Initialize()
         renderedModelPtr->SetTranslucent(true);
     }
 
-    glm::vec3 position00(0.2f, 0.2f, 0.2f);
-    glm::vec3 direction00(-1.0f, 1.0f, -1.0f);
-
-    // shape 2
+    // Triangle
+    if (false)
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
+        std::vector<glm::vec3> positions;
+        positions.emplace_back(-0.2f, -0.1f, 0.0f);
+        positions.emplace_back(-0.3f, 0.0f, 0.0f);
+        positions.emplace_back(-0.1f, 0.0f, 0.0f);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
+        // Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        // Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() + glm::quarter_pi<float>());
+        // Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
+
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedModelPtr->SetLit(false);
+    }
+
+    // Triangle 2
+    if (false)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec3> positions;
+        positions.emplace_back(0.2f, 0.1f, 0.0f);
+        positions.emplace_back(-0.3f, 0.0f, 0.0f);
+        positions.emplace_back(0.1f, 0.0f, 0.0f);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -92,11 +241,18 @@ void TestScene013::Initialize()
         renderedModelPtr->SetLit(false);
     }
 
-    // shape 2
+    // Point
+    if (false)
     {
+
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
+        std::vector<glm::vec3> positions;
+        positions.emplace_back(1.0f, 0.0f, 0.0f);
+        positions.emplace_back(0.0f, 1.0f, 0.0f);
+        positions.emplace_back(0.0f, 0.0f, 1.0f);
+        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
+        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr,glm::vec3(1.0f, 1.0f, 1.0f) / 3.0f);
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -105,7 +261,7 @@ void TestScene013::Initialize()
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+        renderedModelPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
         renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedModelPtr->SetLit(false);
     }
@@ -255,6 +411,12 @@ void TestScene013::Run_UnitTests() const
         _LOG_MESSAGE("UnitTest_Check3D_Line_AABB_Overlap FAILED (%d)", result);
     }
 
+    result = Project001::UnitTest_Check3D_Line_OBB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Line_OBB_Overlap FAILED (%d)", result);
+    }
+
     result = Project001::UnitTest_Check3D_Line_Sphere_Overlap();
     if (result != 0)
     {
@@ -293,6 +455,12 @@ void TestScene013::Run_UnitTests() const
         _LOG_MESSAGE("UnitTest_Check3D_Ray_AABB_Overlap FAILED (%d)", result);
     }
 
+    result = Project001::UnitTest_Check3D_Ray_OBB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Ray_OBB_Overlap FAILED (%d)", result);
+    }
+
     result = Project001::UnitTest_Check3D_Ray_Sphere_Overlap();
     if (result != 0)
     {
@@ -323,6 +491,12 @@ void TestScene013::Run_UnitTests() const
     if (result != 0)
     {
         _LOG_MESSAGE("UnitTest_Check3D_LineSegment_AABB_Overlap FAILED (%d)", result);
+    }
+
+    result = Project001::UnitTest_Check3D_LineSegment_OBB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_OBB_Overlap FAILED (%d)", result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_Sphere_Overlap();
@@ -364,6 +538,24 @@ void TestScene013::Run_UnitTests() const
     }
 
     // -------------------------------------------------------------------------
+
+    result = Project001::UnitTest_Check3D_Triangle_Triangle_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Triangle_Triangle_Overlap FAILED (%d)", result);
+    }
+
+    result = Project001::UnitTest_Check3D_Triangle_AABB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Triangle_AABB_Overlap FAILED (%d)", result);
+    }
+
+    result = Project001::UnitTest_Check3D_Triangle_OBB_Overlap();
+    if (result != 0)
+    {
+        _LOG_MESSAGE("UnitTest_Check3D_Triangle_OBB_Overlap FAILED (%d)", result);
+    }
 
     result = Project001::UnitTest_Check3D_Triangle_Sphere_Overlap();
     if (result != 0)

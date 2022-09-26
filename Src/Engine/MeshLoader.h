@@ -158,6 +158,10 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateTriangles(
+            MeshData& meshData,
+            const std::vector<glm::vec3>& positions);
+
         static bool GenerateTube(
             MeshData& meshData,
             const glm::vec3& start,

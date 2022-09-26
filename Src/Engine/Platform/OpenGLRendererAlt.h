@@ -121,24 +121,29 @@ namespace Project001
         bool GetStalestTextureUnit(unsigned int& textureUnit) const;
         void IncreaseTectureUnitStaleness();
 
-        static const bool s_cullBackface = false;
-        static const bool s_drawWireframe = true;
-        static const bool s_drawNormals = true;
+        static const bool s_cullBackface;
+        static const bool s_drawWireframe;
+        static const bool s_drawNormals;
+        static const bool s_drawGrid;
 
-        static const unsigned int s_indexBufferCapacity_ = 4194304; // 8192;
-        static const unsigned int s_vertexBufferCapacity_ = 4194304; // 6144;
+        static const unsigned int s_indexBufferCapacity_;
+        static const unsigned int s_vertexBufferCapacity_;
 
-        static const unsigned int s_numberOfTextureUnits_ = 16;
+        static const unsigned int s_numberOfTextureUnits_;
 
-        static const unsigned int s_numberOfPointLights_ = 8;
-        static const unsigned int s_numberOfSpotLights_ = 4;
+        static const unsigned int s_numberOfPointLights_;
+        static const unsigned int s_numberOfSpotLights_;
 
-        // TODO: implement a debug view grid
-        // bool redrawGrid_; // set to true in Clear() then drawn and set to false in Render()
+        static const float s_minorGridIncement_;
+        static const float s_majorGridIncement_;
+        static const float s_gridHalfExtents_;
+
+        bool redrawGrid_;
 
         bool depthTesting_;
 
         OpenGLShader* primaryShaderPtr_;
+        OpenGLShader* gridShaderPtr_;
         OpenGLShader* wireframeShaderPtr_;
         OpenGLShader* normalShaderPtr_;
         OpenGLShader* screenShaderPtr_;
@@ -146,6 +151,10 @@ namespace Project001
         unsigned int vertexBufferId_;
         unsigned int indexBufferId_;
         unsigned int vertexArrayId_;
+
+        unsigned int gridVertexBufferId_;
+        unsigned int gridVertexArrayId_;
+        unsigned int gridVertexCount_;
 
         unsigned int screenVertexBufferId_;
         unsigned int screenVertexArrayId_;

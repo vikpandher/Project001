@@ -1028,106 +1028,240 @@ namespace Project001
         return Check3D_Plane_Triangle_Overlap(plane_normal, plane_distance, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    // inline bool Check3D_Triangle_Triangle_Overlap(
-    //     const glm::vec3& triangleA_corner1,
-    //     const glm::vec3& triangleA_corner2,
-    //     const glm::vec3& triangleA_corner3,
-    //     const glm::vec3& triangleB_corner1,
-    //     const glm::vec3& triangleB_corner2,
-    //     const glm::vec3& triangleB_corner3)
-    // {
-    //     // Check if both triangles are actually triangles
-    //     // ---------------------------------------------------------------------
-    // 
-    //     if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner2))
-    //     {
-    //         if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner3))
-    //         {
-    //             // triangleA is really a point
-    //             return Check3D_Point_Triangle_Overlap(triangleA_corner1, triangleB_corner1, triangleB_corner2, triangleB_corner3);
-    //         }
-    //         else
-    //         {
-    //             // triangleA is really a line segment
-    //             return Check3D_LineSegment_Triangle_Overlap(triangleA_corner1, triangleA_corner3, triangleB_corner1, triangleB_corner2, triangleB_corner3);
-    //         }
-    //     }
-    //     else if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner3) ||
-    //         Check3D_Point_Point_Overlap(triangleA_corner2, triangleA_corner3))
-    //     {
-    //         // triangleA is really a line segment
-    //         return Check3D_LineSegment_Triangle_Overlap(triangleA_corner1, triangleA_corner2, triangleB_corner1, triangleB_corner2, triangleB_corner3);
-    //     }
-    // 
-    //     if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner2))
-    //     {
-    //         if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner3))
-    //         {
-    //             // triangleB is really a point
-    //             return Check3D_Point_Triangle_Overlap_H(triangleB_corner1, triangleA_corner1, triangleA_corner2, triangleA_corner3);
-    //         }
-    //         else
-    //         {
-    //             // triangleB is really a line segment
-    //             return Check3D_LineSegment_Triangle_Overlap_H(triangleB_corner1, triangleB_corner3, triangleA_corner1, triangleA_corner2, triangleA_corner3);
-    //         }
-    //     }
-    //     else if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner3) ||
-    //         Check3D_Point_Point_Overlap(triangleB_corner2, triangleB_corner3))
-    //     {
-    //         // triangleB is really a line segment
-    //         return Check3D_LineSegment_Triangle_Overlap_H(triangleB_corner1, triangleB_corner2, triangleA_corner1, triangleA_corner2, triangleA_corner3);
-    //     }
-    // 
-    //     // Check if triangleB intersects triangleA's plane
-    //     // ---------------------------------------------------------------------
-    //     bool trianglesAreCoPlanar = false;
-    // 
-    //     glm::vec3 planeA_normal;
-    //     float planeA_distance;
-    //     Get3D_Triangle_ContainingPlane_H(triangleA_corner1, triangleA_corner2, triangleA_corner3, planeA_normal, planeA_distance);
-    //     
-    //     float distanceB1;
-    //     Get3D_Point_Plane_Distance(triangleB_corner1, planeA_normal, planeA_distance, distanceB1);
-    //     float distanceB2;
-    //     Get3D_Point_Plane_Distance(triangleB_corner2, planeA_normal, planeA_distance, distanceB2);
-    //     float distanceB3;
-    //     Get3D_Point_Plane_Distance(triangleB_corner3, planeA_normal, planeA_distance, distanceB3);
-    // 
-    //     if (FloatEqualToFloat(distanceB1, 0.0f) && FloatEqualToFloat(distanceB2, 0.0f) && FloatEqualToFloat(distanceB3, 0.0f))
-    //     {
-    //         trianglesAreCoPlanar = true;
-    //     }
-    // 
-    //     if (!trianglesAreCoPlanar)
-    //     {
-    //         if (!FloatEqualToFloat(distanceB1, 0.0f) &&
-    //             !FloatEqualToFloat(distanceB2, 0.0f) &&
-    //             !FloatEqualToFloat(distanceB3, 0.0f) &&
-    //             std::signbit(distanceB1) == std::signbit(distanceB2)&&
-    //             std::signbit(distanceB1) == std::signbit(distanceB3))
-    //         {
-    //             // triangleB doesn't intersect triangleA's plane
-    //             return false;
-    //         }
-    // 
-    //         // Check if triangleA intersects triangleB's plane
-    //         // -----------------------------------------------------------------
-    //         glm::vec3 planeB_normal;
-    //         float planeB_distance;
-    //         Get3D_Triangle_ContainingPlane_H(triangleB_corner1, triangleB_corner2, triangleB_corner3, planeB_normal, planeB_distance);
-    //         if (!Check3D_Plane_Triangle_Overlap(planeB_normal, planeB_distance, triangleA_corner1, triangleA_corner2, triangleA_corner3))
-    //         {
-    //             // triangleA doesn't intersect triangleB's plane
-    //             return false;
-    //         }
-    //     }
-    // 
-    //     if (trianglesAreCoPlanar)
-    //     {
-    //         // 
-    //     }
-    // }
+    inline bool Check3D_Triangle_Triangle_Overlap(
+        const glm::vec3& triangleA_corner1,
+        const glm::vec3& triangleA_corner2,
+        const glm::vec3& triangleA_corner3,
+        const glm::vec3& triangleB_corner1,
+        const glm::vec3& triangleB_corner2,
+        const glm::vec3& triangleB_corner3)
+    {
+        // Check if both triangles are actually triangles
+        // ---------------------------------------------------------------------
+
+        if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner2))
+        {
+            if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner3))
+            {
+                // triangleA is really a point
+                return Check3D_Point_Triangle_Overlap(triangleA_corner1, triangleB_corner1, triangleB_corner2, triangleB_corner3);
+            }
+            else
+            {
+                // triangleA is really a line segment
+                return Check3D_LineSegment_Triangle_Overlap(triangleA_corner1, triangleA_corner3, triangleB_corner1, triangleB_corner2, triangleB_corner3);
+            }
+        }
+        else if (Check3D_Point_Point_Overlap(triangleA_corner1, triangleA_corner3) ||
+            Check3D_Point_Point_Overlap(triangleA_corner2, triangleA_corner3))
+        {
+            // triangleA is really a line segment
+            return Check3D_LineSegment_Triangle_Overlap(triangleA_corner1, triangleA_corner2, triangleB_corner1, triangleB_corner2, triangleB_corner3);
+        }
+
+        if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner2))
+        {
+            if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner3))
+            {
+                // triangleB is really a point
+                return Check3D_Point_Triangle_Overlap_H(triangleB_corner1, triangleA_corner1, triangleA_corner2, triangleA_corner3);
+            }
+            else
+            {
+                // triangleB is really a line segment
+                return Check3D_LineSegment_Triangle_Overlap_H(triangleB_corner1, triangleB_corner3, triangleA_corner1, triangleA_corner2, triangleA_corner3);
+            }
+        }
+        else if (Check3D_Point_Point_Overlap(triangleB_corner1, triangleB_corner3) ||
+            Check3D_Point_Point_Overlap(triangleB_corner2, triangleB_corner3))
+        {
+            // triangleB is really a line segment
+            return Check3D_LineSegment_Triangle_Overlap_H(triangleB_corner1, triangleB_corner2, triangleA_corner1, triangleA_corner2, triangleA_corner3);
+        }
+
+        glm::vec3 testAxes[11] = {
+            SAT_Cross(triangleA_corner1, triangleA_corner2, triangleA_corner2, triangleA_corner3), // Triangle A Normal
+            SAT_Cross(triangleB_corner1, triangleB_corner2, triangleB_corner2, triangleB_corner3), // Triangle B Normal
+            SAT_Cross(triangleB_corner1, triangleB_corner2, triangleA_corner1, triangleA_corner2),
+            SAT_Cross(triangleB_corner1, triangleB_corner2, triangleA_corner2, triangleA_corner3),
+            SAT_Cross(triangleB_corner1, triangleB_corner2, triangleA_corner3, triangleA_corner1),
+            SAT_Cross(triangleB_corner2, triangleB_corner3, triangleA_corner1, triangleA_corner2),
+            SAT_Cross(triangleB_corner2, triangleB_corner3, triangleA_corner2, triangleA_corner3),
+            SAT_Cross(triangleB_corner2, triangleB_corner3, triangleA_corner3, triangleA_corner1),
+            SAT_Cross(triangleB_corner3, triangleB_corner1, triangleA_corner1, triangleA_corner2),
+            SAT_Cross(triangleB_corner3, triangleB_corner1, triangleA_corner2, triangleA_corner3),
+            SAT_Cross(triangleB_corner3, triangleB_corner1, triangleA_corner3, triangleA_corner1)
+        };
+
+        for (size_t i = 0; i < 11; ++i)
+        {
+            float intervalA_min;
+            float intervalA_max;
+            Get3D_Triangle_AxisInterval(triangleA_corner1, triangleA_corner2, triangleA_corner3, testAxes[i], intervalA_min, intervalA_max);
+            float intervalB_min;
+            float intervalB_max;
+            Get3D_Triangle_AxisInterval(triangleB_corner1, triangleB_corner2, triangleB_corner3, testAxes[i], intervalB_min, intervalB_max);
+
+            if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
+            {
+                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Check3D_Triangle_AABB_Overlap(
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max)
+    {
+        if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner2))
+        {
+            if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner3))
+            {
+                // triangle is really a point
+                return Check3D_Point_AABB_Overlap(triangle_corner1, aabb_min, aabb_max);
+            }
+            else
+            {
+                // triangle is really a line segment
+                return Check3D_LineSegment_AABB_Overlap(triangle_corner1, triangle_corner3, aabb_min, aabb_max);
+            }
+        }
+        else if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner3) ||
+            Check3D_Point_Point_Overlap(triangle_corner2, triangle_corner3))
+        {
+            // triangle is really a line segment
+            return Check3D_LineSegment_AABB_Overlap(triangle_corner1, triangle_corner2, aabb_min, aabb_max);
+        }
+
+        // triangle sides
+        glm::vec3 f0 = triangle_corner2 - triangle_corner1;
+        glm::vec3 f1 = triangle_corner3 - triangle_corner2;
+        glm::vec3 f2 = triangle_corner1 - triangle_corner3;
+
+        // AABB face normals
+        glm::vec3 u0(1.0f, 0.0f, 0.0f);
+        glm::vec3 u1(0.0f, 1.0f, 0.0f);
+        glm::vec3 u2(0.0f, 0.0f, 1.0f);
+
+        glm::vec3 testAxes[13] = {
+            u0, // AABB Axis 1
+            u1, // AABB Axis 2
+            u2, // AABB Axis 3
+            glm::cross(f0, f1), // triangle normal
+            glm::cross(u0, f0),
+            glm::cross(u0, f1),
+            glm::cross(u0, f2),
+            glm::cross(u1, f0),
+            glm::cross(u1, f1),
+            glm::cross(u1, f2),
+            glm::cross(u2, f0),
+            glm::cross(u2, f1),
+            glm::cross(u2, f2)
+        };
+
+        for (size_t i = 0; i < 13; ++i)
+        {
+            float intervalA_min;
+            float intervalA_max;
+            Get3D_Triangle_AxisInterval(triangle_corner1, triangle_corner2, triangle_corner3, testAxes[i], intervalA_min, intervalA_max);
+            float intervalB_min;
+            float intervalB_max;
+            Get3D_AABB_AxisInterval(aabb_min, aabb_max, testAxes[i], intervalB_min, intervalB_max);
+
+            if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
+            {
+                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Check3D_Triangle_OBB_Overlap(
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation)
+    {
+        if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner2))
+        {
+            if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner3))
+            {
+                // triangle is really a point
+                return Check3D_Point_OBB_Overlap(triangle_corner1, obb_halfSize, obb_position, obb_orientation);
+            }
+            else
+            {
+                // triangle is really a line segment
+                return Check3D_LineSegment_OBB_Overlap(triangle_corner1, triangle_corner3, obb_halfSize, obb_position, obb_orientation);
+            }
+        }
+        else if (Check3D_Point_Point_Overlap(triangle_corner1, triangle_corner3) ||
+            Check3D_Point_Point_Overlap(triangle_corner2, triangle_corner3))
+        {
+            // triangle is really a line segment
+            return Check3D_LineSegment_OBB_Overlap(triangle_corner1, triangle_corner2, obb_halfSize, obb_position, obb_orientation);
+        }
+
+        // triangle sides
+        glm::vec3 f0 = triangle_corner2 - triangle_corner1;
+        glm::vec3 f1 = triangle_corner3 - triangle_corner2;
+        glm::vec3 f2 = triangle_corner1 - triangle_corner3;
+
+        // OBB face normals
+        glm::vec3 u0 = obb_orientation * glm::vec3(1.0f, 0.0f, 0.0f);
+        glm::vec3 u1 = obb_orientation * glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 u2 = obb_orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+
+        glm::vec3 testAxes[13] = {
+            u0, // OBB Axis 1
+            u1, // OBB Axis 2
+            u2, // OBB Axis 3
+            glm::cross(f0, f1), // triangle normal
+            glm::cross(u0, f0),
+            glm::cross(u0, f1),
+            glm::cross(u0, f2),
+            glm::cross(u1, f0),
+            glm::cross(u1, f1),
+            glm::cross(u1, f2),
+            glm::cross(u2, f0),
+            glm::cross(u2, f1),
+            glm::cross(u2, f2)
+        };
+
+        for (size_t i = 0; i < 13; ++i)
+        {
+            float intervalA_min;
+            float intervalA_max;
+            Get3D_Triangle_AxisInterval(triangle_corner1, triangle_corner2, triangle_corner3, testAxes[i], intervalA_min, intervalA_max);
+            float intervalB_min;
+            float intervalB_max;
+            Get3D_OBB_AxisInterval(obb_halfSize, obb_position, obb_orientation, testAxes[i], intervalB_min, intervalB_max);
+
+            if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
+            {
+                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     inline bool Check3D_Triangle_Sphere_Overlap(
         const glm::vec3& triangle_corner1,
@@ -1151,6 +1285,33 @@ namespace Project001
         return Check3D_Point_AABB_Overlap(point_position, aabb_min, aabb_max);
     }
 
+    inline bool Check3D_AABB_Line_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction)
+    {
+        return Check3D_Line_AABB_Overlap(line_position, line_direction, aabb_min, aabb_max);
+    }
+
+    inline bool Check3D_AABB_Ray_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction)
+    {
+        return Check3D_Ray_AABB_Overlap(ray_position, ray_direction, aabb_min, aabb_max);
+    }
+
+    inline bool Check3D_AABB_LineSegment_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end)
+    {
+        return Check3D_LineSegment_AABB_Overlap(lineSegment_start, lineSegment_end, aabb_min, aabb_max);
+    }
+
     inline bool Check3D_AABB_Plane_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
@@ -1158,6 +1319,16 @@ namespace Project001
         const float& plane_distance)
     {
         return Check3D_Plane_AABB_Overlap(plane_normal, plane_distance, aabb_min, aabb_max);
+    }
+
+    inline bool Check3D_AABB_Triangle_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3)
+    {
+        return Check3D_Triangle_AABB_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, aabb_min, aabb_max);
     }
 
     inline bool Check3D_AABB_AABB_Overlap(
@@ -1237,6 +1408,36 @@ namespace Project001
         return Check3D_Point_OBB_Overlap(point_position, obb_halfSize, obb_position, obb_orientation);
     }
 
+    inline bool Check3D_OBB_Line_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction)
+    {
+        return Check3D_Line_OBB_Overlap(line_position, line_direction, obb_halfSize, obb_position, obb_orientation);
+    }
+
+    inline bool Check3D_OBB_Ray_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction)
+    {
+        return Check3D_Ray_OBB_Overlap(ray_position, ray_direction, obb_halfSize, obb_position, obb_orientation);
+    }
+
+    inline bool Check3D_OBB_LineSegment_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end)
+    {
+        return Check3D_LineSegment_OBB_Overlap(lineSegment_start, lineSegment_end, obb_halfSize, obb_position, obb_orientation);
+    }
+
     inline bool Check3D_OBB_Plane_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -1245,6 +1446,17 @@ namespace Project001
         const float& plane_distance)
     {
         return Check3D_Plane_OBB_Overlap(plane_normal, plane_distance, obb_halfSize, obb_position, obb_orientation);
+    }
+
+    inline bool Check3D_OBB_Triangle_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3)
+    {
+        return Check3D_Triangle_OBB_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, obb_halfSize, obb_position, obb_orientation);
     }
 
     inline bool Check3D_OBB_AABB_Overlap(
@@ -1395,6 +1607,16 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(sphereA_position, sphereB_position, sphereA_radius + sphereB_radius);
     }
 
+    inline bool Check3D_Sphere_Capsule_Overlap(
+        const glm::vec3& sphere_position,
+        const float& sphere_radius,
+        const glm::vec3& capsule_start,
+        const glm::vec3& capsule_end,
+        const float& capsule_radius)
+    {
+        return Check3D_LineSegment_Sphere_Overlap(capsule_start, capsule_end, sphere_position, sphere_radius + capsule_radius);
+    }
+
     // Checking Sphere overlap -------------------------------------------------
 
     inline bool Check3D_Capsule_Point_Overlap(
@@ -1404,6 +1626,16 @@ namespace Project001
         const glm::vec3& point_position)
     {
         return Check3D_Point_Capsule_Overlap(point_position, capsule_start, capsule_end, capsule_radius);
+    }
+
+    inline bool Check3D_Capsule_Sphere_Overlap(
+        const glm::vec3& capsule_start,
+        const glm::vec3& capsule_end,
+        const float& capsule_radius,
+        const glm::vec3& sphere_position,
+        const float& sphere_radius)
+    {
+        return Check3D_Sphere_Capsule_Overlap(sphere_position, sphere_radius, capsule_start, capsule_end, capsule_radius);
     }
 
     // Getting Closest Point ---------------------------------------------------
@@ -2394,14 +2626,14 @@ namespace Project001
         };
 
         interval_min = glm::dot(axis, verticies[0]);
-        interval_max = interval_min;
+interval_max = interval_min;
 
-        for (size_t i = 1; i < 8; ++i)
-        {
-            float scalarProjection = glm::dot(axis, verticies[i]);
-            interval_min = GetMin(interval_min, scalarProjection);
-            interval_max = GetMax(interval_max, scalarProjection);
-        }
+for (size_t i = 1; i < 8; ++i)
+{
+    float scalarProjection = glm::dot(axis, verticies[i]);
+    interval_min = GetMin(interval_min, scalarProjection);
+    interval_max = GetMax(interval_max, scalarProjection);
+}
     }
 
     inline void Get3D_OBB_AxisInterval(
@@ -2451,12 +2683,12 @@ namespace Project001
         // Address this by using a small number, close to
         // 0 in case any of directions components are 0
         float t[6] = {
-            (aabb_min.x - g_floattMarginOfError - line_position.x) / (FloatEqualToFloat(line_direction.x, 0.0f) ? g_floattMarginOfError : line_direction.x),
-            (aabb_max.x + g_floattMarginOfError - line_position.x) / (FloatEqualToFloat(line_direction.x, 0.0f) ? g_floattMarginOfError : line_direction.x),
-            (aabb_min.y - g_floattMarginOfError - line_position.y) / (FloatEqualToFloat(line_direction.y, 0.0f) ? g_floattMarginOfError : line_direction.y),
-            (aabb_max.y + g_floattMarginOfError - line_position.y) / (FloatEqualToFloat(line_direction.y, 0.0f) ? g_floattMarginOfError : line_direction.y),
-            (aabb_min.z - g_floattMarginOfError - line_position.z) / (FloatEqualToFloat(line_direction.z, 0.0f) ? g_floattMarginOfError : line_direction.z),
-            (aabb_max.z + g_floattMarginOfError - line_position.z) / (FloatEqualToFloat(line_direction.z, 0.0f) ? g_floattMarginOfError : line_direction.z)
+            (aabb_min.x - g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.x),
+            (aabb_max.x + g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.x),
+            (aabb_min.y - g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.y),
+            (aabb_max.y + g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.y),
+            (aabb_min.z - g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.z),
+            (aabb_max.z + g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.z)
         };
 
         hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
@@ -2496,15 +2728,14 @@ namespace Project001
 
         float t[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         for (int i = 0; i < 3; ++i) {
-            if (FloatEqualToFloat(f[i], 0.0f)) {
-                if (-e[i] - obb_halfSize[i] - g_floattMarginOfError > 0.0f || -e[i] + obb_halfSize[i] + g_floattMarginOfError < 0.0f) {
-                    return false;
-                }
-                f[i] = g_floattMarginOfError; // avoid dividing by 0
+            if (f[i] == 0.0f) {
+                // if (-e[i] - obb_halfSize[i] > 0.0f || -e[i] + obb_halfSize[i] < 0.0f) {
+                //     return false;
+                // }
+                f[i] = 0.001f * g_floatMarginOfError; // avoid dividing by 0
             }
-
-            t[i * 2 + 0] = (e[i] + obb_halfSize[i]) / f[i]; // tmin[x, y, z]
-            t[i * 2 + 1] = (e[i] - obb_halfSize[i]) / f[i]; // tmax[x, y, z]
+            t[i * 2 + 0] = (e[i] + obb_halfSize[i] + g_floatMarginOfError) / f[i]; // tmin[x, y, z]
+            t[i * 2 + 1] = (e[i] - obb_halfSize[i] - g_floatMarginOfError) / f[i]; // tmax[x, y, z]
         }
 
         hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
@@ -2515,5 +2746,28 @@ namespace Project001
         }
 
         return true;
+    }
+
+    inline glm::vec3 SAT_Cross(
+        const glm::vec3& a,
+        const glm::vec3& b,
+        const glm::vec3& c,
+        const glm::vec3& d)
+    {
+        glm::vec3 ab = b - a;
+        glm::vec3 cd = d - c;
+
+        glm::vec3 result = glm::cross(ab, cd);
+        float magnitudeSq = glm::dot(result, result);
+        if (magnitudeSq == 0.0f) // ab && cd are parallel
+        {
+            glm::vec3 axis = glm::cross(ab, c - a);
+            result = glm::cross(ab, axis);
+
+            // if the result is still 0:
+            // a, b, c, and d are all on a line
+        }
+
+        return result;
     }
 }

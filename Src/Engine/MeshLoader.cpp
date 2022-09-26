@@ -4382,6 +4382,63 @@ namespace Project001
         return true;
     }
 
+    bool MeshLoader::GenerateTriangles(
+        MeshData& meshData,
+        const std::vector<glm::vec3>& positions)
+    {
+        if (positions.size() == 0 || positions.size() % 3 != 0)
+        {
+            return false;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        size_t currentVertexCount = meshVertexArray.size();
+
+        for (size_t i = 0; i < positions.size() - 2; i += 3)
+        {
+            const glm::vec3& position1 = positions[i];
+            const glm::vec3& position2 = positions[i + 1];
+            const glm::vec3& position3 = positions[i + 2];
+            glm::vec3 normal = glm::cross(position2 - position1, position3 - position1);
+
+            MeshVertex meshVertex;
+            meshVertex.position = position1;
+            meshVertex.normal = normal;
+
+            meshVertexArray.push_back(meshVertex);
+            meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+
+            meshVertex.position = position2;
+            meshVertex.normal = normal;
+
+            meshVertexArray.push_back(meshVertex);
+            meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
+
+            meshVertex.position = position3;
+            meshVertex.normal = normal;
+
+            meshVertexArray.push_back(meshVertex);
+            meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
+            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
+            maxVertexPosition.z = std::max(maxVertexPosition.z, positions[i].z);
+
+            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
+            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
+            minVertexPosition.z = std::min(minVertexPosition.z, positions[i].z);
+        }
+
+        return true;
+    }
+
     bool MeshLoader::GenerateTube(
         MeshData& meshData,
         const glm::vec3& start,

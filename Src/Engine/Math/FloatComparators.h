@@ -6,13 +6,13 @@
 
 namespace Project001
 {
-    static const float g_floattMarginOfError = 0.00001f;
+    static const float g_floatMarginOfError = 0.00001f;
     
-    bool FloatEqualToFloat(float a, float b, float epsilon = g_floattMarginOfError);
+    bool FloatEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
-    bool FloatGreaterThanOrEqualToFloat(float a, float b, float epsilon = g_floattMarginOfError);
+    bool FloatGreaterThanOrEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
-    bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon = g_floattMarginOfError);
+    bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
     // Unused
     float GetMax(float a, float b);

@@ -15,6 +15,9 @@
 #define _LOG_TEST(x) if ((x)) {_LOG_MESSAGE("%s %d --TEST-PASSED--", __FILENAME__, __LINE__);}\
 else {_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_assert(true, "")
 
+#define _LOG_TEST_QUIET(x) if (!(x))\
+{_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_assert(true, "")
+
 
 
 // public: ---------------------------------------------------------------------
@@ -1082,33 +1085,33 @@ void TestScene010::Test_Get2D_Point_Line_Distance() const
     glm::vec2 point_p2_n2(2.0f, -2.0f);
 
     float distance01 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p0, INFINITY);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance01, 4.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance01, 4.0f));
 
     float distance02 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p1_p0, INFINITY);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance02, 0.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance02, 0.0f));
 
     float distance03 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p1, 0.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance03, 1.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance03, 1.0f));
 
     float distance04 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_n1, point_p0_n1, 0.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance04, 0.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance04, 0.0f));
 
     float distance05 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_p1, point_p0_p0, 1.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance05, 2.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance05, 2.0f));
 
     float distance06 = Project001::Get2D_Point_Line_DistanceSquared(point_p0_p0, point_n1_p1, 1.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance06, 2.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance06, 2.0f));
 
     float distance07 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_p1, point_p0_p0, -1.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance07, 0.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance07, 0.0f));
 
     float distance08 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_n1, point_p0_p0, -1.0f);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance08, 2.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance08, 2.0f));
 
     float distance09 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p0_p0, 2.0f);
     float correctDistance09 = std::sinf(std::atanf(2.0f));
     correctDistance09 *= correctDistance09;
-    _LOG_TEST(Project001::FloatEqualToFloat(distance09, correctDistance09));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance09, correctDistance09));
 }
 
 void TestScene010::Test_Get2D_Point_LineSegment_Distance() const
@@ -1132,13 +1135,13 @@ void TestScene010::Test_Get2D_Point_LineSegment_Distance() const
     glm::vec2 point_p2_n2(2.0f, -2.0f);
 
     float distance01 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_p1_p0, point_n1_n1, point_n1_p0);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance01, 4.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance01, 4.0f));
 
     float distance02 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_p1_p1, point_p0_n1, point_p0_p0);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance02, 2.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance02, 2.0f));
 
     float distance03 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_n2_p2, point_p0_n1, point_p0_p0);
-    _LOG_TEST(Project001::FloatEqualToFloat(distance03, 8.0f));
+    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance03, 8.0f));
 }
 
 void TestScene010::Test_RotateSlope() const

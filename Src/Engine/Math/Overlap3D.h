@@ -25,15 +25,15 @@
 // Overlap Functions:
 //             | Poi | Lin | Ray | LiS | Pla | Tri | AAB | OBB | Sph | Cap |
 // Point       |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |
-// Line        | --- |  X  |  X  |  X  |  X  |  X  |  X  |  \  |  X  |     |
-// Ray         | --- | --- |  X  |  X  |  X  |  X  |  X  |  \  |  X  |     |
-// LineSegment | --- | --- | --- |  X  |  X  |  X  |  X  |  \  |  X  |     |
+// Line        | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |     |
+// Ray         | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |     |
+// LineSegment | --- | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |     |
 // Plane       | --- | --- | --- | --- |  X  |  X  |  X  |  X  |  X  |     |
-// Triangle    | --- | --- | --- | --- | --- |     |     |     |  X  |     |
-// AABB        | --- | - - | - - | - - | --- | - - |  X  |  X  |  X  |     |
-// OBB         | --- | - - | - - | - - | --- | - - | --- |  X  |  X  |     |
-// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  X  |     |
-// Capsule     | --- | - - | - - | - - | - - | - - | - - | - - | - - |     |
+// Triangle    | --- | --- | --- | --- | --- |  X  |  X  |  X  |  X  |     |
+// AABB        | --- | --- | --- | --- | --- | --- |  X  |  X  |  X  |     |
+// OBB         | --- | --- | --- | --- | --- | --- | --- |  X  |  X  |     |
+// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  X  |  \  |
+// Capsule     | --- |     |     |     |     |     |     |     | --- |     |
 // 
 // Closest Point Functions:
 //                   | Lin | Ray | LiS | Pla | Tri | AAB | OBB | Sph | Cap |
@@ -407,6 +407,21 @@ namespace Project001
         const glm::vec3& triangleB_corner2,
         const glm::vec3& triangleB_corner3);
 
+    bool Check3D_Triangle_AABB_Overlap(
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max);
+
+    bool Check3D_Triangle_OBB_Overlap(
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3,
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation);
+
     bool Check3D_Triangle_Sphere_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
@@ -421,12 +436,39 @@ namespace Project001
         const glm::vec3& aabb_max,
         const glm::vec3& point_position);
 
+    // line_direction needs to be a unit vector
+    bool Check3D_AABB_Line_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction);
+
+    // ray_direction needs to be a unit vector
+    bool Check3D_AABB_Ray_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction);
+
+    bool Check3D_AABB_LineSegment_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end);
+
     // plane_normal needs to be a unit vector
     bool Check3D_AABB_Plane_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& plane_normal,
         const float& plane_distance);
+
+    bool Check3D_AABB_Triangle_Overlap(
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3);
 
     bool Check3D_AABB_AABB_Overlap(
         const glm::vec3& aabbA_min,
@@ -455,6 +497,29 @@ namespace Project001
         const glm::quat& obb_orientation,
         const glm::vec3& point_position);
 
+    // line_direction needs to be a unit vector
+    bool Check3D_OBB_Line_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& line_position,
+        const glm::vec3& line_direction);
+
+    // ray_direction needs to be a unit vector
+    bool Check3D_OBB_Ray_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& ray_position,
+        const glm::vec3& ray_direction);
+
+    bool Check3D_OBB_LineSegment_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& lineSegment_start,
+        const glm::vec3& lineSegment_end);
+
     // plane_normal needs to be a unit vector
     bool Check3D_OBB_Plane_Overlap(
         const glm::vec3& obb_halfSize,
@@ -462,6 +527,14 @@ namespace Project001
         const glm::quat& obb_orientation,
         const glm::vec3& plane_normal,
         const float& plane_distance);
+
+    bool Check3D_OBB_Triangle_Overlap(
+        const glm::vec3& obb_halfSize,
+        const glm::vec3& obb_position,
+        const glm::quat& obb_orientation,
+        const glm::vec3& triangle_corner1,
+        const glm::vec3& triangle_corner2,
+        const glm::vec3& triangle_corner3);
 
     bool Check3D_OBB_AABB_Overlap(
         const glm::vec3& obb_halfSize,
@@ -545,6 +618,13 @@ namespace Project001
         const glm::vec3& sphereB_position,
         const float& sphereB_radius);
 
+    bool Check3D_Sphere_Capsule_Overlap(
+        const glm::vec3& sphere_position,
+        const float& sphere_radius,
+        const glm::vec3& capsule_start,
+        const glm::vec3& capsule_end,
+        const float& capsule_radius);
+
     // Checking Capsule overlap ------------------------------------------------
 
     bool Check3D_Capsule_Point_Overlap(
@@ -552,6 +632,13 @@ namespace Project001
         const glm::vec3& capsule_end,
         const float& capsule_radius,
         const glm::vec3& point_position);
+
+    bool Check3D_Capsule_Sphere_Overlap(
+        const glm::vec3& capsule_start,
+        const glm::vec3& capsule_end,
+        const float& capsule_radius,
+        const glm::vec3& sphere_position,
+        const float& sphere_radius);
 
     // Getting Closest Point ---------------------------------------------------
 
@@ -800,6 +887,7 @@ namespace Project001
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3);
 
+    // Unused
     // Doesn't check if triangle is a valid triangle with 3 unique corner points
     bool Check3D_LineSegment_Triangle_Overlap_H_Alt(
         const glm::vec3& lineSegment_start,
@@ -867,6 +955,12 @@ namespace Project001
         const glm::quat& obb_orientation,
         float& hit_scalar_largest_min,
         float& hit_scalar_smallest_max);
+
+    glm::vec3 SAT_Cross(
+        const glm::vec3& a,
+        const glm::vec3& b,
+        const glm::vec3& c,
+        const glm::vec3& d);
 }
 
 #include "Overlap3D.inl"
