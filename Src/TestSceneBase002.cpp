@@ -357,7 +357,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         rendererPtr_->Render();
     }
 
-    windowPtr_->SwapBuffers();
+    rendererPtr_->SwapBuffers();
 
     renderEvent.handled = true;
 }

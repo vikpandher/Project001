@@ -15,6 +15,11 @@ set(CMAKE_GLM_REPO "C:/Users/vikpa/Documents/Dev/glm")
 set(CMAKE_OPENAL_REPO "C:/Users/vikpa/Documents/Dev/openal-soft")
 # https://github.com/nothings/stb.git
 set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
+# https://vulkan.lunarg.com/
+set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
+
+set(CMAKE_VULKAN_MODE OFF)
+set(USE_ALT_OPENGL_RENDERER OFF)
 
 project("Project001" # ${PROJECT_NAME}
     VERSION 0.1.0.0
@@ -33,6 +38,15 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 # add_compile_definitions("GLM_ENABLE_EXPERIMENTAL")
 # add_compile_definitions("GLM_FORCE_LEFT_HANDED")
+
+if (${CMAKE_VULKAN_MODE})
+    add_definitions(-DVULKAN_MODE)
+    add_definitions(-DGLFW_INCLUDE_VULKAN)
+endif()
+
+if (${USE_ALT_OPENGL_RENDERER})
+    add_definitions(-DUSE_ALT_OPENGL_RENDERER)
+endif()
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -140,20 +154,22 @@ source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_FILES
     "${CMAKE_GLAD_FILES}/src/glad.c"
-    "Src/Engine/Platform/GLFWWindow.cpp"
-    "Src/Engine/Platform/GLFWWindow.h"
-    "Src/Engine/Platform/OpenALError.h"
-    "Src/Engine/Platform/OpenALSoundPlayer.cpp"
-    "Src/Engine/Platform/OpenALSoundPlayer.h"
-    "Src/Engine/Platform/OpenGLError.h"
-    "Src/Engine/Platform/OpenGLRenderer.cpp"
-    "Src/Engine/Platform/OpenGLRenderer.h"
-    "Src/Engine/Platform/OpenGLRendererAlt.cpp"
-    "Src/Engine/Platform/OpenGLRendererAlt.h"
-    "Src/Engine/Platform/OpenGLShader.cpp"
-    "Src/Engine/Platform/OpenGLShader.h"
-    "Src/Engine/Platform/OpenGLTexture.cpp"
-    "Src/Engine/Platform/OpenGLTexture.h"
+    "Src/Engine/Platform/GLFW_Window.cpp"
+    "Src/Engine/Platform/GLFW_Window.h"
+    "Src/Engine/Platform/OpenAL_Error.h"
+    "Src/Engine/Platform/OpenAL_SoundPlayer.cpp"
+    "Src/Engine/Platform/OpenAL_SoundPlayer.h"
+    "Src/Engine/Platform/OpenGL_Error.h"
+    "Src/Engine/Platform/OpenGL_Renderer.cpp"
+    "Src/Engine/Platform/OpenGL_Renderer.h"
+    "Src/Engine/Platform/OpenGL_RendererAlt.cpp"
+    "Src/Engine/Platform/OpenGL_RendererAlt.h"
+    "Src/Engine/Platform/OpenGL_Shader.cpp"
+    "Src/Engine/Platform/OpenGL_Shader.h"
+    "Src/Engine/Platform/OpenGL_Texture.cpp"
+    "Src/Engine/Platform/OpenGL_Texture.h"
+    "Src/Engine/Platform/Vulkan_Renderer.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
@@ -186,6 +202,7 @@ target_include_directories("${PROJECT_NAME}"
     "${CMAKE_GLM_REPO}"
     "${CMAKE_OPENAL_REPO}/include"
     "${CMAKE_STB_REPO}"
+    "${CMAKE_VULKAN_REPO}/Include"
     "Src"
 )
 
@@ -201,6 +218,7 @@ target_link_libraries("${PROJECT_NAME}"
     "${CMAKE_FREETYPE_REPO}/objs/x64/Release/freetype.lib"
     "${CMAKE_GLFW_REPO}/build/src/Release/glfw3.lib"
     "${CMAKE_OPENAL_REPO}/build/Release/OpenAL32.lib"
+    "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib"
 )
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
@@ -213,6 +231,16 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}"
 )
 
+if(WIN32)
+    file(WRITE "Shaders/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
+
+    # NOTE: Adding commands will require me to run Visual Studio as Admin
+
+    # add_custom_command(TARGET "${PROJECT_NAME}"
+    #                    POST_BUILD
+    #                    COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/test.bat ${CMAKE_VULKAN_REPO}/Bin/glslc.exe ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/")
+endif()
+
 if(${PRINT_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
@@ -222,6 +250,9 @@ if(${PRINT_DEBUG_OUTPUT})
     message("CMAKE_GLM_REPO: ${CMAKE_GLM_REPO}")
     message("CMAKE_OPENAL_REPO: ${CMAKE_OPENAL_REPO}")
     message("CMAKE_STB_REPO: ${CMAKE_STB_REPO}")
+    message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
+
+    message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")

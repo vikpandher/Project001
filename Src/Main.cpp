@@ -26,15 +26,7 @@
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
-
-    // tests 3d shape overlap (TODO) (001)
-    TestScene013* testScene013Ptr = new TestScene013();
-    applicationPtr->AddScene(testScene013Ptr);
-
-    // tests sound (001)
-    TestScene020* testScene020Ptr = new TestScene020();
-    applicationPtr->AddScene(testScene020Ptr);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 *6, 160 * 6);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -67,6 +59,14 @@ int main(int argc, char** argv)
     // tests 2d shape overlap (002)
     TestScene012* testScene012Ptr = new TestScene012();
     applicationPtr->AddScene(testScene012Ptr);
+
+    // tests 3d shape overlap (TODO) (001)
+    TestScene013* testScene013Ptr = new TestScene013();
+    applicationPtr->AddScene(testScene013Ptr);
+
+    // tests sound (001)
+    TestScene020* testScene020Ptr = new TestScene020();
+    applicationPtr->AddScene(testScene020Ptr);
 
     applicationPtr->Run();
 

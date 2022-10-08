@@ -292,4 +292,9 @@ namespace Project001
 
         return true;
     }
+
+    // protected ---------------------------------------------------------------
+
+    const bool FreetypeTextLoader::s_flipVerticalyOnLoad = true;
+    const bool FreetypeTextLoader::s_triangulate = false;
 }

@@ -30,8 +30,8 @@ namespace Project001
             bool trangulate = s_triangulate);
 
     protected:
-        static const bool s_flipVerticalyOnLoad = true;
-        static const bool s_triangulate = false;
+        static const bool s_flipVerticalyOnLoad;
+        static const bool s_triangulate;
 
     private:
     };

@@ -110,7 +110,7 @@ void TestScene012::Initialize()
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(0.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -140,7 +140,7 @@ void TestScene012::Initialize()
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(0.0f, 0.0f);
         shapePoints.emplace_back(0.0f, 100.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -413,7 +413,7 @@ void TestScene012::Initialize()
         {
             loopPoints[i] *= 0.16f;
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -507,7 +507,7 @@ void TestScene012::Initialize()
         {
             loopPoints[i] *= 0.16f;
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -622,7 +622,7 @@ void TestScene012::Initialize()
         linePoints.emplace_back(0.32f, 0.32f);
         linePoints.emplace_back(-0.32f, -0.32f);
 
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
@@ -653,7 +653,7 @@ void TestScene012::Initialize()
         linePoints.emplace_back(0.32f, -0.32f);
         linePoints.emplace_back(-0.32f, 0.32f);
 
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true, false));
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));

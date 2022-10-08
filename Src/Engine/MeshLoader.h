@@ -213,6 +213,7 @@ namespace Project001
             MeshData& meshData,
             bool wasTriangulated = s_triangulate);
 
+        // number of verticies depends on if mesh was triangulated
         static void ApplyTextureCoordinates(
             MeshData& meshData,
             const std::vector<glm::vec2>& textureCoordinates);
@@ -249,7 +250,7 @@ namespace Project001
 
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
 
-        static const bool s_triangulate = false;
+        static const bool s_triangulate;
 
     private:
     };

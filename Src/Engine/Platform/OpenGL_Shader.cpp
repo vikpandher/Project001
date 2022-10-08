@@ -1,4 +1,4 @@
-#include "OpenGLShader.h"
+#include "OpenGL_Shader.h"
 
 #include "glad/glad.h"
 
@@ -10,7 +10,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* fragmentShaderCode)
+    OpenGL_Shader::OpenGL_Shader(const char* vertexShaderCode, const char* fragmentShaderCode)
     {
         GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
         GLuint fragmentShaderId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -44,7 +44,7 @@ namespace Project001
         glDeleteShader(fragmentShaderId);
     }
 
-    OpenGLShader::OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
+    OpenGL_Shader::OpenGL_Shader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode)
     {
         GLuint vertexShaderId = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
         GLuint geometryShaderId = CreateShader(GL_GEOMETRY_SHADER, geometryShaderCode);
@@ -82,72 +82,72 @@ namespace Project001
         glDeleteShader(fragmentShaderId);
     }
 
-    OpenGLShader::~OpenGLShader()
+    OpenGL_Shader::~OpenGL_Shader()
     {
         glDeleteProgram(programId_);
     }
 
-    void OpenGLShader::Use() const
+    void OpenGL_Shader::Use() const
     {
         glUseProgram(programId_);
     }
 
-    void OpenGLShader::SetBool(const char* name, bool value) const
+    void OpenGL_Shader::SetBool(const char* name, bool value) const
     {
         glUniform1i(glGetUniformLocation(programId_, name), (int)value);
     }
 
-    void OpenGLShader::SetInt(const char* name, int value) const
+    void OpenGL_Shader::SetInt(const char* name, int value) const
     {
         glUniform1i(glGetUniformLocation(programId_, name), value);
     }
 
-    void OpenGLShader::SetFloat(const char* name, float value) const
+    void OpenGL_Shader::SetFloat(const char* name, float value) const
     {
         glUniform1f(glGetUniformLocation(programId_, name), value);
     }
 
-    void OpenGLShader::SetVec2(const char* name, const glm::vec2& value) const
+    void OpenGL_Shader::SetVec2(const char* name, const glm::vec2& value) const
     {
         glUniform2fv(glGetUniformLocation(programId_, name), 1, &value[0]);
     }
 
-    void OpenGLShader::SetVec2(const char* name, float x, float y) const
+    void OpenGL_Shader::SetVec2(const char* name, float x, float y) const
     {
         glUniform2f(glGetUniformLocation(programId_, name), x, y);
     }
 
-    void OpenGLShader::SetVec3(const char* name, const glm::vec3& value) const
+    void OpenGL_Shader::SetVec3(const char* name, const glm::vec3& value) const
     {
         glUniform3fv(glGetUniformLocation(programId_, name), 1, &value[0]);
     }
 
-    void OpenGLShader::SetVec3(const char* name, float x, float y, float z) const
+    void OpenGL_Shader::SetVec3(const char* name, float x, float y, float z) const
     {
         glUniform3f(glGetUniformLocation(programId_, name), x, y, z);
     }
 
-    void OpenGLShader::SetVec4(const char* name, const glm::vec4& value) const
+    void OpenGL_Shader::SetVec4(const char* name, const glm::vec4& value) const
     {
         glUniform4fv(glGetUniformLocation(programId_, name), 1, &value[0]);
     }
 
-    void OpenGLShader::SetVec4(const char* name, float x, float y, float z, float w)
+    void OpenGL_Shader::SetVec4(const char* name, float x, float y, float z, float w)
     {
         glUniform4f(glGetUniformLocation(programId_, name), x, y, z, w);
     }
 
-    void OpenGLShader::SetMat2(const char* name, const glm::mat2& mat) const
+    void OpenGL_Shader::SetMat2(const char* name, const glm::mat2& mat) const
     {
         glUniformMatrix2fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void OpenGLShader::SetMat3(const char* name, const glm::mat3& mat) const
+    void OpenGL_Shader::SetMat3(const char* name, const glm::mat3& mat) const
     {
         glUniformMatrix3fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void OpenGLShader::SetMat4(const char* name, const glm::mat4& mat) const
+    void OpenGL_Shader::SetMat4(const char* name, const glm::mat4& mat) const
     {
         glUniformMatrix4fv(glGetUniformLocation(programId_, name), 1, GL_FALSE, &mat[0][0]);
     }
@@ -156,7 +156,7 @@ namespace Project001
 
     // private -----------------------------------------------------------------
 
-    glm::uint OpenGLShader::CreateShader(glm::uint shaderType, const char* shaderSource)
+    glm::uint OpenGL_Shader::CreateShader(glm::uint shaderType, const char* shaderSource)
     {
         GLuint shaderId = glCreateShader(shaderType);
         glShaderSource(shaderId, 1, &shaderSource, NULL);
@@ -188,7 +188,7 @@ namespace Project001
         return shaderId;
     }
 
-    void OpenGLShader::OutputActiveAttributesAndUniforms()
+    void OpenGL_Shader::OutputActiveAttributesAndUniforms()
     {
         GLint i;
         GLint count;

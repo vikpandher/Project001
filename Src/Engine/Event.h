@@ -884,13 +884,14 @@ namespace Project001
         return GetStaticEventType();\
     }
 
-    // Events:
+    // Window Events:
     // ----------------------------------------------------------------------------
 
     struct KeyEvent : Event
     {
-        KeyEvent(KeyCode keyCode, ButtonAction buttonAction, KeyModifier keyModifier)
+        KeyEvent(unsigned int windowId, KeyCode keyCode, ButtonAction buttonAction, KeyModifier keyModifier)
             : Event()
+            , windowId(windowId)
             , keyCode(keyCode)
             , buttonAction(buttonAction)
             , keyModifier(keyModifier)
@@ -898,6 +899,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_KEY)
 
+        unsigned int windowId;
         KeyCode keyCode;
         ButtonAction buttonAction;
         KeyModifier keyModifier;
@@ -905,8 +907,9 @@ namespace Project001
 
     struct MouseButtonEvent : Event
     {
-        MouseButtonEvent(MouseButton mouseButton, ButtonAction buttonAction, KeyModifier keyModifier)
+        MouseButtonEvent(unsigned int windowId, MouseButton mouseButton, ButtonAction buttonAction, KeyModifier keyModifier)
             : Event()
+            , windowId(windowId)
             , mouseButton(mouseButton)
             , buttonAction(buttonAction)
             , keyModifier(keyModifier)
@@ -914,6 +917,7 @@ namespace Project001
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_MOUSE_BUTTON)
 
+        unsigned int windowId;
         MouseButton mouseButton;
         ButtonAction buttonAction;
         KeyModifier keyModifier;
@@ -921,13 +925,16 @@ namespace Project001
 
     struct CursorPositionEvent : Event
     {
-        CursorPositionEvent(float xPosition, float yPosition)
+        CursorPositionEvent(unsigned int windowId, float xPosition, float yPosition)
             : Event()
+            , windowId(windowId)
             , xPosition(xPosition)
             , yPosition(yPosition)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_POSITION)
+
+        unsigned int windowId;
 
         // origin is at the top left
         // moving to the right is positive x
@@ -937,73 +944,86 @@ namespace Project001
 
     struct CursorEnterEvent : Event
     {
-        CursorEnterEvent(bool entered)
+        CursorEnterEvent(unsigned int windowId, bool entered)
             : Event()
+            , windowId(windowId)
             , entered(entered)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_CURSOR_ENTER)
 
+        unsigned int windowId;
         bool entered;
     };
 
     struct ScrollEvent : Event
     {
-        ScrollEvent(float xOffset, float yOffset)
+        ScrollEvent(unsigned int windowId, float xOffset, float yOffset)
             : Event()
+            , windowId(windowId)
             , xOffset(xOffset)
             , yOffset(yOffset)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SCROLL)
 
+        unsigned int windowId;
         float xOffset, yOffset;
     };
 
     struct WindowCloseEvent : Event
     {
-        WindowCloseEvent()
+        WindowCloseEvent(unsigned int windowId)
             : Event()
+            , windowId(windowId)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_CLOSE)
+
+        unsigned int windowId;
     };
 
     struct WindowFocusEvent : Event
     {
-        WindowFocusEvent(bool focused)
+        WindowFocusEvent(unsigned int windowId, bool focused)
             : Event()
+            , windowId(windowId)
             , focused(focused)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_FOCUS)
 
+        unsigned int windowId;
         bool focused;
     };
 
     struct WindowSizeEvent : Event
     {
-        WindowSizeEvent(int width, int height)
+        WindowSizeEvent(unsigned int windowId, int width, int height)
             : Event()
+            , windowId(windowId)
             , width(width)
             , height(height)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_WINDOW_SIZE)
 
-            int width, height;
+        unsigned int windowId;
+        int width, height;
     };
 
     struct FrameBufferSizeEvent : Event
     {
-        FrameBufferSizeEvent(int width, int height)
+        FrameBufferSizeEvent(unsigned int windowId, int width, int height)
             : Event()
+            , windowId(windowId)
             , width(width)
             , height(height)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_FRAMEBUFFER_SIZE)
 
+        unsigned int windowId;
         int width, height;
     };
 

@@ -1,4 +1,4 @@
-#include "OpenGLTexture.h"
+#include "OpenGL_Texture.h"
 
 #include "glad/glad.h"
 
@@ -8,7 +8,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLTexture::OpenGLTexture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel)
+    OpenGL_Texture::OpenGL_Texture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel)
     {
         glGenTextures(1, &textureId_);
         glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -45,12 +45,12 @@ namespace Project001
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
-    OpenGLTexture::~OpenGLTexture()
+    OpenGL_Texture::~OpenGL_Texture()
     {
         glDeleteTextures(1, &textureId_);
     }
 
-    void OpenGLTexture::Bind(unsigned int textureUnit)
+    void OpenGL_Texture::Bind(unsigned int textureUnit)
     {
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D, textureId_);

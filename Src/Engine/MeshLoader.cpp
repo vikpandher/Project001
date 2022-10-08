@@ -4504,18 +4504,18 @@ namespace Project001
                 for (size_t i = 0; i < faces - 1; ++i)
                 {
                     meshVertexArray.push_back(tempMeshVertexArray[i * 2]);
-                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 1]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 1]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 3]);
-                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 2]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 2 + 2]);
                 }
                 meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 2]);
-                meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
                 meshVertexArray.push_back(tempMeshVertexArray[0]);
+                meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
                 meshVertexArray.push_back(tempMeshVertexArray[1]);
-                meshVertexArray.push_back(tempMeshVertexArray[0]);
                 meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
+                meshVertexArray.push_back(tempMeshVertexArray[0]);
 
                 unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
                 for (unsigned int i = (unsigned int)initialVertexCount; i < currentVertexCount; ++i)
@@ -4533,18 +4533,18 @@ namespace Project001
                 for (size_t i = 0; i < faces - 1; ++i)
                 {
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
                 }
                 meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 2);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
                 meshIndexArray.push_back((unsigned int)initialVertexCount);
+                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
                 meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
                 meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
+                meshIndexArray.push_back((unsigned int)initialVertexCount);
             }
         }
         else
@@ -4599,11 +4599,11 @@ namespace Project001
                 for (size_t i = 0; i < faces; ++i)
                 {
                     meshVertexArray.push_back(tempMeshVertexArray[i * 4]);
-                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 1]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 1]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 3]);
-                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 2]);
                     meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i * 4 + 2]);
                 }
 
                 for (size_t i = 0; i < faces * 6; ++i)
@@ -4616,11 +4616,11 @@ namespace Project001
                 for (size_t i = 0; i < faces; ++i)
                 {
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
                 }
             }
         }
@@ -5030,4 +5030,6 @@ namespace Project001
             meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, currentMeshVertex.position.z);
         }
     }
+
+    const bool MeshLoader::s_triangulate = false;
 }

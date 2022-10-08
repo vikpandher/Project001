@@ -9,14 +9,14 @@
 
 namespace Project001
 {
-    class OpenGLShader;
-    class OpenGLTexture;
+    class OpenGL_Shader;
+    class OpenGL_Texture;
 
-    class OpenGLRendererAlt : public Renderer
+    class OpenGL_Renderer : public Renderer
     {
     public:
-        OpenGLRendererAlt(unsigned int width, unsigned int height);
-        ~OpenGLRendererAlt() override;
+        OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height);
+        ~OpenGL_Renderer() override;
 
         void SetDepthTesting(
             bool depthTesting) override;
@@ -109,6 +109,8 @@ namespace Project001
 
         void Render() override;
 
+        void SwapBuffers() override;
+
     protected:
         void CreateFramebuffer();
 
@@ -138,15 +140,17 @@ namespace Project001
         static const float s_majorGridIncement_;
         static const float s_gridHalfExtents_;
 
+        Window* windowPtr_;
+
         bool redrawGrid_;
 
         bool depthTesting_;
 
-        OpenGLShader* primaryShaderPtr_;
-        OpenGLShader* gridShaderPtr_;
-        OpenGLShader* wireframeShaderPtr_;
-        OpenGLShader* normalShaderPtr_;
-        OpenGLShader* screenShaderPtr_;
+        OpenGL_Shader* primaryShaderPtr_;
+        OpenGL_Shader* gridShaderPtr_;
+        OpenGL_Shader* wireframeShaderPtr_;
+        OpenGL_Shader* normalShaderPtr_;
+        OpenGL_Shader* screenShaderPtr_;
 
         unsigned int vertexBufferId_;
         unsigned int indexBufferId_;
@@ -173,7 +177,7 @@ namespace Project001
         unsigned int renderBufferId_;
 
         std::deque<unsigned int> recycledTextureIds_;
-        std::map<unsigned int, OpenGLTexture*> texturePtrMap_;
+        std::map<unsigned int, OpenGL_Texture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> tectureUnitStalenessValues_;
 
@@ -191,12 +195,12 @@ namespace Project001
     private:
     };
 
-    inline void OpenGLRendererAlt::SetDepthTesting(bool depthTesting)
+    inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)
     {
         depthTesting_ = depthTesting;
     }
 
-    inline void OpenGLRendererAlt::GetViewport(
+    inline void OpenGL_Renderer::GetViewport(
         unsigned int& x,
         unsigned int& y,
         unsigned int& width,
@@ -208,7 +212,7 @@ namespace Project001
         height = viewportHeight_;
     }
 
-    inline void OpenGLRendererAlt::SetViewport(
+    inline void OpenGL_Renderer::SetViewport(
         unsigned int x,
         unsigned int y,
         unsigned int width,
@@ -220,22 +224,22 @@ namespace Project001
         viewportHeight_ = height;
     }
 
-    inline void OpenGLRendererAlt::SetViewMatrix(const glm::mat4& viewMatrix)
+    inline void OpenGL_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
     {
         viewMatrix_ = viewMatrix;
     }
 
-    inline void OpenGLRendererAlt::SetViewPosition(const glm::vec3& viewPosition)
+    inline void OpenGL_Renderer::SetViewPosition(const glm::vec3& viewPosition)
     {
         viewPosition_ = viewPosition;
     }
 
-    inline void OpenGLRendererAlt::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+    inline void OpenGL_Renderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
     {
         projectionMatrix_ = projectionMatrix;
     }
 
-    inline void OpenGLRendererAlt::SetDirectionalLight(
+    inline void OpenGL_Renderer::SetDirectionalLight(
         const glm::vec3& direction,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
@@ -247,7 +251,7 @@ namespace Project001
         directionalLight_.specular = specular;
     }
 
-    inline void OpenGLRendererAlt::AddPointLight(
+    inline void OpenGL_Renderer::AddPointLight(
         const glm::vec3& position,
         float constant,
         float linear,
@@ -269,7 +273,7 @@ namespace Project001
         }
     }
 
-    inline void OpenGLRendererAlt::AddSpotLight(
+    inline void OpenGL_Renderer::AddSpotLight(
         const glm::vec3& position,
         const glm::vec3& direction,
         float cutoff,
@@ -297,7 +301,7 @@ namespace Project001
         }
     }
 
-    inline void OpenGLRendererAlt::ClearDirectionalLight()
+    inline void OpenGL_Renderer::ClearDirectionalLight()
     {
         directionalLight_.direction = glm::vec3(0.0f, 0.0f, -1.0f);
         directionalLight_.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -305,12 +309,12 @@ namespace Project001
         directionalLight_.specular = glm::vec3(0.0f, 0.0f, 0.0f);
     }
 
-    inline void OpenGLRendererAlt::ClearPointLights()
+    inline void OpenGL_Renderer::ClearPointLights()
     {
         pointLights_.clear();
     }
 
-    inline void OpenGLRendererAlt::ClearSpotLights()
+    inline void OpenGL_Renderer::ClearSpotLights()
     {
         spotLights_.clear();
     }

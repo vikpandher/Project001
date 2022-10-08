@@ -1,6 +1,6 @@
 #include "SoundPlayer.h"
 
-#include "Engine/Platform/OpenALSoundPlayer.h"
+#include "Engine/Platform/OpenAL_SoundPlayer.h"
 
 
 
@@ -10,7 +10,7 @@ namespace Project001
 
     SoundPlayer* SoundPlayer::Create()
     {
-        return new OpenALSoundPlayer();
+        return new OpenAL_SoundPlayer();
     }
 
     SoundPlayer::~SoundPlayer()

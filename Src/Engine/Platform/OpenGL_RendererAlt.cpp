@@ -1,4 +1,4 @@
-#include "OpenGLRenderer.h"
+#include "OpenGL_RendererAlt.h"
 
 #include <algorithm>
 #include <string>
@@ -8,10 +8,12 @@
 #include "Engine/Logger.h"
 #include "Engine/MeshVertex.h"
 
-#include "Engine/Platform/OpenGLShader.h"
-#include "Engine/Platform/OpenGLTexture.h"
+#include "Engine/Platform/OpenGL_Shader.h"
+#include "Engine/Platform/OpenGL_Texture.h"
 #include "Engine/Platform/ShaderSource/BatchShaderSource.h"
 #include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
+
+#include "Engine/Window.h"
 
 
 
@@ -19,14 +21,17 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLRenderer::OpenGLRenderer(unsigned int width, unsigned int height)
-        : depthTesting_(true)
+    OpenGL_RendererAlt::OpenGL_RendererAlt(Window* windowPtr, unsigned int width, unsigned int height)
+        : windowPtr_(windowPtr)
+        , depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
     {
+        windowPtr_->MakeContextCurrent();
+
         // NOTE:
         // glBindVertex Array doesn't ALWAYS need to come before glBindBuffer,
         // but there are situations when it does.
@@ -138,13 +143,13 @@ namespace Project001
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
         glEnableVertexAttribArray(1);
 
-        primaryShaderPtr_ = new OpenGLShader(
+        primaryShaderPtr_ = new OpenGL_Shader(
             BatchShader::g_vertexShaderSource,
             BatchShader::g_fragmentShaderSource
         );
         primaryShaderPtr_->Use();
 
-        for (int i = 0; i < s_numberOfTextureUnits_; ++i)
+        for (unsigned int i = 0; i < s_numberOfTextureUnits_; ++i)
         {
             std::string uniformName;
             uniformName.append("u_Textures[");
@@ -153,7 +158,7 @@ namespace Project001
             primaryShaderPtr_->SetInt(uniformName.c_str(), i);
         }
 
-        screenShaderPtr_ = new OpenGLShader(
+        screenShaderPtr_ = new OpenGL_Shader(
             ScreenShader::g_vertexShaderSource,
             ScreenShader::g_fragmentShaderSource
         );
@@ -176,8 +181,10 @@ namespace Project001
         spotLights_.reserve(s_numberOfSpotLights_);
     }
 
-    OpenGLRenderer::~OpenGLRenderer()
+    OpenGL_RendererAlt::~OpenGL_RendererAlt()
     {
+        windowPtr_->MakeContextCurrent();
+
         delete primaryShaderPtr_;
         delete screenShaderPtr_;
 
@@ -194,10 +201,12 @@ namespace Project001
         glDeleteVertexArrays(1, &screenVertexArrayId_);
     }
 
-    void OpenGLRenderer::SetFramebufferSize(
+    void OpenGL_RendererAlt::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
     {
+        windowPtr_->MakeContextCurrent();
+
         frameBufferWidth_ = width;
         frameBufferHeight_ = height;
 
@@ -208,7 +217,7 @@ namespace Project001
         CreateFramebuffer();
     }
 
-    bool OpenGLRenderer::CreateTexture(
+    bool OpenGL_RendererAlt::CreateTexture(
         unsigned int& textureId,
         unsigned int textureUnit,
         unsigned char* data,
@@ -228,7 +237,7 @@ namespace Project001
                 recycledTextureIds_.pop_front();
             }
 
-            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, bytesPerPixel);
+            texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel);
             textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;
@@ -239,7 +248,7 @@ namespace Project001
         }
     }
 
-    bool OpenGLRenderer::BindTexture(
+    bool OpenGL_RendererAlt::BindTexture(
         unsigned int textureId,
         unsigned int textureUnit)
     {
@@ -262,7 +271,7 @@ namespace Project001
         }
     }
 
-    bool OpenGLRenderer::DeleteTexture(unsigned int textureId)
+    bool OpenGL_RendererAlt::DeleteTexture(unsigned int textureId)
     {
         if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
         {
@@ -274,9 +283,9 @@ namespace Project001
         return false;
     }
 
-    void OpenGLRenderer::DeleteAllTextures()
+    void OpenGL_RendererAlt::DeleteAllTextures()
     {
-        for (std::map<unsigned int, OpenGLTexture*>::iterator iter = texturePtrMap_.begin();
+        for (std::map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
             iter != texturePtrMap_.end(); ++iter)
         {
             delete iter->second;
@@ -286,7 +295,7 @@ namespace Project001
         recycledTextureIds_.clear();
     }
 
-    bool OpenGLRenderer::AddMesh(
+    bool OpenGL_RendererAlt::AddMesh(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
@@ -301,7 +310,7 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        if (meshVertexCount >= s_bufferCapacity_)
+        if (meshVertexCount > s_bufferCapacity_)
         {
             return false;
         }
@@ -351,8 +360,10 @@ namespace Project001
         return true;
     }
 
-    void OpenGLRenderer::PrepareCapabilities()
+    void OpenGL_RendererAlt::PrepareCapabilities()
     {
+        windowPtr_->MakeContextCurrent();
+
         // This is enabled so when glViewport is used to set the viewport size,
         // glScissor can be used to limit drawing to within the viewport.
         // glEnable(GL_SCISSOR_TEST);
@@ -377,16 +388,20 @@ namespace Project001
         glBindTexture(GL_TEXTURE_2D, screenTextureColorBufferId_);
     }
 
-    void OpenGLRenderer::Clear()
+    void OpenGL_RendererAlt::Clear()
     {
+        windowPtr_->MakeContextCurrent();
+
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void OpenGLRenderer::Render()
+    void OpenGL_RendererAlt::Render()
     {
+        windowPtr_->MakeContextCurrent();
+
         // Sort Translucent Faces' Verticies
         // ---------------------------------------------------------------------
         // Note that faces are sorted based on the average distance of their 3
@@ -573,9 +588,14 @@ namespace Project001
         translucentVertexBuffer_.clear();
     }
 
+    void OpenGL_RendererAlt::SwapBuffers()
+    {
+        windowPtr_->SwapBuffers();
+    }
+
     // protected ---------------------------------------------------------------
 
-    void OpenGLRenderer::CreateFramebuffer()
+    void OpenGL_RendererAlt::CreateFramebuffer()
     {
         // generate an id (name) for a frame buffer object
         glGenFramebuffers(1, &frameBufferId_);
@@ -620,7 +640,7 @@ namespace Project001
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void OpenGLRenderer::RenderTriangles(const std::vector<VertexData>& vertexBuffer)
+    void OpenGL_RendererAlt::RenderTriangles(const std::vector<VertexData>& vertexBuffer)
     {
         size_t numberOfVerticiesLeft = vertexBuffer.size();
         while (numberOfVerticiesLeft > 0)
@@ -647,7 +667,7 @@ namespace Project001
         }
     }
 
-    int OpenGLRenderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
+    int OpenGL_RendererAlt::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
         if (textureIdToUnitBiMap_.Find_X(textureId))
         {
@@ -681,7 +701,7 @@ namespace Project001
         return 0;
     }
 
-    bool OpenGLRenderer::GetStalestTextureUnit(unsigned int& textureUnit) const
+    bool OpenGL_RendererAlt::GetStalestTextureUnit(unsigned int& textureUnit) const
     {
         unsigned int stalestValue = 0;
 
@@ -697,11 +717,18 @@ namespace Project001
         return stalestValue > 0;
     }
 
-    void OpenGLRenderer::IncreaseTectureUnitStaleness()
+    void OpenGL_RendererAlt::IncreaseTectureUnitStaleness()
     {
         for (size_t i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
         {
             tectureUnitStalenessValues_[i]++;
         }
     }
+
+    const unsigned int OpenGL_RendererAlt::s_bufferCapacity_ = 36 * 113;
+
+    const unsigned int OpenGL_RendererAlt::s_numberOfTextureUnits_ = 16;
+
+    const unsigned int OpenGL_RendererAlt::s_numberOfPointLights_ = 8;
+    const unsigned int OpenGL_RendererAlt::s_numberOfSpotLights_ = 4;
 }

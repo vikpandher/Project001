@@ -1,4 +1,4 @@
-#include "OpenGLRendererAlt.h"
+#include "OpenGL_Renderer.h"
 
 // https://www.khronos.org/registry/OpenGL/specs/gl/
 
@@ -10,13 +10,15 @@
 #include "Engine/Logger.h"
 #include "Engine/MeshVertex.h"
 
-#include "Engine/Platform/OpenGLShader.h"
-#include "Engine/Platform/OpenGLTexture.h"
+#include "Engine/Platform/OpenGL_Shader.h"
+#include "Engine/Platform/OpenGL_Texture.h"
 #include "Engine/Platform/ShaderSource/BatchShaderSource.h"
 #include "Engine/Platform/ShaderSource/GridShaderSource.h"
 #include "Engine/Platform/ShaderSource/NormalShaderSource.h"
 #include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
 #include "Engine/Platform/ShaderSource/WireFrameShaderSource.h"
+
+#include "Engine/Window.h"
 
 
 
@@ -24,8 +26,9 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGLRendererAlt::OpenGLRendererAlt(unsigned int width, unsigned int height)
-        : redrawGrid_(true)
+    OpenGL_Renderer::OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height)
+        : windowPtr_(windowPtr)
+        , redrawGrid_(true)
         , depthTesting_(true)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
@@ -33,6 +36,8 @@ namespace Project001
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
     {
+        windowPtr_->MakeContextCurrent();
+
         glGenVertexArrays(1, &vertexArrayId_);
 
         glGenBuffers(1, &vertexBufferId_);
@@ -408,7 +413,7 @@ namespace Project001
             glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
             });
 
-        gridVertexCount_ = gridVerticies.size();
+        gridVertexCount_ = (unsigned int)gridVerticies.size();
 
         glGenVertexArrays(1, &gridVertexArrayId_);
         glGenBuffers(1, &gridVertexBufferId_);
@@ -443,13 +448,13 @@ namespace Project001
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
         glEnableVertexAttribArray(1);
 
-        primaryShaderPtr_ = new OpenGLShader(
+        primaryShaderPtr_ = new OpenGL_Shader(
             BatchShader::g_vertexShaderSource,
             BatchShader::g_fragmentShaderSource
         );
         primaryShaderPtr_->Use();
 
-        for (int i = 0; i < s_numberOfTextureUnits_; ++i)
+        for (unsigned int i = 0; i < s_numberOfTextureUnits_; ++i)
         {
             std::string uniformName;
             uniformName.append("u_Textures[");
@@ -458,12 +463,12 @@ namespace Project001
             primaryShaderPtr_->SetInt(uniformName.c_str(), i);
         }
 
-        gridShaderPtr_ = new OpenGLShader(
+        gridShaderPtr_ = new OpenGL_Shader(
             GridShader::g_vertexShaderSource,
             GridShader::g_fragmentShaderSource
         );
 
-        wireframeShaderPtr_ = new OpenGLShader(
+        wireframeShaderPtr_ = new OpenGL_Shader(
             WireFrameShader::g_vertexShaderSource,
             WireFrameShader::g_geometryShaderSource,
             WireFrameShader::g_fragmentShaderSource
@@ -472,7 +477,7 @@ namespace Project001
 
         wireframeShaderPtr_->SetVec4("u_Color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
-        normalShaderPtr_ = new OpenGLShader(
+        normalShaderPtr_ = new OpenGL_Shader(
             NormalShader::g_vertexShaderSource,
             NormalShader::g_geometryShaderSource,
             NormalShader::g_fragmentShaderSource
@@ -483,7 +488,7 @@ namespace Project001
         normalShaderPtr_->SetVec4("u_StartColor", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         normalShaderPtr_->SetVec4("u_EndColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-        screenShaderPtr_ = new OpenGLShader(
+        screenShaderPtr_ = new OpenGL_Shader(
             ScreenShader::g_vertexShaderSource,
             ScreenShader::g_fragmentShaderSource
         );
@@ -507,8 +512,10 @@ namespace Project001
         spotLights_.reserve(s_numberOfSpotLights_);
     }
 
-    OpenGLRendererAlt::~OpenGLRendererAlt()
+    OpenGL_Renderer::~OpenGL_Renderer()
     {
+        windowPtr_->MakeContextCurrent();
+
         delete primaryShaderPtr_;
         delete wireframeShaderPtr_;
         delete normalShaderPtr_;
@@ -531,10 +538,12 @@ namespace Project001
         glDeleteVertexArrays(1, &screenVertexArrayId_);
     }
 
-    void OpenGLRendererAlt::SetFramebufferSize(
+    void OpenGL_Renderer::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
     {
+        windowPtr_->MakeContextCurrent();
+
         frameBufferWidth_ = width;
         frameBufferHeight_ = height;
 
@@ -545,7 +554,7 @@ namespace Project001
         CreateFramebuffer();
     }
 
-    bool OpenGLRendererAlt::CreateTexture(
+    bool OpenGL_Renderer::CreateTexture(
         unsigned int& textureId,
         unsigned int textureUnit,
         unsigned char* data,
@@ -565,7 +574,7 @@ namespace Project001
                 recycledTextureIds_.pop_front();
             }
 
-            texturePtrMap_[textureId] = new OpenGLTexture(textureUnit, data, width, height, bytesPerPixel);
+            texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel);
             textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;
@@ -576,7 +585,7 @@ namespace Project001
         }
     }
 
-    bool OpenGLRendererAlt::BindTexture(
+    bool OpenGL_Renderer::BindTexture(
         unsigned int textureId,
         unsigned int textureUnit)
     {
@@ -599,7 +608,7 @@ namespace Project001
         }
     }
 
-    bool OpenGLRendererAlt::DeleteTexture(unsigned int textureId)
+    bool OpenGL_Renderer::DeleteTexture(unsigned int textureId)
     {
         if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
         {
@@ -612,9 +621,9 @@ namespace Project001
         return false;
     }
 
-    void OpenGLRendererAlt::DeleteAllTextures()
+    void OpenGL_Renderer::DeleteAllTextures()
     {
-        for (std::map<unsigned int, OpenGLTexture*>::iterator iter = texturePtrMap_.begin();
+        for (std::map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
             iter != texturePtrMap_.end(); ++iter)
         {
             delete iter->second;
@@ -624,7 +633,7 @@ namespace Project001
         recycledTextureIds_.clear();
     }
 
-    bool OpenGLRendererAlt::AddMesh(
+    bool OpenGL_Renderer::AddMesh(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
@@ -644,11 +653,11 @@ namespace Project001
         //     _LOG_ERROR("OpenGLRendererAlt doesn't handle translucent meshes");
         // }
 
-        if ((vertexBuffer_.size() + meshVertexCount) >= s_vertexBufferCapacity_ ||
-            (indexBuffer_.size() + meshIndexCount) >= s_indexBufferCapacity_)
+        if ((vertexBuffer_.size() + meshVertexCount) > s_vertexBufferCapacity_ ||
+            (indexBuffer_.size() + meshIndexCount) > s_indexBufferCapacity_)
         {
-            if (meshVertexCount >= s_vertexBufferCapacity_ ||
-                meshIndexCount >= s_indexBufferCapacity_)
+            if (meshVertexCount > s_vertexBufferCapacity_ ||
+                meshIndexCount > s_indexBufferCapacity_)
             {
                 return false;
             }
@@ -726,8 +735,10 @@ namespace Project001
         return true;
     }
 
-    void OpenGLRendererAlt::PrepareCapabilities()
+    void OpenGL_Renderer::PrepareCapabilities()
     {
+        windowPtr_->MakeContextCurrent();
+
         glDepthMask(GL_TRUE);
 
         glEnable(GL_CULL_FACE);
@@ -741,8 +752,10 @@ namespace Project001
         glBindTexture(GL_TEXTURE_2D, screenTextureColorBufferId_);
     }
 
-    void OpenGLRendererAlt::Clear()
+    void OpenGL_Renderer::Clear()
     {
+        windowPtr_->MakeContextCurrent();
+
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -751,8 +764,10 @@ namespace Project001
         redrawGrid_ = true;
     }
 
-    void OpenGLRendererAlt::Render()
+    void OpenGL_Renderer::Render()
     {
+        windowPtr_->MakeContextCurrent();
+
         // Render to texture frameBuffer
         // ---------------------------------------------------------------------
 
@@ -932,9 +947,14 @@ namespace Project001
         indexBuffer_.clear();
     }
 
+    void OpenGL_Renderer::SwapBuffers()
+    {
+        windowPtr_->SwapBuffers();
+    }
+
     // protected ---------------------------------------------------------------
 
-    void OpenGLRendererAlt::CreateFramebuffer()
+    void OpenGL_Renderer::CreateFramebuffer()
     {
         glGenFramebuffers(1, &frameBufferId_);
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId_);
@@ -963,7 +983,7 @@ namespace Project001
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    int OpenGLRendererAlt::GetTextureUnit(unsigned int textureId, float& textureUnit)
+    int OpenGL_Renderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
         if (textureIdToUnitBiMap_.Find_X(textureId))
         {
@@ -997,7 +1017,7 @@ namespace Project001
         return 0;
     }
 
-    bool OpenGLRendererAlt::GetStalestTextureUnit(unsigned int& textureUnit) const
+    bool OpenGL_Renderer::GetStalestTextureUnit(unsigned int& textureUnit) const
     {
         unsigned int stalestValue = 0;
 
@@ -1013,7 +1033,7 @@ namespace Project001
         return stalestValue > 0;
     }
 
-    void OpenGLRendererAlt::IncreaseTectureUnitStaleness()
+    void OpenGL_Renderer::IncreaseTectureUnitStaleness()
     {
         for (size_t i = 1 ; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
         {
@@ -1021,20 +1041,20 @@ namespace Project001
         }
     }
 
-    const bool OpenGLRendererAlt::s_cullBackface = false;
-    const bool OpenGLRendererAlt::s_drawWireframe = true;
-    const bool OpenGLRendererAlt::s_drawNormals = true;
-    const bool OpenGLRendererAlt::s_drawGrid = true;
+    const bool OpenGL_Renderer::s_cullBackface = true;
+    const bool OpenGL_Renderer::s_drawWireframe = true;
+    const bool OpenGL_Renderer::s_drawNormals = true;
+    const bool OpenGL_Renderer::s_drawGrid = false;
 
-    const unsigned int OpenGLRendererAlt::s_indexBufferCapacity_ = 4194304; // 8192;
-    const unsigned int OpenGLRendererAlt::s_vertexBufferCapacity_ = 4194304; // 6144;
+    const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4194304; // 8192;
+    const unsigned int OpenGL_Renderer::s_vertexBufferCapacity_ = 4194304; // 6144;
 
-    const unsigned int OpenGLRendererAlt::s_numberOfTextureUnits_ = 16;
+    const unsigned int OpenGL_Renderer::s_numberOfTextureUnits_ = 16;
 
-    const unsigned int OpenGLRendererAlt::s_numberOfPointLights_ = 8;
-    const unsigned int OpenGLRendererAlt::s_numberOfSpotLights_ = 4;
+    const unsigned int OpenGL_Renderer::s_numberOfPointLights_ = 8;
+    const unsigned int OpenGL_Renderer::s_numberOfSpotLights_ = 4;
 
-    const float OpenGLRendererAlt::s_minorGridIncement_ = 0.1f;
-    const float OpenGLRendererAlt::s_majorGridIncement_ = 1.0f;
-    const float OpenGLRendererAlt::s_gridHalfExtents_ = 10.0f;
+    const float OpenGL_Renderer::s_minorGridIncement_ = 0.1f;
+    const float OpenGL_Renderer::s_majorGridIncement_ = 1.0f;
+    const float OpenGL_Renderer::s_gridHalfExtents_ = 10.0f;
 }

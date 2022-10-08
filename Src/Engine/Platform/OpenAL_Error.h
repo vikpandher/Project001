@@ -7,7 +7,7 @@
 
 
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 #define alcCheckError(x) Project001::ALCCheckError(x, __FILENAME__ , __LINE__)
 #define alCheckError() Project001::ALCheckError(__FILENAME__ , __LINE__)
 #define alcLogError(x) Project001::ALCLogError(x, __FILENAME__ , __LINE__)

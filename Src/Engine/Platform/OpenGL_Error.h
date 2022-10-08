@@ -5,7 +5,7 @@
 #include "Engine/Logger.h"
 
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 #define glLogError() Project001::LogOpenGLError(__FILENAME__ , __LINE__)
 #elif
 #define glLogError()

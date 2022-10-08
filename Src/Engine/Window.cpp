@@ -1,7 +1,6 @@
 #include "Engine/Window.h"
 
-#include "Engine/Platform/GLFWWindow.h"
-
+#include "Engine/Platform/GLFW_Window.h"
 
 
 namespace Project001
@@ -10,7 +9,7 @@ namespace Project001
 
     Window* Window::Create(const char* title, int width, int height)
     {
-        return new GLFWWindow(title, width, height);
+        return new GLFW_Window(title, width, height);
     }
 
     Window::~Window()

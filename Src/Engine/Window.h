@@ -3,6 +3,11 @@
 #include <functional>
 
 
+struct VkInstance_T;
+typedef VkInstance_T* VkInstance;
+
+struct VkSurfaceKHR_T;
+typedef VkSurfaceKHR_T* VkSurfaceKHR;
 
 namespace Project001
 {
@@ -20,6 +25,8 @@ namespace Project001
         virtual void PollEvents() = 0;
 
         virtual void SetEventCallback(const std::function<void(Event&)>& callback) = 0;
+
+        virtual unsigned int GetWindowId() const = 0;
 
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
         virtual void GetAspectRatio(int& numerator, int& denominator) const = 0;
@@ -47,10 +54,16 @@ namespace Project001
         virtual void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const = 0;
         virtual void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const = 0;
 
+        // Appicalbe to OpenGL
         virtual void MakeContextCurrent() = 0;
         virtual void MakeContextNotCurrent() = 0;
-
         virtual void SwapBuffers() = 0;
+
+        // Appicable to Vulkan
+        virtual void CreateWindowSurface(VkInstance& instance, VkSurfaceKHR& surface) = 0;
+        virtual const char** GetRequiredInstanceExtensions(uint32_t* count) = 0;
+
+        virtual void SleepAndWaitForEvents() = 0;
 
     protected:
 

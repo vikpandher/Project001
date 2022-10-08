@@ -1,25 +1,30 @@
 #include "Engine/Renderer.h"
 
-#define SELECTED_RENDERER 2
-
-#if SELECTED_RENDERER == 1
-#include "Engine/Platform/OpenGLRenderer.h"
+#ifdef VULKAN_MODE
+#include "Engine/Platform/Vulkan_Renderer.h"
 #else
-#include "Engine/Platform/OpenGLRendererAlt.h"
+#ifdef USE_ALT_OPENGL_RENDERER
+#include "Engine/Platform/OpenGL_RendererAlt.h"
+#else
+#include "Engine/Platform/OpenGL_Renderer.h"
 #endif
-
+#endif
 
 
 namespace Project001
 {
     // public: -----------------------------------------------------------------
 
-    Renderer* Renderer::Create(unsigned int width, unsigned int height)
+    Renderer* Renderer::Create(Window* windowPtr, unsigned int width, unsigned int height)
     {
-#if SELECTED_RENDERER == 1
-        return new OpenGLRenderer(width, height);
+#ifdef VULKAN_MODE
+        return new Vulkan_Renderer(windowPtr, width, height);
 #else
-        return new OpenGLRendererAlt(width, height);
+#ifdef USE_ALT_OPENGL_RENDERER
+        return new OpenGL_RendererAlt(windowPtr, width, height);
+#else
+        return new OpenGL_Renderer(windowPtr, width, height);
+#endif
 #endif
     }
 

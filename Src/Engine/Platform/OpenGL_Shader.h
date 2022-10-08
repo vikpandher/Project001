@@ -6,17 +6,17 @@
 
 namespace Project001
 {
-    class OpenGLShader
+    class OpenGL_Shader
     {
     public:
-        OpenGLShader(const char* vertexShaderCode, const char* fragmentShaderCode);
+        OpenGL_Shader(const char* vertexShaderCode, const char* fragmentShaderCode);
 
-        OpenGLShader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode);
+        OpenGL_Shader(const char* vertexShaderCode, const char* geometryShaderCode, const char* fragmentShaderCode);
 
-        ~OpenGLShader();
+        ~OpenGL_Shader();
 
-        OpenGLShader(OpenGLShader& other) = delete;
-        void operator=(const OpenGLShader&) = delete;
+        OpenGL_Shader(OpenGL_Shader& other) = delete;
+        void operator=(const OpenGL_Shader&) = delete;
 
         void Use() const;
 

@@ -49,6 +49,7 @@ namespace Project001
         vsnprintf(instance->charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
         printf("ERROR:      %s\n", instance->charBuffer_);
+        fflush(stdout);
     }
 
     void Logger::Message(const char* format, ...)
@@ -62,6 +63,7 @@ namespace Project001
         vsnprintf(instance->charBuffer_, sizeof(char) * s_charBufferCapacity_, format, args);
 
         printf("MESSAGE:    %s\n", instance->charBuffer_);
+        fflush(stdout);
     }
 
     Logger::~Logger()

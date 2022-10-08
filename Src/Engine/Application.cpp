@@ -29,7 +29,6 @@ namespace Project001
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
         windowPtr_->SetAspectRatio(windowWidth, windowHeight);
-        windowPtr_->MakeContextCurrent();
 
         int screenWidth;
         int screenHeight;
@@ -39,7 +38,7 @@ namespace Project001
             windowPtr_->SetWindowPosition((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2);
         }
 
-        rendererPtr_ = Renderer::Create(windowWidth, windowHeight);
+        rendererPtr_ = Renderer::Create(windowPtr_, windowWidth, windowHeight);
         soundPlayerPtr_ = SoundPlayer::Create();
         componentStoresPtr_ = new ComponentStores();
     }

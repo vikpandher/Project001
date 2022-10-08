@@ -8,10 +8,12 @@ namespace Project001
 {
     struct MeshVertex;
 
+    class Window;
+
     class Renderer
     {
     public:
-        static Renderer* Create(unsigned int width, unsigned int height);
+        static Renderer* Create(Window* windowPtr, unsigned int width, unsigned int height);
 
         virtual ~Renderer();
 
@@ -104,6 +106,8 @@ namespace Project001
         virtual void Clear() = 0;
 
         virtual void Render() = 0;
+
+        virtual void SwapBuffers() = 0;
 
     protected:
 

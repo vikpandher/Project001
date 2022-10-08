@@ -13,12 +13,12 @@
 
 namespace Project001
 {
-    class OpenALSoundPlayer : public SoundPlayer
+    class OpenAL_SoundPlayer : public SoundPlayer
     {
     public:
-        OpenALSoundPlayer();
+        OpenAL_SoundPlayer();
 
-        ~OpenALSoundPlayer();
+        ~OpenAL_SoundPlayer();
 
         bool UpdateListener(
             const glm::vec3& position,

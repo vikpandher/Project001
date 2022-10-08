@@ -12,7 +12,7 @@
 #define __FILENAME__ strrchr("/" __FILE__, '/') + 1
 #endif
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 #define _LOG_ERROR(...) Project001::Logger::Error("%s %s %d", __FILENAME__ , __FUNCTION__, __LINE__); Project001::Logger::Error(__VA_ARGS__)
 #define _LOG_MESSAGE(...) Project001::Logger::Message(__VA_ARGS__)
 #define _FAIL_CHECK(x) if (!(x)) {_LOG_ERROR(#x);} static_assert(true, "")
@@ -48,7 +48,7 @@ namespace Project001
         static Logger* s_instance_;
         static std::mutex s_lock_;
 
-        static const unsigned int s_charBufferCapacity_ = 256;
+        static const unsigned int s_charBufferCapacity_ = 1024;
         char* charBuffer_;
     };
 }
