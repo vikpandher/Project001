@@ -4,18 +4,11 @@
 
 namespace Project001
 {
-    // public ------------------------------------------------------------------
-
     ComponentStores::ComponentStores()
     {}
 
     ComponentStores::~ComponentStores()
-    {
-        for (size_t i = 0; i < componentContainers_.size(); ++i)
-        {
-            delete componentContainers_[i];
-        }
-    }
+    {}
 
     bool ComponentStores::CreateEntity(unsigned int& entityId)
     {
@@ -43,30 +36,11 @@ namespace Project001
         return true;
     }
 
-    bool ComponentStores::DeleteEntity(unsigned int entityId)
-    {
-        if (!EntityExists(entityId))
-        {
-            return false;
-        }
-
-        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
-        {
-            componentContainers_[i]->DeleteComponent(entityId);
-        }
-
-        recycledEntityIds_.push(entityId);
-
-        entityDeletedFlags_[entityId] = true;
-
-        return true;
-    }
-
     void ComponentStores::DeleteAllEntities()
     {
         for (unsigned int i = 0; i < componentContainers_.size(); ++i)
         {
-            componentContainers_[i]->DeleteAllComponents();
+            componentContainers_[i].DeleteAllComponents();
         }
 
         for (unsigned int i = 0; i < entityDeletedFlags_.size(); ++i)
@@ -80,5 +54,39 @@ namespace Project001
                 entityDeletedFlags_[i] = true;
             }
         }
+    }
+
+    bool ComponentStores::DeleteEntity(unsigned int entityId)
+    {
+        if (!EntityExists(entityId))
+        {
+            return false;
+        }
+
+        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
+        {
+            componentContainers_[i].DeleteComponent(entityId);
+        }
+
+        recycledEntityIds_.push(entityId);
+
+        entityDeletedFlags_[entityId] = true;
+
+        return true;
+    }
+
+    bool ComponentStores::RegisterNewComponent(unsigned int componentTypeId)
+    {
+        unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
+
+        if (nextComponentContainerIndex > s_maxTypesOfComponents_)
+        {
+            return false;
+        }
+
+        componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
+        componentContainers_.resize((size_t)nextComponentContainerIndex + 1);
+
+        return true;
     }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+// https://www.khronos.org/registry/OpenGL/specs/gl/
+
 #include "Engine/BiMap.h"
 #include "Engine/Renderer.h"
 

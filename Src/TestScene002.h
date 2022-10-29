@@ -44,6 +44,7 @@ protected:
 private:
     void BiMapTest() const;
     void ComponentContainerTest() const;
+    void ComponentStoresTestOld() const;
     void ComponentStoresTest() const;
     void MeshLoaderTest() const;
     void TextureLoaderTest() const;

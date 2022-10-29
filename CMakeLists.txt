@@ -84,7 +84,6 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/BiMap.h"
-    "Src/Engine/ComponentContainer.cpp"
     "Src/Engine/ComponentContainer.h"
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
@@ -215,9 +214,9 @@ target_link_directories("${PROJECT_NAME}"
     # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_FREETYPE_REPO}/objs/x64/Release/freetype.lib"
-    "${CMAKE_GLFW_REPO}/build/src/Release/glfw3.lib"
-    "${CMAKE_OPENAL_REPO}/build/Release/OpenAL32.lib"
+    "${CMAKE_FREETYPE_REPO}/Release/freetype.lib"
+    "${CMAKE_GLFW_REPO}/src/Release/glfw3.lib"
+    "${CMAKE_OPENAL_REPO}/Release/OpenAL32.lib"
     "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib"
 )
 

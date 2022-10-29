@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     TestScene012* testScene012Ptr = new TestScene012();
     applicationPtr->AddScene(testScene012Ptr);
 
-    // tests 3d shape overlap (TODO) (001)
+    // tests 3d shape overlap tests (TODO) (001)
     TestScene013* testScene013Ptr = new TestScene013();
     applicationPtr->AddScene(testScene013Ptr);
 

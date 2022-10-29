@@ -1,7 +1,5 @@
 #include "OpenGL_Renderer.h"
 
-// https://www.khronos.org/registry/OpenGL/specs/gl/
-
 #include <algorithm>
 #include <string>
 
