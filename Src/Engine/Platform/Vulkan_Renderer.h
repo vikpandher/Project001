@@ -1,5 +1,6 @@
 #pragma once
 
+// https://www.jeremyong.com/c++/vulkan/graphics/rendering/2018/03/26/how-to-learn-vulkan/
 // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html
 // https://registry.khronos.org/vulkan/specs/1.3/styleguide.html
 
@@ -7,6 +8,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <array>
 #include <string>
 
 
@@ -21,7 +23,8 @@ namespace Project001
         bool valid_presentFamilyIndex;
         uint32_t presentFamilyIndex;
 
-        bool isComplete() {
+        bool isComplete()
+        {
             return valid_graphicsFamilyIndex && valid_presentFamilyIndex;
         }
     };
@@ -30,6 +33,51 @@ namespace Project001
         VkSurfaceCapabilitiesKHR surfaceCapabilities;
         std::vector<VkSurfaceFormatKHR> surfaceFormats;
         std::vector<VkPresentModeKHR> presentModes;
+    };
+
+    struct Vertex {
+        glm::vec3 pos;
+        glm::vec3 color;
+        glm::vec2 texCoord;
+
+        static VkVertexInputBindingDescription GetBindingDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
+        {
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            attributeDescriptions[2].binding = 0;
+            attributeDescriptions[2].location = 2;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
+            return attributeDescriptions;
+        }
+    };
+
+    struct UniformBufferObject
+    {
+        alignas(16) glm::mat4 model;
+        alignas(16) glm::mat4 view;
+        alignas(16) glm::mat4 proj;
     };
 
     class Vulkan_Renderer : public Renderer
@@ -138,16 +186,24 @@ namespace Project001
         void CreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
+        void CreateDescriptorSetLayout();
         void CreateGraphicsPipeline();
-        void CreateFramebuffers();
         void CreateCommandPool();
+        void CreateDepthResources();
+        void CreateFramebuffers();
+        void CreateTextureImage();
+        void CreateTextureImageView();
+        void CreateTextureSampler();
+        void CreateVertexBuffer();
+        void CreateIndexBuffer();
+        void CreateUniformBuffers();
+        void CreateDescriptorPool();
+        void CreateDescriptorSets();
         void CreateCommandBuffers();
         void CreateSyncObjects();
 
         void RecreateSwapChain();
         void CleanupSwapChain();
-
-        void DrawFrame();
 
         bool CheckValidationLayerSupport();
 
@@ -167,11 +223,40 @@ namespace Project001
 
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+        VkFormat FindDepthFormat();
+
+        VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+        // Unused
+        bool HasStencilComponent(VkFormat format);
+
         bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
         std::vector<char> ReadFile(const std::string& filePath);
 
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
+        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
+        void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+        void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+        void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        VkCommandBuffer BeginSingleTimeCommands();
+
+        void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+        void DrawFrame();
+
+        void UpdateUniformBuffer(uint32_t currentImage);
 
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -180,7 +265,12 @@ namespace Project001
 
         static const std::vector<const char*> s_deviceExtensions_;
 
-        static const int s_maxFramesInFlight_;
+        static const uint32_t s_maxFramesInFlight_;
+
+        static const std::vector<Vertex> s_vertices_;
+        static const std::vector<uint16_t> s_indices_;
+
+        static const std::string s_texturePath_;
 
         Window* windowPtr_;
 
@@ -242,6 +332,7 @@ namespace Project001
         // subset of the attachments in a render pass. Rendering commands are
         // recorded into a particular subpass of the render pass instance.
         VkRenderPass vkRenderPass_;
+        VkDescriptorSetLayout vkDescriptorSetLayout_;
         // A pipeline layout represents a sequence of descriptor sets with each
         // having a specific layout. This sequence of layouts is used to
         // determine the interface between shader stages and shader resources.
@@ -261,6 +352,32 @@ namespace Project001
         // concurrently in multiple threads.
         // VkCommandPool objects are parents of VkCommandBuffer objects.
         VkCommandPool vkCommandPool_;
+
+        VkImage vkDepthImage_;
+        VkDeviceMemory vkDepthImageMemory_;
+        VkImageView vkDepthImageView_;
+
+        VkImage vkTextureImage_;
+        VkDeviceMemory vkTextureImageMemory_;
+        VkImageView vkTextureImageView_;
+        VkSampler vkTextureSampler_;
+
+        // Buffers represent linear arrays of data which are used for various
+        // purposes by binding them to a graphics or compute pipeline via
+        // descriptor sets or via certain commands, or by directly specifying
+        // them as parameters to certain commands.
+        VkBuffer vkVertexBuffer_;
+        // A vulkan device operates on data in device memory via memory objects.
+        VkDeviceMemory vkVertexBufferMemory_;
+        VkBuffer vkIndexBuffer_;
+        VkDeviceMemory vkIndexBufferMemory_;
+
+        std::vector<VkBuffer> vkUniformBuffers_;
+        std::vector<VkDeviceMemory> vkUniformBuffersMemory_;
+
+        VkDescriptorPool vkDescriptorPool_;
+        std::vector<VkDescriptorSet> vkDescriptorSets_;
+
         // Command buffers are objects used to record commands which can be
         // subsequently submitted to a device queue for execution. There are two
         // levels of command buffers - primary command buffers, which can

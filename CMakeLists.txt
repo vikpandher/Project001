@@ -18,8 +18,12 @@ set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
 set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
 
-set(CMAKE_VULKAN_MODE OFF)
-set(USE_ALT_OPENGL_RENDERER OFF)
+set(CMAKE_VULKAN_MODE ON)
+set(CMAKE_USE_ALT_OPENGL_RENDERER OFF)
+
+# ##############################################################################
+# ##############################################################################
+# ##############################################################################
 
 project("Project001" # ${PROJECT_NAME}
     VERSION 0.1.0.0
@@ -37,14 +41,15 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 # add_compile_definitions("GLM_ENABLE_EXPERIMENTAL")
-# add_compile_definitions("GLM_FORCE_LEFT_HANDED")
 
 if (${CMAKE_VULKAN_MODE})
     add_definitions(-DVULKAN_MODE)
     add_definitions(-DGLFW_INCLUDE_VULKAN)
+    add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
+    add_definitions(-DGLM_FORCE_LEFT_HANDED)
 endif()
 
-if (${USE_ALT_OPENGL_RENDERER})
+if (${CMAKE_USE_ALT_OPENGL_RENDERER})
     add_definitions(-DUSE_ALT_OPENGL_RENDERER)
 endif()
 
@@ -252,6 +257,7 @@ if(${PRINT_DEBUG_OUTPUT})
     message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
 
     message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
+    message("CMAKE_USE_ALT_OPENGL_RENDERER: ${CMAKE_USE_ALT_OPENGL_RENDERER}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
