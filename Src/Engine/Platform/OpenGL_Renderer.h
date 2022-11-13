@@ -17,11 +17,14 @@ namespace Project001
     class OpenGL_Renderer : public Renderer
     {
     public:
-        OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height);
+        OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height, bool multisampleAntaiAliasing);
         ~OpenGL_Renderer() override;
 
         void SetDepthTesting(
             bool depthTesting) override;
+
+        void SetMultisampleAntiAliasing(
+            bool multisampleAntaiAliasing) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -45,7 +48,8 @@ namespace Project001
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int bytesPerPixel) override;
+            unsigned int bytesPerPixel,
+            bool mipMaps) override;
 
         bool BindTexture(
             unsigned int textureId,
@@ -114,7 +118,10 @@ namespace Project001
         void SwapBuffers() override;
 
     protected:
-        void CreateFramebuffer();
+        void CreateGridBufferAndArray();
+
+        void CleanUpScreenFramebuffers();
+        void CreateScreenFramebuffers();
 
         // returns 0 if texture successfuly bound to unit
         // returns 1 if texture failed to bind because all texture units are
@@ -147,6 +154,7 @@ namespace Project001
         bool redrawGrid_;
 
         bool depthTesting_;
+        bool multisampleAntaiAliasing_;
 
         OpenGL_Shader* primaryShaderPtr_;
         OpenGL_Shader* gridShaderPtr_;
@@ -173,8 +181,11 @@ namespace Project001
         unsigned int viewportWidth_;
         unsigned int viewportHeight_;
 
-        unsigned int frameBufferId_;
-        unsigned int screenTextureColorBufferId_;
+        unsigned int msaaFrameBufferId_;
+        unsigned int msaaTextureId_;
+
+        unsigned int screenFrameBufferId_;
+        unsigned int screenTextureId_;
 
         unsigned int renderBufferId_;
 

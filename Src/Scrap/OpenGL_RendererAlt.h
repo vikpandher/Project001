@@ -42,7 +42,8 @@ namespace Project001
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int bytesPerPixel) override;
+            unsigned int bytesPerPixel,
+            bool mipMaps) override;
 
         bool BindTexture(
             unsigned int textureId,

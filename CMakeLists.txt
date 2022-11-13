@@ -18,8 +18,7 @@ set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
 set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
 
-set(CMAKE_VULKAN_MODE ON)
-set(CMAKE_USE_ALT_OPENGL_RENDERER OFF)
+set(CMAKE_VULKAN_MODE OFF)
 
 # ##############################################################################
 # ##############################################################################
@@ -46,11 +45,7 @@ if (${CMAKE_VULKAN_MODE})
     add_definitions(-DVULKAN_MODE)
     add_definitions(-DGLFW_INCLUDE_VULKAN)
     add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
-    add_definitions(-DGLM_FORCE_LEFT_HANDED)
-endif()
-
-if (${CMAKE_USE_ALT_OPENGL_RENDERER})
-    add_definitions(-DUSE_ALT_OPENGL_RENDERER)
+    # add_definitions(-DGLM_FORCE_LEFT_HANDED)
 endif()
 
 set(SOURCE_FILES
@@ -166,8 +161,6 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Error.h"
     "Src/Engine/Platform/OpenGL_Renderer.cpp"
     "Src/Engine/Platform/OpenGL_Renderer.h"
-    "Src/Engine/Platform/OpenGL_RendererAlt.cpp"
-    "Src/Engine/Platform/OpenGL_RendererAlt.h"
     "Src/Engine/Platform/OpenGL_Shader.cpp"
     "Src/Engine/Platform/OpenGL_Shader.h"
     "Src/Engine/Platform/OpenGL_Texture.cpp"
@@ -257,7 +250,6 @@ if(${PRINT_DEBUG_OUTPUT})
     message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
 
     message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
-    message("CMAKE_USE_ALT_OPENGL_RENDERER: ${CMAKE_USE_ALT_OPENGL_RENDERER}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")

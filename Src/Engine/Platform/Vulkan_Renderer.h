@@ -89,6 +89,10 @@ namespace Project001
         void SetDepthTesting(
             bool depthTesting) override {}
 
+
+        void SetMultisampleAntiAliasing(
+            bool multisampleAntaiAliasing) override {}
+
         void SetFramebufferSize(
             unsigned int width,
             unsigned int height) override {}
@@ -111,7 +115,8 @@ namespace Project001
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int bytesPerPixel) override { return true; }
+            unsigned int bytesPerPixel,
+            bool mipMaps) override { return true; }
 
         bool BindTexture(
             unsigned int textureId,
@@ -121,9 +126,9 @@ namespace Project001
 
         void DeleteAllTextures() override {}
 
-        void SetViewMatrix(const glm::mat4& viewMatrix) override {}
-        void SetViewPosition(const glm::vec3& viewPosition) override {}
-        void SetProjectionMatrix(const glm::mat4& projectionMatrix) override {}
+        inline void SetViewMatrix(const glm::mat4& viewMatrix) override;
+        inline void SetViewPosition(const glm::vec3& viewPosition) override;
+        inline void SetProjectionMatrix(const glm::mat4& projectionMatrix) override;
 
         void SetDirectionalLight(
             const glm::vec3& direction,
@@ -189,11 +194,13 @@ namespace Project001
         void CreateDescriptorSetLayout();
         void CreateGraphicsPipeline();
         void CreateCommandPool();
+        void CreateColorResources();
         void CreateDepthResources();
         void CreateFramebuffers();
         void CreateTextureImage();
         void CreateTextureImageView();
         void CreateTextureSampler();
+        void LoadModel();
         void CreateVertexBuffer();
         void CreateIndexBuffer();
         void CreateUniformBuffers();
@@ -213,6 +220,8 @@ namespace Project001
 
         bool IsDeviceSuitable(VkPhysicalDevice device);
 
+        VkSampleCountFlagBits GetMaxUsableSampleCount();
+
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
         SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
@@ -223,7 +232,7 @@ namespace Project001
 
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
-        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
         VkFormat FindDepthFormat();
 
@@ -240,11 +249,13 @@ namespace Project001
 
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
-        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+        void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
-        void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+        void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 
         void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+        void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
         void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -267,9 +278,7 @@ namespace Project001
 
         static const uint32_t s_maxFramesInFlight_;
 
-        static const std::vector<Vertex> s_vertices_;
-        static const std::vector<uint16_t> s_indices_;
-
+        static const std::string s_meshPath_;
         static const std::string s_texturePath_;
 
         Window* windowPtr_;
@@ -282,12 +291,13 @@ namespace Project001
         // A messenger object which handles passing along debug messages to a
         // proveded callback.
         VkDebugUtilsMessengerEXT vkDebugMessenger_;
-
         // Native platform surface or window objects are abstracted by vulkan
         // surface objects.
         VkSurfaceKHR vkSurface_;
+
         // Represents a physical device installed in the system.
         VkPhysicalDevice vkPhysicalDevice_;
+        VkSampleCountFlagBits vkMsaaSamples_;
         // A logical device is created as a connection to a physical device.
         // Multiple logical devices can be made for a physical device. Logical
         // devices are independent.
@@ -353,24 +363,37 @@ namespace Project001
         // VkCommandPool objects are parents of VkCommandBuffer objects.
         VkCommandPool vkCommandPool_;
 
+        VkImage vkColorImage_;
+        // A vulkan device operates on data in device memory via memory objects.
+        VkDeviceMemory vkColorImageMemory_;
+        VkImageView vkColorImageView_;
+
         VkImage vkDepthImage_;
         VkDeviceMemory vkDepthImageMemory_;
         VkImageView vkDepthImageView_;
 
+        uint32_t mipLevels_;
         VkImage vkTextureImage_;
         VkDeviceMemory vkTextureImageMemory_;
         VkImageView vkTextureImageView_;
+        // An image sampler is used by the implementation to read image data and
+        // apply filtering and other transformations for the shader.
         VkSampler vkTextureSampler_;
 
+        std::vector<Vertex> vertices_;
+        std::vector<uint32_t> indices_;
         // Buffers represent linear arrays of data which are used for various
         // purposes by binding them to a graphics or compute pipeline via
         // descriptor sets or via certain commands, or by directly specifying
         // them as parameters to certain commands.
         VkBuffer vkVertexBuffer_;
-        // A vulkan device operates on data in device memory via memory objects.
         VkDeviceMemory vkVertexBufferMemory_;
         VkBuffer vkIndexBuffer_;
         VkDeviceMemory vkIndexBufferMemory_;
+
+        glm::mat4 viewMatrix_;
+        glm::vec3 viewPosition_;
+        glm::mat4 projectionMatrix_;
 
         std::vector<VkBuffer> vkUniformBuffers_;
         std::vector<VkDeviceMemory> vkUniformBuffersMemory_;
@@ -402,4 +425,19 @@ namespace Project001
 
     private:
     };
+
+    void Vulkan_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
+    {
+        viewMatrix_ = viewMatrix;
+    }
+
+    void Vulkan_Renderer::SetViewPosition(const glm::vec3& viewPosition)
+    {
+        viewPosition_ = viewPosition;
+    }
+
+    void Vulkan_Renderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+    {
+        projectionMatrix_ = projectionMatrix;
+    }
 }

@@ -8,7 +8,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGL_Texture::OpenGL_Texture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel)
+    OpenGL_Texture::OpenGL_Texture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel, bool mipMaps)
     {
         glGenTextures(1, &textureId_);
         glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -34,15 +34,18 @@ namespace Project001
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        // glGenerateMipmap(GL_TEXTURE_2D);
-        // 
-        // // set texture filtering parameters (using mipmaps)
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        if (mipMaps)
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
-        // set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
     }
 
     OpenGL_Texture::~OpenGL_Texture()

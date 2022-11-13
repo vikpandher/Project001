@@ -223,7 +223,8 @@ namespace Project001
         unsigned char* data,
         unsigned int width,
         unsigned int height,
-        unsigned int bytesPerPixel)
+        unsigned int bytesPerPixel,
+        bool mipMaps)
     {
         if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
@@ -237,7 +238,7 @@ namespace Project001
                 recycledTextureIds_.pop_front();
             }
 
-            texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel);
+            texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, mipMaps);
             textureIdToUnitBiMap_.Add(textureId, textureUnit);
 
             return true;

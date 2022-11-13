@@ -37,7 +37,7 @@ void TestScene007::Initialize()
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
     }
 
     // Calculating positions
@@ -65,7 +65,6 @@ void TestScene007::Initialize()
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLine_v2(*newMeshDataPtr, positions, 0.08f, 4));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
-        // _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*tempMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
 
         // _LOG_MESSAGE("VertexCount = %i, IndexCount = %i", newMeshData.vertexCount, newMeshData.indexCount);
 

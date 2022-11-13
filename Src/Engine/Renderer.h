@@ -20,6 +20,9 @@ namespace Project001
         virtual void SetDepthTesting(
             bool depthTesting) = 0;
 
+        virtual void SetMultisampleAntiAliasing(
+            bool multisampleAntaiAliasing) = 0;
+
         virtual void SetFramebufferSize(
             unsigned int width,
             unsigned int height) = 0;
@@ -43,7 +46,8 @@ namespace Project001
             unsigned char* data,
             unsigned int width,
             unsigned int height,
-            unsigned int bytesPerPixel) = 0;
+            unsigned int bytesPerPixel,
+            bool mipMaps) = 0;
 
         virtual bool BindTexture(
             unsigned int textureId,
