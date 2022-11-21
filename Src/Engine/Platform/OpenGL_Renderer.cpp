@@ -995,8 +995,19 @@ namespace Project001
             glGenTextures(1, &msaaTextureId_);
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_);
             glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, frameBufferWidth_, frameBufferHeight_, GL_TRUE);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_, 0);
+
+            glGenRenderbuffers(1, &renderBufferId_);
+            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
+
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            {
+                // Log Error
+                _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
+            }
         }
 
         glGenFramebuffers(1, &screenFrameBufferId_);
@@ -1009,21 +1020,13 @@ namespace Project001
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTextureId_, 0);
 
-        if (multisampleAntaiAliasing_)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
-            glGenRenderbuffers(1, &renderBufferId_);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_);
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, frameBufferWidth_, frameBufferWidth_, GL_TRUE);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_, 0);
-        }
-        else
-        {
+        if (!multisampleAntaiAliasing_)
+            {
             glGenRenderbuffers(1, &renderBufferId_);
             glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
+
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             {
                 // Log Error
