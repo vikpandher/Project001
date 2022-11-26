@@ -19,7 +19,9 @@ namespace Project001
             FontData& fontData,
             std::vector<unsigned char> characterList,
             const char* fontPath,
-            unsigned int fontHeightInPixels = 48);
+            unsigned int fontHeightInPixels = 48,
+            unsigned int horizontalSpacing = 1,
+            unsigned int verticalSpacing = 1);
 
         static bool LoadMesh(
             MeshData& meshData,
@@ -30,6 +32,14 @@ namespace Project001
             bool trangulate = s_triangulate);
 
     protected:
+        static unsigned int GetTextureIndex(
+            unsigned int x,
+            unsigned int xOffset,
+            unsigned int textureWidth,
+            unsigned int y,
+            unsigned int yOffset,
+            unsigned int textureHeight);
+
         static const bool s_flipVerticalyOnLoad;
         static const bool s_triangulate;
 

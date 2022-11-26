@@ -10,12 +10,16 @@
 
 namespace Project001
 {
+    // public ------------------------------------------------------------------
+
     bool FreetypeTextLoader::LoadTexture(
         TextureData& textureData,
         FontData& fontData,
         std::vector<unsigned char> characterList,
         const char* fontPath,
-        unsigned int fontHeightInPixels)
+        unsigned int fontHeightInPixels,
+        unsigned int horizontalSpacing,
+        unsigned int verticalSpacing)
     {
         unsigned int pixelWidth = 0;
 
@@ -79,20 +83,63 @@ namespace Project001
 
             unsigned int& currentBitmapHeight = face->glyph->bitmap.rows;
             unsigned int& currentBitmapWidth = face->glyph->bitmap.width;
-            if (currentBitmapHeight > textureData.height)
+            if (currentBitmapHeight + verticalSpacing * 2 > textureData.height)
             {
-                textureData.height = currentBitmapHeight;
+                textureData.height = currentBitmapHeight + verticalSpacing * 2;
             }
-            textureData.width += currentBitmapWidth;
+            textureData.width += currentBitmapWidth + horizontalSpacing;
         }
+        textureData.width += horizontalSpacing;
 
         free(textureData.data);
         textureData.data = (unsigned char*)malloc(sizeof(unsigned char*) * textureData.height * textureData.width * 4);
 
+        // top side spacing
+        for (unsigned int j = 0; j < verticalSpacing; ++j)
+        {
+            for (unsigned int i = 0; i < textureData.width; ++i)
+            {
+                unsigned int textureDataIndex = GetTextureIndex(
+                    i,
+                    0,
+                    textureData.width,
+                    j,
+                    0,
+                    textureData.height);
+
+                textureData.data[textureDataIndex] = 0;
+                textureData.data[textureDataIndex + 1] = 0;
+                textureData.data[textureDataIndex + 2] = 0;
+                textureData.data[textureDataIndex + 3] = 0;
+            }
+        }
+
         unsigned int nextCharacterOffsetX = 0;
+        unsigned int nextCharacterOffsetY = verticalSpacing;
 
         for (std::map<unsigned char, GlyphMetrics>::iterator iter = glyphMetricsMap.begin(); iter != glyphMetricsMap.end(); ++iter)
         {
+            // left side spacing per glyph
+            for (unsigned int j = 0; j < textureData.height - verticalSpacing; ++j)
+            {
+                for (unsigned int i = 0; i < horizontalSpacing; ++i)
+                {
+                    unsigned int textureDataIndex = GetTextureIndex(
+                        i,
+                        nextCharacterOffsetX,
+                        textureData.width,
+                        j,
+                        nextCharacterOffsetY,
+                        textureData.height);
+
+                    textureData.data[textureDataIndex] = 0;
+                    textureData.data[textureDataIndex + 1] = 0;
+                    textureData.data[textureDataIndex + 2] = 0;
+                    textureData.data[textureDataIndex + 3] = 0;
+                }
+            }
+            nextCharacterOffsetX += horizontalSpacing;
+
             const unsigned char& c = iter->first;
             error = FT_Load_Char(face, c, FT_LOAD_RENDER);
             if (error)
@@ -114,38 +161,96 @@ namespace Project001
             glyphMetrics.textureTopRight.x = (float)(nextCharacterOffsetX + glyphMetrics.width_px) / (float)textureData.width;
             if (s_flipVerticalyOnLoad)
             {
-                glyphMetrics.textureBottomLeft.y = (float)(textureData.height - glyphMetrics.height_px) / (float)textureData.height;
-                glyphMetrics.textureTopRight.y = 1.0f;
+                glyphMetrics.textureBottomLeft.y = (float)(textureData.height - glyphMetrics.height_px - nextCharacterOffsetY) / (float)textureData.height;
+                glyphMetrics.textureTopRight.y = (float)(textureData.height - nextCharacterOffsetY) / (float)textureData.height;
             }
             else
             {
-                glyphMetrics.textureBottomLeft.y = (float)(glyphMetrics.height_px) / (float)textureData.height;
-                glyphMetrics.textureTopRight.y = 0.0f;
+                glyphMetrics.textureBottomLeft.y = (float)(glyphMetrics.height_px + nextCharacterOffsetY) / (float)textureData.height;
+                glyphMetrics.textureTopRight.y = (float)(nextCharacterOffsetY) / (float)textureData.height;
             }
+
             for (unsigned int j = 0; j < glyphMetrics.height_px; ++j)
             {
                 for (unsigned int i = 0; i < glyphMetrics.width_px; ++i)
                 {
-                    unsigned int textureDataIndex;
-                    if (s_flipVerticalyOnLoad)
-                    {
-                        textureDataIndex = (nextCharacterOffsetX + i + (textureData.height - 1 - j) * textureData.width) * 4;
-                    }
-                    else
-                    {
-                        textureDataIndex = (nextCharacterOffsetX + i + j * textureData.width) * 4;
-                    }
-#pragma warning(disable:6011)
+                    unsigned int textureDataIndex = GetTextureIndex(
+                        i,
+                        nextCharacterOffsetX,
+                        textureData.width,
+                        j,
+                        nextCharacterOffsetY,
+                        textureData.height);
+
                     textureData.data[textureDataIndex] = 255;
                     textureData.data[textureDataIndex + 1] = 255;
                     textureData.data[textureDataIndex + 2] = 255;
                     unsigned int sourceIndex = i + j * glyphMetrics.width_px;
                     textureData.data[textureDataIndex + 3] = face->glyph->bitmap.buffer[sourceIndex];
-#pragma warning(default:6011)
+                }
+            }
+
+            // spacing below glyph
+            for (unsigned int j = glyphMetrics.height_px; j < textureData.height - verticalSpacing; ++j)
+            {
+                for (unsigned int i = 0; i < glyphMetrics.width_px; ++i)
+                {
+                    unsigned int textureDataIndex = GetTextureIndex(
+                        i,
+                        nextCharacterOffsetX,
+                        textureData.width,
+                        j,
+                        nextCharacterOffsetY,
+                        textureData.height);
+            
+                    textureData.data[textureDataIndex] = 0;
+                    textureData.data[textureDataIndex + 1] = 0;
+                    textureData.data[textureDataIndex + 2] = 0;
+                    textureData.data[textureDataIndex + 3] = 0;
                 }
             }
 
             nextCharacterOffsetX += glyphMetrics.width_px;
+        }
+
+        // right side spacing
+        for (unsigned int j = 0; j < textureData.height - verticalSpacing; ++j)
+        {
+            for (unsigned int i = 0; i < horizontalSpacing; ++i)
+            {
+                unsigned int textureDataIndex = GetTextureIndex(
+                    i,
+                    nextCharacterOffsetX,
+                    textureData.width,
+                    j,
+                    nextCharacterOffsetY,
+                    textureData.height);
+
+                textureData.data[textureDataIndex] = 0;
+                textureData.data[textureDataIndex + 1] = 0;
+                textureData.data[textureDataIndex + 2] = 0;
+                textureData.data[textureDataIndex + 3] = 0;
+            }
+        }
+
+        // bottom side spacing
+        for (unsigned int j = 0; j < verticalSpacing; ++j)
+        {
+            for (unsigned int i = 0; i < textureData.width; ++i)
+            {
+                unsigned int textureDataIndex = GetTextureIndex(
+                    i,
+                    0,
+                    textureData.width,
+                    j,
+                    textureData.height - verticalSpacing,
+                    textureData.height);
+
+                textureData.data[textureDataIndex] = 0;
+                textureData.data[textureDataIndex + 1] = 0;
+                textureData.data[textureDataIndex + 2] = 0;
+                textureData.data[textureDataIndex + 3] = 0;
+            }
         }
 
         textureData.bytesPerPixel = 4;
@@ -294,6 +399,26 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
+
+    unsigned int FreetypeTextLoader::GetTextureIndex(
+        unsigned int x,
+        unsigned int xOffset,
+        unsigned int textureWidth,
+        unsigned int y,
+        unsigned int yOffset,
+        unsigned int textureHeight)
+    {
+        unsigned int textureIndex;
+        if (s_flipVerticalyOnLoad)
+        {
+            textureIndex = (x + xOffset + (textureHeight - 1 - y - yOffset) * textureWidth) * 4;
+        }
+        else
+        {
+            textureIndex = (x + xOffset + (y + yOffset) * textureWidth) * 4;
+        }
+        return textureIndex;
+    }
 
     const bool FreetypeTextLoader::s_flipVerticalyOnLoad = true;
     const bool FreetypeTextLoader::s_triangulate = false;

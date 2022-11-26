@@ -235,6 +235,7 @@ namespace Project001
     {
         if (multisampleAntaiAliasing != multisampleAntaiAliasing_)
         {
+            multisampleAntaiAliasing_ = multisampleAntaiAliasing;
             windowPtr_->MakeContextCurrent();
 
             CleanUpScreenFramebuffers();
@@ -451,14 +452,21 @@ namespace Project001
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, screenTextureId_);
+        glBindTexture(GL_TEXTURE_2D, rttTextureId_);
     }
 
     void OpenGL_Renderer::Clear()
     {
         windowPtr_->MakeContextCurrent();
 
-        glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -475,12 +483,23 @@ namespace Project001
 
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
 
         if (depthTesting_)
         {
             // enable using the z buffer
             glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
         }
 
         if (s_drawGrid)
@@ -626,9 +645,12 @@ namespace Project001
         // Render to screen frameBuffer
         // ---------------------------------------------------------------------
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenFrameBufferId_);
-        glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);
+            glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        }
 
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 
@@ -969,20 +991,6 @@ namespace Project001
         glEnableVertexAttribArray(1);
     }
 
-    void OpenGL_Renderer::CleanUpScreenFramebuffers()
-    {
-        if (multisampleAntaiAliasing_)
-        {
-            glDeleteTextures(1, &msaaTextureId_);
-            glDeleteFramebuffers(1, &msaaFrameBufferId_);
-        }
-
-        glDeleteTextures(1, &screenTextureId_);
-        glDeleteFramebuffers(1, &screenFrameBufferId_);
-
-        glDeleteRenderbuffers(1, &renderBufferId_);
-    }
-
     void OpenGL_Renderer::CreateScreenFramebuffers()
     {
         glActiveTexture(GL_TEXTURE0);
@@ -996,48 +1004,58 @@ namespace Project001
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_);
             glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, frameBufferWidth_, frameBufferHeight_, GL_TRUE);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_, 0);
-
-            glGenRenderbuffers(1, &renderBufferId_);
-            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
-            glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
-
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            {
-                // Log Error
-                _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
-            }
         }
 
-        glGenFramebuffers(1, &screenFrameBufferId_);
-        glBindFramebuffer(GL_FRAMEBUFFER, screenFrameBufferId_);
+        glGenFramebuffers(1, &rttFrameBufferId_);
+        glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
 
-        glGenTextures(1, &screenTextureId_);
-        glBindTexture(GL_TEXTURE_2D, screenTextureId_);
+        glGenTextures(1, &rttTextureId_);
+        glBindTexture(GL_TEXTURE_2D, rttTextureId_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameBufferWidth_, frameBufferHeight_, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTextureId_, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rttTextureId_, 0);
 
-        if (!multisampleAntaiAliasing_)
-            {
-            glGenRenderbuffers(1, &renderBufferId_);
-            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
+        glGenRenderbuffers(1, &renderBufferId_);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
+
+        if (multisampleAntaiAliasing_)
+        {
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
+        }
+        else
+        {
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBufferId_);
+        }
 
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            {
-                // Log Error
-                _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
-            }
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            // Log Error
+            _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
         }
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    }
+
+    void OpenGL_Renderer::CleanUpScreenFramebuffers()
+    {
+        if (multisampleAntaiAliasing_)
+        {
+            glDeleteTextures(1, &msaaTextureId_);
+            glDeleteFramebuffers(1, &msaaFrameBufferId_);
+        }
+
+        glDeleteTextures(1, &rttTextureId_);
+        glDeleteFramebuffers(1, &rttFrameBufferId_);
+
+        glDeleteRenderbuffers(1, &renderBufferId_);
     }
 
     int OpenGL_Renderer::GetTextureUnit(unsigned int textureId, float& textureUnit)

@@ -120,8 +120,9 @@ namespace Project001
     protected:
         void CreateGridBufferAndArray();
 
-        void CleanUpScreenFramebuffers();
         void CreateScreenFramebuffers();
+
+        void CleanUpScreenFramebuffers();
 
         // returns 0 if texture successfuly bound to unit
         // returns 1 if texture failed to bind because all texture units are
@@ -130,6 +131,7 @@ namespace Project001
         int GetTextureUnit(unsigned int textureId, float& textureUnit);
 
         bool GetStalestTextureUnit(unsigned int& textureUnit) const;
+
         void IncreaseTectureUnitStaleness();
 
         static const bool s_cullBackface;
@@ -184,8 +186,8 @@ namespace Project001
         unsigned int msaaFrameBufferId_;
         unsigned int msaaTextureId_;
 
-        unsigned int screenFrameBufferId_;
-        unsigned int screenTextureId_;
+        unsigned int rttFrameBufferId_;
+        unsigned int rttTextureId_;
 
         unsigned int renderBufferId_;
 
