@@ -92,8 +92,10 @@ namespace Project001
         void ClearPointLights() override;
         void ClearSpotLights() override;
 
-        // returns false if the textureId isn't found or if the mesh is too big
-        //         to fit in a single buffer
+        void BeginRendering();
+
+        void Clear() override;
+
         bool AddMesh(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
@@ -107,13 +109,11 @@ namespace Project001
             const glm::vec4& color,
             float shininess,
             bool translucent,
-            bool lit) override;
+            bool lit);
 
-        void PrepareCapabilities() override;
+        void Render();
 
-        void Clear() override;
-
-        void Render() override;
+        void FinishRendering();
 
         void SwapBuffers() override;
 
@@ -124,15 +124,19 @@ namespace Project001
 
         void CleanUpScreenFramebuffers();
 
-        // returns 0 if texture successfuly bound to unit
+        // returns 2 if texture failed to bind because textureId isn't found
         // returns 1 if texture failed to bind because all texture units are
         //           occupied
-        // returns 2 if texture failed to bind because textureId isn't found
+        // returns 0 if texture successfuly bound to unit
         int GetTextureUnit(unsigned int textureId, float& textureUnit);
 
         bool GetStalestTextureUnit(unsigned int& textureUnit) const;
 
         void IncreaseTectureUnitStaleness();
+
+        void RenderToTexture();
+
+        void RenderTextureToScreen();
 
         static const bool s_cullBackface;
         static const bool s_drawWireframe;

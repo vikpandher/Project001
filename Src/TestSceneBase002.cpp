@@ -300,7 +300,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
         rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
-        rendererPtr_->PrepareCapabilities();
+        rendererPtr_->BeginRendering();
 
         Project001::RenderedModel* renderedModelArray = nullptr;
         size_t renderedModelCount = 0;
@@ -316,7 +316,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                 const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
                 if (currentMeshDataPtr != nullptr)
                 {
-                    if (!rendererPtr_->AddMesh(
+                    _FAIL_CHECK(rendererPtr_->AddMesh(
                         currentMeshDataPtr->meshVertexArray.data(),
                         (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                         currentMeshDataPtr->meshIndexArray.data(),
@@ -329,24 +329,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
                         currentRenderedModel.GetColor(),
                         currentRenderedModel.GetShininess(),
                         currentRenderedModel.GetTranslucent(),
-                        currentRenderedModel.GetLit()))
-                    {
-                        rendererPtr_->Render();
-                        _FAIL_CHECK(rendererPtr_->AddMesh(
-                            currentMeshDataPtr->meshVertexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                            currentMeshDataPtr->meshIndexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                            currentRenderedModel.GetTextureId(),
-                            currentRenderedModel.GetSpecularId(),
-                            currentRenderedModel.GetPosition(),
-                            currentRenderedModel.GetOrientation(),
-                            currentRenderedModel.GetScale(),
-                            currentRenderedModel.GetColor(),
-                            currentRenderedModel.GetShininess(),
-                            currentRenderedModel.GetTranslucent(),
-                            currentRenderedModel.GetLit()));
-                    }
+                        currentRenderedModel.GetLit()));
                 }
             }
         }
@@ -357,6 +340,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         rendererPtr_->Render();
     }
 
+    rendererPtr_->FinishRendering();
     rendererPtr_->SwapBuffers();
 
     renderEvent.handled = true;

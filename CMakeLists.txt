@@ -165,8 +165,8 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Shader.h"
     "Src/Engine/Platform/OpenGL_Texture.cpp"
     "Src/Engine/Platform/OpenGL_Texture.h"
-    "Src/Engine/Platform/Vulkan_Renderer.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer.h"
+    "Src/Engine/Platform/VulkanTutorial_Renderer.cpp"
+    "Src/Engine/Platform/VulkanTutorial_Renderer.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})

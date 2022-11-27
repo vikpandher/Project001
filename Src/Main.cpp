@@ -28,10 +28,6 @@ int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 *6, 160 * 6);
 
-    // testing text generation (001)
-    TestScene006* testScene006Ptr = new TestScene006();
-    applicationPtr->AddScene(testScene006Ptr);
-
     // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
     TestScene007* testScene007Ptr = new TestScene007();
     applicationPtr->AddScene(testScene007Ptr);
@@ -67,6 +63,10 @@ int main(int argc, char** argv)
     // tests additional shape generation and rendering 35 textures (001)
     TestScene004* testScene004Ptr = new TestScene004();
     applicationPtr->AddScene(testScene004Ptr);
+
+    // testing text generation (001)
+    TestScene006* testScene006Ptr = new TestScene006();
+    applicationPtr->AddScene(testScene006Ptr);
 
     applicationPtr->Run();
 

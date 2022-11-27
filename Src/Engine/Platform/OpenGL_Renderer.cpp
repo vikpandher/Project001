@@ -336,6 +336,43 @@ namespace Project001
         recycledTextureIds_.clear();
     }
 
+    void OpenGL_Renderer::BeginRendering()
+    {
+        windowPtr_->MakeContextCurrent();
+
+        glDepthMask(GL_TRUE);
+
+        glEnable(GL_CULL_FACE);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void OpenGL_Renderer::Clear()
+    {
+        windowPtr_->MakeContextCurrent();
+
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        redrawGrid_ = true;
+    }
+
     bool OpenGL_Renderer::AddMesh(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
@@ -351,17 +388,13 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        // if (translucent)
-        // {
-        //     _LOG_ERROR("OpenGLRendererAlt doesn't handle translucent meshes");
-        // }
-
         if ((vertexBuffer_.size() + meshVertexCount) > s_vertexBufferCapacity_ ||
             (indexBuffer_.size() + meshIndexCount) > s_indexBufferCapacity_)
         {
             if (meshVertexCount > s_vertexBufferCapacity_ ||
                 meshIndexCount > s_indexBufferCapacity_)
             {
+                _LOG_ERROR("Mesh larger then buffer!");
                 return false;
             }
 
@@ -380,6 +413,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
+                _LOG_ERROR("TextureId %u not found!", textureId);
                 return false;
             }
         }
@@ -394,6 +428,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
+                _LOG_ERROR("SpecularId %u not found!", specularId);
                 return false;
             }
         }
@@ -438,241 +473,23 @@ namespace Project001
         return true;
     }
 
-    void OpenGL_Renderer::PrepareCapabilities()
-    {
-        windowPtr_->MakeContextCurrent();
-
-        glDepthMask(GL_TRUE);
-
-        glEnable(GL_CULL_FACE);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, rttTextureId_);
-    }
-
-    void OpenGL_Renderer::Clear()
-    {
-        windowPtr_->MakeContextCurrent();
-
-        if (multisampleAntaiAliasing_)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
-        }
-        else
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
-        }
-
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        redrawGrid_ = true;
-    }
-
     void OpenGL_Renderer::Render()
     {
         windowPtr_->MakeContextCurrent();
 
-        // Render to texture frameBuffer
-        // ---------------------------------------------------------------------
+        RenderToTexture();
+    }
 
-        glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
-
-        if (multisampleAntaiAliasing_)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
-        }
-        else
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
-        }
-
-        if (depthTesting_)
-        {
-            // enable using the z buffer
-            glEnable(GL_DEPTH_TEST);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
-
-        if (s_drawGrid)
-        {
-            redrawGrid_ = false;
-
-            gridShaderPtr_->Use();
-            gridShaderPtr_->SetMat4("u_View", viewMatrix_);
-            gridShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-            gridShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
-
-            glBindVertexArray(gridVertexArrayId_);
-            glBindBuffer(GL_ARRAY_BUFFER, gridVertexBufferId_);
-
-            glDrawArrays(GL_LINES, 0, gridVertexCount_);
-        }
-
-        primaryShaderPtr_->Use();
-
-        // Camera
-        // ---------------------------------------------------------------------
-
-        primaryShaderPtr_->SetMat4("u_View", viewMatrix_);
-        primaryShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-        primaryShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
-
-        // Directional Light
-        // ---------------------------------------------------------------------
-
-        primaryShaderPtr_->SetVec3("u_DirectionalLight.direction", directionalLight_.direction);
-        primaryShaderPtr_->SetVec3("u_DirectionalLight.ambient", directionalLight_.ambient);
-        primaryShaderPtr_->SetVec3("u_DirectionalLight.diffuse", directionalLight_.diffuse);
-        primaryShaderPtr_->SetVec3("u_DirectionalLight.specular", directionalLight_.specular);
-
-        // Point Lights
-        // ---------------------------------------------------------------------
-
-        std::string stringPrefix = "u_PointLights[";
-        unsigned int i = 0;
-        while (i < pointLights_.size())
-        {
-            std::string stringI = std::to_string(i);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI +  "].position").c_str(), pointLights_[i].position);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), pointLights_[i].constant);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), pointLights_[i].linear);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), pointLights_[i].quadratic);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), pointLights_[i].ambient);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), pointLights_[i].diffuse);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), pointLights_[i].specular);
-            ++i;
-        }
-        PointLight emptyPointLight;
-        while (i < s_numberOfPointLights_)
-        {
-            std::string stringI = std::to_string(i);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), emptyPointLight.position);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), emptyPointLight.constant);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), emptyPointLight.linear);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), emptyPointLight.quadratic);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), emptyPointLight.ambient);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), emptyPointLight.diffuse);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), emptyPointLight.specular);
-            ++i;
-        }
-
-        // Spot Lights
-        // ---------------------------------------------------------------------
-
-        stringPrefix = "u_SpotLights[";
-        i = 0;
-        while (i < spotLights_.size())
-        {
-            std::string stringI = std::to_string(i);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), spotLights_[i].position);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].direction").c_str(), spotLights_[i].direction);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].cutoff").c_str(), spotLights_[i].cutoff);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].outerCutoff").c_str(), spotLights_[i].outerCutoff);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), spotLights_[i].constant);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), spotLights_[i].linear);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), spotLights_[i].quadratic);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), spotLights_[i].ambient);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), spotLights_[i].diffuse);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), spotLights_[i].specular);
-            ++i;
-        }
-        SpotLight emptySpotLight;
-        while (i < s_numberOfSpotLights_)
-        {
-            std::string stringI = std::to_string(i);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), emptySpotLight.position);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].direction").c_str(), emptySpotLight.direction);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].cutoff").c_str(), emptySpotLight.cutoff);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].outerCutoff").c_str(), emptySpotLight.outerCutoff);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), emptySpotLight.constant);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), emptySpotLight.linear);
-            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), emptySpotLight.quadratic);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), emptySpotLight.ambient);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), emptySpotLight.diffuse);
-            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), emptySpotLight.specular);
-            ++i;
-        }
-
-        glBindVertexArray(vertexArrayId_);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+    void OpenGL_Renderer::FinishRendering()
+    {
+        windowPtr_->MakeContextCurrent();
 
         if (!vertexBuffer_.empty() && !indexBuffer_.empty())
         {
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * indexBuffer_.size(), &indexBuffer_[0]);
+            RenderToTexture();
         }
 
-        if (!s_cullBackface)
-        {
-            glCullFace(GL_FRONT);
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-        glCullFace(GL_BACK);
-        glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-
-
-        if (s_drawWireframe)
-        {
-            wireframeShaderPtr_->Use();
-
-            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
-            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
-
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-
-        if (s_drawNormals)
-        {
-            normalShaderPtr_->Use();
-
-            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
-            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-
-        // Render to screen frameBuffer
-        // ---------------------------------------------------------------------
-
-        if (multisampleAntaiAliasing_)
-        {
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);
-            glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        }
-
-        glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glDisable(GL_DEPTH_TEST);
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        screenShaderPtr_->Use();
-
-        glBindVertexArray(screenVertexArrayId_);
-
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        // Clear local buffers
-        // ---------------------------------------------------------------------
-
-        IncreaseTectureUnitStaleness();
-
-        vertexBuffer_.clear();
-        indexBuffer_.clear();
+        RenderTextureToScreen();
     }
 
     void OpenGL_Renderer::SwapBuffers()
@@ -1114,6 +931,196 @@ namespace Project001
         {
             tectureUnitStalenessValues_[i]++;
         }
+    }
+
+    void OpenGL_Renderer::RenderToTexture()
+    {
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
+
+        if (depthTesting_)
+        {
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
+        }
+
+        if (s_drawGrid)
+        {
+            redrawGrid_ = false;
+
+            gridShaderPtr_->Use();
+            gridShaderPtr_->SetMat4("u_View", viewMatrix_);
+            gridShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            gridShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+            glBindVertexArray(gridVertexArrayId_);
+            glBindBuffer(GL_ARRAY_BUFFER, gridVertexBufferId_);
+
+            glDrawArrays(GL_LINES, 0, gridVertexCount_);
+        }
+
+        primaryShaderPtr_->Use();
+
+        // Camera
+        // ---------------------------------------------------------------------
+
+        primaryShaderPtr_->SetMat4("u_View", viewMatrix_);
+        primaryShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+        primaryShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+        // Directional Light
+        // ---------------------------------------------------------------------
+
+        primaryShaderPtr_->SetVec3("u_DirectionalLight.direction", directionalLight_.direction);
+        primaryShaderPtr_->SetVec3("u_DirectionalLight.ambient", directionalLight_.ambient);
+        primaryShaderPtr_->SetVec3("u_DirectionalLight.diffuse", directionalLight_.diffuse);
+        primaryShaderPtr_->SetVec3("u_DirectionalLight.specular", directionalLight_.specular);
+
+        // Point Lights
+        // ---------------------------------------------------------------------
+
+        std::string stringPrefix = "u_PointLights[";
+        unsigned int i = 0;
+        while (i < pointLights_.size())
+        {
+            std::string stringI = std::to_string(i);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), pointLights_[i].position);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), pointLights_[i].constant);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), pointLights_[i].linear);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), pointLights_[i].quadratic);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), pointLights_[i].ambient);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), pointLights_[i].diffuse);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), pointLights_[i].specular);
+            ++i;
+        }
+        PointLight emptyPointLight;
+        while (i < s_numberOfPointLights_)
+        {
+            std::string stringI = std::to_string(i);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), emptyPointLight.position);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), emptyPointLight.constant);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), emptyPointLight.linear);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), emptyPointLight.quadratic);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), emptyPointLight.ambient);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), emptyPointLight.diffuse);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), emptyPointLight.specular);
+            ++i;
+        }
+
+        // Spot Lights
+        // ---------------------------------------------------------------------
+
+        stringPrefix = "u_SpotLights[";
+        i = 0;
+        while (i < spotLights_.size())
+        {
+            std::string stringI = std::to_string(i);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), spotLights_[i].position);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].direction").c_str(), spotLights_[i].direction);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].cutoff").c_str(), spotLights_[i].cutoff);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].outerCutoff").c_str(), spotLights_[i].outerCutoff);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), spotLights_[i].constant);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), spotLights_[i].linear);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), spotLights_[i].quadratic);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), spotLights_[i].ambient);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), spotLights_[i].diffuse);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), spotLights_[i].specular);
+            ++i;
+        }
+        SpotLight emptySpotLight;
+        while (i < s_numberOfSpotLights_)
+        {
+            std::string stringI = std::to_string(i);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].position").c_str(), emptySpotLight.position);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].direction").c_str(), emptySpotLight.direction);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].cutoff").c_str(), emptySpotLight.cutoff);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].outerCutoff").c_str(), emptySpotLight.outerCutoff);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].constant").c_str(), emptySpotLight.constant);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].linear").c_str(), emptySpotLight.linear);
+            primaryShaderPtr_->SetFloat((stringPrefix + stringI + "].quadratic").c_str(), emptySpotLight.quadratic);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].ambient").c_str(), emptySpotLight.ambient);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].diffuse").c_str(), emptySpotLight.diffuse);
+            primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), emptySpotLight.specular);
+            ++i;
+        }
+
+        glBindVertexArray(vertexArrayId_);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+
+        if (!vertexBuffer_.empty() && !indexBuffer_.empty())
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * indexBuffer_.size(), &indexBuffer_[0]);
+        }
+
+        if (!s_cullBackface)
+        {
+            glCullFace(GL_FRONT);
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+        glCullFace(GL_BACK);
+        glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+
+
+        if (s_drawWireframe)
+        {
+            wireframeShaderPtr_->Use();
+
+            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
+            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
+        if (s_drawNormals)
+        {
+            normalShaderPtr_->Use();
+
+            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
+            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
+        // Clear local buffers
+        // ---------------------------------------------------------------------
+
+        IncreaseTectureUnitStaleness();
+
+        vertexBuffer_.clear();
+        indexBuffer_.clear();
+    }
+
+    void OpenGL_Renderer::RenderTextureToScreen()
+    {
+        if (multisampleAntaiAliasing_)
+        {
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);
+            glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        }
+
+        glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+
+        screenShaderPtr_->Use();
+
+        glBindVertexArray(screenVertexArrayId_);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     const bool OpenGL_Renderer::s_cullBackface = true;

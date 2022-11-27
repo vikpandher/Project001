@@ -80,11 +80,11 @@ namespace Project001
         alignas(16) glm::mat4 proj;
     };
 
-    class Vulkan_Renderer : public Renderer
+    class VulkanTutorial_Renderer : public Renderer
     {
     public:
-        Vulkan_Renderer(Window* windowPtr, unsigned int width, unsigned int height);
-        ~Vulkan_Renderer() override;
+        VulkanTutorial_Renderer(Window* windowPtr, unsigned int width, unsigned int height);
+        ~VulkanTutorial_Renderer() override;
 
         void SetDepthTesting(
             bool depthTesting) override {}
@@ -159,6 +159,10 @@ namespace Project001
         void ClearPointLights() override {}
         void ClearSpotLights() override {}
 
+        void BeginRendering() override {}
+
+        void Clear() override {}
+
         bool AddMesh(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
@@ -172,13 +176,13 @@ namespace Project001
             const glm::vec4& color,
             float shininess,
             bool translucent,
-            bool lit) override { return true; }
-
-        void PrepareCapabilities() override {}
-
-        void Clear() override {}
+            bool lit) override {
+            return true;
+        }
 
         void Render() override;
+
+        void FinishRendering() override {}
 
         void SwapBuffers() override {}
 
@@ -426,17 +430,17 @@ namespace Project001
     private:
     };
 
-    void Vulkan_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
+    void VulkanTutorial_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
     {
         viewMatrix_ = viewMatrix;
     }
 
-    void Vulkan_Renderer::SetViewPosition(const glm::vec3& viewPosition)
+    void VulkanTutorial_Renderer::SetViewPosition(const glm::vec3& viewPosition)
     {
         viewPosition_ = viewPosition;
     }
 
-    void Vulkan_Renderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+    void VulkanTutorial_Renderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
     {
         projectionMatrix_ = projectionMatrix;
     }

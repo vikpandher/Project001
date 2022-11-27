@@ -1,4 +1,4 @@
-#include "Vulkan_Renderer.h"
+#include "VulkanTutorial_Renderer.h"
 
 #include "Engine/MeshLoader.h"
 #include "Engine/Logger.h"
@@ -31,7 +31,7 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    Vulkan_Renderer::Vulkan_Renderer(Window* windowPtr, unsigned int width, unsigned int height)
+    VulkanTutorial_Renderer::VulkanTutorial_Renderer(Window* windowPtr, unsigned int width, unsigned int height)
         : windowPtr_(windowPtr)
         , vkInstance_(VK_NULL_HANDLE)
         , vkDebugMessenger_(VK_NULL_HANDLE)
@@ -90,7 +90,7 @@ namespace Project001
         CreateSyncObjects();
     }
 
-    Vulkan_Renderer::~Vulkan_Renderer()
+    VulkanTutorial_Renderer::~VulkanTutorial_Renderer()
     {
         vkDeviceWaitIdle(vkDevice_);
 
@@ -146,14 +146,14 @@ namespace Project001
         vkDestroyInstance(vkInstance_, nullptr);
     }
 
-    void Vulkan_Renderer::Render()
+    void VulkanTutorial_Renderer::Render()
     {
         DrawFrame();
     }
 
     // protected ---------------------------------------------------------------
 
-    void Vulkan_Renderer::CreateVulkanInstance()
+    void VulkanTutorial_Renderer::CreateVulkanInstance()
     {
         if (s_enableValidationLayers_ && !CheckValidationLayerSupport())
         {
@@ -198,7 +198,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::SetupDebugMessanger()
+    void VulkanTutorial_Renderer::SetupDebugMessanger()
     {
         if (s_enableValidationLayers_)
         {
@@ -223,12 +223,12 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateSurface()
+    void VulkanTutorial_Renderer::CreateSurface()
     {
         windowPtr_->CreateWindowSurface(vkInstance_, vkSurface_);
     }
 
-    void Vulkan_Renderer::PickPhysicalDevice()
+    void VulkanTutorial_Renderer::PickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(vkInstance_, &deviceCount, nullptr);
@@ -258,7 +258,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateLogicalDevice()
+    void VulkanTutorial_Renderer::CreateLogicalDevice()
     {
         QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice_);
 
@@ -313,7 +313,7 @@ namespace Project001
         vkGetDeviceQueue(vkDevice_, indices.presentFamilyIndex, 0, &vkPresentQueue_);
     }
 
-    void Vulkan_Renderer::CreateSwapChain()
+    void VulkanTutorial_Renderer::CreateSwapChain()
     {
         SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkPhysicalDevice_);
 
@@ -369,7 +369,7 @@ namespace Project001
         vkSwapChainExtent_ = extent;
     }
 
-    void Vulkan_Renderer::CreateImageViews()
+    void VulkanTutorial_Renderer::CreateImageViews()
     {
         vkSwapChainImageViews_.resize(vkSwapChainImages_.size());
 
@@ -379,7 +379,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateRenderPass()
+    void VulkanTutorial_Renderer::CreateRenderPass()
     {
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = vkSwapChainImageFormat_;
@@ -454,7 +454,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateDescriptorSetLayout()
+    void VulkanTutorial_Renderer::CreateDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding uboLayoutBinding = {};
         uboLayoutBinding.binding = 0;
@@ -482,7 +482,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateGraphicsPipeline()
+    void VulkanTutorial_Renderer::CreateGraphicsPipeline()
     {
         std::vector<char> vertShaderCode = ReadFile("../Shaders/27_shader_depth_vert.spv");
         std::vector<char> fragShaderCode = ReadFile("../Shaders/27_shader_depth_frag.spv");
@@ -606,7 +606,7 @@ namespace Project001
         vkDestroyShaderModule(vkDevice_, vertShaderModule, nullptr);
     }
 
-    void Vulkan_Renderer::CreateCommandPool()
+    void VulkanTutorial_Renderer::CreateCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice_);
 
@@ -621,7 +621,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateColorResources()
+    void VulkanTutorial_Renderer::CreateColorResources()
     {
         VkFormat colorFormat = vkSwapChainImageFormat_;
 
@@ -629,7 +629,7 @@ namespace Project001
         vkColorImageView_ = CreateImageView(vkColorImage_, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
     }
 
-    void Vulkan_Renderer::CreateDepthResources()
+    void VulkanTutorial_Renderer::CreateDepthResources()
     {
         VkFormat depthFormat = FindDepthFormat();
 
@@ -637,7 +637,7 @@ namespace Project001
         vkDepthImageView_ = CreateImageView(vkDepthImage_, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
     }
 
-    void Vulkan_Renderer::CreateFramebuffers()
+    void VulkanTutorial_Renderer::CreateFramebuffers()
     {
         vkSwapChainFramebuffers_.resize(vkSwapChainImageViews_.size());
 
@@ -665,7 +665,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateTextureImage()
+    void VulkanTutorial_Renderer::CreateTextureImage()
     {
         TextureData textureData;
         if (!TextureLoader::LoadTexture(textureData, s_texturePath_, true))
@@ -696,12 +696,12 @@ namespace Project001
         GenerateMipmaps(vkTextureImage_, VK_FORMAT_R8G8B8A8_SRGB, textureData.width, textureData.height, mipLevels_);
     }
 
-    void Vulkan_Renderer::CreateTextureImageView()
+    void VulkanTutorial_Renderer::CreateTextureImageView()
     {
         vkTextureImageView_ = CreateImageView(vkTextureImage_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_);
     }
 
-    void Vulkan_Renderer::CreateTextureSampler()
+    void VulkanTutorial_Renderer::CreateTextureSampler()
     {
         VkPhysicalDeviceProperties properties = {};
         vkGetPhysicalDeviceProperties(vkPhysicalDevice_, &properties);
@@ -730,7 +730,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::LoadModel()
+    void VulkanTutorial_Renderer::LoadModel()
     {
         MeshData meshData;
         if (!MeshLoader::LoadMeshOBJ(meshData, s_meshPath_))
@@ -759,7 +759,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateVertexBuffer()
+    void VulkanTutorial_Renderer::CreateVertexBuffer()
     {
         VkDeviceSize bufferSize = sizeof(vertices_[0]) * vertices_.size();
 
@@ -780,7 +780,7 @@ namespace Project001
         vkFreeMemory(vkDevice_, stagingBufferMemory, nullptr);
     }
 
-    void Vulkan_Renderer::CreateIndexBuffer()
+    void VulkanTutorial_Renderer::CreateIndexBuffer()
     {
         VkDeviceSize bufferSize = sizeof(indices_[0]) * indices_.size();
 
@@ -801,7 +801,7 @@ namespace Project001
         vkFreeMemory(vkDevice_, stagingBufferMemory, nullptr);
     }
 
-    void Vulkan_Renderer::CreateCommandBuffers()
+    void VulkanTutorial_Renderer::CreateCommandBuffers()
     {
         vkCommandBuffers_.resize(s_maxFramesInFlight_);
 
@@ -817,7 +817,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateUniformBuffers()
+    void VulkanTutorial_Renderer::CreateUniformBuffers()
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
@@ -830,7 +830,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateDescriptorPool()
+    void VulkanTutorial_Renderer::CreateDescriptorPool()
     {
         std::array<VkDescriptorPoolSize, 2> poolSizes = {};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -850,7 +850,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateDescriptorSets()
+    void VulkanTutorial_Renderer::CreateDescriptorSets()
     {
         std::vector<VkDescriptorSetLayout> layouts(s_maxFramesInFlight_, vkDescriptorSetLayout_);
         VkDescriptorSetAllocateInfo allocInfo = {};
@@ -899,7 +899,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::CreateSyncObjects()
+    void VulkanTutorial_Renderer::CreateSyncObjects()
     {
         vkImageAvailableSemaphores_.resize(s_maxFramesInFlight_);
         vkRenderFinishedSemaphores_.resize(s_maxFramesInFlight_);
@@ -922,7 +922,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer::RecreateSwapChain()
+    void VulkanTutorial_Renderer::RecreateSwapChain()
     {
         int width = 0, height = 0;
         windowPtr_->GetFramebufferSize(width, height);
@@ -942,7 +942,7 @@ namespace Project001
         CreateFramebuffers();
     }
 
-    void Vulkan_Renderer::CleanupSwapChain()
+    void VulkanTutorial_Renderer::CleanupSwapChain()
     {
         vkDestroyImageView(vkDevice_, vkDepthImageView_, nullptr);
         vkDestroyImage(vkDevice_, vkDepthImage_, nullptr);
@@ -967,7 +967,7 @@ namespace Project001
         vkDestroySwapchainKHR(vkDevice_, vkSwapChain_, nullptr);
     }
 
-    bool Vulkan_Renderer::CheckValidationLayerSupport()
+    bool VulkanTutorial_Renderer::CheckValidationLayerSupport()
     {
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -1000,7 +1000,7 @@ namespace Project001
         return true;
     }
 
-    std::vector<const char*> Vulkan_Renderer::GetRequiredExtensions()
+    std::vector<const char*> VulkanTutorial_Renderer::GetRequiredExtensions()
     {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
@@ -1016,7 +1016,7 @@ namespace Project001
         return extensions;
     }
 
-    void Vulkan_Renderer::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+    void VulkanTutorial_Renderer::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
     {
         createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -1025,7 +1025,7 @@ namespace Project001
         createInfo.pfnUserCallback = DebugCallback;
     }
 
-    bool Vulkan_Renderer::IsDeviceSuitable(VkPhysicalDevice device)
+    bool VulkanTutorial_Renderer::IsDeviceSuitable(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices = FindQueueFamilies(device);
 
@@ -1044,7 +1044,7 @@ namespace Project001
         return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
     }
 
-    VkSampleCountFlagBits Vulkan_Renderer::GetMaxUsableSampleCount()
+    VkSampleCountFlagBits VulkanTutorial_Renderer::GetMaxUsableSampleCount()
     {
         VkPhysicalDeviceProperties physicalDeviceProperties;
         vkGetPhysicalDeviceProperties(vkPhysicalDevice_, &physicalDeviceProperties);
@@ -1060,7 +1060,7 @@ namespace Project001
         return VK_SAMPLE_COUNT_1_BIT;
     }
 
-    QueueFamilyIndices Vulkan_Renderer::FindQueueFamilies(VkPhysicalDevice device)
+    QueueFamilyIndices VulkanTutorial_Renderer::FindQueueFamilies(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices = {};
 
@@ -1097,7 +1097,7 @@ namespace Project001
         return indices;
     }
 
-    SwapChainSupportDetails Vulkan_Renderer::QuerySwapChainSupport(VkPhysicalDevice device)
+    SwapChainSupportDetails VulkanTutorial_Renderer::QuerySwapChainSupport(VkPhysicalDevice device)
     {
         SwapChainSupportDetails details;
 
@@ -1124,7 +1124,7 @@ namespace Project001
         return details;
     }
 
-    VkSurfaceFormatKHR Vulkan_Renderer::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+    VkSurfaceFormatKHR VulkanTutorial_Renderer::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
         for (size_t i = 0; i < availableFormats.size(); ++i)
         {
@@ -1139,7 +1139,7 @@ namespace Project001
         return availableFormats[0];
     }
 
-    VkPresentModeKHR Vulkan_Renderer::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+    VkPresentModeKHR VulkanTutorial_Renderer::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
     {
         for (size_t i = 0; i < availablePresentModes.size(); ++i)
         {
@@ -1153,7 +1153,7 @@ namespace Project001
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D Vulkan_Renderer::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+    VkExtent2D VulkanTutorial_Renderer::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
     {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {
@@ -1188,7 +1188,7 @@ namespace Project001
         }
     }
 
-    VkImageView Vulkan_Renderer::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+    VkImageView VulkanTutorial_Renderer::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
     {
         VkImageViewCreateInfo viewInfo = {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1210,7 +1210,7 @@ namespace Project001
         return imageView;
     }
 
-    VkFormat Vulkan_Renderer::FindDepthFormat()
+    VkFormat VulkanTutorial_Renderer::FindDepthFormat()
     {
         return FindSupportedFormat(
             { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -1219,7 +1219,7 @@ namespace Project001
         );
     }
 
-    VkFormat Vulkan_Renderer::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+    VkFormat VulkanTutorial_Renderer::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
     {
         for (size_t i = 0; i < candidates.size(); ++i)
         {
@@ -1240,12 +1240,12 @@ namespace Project001
         _LOG_ERROR("Vulkan Error: Failed to find supported format!");
     }
 
-    bool Vulkan_Renderer::HasStencilComponent(VkFormat format)
+    bool VulkanTutorial_Renderer::HasStencilComponent(VkFormat format)
     {
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
     }
 
-    bool Vulkan_Renderer::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+    bool VulkanTutorial_Renderer::CheckDeviceExtensionSupport(VkPhysicalDevice device)
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -1264,7 +1264,7 @@ namespace Project001
         return requiredExtensions.empty();
     }
 
-    std::vector<char> Vulkan_Renderer::ReadFile(const std::string& filePath)
+    std::vector<char> VulkanTutorial_Renderer::ReadFile(const std::string& filePath)
     {
         std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
@@ -1285,7 +1285,7 @@ namespace Project001
         return buffer;
     }
 
-    VkShaderModule Vulkan_Renderer::CreateShaderModule(const std::vector<char>& code)
+    VkShaderModule VulkanTutorial_Renderer::CreateShaderModule(const std::vector<char>& code)
     {
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -1301,7 +1301,7 @@ namespace Project001
         return shaderModule;
     }
 
-    void Vulkan_Renderer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void VulkanTutorial_Renderer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1330,7 +1330,7 @@ namespace Project001
         vkBindBufferMemory(vkDevice_, buffer, bufferMemory, 0);
     }
 
-    void Vulkan_Renderer::CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+    void VulkanTutorial_Renderer::CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
     {
         VkImageCreateInfo imageInfo = {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1368,7 +1368,7 @@ namespace Project001
         vkBindImageMemory(vkDevice_, image, imageMemory, 0);
     }
 
-    void Vulkan_Renderer::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
+    void VulkanTutorial_Renderer::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
     {
         VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
@@ -1421,7 +1421,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Vulkan_Renderer::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+    void VulkanTutorial_Renderer::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
         VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
@@ -1445,7 +1445,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Vulkan_Renderer::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+    void VulkanTutorial_Renderer::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
     {
         // Check if image format supports linear blitting
         VkFormatProperties formatProperties;
@@ -1535,7 +1535,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Vulkan_Renderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+    void VulkanTutorial_Renderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1578,7 +1578,7 @@ namespace Project001
         vkFreeCommandBuffers(vkDevice_, vkCommandPool_, 1, &commandBuffer);
     }
 
-    uint32_t Vulkan_Renderer::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    uint32_t VulkanTutorial_Renderer::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         VkPhysicalDeviceMemoryProperties memProperties;
         vkGetPhysicalDeviceMemoryProperties(vkPhysicalDevice_, &memProperties);
@@ -1597,7 +1597,7 @@ namespace Project001
         return (uint32_t)-1;
     }
 
-    VkCommandBuffer Vulkan_Renderer::BeginSingleTimeCommands()
+    VkCommandBuffer VulkanTutorial_Renderer::BeginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1617,7 +1617,7 @@ namespace Project001
         return commandBuffer;
     }
 
-    void Vulkan_Renderer::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
+    void VulkanTutorial_Renderer::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -1632,7 +1632,7 @@ namespace Project001
         vkFreeCommandBuffers(vkDevice_, vkCommandPool_, 1, &commandBuffer);
     }
 
-    void Vulkan_Renderer::DrawFrame()
+    void VulkanTutorial_Renderer::DrawFrame()
     {
         vkWaitForFences(vkDevice_, 1, &vkInFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
 
@@ -1704,7 +1704,7 @@ namespace Project001
         currentFrame_ = (currentFrame_ + 1) % s_maxFramesInFlight_;
     }
 
-    void Vulkan_Renderer::UpdateUniformBuffer(uint32_t currentImage)
+    void VulkanTutorial_Renderer::UpdateUniformBuffer(uint32_t currentImage)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -1722,7 +1722,7 @@ namespace Project001
         vkUnmapMemory(vkDevice_, vkUniformBuffersMemory_[currentImage]);
     }
 
-    void Vulkan_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+    void VulkanTutorial_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
     {
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1786,24 +1786,24 @@ namespace Project001
     }
 
 #ifndef NDEBUG
-    const bool Vulkan_Renderer::s_enableValidationLayers_ = true;
-    const std::vector<const char*> Vulkan_Renderer::s_validationLayers_ =
+    const bool VulkanTutorial_Renderer::s_enableValidationLayers_ = true;
+    const std::vector<const char*> VulkanTutorial_Renderer::s_validationLayers_ =
     {
         "VK_LAYER_KHRONOS_validation"
     };
 #else
-    const bool Vulkan_Renderer::s_enableValidationLayers_ = false;
-    const std::vector<const char*> Vulkan_Renderer::s_validationLayers_ = {};
+    const bool VulkanTutorial_Renderer::s_enableValidationLayers_ = false;
+    const std::vector<const char*> VulkanTutorial_Renderer::s_validationLayers_ = {};
 #endif
 
-    const std::vector<const char*> Vulkan_Renderer::s_deviceExtensions_ =
+    const std::vector<const char*> VulkanTutorial_Renderer::s_deviceExtensions_ =
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    const uint32_t Vulkan_Renderer::s_maxFramesInFlight_ = 2;
+    const uint32_t VulkanTutorial_Renderer::s_maxFramesInFlight_ = 2;
 
-    const std::string Vulkan_Renderer::s_meshPath_ = "../Models/viking_room.obj";
+    const std::string VulkanTutorial_Renderer::s_meshPath_ = "../Models/viking_room.obj";
 
-    const std::string Vulkan_Renderer::s_texturePath_ = "../Textures/viking_room.png";
+    const std::string VulkanTutorial_Renderer::s_texturePath_ = "../Textures/viking_room.png";
 }
