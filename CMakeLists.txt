@@ -18,7 +18,7 @@ set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
 set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
 
-set(CMAKE_VULKAN_MODE OFF)
+set(CMAKE_VULKAN_MODE ON)
 
 # ##############################################################################
 # ##############################################################################
@@ -165,6 +165,8 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Shader.h"
     "Src/Engine/Platform/OpenGL_Texture.cpp"
     "Src/Engine/Platform/OpenGL_Texture.h"
+    "Src/Engine/Platform/Vulkan_Renderer.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer.h"
     "Src/Engine/Platform/VulkanTutorial_Renderer.cpp"
     "Src/Engine/Platform/VulkanTutorial_Renderer.h"
 )

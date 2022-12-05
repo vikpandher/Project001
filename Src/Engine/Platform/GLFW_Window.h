@@ -25,6 +25,8 @@ namespace Project001
 
         unsigned int GetWindowId() const override;
 
+        void GetWindowTitle(const char*& title) const override;
+
         // Setting numerator and denominator to -1 unlocks the aspect ratio.
         void SetAspectRatio(int numerator, int denominator) override;
         void GetAspectRatio(int& numerator, int& denominator) const override;
@@ -74,6 +76,8 @@ namespace Project001
 
         unsigned int windowId_;
 
+        const char* windowTitle_;
+
         GLFWwindow* glfwWindowPtr_;
 
         std::function<void(Event&)> EventCallback;
@@ -96,6 +100,11 @@ namespace Project001
     inline unsigned int GLFW_Window::GetWindowId() const
     {
         return windowId_;
+    }
+
+    inline void GLFW_Window::GetWindowTitle(const char*& title) const
+    {
+        title = windowTitle_;
     }
 
     inline void GLFW_Window::GetAspectRatio(int& numerator, int& denominator) const

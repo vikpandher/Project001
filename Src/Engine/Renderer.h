@@ -13,7 +13,10 @@ namespace Project001
     class Renderer
     {
     public:
-        static Renderer* Create(Window* windowPtr, unsigned int width, unsigned int height);
+        static Renderer* Create(
+            Window* windowPtr,
+            unsigned int width,
+            unsigned int height);
 
         virtual ~Renderer();
 

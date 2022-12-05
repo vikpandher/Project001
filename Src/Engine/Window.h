@@ -28,6 +28,8 @@ namespace Project001
 
         virtual unsigned int GetWindowId() const = 0;
 
+        virtual void GetWindowTitle(const char*& title) const = 0;
+
         virtual void SetAspectRatio(int numerator, int denominator) = 0;
         virtual void GetAspectRatio(int& numerator, int& denominator) const = 0;
 

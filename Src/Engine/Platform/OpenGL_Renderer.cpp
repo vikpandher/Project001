@@ -24,7 +24,11 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGL_Renderer::OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height, bool multisampleAntaiAliasing)
+    OpenGL_Renderer::OpenGL_Renderer(
+        Window* windowPtr,
+        unsigned int width,
+        unsigned int height,
+        bool multisampleAntaiAliasing)
         : windowPtr_(windowPtr)
         , redrawGrid_(true)
         , depthTesting_(true)

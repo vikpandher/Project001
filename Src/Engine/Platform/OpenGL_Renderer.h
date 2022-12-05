@@ -17,7 +17,11 @@ namespace Project001
     class OpenGL_Renderer : public Renderer
     {
     public:
-        OpenGL_Renderer(Window* windowPtr, unsigned int width, unsigned int height, bool multisampleAntaiAliasing);
+        OpenGL_Renderer(
+            Window* windowPtr,
+            unsigned int width,
+            unsigned int height,
+            bool multisampleAntaiAliasing);
         ~OpenGL_Renderer() override;
 
         void SetDepthTesting(

@@ -16,7 +16,8 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     GLFW_Window::GLFW_Window(const char* title, int width, int height)
-        : aspectRatioNumerator_(GLFW_DONT_CARE)
+        : windowTitle_(title)
+        , aspectRatioNumerator_(GLFW_DONT_CARE)
         , aspectRatioDenominator_(GLFW_DONT_CARE)
         , vSyncEnabled_(false)
     {
