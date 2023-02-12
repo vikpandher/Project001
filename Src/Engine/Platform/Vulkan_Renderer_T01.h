@@ -42,7 +42,7 @@ namespace Project001
 
         static VkVertexInputBindingDescription GetBindingDescription()
         {
-            VkVertexInputBindingDescription bindingDescription{};
+            VkVertexInputBindingDescription bindingDescription = {};
             bindingDescription.binding = 0;
             bindingDescription.stride = sizeof(Vertex);
             bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -52,7 +52,7 @@ namespace Project001
 
         static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -80,15 +80,17 @@ namespace Project001
         alignas(16) glm::mat4 proj;
     };
 
-    class VulkanTutorial_Renderer : public Renderer
+    class Vulkan_Renderer_T01 : public Renderer
     {
     public:
-        VulkanTutorial_Renderer(Window* windowPtr, unsigned int width, unsigned int height);
-        ~VulkanTutorial_Renderer() override;
+        Vulkan_Renderer_T01(
+            Window* windowPtr,
+            unsigned int width,
+            unsigned int height,
+            bool multisampleAntaiAliasing);
+        ~Vulkan_Renderer_T01() override;
 
-        void SetDepthTesting(
-            bool depthTesting) override {}
-
+        void SetDepthTesting(bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(
             bool multisampleAntaiAliasing) override {}
@@ -176,7 +178,8 @@ namespace Project001
             const glm::vec4& color,
             float shininess,
             bool translucent,
-            bool lit) override {
+            bool lit) override
+        {
             return true;
         }
 
@@ -427,20 +430,27 @@ namespace Project001
 
         bool framebufferResized_;
 
+        bool depthTesting_;
+
     private:
     };
 
-    void VulkanTutorial_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
+    inline void Vulkan_Renderer_T01::SetDepthTesting(bool depthTesting)
+    {
+        depthTesting_ = depthTesting;
+    }
+
+    inline void Vulkan_Renderer_T01::SetViewMatrix(const glm::mat4& viewMatrix)
     {
         viewMatrix_ = viewMatrix;
     }
 
-    void VulkanTutorial_Renderer::SetViewPosition(const glm::vec3& viewPosition)
+    inline void Vulkan_Renderer_T01::SetViewPosition(const glm::vec3& viewPosition)
     {
         viewPosition_ = viewPosition;
     }
 
-    void VulkanTutorial_Renderer::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+    inline void Vulkan_Renderer_T01::SetProjectionMatrix(const glm::mat4& projectionMatrix)
     {
         projectionMatrix_ = projectionMatrix;
     }

@@ -35,6 +35,8 @@ namespace Project001
         , multisampleAntaiAliasing_(multisampleAntaiAliasing)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
+        , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
+        , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
@@ -354,7 +356,7 @@ namespace Project001
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(borderColor_.r, borderColor_.g, borderColor_.b, borderColor_.a);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
@@ -371,7 +373,7 @@ namespace Project001
             glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
         }
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(clearColor_.r, clearColor_.g, clearColor_.b, clearColor_.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         redrawGrid_ = true;
@@ -858,9 +860,6 @@ namespace Project001
             _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
         }
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
@@ -939,6 +938,8 @@ namespace Project001
 
     void OpenGL_Renderer::RenderToTexture()
     {
+        glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
+
         if (multisampleAntaiAliasing_)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
@@ -1128,8 +1129,8 @@ namespace Project001
     }
 
     const bool OpenGL_Renderer::s_cullBackface = true;
-    const bool OpenGL_Renderer::s_drawWireframe = false;
-    const bool OpenGL_Renderer::s_drawNormals = false;
+    const bool OpenGL_Renderer::s_drawWireframe = true;
+    const bool OpenGL_Renderer::s_drawNormals = true;
     const bool OpenGL_Renderer::s_drawGrid = false;
 
     const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4194304; // 8192;

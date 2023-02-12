@@ -213,6 +213,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     rendererPtr_->ClearPointLights();
     rendererPtr_->ClearSpotLights();
 
+    rendererPtr_->BeginRendering();
     rendererPtr_->Clear();
 
     Project001::Camera* cameraPtr;
@@ -223,7 +224,6 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
         rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
         rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
-        rendererPtr_->BeginRendering();
 
         Project001::LightSource* lightSourceArray = nullptr;
         size_t lightSourceCount = 0;

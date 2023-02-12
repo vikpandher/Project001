@@ -613,6 +613,42 @@ namespace Project001
         return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
+    bool MeshLoader::Generate2DArc(
+        MeshData& meshData,
+        const glm::vec2& focalPoint,
+        const glm::vec2& arcCenterPoint,
+        float arcLength,
+        size_t subdivisions,
+        float width,
+        bool beveledCorners,
+        bool triangulate)
+    {
+        if (subdivisions == 0 ||
+            arcLength <= 0.0f)
+        {
+            return false;
+        }
+
+        glm::vec2 centerToArc = arcCenterPoint - focalPoint;
+        float arcRadius = std::sqrtf(centerToArc.x * centerToArc.x + centerToArc.y * centerToArc.y);
+
+        float theta = arcLength / arcRadius;
+
+        centerToArc = Rotate2DVector(centerToArc, theta * 0.5f);
+
+        float segmentTheta = -1.0f * theta / (float)subdivisions;
+
+        std::vector<glm::vec2> positions;
+        positions.push_back(centerToArc + focalPoint);
+        for (size_t i = 0; i < subdivisions; ++i)
+        {
+            centerToArc = Rotate2DVector(centerToArc, segmentTheta);
+            positions.push_back(centerToArc + focalPoint);
+        }
+
+        return Generate2DLine(meshData, positions, width, beveledCorners, triangulate);
+    }
+
     bool MeshLoader::Generate2DCapsule(
         MeshData& meshData,
         float rectangleHeight,

@@ -407,6 +407,38 @@ void TestScene002::Initialize()
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 1, 0.16f));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    }
+
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 2, 0.16f));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    }
+
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 3, 0.16f));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    }
+
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 6, 0.16f));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    }
+
     // Load textures
     // -------------------------------------------------------------------------
 
@@ -456,7 +488,7 @@ void TestScene002::Initialize()
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
-    for (int i = 2; i >= -2; --i)
+    for (int i = 2; i >= -3; --i)
     {
         for (int j = -3; j <= 3; ++j)
         {
@@ -1050,6 +1082,70 @@ void TestScene002::Initialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
+        renderedModelPtr->SetTextureId(_100x100TextureId_);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 29
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
+        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
+        renderedModelPtr->SetTextureId(_100x100TextureId_);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 30
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
+        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
+        renderedModelPtr->SetTextureId(_100x100TextureId_);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 31
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
+        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
+        renderedModelPtr->SetTextureId(_100x100TextureId_);
+        renderedModelPtr->SetTranslucent(true);
+    }
+
+    // generated shape entity 32
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
+        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
         renderedModelPtr->SetTextureId(_100x100TextureId_);
         renderedModelPtr->SetTranslucent(true);
     }

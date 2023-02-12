@@ -26,7 +26,23 @@
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 *6, 160 * 6);
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
+
+    // tests shape generation (001)
+    TestScene002* testScene002Ptr = new TestScene002();
+    applicationPtr->AddScene(testScene002Ptr);
+
+    // tests 3d shape generation (001)
+    TestScene003* testScene003Ptr = new TestScene003();
+    applicationPtr->AddScene(testScene003Ptr);
+
+    // tests additional shape generation and rendering 35 textures (001)
+    TestScene004* testScene004Ptr = new TestScene004();
+    applicationPtr->AddScene(testScene004Ptr);
+
+    // testing text generation (001)
+    TestScene006* testScene006Ptr = new TestScene006();
+    applicationPtr->AddScene(testScene006Ptr);
 
     // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
     TestScene007* testScene007Ptr = new TestScene007();
@@ -51,22 +67,6 @@ int main(int argc, char** argv)
     // tests sound (001)
     TestScene020* testScene020Ptr = new TestScene020();
     applicationPtr->AddScene(testScene020Ptr);
-
-    // tests shape generation (001)
-    TestScene002* testScene002Ptr = new TestScene002();
-    applicationPtr->AddScene(testScene002Ptr);
-
-    // tests 3d shape generation (001)
-    TestScene003* testScene003Ptr = new TestScene003();
-    applicationPtr->AddScene(testScene003Ptr);
-
-    // tests additional shape generation and rendering 35 textures (001)
-    TestScene004* testScene004Ptr = new TestScene004();
-    applicationPtr->AddScene(testScene004Ptr);
-
-    // testing text generation (001)
-    TestScene006* testScene006Ptr = new TestScene006();
-    applicationPtr->AddScene(testScene006Ptr);
 
     applicationPtr->Run();
 

@@ -47,6 +47,16 @@ namespace Project001
             float endAngle,
             bool triangulate = s_triangulate);
 
+        static bool Generate2DArc(
+            MeshData& meshData,
+            const glm::vec2& focalPoint,
+            const glm::vec2& arcCenterPoint,
+            float arcLength,
+            size_t subdivisions,
+            float width,
+            bool beveledCorners = true,
+            bool triangulate = s_triangulate);
+
         static bool Generate2DCapsule(
             MeshData& meshData,
             float rectangleHeight,

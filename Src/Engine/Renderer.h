@@ -43,6 +43,10 @@ namespace Project001
             unsigned int width,
             unsigned int height) = 0;
 
+        virtual void SetBorderColor(const glm::vec4& color) = 0;
+
+        virtual void SetClearColor(const glm::vec4& color) = 0;
+
         virtual bool CreateTexture(
             unsigned int& textureId,
             unsigned int textureUnit,
@@ -102,8 +106,8 @@ namespace Project001
             unsigned int meshVertexCount,
             const unsigned int* meshIndicies,
             unsigned int meshIndexCount,
-            unsigned int textureIndex,
-            unsigned int specularIndex,
+            unsigned int textureId,
+            unsigned int specularId,
             const glm::vec3& position,
             const glm::quat& orientation,
             const glm::vec3& scale,

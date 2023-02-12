@@ -1,3 +1,7 @@
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+    message(FATAL_ERROR "Prevented in-tree build. Please create a build directory outside of the SDL source code and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
+endif()
+
 # cmake_minimum_required(VERSION 3.17.0)
 cmake_minimum_required(VERSION 3.14.5)
 
@@ -165,10 +169,13 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Shader.h"
     "Src/Engine/Platform/OpenGL_Texture.cpp"
     "Src/Engine/Platform/OpenGL_Texture.h"
-    "Src/Engine/Platform/Vulkan_Renderer.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer.h"
-    "Src/Engine/Platform/VulkanTutorial_Renderer.cpp"
-    "Src/Engine/Platform/VulkanTutorial_Renderer.h"
+    "Src/Engine/Platform/Vulkan_Error.h"
+    "Src/Engine/Platform/Vulkan_Renderer_E01.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer_E01.h"
+    "Src/Engine/Platform/Vulkan_Renderer_T01.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer_T01.h"
+    "Src/Engine/Platform/Vulkan_Renderer_T02.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer_T02.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
@@ -214,9 +221,9 @@ target_link_directories("${PROJECT_NAME}"
     # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_FREETYPE_REPO}/Release/freetype.lib"
-    "${CMAKE_GLFW_REPO}/src/Release/glfw3.lib"
-    "${CMAKE_OPENAL_REPO}/Release/OpenAL32.lib"
+    "${CMAKE_FREETYPE_REPO}/build/Release/freetype.lib"
+    "${CMAKE_GLFW_REPO}/build/src/Release/glfw3.lib"
+    "${CMAKE_OPENAL_REPO}/build/Release/OpenAL32.lib"
     "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib"
 )
 

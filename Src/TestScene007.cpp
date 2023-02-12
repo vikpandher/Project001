@@ -37,6 +37,7 @@ void TestScene007::Initialize()
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
+        // _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/viking_room.png"));
         _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
     }
 
@@ -59,6 +60,9 @@ void TestScene007::Initialize()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
+        // _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/viking_room.obj"));
+        // Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, -glm::half_pi<float>() - glm::quarter_pi<float>());
+        // Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, -glm::half_pi<float>() - glm::quarter_pi<float>());
         std::vector<glm::vec2> positions;
         positions.emplace_back(0.0f, 0.0f);
         positions.emplace_back(0.32f, 0.0f);

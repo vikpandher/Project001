@@ -46,6 +46,10 @@ namespace Project001
             unsigned int width,
             unsigned int height) override;
 
+        void SetBorderColor(const glm::vec4& color) override;
+
+        void SetClearColor(const glm::vec4& color) override;
+
         bool CreateTexture(
             unsigned int& textureId,
             unsigned int textureUnit,
@@ -191,6 +195,9 @@ namespace Project001
         unsigned int viewportWidth_;
         unsigned int viewportHeight_;
 
+        glm::vec4 borderColor_;
+        glm::vec4 clearColor_;
+
         unsigned int msaaFrameBufferId_;
         unsigned int msaaTextureId_;
 
@@ -245,6 +252,16 @@ namespace Project001
         viewportY_ = y;
         viewportWidth_ = width;
         viewportHeight_ = height;
+    }
+
+    inline void OpenGL_Renderer::SetBorderColor(const glm::vec4& color)
+    {
+        borderColor_ = color;
+    }
+
+    inline void OpenGL_Renderer::SetClearColor(const glm::vec4& color)
+    {
+        clearColor_ = color;
     }
 
     inline void OpenGL_Renderer::SetViewMatrix(const glm::mat4& viewMatrix)
