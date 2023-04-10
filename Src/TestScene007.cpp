@@ -38,7 +38,7 @@ void TestScene007::Initialize()
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
         // _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/viking_room.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     // Calculating positions

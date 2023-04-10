@@ -300,13 +300,13 @@ void TestScene003::Initialize()
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(earthTextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(earthTextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/120_60_rgb.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(rgb120x60TextureId_, 2, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(rgb120x60TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     // Calculating positions

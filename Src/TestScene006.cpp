@@ -42,7 +42,7 @@ void TestScene006::Initialize()
             characterList.push_back(c);
         }
         _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(fontTextureData_, fontData_, characterList, "../Fonts/Antonio-Regular.ttf", 48));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(fontTextureId_, 1, fontTextureData_.data, fontTextureData_.width, fontTextureData_.height, fontTextureData_.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(fontTextureId_, fontTextureData_.data, fontTextureData_.width, fontTextureData_.height, fontTextureData_.bytesPerPixel, false, false));
     }
 
     // generated shape entity 01

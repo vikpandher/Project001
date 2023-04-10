@@ -21,14 +21,14 @@ namespace Project001
             Window* windowPtr,
             unsigned int width,
             unsigned int height,
-            bool multisampleAntaiAliasing);
+            bool multisampleAntiAliasing);
         ~OpenGL_Renderer() override;
 
         void SetDepthTesting(
             bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(
-            bool multisampleAntaiAliasing) override;
+            bool multisampleAntiAliasing) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -52,16 +52,12 @@ namespace Project001
 
         bool CreateTexture(
             unsigned int& textureId,
-            unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
             unsigned int bytesPerPixel,
+            bool multisampleAntiAliasing,
             bool mipMaps) override;
-
-        bool BindTexture(
-            unsigned int textureId,
-            unsigned int textureUnit) override;
 
         bool DeleteTexture(unsigned int textureId) override;
 
@@ -132,6 +128,10 @@ namespace Project001
 
         void CleanUpScreenFramebuffers();
 
+        bool BindTexture(
+            unsigned int textureId,
+            unsigned int textureUnit);
+
         // returns 2 if texture failed to bind because textureId isn't found
         // returns 1 if texture failed to bind because all texture units are
         //           occupied
@@ -168,7 +168,7 @@ namespace Project001
         bool redrawGrid_;
 
         bool depthTesting_;
-        bool multisampleAntaiAliasing_;
+        bool multisampleAntiAliasing_;
 
         OpenGL_Shader* primaryShaderPtr_;
         OpenGL_Shader* gridShaderPtr_;
@@ -209,7 +209,7 @@ namespace Project001
         std::deque<unsigned int> recycledTextureIds_;
         std::map<unsigned int, OpenGL_Texture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
-        std::vector<unsigned int> tectureUnitStalenessValues_;
+        std::vector<unsigned int> textureUnitStalenessValues_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;

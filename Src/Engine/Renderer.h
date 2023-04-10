@@ -24,7 +24,7 @@ namespace Project001
             bool depthTesting) = 0;
 
         virtual void SetMultisampleAntiAliasing(
-            bool multisampleAntaiAliasing) = 0;
+            bool multisampleAntiAliasing) = 0;
 
         virtual void SetFramebufferSize(
             unsigned int width,
@@ -49,16 +49,12 @@ namespace Project001
 
         virtual bool CreateTexture(
             unsigned int& textureId,
-            unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
             unsigned int bytesPerPixel,
+            bool multisampleAntiAliasing,
             bool mipMaps) = 0;
-
-        virtual bool BindTexture(
-            unsigned int textureId,
-            unsigned int textureUnit) = 0;
 
         virtual bool DeleteTexture(unsigned int textureId) = 0;
 

@@ -8,7 +8,14 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGL_Texture::OpenGL_Texture(unsigned int textureUnit, const unsigned char* data, unsigned int width, unsigned int height, unsigned int bytesPerPixel, bool mipMaps)
+    OpenGL_Texture::OpenGL_Texture(
+        unsigned int textureUnit,
+        const unsigned char* data,
+        unsigned int width,
+        unsigned int height,
+        unsigned int bytesPerPixel,
+        bool multisampleAntiAliasing,
+        bool mipMaps)
     {
         glGenTextures(1, &textureId_);
         glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -36,15 +43,31 @@ namespace Project001
 
         if (mipMaps)
         {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            if (multisampleAntiAliasing)
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+            }
+            else
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            }
 
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else
         {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            if (multisampleAntiAliasing)
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
+            else
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
         }
     }
 

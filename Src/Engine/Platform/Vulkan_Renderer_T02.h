@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Engine/BiMap.h"
 #include "Engine/Renderer.h"
 
 #include "vulkan/vulkan.h"
+
+#include <deque>
 
 
 
@@ -15,13 +18,13 @@ namespace Project001
             Window* windowPtr,
             unsigned int width,
             unsigned int height,
-            bool multisampleAntaiAliasing);
+            bool multisampleAntiAliasing);
 
         ~Vulkan_Renderer_T02() override;
 
         void SetDepthTesting(bool depthTesting) override;
 
-        void SetMultisampleAntiAliasing(bool multisampleAntaiAliasing) override;
+        void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -47,30 +50,16 @@ namespace Project001
 
         bool CreateTexture(
             unsigned int& textureId,
-            unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
             unsigned int bytesPerPixel,
-            bool mipMaps) override
-        {
-            return true;
-        }
+            bool multisampleAntiAliasing,
+            bool mipMaps) override;
 
-        bool BindTexture(
-            unsigned int textureId,
-            unsigned int textureUnit) override
-        {
-            return true;
-        }
+        bool DeleteTexture(unsigned int textureId) override;
 
-        bool DeleteTexture(unsigned int textureId) override
-        {
-            return true;
-        }
-
-        void DeleteAllTextures() override
-        {}
+        void DeleteAllTextures() override;
 
         void SetViewMatrix(const glm::mat4& viewMatrix) override;
 
@@ -143,10 +132,12 @@ namespace Project001
         void SwapBuffers() override;
 
     protected:
-        struct UniformBufferObject
+        struct Vulkan_Texture
         {
-            alignas(16) glm::mat4 u_View;
-            alignas(16) glm::mat4 u_Projection;
+            VkImage textureImage_;
+            VkDeviceMemory textureImageMemory_;
+            VkImageView textureImageView_;
+            VkSampler textureSampler_;
         };
 
         void CreateVulkanInstance();
@@ -160,11 +151,19 @@ namespace Project001
         void CreateLogicalDevice();
         void DeleteLogicalDevice();
 
+        void CreateCommandPool();
+        void DeleteCommandPool();
+
+        void CreateCommandBuffers();
+
         void CreateSwapChain();
         void DeleteSwapChain();
 
         void CreateDataBuffers();
         void DeleteDataBuffers();
+
+        void CreateDefaultTexture();
+        void DeleteDefaultTexture();
 
         void CreateDescriptorSetLayout();
         void DeleteDescriptorSetLayout();
@@ -180,11 +179,6 @@ namespace Project001
         void CreateGraphicsPipeline();
         void DeleteGraphicsPipeline();
 
-        void CreateCommandPool();
-        void DeleteCommandPool();
-
-        void CreateCommandBuffers();
-
         void CreateSyncObjects();
         void DeleteSyncObjects();
 
@@ -192,6 +186,7 @@ namespace Project001
 
 
 
+        void AcquireNextImage();
 
         VkImageView CreateImageView(
             VkImage image,
@@ -222,6 +217,58 @@ namespace Project001
             uint32_t typeFilter,
             VkMemoryPropertyFlags memoryPropertyFlags);
 
+        void CreateTexture(
+            unsigned char* data,
+            unsigned int width,
+            unsigned int height,
+            unsigned int bytesPerPixel,
+            bool multisampleAntiAliasing,
+            bool mipMaps,
+            Vulkan_Texture& texture);
+
+        void DeleteTexture(Vulkan_Texture& texture);
+
+        // returns 2 if texture failed to bind because textureId isn't found
+        // returns 1 if texture failed to bind because all texture units are
+        //           occupied
+        // returns 0 if texture successfuly bound to unit
+        int GetTextureUnit(unsigned int textureId, float& textureUnit);
+
+        // texture units in use have a staleness value of 0. If all texture
+        // units are in use, this returns false
+        bool GetStalestTextureUnit(unsigned int& textureUnit) const;
+
+        void IncreaseTectureUnitStaleness();
+
+        bool BindTexture(
+            unsigned int textureId,
+            unsigned int textureUnit);
+
+        void ApplyTextureBindings();
+
+        void TransitionImageLayout(
+            VkImage image,
+            VkFormat format,
+            VkImageLayout oldLayout,
+            VkImageLayout newLayout,
+            uint32_t mipLevels);
+
+        void CopyBufferToImage(
+            VkBuffer buffer,
+            VkImage image,
+            uint32_t width,
+            uint32_t height);
+
+        void GenerateMipmaps(
+            VkImage image,
+            VkFormat imageFormat,
+            int32_t texWidth,
+            int32_t texHeight,
+            uint32_t mipLevels);
+
+        VkCommandBuffer BeginSingleTimeCommands();
+        void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
         std::vector<char> ReadFile(const char* const filePath);
 
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -239,7 +286,7 @@ namespace Project001
         Window* windowPtr_;
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
-        bool multisampleAntaiAliasing_;
+        bool multisampleAntiAliasing_;
         bool depthTesting_;
 
         unsigned int viewportX_;
@@ -269,8 +316,10 @@ namespace Project001
         VkSurfaceCapabilitiesKHR surfaceCapabilities_;
         VkExtent2D surfaceExtent_;
         VkSurfaceFormatKHR surfaceFormat_;
+        VkFormatProperties formatProperties_;
         VkFormat depthFormat_;
         VkPresentModeKHR surfacePresentMode_;
+        VkPhysicalDeviceProperties physicalDeviceProperties_;
         VkSampleCountFlagBits msaaSampleCount_;
 
         VkDevice logicalDevice_;
@@ -298,8 +347,13 @@ namespace Project001
         VkBuffer indexBuffer_;
         VkDeviceMemory indexBufferMemory_;
 
-        VkBuffer uniformBuffer_;
-        VkDeviceMemory uniformBufferMemory_;
+        VkBuffer vertexShaderUniformBuffer_;
+        VkDeviceMemory vertexShaderUniformBufferMemory_;
+
+        VkBuffer fragmentShaderUniformBuffer_;
+        VkDeviceMemory fragmentShaderUniformBufferMemory_;
+
+        Vulkan_Texture defaultTexture_;
 
         VkDescriptorSetLayout descriptorSetLayout_;
 
@@ -318,8 +372,15 @@ namespace Project001
         VkCommandBuffer commandBuffer_;
 
         VkFence mainFence_;
+        VkSemaphore imageAvailableSemaphore_;
+        VkSemaphore renderFinishedSemaphore_;
 
         uint32_t currentSwapchainFramebufferIndex_;
+
+        std::deque<unsigned int> recycledTextureIds_;
+        std::map<unsigned int, Vulkan_Texture> textureMap_;
+        BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
+        std::vector<unsigned int> textureUnitStalenessValues_;
 
     private:
     };
@@ -332,9 +393,9 @@ namespace Project001
     }
 
     inline void Vulkan_Renderer_T02::SetMultisampleAntiAliasing(
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
     {
-        multisampleAntaiAliasing_ = multisampleAntaiAliasing;
+        multisampleAntiAliasing_ = multisampleAntiAliasing;
         msaaChanged_ = true;
     }
 

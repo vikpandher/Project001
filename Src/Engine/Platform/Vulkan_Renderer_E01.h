@@ -15,7 +15,7 @@ namespace Project001
             Window* windowPtr,
             unsigned int width,
             unsigned int height,
-            bool multisampleAntaiAliasing);
+            bool multisampleAntiAliasing);
 
         ~Vulkan_Renderer_E01() override;
 
@@ -23,7 +23,7 @@ namespace Project001
             bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(
-            bool multisampleAntaiAliasing) override;
+            bool multisampleAntiAliasing) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -44,19 +44,12 @@ namespace Project001
 
         bool CreateTexture(
             unsigned int& textureId,
-            unsigned int textureUnit,
             unsigned char* data,
             unsigned int width,
             unsigned int height,
             unsigned int bytesPerPixel,
+            bool multisampleAntiAliasing,
             bool mipMaps) override
-        {
-            return true;
-        }
-
-        bool BindTexture(
-            unsigned int textureId,
-            unsigned int textureUnit) override
         {
             return true;
         }
@@ -229,7 +222,7 @@ namespace Project001
         Window* windowPtr_;
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
-        bool multisampleAntaiAliasing_;
+        bool multisampleAntiAliasing_;
         bool depthTesting_;
 
         VkClearColorValue clearColorValue_;
@@ -351,9 +344,9 @@ namespace Project001
     }
 
     inline void Vulkan_Renderer_E01::SetMultisampleAntiAliasing(
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
     {
-        multisampleAntaiAliasing_ = multisampleAntaiAliasing;
+        multisampleAntiAliasing_ = multisampleAntiAliasing;
         msaaChanged_ = true;
     }
 

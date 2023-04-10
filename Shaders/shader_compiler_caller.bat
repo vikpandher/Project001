@@ -52,6 +52,10 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /f %%G IN ('DIR *.vert *.tesc *.tese *.geom *.frag *.comp /b') DO (
 SET x=%%~xG
 %e% %%G -o %%~nG_!x:~1!.spv
+ECHO input:  %%G
+ECHO output: %%~nG_!x:~1!.spv
 )
 
 POPD
+
+PAUSE

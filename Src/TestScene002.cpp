@@ -445,43 +445,43 @@ void TestScene002::Initialize()
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/CounterclockwiseDie.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(dice01TextureId_, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(dice01TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/HallowDie.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(dice02TextureId_, 2, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(dice02TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(thonkTextureId_, 3, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(thonkTextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/100x100_2.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(_100x100TextureId_, 4, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(_100x100TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(patternSpecular01TextureId_, 6, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(patternSpecular01TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular2.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(patternSpecular02TextureId_, 7, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(patternSpecular02TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(thonkSpecularTextureId_, 8, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(thonkSpecularTextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
     }
 
     // Calculating positions

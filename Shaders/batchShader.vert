@@ -1,10 +1,5 @@
 #version 450
 
-layout (binding = 0) uniform UniformBufferObject {
-    mat4 u_View;
-    mat4 u_Projection;
-} ubo;
-
 layout (location = 0) in vec3 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
 layout (location = 2) in vec3 in_Normal;
@@ -16,6 +11,11 @@ layout (location = 7) in vec3 in_Scale;
 layout (location = 8) in vec3 in_Translation;
 layout (location = 9) in vec4 in_Orientation;
 layout (location = 10) in float in_Lit;
+
+layout (binding = 0) uniform VertexShaderUniformBufferObject {
+    mat4 view;
+    mat4 projection;
+} u_VSUBO;
 
 layout (location = 0)  out vec3 v_FragmentPosition;
 layout (location = 1)  out vec2 v_TextureCoordinate;
@@ -49,5 +49,5 @@ void main()
 
     v_Lit = in_Lit;
 
-    gl_Position = ubo.u_Projection * ubo.u_View * vec4(v_FragmentPosition, 1.0);
+    gl_Position = u_VSUBO.projection * u_VSUBO.view * vec4(v_FragmentPosition, 1.0);
 }

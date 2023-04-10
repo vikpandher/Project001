@@ -28,11 +28,11 @@ namespace Project001
         Window* windowPtr,
         unsigned int width,
         unsigned int height,
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
         : windowPtr_(windowPtr)
         , redrawGrid_(true)
         , depthTesting_(true)
-        , multisampleAntaiAliasing_(multisampleAntaiAliasing)
+        , multisampleAntiAliasing_(multisampleAntiAliasing)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
@@ -205,8 +205,7 @@ namespace Project001
         viewportWidth_ = viewPortData[2];
         viewportHeight_ = viewPortData[3];
 
-        tectureUnitStalenessValues_.push_back(0);
-        tectureUnitStalenessValues_.resize(s_numberOfTextureUnits_, 1);
+        textureUnitStalenessValues_.resize(s_numberOfTextureUnits_, 1);
 
         pointLights_.reserve(s_numberOfPointLights_);
         spotLights_.reserve(s_numberOfSpotLights_);
@@ -237,11 +236,11 @@ namespace Project001
     }
 
     void OpenGL_Renderer::SetMultisampleAntiAliasing(
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
     {
-        if (multisampleAntaiAliasing != multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing != multisampleAntiAliasing_)
         {
-            multisampleAntaiAliasing_ = multisampleAntaiAliasing;
+            multisampleAntiAliasing_ = multisampleAntiAliasing;
             windowPtr_->MakeContextCurrent();
 
             CleanUpScreenFramebuffers();
@@ -264,57 +263,33 @@ namespace Project001
 
     bool OpenGL_Renderer::CreateTexture(
         unsigned int& textureId,
-        unsigned int textureUnit,
         unsigned char* data,
         unsigned int width,
         unsigned int height,
         unsigned int bytesPerPixel,
+        bool multisampleAntiAliasing,
         bool mipMaps)
     {
-        if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
+        unsigned int textureUnit = (unsigned int)texturePtrMap_.size() + 1; // reserving 0 for the screenTexture
+        if (textureUnit >= s_numberOfTextureUnits_)
         {
-            if (recycledTextureIds_.empty())
-            {
-                textureId = (unsigned int)texturePtrMap_.size();
-            }
-            else
-            {
-                textureId = recycledTextureIds_.front();
-                recycledTextureIds_.pop_front();
-            }
+            textureUnit = s_numberOfTextureUnits_ - 1;
+        }
 
-            texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, mipMaps);
-            textureIdToUnitBiMap_.Add(textureId, textureUnit);
-
-            return true;
+        if (recycledTextureIds_.empty())
+        {
+            textureId = (unsigned int)texturePtrMap_.size();
         }
         else
         {
-            return false;
+            textureId = recycledTextureIds_.front();
+            recycledTextureIds_.pop_front();
         }
-    }
 
-    bool OpenGL_Renderer::BindTexture(
-        unsigned int textureId,
-        unsigned int textureUnit)
-    {
-        if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
-        {
-            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
-            {
-                texturePtrMap_[textureId]->Bind(textureUnit);
-                textureIdToUnitBiMap_.Add(textureId, textureUnit);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+        texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps);
+        textureIdToUnitBiMap_.Add(textureId, textureUnit);
+
+        return true;
     }
 
     bool OpenGL_Renderer::DeleteTexture(unsigned int textureId)
@@ -364,7 +339,7 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
         }
@@ -818,7 +793,7 @@ namespace Project001
     {
         glActiveTexture(GL_TEXTURE0);
 
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glGenFramebuffers(1, &msaaFrameBufferId_);
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
@@ -842,7 +817,7 @@ namespace Project001
         glGenRenderbuffers(1, &renderBufferId_);
         glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId_);
 
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, frameBufferWidth_, frameBufferHeight_);
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
@@ -866,7 +841,7 @@ namespace Project001
 
     void OpenGL_Renderer::CleanUpScreenFramebuffers()
     {
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glDeleteTextures(1, &msaaTextureId_);
             glDeleteFramebuffers(1, &msaaFrameBufferId_);
@@ -878,12 +853,35 @@ namespace Project001
         glDeleteRenderbuffers(1, &renderBufferId_);
     }
 
+    bool OpenGL_Renderer::BindTexture(
+        unsigned int textureId,
+        unsigned int textureUnit)
+    {
+        if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
+        {
+            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
+            {
+                texturePtrMap_[textureId]->Bind(textureUnit);
+                textureIdToUnitBiMap_.Add(textureId, textureUnit);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     int OpenGL_Renderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
         if (textureIdToUnitBiMap_.Find_X(textureId))
         {
             unsigned int textureUnit_uint = textureIdToUnitBiMap_.Get_Using_X(textureId);
-            tectureUnitStalenessValues_[textureUnit_uint] = 0;
+            textureUnitStalenessValues_[textureUnit_uint] = 0;
             textureUnit = (float)textureUnit_uint;
         }
         else
@@ -894,7 +892,7 @@ namespace Project001
                 if (BindTexture(textureId, newTextureUnit))
                 {
                     textureUnit = (float)newTextureUnit;
-                    tectureUnitStalenessValues_[newTextureUnit] = 0;
+                    textureUnitStalenessValues_[newTextureUnit] = 0;
                 }
                 else
                 {
@@ -918,10 +916,10 @@ namespace Project001
 
         for (unsigned int i = 1; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
         {
-            if (tectureUnitStalenessValues_[i] > stalestValue)
+            if (textureUnitStalenessValues_[i] > stalestValue)
             {
                 textureUnit = i;
-                stalestValue = tectureUnitStalenessValues_[i];
+                stalestValue = textureUnitStalenessValues_[i];
             }
         }
 
@@ -932,7 +930,7 @@ namespace Project001
     {
         for (size_t i = 1 ; i < s_numberOfTextureUnits_; ++i) // reserving 0 for the screenTexture
         {
-            tectureUnitStalenessValues_[i]++;
+            textureUnitStalenessValues_[i]++;
         }
     }
 
@@ -940,7 +938,7 @@ namespace Project001
     {
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
         }
@@ -1109,7 +1107,7 @@ namespace Project001
 
     void OpenGL_Renderer::RenderTextureToScreen()
     {
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);

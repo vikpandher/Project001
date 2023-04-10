@@ -227,7 +227,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
         Project001::LightSource* lightSourceArray = nullptr;
         size_t lightSourceCount = 0;
-        _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount));
+        componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount);
 
         for (unsigned int i = 0; i < lightSourceCount; ++i)
         {
@@ -275,7 +275,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
         Project001::RenderedModel* renderedModelArray = nullptr;
         size_t renderedModelCount = 0;
-        _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount));
+        componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
 
         std::vector<Project001::RenderedModel*> renderedModelPtrs;
         renderedModelPtrs.reserve(renderedModelCount);

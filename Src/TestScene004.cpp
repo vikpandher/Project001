@@ -384,7 +384,7 @@ void TestScene004::Initialize()
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        _FAIL_CHECK(rendererPtr_->CreateTexture(tempTextureId, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
         _32x23_TextureIds_.push_back(tempTextureId);
     }
 
@@ -401,7 +401,7 @@ void TestScene004::Initialize()
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        _FAIL_CHECK(rendererPtr_->CreateTexture(tempTextureId, 1, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false));
+        _FAIL_CHECK(rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
         _32x23_TextureIds_.push_back(tempTextureId);
     }
 

@@ -7,7 +7,7 @@
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     bool TextureLoader::LoadTexture(TextureData& textureData, const std::string& path, bool convertToRGBA)
     {
@@ -19,6 +19,7 @@ namespace Project001
         if (convertToRGBA)
         {
             textureData.data = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
+            bytesPerPixel = 4;
         }
         else
         {
@@ -36,4 +37,12 @@ namespace Project001
 
         return true;
     }
+
+    // protected ---------------------------------------------------------------
+
+#ifdef VULKAN_MODE
+    const bool TextureLoader::s_convertToRGBA = true;
+#else
+    const bool TextureLoader::s_convertToRGBA = false;
+#endif
 }

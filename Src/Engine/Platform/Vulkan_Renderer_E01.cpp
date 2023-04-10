@@ -35,11 +35,11 @@ namespace Project001
         Window* windowPtr,
         unsigned int width,
         unsigned int height,
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
         : windowPtr_(windowPtr)
         , frameBufferWidth_(width)
         , frameBufferHeight_(height)
-        , multisampleAntaiAliasing_(multisampleAntaiAliasing)
+        , multisampleAntiAliasing_(multisampleAntiAliasing)
         , depthTesting_(true)
         , clearColorValue_({0.0f, 0.0f, 0.0f, 1.0f})
         , viewportX_(0)
@@ -344,7 +344,7 @@ namespace Project001
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            *(indexStagingBufferDataPtr_ + indexCount_++) = vertexBufferOffset + meshIndicies[j];
+            *(indexStagingBufferDataPtr_ + indexCount_++) = (uint32_t)(vertexBufferOffset + meshIndicies[j]);
         }
 
         return true;
@@ -558,7 +558,7 @@ namespace Project001
             if (destroyDebugUtilsMessengerFunction != nullptr)
             {
                 destroyDebugUtilsMessengerFunction(vulkanInstance_, debugMessenger_, nullptr);
-                debugMessenger_ == VK_NULL_HANDLE;
+                debugMessenger_ = VK_NULL_HANDLE;
             }
         }
 
@@ -925,7 +925,7 @@ namespace Project001
 
     void Vulkan_Renderer_E01::CreateRenderPass()
     {
-        VkSampleCountFlagBits samples = multisampleAntaiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
+        VkSampleCountFlagBits samples = multisampleAntiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
 
         VkAttachmentDescription colorAttachmentDescription = {};
         colorAttachmentDescription.format = surfaceFormat_.format;
@@ -935,7 +935,7 @@ namespace Project001
         colorAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             colorAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         }
@@ -991,7 +991,7 @@ namespace Project001
         {
             subpassDescription.pDepthStencilAttachment = &depthAttachmentRefeference;
         }
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             subpassDescription.pResolveAttachments = &resolveAttachmentReference;
         }
@@ -1014,7 +1014,7 @@ namespace Project001
             subpssDependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             attachments.push_back(depthAttachmentDescription);
         }
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             attachments.push_back(resolveAttachmentDescription);
         }
@@ -1103,9 +1103,9 @@ namespace Project001
             swapChainImageViews_[i] = CreateImageView(swapChainImages_[i], surfaceFormat_.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
         }
 
-        VkSampleCountFlagBits samples = multisampleAntaiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
+        VkSampleCountFlagBits samples = multisampleAntiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
 
-        if (multisampleAntaiAliasing_)
+        if (multisampleAntiAliasing_)
         {
             CreateImage(surfaceExtent_.width, surfaceExtent_.height, 1, samples, surfaceFormat_.format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage_, colorImageMemory_);
             colorImageView_ = CreateImageView(colorImage_, surfaceFormat_.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
@@ -1122,7 +1122,7 @@ namespace Project001
         {
             std::vector<VkImageView> attachments;
             attachments.reserve(3);
-            if (multisampleAntaiAliasing_)
+            if (multisampleAntiAliasing_)
             {
                 attachments.push_back(colorImageView_);
                 if (depthTesting_)
@@ -1358,7 +1358,7 @@ namespace Project001
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // OpenGL default
         rasterizer.depthBiasEnable = VK_FALSE;
 
-        VkSampleCountFlagBits samples = multisampleAntaiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
+        VkSampleCountFlagBits samples = multisampleAntiAliasing_ ? msaaSampleCount_ : VK_SAMPLE_COUNT_1_BIT;
 
         VkPipelineMultisampleStateCreateInfo multisampling = {};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

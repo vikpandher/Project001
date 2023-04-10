@@ -255,7 +255,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
             Project001::CollisionBody2D* collisionBody2DArray = nullptr;
             size_t collisionBodyCount = 0;
 
-            _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount));
+            componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
@@ -484,7 +484,7 @@ void TestSceneBase002::DetectCollisions()
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount));
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {
@@ -545,7 +545,7 @@ void TestSceneBase002::Sync_RenderedModel_CollisionBody_Components()
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    _FAIL_CHECK(componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount));
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {

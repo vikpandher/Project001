@@ -35,7 +35,7 @@ namespace Project001
         Window* windowPtr,
         unsigned int width,
         unsigned int height,
-        bool multisampleAntaiAliasing)
+        bool multisampleAntiAliasing)
         : windowPtr_(windowPtr)
         , vkInstance_(VK_NULL_HANDLE)
         , vkDebugMessenger_(VK_NULL_HANDLE)

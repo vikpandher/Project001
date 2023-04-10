@@ -21,12 +21,17 @@
 #include "TestScene012.h"
 #include "TestScene013.h"
 #include "TestScene020.h"
+#include "TestScene100.h"
 
 
 
 int main(int argc, char** argv)
 {
     Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
+
+    // 
+    TestScene100* testScene100Ptr = new TestScene100();
+    applicationPtr->AddScene(testScene100Ptr);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -81,6 +86,7 @@ int main(int argc, char** argv)
     delete testScene012Ptr;
     delete testScene013Ptr;
     delete testScene020Ptr;
+    delete testScene100Ptr;
 
     return 0;
 }
