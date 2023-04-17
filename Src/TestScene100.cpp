@@ -2,6 +2,7 @@
 
 #include "TestComponents.h"
 
+#include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Application.h"
 #include "Engine/BiMap.h"
@@ -71,7 +72,17 @@ void TestScene100::Initialize()
         renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedModelPtr->SetTextureId(0);
         renderedModelPtr->SetSpecularId(0);
-        renderedModelPtr->SetShininess(32.0f);
+        renderedModelPtr->SetShininess(0.0f);
+        // renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+
+        // _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::LightSource>(tempEntityId));
+        // 
+        // Project001::LightSource* lightSourcePtr;
+        // _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(tempEntityId, lightSourcePtr));
+        // lightSourcePtr->SetLightTypeDirectional();
+        // lightSourcePtr->SetDirection(-1.0f, -1.0f, -1.0f);
+        // lightSourcePtr->SetDiffuseColor(0.1f, 0.0f, 0.0f);
+        // lightSourcePtr->TurnOn();
     }
 }
 

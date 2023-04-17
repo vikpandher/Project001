@@ -25,6 +25,9 @@ namespace Project001
     struct FragmentShaderUniformBufferObject
     {
         alignas(16) glm::vec3 viewPosition;
+        alignas(16) DirectionalLight directionalLight;
+        alignas(16) PointLight pointLights[NUMBER_OF_POINT_LIGHTS];
+        alignas(16) SpotLight spotLights[NUMBER_OF_SPOT_LIGHTS];
     };
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
@@ -107,9 +110,20 @@ namespace Project001
         , descriptorSetLayout_(VK_NULL_HANDLE)
         , descriptorPool_(VK_NULL_HANDLE)
         , descriptorSet_(VK_NULL_HANDLE)
+        , vertShaderModule_(VK_NULL_HANDLE)
+        , fragShaderModule_(VK_NULL_HANDLE)
         , renderPass_(VK_NULL_HANDLE)
         , pipelineLayout_(VK_NULL_HANDLE)
         , graphicsPipeline_(VK_NULL_HANDLE)
+        , renderPass1_(VK_NULL_HANDLE)
+        , screenTexture_({})
+        , pipelineLayout1_(VK_NULL_HANDLE)
+        , graphicsPipeline1_(VK_NULL_HANDLE)
+        , vertShaderModule2_(VK_NULL_HANDLE)
+        , fragShaderModule2_(VK_NULL_HANDLE)
+        , renderPass2_(VK_NULL_HANDLE)
+        , pipelineLayout2_(VK_NULL_HANDLE)
+        , graphicsPipeline2_(VK_NULL_HANDLE)
         , commandPool_(VK_NULL_HANDLE)
         , commandBuffer_(VK_NULL_HANDLE)
         , mainFence_(VK_NULL_HANDLE)
@@ -129,6 +143,8 @@ namespace Project001
 
         CreateCommandBuffers();
 
+        CreateSyncObjects();
+
         CreateSwapChain();
 
         CreateDataBuffers();
@@ -141,11 +157,25 @@ namespace Project001
 
         CreateDescriptorSets();
 
+        CreateShaderModules();
+
         CreateRenderPass();
 
         CreateGraphicsPipeline();
 
-        CreateSyncObjects();
+        CreateRenderPass1();
+
+        CreateGraphicsPipeline1();
+
+        DeleteShaderModules();
+
+        CreateShaderModules2();
+
+        CreateRenderPass2();
+
+        CreateGraphicsPipeline2();
+
+        DeleteShaderModules2();
 
         textureUnitStalenessValues_.resize(NUMBER_OF_TEXTURE_UNITS, 1);
 
@@ -157,7 +187,13 @@ namespace Project001
         // this calls vkDeviceWaitIdle
         DeleteAllTextures();
 
-        DeleteSyncObjects();
+        DeleteGraphicsPipeline2();
+
+        DeleteRenderPass2();
+
+        DeleteGraphicsPipeline1();
+
+        DeleteRenderPass1();
 
         DeleteGraphicsPipeline();
 
@@ -172,6 +208,8 @@ namespace Project001
         DeleteDataBuffers();
 
         DeleteSwapChain();
+
+        DeleteSyncObjects();
 
         DeleteCommandPool();
 
@@ -240,6 +278,56 @@ namespace Project001
         textureMap_.clear();
         textureIdToUnitBiMap_.Clear();
         recycledTextureIds_.clear();
+    }
+
+    void Vulkan_Renderer_T02::AddPointLight(
+        const glm::vec3& position,
+        float constant,
+        float linear,
+        float quadratic,
+        const glm::vec3& ambient,
+        const glm::vec3& diffuse,
+        const glm::vec3& specular)
+    {
+        if (pointLights_.size() < NUMBER_OF_POINT_LIGHTS)
+        {
+            pointLights_.emplace_back(
+                position,
+                constant,
+                linear,
+                quadratic,
+                ambient,
+                diffuse,
+                specular);
+        }
+    }
+
+    void Vulkan_Renderer_T02::AddSpotLight(
+        const glm::vec3& position,
+        const glm::vec3& direction,
+        float cutoff,
+        float outerCutoff,
+        float constant,
+        float linear,
+        float quadratic,
+        const glm::vec3& ambient,
+        const glm::vec3& diffuse,
+        const glm::vec3& specular)
+    {
+        if (spotLights_.size() < NUMBER_OF_SPOT_LIGHTS)
+        {
+            spotLights_.emplace_back(
+                position,
+                direction,
+                cutoff,
+                outerCutoff,
+                constant,
+                linear,
+                quadratic,
+                ambient,
+                diffuse,
+                specular);
+        }
     }
 
     void Vulkan_Renderer_T02::BeginRendering()
@@ -412,7 +500,18 @@ namespace Project001
         memcpy(data1, &vsubo, sizeof(vsubo));
         vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
 
-        FragmentShaderUniformBufferObject fsubo = { viewPosition_ };
+        FragmentShaderUniformBufferObject fsubo;
+        fsubo.viewPosition = viewPosition_;
+        fsubo.directionalLight = directionalLight_;
+        for (size_t i = 0; i < NUMBER_OF_POINT_LIGHTS && i < pointLights_.size(); ++i)
+        {
+            fsubo.pointLights[i] = pointLights_[i];
+        }
+        for (size_t i = 0; i < NUMBER_OF_SPOT_LIGHTS && i < spotLights_.size(); ++i)
+        {
+            fsubo.spotLights[i] = spotLights_[i];
+        }
+
         void* data2;
         vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2);
         memcpy(data2, &fsubo, sizeof(fsubo));
@@ -893,7 +992,7 @@ namespace Project001
             for (size_t i = 0; i < surfaceFormats.size(); ++i)
             {
                 const VkSurfaceFormatKHR& surfaceFormat = surfaceFormats[i];
-                if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+                if (surfaceFormat.format == s_desiredSurfaceFormat &&
                     surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
                 {
                     surfaceFormat_ = surfaceFormat;
@@ -1090,6 +1189,28 @@ namespace Project001
         allocInfo.commandBufferCount = 1;
 
         _VK_CHECK(vkAllocateCommandBuffers(logicalDevice_, &allocInfo, &commandBuffer_));
+    }
+
+    void Vulkan_Renderer_T02::CreateSyncObjects()
+    {
+        VkFenceCreateInfo fenceInfo = {};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &mainFence_));
+
+        VkSemaphoreCreateInfo semaphoreInfo = {};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphore_));
+        _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphore_));
+    }
+
+    void Vulkan_Renderer_T02::DeleteSyncObjects()
+    {
+        vkDestroyFence(logicalDevice_, mainFence_, nullptr);
+        vkDestroySemaphore(logicalDevice_, imageAvailableSemaphore_, nullptr);
+        vkDestroySemaphore(logicalDevice_, renderFinishedSemaphore_, nullptr);
     }
 
     void Vulkan_Renderer_T02::CreateSwapChain()
@@ -1320,13 +1441,26 @@ namespace Project001
         vkUpdateDescriptorSets(logicalDevice_, (uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
     }
 
+    void Vulkan_Renderer_T02::CreateShaderModules()
+    {
+        std::vector<char> vertShaderCode = ReadFile("../Shaders/batchShader_vert.spv");
+        std::vector<char> fragShaderCode = ReadFile("../Shaders/batchShader_frag.spv");
+
+        vertShaderModule_ = CreateShaderModule(vertShaderCode);
+        fragShaderModule_ = CreateShaderModule(fragShaderCode);
+    }
+
+    void Vulkan_Renderer_T02::DeleteShaderModules()
+    {
+        vkDestroyShaderModule(logicalDevice_, fragShaderModule_, nullptr);
+        vkDestroyShaderModule(logicalDevice_, vertShaderModule_, nullptr);
+    }
+
     void Vulkan_Renderer_T02::CreateRenderPass()
     {
-        VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
-
         VkAttachmentDescription colorAttachmentDescription = {};
         colorAttachmentDescription.format = surfaceFormat_.format;
-        colorAttachmentDescription.samples = samples;
+        colorAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -1392,22 +1526,16 @@ namespace Project001
 
     void Vulkan_Renderer_T02::CreateGraphicsPipeline()
     {
-        std::vector<char> vertShaderCode = ReadFile("../Shaders/batchShader_vert.spv");
-        std::vector<char> fragShaderCode = ReadFile("../Shaders/batchShader_frag.spv");
-
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
-
         VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShaderModule;
+        vertShaderStageInfo.module = vertShaderModule_;
         vertShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
         fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShaderModule;
+        fragShaderStageInfo.module = fragShaderModule_;
         fragShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
@@ -1507,8 +1635,14 @@ namespace Project001
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_FALSE;
 
         VkPipelineColorBlendStateCreateInfo colorBlending = {};
         colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -1552,9 +1686,6 @@ namespace Project001
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
         _VK_CHECK(vkCreateGraphicsPipelines(logicalDevice_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_));
-
-        vkDestroyShaderModule(logicalDevice_, fragShaderModule, nullptr);
-        vkDestroyShaderModule(logicalDevice_, vertShaderModule, nullptr);
     }
 
     void Vulkan_Renderer_T02::DeleteGraphicsPipeline()
@@ -1563,26 +1694,54 @@ namespace Project001
         vkDestroyPipelineLayout(logicalDevice_, pipelineLayout_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateSyncObjects()
+    void Vulkan_Renderer_T02::CreateRenderPass1()
     {
-        VkFenceCreateInfo fenceInfo = {};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &mainFence_));
-
-        VkSemaphoreCreateInfo semaphoreInfo = {};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphore_));
-        _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphore_));
     }
 
-    void Vulkan_Renderer_T02::DeleteSyncObjects()
+    void Vulkan_Renderer_T02::DeleteRenderPass1()
     {
-        vkDestroyFence(logicalDevice_, mainFence_, nullptr);
-        vkDestroySemaphore(logicalDevice_, imageAvailableSemaphore_, nullptr);
-        vkDestroySemaphore(logicalDevice_, renderFinishedSemaphore_, nullptr);
+
+    }
+
+    void Vulkan_Renderer_T02::CreateGraphicsPipeline1()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::DeleteGraphicsPipeline1()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::CreateShaderModules2()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::DeleteShaderModules2()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::CreateRenderPass2()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::DeleteRenderPass2()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::CreateGraphicsPipeline2()
+    {
+
+    }
+
+    void Vulkan_Renderer_T02::DeleteGraphicsPipeline2()
+    {
+
     }
 
 
@@ -1803,7 +1962,7 @@ namespace Project001
             height,
             mipLevels,
             VK_SAMPLE_COUNT_1_BIT,
-            VK_FORMAT_R8G8B8A8_SRGB,
+            s_textureFormat,
             VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -1813,7 +1972,7 @@ namespace Project001
 
         TransitionImageLayout(
             texture.textureImage_,
-            VK_FORMAT_R8G8B8A8_SRGB,
+            s_textureFormat,
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             mipLevels
@@ -1833,7 +1992,7 @@ namespace Project001
         // after attempting to generating mipmaps
         GenerateMipmaps(
             texture.textureImage_,
-            VK_FORMAT_R8G8B8A8_SRGB,
+            s_textureFormat,
             width,
             height,
             mipLevels
@@ -1844,7 +2003,7 @@ namespace Project001
 
         texture.textureImageView_ = CreateImageView(
             texture.textureImage_,
-            VK_FORMAT_R8G8B8A8_SRGB,
+            s_textureFormat,
             VK_IMAGE_ASPECT_COLOR_BIT,
             mipLevels
         );
@@ -2266,4 +2425,10 @@ namespace Project001
 
     const unsigned int Vulkan_Renderer_T02::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
     const unsigned int Vulkan_Renderer_T02::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
+
+    // const VkFormat Vulkan_Renderer_T02::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    // const VkFormat Vulkan_Renderer_T02::s_textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
+
+    const VkFormat Vulkan_Renderer_T02::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_UNORM;
+    const VkFormat Vulkan_Renderer_T02::s_textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
 }

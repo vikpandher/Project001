@@ -71,8 +71,7 @@ namespace Project001
             const glm::vec3& direction,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
-            const glm::vec3& specular) override
-        {}
+            const glm::vec3& specular) override;
 
         void AddPointLight(
             const glm::vec3& position,
@@ -81,8 +80,7 @@ namespace Project001
             float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
-            const glm::vec3& specular) override
-        {}
+            const glm::vec3& specular) override;
 
         void AddSpotLight(
             const glm::vec3& position,
@@ -94,17 +92,13 @@ namespace Project001
             float quadratic,
             const glm::vec3& ambient,
             const glm::vec3& diffuse,
-            const glm::vec3& specular) override
-        {}
+            const glm::vec3& specular) override;
 
-        void ClearDirectionalLight() override
-        {}
+        void ClearDirectionalLight() override;
 
-        void ClearPointLights() override
-        {}
+        void ClearPointLights() override;
 
-        void ClearSpotLights() override
-        {}
+        void ClearSpotLights() override;
 
         void BeginRendering() override;
 
@@ -156,6 +150,9 @@ namespace Project001
 
         void CreateCommandBuffers();
 
+        void CreateSyncObjects();
+        void DeleteSyncObjects();
+
         void CreateSwapChain();
         void DeleteSwapChain();
 
@@ -173,14 +170,30 @@ namespace Project001
 
         void CreateDescriptorSets();
 
+        void CreateShaderModules();
+        void DeleteShaderModules();
+
         void CreateRenderPass();
         void DeleteRenderPass();
 
         void CreateGraphicsPipeline();
         void DeleteGraphicsPipeline();
 
-        void CreateSyncObjects();
-        void DeleteSyncObjects();
+        void CreateRenderPass1();
+        void DeleteRenderPass1();
+
+        void CreateGraphicsPipeline1();
+        void DeleteGraphicsPipeline1();
+
+        void CreateShaderModules2();
+        void DeleteShaderModules2();
+
+        void CreateRenderPass2();
+        void DeleteRenderPass2();
+
+        void CreateGraphicsPipeline2();
+        void DeleteGraphicsPipeline2();
+
 
 
 
@@ -283,6 +296,9 @@ namespace Project001
         static const unsigned int s_indexBufferCapacity_;
         static const unsigned int s_vertexBufferCapacity_;
 
+        static const VkFormat s_desiredSurfaceFormat;
+        static const VkFormat s_textureFormat;
+
         Window* windowPtr_;
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
@@ -300,6 +316,10 @@ namespace Project001
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
         glm::mat4 projectionMatrix_;
+
+        DirectionalLight directionalLight_;
+        std::vector<PointLight> pointLights_;
+        std::vector<SpotLight> spotLights_;
 
         bool depthTestingChanged_;
         bool msaaChanged_;
@@ -361,11 +381,29 @@ namespace Project001
 
         VkDescriptorSet descriptorSet_;
 
+        VkShaderModule vertShaderModule_;
+        VkShaderModule fragShaderModule_;
+
         VkRenderPass renderPass_;
         std::vector<VkFramebuffer> swapchainFramebuffers_;
 
         VkPipelineLayout pipelineLayout_;
         VkPipeline graphicsPipeline_;
+
+        VkRenderPass renderPass1_;
+        Vulkan_Texture screenTexture_;
+
+        VkPipelineLayout pipelineLayout1_;
+        VkPipeline graphicsPipeline1_;
+
+        VkShaderModule vertShaderModule2_;
+        VkShaderModule fragShaderModule2_;
+
+        VkRenderPass renderPass2_;
+        std::vector<VkFramebuffer> swapchainFramebuffers2_;
+
+        VkPipelineLayout pipelineLayout2_;
+        VkPipeline graphicsPipeline2_;
 
         VkCommandPool commandPool_;
 
@@ -455,5 +493,35 @@ namespace Project001
     inline void Vulkan_Renderer_T02::SetProjectionMatrix(const glm::mat4& projectionMatrix)
     {
         projectionMatrix_ = projectionMatrix;
+    }
+
+    inline void Vulkan_Renderer_T02::SetDirectionalLight(
+        const glm::vec3& direction,
+        const glm::vec3& ambient,
+        const glm::vec3& diffuse,
+        const glm::vec3& specular)
+    {
+        directionalLight_.direction = direction;
+        directionalLight_.ambient = ambient;
+        directionalLight_.diffuse = diffuse;
+        directionalLight_.specular = specular;
+    }
+
+    inline void Vulkan_Renderer_T02::ClearDirectionalLight()
+    {
+        directionalLight_.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+        directionalLight_.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+        directionalLight_.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+        directionalLight_.specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
+    inline void Vulkan_Renderer_T02::ClearPointLights()
+    {
+        pointLights_.clear();
+    }
+
+    inline void Vulkan_Renderer_T02::ClearSpotLights()
+    {
+        spotLights_.clear();
     }
 }

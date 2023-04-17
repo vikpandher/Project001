@@ -326,7 +326,10 @@ namespace Project001
         glEnable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // glBlendEquation(GL_FUNC_ADD);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -1127,8 +1130,8 @@ namespace Project001
     }
 
     const bool OpenGL_Renderer::s_cullBackface = true;
-    const bool OpenGL_Renderer::s_drawWireframe = true;
-    const bool OpenGL_Renderer::s_drawNormals = true;
+    const bool OpenGL_Renderer::s_drawWireframe = false;
+    const bool OpenGL_Renderer::s_drawNormals = false;
     const bool OpenGL_Renderer::s_drawGrid = false;
 
     const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4194304; // 8192;

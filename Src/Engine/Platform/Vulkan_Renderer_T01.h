@@ -111,6 +111,10 @@ namespace Project001
             unsigned int width,
             unsigned int height) override {}
 
+        void SetBorderColor(const glm::vec4& color) override {}
+
+        void SetClearColor(const glm::vec4& color) override {}
+
         bool CreateTexture(
             unsigned int& textureId,
             unsigned char* data,
