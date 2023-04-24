@@ -211,7 +211,7 @@ namespace Project001
         clearRect.rect.offset = { 0, 0 };
         clearRect.rect.extent = { surfaceExtent_.width, surfaceExtent_.height };
 
-        vkCmdClearAttachments(commandBuffer_, clearAttachments.size(), clearAttachments.data(), 1, &clearRect);
+        vkCmdClearAttachments(commandBuffer_, (uint32_t)clearAttachments.size(), clearAttachments.data(), 1, &clearRect);
 
         vkCmdEndRenderPass(commandBuffer_);
 

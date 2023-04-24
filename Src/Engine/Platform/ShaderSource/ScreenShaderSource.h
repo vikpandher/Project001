@@ -13,7 +13,7 @@ namespace Project001
 layout (location = 0) in vec2 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
 
-out vec2 v_TextureCoordinate;
+layout (location = 0) out vec2 v_TextureCoordinate;
 
 void main()
 {
@@ -27,7 +27,7 @@ void main()
         static const char* g_fragmentShaderSource = R"(
 #version 330 core
 
-in vec2 v_TextureCoordinate;
+layout (location = 0) in vec2 v_TextureCoordinate;
 
 uniform sampler2D u_ScreenTexture;
 

@@ -162,16 +162,19 @@ namespace Project001
         void CreateDefaultTexture();
         void DeleteDefaultTexture();
 
-        void CreateDescriptorSetLayout();
-        void DeleteDescriptorSetLayout();
+        void CreateDescriptorSetLayouts();
+        void DeleteDescriptorSetLayouts();
 
         void CreateDescriptorPool();
         void DeleteDescriptorPool();
 
         void CreateDescriptorSets();
 
-        void CreateShaderModules();
-        void DeleteShaderModules();
+        void CreatePipelineLayouts();
+        void DeletePipelineLayouts();
+
+        void CreateBatchShaderModules();
+        void DeleteBatchShaderModules();
 
         void CreateRenderPass();
         void DeleteRenderPass();
@@ -179,20 +182,20 @@ namespace Project001
         void CreateGraphicsPipeline();
         void DeleteGraphicsPipeline();
 
-        void CreateRenderPass1();
-        void DeleteRenderPass1();
+        void CreatePrimaryRenderPasses();
+        void DeletePrimaryRenderPasses();
 
-        void CreateGraphicsPipeline1();
-        void DeleteGraphicsPipeline1();
+        void CreatePrimaryGraphicsPipelines();
+        void DeletePrimaryGraphicsPipelines();
 
-        void CreateShaderModules2();
-        void DeleteShaderModules2();
+        void CreateScreenShaderModules();
+        void DeleteScreenShaderModules();
 
-        void CreateRenderPass2();
-        void DeleteRenderPass2();
+        void CreateSecondaryRenderPass();
+        void DeleteSecondaryRenderPass();
 
-        void CreateGraphicsPipeline2();
-        void DeleteGraphicsPipeline2();
+        void CreateSecondaryGraphicsPipeline();
+        void DeleteSecondaryGraphicsPipeline();
 
 
 
@@ -259,9 +262,10 @@ namespace Project001
 
         void ApplyTextureBindings();
 
+        void ApplyScreenTextureBinding();
+
         void TransitionImageLayout(
             VkImage image,
-            VkFormat format,
             VkImageLayout oldLayout,
             VkImageLayout newLayout,
             uint32_t mipLevels);
@@ -274,7 +278,6 @@ namespace Project001
 
         void GenerateMipmaps(
             VkImage image,
-            VkFormat imageFormat,
             int32_t texWidth,
             int32_t texHeight,
             uint32_t mipLevels);
@@ -285,6 +288,15 @@ namespace Project001
         std::vector<char> ReadFile(const char* const filePath);
 
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
+        VkRenderPass CreatePrimaryRenderPass(
+            bool depthTesting,
+            bool msaa);
+
+        VkPipeline CreatePrimaryGraphicsPipeline(
+            VkRenderPass& renderPass,
+            bool depthTesting,
+            bool msaa);
 
         static const bool s_enableValidationLayers_;
         static const std::vector<const char*> s_validationLayers_;
@@ -375,35 +387,39 @@ namespace Project001
 
         Vulkan_Texture defaultTexture_;
 
-        VkDescriptorSetLayout descriptorSetLayout_;
+        VkDescriptorSetLayout primaryDescriptorSetLayout_;
+        VkDescriptorSetLayout secondaryDescriptorSetLayout_;
 
         VkDescriptorPool descriptorPool_;
 
-        VkDescriptorSet descriptorSet_;
+        VkDescriptorSet primaryDescriptorSet_;
+        VkDescriptorSet secondaryDescriptorSet_;
 
-        VkShaderModule vertShaderModule_;
-        VkShaderModule fragShaderModule_;
+        VkShaderModule vertexBatchShaderModule_;
+        VkShaderModule fragmentBatchShaderModule_;
 
-        VkRenderPass renderPass_;
+        VkPipelineLayout primaryPipelineLayout_;
+        VkPipelineLayout secondaryPipelineLayout_;
+
+        VkRenderPass soloRenderPass_;
         std::vector<VkFramebuffer> swapchainFramebuffers_;
 
-        VkPipelineLayout pipelineLayout_;
-        VkPipeline graphicsPipeline_;
+        VkPipeline soloGraphicsPipeline_;
 
-        VkRenderPass renderPass1_;
+        VkRenderPass primaryRenderPass1_;
+        VkFramebuffer screenFrameBuffer1_;
+
         Vulkan_Texture screenTexture_;
 
-        VkPipelineLayout pipelineLayout1_;
-        VkPipeline graphicsPipeline1_;
+        VkPipeline primaryGraphicsPipeline1_;
 
-        VkShaderModule vertShaderModule2_;
-        VkShaderModule fragShaderModule2_;
+        VkShaderModule vertexScreenShaderModule_;
+        VkShaderModule fragmentScreenShaderModule_;
 
-        VkRenderPass renderPass2_;
+        VkRenderPass secondaryRenderPass_;
         std::vector<VkFramebuffer> swapchainFramebuffers2_;
 
-        VkPipelineLayout pipelineLayout2_;
-        VkPipeline graphicsPipeline2_;
+        VkPipeline secondaryGraphicsPipeline_;
 
         VkCommandPool commandPool_;
 
