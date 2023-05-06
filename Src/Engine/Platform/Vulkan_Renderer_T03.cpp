@@ -1,4 +1,4 @@
-#include "Vulkan_Renderer_T02.h"
+#include "Vulkan_Renderer_T03.h"
 
 #include "Engine/Platform/Vulkan_Error.h"
 #include "Engine/MeshData.h"
@@ -49,7 +49,7 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    Vulkan_Renderer_T02::Vulkan_Renderer_T02(
+    Vulkan_Renderer_T03::Vulkan_Renderer_T03(
         Window* windowPtr,
         unsigned int width,
         unsigned int height,
@@ -106,15 +106,26 @@ namespace Project001
         , vertexShaderUniformBufferMemory_(VK_NULL_HANDLE)
         , fragmentShaderUniformBuffer_(VK_NULL_HANDLE)
         , fragmentShaderUniformBufferMemory_(VK_NULL_HANDLE)
+        , screenVertexBuffer_(VK_NULL_HANDLE)
+        , screenVertexBufferMemory_(VK_NULL_HANDLE)
         , defaultTexture_({})
-        , descriptorSetLayout_(VK_NULL_HANDLE)
+        , primaryDescriptorSetLayout_(VK_NULL_HANDLE)
+        , secondaryDescriptorSetLayout_(VK_NULL_HANDLE)
         , descriptorPool_(VK_NULL_HANDLE)
-        , descriptorSet_(VK_NULL_HANDLE)
+        , primaryDescriptorSet_(VK_NULL_HANDLE)
+        , secondaryDescriptorSet_(VK_NULL_HANDLE)
         , vertexBatchShaderModule_(VK_NULL_HANDLE)
         , fragmentBatchShaderModule_(VK_NULL_HANDLE)
-        , pipelineLayout_(VK_NULL_HANDLE)
-        , renderPass_(VK_NULL_HANDLE)
-        , graphicsPipeline_(VK_NULL_HANDLE)
+        , primaryPipelineLayout_(VK_NULL_HANDLE)
+        , secondaryPipelineLayout_(VK_NULL_HANDLE)
+        , primaryRenderPass1_(VK_NULL_HANDLE)
+        , screenFrameBuffer1_(VK_NULL_HANDLE)
+        , screenTexture_({})
+        , primaryGraphicsPipeline1_(VK_NULL_HANDLE)
+        , vertexScreenShaderModule_(VK_NULL_HANDLE)
+        , fragmentScreenShaderModule_(VK_NULL_HANDLE)
+        , secondaryRenderPass_(VK_NULL_HANDLE)
+        , secondaryGraphicsPipeline_(VK_NULL_HANDLE)
         , commandPool_(VK_NULL_HANDLE)
         , commandBuffer_(VK_NULL_HANDLE)
         , mainFence_(VK_NULL_HANDLE)
@@ -152,25 +163,37 @@ namespace Project001
 
         CreateBatchShaderModules();
 
-        CreateRenderPass();
+        CreatePrimaryRenderPasses();
 
-        CreateGraphicsPipeline();
+        CreatePrimaryGraphicsPipelines();
 
         DeleteBatchShaderModules();
+
+        CreateScreenShaderModules();
+
+        CreateSecondaryRenderPass();
+
+        CreateSecondaryGraphicsPipeline();
+
+        DeleteScreenShaderModules();
 
         textureUnitStalenessValues_.resize(NUMBER_OF_TEXTURE_UNITS, 1);
 
         AcquireNextImage();
     }
 
-    Vulkan_Renderer_T02::~Vulkan_Renderer_T02()
+    Vulkan_Renderer_T03::~Vulkan_Renderer_T03()
     {
         // this calls vkDeviceWaitIdle
         DeleteAllTextures();
 
-        DeleteGraphicsPipeline();
+        DeleteSecondaryGraphicsPipeline();
 
-        DeleteRenderPass();
+        DeleteSecondaryRenderPass();
+
+        DeletePrimaryGraphicsPipelines();
+
+        DeletePrimaryRenderPasses();
 
         DeletePipelineLayouts();
 
@@ -195,7 +218,7 @@ namespace Project001
         DeleteVulkanInstance();
     }
 
-    bool Vulkan_Renderer_T02::CreateTexture(
+    bool Vulkan_Renderer_T03::CreateTexture(
         unsigned int& textureId,
         unsigned char* data,
         unsigned int width,
@@ -226,7 +249,7 @@ namespace Project001
         return true;
     }
 
-    bool Vulkan_Renderer_T02::DeleteTexture(unsigned int textureId)
+    bool Vulkan_Renderer_T03::DeleteTexture(unsigned int textureId)
     {
         vkDeviceWaitIdle(logicalDevice_);
 
@@ -241,7 +264,7 @@ namespace Project001
         return false;
     }
 
-    void Vulkan_Renderer_T02::DeleteAllTextures()
+    void Vulkan_Renderer_T03::DeleteAllTextures()
     {
         vkDeviceWaitIdle(logicalDevice_);
 
@@ -255,7 +278,7 @@ namespace Project001
         recycledTextureIds_.clear();
     }
 
-    void Vulkan_Renderer_T02::AddPointLight(
+    void Vulkan_Renderer_T03::AddPointLight(
         const glm::vec3& position,
         float constant,
         float linear,
@@ -277,7 +300,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::AddSpotLight(
+    void Vulkan_Renderer_T03::AddSpotLight(
         const glm::vec3& position,
         const glm::vec3& direction,
         float cutoff,
@@ -305,12 +328,12 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::BeginRendering()
+    void Vulkan_Renderer_T03::BeginRendering()
     {
 
     }
 
-    void Vulkan_Renderer_T02::Clear()
+    void Vulkan_Renderer_T03::Clear()
     {
         _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
         _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
@@ -322,26 +345,49 @@ namespace Project001
 
         _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
 
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass_;
-        renderPassInfo.framebuffer = swapchainFramebuffers_[currentSwapchainFramebufferIndex_];
-        renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = surfaceExtent_;
+        VkRenderPassBeginInfo primaryRenderPassInfo = {};
+        primaryRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        primaryRenderPassInfo.renderPass = primaryRenderPass1_;
+        primaryRenderPassInfo.framebuffer = screenFrameBuffer1_;
+        primaryRenderPassInfo.renderArea.offset = { 0, 0 };
+        primaryRenderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };;
 
-        vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffer_, &primaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        VkClearAttachment colorClearAttachment = {};
-        colorClearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        colorClearAttachment.clearValue.color = { clearColor_.r, clearColor_.g, clearColor_.b, clearColor_.a };
-        colorClearAttachment.colorAttachment = 0;
+        VkClearAttachment primaryColorClearAttachment = {};
+        primaryColorClearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        primaryColorClearAttachment.clearValue.color = { clearColor_.r, clearColor_.g, clearColor_.b, clearColor_.a };
+        primaryColorClearAttachment.colorAttachment = 0;
 
-        VkClearRect clearRect = {};
-        clearRect.layerCount = 1;
-        clearRect.rect.offset = { 0, 0 };
-        clearRect.rect.extent = { surfaceExtent_.width, surfaceExtent_.height };
+        VkClearRect primaryClearRect = {};
+        primaryClearRect.layerCount = 1;
+        primaryClearRect.rect.offset = { 0, 0 };
+        primaryClearRect.rect.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-        vkCmdClearAttachments(commandBuffer_, 1, &colorClearAttachment, 1, &clearRect);
+        vkCmdClearAttachments(commandBuffer_, 1, &primaryColorClearAttachment, 1, &primaryClearRect);
+
+        vkCmdEndRenderPass(commandBuffer_);
+
+        VkRenderPassBeginInfo secondaryRenderPassInfo = {};
+        secondaryRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        secondaryRenderPassInfo.renderPass = secondaryRenderPass_;
+        secondaryRenderPassInfo.framebuffer = swapchainFramebuffers2_[currentSwapchainFramebufferIndex_];
+        secondaryRenderPassInfo.renderArea.offset = { 0, 0 };
+        secondaryRenderPassInfo.renderArea.extent = surfaceExtent_;
+
+        vkCmdBeginRenderPass(commandBuffer_, &secondaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        VkClearAttachment secondaryColorClearAttachment = {};
+        secondaryColorClearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        secondaryColorClearAttachment.clearValue.color = { borderColor_.r, borderColor_.g, borderColor_.b, borderColor_.a };
+        secondaryColorClearAttachment.colorAttachment = 0;
+
+        VkClearRect secondaryClearRect = {};
+        secondaryClearRect.layerCount = 1;
+        secondaryClearRect.rect.offset = { 0, 0 };
+        secondaryClearRect.rect.extent = { surfaceExtent_.width, surfaceExtent_.height };
+
+        vkCmdClearAttachments(commandBuffer_, 1, &secondaryColorClearAttachment, 1, &secondaryClearRect);
 
         vkCmdEndRenderPass(commandBuffer_);
 
@@ -355,7 +401,7 @@ namespace Project001
         _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
     }
 
-    bool Vulkan_Renderer_T02::AddMesh(
+    bool Vulkan_Renderer_T03::AddMesh(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
@@ -461,7 +507,7 @@ namespace Project001
         return true;
     }
 
-    void Vulkan_Renderer_T02::Render()
+    void Vulkan_Renderer_T03::Render()
     {
         _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
         _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
@@ -471,7 +517,7 @@ namespace Project001
 
         VertexShaderUniformBufferObject vsubo = { viewMatrix_, projectionMatrix_ };
         void* data1;
-        vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1);
+        _VK_CHECK(vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1));
         memcpy(data1, &vsubo, sizeof(vsubo));
         vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
 
@@ -488,7 +534,7 @@ namespace Project001
         }
 
         void* data2;
-        vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2);
+        _VK_CHECK(vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2));
         memcpy(data2, &fsubo, sizeof(fsubo));
         vkUnmapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_);
 
@@ -533,30 +579,30 @@ namespace Project001
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass_;
-        renderPassInfo.framebuffer = swapchainFramebuffers_[currentSwapchainFramebufferIndex_];
+        renderPassInfo.renderPass = primaryRenderPass1_;
+        renderPassInfo.framebuffer = screenFrameBuffer1_;
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = surfaceExtent_;
+        renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
 
         vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline_);
+        vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryGraphicsPipeline1_);
 
         // viewport.y is non zero and viewport.height is negative to flip y axis
         // (making it behave like it does in OpenGL)
         // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
         VkViewport viewport = {};
         viewport.x = 0.0f;
-        viewport.y = (float)viewportHeight_;
-        viewport.width = (float)viewportWidth_;
-        viewport.height = -(float)viewportHeight_;
+        viewport.y = (float)frameBufferHeight_;
+        viewport.width = (float)frameBufferWidth_;
+        viewport.height = -(float)frameBufferHeight_;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
 
         VkRect2D scissor = {};
         scissor.offset = { 0, 0 };
-        scissor.extent = surfaceExtent_;
+        scissor.extent = { frameBufferWidth_, frameBufferHeight_ };
         vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
 
         VkBuffer vertexBuffers[] = { vertexBuffer_ };
@@ -565,7 +611,7 @@ namespace Project001
 
         vkCmdBindIndexBuffer(commandBuffer_, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1, &descriptorSet_, 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffer_, (uint32_t)indexCount_, 1, 0, 0, 0);
 
@@ -579,12 +625,105 @@ namespace Project001
         indexCount_ = 0;
     }
 
-    void Vulkan_Renderer_T02::FinishRendering()
+    void Vulkan_Renderer_T03::FinishRendering()
     {
+        _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
+        _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
 
+        _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+
+        VkImageMemoryBarrier imageMemoryBarrier = {};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = screenTexture_.textureImage_;
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(
+            commandBuffer_,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &imageMemoryBarrier
+        );
+
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = secondaryRenderPass_;
+        renderPassInfo.framebuffer = swapchainFramebuffers2_[currentSwapchainFramebufferIndex_];
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = surfaceExtent_;
+
+        vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryGraphicsPipeline_);
+
+        // viewport.y is non zero and viewport.height is negative to flip y axis
+        // (making it behave like it does in OpenGL)
+        // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
+        VkViewport viewport = {};
+        viewport.x = (float)viewportX_;
+        viewport.y = (float)(viewportHeight_ + viewportY_);
+        viewport.width = (float)viewportWidth_;
+        viewport.height = -(float)viewportHeight_;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
+
+        VkRect2D scissor = {};
+        scissor.offset = { 0, 0 };
+        scissor.extent = surfaceExtent_;
+        vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
+
+        VkBuffer vertexBuffers[] = { screenVertexBuffer_ };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(commandBuffer_, 0, 1, vertexBuffers, offsets);
+
+        vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryPipelineLayout_, 0, 1, &secondaryDescriptorSet_, 0, nullptr);
+
+        vkCmdDraw(commandBuffer_, 6, 1, 0, 0);
+
+        vkCmdEndRenderPass(commandBuffer_);
+
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        vkCmdPipelineBarrier(
+            commandBuffer_,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &imageMemoryBarrier
+        );
+
+        _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer_;
+
+        _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
     }
 
-    void Vulkan_Renderer_T02::SwapBuffers()
+    void Vulkan_Renderer_T03::SwapBuffers()
     {
         _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
         _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
@@ -644,10 +783,9 @@ namespace Project001
 
         VkResult result = vkQueuePresentKHR(presentQueue_, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_)
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         {
-            framebufferResized_ = false;
-            // RecreateSwapChain();
+            // TODO: Recreate Swapchain
         }
         else if (result != VK_SUCCESS)
         {
@@ -659,7 +797,7 @@ namespace Project001
 
     // protected ---------------------------------------------------------------
 
-    void Vulkan_Renderer_T02::CreateVulkanInstance()
+    void Vulkan_Renderer_T03::CreateVulkanInstance()
     {
         if (s_enableValidationLayers_)
         {
@@ -762,7 +900,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::DeleteVulkanInstance()
+    void Vulkan_Renderer_T03::DeleteVulkanInstance()
     {
         if (s_enableValidationLayers_)
         {
@@ -777,17 +915,17 @@ namespace Project001
         vkDestroyInstance(vulkanInstance_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateSurface()
+    void Vulkan_Renderer_T03::CreateSurface()
     {
         windowPtr_->CreateWindowSurface(vulkanInstance_, surface_);
     }
 
-    void Vulkan_Renderer_T02::DeleteSurface()
+    void Vulkan_Renderer_T03::DeleteSurface()
     {
         vkDestroySurfaceKHR(vulkanInstance_, surface_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::PickPhysicalDevice()
+    void Vulkan_Renderer_T03::PickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
         _VK_CHECK(vkEnumeratePhysicalDevices(vulkanInstance_, &deviceCount, nullptr));
@@ -1082,7 +1220,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::CreateLogicalDevice()
+    void Vulkan_Renderer_T03::CreateLogicalDevice()
     {
         std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = { graphicsQueueFamilyIndex_, presentQueueFamilyIndex_ };
@@ -1135,12 +1273,12 @@ namespace Project001
         vkGetDeviceQueue(logicalDevice_, presentQueueFamilyIndex_, 0, &presentQueue_);
     }
 
-    void Vulkan_Renderer_T02::DeleteLogicalDevice()
+    void Vulkan_Renderer_T03::DeleteLogicalDevice()
     {
         vkDestroyDevice(logicalDevice_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateCommandPool()
+    void Vulkan_Renderer_T03::CreateCommandPool()
     {
         VkCommandPoolCreateInfo commandPoolCreateInfo = {};
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -1150,12 +1288,12 @@ namespace Project001
         _VK_CHECK(vkCreateCommandPool(logicalDevice_, &commandPoolCreateInfo, nullptr, &commandPool_));
     }
 
-    void Vulkan_Renderer_T02::DeleteCommandPool()
+    void Vulkan_Renderer_T03::DeleteCommandPool()
     {
         vkDestroyCommandPool(logicalDevice_, commandPool_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateCommandBuffers()
+    void Vulkan_Renderer_T03::CreateCommandBuffers()
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1166,7 +1304,7 @@ namespace Project001
         _VK_CHECK(vkAllocateCommandBuffers(logicalDevice_, &allocInfo, &commandBuffer_));
     }
 
-    void Vulkan_Renderer_T02::CreateSyncObjects()
+    void Vulkan_Renderer_T03::CreateSyncObjects()
     {
         VkFenceCreateInfo fenceInfo = {};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -1181,14 +1319,14 @@ namespace Project001
         _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphore_));
     }
 
-    void Vulkan_Renderer_T02::DeleteSyncObjects()
+    void Vulkan_Renderer_T03::DeleteSyncObjects()
     {
         vkDestroyFence(logicalDevice_, mainFence_, nullptr);
         vkDestroySemaphore(logicalDevice_, imageAvailableSemaphore_, nullptr);
         vkDestroySemaphore(logicalDevice_, renderFinishedSemaphore_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateSwapChain()
+    void Vulkan_Renderer_T03::CreateSwapChain()
     {
         swapchainImageCount_ = surfaceCapabilities_.minImageCount + 1;
         if (surfaceCapabilities_.maxImageCount > 0 &&
@@ -1237,7 +1375,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::DeleteSwapChain()
+    void Vulkan_Renderer_T03::DeleteSwapChain()
     {
         for (size_t i = 0; i < swapchainImageViews_.size(); ++i)
         {
@@ -1249,7 +1387,7 @@ namespace Project001
         vkDestroySwapchainKHR(logicalDevice_, swapchain_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateDataBuffers()
+    void Vulkan_Renderer_T03::CreateDataBuffers()
     {
         VkDeviceSize vertexBufferSize = sizeof(VertexData) * s_vertexBufferCapacity_;
         VkDeviceSize indexBufferSize = sizeof(uint32_t) * s_indexBufferCapacity_;
@@ -1267,40 +1405,80 @@ namespace Project001
         CreateBuffer(sizeof(VertexShaderUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexShaderUniformBuffer_, vertexShaderUniformBufferMemory_);
 
         CreateBuffer(sizeof(FragmentShaderUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, fragmentShaderUniformBuffer_, fragmentShaderUniformBufferMemory_);
+
+        float screenQuadVertices[] = {
+            // positions   // textureCoordinates
+            -1.0f,  1.0f,  0.0f, 0.0f,
+            -1.0f, -1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 1.0f,
+
+            -1.0f,  1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 1.0f,
+             1.0f,  1.0f,  1.0f, 0.0f
+        };
+
+        size_t screenVerticiesSize = sizeof(screenQuadVertices);
+        VkBuffer screenVertexStagingBuffer;
+        VkDeviceMemory screenVertexStagingBufferMemory;
+        CreateBuffer(screenVerticiesSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, screenVertexStagingBuffer, screenVertexStagingBufferMemory);
+
+        void* screenVertexStagingBufferDataPtr;
+        _VK_CHECK(vkMapMemory(logicalDevice_, screenVertexStagingBufferMemory, 0, screenVerticiesSize, 0, &screenVertexStagingBufferDataPtr));
+        memcpy(screenVertexStagingBufferDataPtr, screenQuadVertices, screenVerticiesSize);
+
+        CreateBuffer(screenVerticiesSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, screenVertexBuffer_, screenVertexBufferMemory_);
+
+        VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+        VkBufferCopy vertexCopyRegion = {};
+        vertexCopyRegion.size = screenVerticiesSize;
+        vkCmdCopyBuffer(commandBuffer, screenVertexStagingBuffer, screenVertexBuffer_, 1, &vertexCopyRegion);
+
+        EndSingleTimeCommands(commandBuffer);
+
+        vkUnmapMemory(logicalDevice_, screenVertexStagingBufferMemory);
+        vkDestroyBuffer(logicalDevice_, screenVertexStagingBuffer, nullptr);
+        vkFreeMemory(logicalDevice_, screenVertexStagingBufferMemory, nullptr);
     }
 
-    void Vulkan_Renderer_T02::DeleteDataBuffers()
+    void Vulkan_Renderer_T03::DeleteDataBuffers()
     {
-        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory_);
-        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory_, nullptr);
+        vkDestroyBuffer(logicalDevice_, screenVertexBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, screenVertexBufferMemory_, nullptr);
+
+        vkDestroyBuffer(logicalDevice_, fragmentShaderUniformBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, nullptr);
+
+        vkDestroyBuffer(logicalDevice_, vertexShaderUniformBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, vertexShaderUniformBufferMemory_, nullptr);
+
+        vkDestroyBuffer(logicalDevice_, indexBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, indexBufferMemory_, nullptr);
+
+        vkDestroyBuffer(logicalDevice_, vertexBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, vertexBufferMemory_, nullptr);
 
         vkUnmapMemory(logicalDevice_, indexStagingBufferMemory_);
         vkDestroyBuffer(logicalDevice_, indexStagingBuffer_, nullptr);
         vkFreeMemory(logicalDevice_, indexStagingBufferMemory_, nullptr);
 
-        vkDestroyBuffer(logicalDevice_, vertexBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, vertexBufferMemory_, nullptr);
-
-        vkDestroyBuffer(logicalDevice_, indexBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, indexBufferMemory_, nullptr);
-
-        vkDestroyBuffer(logicalDevice_, vertexShaderUniformBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, vertexShaderUniformBufferMemory_, nullptr);
+        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateDefaultTexture()
+    void Vulkan_Renderer_T03::CreateDefaultTexture()
     {
         unsigned char data[4] = { 255, 255, 255, 255 };
         CreateTexture(data, 1, 1, 4, false, false, defaultTexture_);
     }
 
-    void Vulkan_Renderer_T02::DeleteDefaultTexture()
+    void Vulkan_Renderer_T03::DeleteDefaultTexture()
     {
         DeleteTexture(defaultTexture_);
     }
 
-    void Vulkan_Renderer_T02::CreateDescriptorSetLayouts()
+    void Vulkan_Renderer_T03::CreateDescriptorSetLayouts()
     {
         VkDescriptorSetLayoutBinding vsuboLayoutBinding = {};
         vsuboLayoutBinding.binding = 0;
@@ -1329,47 +1507,66 @@ namespace Project001
         layoutInfo.bindingCount = (uint32_t)bindings.size();
         layoutInfo.pBindings = bindings.data();
 
-        _VK_CHECK(vkCreateDescriptorSetLayout(logicalDevice_, &layoutInfo, nullptr, &descriptorSetLayout_));
+        _VK_CHECK(vkCreateDescriptorSetLayout(logicalDevice_, &layoutInfo, nullptr, &primaryDescriptorSetLayout_));
+
+        samplerLayoutBinding = {};
+        samplerLayoutBinding.binding = 0;
+        samplerLayoutBinding.descriptorCount = 1;
+        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        samplerLayoutBinding.pImmutableSamplers = nullptr;
+        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &samplerLayoutBinding;
+
+        _VK_CHECK(vkCreateDescriptorSetLayout(logicalDevice_, &layoutInfo, nullptr, &secondaryDescriptorSetLayout_));
     }
 
-    void Vulkan_Renderer_T02::DeleteDescriptorSetLayouts()
+    void Vulkan_Renderer_T03::DeleteDescriptorSetLayouts()
     {
-        vkDestroyDescriptorSetLayout(logicalDevice_, descriptorSetLayout_, nullptr);
+        vkDestroyDescriptorSetLayout(logicalDevice_, secondaryDescriptorSetLayout_, nullptr);
+        vkDestroyDescriptorSetLayout(logicalDevice_, primaryDescriptorSetLayout_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateDescriptorPool()
+    void Vulkan_Renderer_T03::CreateDescriptorPool()
     {
         std::array<VkDescriptorPoolSize, 2> poolSizes = {};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = 2;
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[1].descriptorCount = NUMBER_OF_TEXTURE_UNITS;
+        poolSizes[1].descriptorCount = NUMBER_OF_TEXTURE_UNITS + 1;
 
         VkDescriptorPoolCreateInfo poolInfo = {};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         poolInfo.poolSizeCount = (uint32_t)poolSizes.size();
         poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = 1;
+        poolInfo.maxSets = 2;
 
         _VK_CHECK(vkCreateDescriptorPool(logicalDevice_, &poolInfo, nullptr, &descriptorPool_));
     }
 
-    void Vulkan_Renderer_T02::DeleteDescriptorPool()
+    void Vulkan_Renderer_T03::DeleteDescriptorPool()
     {
         vkDestroyDescriptorPool(logicalDevice_, descriptorPool_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateDescriptorSets()
+    void Vulkan_Renderer_T03::CreateDescriptorSets()
     {
         VkDescriptorSetAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool_;
         allocInfo.descriptorSetCount = 1;
-        allocInfo.pSetLayouts = &descriptorSetLayout_;
+        allocInfo.pSetLayouts = &primaryDescriptorSetLayout_;
 
-        _VK_CHECK(vkAllocateDescriptorSets(logicalDevice_, &allocInfo, &descriptorSet_));
+        _VK_CHECK(vkAllocateDescriptorSets(logicalDevice_, &allocInfo, &primaryDescriptorSet_));
 
-        std::array<VkWriteDescriptorSet, 2 + NUMBER_OF_TEXTURE_UNITS> descriptorWrites = {};
+        allocInfo.pSetLayouts = &secondaryDescriptorSetLayout_;
+
+        _VK_CHECK(vkAllocateDescriptorSets(logicalDevice_, &allocInfo, &secondaryDescriptorSet_));
+
+        std::array<VkWriteDescriptorSet, 2 + NUMBER_OF_TEXTURE_UNITS + 1> descriptorWrites = {};
 
         VkDescriptorBufferInfo bufferInfo1 = {};
         bufferInfo1.buffer = vertexShaderUniformBuffer_;
@@ -1377,7 +1574,7 @@ namespace Project001
         bufferInfo1.range = sizeof(VertexShaderUniformBufferObject);
 
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSet_;
+        descriptorWrites[0].dstSet = primaryDescriptorSet_;
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1390,7 +1587,7 @@ namespace Project001
         bufferInfo2.range = sizeof(FragmentShaderUniformBufferObject);
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSet_;
+        descriptorWrites[1].dstSet = primaryDescriptorSet_;
         descriptorWrites[1].dstBinding = 1;
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1405,7 +1602,7 @@ namespace Project001
         for (size_t i = 0; i < NUMBER_OF_TEXTURE_UNITS; i++)
         {
             descriptorWrites[2 + i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[2 + i].dstSet = descriptorSet_;
+            descriptorWrites[2 + i].dstSet = primaryDescriptorSet_;
             descriptorWrites[2 + i].dstBinding = 2;
             descriptorWrites[2 + i].dstArrayElement = (uint32_t)i;
             descriptorWrites[2 + i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1413,25 +1610,38 @@ namespace Project001
             descriptorWrites[2 + i].pImageInfo = &imageInfo;
         }
 
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].dstSet = secondaryDescriptorSet_;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].dstBinding = 0;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].dstArrayElement = 0;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].descriptorCount = 1;
+        descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].pImageInfo = &imageInfo;
+
         vkUpdateDescriptorSets(logicalDevice_, (uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreatePipelineLayouts()
+    void Vulkan_Renderer_T03::CreatePipelineLayouts()
     {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout_;
+        pipelineLayoutInfo.pSetLayouts = &primaryDescriptorSetLayout_;
 
-        _VK_CHECK(vkCreatePipelineLayout(logicalDevice_, &pipelineLayoutInfo, nullptr, &pipelineLayout_));
+        _VK_CHECK(vkCreatePipelineLayout(logicalDevice_, &pipelineLayoutInfo, nullptr, &primaryPipelineLayout_));
+
+        pipelineLayoutInfo.pSetLayouts = &secondaryDescriptorSetLayout_;
+
+        _VK_CHECK(vkCreatePipelineLayout(logicalDevice_, &pipelineLayoutInfo, nullptr, &secondaryPipelineLayout_));
     }
 
-    void Vulkan_Renderer_T02::DeletePipelineLayouts()
+    void Vulkan_Renderer_T03::DeletePipelineLayouts()
     {
-        vkDestroyPipelineLayout(logicalDevice_, pipelineLayout_, nullptr);
+        vkDestroyPipelineLayout(logicalDevice_, secondaryPipelineLayout_, nullptr);
+        vkDestroyPipelineLayout(logicalDevice_, primaryPipelineLayout_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateBatchShaderModules()
+    void Vulkan_Renderer_T03::CreateBatchShaderModules()
     {
         std::vector<char> vertShaderCode = ReadFile("../Shaders/batchShader_vert.spv");
         std::vector<char> fragShaderCode = ReadFile("../Shaders/batchShader_frag.spv");
@@ -1440,13 +1650,109 @@ namespace Project001
         fragmentBatchShaderModule_ = CreateShaderModule(fragShaderCode);
     }
 
-    void Vulkan_Renderer_T02::DeleteBatchShaderModules()
+    void Vulkan_Renderer_T03::DeleteBatchShaderModules()
     {
         vkDestroyShaderModule(logicalDevice_, fragmentBatchShaderModule_, nullptr);
         vkDestroyShaderModule(logicalDevice_, vertexBatchShaderModule_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateRenderPass()
+    void Vulkan_Renderer_T03::CreatePrimaryRenderPasses()
+    {
+        CreateImage(
+            frameBufferWidth_,
+            frameBufferHeight_,
+            1,
+            VK_SAMPLE_COUNT_1_BIT,
+            s_textureFormat,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            screenTexture_.textureImage_,
+            screenTexture_.textureImageMemory_
+        );
+
+        screenTexture_.textureImageView_ = CreateImageView(
+            screenTexture_.textureImage_,
+            s_textureFormat,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            1
+        );
+
+        TransitionImageLayout(
+            screenTexture_.textureImage_,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            1
+        );
+
+        VkSamplerCreateInfo samplerInfo = {};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_NEAREST;
+        samplerInfo.minFilter = VK_FILTER_NEAREST;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 1.0f;
+        samplerInfo.mipLodBias = 0.0f;
+
+        _VK_CHECK(vkCreateSampler(logicalDevice_, &samplerInfo, nullptr, &screenTexture_.textureSampler_));
+
+        primaryRenderPass1_ = CreatePrimaryRenderPass(false, false);
+
+        VkFramebufferCreateInfo framebufferCreateInfo = {};
+        framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferCreateInfo.renderPass = primaryRenderPass1_;
+        framebufferCreateInfo.attachmentCount = 1;
+        framebufferCreateInfo.pAttachments = &screenTexture_.textureImageView_;
+        framebufferCreateInfo.width = frameBufferWidth_;
+        framebufferCreateInfo.height = frameBufferHeight_;
+        framebufferCreateInfo.layers = 1;
+
+        _VK_CHECK(vkCreateFramebuffer(logicalDevice_, &framebufferCreateInfo, nullptr, &screenFrameBuffer1_));
+
+        ApplyScreenTextureBinding();
+    }
+
+    void Vulkan_Renderer_T03::DeletePrimaryRenderPasses()
+    {
+        vkDestroyFramebuffer(logicalDevice_, screenFrameBuffer1_, nullptr);
+        vkDestroyRenderPass(logicalDevice_, primaryRenderPass1_, nullptr);
+
+        DeleteTexture(screenTexture_);
+    }
+
+    void Vulkan_Renderer_T03::CreatePrimaryGraphicsPipelines()
+    {
+        primaryGraphicsPipeline1_ = CreatePrimaryGraphicsPipeline(primaryRenderPass1_, false, false);
+    }
+
+    void Vulkan_Renderer_T03::DeletePrimaryGraphicsPipelines()
+    {
+        vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline1_, nullptr);
+    }
+
+    void Vulkan_Renderer_T03::CreateScreenShaderModules()
+    {
+        std::vector<char> vertShaderCode = ReadFile("../Shaders/screenShader_vert.spv");
+        std::vector<char> fragShaderCode = ReadFile("../Shaders/screenShader_frag.spv");
+
+        vertexScreenShaderModule_ = CreateShaderModule(vertShaderCode);
+        fragmentScreenShaderModule_ = CreateShaderModule(fragShaderCode);
+    }
+
+    void Vulkan_Renderer_T03::DeleteScreenShaderModules()
+    {
+        vkDestroyShaderModule(logicalDevice_, fragmentScreenShaderModule_, nullptr);
+        vkDestroyShaderModule(logicalDevice_, vertexScreenShaderModule_, nullptr);
+    }
+
+    void Vulkan_Renderer_T03::CreateSecondaryRenderPass()
     {
         VkAttachmentDescription colorAttachmentDescription = {};
         colorAttachmentDescription.format = surfaceFormat_.format;
@@ -1484,48 +1790,48 @@ namespace Project001
         renderPassCreateInfo.dependencyCount = 1;
         renderPassCreateInfo.pDependencies = &subpssDependency;
 
-        _VK_CHECK(vkCreateRenderPass(logicalDevice_, &renderPassCreateInfo, nullptr, &renderPass_));
+        _VK_CHECK(vkCreateRenderPass(logicalDevice_, &renderPassCreateInfo, nullptr, &secondaryRenderPass_));
 
-        swapchainFramebuffers_.resize(swapchainImageCount_);
+        swapchainFramebuffers2_.resize(swapchainImageCount_);
         for (size_t i = 0; i < swapchainImageViews_.size(); ++i)
         {
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = renderPass_;
+            framebufferCreateInfo.renderPass = secondaryRenderPass_;
             framebufferCreateInfo.attachmentCount = 1;
             framebufferCreateInfo.pAttachments = &swapchainImageViews_[i];
             framebufferCreateInfo.width = surfaceExtent_.width;
             framebufferCreateInfo.height = surfaceExtent_.height;
             framebufferCreateInfo.layers = 1;
 
-            _VK_CHECK(vkCreateFramebuffer(logicalDevice_, &framebufferCreateInfo, nullptr, &swapchainFramebuffers_[i]));
+            _VK_CHECK(vkCreateFramebuffer(logicalDevice_, &framebufferCreateInfo, nullptr, &swapchainFramebuffers2_[i]));
         }
     }
 
-    void Vulkan_Renderer_T02::DeleteRenderPass()
+    void Vulkan_Renderer_T03::DeleteSecondaryRenderPass()
     {
-        for (size_t i = 0; i < swapchainFramebuffers_.size(); ++i)
+        for (size_t i = 0; i < swapchainFramebuffers2_.size(); ++i)
         {
-            const VkFramebuffer& framebuffer = swapchainFramebuffers_[i];
+            const VkFramebuffer& framebuffer = swapchainFramebuffers2_[i];
             vkDestroyFramebuffer(logicalDevice_, framebuffer, nullptr);
         }
-        swapchainFramebuffers_.clear();
+        swapchainFramebuffers2_.clear();
 
-        vkDestroyRenderPass(logicalDevice_, renderPass_, nullptr);
+        vkDestroyRenderPass(logicalDevice_, secondaryRenderPass_, nullptr);
     }
 
-    void Vulkan_Renderer_T02::CreateGraphicsPipeline()
+    void Vulkan_Renderer_T03::CreateSecondaryGraphicsPipeline()
     {
         VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertexBatchShaderModule_;
+        vertShaderStageInfo.module = vertexScreenShaderModule_;
         vertShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
         fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragmentBatchShaderModule_;
+        fragShaderStageInfo.module = fragmentScreenShaderModule_;
         fragShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
@@ -1535,64 +1841,19 @@ namespace Project001
 
         VkVertexInputBindingDescription bindingDescription = {};
         bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(VertexData);
+        bindingDescription.stride = 16;
         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-        std::array<VkVertexInputAttributeDescription, 11> attributeDescriptions = {};
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(VertexData, position);
+        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].offset = 0;
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(VertexData, textureCoordinate);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(VertexData, normal);
-
-        attributeDescriptions[3].binding = 0;
-        attributeDescriptions[3].location = 3;
-        attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[3].offset = offsetof(VertexData, color);
-
-        attributeDescriptions[4].binding = 0;
-        attributeDescriptions[4].location = 4;
-        attributeDescriptions[4].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[4].offset = offsetof(VertexData, textureUnit);
-
-        attributeDescriptions[5].binding = 0;
-        attributeDescriptions[5].location = 5;
-        attributeDescriptions[5].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[5].offset = offsetof(VertexData, specularUnit);
-
-        attributeDescriptions[6].binding = 0;
-        attributeDescriptions[6].location = 6;
-        attributeDescriptions[6].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[6].offset = offsetof(VertexData, shininess);
-
-        attributeDescriptions[7].binding = 0;
-        attributeDescriptions[7].location = 7;
-        attributeDescriptions[7].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[7].offset = offsetof(VertexData, scale);
-
-        attributeDescriptions[8].binding = 0;
-        attributeDescriptions[8].location = 8;
-        attributeDescriptions[8].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[8].offset = offsetof(VertexData, translation);
-
-        attributeDescriptions[9].binding = 0;
-        attributeDescriptions[9].location = 9;
-        attributeDescriptions[9].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[9].offset = offsetof(VertexData, orientation);
-
-        attributeDescriptions[10].binding = 0;
-        attributeDescriptions[10].location = 10;
-        attributeDescriptions[10].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[10].offset = offsetof(VertexData, lit);
+        attributeDescriptions[1].offset = 8;
 
         vertexInputInfo.vertexBindingDescriptionCount = 1;
         vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)attributeDescriptions.size();
@@ -1625,13 +1886,7 @@ namespace Project001
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-        colorBlendAttachment.blendEnable = VK_TRUE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.blendEnable = VK_FALSE;
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
         VkPipelineColorBlendStateCreateInfo colorBlending = {};
@@ -1663,25 +1918,24 @@ namespace Project001
         pipelineInfo.pMultisampleState = &multisampling;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = pipelineLayout_;
-        pipelineInfo.renderPass = renderPass_;
+        pipelineInfo.layout = secondaryPipelineLayout_;
+        pipelineInfo.renderPass = secondaryRenderPass_;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        _VK_CHECK(vkCreateGraphicsPipelines(logicalDevice_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_));
+        _VK_CHECK(vkCreateGraphicsPipelines(logicalDevice_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &secondaryGraphicsPipeline_));
     }
 
-    void Vulkan_Renderer_T02::DeleteGraphicsPipeline()
+    void Vulkan_Renderer_T03::DeleteSecondaryGraphicsPipeline()
     {
-        vkDestroyPipeline(logicalDevice_, graphicsPipeline_, nullptr);
+        vkDestroyPipeline(logicalDevice_, secondaryGraphicsPipeline_, nullptr);
     }
 
 
 
 
 
-
-    void Vulkan_Renderer_T02::AcquireNextImage()
+    void Vulkan_Renderer_T03::AcquireNextImage()
     {
         _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
         _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
@@ -1690,7 +1944,7 @@ namespace Project001
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
-            // RecreateSwapChain();
+            // TODO: Recreate Swapchain
             return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -1744,7 +1998,7 @@ namespace Project001
         _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
     }
 
-    VkImageView Vulkan_Renderer_T02::CreateImageView(
+    VkImageView Vulkan_Renderer_T03::CreateImageView(
         VkImage image,
         VkFormat format,
         VkImageAspectFlags imageAspectFlags,
@@ -1767,7 +2021,7 @@ namespace Project001
         return imageView;
     }
 
-    void Vulkan_Renderer_T02::CreateImage(
+    void Vulkan_Renderer_T03::CreateImage(
         uint32_t width,
         uint32_t height,
         uint32_t mipLevels,
@@ -1808,7 +2062,7 @@ namespace Project001
         _VK_CHECK(vkBindImageMemory(logicalDevice_, image, imageMemory, 0));
     }
 
-    void Vulkan_Renderer_T02::CreateBuffer(
+    void Vulkan_Renderer_T03::CreateBuffer(
         VkDeviceSize size,
         VkBufferUsageFlags usage,
         VkMemoryPropertyFlags properties,
@@ -1835,7 +2089,7 @@ namespace Project001
         _VK_CHECK(vkBindBufferMemory(logicalDevice_, buffer, bufferMemory, 0));
     }
 
-    uint32_t Vulkan_Renderer_T02::FindMemoryType(
+    uint32_t Vulkan_Renderer_T03::FindMemoryType(
         uint32_t typeFilter,
         VkMemoryPropertyFlags memoryPropertyFlags)
     {
@@ -1856,7 +2110,7 @@ namespace Project001
         return (uint32_t)-1;
     }
 
-    void Vulkan_Renderer_T02::CreateTexture(
+    void Vulkan_Renderer_T03::CreateTexture(
         unsigned char* data,
         unsigned int width,
         unsigned int height,
@@ -1977,7 +2231,7 @@ namespace Project001
         _VK_CHECK(vkCreateSampler(logicalDevice_, &samplerInfo, nullptr, &texture.textureSampler_));
     }
 
-    void Vulkan_Renderer_T02::DeleteTexture(Vulkan_Texture& texture)
+    void Vulkan_Renderer_T03::DeleteTexture(Vulkan_Texture& texture)
     {
         vkDestroySampler(logicalDevice_, texture.textureSampler_, nullptr);
         vkDestroyImageView(logicalDevice_, texture.textureImageView_, nullptr);
@@ -1985,7 +2239,7 @@ namespace Project001
         vkFreeMemory(logicalDevice_, texture.textureImageMemory_, nullptr);
     }
 
-    int Vulkan_Renderer_T02::GetTextureUnit(unsigned int textureId, float& textureUnit)
+    int Vulkan_Renderer_T03::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
         if (textureIdToUnitBiMap_.Find_X(textureId))
         {
@@ -2019,7 +2273,7 @@ namespace Project001
         return 0;
     }
 
-    bool Vulkan_Renderer_T02::GetStalestTextureUnit(unsigned int& textureUnit) const
+    bool Vulkan_Renderer_T03::GetStalestTextureUnit(unsigned int& textureUnit) const
     {
         unsigned int stalestValue = 0;
 
@@ -2035,7 +2289,7 @@ namespace Project001
         return stalestValue > 0;
     }
 
-    void Vulkan_Renderer_T02::IncreaseTectureUnitStaleness()
+    void Vulkan_Renderer_T03::IncreaseTectureUnitStaleness()
     {
         for (size_t i = 0; i < NUMBER_OF_TEXTURE_UNITS; ++i)
         {
@@ -2043,7 +2297,7 @@ namespace Project001
         }
     }
 
-    bool Vulkan_Renderer_T02::BindTexture(
+    bool Vulkan_Renderer_T03::BindTexture(
         unsigned int textureId,
         unsigned int textureUnit)
     {
@@ -2059,7 +2313,7 @@ namespace Project001
         }
     }
 
-    void Vulkan_Renderer_T02::ApplyTextureBindings()
+    void Vulkan_Renderer_T03::ApplyTextureBindings()
     {
         std::array<VkDescriptorImageInfo, NUMBER_OF_TEXTURE_UNITS> imageInfos = {};
         std::array<VkWriteDescriptorSet, NUMBER_OF_TEXTURE_UNITS> descriptorWrites = {};
@@ -2082,7 +2336,7 @@ namespace Project001
             imageInfos[i].sampler = currentTexturePtr->textureSampler_;
 
             descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[i].dstSet = descriptorSet_;
+            descriptorWrites[i].dstSet = primaryDescriptorSet_;
             descriptorWrites[i].dstBinding = 2;
             descriptorWrites[i].dstArrayElement = (uint32_t)i;
             descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -2093,7 +2347,26 @@ namespace Project001
         vkUpdateDescriptorSets(logicalDevice_, (uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
     }
 
-    void Vulkan_Renderer_T02::TransitionImageLayout(
+    void Vulkan_Renderer_T03::ApplyScreenTextureBinding()
+    {
+        VkDescriptorImageInfo imageInfo = {};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = screenTexture_.textureImageView_;
+        imageInfo.sampler = screenTexture_.textureSampler_;
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = secondaryDescriptorSet_;
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pImageInfo = &imageInfo;
+
+        vkUpdateDescriptorSets(logicalDevice_, 1, &descriptorWrite, 0, nullptr);
+    }
+
+    void Vulkan_Renderer_T03::TransitionImageLayout(
         VkImage image,
         VkImageLayout oldLayout,
         VkImageLayout newLayout,
@@ -2133,6 +2406,14 @@ namespace Project001
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        {
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        }
         else
         {
             _LOG_ERROR("Vulkan Error: Unsupported layout transition!");
@@ -2150,7 +2431,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Vulkan_Renderer_T02::CopyBufferToImage(
+    void Vulkan_Renderer_T03::CopyBufferToImage(
         VkBuffer buffer,
         VkImage image,
         uint32_t width,
@@ -2178,7 +2459,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Vulkan_Renderer_T02::GenerateMipmaps(
+    void Vulkan_Renderer_T03::GenerateMipmaps(
         VkImage image,
         int32_t texWidth,
         int32_t texHeight,
@@ -2268,7 +2549,7 @@ namespace Project001
         EndSingleTimeCommands(commandBuffer);
     }
 
-    VkCommandBuffer Vulkan_Renderer_T02::BeginSingleTimeCommands()
+    VkCommandBuffer Vulkan_Renderer_T03::BeginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -2288,7 +2569,7 @@ namespace Project001
         return commandBuffer;
     }
 
-    void Vulkan_Renderer_T02::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
+    void Vulkan_Renderer_T03::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
     {
         _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
@@ -2303,7 +2584,7 @@ namespace Project001
         vkFreeCommandBuffers(logicalDevice_, commandPool_, 1, &commandBuffer);
     }
 
-    std::vector<char> Vulkan_Renderer_T02::ReadFile(const char* const filePath)
+    std::vector<char> Vulkan_Renderer_T03::ReadFile(const char* const filePath)
     {
         std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
@@ -2324,7 +2605,7 @@ namespace Project001
         return buffer;
     }
 
-    VkShaderModule Vulkan_Renderer_T02::CreateShaderModule(const std::vector<char>& code)
+    VkShaderModule Vulkan_Renderer_T03::CreateShaderModule(const std::vector<char>& code)
     {
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -2337,7 +2618,7 @@ namespace Project001
         return shaderModule;
     }
 
-    VkRenderPass Vulkan_Renderer_T02::CreateRenderPass(
+    VkRenderPass Vulkan_Renderer_T03::CreatePrimaryRenderPass(
         bool depthTesting,
         bool msaa)
     {
@@ -2382,7 +2663,7 @@ namespace Project001
         return renderPass;
     }
 
-    VkPipeline Vulkan_Renderer_T02::CreateGraphicsPipeline(
+    VkPipeline Vulkan_Renderer_T03::CreatePrimaryGraphicsPipeline(
         VkRenderPass& renderPass,
         bool depthTesting,
         bool msaa)
@@ -2534,7 +2815,7 @@ namespace Project001
         pipelineInfo.pMultisampleState = &multisampling;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = pipelineLayout_;
+        pipelineInfo.layout = primaryPipelineLayout_;
         pipelineInfo.renderPass = renderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -2545,8 +2826,8 @@ namespace Project001
     }
 
 #ifndef NDEBUG
-    const bool Vulkan_Renderer_T02::s_enableValidationLayers_ = true;
-    const std::vector<const char*> Vulkan_Renderer_T02::s_validationLayers_ =
+    const bool Vulkan_Renderer_T03::s_enableValidationLayers_ = true;
+    const std::vector<const char*> Vulkan_Renderer_T03::s_validationLayers_ =
     {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -2555,19 +2836,19 @@ namespace Project001
     const std::vector<const char*> VulkanTutorial_Renderer::s_validationLayers_ = {};
 #endif
 
-    const std::vector<const char*> Vulkan_Renderer_T02::s_deviceExtensions_ =
+    const std::vector<const char*> Vulkan_Renderer_T03::s_deviceExtensions_ =
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    const bool Vulkan_Renderer_T02::s_requireSamplerAnisotropy_ = true;
+    const bool Vulkan_Renderer_T03::s_requireSamplerAnisotropy_ = true;
 
-    const unsigned int Vulkan_Renderer_T02::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
-    const unsigned int Vulkan_Renderer_T02::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
+    const unsigned int Vulkan_Renderer_T03::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
+    const unsigned int Vulkan_Renderer_T03::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
 
-    // const VkFormat Vulkan_Renderer_T02::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    // const VkFormat Vulkan_Renderer_T02::s_textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
+    // const VkFormat Vulkan_Renderer_T03::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    // const VkFormat Vulkan_Renderer_T03::s_textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
 
-    const VkFormat Vulkan_Renderer_T02::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_UNORM;
-    const VkFormat Vulkan_Renderer_T02::s_textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    const VkFormat Vulkan_Renderer_T03::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_UNORM;
+    const VkFormat Vulkan_Renderer_T03::s_textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
 }

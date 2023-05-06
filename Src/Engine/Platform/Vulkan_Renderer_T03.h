@@ -11,16 +11,16 @@
 
 namespace Project001
 {
-    class Vulkan_Renderer_T02 : public Renderer
+    class Vulkan_Renderer_T03 : public Renderer
     {
     public:
-        Vulkan_Renderer_T02(
+        Vulkan_Renderer_T03(
             Window* windowPtr,
             unsigned int width,
             unsigned int height,
             bool multisampleAntiAliasing);
 
-        ~Vulkan_Renderer_T02() override;
+        ~Vulkan_Renderer_T03() override;
 
         void SetDepthTesting(bool depthTesting) override;
 
@@ -176,12 +176,20 @@ namespace Project001
         void CreateBatchShaderModules();
         void DeleteBatchShaderModules();
 
-        void CreateRenderPass();
-        void DeleteRenderPass();
+        void CreatePrimaryRenderPasses();
+        void DeletePrimaryRenderPasses();
 
-        void CreateGraphicsPipeline();
-        void DeleteGraphicsPipeline();
+        void CreatePrimaryGraphicsPipelines();
+        void DeletePrimaryGraphicsPipelines();
 
+        void CreateScreenShaderModules();
+        void DeleteScreenShaderModules();
+
+        void CreateSecondaryRenderPass();
+        void DeleteSecondaryRenderPass();
+
+        void CreateSecondaryGraphicsPipeline();
+        void DeleteSecondaryGraphicsPipeline();
 
 
 
@@ -248,6 +256,8 @@ namespace Project001
 
         void ApplyTextureBindings();
 
+        void ApplyScreenTextureBinding();
+
         void TransitionImageLayout(
             VkImage image,
             VkImageLayout oldLayout,
@@ -273,11 +283,11 @@ namespace Project001
 
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
-        VkRenderPass CreateRenderPass(
+        VkRenderPass CreatePrimaryRenderPass(
             bool depthTesting,
             bool msaa);
 
-        VkPipeline CreateGraphicsPipeline(
+        VkPipeline CreatePrimaryGraphicsPipeline(
             VkRenderPass& renderPass,
             bool depthTesting,
             bool msaa);
@@ -369,23 +379,39 @@ namespace Project001
         VkBuffer fragmentShaderUniformBuffer_;
         VkDeviceMemory fragmentShaderUniformBufferMemory_;
 
+        VkBuffer screenVertexBuffer_;
+        VkDeviceMemory screenVertexBufferMemory_;
+
         Vulkan_Texture defaultTexture_;
 
-        VkDescriptorSetLayout descriptorSetLayout_;
+        VkDescriptorSetLayout primaryDescriptorSetLayout_;
+        VkDescriptorSetLayout secondaryDescriptorSetLayout_;
 
         VkDescriptorPool descriptorPool_;
 
-        VkDescriptorSet descriptorSet_;
+        VkDescriptorSet primaryDescriptorSet_;
+        VkDescriptorSet secondaryDescriptorSet_;
 
         VkShaderModule vertexBatchShaderModule_;
         VkShaderModule fragmentBatchShaderModule_;
 
-        VkPipelineLayout pipelineLayout_;
+        VkPipelineLayout primaryPipelineLayout_;
+        VkPipelineLayout secondaryPipelineLayout_;
 
-        VkRenderPass renderPass_;
-        std::vector<VkFramebuffer> swapchainFramebuffers_;
+        VkRenderPass primaryRenderPass1_;
+        VkFramebuffer screenFrameBuffer1_;
 
-        VkPipeline graphicsPipeline_;
+        Vulkan_Texture screenTexture_;
+
+        VkPipeline primaryGraphicsPipeline1_;
+
+        VkShaderModule vertexScreenShaderModule_;
+        VkShaderModule fragmentScreenShaderModule_;
+
+        VkRenderPass secondaryRenderPass_;
+        std::vector<VkFramebuffer> swapchainFramebuffers2_;
+
+        VkPipeline secondaryGraphicsPipeline_;
 
         VkCommandPool commandPool_;
 
@@ -405,21 +431,21 @@ namespace Project001
     private:
     };
 
-    inline void Vulkan_Renderer_T02::SetDepthTesting(
+    inline void Vulkan_Renderer_T03::SetDepthTesting(
         bool depthTesting)
     {
         depthTesting_ = depthTesting;
         depthTestingChanged_ = true;
     }
 
-    inline void Vulkan_Renderer_T02::SetMultisampleAntiAliasing(
+    inline void Vulkan_Renderer_T03::SetMultisampleAntiAliasing(
         bool multisampleAntiAliasing)
     {
         multisampleAntiAliasing_ = multisampleAntiAliasing;
         msaaChanged_ = true;
     }
 
-    inline void Vulkan_Renderer_T02::SetFramebufferSize(
+    inline void Vulkan_Renderer_T03::SetFramebufferSize(
         unsigned int width,
         unsigned int height)
     {
@@ -428,7 +454,7 @@ namespace Project001
         framebufferResized_ = true;
     }
 
-    inline void Vulkan_Renderer_T02::GetViewport(
+    inline void Vulkan_Renderer_T03::GetViewport(
         unsigned int& x,
         unsigned int& y,
         unsigned int& width,
@@ -440,7 +466,7 @@ namespace Project001
         height = viewportHeight_;
     }
 
-    inline void Vulkan_Renderer_T02::SetViewport(
+    inline void Vulkan_Renderer_T03::SetViewport(
         unsigned int x,
         unsigned int y,
         unsigned int width,
@@ -452,32 +478,32 @@ namespace Project001
         viewportHeight_ = height;
     }
 
-    inline void Vulkan_Renderer_T02::SetBorderColor(const glm::vec4& color)
+    inline void Vulkan_Renderer_T03::SetBorderColor(const glm::vec4& color)
     {
         borderColor_ = color;
     }
 
-    inline void Vulkan_Renderer_T02::SetClearColor(const glm::vec4& color)
+    inline void Vulkan_Renderer_T03::SetClearColor(const glm::vec4& color)
     {
         clearColor_ = color;
     }
 
-    inline void Vulkan_Renderer_T02::SetViewMatrix(const glm::mat4& viewMatrix)
+    inline void Vulkan_Renderer_T03::SetViewMatrix(const glm::mat4& viewMatrix)
     {
         viewMatrix_ = viewMatrix;
     }
 
-    inline void Vulkan_Renderer_T02::SetViewPosition(const glm::vec3& viewPosition)
+    inline void Vulkan_Renderer_T03::SetViewPosition(const glm::vec3& viewPosition)
     {
         viewPosition_ = viewPosition;
     }
 
-    inline void Vulkan_Renderer_T02::SetProjectionMatrix(const glm::mat4& projectionMatrix)
+    inline void Vulkan_Renderer_T03::SetProjectionMatrix(const glm::mat4& projectionMatrix)
     {
         projectionMatrix_ = projectionMatrix;
     }
 
-    inline void Vulkan_Renderer_T02::SetDirectionalLight(
+    inline void Vulkan_Renderer_T03::SetDirectionalLight(
         const glm::vec3& direction,
         const glm::vec3& ambient,
         const glm::vec3& diffuse,
@@ -489,7 +515,7 @@ namespace Project001
         directionalLight_.specular = specular;
     }
 
-    inline void Vulkan_Renderer_T02::ClearDirectionalLight()
+    inline void Vulkan_Renderer_T03::ClearDirectionalLight()
     {
         directionalLight_.direction = glm::vec3(0.0f, 0.0f, -1.0f);
         directionalLight_.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -497,12 +523,12 @@ namespace Project001
         directionalLight_.specular = glm::vec3(0.0f, 0.0f, 0.0f);
     }
 
-    inline void Vulkan_Renderer_T02::ClearPointLights()
+    inline void Vulkan_Renderer_T03::ClearPointLights()
     {
         pointLights_.clear();
     }
 
-    inline void Vulkan_Renderer_T02::ClearSpotLights()
+    inline void Vulkan_Renderer_T03::ClearSpotLights()
     {
         spotLights_.clear();
     }

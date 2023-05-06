@@ -178,6 +178,8 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/Vulkan_Renderer_T01.h"
     "Src/Engine/Platform/Vulkan_Renderer_T02.cpp"
     "Src/Engine/Platform/Vulkan_Renderer_T02.h"
+    "Src/Engine/Platform/Vulkan_Renderer_T03.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer_T03.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
