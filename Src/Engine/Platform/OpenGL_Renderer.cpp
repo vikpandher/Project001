@@ -1134,8 +1134,8 @@ namespace Project001
     const bool OpenGL_Renderer::s_drawNormals = false;
     const bool OpenGL_Renderer::s_drawGrid = false;
 
-    const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4194304; // 8192;
-    const unsigned int OpenGL_Renderer::s_vertexBufferCapacity_ = 4194304; // 6144;
+    const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
+    const unsigned int OpenGL_Renderer::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
 
     const unsigned int OpenGL_Renderer::s_numberOfTextureUnits_ = 16;
 

@@ -3,8 +3,8 @@
 
 #if (('1234' >> 24) == '1')
     #define LITTLE_ENDIAN
-// #elif (('4321' >> 24) == '1')
-//     #define BIG_ENDIAN
+#elif (('4321' >> 24) == '1')
+    #define BIG_ENDIAN
 #else
     #error "Couldn't determine the endianness!"
 #endif
@@ -21,17 +21,13 @@
 #include "TestScene012.h"
 #include "TestScene013.h"
 #include "TestScene020.h"
-#include "TestScene100.h"
 
 
 
 int main(int argc, char** argv)
 {
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * 6, 160 * 6);
-
-    // 
-    TestScene100* testScene100Ptr = new TestScene100();
-    applicationPtr->AddScene(testScene100Ptr);
+    const size_t sizeScalar = 4;
+    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * sizeScalar, 160 * sizeScalar);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -86,7 +82,6 @@ int main(int argc, char** argv)
     delete testScene012Ptr;
     delete testScene013Ptr;
     delete testScene020Ptr;
-    delete testScene100Ptr;
 
     return 0;
 }

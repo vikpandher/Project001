@@ -1,7 +1,7 @@
 #include "Engine/Renderer.h"
 
 #ifdef VULKAN_MODE
-#include "Engine/Platform/Vulkan_Renderer_T03.h"
+#include "Engine/Platform/Vulkan_Renderer.h"
 #else
 #include "Engine/Platform/OpenGL_Renderer.h"
 #endif
@@ -17,7 +17,7 @@ namespace Project001
         unsigned int height)
     {
 #ifdef VULKAN_MODE
-        return new Vulkan_Renderer_T03(windowPtr, width, height, true);
+        return new Vulkan_Renderer(windowPtr, width, height, true);
 #else
         return new OpenGL_Renderer(windowPtr, width, height, true);
 #endif

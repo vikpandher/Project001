@@ -8,19 +8,24 @@ cmake_minimum_required(VERSION 3.14.5)
 option(PRINT_DEBUG_OUTPUT "" TRUE)
 
 # https://github.com/freetype/freetype.git
-set(CMAKE_FREETYPE_REPO "C:/Users/vikpa/Documents/Dev/freetype")
+set(CMAKE_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include")
+set(CMAKE_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib")
 # https://glad.dav1d.de/
-set(CMAKE_GLAD_FILES "C:/Users/vikpa/Documents/Dev/glad")
+set(CMAKE_GLAD_INCLUDE "C:/Users/vikpa/Documents/Dev/glad/include")
+set(CMAKE_GLAD_FILE "C:/Users/vikpa/Documents/Dev/glad/src/glad.c")
 # https://github.com/glfw/glfw.git
-set(CMAKE_GLFW_REPO "C:/Users/vikpa/Documents/Dev/glfw")
+set(CMAKE_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include")
+set(CMAKE_GLFW_LIBRARY "C:/Users/vikpa/Documents/Dev/glfw/build/src/Release/glfw3.lib")
 # https://github.com/g-truc/glm.git
-set(CMAKE_GLM_REPO "C:/Users/vikpa/Documents/Dev/glm")
+set(CMAKE_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm")
 # https://github.com/kcat/openal-soft.git
-set(CMAKE_OPENAL_REPO "C:/Users/vikpa/Documents/Dev/openal-soft")
+set(CMAKE_OPENAL_INCLUDE "C:/Users/vikpa/Documents/Dev/openal-soft/include")
+set(CMAKE_OPENAL_LIBRARY "C:/Users/vikpa/Documents/Dev/openal-soft/build/Release/OpenAL32.lib")
 # https://github.com/nothings/stb.git
-set(CMAKE_STB_REPO "C:/Users/vikpa/Documents/Dev/stb")
+set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
-set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
+set(CMAKE_VULKAN_INCLUDE "C:/VulkanSDK/1.3.224.1/Include")
+set(CMAKE_VULKAN_LIBRARY "C:/VulkanSDK/1.3.224.1/Lib/vulkan-1.lib")
 
 set(CMAKE_VULKAN_MODE ON)
 
@@ -76,8 +81,6 @@ set(SOURCE_FILES
     "Src/TestScene013.h"
     "Src/TestScene020.cpp"
     "Src/TestScene020.h"
-    "Src/TestScene100.cpp"
-    "Src/TestScene100.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
@@ -158,7 +161,7 @@ set (MATH_FILES
 source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_FILES
-    "${CMAKE_GLAD_FILES}/src/glad.c"
+    "${CMAKE_GLAD_FILE}"
     "Src/Engine/Platform/GLFW_Window.cpp"
     "Src/Engine/Platform/GLFW_Window.h"
     "Src/Engine/Platform/OpenAL_Error.h"
@@ -172,14 +175,8 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Texture.cpp"
     "Src/Engine/Platform/OpenGL_Texture.h"
     "Src/Engine/Platform/Vulkan_Error.h"
-    "Src/Engine/Platform/Vulkan_Renderer_E01.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer_E01.h"
-    "Src/Engine/Platform/Vulkan_Renderer_T01.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer_T01.h"
-    "Src/Engine/Platform/Vulkan_Renderer_T02.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer_T02.h"
-    "Src/Engine/Platform/Vulkan_Renderer_T03.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer_T03.h"
+    "Src/Engine/Platform/Vulkan_Renderer.cpp"
+    "Src/Engine/Platform/Vulkan_Renderer.h"
 )
 
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
@@ -205,19 +202,19 @@ add_executable("${PROJECT_NAME}" # WIN32
 )
 
 target_include_directories("${PROJECT_NAME}"
-    PUBLIC 
-    "${CMAKE_FREETYPE_REPO}/include"
-    "${CMAKE_GLAD_FILES}/include"
-    "${CMAKE_GLFW_REPO}/include"
-    "${CMAKE_GLM_REPO}"
-    "${CMAKE_OPENAL_REPO}/include"
-    "${CMAKE_STB_REPO}"
-    "${CMAKE_VULKAN_REPO}/Include"
+    PRIVATE 
+    "${CMAKE_FREETYPE_INCLUDE}"
+    "${CMAKE_GLAD_INCLUDE}"
+    "${CMAKE_GLFW_INCLUDE}"
+    "${CMAKE_GLM_INCLUDE}"
+    "${CMAKE_OPENAL_INCLUDE}"
+    "${CMAKE_STB_INCLUDE}"
+    "${CMAKE_VULKAN_INCLUDE}"
     "Src"
 )
 
 target_link_directories("${PROJECT_NAME}"
-    PUBLIC
+    PRIVATE
 )
 
 # Getting a linker warning when building debug only:
@@ -225,11 +222,18 @@ target_link_directories("${PROJECT_NAME}"
     # /NODEFAULTLIB:library
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_FREETYPE_REPO}/build/Release/freetype.lib"
-    "${CMAKE_GLFW_REPO}/build/src/Release/glfw3.lib"
-    "${CMAKE_OPENAL_REPO}/build/Release/OpenAL32.lib"
-    "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib"
+    PRIVATE
+    "${CMAKE_FREETYPE_LIBRARY}"
+    "${CMAKE_GLFW_LIBRARY}"
+    "${CMAKE_OPENAL_LIBRARY}"
+    "${CMAKE_VULKAN_LIBRARY}"
 )
+
+if (CMAKE_VULKAN_MODE)
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
+else()
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
+endif()
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
 
@@ -237,8 +241,8 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}"
-    OUTPUT_NAME_DEBUG "${PROJECT_NAME}_debug"
-    OUTPUT_NAME_RELEASE "${PROJECT_NAME}"
+    OUTPUT_NAME_DEBUG "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d"
+    OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
 
 if(WIN32)

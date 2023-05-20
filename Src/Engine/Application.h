@@ -29,7 +29,7 @@ namespace Project001
         Application(Application& other) = delete;
         void operator=(const Application&) = delete;
 
-        void AddScene(Scene* scenePtr);
+        bool AddScene(Scene* scenePtr);
 
         void Run();
 

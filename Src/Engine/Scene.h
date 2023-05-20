@@ -51,6 +51,5 @@ namespace Project001
         Application* applicationPtr_;
 
         std::function<void(Event&)> EventCallback;
-
     };
 }

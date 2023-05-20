@@ -51,7 +51,7 @@ namespace Project001
         delete windowPtr_;
     }
 
-    void Application::AddScene(Scene* scenePtr)
+    bool Application::AddScene(Scene* scenePtr)
     {
         std::string name(scenePtr->Name());
         if (sceneMap_.find(name) == sceneMap_.end())
@@ -65,7 +65,11 @@ namespace Project001
             {
                 OnEvent(SwitchSceneEvent(name));
             }
+
+            return true;
         }
+
+        return false;
     }
 
     void Application::Run()
