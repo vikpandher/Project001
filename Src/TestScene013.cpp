@@ -16,7 +16,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene013::TestScene013()
 {
@@ -33,9 +33,11 @@ const char* TestScene013::Name()
     return "TestScene013";
 }
 
-void TestScene013::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene013::OnInitialize()
 {
-    TestSceneBase001::Initialize();
+    bool success = TestSceneBase001::OnInitialize();
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -265,24 +267,25 @@ void TestScene013::Initialize()
         renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedModelPtr->SetLit(false);
     }
+
+    return success && true;
 }
 
-void TestScene013::Deinitialize()
+bool TestScene013::OnDeinitialize()
 {
-    componentStoresPtr_->DeleteAllEntities();
-    rendererPtr_->DeleteAllTextures();
+    bool success = TestSceneBase001::OnDeinitialize();
 
     ClearResources();
+
+    return success && true;
 }
 
-void TestScene013::OnEvent(Project001::Event& event)
+void TestScene013::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene013::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::OnEvent(event);
+    TestSceneBase001::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene013::ClearResources()
 {}

@@ -34,12 +34,12 @@ namespace Project001
         void Run();
 
     protected:
+        void OnHandleEvent(Event& event);
+
         void ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent);
         void ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent);
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
-
-        void OnEvent(Event& event);
 
         std::string windowTitle_;
         unsigned int windowWidth_;

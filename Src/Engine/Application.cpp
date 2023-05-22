@@ -15,7 +15,7 @@
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     Application::Application(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight)
         : windowTitle_(windowTitle)
@@ -27,7 +27,7 @@ namespace Project001
         , activeScenePtr_(nullptr)
     {
         windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
-        windowPtr_->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+        windowPtr_->SetEventCallback(std::bind(&Application::OnHandleEvent, this, std::placeholders::_1));
         windowPtr_->SetAspectRatio(windowWidth, windowHeight);
 
         int screenWidth;
@@ -57,13 +57,13 @@ namespace Project001
         if (sceneMap_.find(name) == sceneMap_.end())
         {
             scenePtr->applicationPtr_ = this;
-            scenePtr->EventCallback = std::bind(&Application::OnEvent, this, std::placeholders::_1);
+            scenePtr->EventCallback = std::bind(&Application::OnHandleEvent, this, std::placeholders::_1);
 
             sceneMap_[name] = scenePtr;
 
             if (sceneMap_.size() == 1)
             {
-                OnEvent(SwitchSceneEvent(name));
+                OnHandleEvent(SwitchSceneEvent(name));
             }
 
             return true;
@@ -74,9 +74,8 @@ namespace Project001
 
     void Application::Run()
     {
-        if (activeScenePtr_ != nullptr)
+        if (activeScenePtr_ != nullptr && activeScenePtr_->Initialize())
         {
-            activeScenePtr_->Initialize();
             running_ = true;
         }
 
@@ -116,16 +115,33 @@ namespace Project001
             simulationTimeDebt_ns += lastFrameDuration_ns;
             while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
             {
-                OnEvent(UpdateEvent(0, desiredFrameDuration_ns_));
+                OnHandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
             }
 
-            OnEvent(RenderEvent(0, lastFrameDuration_ns));
+            OnHandleEvent(RenderEvent(0, lastFrameDuration_ns));
             windowPtr_->PollEvents();
         }
     }
 
-    // protected: -----------------------------------------------------------------
+    // protected ------------------------------------------------------------------
+
+    void Application::OnHandleEvent(Event& event)
+    {
+        if (activeScenePtr_ != nullptr)
+        {
+            activeScenePtr_->OnHandleEvent(event);
+        }
+
+        if (!event.handled)
+        {
+            DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
+            DispatchEvent<InitializeSceneEvent>(event, std::bind(&Application::ProcessInitializeSceneEvent, this, std::placeholders::_1));
+            DispatchEvent<DeinitializeSceneEvent>(event, std::bind(&Application::ProcessDeinitializeSceneEvent, this, std::placeholders::_1));
+
+            DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
+        }
+    }
 
     void Application::ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent)
     {
@@ -163,19 +179,5 @@ namespace Project001
     {
         running_ = false;
         windowCloseEvent.handled = true;
-    }
-
-    void Application::OnEvent(Event& event)
-    {
-        DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
-        DispatchEvent<InitializeSceneEvent>(event, std::bind(&Application::ProcessInitializeSceneEvent, this, std::placeholders::_1));
-        DispatchEvent<DeinitializeSceneEvent>(event, std::bind(&Application::ProcessDeinitializeSceneEvent, this, std::placeholders::_1));
-
-        DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
-
-        if (!event.handled && activeScenePtr_ != nullptr)
-        {
-            activeScenePtr_->OnEvent(event);
-        }
     }
 }

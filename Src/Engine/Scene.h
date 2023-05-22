@@ -26,13 +26,21 @@ namespace Project001
 
         virtual const char* Name() = 0;
 
-        virtual void Initialize() = 0;
+        bool IsInitialized();
 
-        virtual void Deinitialize() = 0;
+        bool Initialize();
 
-        virtual void OnEvent(Event& event) = 0;
+        bool Deinitialize();
+
+        void HandleEvent(Event& event);
 
     protected:
+        virtual bool OnInitialize() = 0;
+
+        virtual bool OnDeinitialize() = 0;
+
+        virtual void OnHandleEvent(Event& event) = 0;
+
         ComponentStores* GetApplicaitonComponentStoresPtr();
 
         Renderer* GetApplicationRendererPtr();
@@ -43,6 +51,8 @@ namespace Project001
 
         Scene* GetScene(const std::string& name);
 
+        Scene* GetActiveScene();
+
         bool IsActiveScene();
 
         void SendEvent(Event& event);
@@ -51,5 +61,40 @@ namespace Project001
         Application* applicationPtr_;
 
         std::function<void(Event&)> EventCallback;
+
+        bool initialized_;
     };
+
+    inline bool Scene::IsInitialized()
+    {
+        return initialized_;
+    }
+
+    inline bool Scene::Initialize()
+    {
+        if (!initialized_ && OnInitialize())
+        {
+            initialized_ = true;
+            return true;
+        }
+        return false;
+    }
+
+    inline bool Scene::Deinitialize()
+    {
+        if (initialized_ && OnDeinitialize())
+        {
+            initialized_ = false;
+            return true;
+        }
+        return false;
+    }
+
+    inline void Scene::HandleEvent(Event& event)
+    {
+        if (initialized_)
+        {
+            OnHandleEvent(event);
+        }
+    }
 }

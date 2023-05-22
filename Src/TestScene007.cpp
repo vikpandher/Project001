@@ -12,7 +12,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene007::TestScene007()
 {
@@ -27,9 +27,11 @@ const char* TestScene007::Name()
     return "TestScene007";
 }
 
-void TestScene007::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene007::OnInitialize()
 {
-    TestSceneBase001::Initialize();
+    bool success = TestSceneBase001::OnInitialize();
 
     // Load textures
     // -------------------------------------------------------------------------
@@ -85,23 +87,25 @@ void TestScene007::Initialize()
         renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedModelPtr->SetTextureId(_32x32_123abc_TextureId_);
     }
+
+    return success && true;
 }
 
-void TestScene007::Deinitialize()
+bool TestScene007::OnDeinitialize()
 {
-    TestSceneBase001::Deinitialize();
+    bool success = TestSceneBase001::OnDeinitialize();
 
     ClearResources();
+
+    return success && true;
 }
 
-void TestScene007::OnEvent(Project001::Event& event)
+void TestScene007::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene007::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::OnEvent(event);
+    TestSceneBase001::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene007::ClearResources()
 {

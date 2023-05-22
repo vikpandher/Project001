@@ -20,7 +20,7 @@ else {_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_as
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene010::TestScene010()
 {
@@ -43,9 +43,11 @@ const char* TestScene010::Name()
     return "TestScene010";
 }
 
-void TestScene010::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene010::OnInitialize()
 {
-    TestSceneBase002::Initialize();
+    bool success = TestSceneBase002::OnInitialize();
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -836,21 +838,23 @@ void TestScene010::Initialize()
         ));
         collisionBody2DPtr->CalculateBoundingRadius();
     }
+
+    return success && true;
 }
 
-void TestScene010::Deinitialize()
+bool TestScene010::OnDeinitialize()
 {
-    TestSceneBase002::Deinitialize();
+    bool success = TestSceneBase002::OnDeinitialize();
+
+    return success && true;
 }
 
-void TestScene010::OnEvent(Project001::Event& event)
+void TestScene010::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene010::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase002::OnEvent(event);
+    TestSceneBase002::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene010::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {

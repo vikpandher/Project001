@@ -13,7 +13,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene006::TestScene006()
 {
@@ -28,9 +28,11 @@ const char* TestScene006::Name()
     return "TestScene006";
 }
 
-void TestScene006::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene006::OnInitialize()
 {
-    TestSceneBase001::Initialize();
+    bool success = TestSceneBase001::OnInitialize();
 
     // Load textures
     // -------------------------------------------------------------------------
@@ -178,23 +180,25 @@ void TestScene006::Initialize()
         renderedModelPtr->SetTextureId(fontTextureId_);
         renderedModelPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
     }
+
+    return success && true;
 }
 
-void TestScene006::Deinitialize()
+bool TestScene006::OnDeinitialize()
 {
-    TestSceneBase001::Deinitialize();
+    bool success = TestSceneBase001::OnDeinitialize();
 
     ClearResources();
+
+    return success && true;
 }
 
-void TestScene006::OnEvent(Project001::Event& event)
+void TestScene006::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene006::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::OnEvent(event);
+    TestSceneBase001::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene006::ClearResources()
 {

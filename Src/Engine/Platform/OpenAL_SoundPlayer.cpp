@@ -6,7 +6,7 @@
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     OpenAL_SoundPlayer::OpenAL_SoundPlayer()
     {
@@ -383,7 +383,7 @@ namespace Project001
         return true;
     }
 
-    // protected: --------------------------------------------------------------
+    // protected ---------------------------------------------------------------
 
     size_t OpenAL_SoundPlayer::s_instanceCount_ = 0;
     ALCdevice* OpenAL_SoundPlayer::s_devicePtr_ = nullptr;

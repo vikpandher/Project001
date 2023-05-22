@@ -5,7 +5,7 @@
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     Window* Window::Create(const char* title, int width, int height)
     {

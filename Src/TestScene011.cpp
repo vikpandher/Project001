@@ -14,7 +14,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene011::TestScene011()
 {}
@@ -27,9 +27,11 @@ const char* TestScene011::Name()
     return "TestScene011";
 }
 
-void TestScene011::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene011::OnInitialize()
 {
-    TestSceneBase002::Initialize();
+    bool success = TestSceneBase002::OnInitialize();
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -550,21 +552,23 @@ void TestScene011::Initialize()
         ));
         collisionBody2DPtr->CalculateBoundingRadius();
     }
+
+    return success && true;
 }
 
-void TestScene011::Deinitialize()
+bool TestScene011::OnDeinitialize()
 {
-    TestSceneBase002::Deinitialize();
+    bool success = TestSceneBase002::OnDeinitialize();
+
+    return success && true;
 }
 
-void TestScene011::OnEvent(Project001::Event& event)
+void TestScene011::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene011::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase002::OnEvent(event);
+    TestSceneBase002::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene011::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {

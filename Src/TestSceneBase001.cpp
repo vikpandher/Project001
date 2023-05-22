@@ -13,7 +13,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestSceneBase001::TestSceneBase001()
     : componentStoresPtr_(nullptr)
@@ -32,7 +32,9 @@ const char* TestSceneBase001::Name()
     return "TestSceneBase001";
 }
 
-void TestSceneBase001::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestSceneBase001::OnInitialize()
 {
     _LOG_MESSAGE("INITIALIZING: %s", Name());
 
@@ -83,18 +85,22 @@ void TestSceneBase001::Initialize()
         lightSourcePtr->SetSpecularColor(1.0f, 1.0f, 1.0f);
         lightSourcePtr->TurnOn();
     }
+
+    return true;
 }
 
-void TestSceneBase001::Deinitialize()
+bool TestSceneBase001::OnDeinitialize()
 {
     ClearResources();
     rendererPtr_->DeleteAllTextures();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
     componentStoresPtr_->DeleteAllEntities();
+
+    return true;
 }
 
-void TestSceneBase001::OnEvent(Project001::Event& event)
+void TestSceneBase001::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneBase001::ProcessCursorPositionEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneBase001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
@@ -103,8 +109,6 @@ void TestSceneBase001::OnEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestSceneBase001::ProcessScrollEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestSceneBase001::ProcessUpdateEvent, this, std::placeholders::_1));
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestSceneBase001::ClearResources()
 {

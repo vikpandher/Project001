@@ -8,7 +8,7 @@
 
 namespace Project001
 {
-    // public: -----------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     bool SoundLoader::LoadSoundOGG(SoundData& soundData, const std::string& path)
     {
@@ -187,7 +187,7 @@ namespace Project001
         return true;
     }
 
-    // protected: --------------------------------------------------------------
+    // protected ---------------------------------------------------------------
 
     uint32_t SoundLoader::ConvertToUInt32(const char* buffer, size_t length)
     {

@@ -8,6 +8,7 @@ namespace Project001
 {
     Scene::Scene()
         : applicationPtr_(nullptr)
+        , initialized_(false)
     {}
 
     ComponentStores* Scene::GetApplicaitonComponentStoresPtr()
@@ -38,6 +39,11 @@ namespace Project001
         }
 
         return nullptr;
+    }
+
+    Scene* Scene::GetActiveScene()
+    {
+        return applicationPtr_->activeScenePtr_;
     }
 
     bool Scene::IsActiveScene()

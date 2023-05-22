@@ -16,7 +16,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene020::TestScene020()
 {
@@ -33,9 +33,11 @@ const char* TestScene020::Name()
     return "TestScene020";
 }
 
-void TestScene020::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene020::OnInitialize()
 {
-    TestSceneBase001::Initialize();
+    bool success = TestSceneBase001::OnInitialize();
 
     // Load meshes
     // -------------------------------------------------------------------------
@@ -108,24 +110,26 @@ void TestScene020::Initialize()
         ));
         soundPlayerPtr_->PlaySoundSource(song01SoundSourceId_);
     }
+
+    return success && true;
 }
 
-void TestScene020::Deinitialize()
+bool TestScene020::OnDeinitialize()
 {
-    TestSceneBase001::Deinitialize();
+    bool success = TestSceneBase001::OnDeinitialize();
 
     ClearResources();
+
+    return success && true;
 }
 
-void TestScene020::OnEvent(Project001::Event& event)
+void TestScene020::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene020::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene020::ProcessUpdateEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::OnEvent(event);
+    TestSceneBase001::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene020::ClearResources()
 {

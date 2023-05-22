@@ -32,13 +32,13 @@ public:
 
     const char* Name() override;
 
-    void Initialize() override;
-
-    void Deinitialize() override;
-
-    void OnEvent(Project001::Event& event) override;
-
 protected:
+    bool OnInitialize() override;
+
+    bool OnDeinitialize() override;
+
+    void OnHandleEvent(Project001::Event& event) override;
+
     void ClearResources();
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);

@@ -15,7 +15,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestSceneBase002::TestSceneBase002()
     : cursorGrabbingEntity_(false)
@@ -32,7 +32,9 @@ const char* TestSceneBase002::Name()
     return "TestSceneBase002";
 }
 
-void TestSceneBase002::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestSceneBase002::OnInitialize()
 {
     _LOG_MESSAGE("INITIALIZING: %s", Name());
 
@@ -68,16 +70,20 @@ void TestSceneBase002::Initialize()
         cameraPtr->SetProjectionToOrthographic();
         cameraPtr->TurnOn();
     }
+
+    return true;
 }
 
-void TestSceneBase002::Deinitialize()
+bool TestSceneBase002::OnDeinitialize()
 {
     rendererPtr_->DeleteAllTextures();
     componentStoresPtr_->DeleteAllEntities();
     ClearResources();
+
+    return true;
 }
 
-void TestSceneBase002::OnEvent(Project001::Event& event)
+void TestSceneBase002::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneBase002::ProcessCursorPositionEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneBase002::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
@@ -87,8 +93,6 @@ void TestSceneBase002::OnEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestSceneBase002::ProcessScrollEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestSceneBase002::ProcessUpdateEvent, this, std::placeholders::_1));
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestSceneBase002::ClearResources()
 {

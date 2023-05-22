@@ -12,7 +12,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene003::TestScene003()
 {
@@ -27,9 +27,11 @@ const char* TestScene003::Name()
     return "TestScene003";
 }
 
-void TestScene003::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene003::OnInitialize()
 {
-    TestSceneBase001::Initialize();
+    bool success = TestSceneBase001::OnInitialize();
 
     // Load meshes
     // -------------------------------------------------------------------------
@@ -963,23 +965,25 @@ void TestScene003::Initialize()
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[41]);
     }
+
+    return success && true;
 }
 
-void TestScene003::Deinitialize()
+bool TestScene003::OnDeinitialize()
 {
-    TestSceneBase001::Deinitialize();
+    bool success = TestSceneBase001::OnDeinitialize();
 
     ClearResources();
+
+    return success && true;
 }
 
-void TestScene003::OnEvent(Project001::Event& event)
+void TestScene003::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene003::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::OnEvent(event);
+    TestSceneBase001::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene003::ClearResources()
 {

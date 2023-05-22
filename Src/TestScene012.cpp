@@ -14,7 +14,7 @@
 
 
 
-// public: ---------------------------------------------------------------------
+// public ----------------------------------------------------------------------
 
 TestScene012::TestScene012()
 {}
@@ -27,9 +27,11 @@ const char* TestScene012::Name()
     return "TestScene012";
 }
 
-void TestScene012::Initialize()
+// protected -------------------------------------------------------------------
+
+bool TestScene012::OnInitialize()
 {
-    TestSceneBase002::Initialize();
+    bool success = TestSceneBase002::OnInitialize();
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -675,21 +677,23 @@ void TestScene012::Initialize()
         collisionBody2DPtr->AddConvexPolygon(linePoints);
         collisionBody2DPtr->CalculateBoundingRadius();
     }
+
+    return success && true;
 }
 
-void TestScene012::Deinitialize()
+bool TestScene012::OnDeinitialize()
 {
-    TestSceneBase002::Deinitialize();
+    bool success = TestSceneBase002::OnDeinitialize();
+
+    return success && true;
 }
 
-void TestScene012::OnEvent(Project001::Event& event)
+void TestScene012::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene012::ProcessKeyEvent, this, std::placeholders::_1));
 
-    TestSceneBase002::OnEvent(event);
+    TestSceneBase002::OnHandleEvent(event);
 }
-
-// protected: ------------------------------------------------------------------
 
 void TestScene012::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
