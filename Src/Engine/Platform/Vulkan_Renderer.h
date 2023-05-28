@@ -16,8 +16,10 @@ namespace Project001
     public:
         Vulkan_Renderer(
             Window* windowPtr,
-            unsigned int width,
-            unsigned int height,
+            unsigned int frameBufferWidth,
+            unsigned int frameBufferHeight,
+            unsigned int indexBufferCapacity,
+            unsigned int vertexBufferCapacity,
             bool multisampleAntiAliasing);
 
         ~Vulkan_Renderer() override;
@@ -25,6 +27,10 @@ namespace Project001
         void SetDepthTesting(bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
+
+        void SetIndexBufferCapacity(unsigned int capacity) override;
+
+        void SetVertexBufferCapacity(unsigned int capacity) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -156,8 +162,14 @@ namespace Project001
         void CreateSwapchain();
         void DeleteSwapchain();
 
-        void CreateDataBuffers();
-        void DeleteDataBuffers();
+        void CreateIndexDataBuffers();
+        void DeleteIndexDataBuffers();
+
+        void CreateVertexDataBuffers();
+        void DeleteVertexDataBuffers();
+
+        void CreateOtherDataBuffers();
+        void DeleteOtherDataBuffers();
 
         void CreateDefaultTexture();
         void DeleteDefaultTexture();
@@ -316,15 +328,14 @@ namespace Project001
 
         static const bool s_requireSamplerAnisotropy_;
 
-        static const unsigned int s_indexBufferCapacity_;
-        static const unsigned int s_vertexBufferCapacity_;
-
         static const VkFormat s_desiredSurfaceFormat;
         static const VkFormat s_textureFormat;
 
         Window* windowPtr_;
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
+        unsigned int indexBufferCapacity_;
+        unsigned int vertexBufferCapacity_;
         bool multisampleAntiAliasing_;
         bool depthTesting_;
 
@@ -470,14 +481,12 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    inline void Vulkan_Renderer::SetDepthTesting(
-        bool depthTesting)
+    inline void Vulkan_Renderer::SetDepthTesting(bool depthTesting)
     {
         depthTesting_ = depthTesting;
     }
 
-    inline void Vulkan_Renderer::SetMultisampleAntiAliasing(
-        bool multisampleAntiAliasing)
+    inline void Vulkan_Renderer::SetMultisampleAntiAliasing(bool multisampleAntiAliasing)
     {
         multisampleAntiAliasing_ = multisampleAntiAliasing;
     }

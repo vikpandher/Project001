@@ -12,7 +12,7 @@ namespace Project001
     class ComponentStores
     {
     public:
-        ComponentStores();
+        ComponentStores(unsigned int maxNumberOfEntities = 0, unsigned int maxTypesOfComponents = 0);
         ~ComponentStores();
 
         // Entity Functions: ---------------------------------------------------
@@ -51,8 +51,8 @@ namespace Project001
         template <typename Component>
         bool RegisterNewComponent(unsigned int componentTypeId);
 
-        static const unsigned int s_maxNumberOfEntities_ = 256;
-        static const unsigned int s_maxTypesOfComponents_ = 32;
+        unsigned int maxNumberOfEntities_;
+        unsigned int maxTypesOfComponents_;
 
         std::queue<unsigned int> recycledEntityIds_;
 
@@ -183,7 +183,7 @@ namespace Project001
     {
         unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
 
-        if (nextComponentContainerIndex > s_maxTypesOfComponents_)
+        if (maxTypesOfComponents_ != 0 && nextComponentContainerIndex > maxTypesOfComponents_)
         {
             return false;
         }

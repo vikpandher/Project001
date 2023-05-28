@@ -15,16 +15,20 @@ namespace Project001
     public:
         static Renderer* Create(
             Window* windowPtr,
-            unsigned int width,
-            unsigned int height);
+            unsigned int frameBufferWidth,
+            unsigned int frameBufferHeight,
+            unsigned int indexBufferCapacity,
+            unsigned int vertexBufferCapacity);
 
         virtual ~Renderer();
 
-        virtual void SetDepthTesting(
-            bool depthTesting) = 0;
+        virtual void SetDepthTesting(bool depthTesting) = 0;
 
-        virtual void SetMultisampleAntiAliasing(
-            bool multisampleAntiAliasing) = 0;
+        virtual void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) = 0;
+
+        virtual void SetIndexBufferCapacity(unsigned int capacity) = 0;
+
+        virtual void SetVertexBufferCapacity(unsigned int capacity) = 0;
 
         virtual void SetFramebufferSize(
             unsigned int width,

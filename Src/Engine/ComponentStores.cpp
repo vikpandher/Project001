@@ -6,7 +6,9 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    ComponentStores::ComponentStores()
+    ComponentStores::ComponentStores(unsigned int maxNumberOfEntities, unsigned int maxTypesOfComponents)
+        : maxNumberOfEntities_(maxNumberOfEntities)
+        , maxTypesOfComponents_(maxTypesOfComponents)
     {}
 
     ComponentStores::~ComponentStores()
@@ -23,7 +25,7 @@ namespace Project001
         {
             unsigned int numberOfEntities = (unsigned int)entityDeletedFlags_.size();
 
-            if (numberOfEntities > s_maxNumberOfEntities_)
+            if (maxNumberOfEntities_ != 0 && numberOfEntities > maxNumberOfEntities_)
             {
                 return false;
             }

@@ -21,13 +21,22 @@
 #include "TestScene012.h"
 #include "TestScene013.h"
 #include "TestScene020.h"
+#include "TestScene030.h"
 
 
 
 int main(int argc, char** argv)
 {
     const size_t sizeScalar = 4;
-    Project001::Application* applicationPtr = new Project001::Application("Project001", 240 * sizeScalar, 160 * sizeScalar);
+    Project001::ApplicationInfo applicationInfo = {};
+    applicationInfo.windowTitle = "Project001";
+    applicationInfo.windowWidth = 240 * sizeScalar;
+    applicationInfo.windowHeight = 160 * sizeScalar;
+    applicationInfo.frameBufferWidth = 240 * sizeScalar;
+    applicationInfo.frameBufferHeight = 160 * sizeScalar;
+    applicationInfo.indexBufferCapacity = 4096;
+    applicationInfo.vertexBufferCapacity = 4096;
+    Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -69,6 +78,11 @@ int main(int argc, char** argv)
     TestScene020* testScene020Ptr = new TestScene020();
     applicationPtr->AddScene(testScene020Ptr);
 
+    // tests framerate with many verticies (TODO) (001)
+    TestScene030* testScene030Ptr = new TestScene030();
+    applicationPtr->AddScene(testScene030Ptr);
+
+
     applicationPtr->Run();
 
     delete applicationPtr;
@@ -82,15 +96,18 @@ int main(int argc, char** argv)
     delete testScene012Ptr;
     delete testScene013Ptr;
     delete testScene020Ptr;
+    delete testScene030Ptr;
 
     return 0;
 }
 
 // When building to run without a console...
 // -----------------------------------------------------------------------------
-// #include <windows.h>
-//
-// INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
-// {
-//     return main(0, nullptr);
-// }
+#ifdef WINDOWS_NO_CONSOLE
+#include <windows.h>
+
+INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+{
+    return main(0, nullptr);
+}
+#endif

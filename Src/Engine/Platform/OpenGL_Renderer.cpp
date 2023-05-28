@@ -26,15 +26,19 @@ namespace Project001
 
     OpenGL_Renderer::OpenGL_Renderer(
         Window* windowPtr,
-        unsigned int width,
-        unsigned int height,
+        unsigned int frameBufferWidth,
+        unsigned int frameBufferHeight,
+        unsigned int indexBufferCapacity,
+        unsigned int vertexBufferCapacity,
         bool multisampleAntiAliasing)
         : windowPtr_(windowPtr)
         , redrawGrid_(true)
         , depthTesting_(true)
         , multisampleAntiAliasing_(multisampleAntiAliasing)
-        , frameBufferWidth_(width)
-        , frameBufferHeight_(height)
+        , indexBufferCapacity_(indexBufferCapacity)
+        , vertexBufferCapacity_(vertexBufferCapacity)
+        , frameBufferWidth_(frameBufferWidth)
+        , frameBufferHeight_(frameBufferHeight)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
@@ -43,84 +47,8 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        glGenVertexArrays(1, &vertexArrayId_);
-
-        glGenBuffers(1, &vertexBufferId_);
-
-        glGenBuffers(1, &indexBufferId_);
-
-        glBindVertexArray(vertexArrayId_);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * s_vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
-
-        GLuint positionAttributeIndex = 0;
-        GLuint textureCoordinateAttributeIndex = 1;
-        GLuint normalAttributeIndex = 2;
-        GLuint colorAttributeIndex = 3;
-        GLuint textureUnitAttributeIndex = 4;
-        GLuint specularUnitAttributeIndex = 5;
-        GLuint shininessAttributeIndex = 6;
-        GLuint scaleAttributeIndex = 7;
-        GLuint translationAttributeIndex = 8;
-        GLuint orientationAttributeIndex = 9;
-        GLuint litAttributeIndex = 10;
-
-        unsigned long long attributeOffset = 0;
-
-        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(positionAttributeIndex);
-        attributeOffset += sizeof(glm::vec3);
-
-        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
-        attributeOffset += sizeof(glm::vec2);
-
-        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(normalAttributeIndex);
-        attributeOffset += sizeof(glm::vec3);
-
-        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(colorAttributeIndex);
-        attributeOffset += sizeof(glm::vec4);
-
-        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureUnitAttributeIndex);
-        attributeOffset += sizeof(float);
-
-        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(specularUnitAttributeIndex);
-        attributeOffset += sizeof(float);
-
-        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(shininessAttributeIndex);
-        attributeOffset += sizeof(float);
-
-        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(scaleAttributeIndex);
-        attributeOffset += sizeof(glm::vec3);
-
-        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(translationAttributeIndex);
-        attributeOffset += sizeof(glm::vec3);
-
-        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(orientationAttributeIndex);
-        attributeOffset += sizeof(glm::quat);
-
-        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(litAttributeIndex);
-        // attributeOffset += sizeof(float);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-        if (s_indexBufferCapacity_ % 3 != 0)
-        {
-            _LOG_MESSAGE("Index Buffer Size Not Multiple Of 3");
-        }
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * s_indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        SetIndexBufferCapacity(indexBufferCapacity_);
+        SetVertexBufferCapacity(vertexBufferCapacity_);
 
         if (s_drawGrid)
         {
@@ -222,6 +150,9 @@ namespace Project001
 
         DeleteAllTextures();
 
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
         glDeleteBuffers(1, &vertexBufferId_);
         glDeleteBuffers(1, &indexBufferId_);
         glDeleteVertexArrays(1, &vertexArrayId_);
@@ -246,6 +177,96 @@ namespace Project001
             CleanUpScreenFramebuffers();
             CreateScreenFramebuffers();
         }
+    }
+
+    void OpenGL_Renderer::SetIndexBufferCapacity(unsigned int capacity)
+    {
+        indexBufferCapacity_ = capacity;
+        if (indexBufferCapacity_ % 3 != 0)
+        {
+            _LOG_MESSAGE("Index Buffer Size Not Multiple Of 3");
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &indexBufferId_);
+        glGenBuffers(1, &indexBufferId_);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+    }
+
+    void OpenGL_Renderer::SetVertexBufferCapacity(unsigned int capacity)
+    {
+        vertexBufferCapacity_ = capacity;
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &vertexBufferId_);
+        glGenBuffers(1, &vertexBufferId_);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+
+        // It's important to note that if you try to use a VAO that references
+        // a deleted buffer object (i.e., a buffer object ID that has been
+        // deleted), it will result in undefined behavior. So we recreate the
+        // VAO as well.
+        glDeleteVertexArrays(1, &vertexArrayId_);
+        glGenVertexArrays(1, &vertexArrayId_);
+        glBindVertexArray(vertexArrayId_);
+
+        GLuint positionAttributeIndex = 0;
+        GLuint textureCoordinateAttributeIndex = 1;
+        GLuint normalAttributeIndex = 2;
+        GLuint colorAttributeIndex = 3;
+        GLuint textureUnitAttributeIndex = 4;
+        GLuint specularUnitAttributeIndex = 5;
+        GLuint shininessAttributeIndex = 6;
+        GLuint scaleAttributeIndex = 7;
+        GLuint translationAttributeIndex = 8;
+        GLuint orientationAttributeIndex = 9;
+        GLuint litAttributeIndex = 10;
+
+        unsigned long long attributeOffset = 0;
+
+        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(positionAttributeIndex);
+        attributeOffset += sizeof(glm::vec3);
+
+        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
+        attributeOffset += sizeof(glm::vec2);
+
+        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(normalAttributeIndex);
+        attributeOffset += sizeof(glm::vec3);
+
+        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(colorAttributeIndex);
+        attributeOffset += sizeof(glm::vec4);
+
+        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureUnitAttributeIndex);
+        attributeOffset += sizeof(float);
+
+        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(specularUnitAttributeIndex);
+        attributeOffset += sizeof(float);
+
+        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(shininessAttributeIndex);
+        attributeOffset += sizeof(float);
+
+        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(scaleAttributeIndex);
+        attributeOffset += sizeof(glm::vec3);
+
+        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(translationAttributeIndex);
+        attributeOffset += sizeof(glm::vec3);
+
+        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(orientationAttributeIndex);
+        attributeOffset += sizeof(glm::quat);
+
+        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(litAttributeIndex);
+        // attributeOffset += sizeof(float);
     }
 
     void OpenGL_Renderer::SetFramebufferSize(
@@ -372,11 +393,11 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        if ((vertexBuffer_.size() + meshVertexCount) > s_vertexBufferCapacity_ ||
-            (indexBuffer_.size() + meshIndexCount) > s_indexBufferCapacity_)
+        if ((vertexBuffer_.size() + meshVertexCount) > vertexBufferCapacity_ ||
+            (indexBuffer_.size() + meshIndexCount) > indexBufferCapacity_)
         {
-            if (meshVertexCount > s_vertexBufferCapacity_ ||
-                meshIndexCount > s_indexBufferCapacity_)
+            if (meshVertexCount > vertexBufferCapacity_ ||
+                meshIndexCount > indexBufferCapacity_)
             {
                 _LOG_ERROR("Mesh larger then buffer!");
                 return false;
@@ -1133,9 +1154,6 @@ namespace Project001
     const bool OpenGL_Renderer::s_drawWireframe = false;
     const bool OpenGL_Renderer::s_drawNormals = false;
     const bool OpenGL_Renderer::s_drawGrid = false;
-
-    const unsigned int OpenGL_Renderer::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
-    const unsigned int OpenGL_Renderer::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
 
     const unsigned int OpenGL_Renderer::s_numberOfTextureUnits_ = 16;
 

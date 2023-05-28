@@ -17,28 +17,34 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    Application::Application(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight)
-        : windowTitle_(windowTitle)
-        , windowWidth_(windowWidth)
-        , windowHeight_(windowHeight)
+    Application::Application(const ApplicationInfo& applicationInfo)
+        : windowTitle_(applicationInfo.windowTitle)
+        , windowWidth_(applicationInfo.windowWidth)
+        , windowHeight_(applicationInfo.windowHeight)
         , desiredFrameDuration_ns_(1000000000ul / 60ul)
         , sleepyRunLoop_(true)
         , running_(false)
         , activeScenePtr_(nullptr)
     {
-        windowPtr_ = Window::Create(windowTitle, windowWidth, windowHeight);
+        windowPtr_ = Window::Create(windowTitle_.c_str(), windowWidth_, windowHeight_);
         windowPtr_->SetEventCallback(std::bind(&Application::OnHandleEvent, this, std::placeholders::_1));
-        windowPtr_->SetAspectRatio(windowWidth, windowHeight);
+        windowPtr_->SetAspectRatio(windowWidth_, windowHeight_);
 
         int screenWidth;
         int screenHeight;
         windowPtr_->GetScreenSize(screenWidth, screenHeight);
-        if (screenWidth > (int)windowWidth && screenHeight > (int)windowHeight)
+        if (screenWidth > (int)windowWidth_ && screenHeight > (int)windowHeight_)
         {
-            windowPtr_->SetWindowPosition((screenWidth - windowWidth) / 2, (screenHeight - windowHeight) / 2);
+            windowPtr_->SetWindowPosition((screenWidth - windowWidth_) / 2, (screenHeight - windowHeight_) / 2);
         }
 
-        rendererPtr_ = Renderer::Create(windowPtr_, windowWidth, windowHeight);
+        rendererPtr_ = Renderer::Create(
+            windowPtr_,
+            applicationInfo.frameBufferWidth,
+            applicationInfo.frameBufferHeight,
+            applicationInfo.indexBufferCapacity,
+            applicationInfo.vertexBufferCapacity
+        );
         soundPlayerPtr_ = SoundPlayer::Create();
         componentStoresPtr_ = new ComponentStores();
     }

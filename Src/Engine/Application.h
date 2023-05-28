@@ -18,12 +18,23 @@ namespace Project001
     struct SwitchSceneEvent;
     struct WindowCloseEvent;
 
+    struct ApplicationInfo
+    {
+        const char* windowTitle;
+        unsigned int windowWidth;
+        unsigned int windowHeight;
+        unsigned int frameBufferWidth;
+        unsigned int frameBufferHeight;
+        unsigned int indexBufferCapacity;
+        unsigned int vertexBufferCapacity;
+    };
+
     class Application
     {
         friend class Scene;
 
     public:
-        Application(const char* windowTitile, unsigned int windowWidth, unsigned int windowHeight);
+        Application(const ApplicationInfo& applicationInfo);
         virtual ~Application();
 
         Application(Application& other) = delete;

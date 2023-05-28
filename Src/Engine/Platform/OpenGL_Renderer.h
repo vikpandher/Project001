@@ -19,16 +19,20 @@ namespace Project001
     public:
         OpenGL_Renderer(
             Window* windowPtr,
-            unsigned int width,
-            unsigned int height,
+            unsigned int frameBufferWidth,
+            unsigned int frameBufferHeight,
+            unsigned int indexBufferCapacity,
+            unsigned int vertexBufferCapacity,
             bool multisampleAntiAliasing);
         ~OpenGL_Renderer() override;
 
-        void SetDepthTesting(
-            bool depthTesting) override;
+        void SetDepthTesting(bool depthTesting) override;
 
-        void SetMultisampleAntiAliasing(
-            bool multisampleAntiAliasing) override;
+        void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
+
+        void SetIndexBufferCapacity(unsigned int capacity) override;
+
+        void SetVertexBufferCapacity(unsigned int capacity) override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -151,9 +155,6 @@ namespace Project001
         static const bool s_drawNormals;
         static const bool s_drawGrid;
 
-        static const unsigned int s_indexBufferCapacity_;
-        static const unsigned int s_vertexBufferCapacity_;
-
         static const unsigned int s_numberOfTextureUnits_;
 
         static const unsigned int s_numberOfPointLights_;
@@ -169,6 +170,9 @@ namespace Project001
 
         bool depthTesting_;
         bool multisampleAntiAliasing_;
+
+        unsigned int indexBufferCapacity_;
+        unsigned int vertexBufferCapacity_;
 
         OpenGL_Shader* primaryShaderPtr_;
         OpenGL_Shader* gridShaderPtr_;

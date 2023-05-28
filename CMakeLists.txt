@@ -24,12 +24,17 @@ set(CMAKE_OPENAL_LIBRARY "C:/Users/vikpa/Documents/Dev/openal-soft/build/Release
 # https://github.com/nothings/stb.git
 set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
-set(CMAKE_VULKAN_INCLUDE "C:/VulkanSDK/1.3.224.1/Include")
-set(CMAKE_VULKAN_LIBRARY "C:/VulkanSDK/1.3.224.1/Lib/vulkan-1.lib")
+set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
+set(CMAKE_VULKAN_INCLUDE "${CMAKE_VULKAN_REPO}/Include")
+set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
 
+# If ON, sets renderer to Vulkan
+# If OFF, renderer is set to OpenGL
 set(CMAKE_VULKAN_MODE ON)
 
-# ##############################################################################
+# Removes the console on a windows build
+set(CMAKE_WINDOWS_NO_CONSOLE OFF)
+
 # ##############################################################################
 # ##############################################################################
 
@@ -55,7 +60,19 @@ if (${CMAKE_VULKAN_MODE})
     add_definitions(-DGLFW_INCLUDE_VULKAN)
     add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
     # add_definitions(-DGLM_FORCE_LEFT_HANDED)
+
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
+else()
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
 endif()
+
+if (${CMAKE_WINDOWS_NO_CONSOLE})
+    add_definitions(-DWINDOWS_NO_CONSOLE)
+
+    # adding WIN32 makes WinMain() the entry point and so no conole appears
+    set(CMAKE_WIN32 WIN32)
+endif()
+
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -81,6 +98,8 @@ set(SOURCE_FILES
     "Src/TestScene013.h"
     "Src/TestScene020.cpp"
     "Src/TestScene020.h"
+    "Src/TestScene030.cpp"
+    "Src/TestScene030.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
@@ -191,8 +210,7 @@ set(SHADER_SOURCE_FILES
 
 source_group("Src/Engine/Platform/ShaderSource" FILES ${SHADER_SOURCE_FILES})
 
-# adding WIN32 makes WinMain() the entry point and so no conole appears
-add_executable("${PROJECT_NAME}" # WIN32
+add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${SOURCE_FILES}
     ${ENGINE_FILES}
     ${COMPONENTS_FILES}
@@ -229,12 +247,6 @@ target_link_libraries("${PROJECT_NAME}"
     "${CMAKE_VULKAN_LIBRARY}"
 )
 
-if (CMAKE_VULKAN_MODE)
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
-else()
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
-endif()
-
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES
@@ -245,7 +257,7 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
 
-if(WIN32)
+if(TRUE)
     file(WRITE "Shaders/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
 
     # NOTE: Adding commands will require me to run Visual Studio as Admin
@@ -258,15 +270,22 @@ endif()
 if(${PRINT_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
-    message("CMAKE_FREETYPE_REPO: ${CMAKE_FREETYPE_REPO}")
-    message("CMAKE_GLAD_FILES: ${CMAKE_GLAD_FILES}")
-    message("CMAKE_GLFW_REPO: ${CMAKE_GLFW_REPO}")
-    message("CMAKE_GLM_REPO: ${CMAKE_GLM_REPO}")
-    message("CMAKE_OPENAL_REPO: ${CMAKE_OPENAL_REPO}")
-    message("CMAKE_STB_REPO: ${CMAKE_STB_REPO}")
+    message("CMAKE_FREETYPE_INCLUDE: ${CMAKE_FREETYPE_INCLUDE}")
+    message("CMAKE_FREETYPE_LIBRARY: ${CMAKE_FREETYPE_LIBRARY}")
+    message("CMAKE_GLAD_INCLUDE: ${CMAKE_GLAD_INCLUDE}")
+    message("CMAKE_GLAD_FILE: ${CMAKE_GLAD_FILE}")
+    message("CMAKE_GLFW_INCLUDE: ${CMAKE_GLFW_INCLUDE}")
+    message("CMAKE_GLFW_LIBRARY: ${CMAKE_GLFW_LIBRARY}")
+    message("CMAKE_GLM_INCLUDE: ${CMAKE_GLM_INCLUDE}")
+    message("CMAKE_OPENAL_INCLUDE: ${CMAKE_OPENAL_INCLUDE}")
+    message("CMAKE_OPENAL_LIBRARY: ${CMAKE_OPENAL_LIBRARY}")
+    message("CMAKE_STB_INCLUDE: ${CMAKE_STB_INCLUDE}")
     message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
+    message("CMAKE_VULKAN_INCLUDE: ${CMAKE_VULKAN_INCLUDE}")
+    message("CMAKE_VULKAN_LIBRARY: ${CMAKE_VULKAN_LIBRARY}")
 
     message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
+    message("CMAKE_WINDOWS_NO_CONSOLE: ${CMAKE_WINDOWS_NO_CONSOLE}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")

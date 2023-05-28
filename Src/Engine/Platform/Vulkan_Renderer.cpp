@@ -51,26 +51,30 @@ namespace Project001
 
     Vulkan_Renderer::Vulkan_Renderer(
         Window* windowPtr,
-        unsigned int width,
-        unsigned int height,
+        unsigned int frameBufferWidth,
+        unsigned int frameBufferHeight,
+        unsigned int indexBufferCapacity,
+        unsigned int vertexBufferCapacity,
         bool multisampleAntiAliasing)
         : windowPtr_(windowPtr)
-        , frameBufferWidth_(width)
-        , frameBufferHeight_(height)
+        , frameBufferWidth_(frameBufferWidth)
+        , frameBufferHeight_(frameBufferHeight)
+        , indexBufferCapacity_(indexBufferCapacity)
+        , vertexBufferCapacity_(vertexBufferCapacity)
         , multisampleAntiAliasing_(multisampleAntiAliasing)
         , depthTesting_(true)
         , viewportX_(0)
         , viewportY_(0)
-        , viewportWidth_(width)
-        , viewportHeight_(height)
+        , viewportWidth_(frameBufferWidth)
+        , viewportHeight_(frameBufferHeight)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
         , framebufferResized_(false)
-        , pendingFrameBufferWidth_(width)
-        , pendingFrameBufferHeight_(height)
+        , pendingFrameBufferWidth_(frameBufferWidth)
+        , pendingFrameBufferHeight_(frameBufferHeight)
         , vulkanInstance_(VK_NULL_HANDLE)
         , debugMessenger_(VK_NULL_HANDLE)
         , surface_(VK_NULL_HANDLE)
@@ -167,7 +171,11 @@ namespace Project001
 
         CreateSwapchain();
 
-        CreateDataBuffers();
+        CreateIndexDataBuffers();
+
+        CreateVertexDataBuffers();
+
+        CreateOtherDataBuffers();
 
         CreateDefaultTexture();
 
@@ -233,7 +241,11 @@ namespace Project001
 
         DeleteDefaultTexture();
 
-        DeleteDataBuffers();
+        DeleteOtherDataBuffers();
+
+        DeleteVertexDataBuffers();
+
+        DeleteIndexDataBuffers();
 
         DeleteSwapchain();
 
@@ -246,6 +258,24 @@ namespace Project001
         DeleteSurface();
 
         DeleteVulkanInstance();
+    }
+
+    void Vulkan_Renderer::SetIndexBufferCapacity(unsigned int capacity)
+    {
+        vkDeviceWaitIdle(logicalDevice_);
+        indexBufferCapacity_ = capacity;
+        indexCount_ = 0;
+        DeleteIndexDataBuffers();
+        CreateIndexDataBuffers();
+    }
+
+    void Vulkan_Renderer::SetVertexBufferCapacity(unsigned int capacity)
+    {
+        vkDeviceWaitIdle(logicalDevice_);
+        vertexBufferCapacity_ = capacity;
+        vertexCount_ = 0;
+        DeleteVertexDataBuffers();
+        CreateVertexDataBuffers();
     }
 
     bool Vulkan_Renderer::CreateTexture(
@@ -466,11 +496,11 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        if ((vertexCount_ + meshVertexCount) > s_vertexBufferCapacity_ ||
-            (indexCount_ + meshIndexCount) > s_indexBufferCapacity_)
+        if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
+            (indexCount_ + meshIndexCount) > indexBufferCapacity_)
         {
-            if (meshVertexCount > s_vertexBufferCapacity_ ||
-                meshIndexCount > s_indexBufferCapacity_)
+            if (meshVertexCount > vertexBufferCapacity_ ||
+                meshIndexCount > indexBufferCapacity_)
             {
                 _LOG_ERROR("Mesh larger then buffer!");
                 return false;
@@ -479,8 +509,8 @@ namespace Project001
             Render();
         }
 
-        if ((vertexCount_ + meshVertexCount) > s_vertexBufferCapacity_ ||
-            (indexCount_ + meshIndexCount) > s_indexBufferCapacity_)
+        if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
+            (indexCount_ + meshIndexCount) > indexBufferCapacity_)
         {
             return false;
         }
@@ -1449,21 +1479,48 @@ namespace Project001
         vkDestroySwapchainKHR(logicalDevice_, swapchain_, nullptr);
     }
 
-    void Vulkan_Renderer::CreateDataBuffers()
+    void Vulkan_Renderer::CreateIndexDataBuffers()
     {
-        VkDeviceSize vertexBufferSize = sizeof(VertexData) * s_vertexBufferCapacity_;
-        VkDeviceSize indexBufferSize = sizeof(uint32_t) * s_indexBufferCapacity_;
-
-        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer_, vertexStagingBufferMemory_);
-        _VK_CHECK(vkMapMemory(logicalDevice_, vertexStagingBufferMemory_, 0, vertexBufferSize, 0, (void**)&vertexStagingBufferDataPtr_));
+        VkDeviceSize indexBufferSize = sizeof(uint32_t) * indexBufferCapacity_;
 
         CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indexStagingBuffer_, indexStagingBufferMemory_);
         _VK_CHECK(vkMapMemory(logicalDevice_, indexStagingBufferMemory_, 0, indexBufferSize, 0, (void**)&indexStagingBufferDataPtr_));
 
-        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_);
-
         CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer_, indexBufferMemory_);
+    }
 
+    void Vulkan_Renderer::DeleteIndexDataBuffers()
+    {
+        vkDestroyBuffer(logicalDevice_, indexBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, indexBufferMemory_, nullptr);
+
+        vkUnmapMemory(logicalDevice_, indexStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, indexStagingBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, indexStagingBufferMemory_, nullptr);
+    }
+
+    void Vulkan_Renderer::CreateVertexDataBuffers()
+    {
+        VkDeviceSize vertexBufferSize = sizeof(VertexData) * vertexBufferCapacity_;
+
+        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer_, vertexStagingBufferMemory_);
+        _VK_CHECK(vkMapMemory(logicalDevice_, vertexStagingBufferMemory_, 0, vertexBufferSize, 0, (void**)&vertexStagingBufferDataPtr_));
+
+        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_);
+    }
+
+    void Vulkan_Renderer::DeleteVertexDataBuffers()
+    {
+        vkDestroyBuffer(logicalDevice_, vertexBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, vertexBufferMemory_, nullptr);
+
+        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer_, nullptr);
+        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory_, nullptr);
+    }
+
+    void Vulkan_Renderer::CreateOtherDataBuffers()
+    {
         CreateBuffer(sizeof(VertexShaderUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexShaderUniformBuffer_, vertexShaderUniformBufferMemory_);
 
         CreateBuffer(sizeof(FragmentShaderUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, fragmentShaderUniformBuffer_, fragmentShaderUniformBufferMemory_);
@@ -1503,7 +1560,7 @@ namespace Project001
         vkFreeMemory(logicalDevice_, screenVertexStagingBufferMemory, nullptr);
     }
 
-    void Vulkan_Renderer::DeleteDataBuffers()
+    void Vulkan_Renderer::DeleteOtherDataBuffers()
     {
         vkDestroyBuffer(logicalDevice_, screenVertexBuffer_, nullptr);
         vkFreeMemory(logicalDevice_, screenVertexBufferMemory_, nullptr);
@@ -1513,20 +1570,6 @@ namespace Project001
 
         vkDestroyBuffer(logicalDevice_, vertexShaderUniformBuffer_, nullptr);
         vkFreeMemory(logicalDevice_, vertexShaderUniformBufferMemory_, nullptr);
-
-        vkDestroyBuffer(logicalDevice_, indexBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, indexBufferMemory_, nullptr);
-
-        vkDestroyBuffer(logicalDevice_, vertexBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, vertexBufferMemory_, nullptr);
-
-        vkUnmapMemory(logicalDevice_, indexStagingBufferMemory_);
-        vkDestroyBuffer(logicalDevice_, indexStagingBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, indexStagingBufferMemory_, nullptr);
-
-        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory_);
-        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer_, nullptr);
-        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory_, nullptr);
     }
 
     void Vulkan_Renderer::CreateDefaultTexture()
@@ -2273,15 +2316,18 @@ namespace Project001
         DeletePrimaryFrameBuffers();
         DeletePrimaryFrameBufferAttachments();
 
-        CreatePrimaryFrameBufferAttachments();
-        CreatePrimaryFrameBuffers();
+        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
+        {
+            CreatePrimaryFrameBufferAttachments();
+            CreatePrimaryFrameBuffers();
+        }
     }
 
     void Vulkan_Renderer::HandleSwapchainFramebufferResize()
     {
         int width = 0, height = 0;
         windowPtr_->GetFramebufferSize(width, height);
-        while (width == 0 || height == 0)
+        if (width == 0 || height == 0)
         {
             windowPtr_->SleepAndWaitForEvents();
         }
@@ -3269,12 +3315,6 @@ namespace Project001
     };
 
     const bool Vulkan_Renderer::s_requireSamplerAnisotropy_ = true;
-
-    const unsigned int Vulkan_Renderer::s_indexBufferCapacity_ = 4096; // 4194304; // 8192;
-    const unsigned int Vulkan_Renderer::s_vertexBufferCapacity_ = 4096; // 4194304; // 6144;
-
-    // const VkFormat Vulkan_Renderer::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    // const VkFormat Vulkan_Renderer::s_textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
 
     const VkFormat Vulkan_Renderer::s_desiredSurfaceFormat = VK_FORMAT_B8G8R8A8_UNORM;
     const VkFormat Vulkan_Renderer::s_textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
