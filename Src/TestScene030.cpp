@@ -15,7 +15,6 @@
 // public ----------------------------------------------------------------------
 
 TestScene030::TestScene030()
-    : meshDataPtr00_(nullptr)
 {
     ClearResources();
 }
@@ -36,7 +35,7 @@ bool TestScene030::OnInitialize()
 
     // Generate mesh
     // -------------------------------------------------------------------------
-    meshDataPtr00_ = new Project001::MeshData();
+    Project001::MeshData* meshDataPtr00_ = new Project001::MeshData();
     meshDataPtrArray_.push_back(meshDataPtr00_);
     glm::vec3 min(-0.04f, -0.04f, -0.04f);
     glm::vec3 max(0.04f, 0.04f, 0.04f);
@@ -46,13 +45,13 @@ bool TestScene030::OnInitialize()
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
+    int columns = 20;
     int rows = 10;
-    int columns = 10;
     int depthRows = 10;
 
-    for (int i = rows / -2; i < (rows + 1) / 2; ++i)
+    for (int i = columns / -2; i < (columns + 1) / 2; ++i)
     {
-        for (int j = columns / -2; j < (columns + 1) / 2; ++j)
+        for (int j = rows / -2; j < (rows + 1) / 2; ++j)
         {
             for (int k = depthRows / -2; k < (depthRows + 1) / 2; ++k)
             {
@@ -98,9 +97,7 @@ void TestScene030::OnHandleEvent(Project001::Event& event)
 }
 
 void TestScene030::ClearResources()
-{
-    delete meshDataPtr00_;
-}
+{}
 
 void TestScene030::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {

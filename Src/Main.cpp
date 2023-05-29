@@ -34,29 +34,9 @@ int main(int argc, char** argv)
     applicationInfo.windowHeight = 160 * sizeScalar;
     applicationInfo.frameBufferWidth = 240 * sizeScalar;
     applicationInfo.frameBufferHeight = 160 * sizeScalar;
-    applicationInfo.indexBufferCapacity = 4096;
-    applicationInfo.vertexBufferCapacity = 4096;
+    applicationInfo.indexBufferCapacity = 1024 * 8;
+    applicationInfo.vertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
-
-    // tests shape generation (001)
-    TestScene002* testScene002Ptr = new TestScene002();
-    applicationPtr->AddScene(testScene002Ptr);
-
-    // tests 3d shape generation (001)
-    TestScene003* testScene003Ptr = new TestScene003();
-    applicationPtr->AddScene(testScene003Ptr);
-
-    // tests additional shape generation and rendering 35 textures (001)
-    TestScene004* testScene004Ptr = new TestScene004();
-    applicationPtr->AddScene(testScene004Ptr);
-
-    // testing text generation (001)
-    TestScene006* testScene006Ptr = new TestScene006();
-    applicationPtr->AddScene(testScene006Ptr);
-
-    // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
-    TestScene007* testScene007Ptr = new TestScene007();
-    applicationPtr->AddScene(testScene007Ptr);
 
     // tests 2d shape overlap (002)
     TestScene010* testScene010Ptr = new TestScene010();
@@ -82,6 +62,25 @@ int main(int argc, char** argv)
     TestScene030* testScene030Ptr = new TestScene030();
     applicationPtr->AddScene(testScene030Ptr);
 
+    // tests shape generation (001)
+    TestScene002* testScene002Ptr = new TestScene002();
+    applicationPtr->AddScene(testScene002Ptr);
+
+    // tests 3d shape generation (001)
+    TestScene003* testScene003Ptr = new TestScene003();
+    applicationPtr->AddScene(testScene003Ptr);
+
+    // tests additional shape generation and rendering 35 textures (001)
+    TestScene004* testScene004Ptr = new TestScene004();
+    applicationPtr->AddScene(testScene004Ptr);
+
+    // testing text generation (001)
+    TestScene006* testScene006Ptr = new TestScene006();
+    applicationPtr->AddScene(testScene006Ptr);
+
+    // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
+    TestScene007* testScene007Ptr = new TestScene007();
+    applicationPtr->AddScene(testScene007Ptr);
 
     applicationPtr->Run();
 

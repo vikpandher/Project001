@@ -33,9 +33,5 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // 
-
-    Project001::MeshData* meshDataPtr00_;
-
 private:
 };

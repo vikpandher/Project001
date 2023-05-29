@@ -14,6 +14,6 @@
         Project001::Logger::Error("Vulkan ErrorCode: %s %d %d", __FILE__, __LINE__, result);\
     }\
 }
-#elif
-#define VK_CHECK(x)
+#else
+#define _VK_CHECK(f) f
 #endif

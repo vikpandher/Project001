@@ -3305,8 +3305,8 @@ namespace Project001
         "VK_LAYER_KHRONOS_validation"
     };
 #else
-    const bool VulkanTutorial_Renderer::s_enableValidationLayers_ = false;
-    const std::vector<const char*> VulkanTutorial_Renderer::s_validationLayers_ = {};
+    const bool Vulkan_Renderer::s_enableValidationLayers_ = false;
+    const std::vector<const char*> Vulkan_Renderer::s_validationLayers_ = {};
 #endif
 
     const std::vector<const char*> Vulkan_Renderer::s_deviceExtensions_ =
