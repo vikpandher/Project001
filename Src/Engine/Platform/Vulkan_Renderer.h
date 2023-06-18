@@ -138,77 +138,314 @@ namespace Project001
             VkDeviceMemory textureImageMemory_;
             VkImageView textureImageView_;
             VkSampler textureSampler_;
+
+            bool Initialized()
+            {
+                return textureImage_ != VK_NULL_HANDLE &&
+                    textureImageMemory_ != VK_NULL_HANDLE &&
+                    textureImageView_ != VK_NULL_HANDLE &&
+                    textureSampler_ != VK_NULL_HANDLE;
+            }
         };
 
+        // Creates:
+        //     vulkanInstance_
+        //     debugMessenger_
         void CreateVulkanInstance();
         void DeleteVulkanInstance();
 
+        // Requires:
+        //     vulkanInstance_
+        // Creates:
+        //     surface_
         void CreateSurface();
         void DeleteSurface();
 
+        // Requires:
+        //     vulkanInstance_
+        //     surface_
+        // Gets:
+        //     physicalDevice_
+        // Sets:
+        //     graphicsQueueFamilyIndex_
+        //     presentQueueFamilyIndex_
+        //     surfaceCapabilities_
+        //     surfaceExtent_
+        //     surfaceFormat_
+        //     formatProperties_
+        //     depthFormat_
+        //     surfacePresentMode_
+        //     physicalDeviceProperties_
+        //     msaaSampleCount_
         void PickPhysicalDevice();
+        void UnPickPhysicalDevice();
 
+        // Requires:
+        //     physicalDevice_
+        //     graphicsQueueFamilyIndex_
+        //     presentQueueFamilyIndex_
+        // Creates:
+        //     logicalDevice_
+        // Gets:
+        //     graphicsQueue_
+        //     presentQueue_
         void CreateLogicalDevice();
         void DeleteLogicalDevice();
 
+        // Requires:
+        //     logicalDevice_
+        //     graphicsQueueFamilyIndex_
+        // Creates:
+        //     commandPool_
         void CreateCommandPool();
         void DeleteCommandPool();
 
-        void CreateCommandBuffers();
+        // Requires:
+        //     logicalDevice_
+        //     commandPool_
+        // Allocates:
+        //     commandBuffer_
+        void CreateCommandBuffer();
 
+        // Requires:
+        //     logicalDevice_
+        // Creates:
+        //     mainFence_
+        //     imageAvailableSemaphore_
+        //     renderFinishedSemaphore_
         void CreateSyncObjects();
         void DeleteSyncObjects();
 
+        // Requires:
+        //     logicalDevice_
+        //     surface_
+        //     graphicsQueueFamilyIndex_
+        //     presentQueueFamilyIndex_
+        //     surfaceCapabilities_
+        //     surfaceExtent_
+        //     surfaceFormat_
+        //     surfacePresentMode_
+        // Creates:
+        //     swapchain_
+        //     swapchainImageViews_
+        // Sets:
+        //     swapchainImageCount_
+        //     swapchainImages_
         void CreateSwapchain();
         void DeleteSwapchain();
 
+        // Requires:
+        //     physicalDevice_
+        //     logicalDevice_
+        // Creates:
+        //     indexStagingBuffer_
+        //     indexBuffer_
+        // Allocates:
+        //     indexStagingBufferMemory_
+        //     indexBufferMemory_
+        // Sets:
+        //     indexStagingBufferDataPtr_
+        //     indexCount_
         void CreateIndexDataBuffers();
         void DeleteIndexDataBuffers();
 
+        // Requires:
+        //     physicalDevice_
+        //     logicalDevice_
+        // Creates:
+        //     vertexStagingBuffer_
+        //     vertexBuffer_
+        // Allocates:
+        //     vertexStagingBufferMemory_
+        //     vertexBufferMemory_
+        // Sets:
+        //     vertexStagingBufferDataPtr_
+        //     vertexCount_
         void CreateVertexDataBuffers();
         void DeleteVertexDataBuffers();
 
+        // Requires:
+        //     physicalDevice_
+        //     logicalDevice_
+        //     commandPool_
+        // Creates:
+        //     vertexShaderUniformBuffer_
+        //     fragmentShaderUniformBuffer_
+        //     screenVertexBuffer_
+        // Allocates:
+        //     vertexShaderUniformBufferMemory_
+        //     fragmentShaderUniformBufferMemory_
+        //     screenVertexBufferMemory_
         void CreateOtherDataBuffers();
         void DeleteOtherDataBuffers();
 
+        // Requires:
+        //     physicalDevice_
+        //     logicalDevice_
+        //     graphicsQueue_
+        //     commandPool_
+        //     commandBuffer_
+        // Creates:
+        //     defaultTexture_
         void CreateDefaultTexture();
         void DeleteDefaultTexture();
 
+        // Requires:
+        //     logicalDevice_
+        // Creates:
+        //     secondaryDescriptorSetLayout_
+        //     primaryDescriptorSetLayout_
         void CreateDescriptorSetLayouts();
         void DeleteDescriptorSetLayouts();
 
+        // Requires:
+        //     logicalDevice_
+        // Creates:
+        //     descriptorPool_
         void CreateDescriptorPool();
         void DeleteDescriptorPool();
 
+        // Requires:
+        //     logicalDevice_
+        //     descriptorPool_
+        //     primaryDescriptorSetLayout_
+        //     secondaryDescriptorSetLayout_
+        //     vertexShaderUniformBuffer_
+        //     fragmentShaderUniformBuffer_
+        //     defaultTexture_
+        // Creates:
+        //     primaryDescriptorSet_
+        //     secondaryDescriptorSet_
         void CreateDescriptorSets();
 
+        // Requires:
+        //     logicalDevice_
+        //     primaryDescriptorSetLayout_
+        //     secondaryDescriptorSetLayout_
+        // Creates:
+        //     primaryPipelineLayout_
+        //     secondaryPipelineLayout_
         void CreatePipelineLayouts();
         void DeletePipelineLayouts();
 
+        // Requires:
+        //     logicalDevice_
+        // Creates:
+        //     vertexBatchShaderModule_
+        //     fragmentBatchShaderModule_
         void CreateBatchShaderModules();
         void DeleteBatchShaderModules();
 
+        // Requires:
+        //     logicalDevice_
+        //     depthFormat_
+        //     msaaSampleCount_
+        // Creates:
+        //     primaryRenderPass1_
+        //     primaryRenderPass2_
+        //     primaryRenderPass3_
+        //     primaryRenderPass4_
         void CreatePrimaryRenderPasses();
         void DeletePrimaryRenderPasses();
 
+        // Requires:
+        //     logicalDevice_
+        //     msaaSampleCount_
+        //     primaryPipelineLayout_
+        //     vertexBatchShaderModule_
+        //     fragmentBatchShaderModule_
+        //     primaryRenderPass1_
+        //     primaryRenderPass2_
+        //     primaryRenderPass3_
+        //     primaryRenderPass4_
+        // Creates:
+        //     primaryGraphicsPipeline1_
+        //     primaryGraphicsPipeline2_
+        //     primaryGraphicsPipeline3_
+        //     primaryGraphicsPipeline4_
         void CreatePrimaryGraphicsPipelines();
         void DeletePrimaryGraphicsPipelines();
 
+        // Requires:
+        //     frameBufferWidth_
+        //     frameBufferHeight_
+        //     physicalDevice_
+        //     depthFormat_
+        //     msaaSampleCount_
+        //     logicalDevice_
+        //     graphicsQueue_
+        //     commandPool_
+        //     commandBuffer_
+        // Creates:
+        //     screenTexture_
+        //     depthImage_
+        //     depthImageView_
+        //     msaaImage_
+        //     msaaImageView_
+        //     msaaDepthImage_
+        //     msaaDepthImageView_
+        // Allocates:
+        //     depthImageMemory_
+        //     msaaImageMemory_
+        //     msaaDepthImageMemory_
         void CreatePrimaryFrameBufferAttachments();
         void DeletePrimaryFrameBufferAttachments();
 
+        // Requires:
+        //     frameBufferWidth_
+        //     frameBufferHeight_
+        //     logicalDevice_
+        //     primaryRenderPass1_
+        //     primaryRenderPass2_
+        //     primaryRenderPass3_
+        //     primaryRenderPass4_
+        //     screenTexture_
+        //     depthImageView_
+        //     msaaImageView_
+        //     msaaDepthImageView_
+        // Creates:
+        //     primaryFrameBuffer1_
+        //     primaryFrameBuffer2_
+        //     primaryFrameBuffer3_
+        //     primaryFrameBuffer4_
         void CreatePrimaryFrameBuffers();
         void DeletePrimaryFrameBuffers();
 
+        // Requires:
+        //     logicalDevice_
+        // Creates:
+        //     vertexScreenShaderModule_
+        //     fragmentScreenShaderModule_
         void CreateScreenShaderModules();
         void DeleteScreenShaderModules();
 
+        // Requires:
+        //     logicalDevice_
+        //     surfaceFormat_
+        // Creates:
+        //     secondaryRenderPass_
         void CreateSecondaryRenderPass();
         void DeleteSecondaryRenderPass();
 
+        // Requires:
+        //     logicalDevice_
+        //     secondaryPipelineLayout_
+        //     vertexScreenShaderModule_
+        //     fragmentScreenShaderModule_
+        //     secondaryRenderPass_
+        // Creates:
+        //     secondaryGraphicsPipeline_
         void CreateSecondaryGraphicsPipeline();
         void DeleteSecondaryGraphicsPipeline();
 
+        // Requires:
+        //     logicalDevice_
+        //     surfaceExtent_
+        //     swapchainImageCount_
+        //     swapchainImageViews_
+        //     secondaryRenderPass_
+        // Creates:
+        //     swapchainFramebuffers_
         void CreateSwapchainFramebuffers();
         void DeleteSwapchainFramebuffers();
 
@@ -380,33 +617,37 @@ namespace Project001
         VkQueue graphicsQueue_;
         VkQueue presentQueue_;
 
+        VkCommandPool commandPool_;
+
+        VkCommandBuffer commandBuffer_;
+
+        VkFence mainFence_;
+        VkSemaphore imageAvailableSemaphore_;
+        VkSemaphore renderFinishedSemaphore_;
+
         VkSwapchainKHR swapchain_;
         uint32_t swapchainImageCount_;
         std::vector<VkImage> swapchainImages_;
         std::vector<VkImageView> swapchainImageViews_;
 
-        VkBuffer vertexStagingBuffer_;
-        VkDeviceMemory vertexStagingBufferMemory_;
-        VertexData* vertexStagingBufferDataPtr_;
-        size_t vertexCount_;
-
         VkBuffer indexStagingBuffer_;
         VkDeviceMemory indexStagingBufferMemory_;
         uint32_t* indexStagingBufferDataPtr_;
         size_t indexCount_;
-
-        VkBuffer vertexBuffer_;
-        VkDeviceMemory vertexBufferMemory_;
-
         VkBuffer indexBuffer_;
         VkDeviceMemory indexBufferMemory_;
 
+        VkBuffer vertexStagingBuffer_;
+        VkDeviceMemory vertexStagingBufferMemory_;
+        VertexData* vertexStagingBufferDataPtr_;
+        size_t vertexCount_;
+        VkBuffer vertexBuffer_;
+        VkDeviceMemory vertexBufferMemory_;
+
         VkBuffer vertexShaderUniformBuffer_;
         VkDeviceMemory vertexShaderUniformBufferMemory_;
-
         VkBuffer fragmentShaderUniformBuffer_;
         VkDeviceMemory fragmentShaderUniformBufferMemory_;
-
         VkBuffer screenVertexBuffer_;
         VkDeviceMemory screenVertexBufferMemory_;
 
@@ -420,11 +661,11 @@ namespace Project001
         VkDescriptorSet primaryDescriptorSet_;
         VkDescriptorSet secondaryDescriptorSet_;
 
-        VkShaderModule vertexBatchShaderModule_;
-        VkShaderModule fragmentBatchShaderModule_;
-
         VkPipelineLayout primaryPipelineLayout_;
         VkPipelineLayout secondaryPipelineLayout_;
+
+        VkShaderModule vertexBatchShaderModule_;
+        VkShaderModule fragmentBatchShaderModule_;
 
         VkRenderPass primaryRenderPass1_; // No  MSAA && No  DepthTesting
         VkRenderPass primaryRenderPass2_; // No  MSAA && Yes DepthTesting
@@ -460,14 +701,6 @@ namespace Project001
         std::vector<VkFramebuffer> swapchainFramebuffers_;
 
         VkPipeline secondaryGraphicsPipeline_;
-
-        VkCommandPool commandPool_;
-
-        VkCommandBuffer commandBuffer_;
-
-        VkFence mainFence_;
-        VkSemaphore imageAvailableSemaphore_;
-        VkSemaphore renderFinishedSemaphore_;
 
         uint32_t currentSwapchainFramebufferIndex_;
 

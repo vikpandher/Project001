@@ -97,6 +97,9 @@ namespace Project001
             std::chrono::duration<unsigned long, std::nano> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
             unsigned long lastFrameDuration_ns = lastFrameDuration.count();
 
+            // Sleep to achive desired frame duration
+            // -----------------------------------------------------------------
+
             if (sleepyRunLoop_)
             {
                 if (lastFrameDuration_ns < desiredFrameDuration_ns_)
@@ -118,12 +121,18 @@ namespace Project001
                 }
             }
 
+            // Slept for too long, so catch up on UpdateEvents
+            // -----------------------------------------------------------------
+
             simulationTimeDebt_ns += lastFrameDuration_ns;
             while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
             {
                 OnHandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
             }
+
+            // Render
+            // -----------------------------------------------------------------
 
             OnHandleEvent(RenderEvent(0, lastFrameDuration_ns));
             windowPtr_->PollEvents();

@@ -290,62 +290,68 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
 void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    rendererPtr_->ClearDirectionalLight();
-    rendererPtr_->ClearPointLights();
-    rendererPtr_->ClearSpotLights();
-
-    rendererPtr_->BeginRendering();
-    rendererPtr_->Clear();
-
-    Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-
-    if (cameraPtr->IsTurnedOn())
+    int windowFramebufferWidth;
+    int windowFramebufferHeight;
+    windowPtr_->GetFramebufferSize(windowFramebufferWidth, windowFramebufferHeight);
+    if (windowFramebufferWidth > 0 && windowFramebufferHeight > 0)
     {
-        rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
-        rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
-        rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
+        rendererPtr_->ClearDirectionalLight();
+        rendererPtr_->ClearPointLights();
+        rendererPtr_->ClearSpotLights();
 
-        Project001::RenderedModel* renderedModelArray = nullptr;
-        size_t renderedModelCount = 0;
-
-        componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
-
-        for (unsigned int i = 0; i < renderedModelCount; ++i)
-        {
-            Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
-
-            if (currentRenderedModel.IsVisible())
-            {
-                const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
-                if (currentMeshDataPtr != nullptr)
-                {
-                    _FAIL_CHECK(rendererPtr_->AddMesh(
-                        currentMeshDataPtr->meshVertexArray.data(),
-                        (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                        currentMeshDataPtr->meshIndexArray.data(),
-                        (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                        currentRenderedModel.GetTextureId(),
-                        currentRenderedModel.GetSpecularId(),
-                        currentRenderedModel.GetPosition(),
-                        currentRenderedModel.GetOrientation(),
-                        currentRenderedModel.GetScale(),
-                        currentRenderedModel.GetColor(),
-                        currentRenderedModel.GetShininess(),
-                        currentRenderedModel.GetTranslucent(),
-                        currentRenderedModel.GetLit()));
-                }
-            }
-        }
+        rendererPtr_->BeginRendering();
+        rendererPtr_->Clear();
 
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
-        rendererPtr_->Render();
-    }
+        if (cameraPtr->IsTurnedOn())
+        {
+            rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
+            rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
+            rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
 
-    rendererPtr_->FinishRendering();
-    rendererPtr_->SwapBuffers();
+            Project001::RenderedModel* renderedModelArray = nullptr;
+            size_t renderedModelCount = 0;
+
+            componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
+
+            for (unsigned int i = 0; i < renderedModelCount; ++i)
+            {
+                Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
+
+                if (currentRenderedModel.IsVisible())
+                {
+                    const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
+                    if (currentMeshDataPtr != nullptr)
+                    {
+                        _FAIL_CHECK(rendererPtr_->AddMesh(
+                            currentMeshDataPtr->meshVertexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                            currentMeshDataPtr->meshIndexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                            currentRenderedModel.GetTextureId(),
+                            currentRenderedModel.GetSpecularId(),
+                            currentRenderedModel.GetPosition(),
+                            currentRenderedModel.GetOrientation(),
+                            currentRenderedModel.GetScale(),
+                            currentRenderedModel.GetColor(),
+                            currentRenderedModel.GetShininess(),
+                            currentRenderedModel.GetTranslucent(),
+                            currentRenderedModel.GetLit()));
+                    }
+                }
+            }
+
+            Project001::Camera* cameraPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+
+            rendererPtr_->Render();
+        }
+
+        rendererPtr_->FinishRendering();
+        rendererPtr_->SwapBuffers();
+    }
 
     renderEvent.handled = true;
 }

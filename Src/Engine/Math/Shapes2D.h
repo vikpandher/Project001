@@ -2,6 +2,8 @@
 
 #include "glm/glm.hpp"
 
+#include <vector>
+
 
 
 namespace Project001
@@ -181,5 +183,35 @@ namespace Project001
         : corner1(corner1)
         , corner2(corner2)
         , corner3(corner3)
+    {}
+
+    struct Polygon2D
+    {
+        Polygon2D();
+        Polygon2D(const std::vector<glm::vec2>& positions);
+
+        std::vector<glm::vec2> positions;
+    };
+
+    inline Polygon2D::Polygon2D()
+    {}
+
+    inline Polygon2D::Polygon2D(const std::vector<glm::vec2>& positions)
+        : positions(positions)
+    {}
+
+    struct ConvexPolygon2D
+    {
+        ConvexPolygon2D();
+        ConvexPolygon2D(const std::vector<glm::vec2>& positions);
+
+        std::vector<glm::vec2> positions;
+    };
+
+    inline ConvexPolygon2D::ConvexPolygon2D()
+    {}
+
+    inline ConvexPolygon2D::ConvexPolygon2D(const std::vector<glm::vec2>& positions)
+        : positions(positions)
     {}
 }

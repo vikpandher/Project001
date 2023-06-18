@@ -213,148 +213,156 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
 void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    rendererPtr_->ClearDirectionalLight();
-    rendererPtr_->ClearPointLights();
-    rendererPtr_->ClearSpotLights();
-
-    rendererPtr_->BeginRendering();
-    rendererPtr_->Clear();
-
-    Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-
-    if (cameraPtr->IsTurnedOn())
+    int windowFramebufferWidth;
+    int windowFramebufferHeight;
+    windowPtr_->GetFramebufferSize(windowFramebufferWidth, windowFramebufferHeight);
+    if (windowFramebufferWidth > 0 && windowFramebufferHeight > 0)
     {
-        rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
-        rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
-        rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
+        rendererPtr_->ClearDirectionalLight();
+        rendererPtr_->ClearPointLights();
+        rendererPtr_->ClearSpotLights();
 
-        Project001::LightSource* lightSourceArray = nullptr;
-        size_t lightSourceCount = 0;
-        componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount);
+        rendererPtr_->BeginRendering();
+        rendererPtr_->Clear();
 
-        for (unsigned int i = 0; i < lightSourceCount; ++i)
+        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+
+        if (cameraPtr->IsTurnedOn())
         {
-            Project001::LightSource& currentLightSource = lightSourceArray[i];
-            if (currentLightSource.IsTurnedOn())
+            rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
+            rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
+            rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
+
+            Project001::LightSource* lightSourceArray = nullptr;
+            size_t lightSourceCount = 0;
+            componentStoresPtr_->GetAllComponents<Project001::LightSource>(lightSourceArray, lightSourceCount);
+
+            for (unsigned int i = 0; i < lightSourceCount; ++i)
             {
-                if (currentLightSource.IsLightTypeDirectional())
+                Project001::LightSource& currentLightSource = lightSourceArray[i];
+                if (currentLightSource.IsTurnedOn())
                 {
-                    rendererPtr_->SetDirectionalLight(
-                        currentLightSource.GetDirection(),
-                        currentLightSource.GetAmbientColor(),
-                        currentLightSource.GetDiffuseColor(),
-                        currentLightSource.GetSpecularColor()
-                    );
-                }
-                else if (currentLightSource.IsLightTypePoint())
-                {
-                    rendererPtr_->AddPointLight(
-                        currentLightSource.GetPosition(),
-                        currentLightSource.GetAttenuationConstant(),
-                        currentLightSource.GetLinearAttenuation(),
-                        currentLightSource.GetQuadraticAttenuation(),
-                        currentLightSource.GetAmbientColor(),
-                        currentLightSource.GetDiffuseColor(),
-                        currentLightSource.GetSpecularColor()
-                    );
-                }
-                else if (currentLightSource.IsLightTypeSpot())
-                {
-                    rendererPtr_->AddSpotLight(
-                        currentLightSource.GetPosition(),
-                        currentLightSource.GetDirection(),
-                        currentLightSource.GetCutoff(),
-                        currentLightSource.GetOuterCutoff(),
-                        currentLightSource.GetAttenuationConstant(),
-                        currentLightSource.GetLinearAttenuation(),
-                        currentLightSource.GetQuadraticAttenuation(),
-                        currentLightSource.GetAmbientColor(),
-                        currentLightSource.GetDiffuseColor(),
-                        currentLightSource.GetSpecularColor()
-                    );
+                    if (currentLightSource.IsLightTypeDirectional())
+                    {
+                        rendererPtr_->SetDirectionalLight(
+                            currentLightSource.GetDirection(),
+                            currentLightSource.GetAmbientColor(),
+                            currentLightSource.GetDiffuseColor(),
+                            currentLightSource.GetSpecularColor()
+                        );
+                    }
+                    else if (currentLightSource.IsLightTypePoint())
+                    {
+                        rendererPtr_->AddPointLight(
+                            currentLightSource.GetPosition(),
+                            currentLightSource.GetAttenuationConstant(),
+                            currentLightSource.GetLinearAttenuation(),
+                            currentLightSource.GetQuadraticAttenuation(),
+                            currentLightSource.GetAmbientColor(),
+                            currentLightSource.GetDiffuseColor(),
+                            currentLightSource.GetSpecularColor()
+                        );
+                    }
+                    else if (currentLightSource.IsLightTypeSpot())
+                    {
+                        rendererPtr_->AddSpotLight(
+                            currentLightSource.GetPosition(),
+                            currentLightSource.GetDirection(),
+                            currentLightSource.GetCutoff(),
+                            currentLightSource.GetOuterCutoff(),
+                            currentLightSource.GetAttenuationConstant(),
+                            currentLightSource.GetLinearAttenuation(),
+                            currentLightSource.GetQuadraticAttenuation(),
+                            currentLightSource.GetAmbientColor(),
+                            currentLightSource.GetDiffuseColor(),
+                            currentLightSource.GetSpecularColor()
+                        );
+                    }
                 }
             }
-        }
 
-        Project001::RenderedModel* renderedModelArray = nullptr;
-        size_t renderedModelCount = 0;
-        componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
+            Project001::RenderedModel* renderedModelArray = nullptr;
+            size_t renderedModelCount = 0;
+            componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
 
-        std::vector<Project001::RenderedModel*> renderedModelPtrs;
-        renderedModelPtrs.reserve(renderedModelCount);
-        for (size_t i = 0; i < renderedModelCount; ++i)
-        {
-            renderedModelPtrs.emplace_back(&renderedModelArray[i]);
-        }
-        std::sort(renderedModelPtrs.begin(), renderedModelPtrs.end(),
-            [cameraPtr](Project001::RenderedModel* a, Project001::RenderedModel* b)->bool
+            std::vector<Project001::RenderedModel*> renderedModelPtrs;
+            renderedModelPtrs.reserve(renderedModelCount);
+            for (size_t i = 0; i < renderedModelCount; ++i)
             {
-                bool aTranslucent = a->GetTranslucent();
-                bool bTranslucent = b->GetTranslucent();
-                if (aTranslucent)
+                // TODO: add frustum culling
+
+                renderedModelPtrs.emplace_back(&renderedModelArray[i]);
+            }
+            std::sort(renderedModelPtrs.begin(), renderedModelPtrs.end(),
+                [cameraPtr](Project001::RenderedModel* a, Project001::RenderedModel* b)->bool
                 {
+                    bool aTranslucent = a->GetTranslucent();
+                    bool bTranslucent = b->GetTranslucent();
+                    if (aTranslucent)
+                    {
+                        if (bTranslucent)
+                        {
+                            // both are translucent so the farther is drawn first
+                            glm::vec3 cameraPosition = cameraPtr->GetPosition();
+                            float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                            float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                            return disatanceSquaredA > disatanceSquaredB;
+                        }
+                        else
+                        {
+                            // the one that is translucent is drawn last
+                            return false;
+                        }
+                    }
                     if (bTranslucent)
                     {
-                        // both are translucent so the farther is drawn first
-                        glm::vec3 cameraPosition = cameraPtr->GetPosition();
-                        float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
-                        float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
-                        return disatanceSquaredA > disatanceSquaredB;
+                        // the one that is translucent is drawn last
+                        return true;
                     }
                     else
                     {
-                        // the one that is translucent is drawn last
-                        return false;
+                        // both are not translucent so the closer is drawn first
+                        glm::vec3 cameraPosition = cameraPtr->GetPosition();
+                        float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
+                        float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
+                        return disatanceSquaredA < disatanceSquaredB;
+                    }
+                });
+
+            for (unsigned int i = 0; i < renderedModelPtrs.size(); ++i)
+            {
+                Project001::RenderedModel*& currentRenderedModelPtr = renderedModelPtrs[i];
+
+                if (currentRenderedModelPtr->IsVisible())
+                {
+                    const Project001::MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
+                    if (currentMeshDataPtr != nullptr)
+                    {
+                        _FAIL_CHECK(rendererPtr_->AddMesh(
+                            currentMeshDataPtr->meshVertexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                            currentMeshDataPtr->meshIndexArray.data(),
+                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                            currentRenderedModelPtr->GetTextureId(),
+                            currentRenderedModelPtr->GetSpecularId(),
+                            currentRenderedModelPtr->GetPosition(),
+                            currentRenderedModelPtr->GetOrientation(),
+                            currentRenderedModelPtr->GetScale(),
+                            currentRenderedModelPtr->GetColor(),
+                            currentRenderedModelPtr->GetShininess(),
+                            currentRenderedModelPtr->GetTranslucent(),
+                            currentRenderedModelPtr->GetLit()));
                     }
                 }
-                if (bTranslucent)
-                {
-                    // the one that is translucent is drawn last
-                    return true;
-                }
-                else
-                {
-                    // both are not translucent so the closer is drawn first
-                    glm::vec3 cameraPosition = cameraPtr->GetPosition();
-                    float disatanceSquaredA = glm::dot(cameraPosition - a->GetPosition(), cameraPosition - a->GetPosition());
-                    float disatanceSquaredB = glm::dot(cameraPosition - b->GetPosition(), cameraPosition - b->GetPosition());
-                    return disatanceSquaredA < disatanceSquaredB;
-                }
-            });
-
-        for (unsigned int i = 0; i < renderedModelPtrs.size(); ++i)
-        {
-            Project001::RenderedModel*& currentRenderedModelPtr = renderedModelPtrs[i];
-
-            if (currentRenderedModelPtr->IsVisible())
-            {
-                const Project001::MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
-                if (currentMeshDataPtr != nullptr)
-                {
-                    _FAIL_CHECK(rendererPtr_->AddMesh(
-                        currentMeshDataPtr->meshVertexArray.data(),
-                        (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                        currentMeshDataPtr->meshIndexArray.data(),
-                        (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                        currentRenderedModelPtr->GetTextureId(),
-                        currentRenderedModelPtr->GetSpecularId(),
-                        currentRenderedModelPtr->GetPosition(),
-                        currentRenderedModelPtr->GetOrientation(),
-                        currentRenderedModelPtr->GetScale(),
-                        currentRenderedModelPtr->GetColor(),
-                        currentRenderedModelPtr->GetShininess(),
-                        currentRenderedModelPtr->GetTranslucent(),
-                        currentRenderedModelPtr->GetLit()));
-                }
             }
+
+            rendererPtr_->Render();
         }
 
-        rendererPtr_->Render();
+        rendererPtr_->FinishRendering();
+        rendererPtr_->SwapBuffers();
     }
-
-    rendererPtr_->FinishRendering();
-    rendererPtr_->SwapBuffers();
 
     renderEvent.handled = true;
 }
