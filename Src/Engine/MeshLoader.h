@@ -20,9 +20,9 @@ namespace Project001
 
         static bool LoadTriangleMesh(
             MeshData& meshData,
-            std::vector<glm::vec3>& positions,
-            std::vector<glm::vec3>& normals,
-            std::vector<glm::ivec2>& faces);
+            const std::vector<glm::vec3>& positions,
+            const std::vector<glm::vec3>& normals,
+            const std::vector<glm::ivec2>& faces);
 
         static bool Generate2DTriangleFan(
             MeshData& meshData,

@@ -14,13 +14,7 @@ namespace Project001
     class Vulkan_Renderer : public Renderer
     {
     public:
-        Vulkan_Renderer(
-            Window* windowPtr,
-            unsigned int frameBufferWidth,
-            unsigned int frameBufferHeight,
-            unsigned int indexBufferCapacity,
-            unsigned int vertexBufferCapacity,
-            bool multisampleAntiAliasing);
+        Vulkan_Renderer(const RendererInfo& rendererInfo);
 
         ~Vulkan_Renderer() override;
 
@@ -31,6 +25,10 @@ namespace Project001
         void SetIndexBufferCapacity(unsigned int capacity) override;
 
         void SetVertexBufferCapacity(unsigned int capacity) override;
+
+        void GetFramebufferSize(
+            unsigned int& width,
+            unsigned int& height) const override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -722,6 +720,14 @@ namespace Project001
     inline void Vulkan_Renderer::SetMultisampleAntiAliasing(bool multisampleAntiAliasing)
     {
         multisampleAntiAliasing_ = multisampleAntiAliasing;
+    }
+
+    inline void Vulkan_Renderer::GetFramebufferSize(
+        unsigned int& width,
+        unsigned int& height) const
+    {
+        width = pendingFrameBufferWidth_;
+        height = pendingFrameBufferHeight_;
     }
 
     inline void Vulkan_Renderer::SetFramebufferSize(

@@ -25,6 +25,7 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
@@ -95,13 +96,16 @@ namespace Project001
                 {
                     glm::vec3 newPosition(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
 
-                    maxVertexPosition.x = std::max(maxVertexPosition.x, newPosition.x);
-                    maxVertexPosition.y = std::max(maxVertexPosition.y, newPosition.y);
-                    maxVertexPosition.z = std::max(maxVertexPosition.z, newPosition.z);
+                    float vertexRadius = glm::length(newPosition);
+                    if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-                    minVertexPosition.x = std::min(minVertexPosition.x, newPosition.x);
-                    minVertexPosition.y = std::min(minVertexPosition.y, newPosition.y);
-                    minVertexPosition.z = std::min(minVertexPosition.z, newPosition.z);
+                    if (maxVertexPosition.x < newPosition.x) maxVertexPosition.x = newPosition.x;
+                    if (maxVertexPosition.y < newPosition.y) maxVertexPosition.y = newPosition.y;
+                    if (maxVertexPosition.z < newPosition.z) maxVertexPosition.z = newPosition.z;
+
+                    if (minVertexPosition.x > newPosition.x) minVertexPosition.x = newPosition.x;
+                    if (minVertexPosition.y > newPosition.y) minVertexPosition.y = newPosition.y;
+                    if (minVertexPosition.z > newPosition.z) minVertexPosition.z = newPosition.z;
 
                     positions.push_back(newPosition);
                 }
@@ -275,9 +279,9 @@ namespace Project001
 
     bool MeshLoader::LoadTriangleMesh(
         MeshData& meshData,
-        std::vector<glm::vec3>& positions,
-        std::vector<glm::vec3>& normals,
-        std::vector<glm::ivec2>& faces)
+        const std::vector<glm::vec3>& positions,
+        const std::vector<glm::vec3>& normals,
+        const std::vector<glm::ivec2>& faces)
     {
         if (faces.empty())
         {
@@ -286,6 +290,7 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
@@ -310,13 +315,17 @@ namespace Project001
 
         for (size_t i = 0; i < positions.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
-            maxVertexPosition.z = std::max(maxVertexPosition.z, positions[i].z);
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
-            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
-            minVertexPosition.z = std::min(minVertexPosition.z, positions[i].z);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
         if (meshVertexArray.size() == 0 || meshIndexArray.size() == 0)
@@ -339,11 +348,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -393,11 +403,15 @@ namespace Project001
 
         for (size_t i = 0; i < positions.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
-            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -414,11 +428,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -435,11 +450,15 @@ namespace Project001
 
         for (size_t i = 0; i < positions.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
-            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -457,11 +476,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -533,11 +553,15 @@ namespace Project001
 
         for (size_t i = 0; i < positions.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
-            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -720,11 +744,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -1064,13 +1089,15 @@ namespace Project001
 
         for (size_t i = initialVertexCount; i < meshVertexArray.size(); ++i)
         {
-            const MeshVertex& currentMeshVertex = meshVertexArray[i];
+            const glm::vec3& currentPosition = meshVertexArray[i].position;
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            maxVertexPosition.x = std::max(maxVertexPosition.x, currentMeshVertex.position.x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, currentMeshVertex.position.y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, currentMeshVertex.position.x);
-            minVertexPosition.y = std::min(minVertexPosition.y, currentMeshVertex.position.y);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -1113,11 +1140,12 @@ namespace Project001
         // initialize mesh data properties are known
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -1301,13 +1329,15 @@ namespace Project001
         // ---------------------------------------------------------------------
         for (size_t i = initialVertexCount; i < meshVertexArray.size(); ++i)
         {
-            const MeshVertex& currentMeshVertex = meshVertexArray[i];
+            const glm::vec3& currentPosition = meshVertexArray[i].position;
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            maxVertexPosition.x = std::max(maxVertexPosition.x, currentMeshVertex.position.x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, currentMeshVertex.position.y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, currentMeshVertex.position.x);
-            minVertexPosition.y = std::min(minVertexPosition.y, currentMeshVertex.position.y);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -1351,11 +1381,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -1662,13 +1693,15 @@ namespace Project001
 
         for (size_t i = initialVertexCount; i < meshVertexArray.size(); ++i)
         {
-            const MeshVertex& currentMeshVertex = meshVertexArray[i];
+            const glm::vec3& currentPosition = meshVertexArray[i].position;
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
-            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, currentMeshVertex.position.y);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
 
-            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentMeshVertex.position.x);
-            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, currentMeshVertex.position.y);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
 
         return true;
@@ -1783,16 +1816,20 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.x = std::max(maxVertexPosition.x, halfWidth);
-        maxVertexPosition.y = std::max(maxVertexPosition.y, halfHeight);
-        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
+        float vertexRadius = glm::length(glm::vec2(halfWidth, halfHeight));
+        if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-        minVertexPosition.x = std::min(maxVertexPosition.x, -halfWidth);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -halfHeight);
-        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+        if (maxVertexPosition.x < halfWidth) maxVertexPosition.x = halfWidth;
+        if (maxVertexPosition.y < halfHeight) maxVertexPosition.y = halfHeight;
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+
+        if (minVertexPosition.x > -halfWidth) minVertexPosition.x = -halfWidth;
+        if (minVertexPosition.y > -halfHeight) minVertexPosition.y = -halfHeight;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
 
         MeshVertex topLeftVertex;
         topLeftVertex.position.x = -halfWidth;
@@ -1880,16 +1917,22 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.x = std::max(maxVertexPosition.x, max.x);
-        maxVertexPosition.y = std::max(maxVertexPosition.y, max.y);
-        maxVertexPosition.z = std::max(maxVertexPosition.z, max.z);
+        float vertexRadius = glm::length(max);
+        if (maxRadius < vertexRadius) maxRadius = vertexRadius;
+        vertexRadius = glm::length(min);
+        if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-        minVertexPosition.x = std::min(maxVertexPosition.x, min.x);
-        minVertexPosition.y = std::min(maxVertexPosition.y, min.y);
-        minVertexPosition.z = std::min(minVertexPosition.z, min.z);
+        if (maxVertexPosition.x < max.x) maxVertexPosition.x = max.x;
+        if (maxVertexPosition.y < max.y) maxVertexPosition.y = max.y;
+        if (maxVertexPosition.z < max.z) maxVertexPosition.z = max.z;
+
+        if (minVertexPosition.x < min.x) minVertexPosition.x = min.x;
+        if (minVertexPosition.y < min.y) minVertexPosition.y = min.y;
+        if (minVertexPosition.z < min.z) minVertexPosition.z = min.z;
 
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
         if (smoothNormals)
@@ -2277,27 +2320,35 @@ namespace Project001
             return false;
         }
 
-        glm::vec3 octant_posX_posY_posZ(xLength / 2.0f, yLength / 2.0f, zLength / 2.0f);
-        glm::vec3 octant_posX_posY_negZ(xLength / 2.0f, yLength / 2.0f, zLength / -2.0f);
-        glm::vec3 octant_posX_negY_posZ(xLength / 2.0f, yLength / -2.0f, zLength / 2.0f);
-        glm::vec3 octant_posX_negY_negZ(xLength / 2.0f, yLength / -2.0f, zLength / -2.0f);
-        glm::vec3 octant_negX_posY_posZ(xLength / -2.0f, yLength / 2.0f, zLength / 2.0f);
-        glm::vec3 octant_negX_posY_negZ(xLength / -2.0f, yLength / 2.0f, zLength / -2.0f);
-        glm::vec3 octant_negX_negY_posZ(xLength / -2.0f, yLength / -2.0f, zLength / 2.0f);
-        glm::vec3 octant_negX_negY_negZ(xLength / -2.0f, yLength / -2.0f, zLength / -2.0f);
+        float xHalfLength = xLength / 2.0f;
+        float yHalfLength = yLength / 2.0f;
+        float zHalfLength = zLength / 2.0f;
+
+        glm::vec3 octant_posX_posY_posZ(xHalfLength, yHalfLength, zHalfLength);
+        glm::vec3 octant_posX_posY_negZ(xHalfLength, yHalfLength, -zHalfLength);
+        glm::vec3 octant_posX_negY_posZ(xHalfLength, -yHalfLength, zHalfLength);
+        glm::vec3 octant_posX_negY_negZ(xHalfLength, -yHalfLength, -zHalfLength);
+        glm::vec3 octant_negX_posY_posZ(-xHalfLength, yHalfLength, zHalfLength);
+        glm::vec3 octant_negX_posY_negZ(-xHalfLength, yHalfLength, -zHalfLength);
+        glm::vec3 octant_negX_negY_posZ(-xHalfLength, -yHalfLength, zHalfLength);
+        glm::vec3 octant_negX_negY_negZ(-xHalfLength, -yHalfLength, -zHalfLength);
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.x = std::max(maxVertexPosition.x, xLength / 2.0f);
-        maxVertexPosition.y = std::max(maxVertexPosition.y, yLength / 2.0f);
-        maxVertexPosition.z = std::max(maxVertexPosition.z, zLength / 2.0f);
+        float cornerRadius = glm::length(glm::vec3(xHalfLength, yHalfLength, zHalfLength));
+        if (maxRadius < cornerRadius) maxRadius = cornerRadius;
 
-        minVertexPosition.x = std::min(maxVertexPosition.x, xLength / -2.0f);
-        minVertexPosition.y = std::min(maxVertexPosition.y, yLength / -2.0f);
-        minVertexPosition.z = std::min(minVertexPosition.z, zLength / -2.0f);
+        if (maxVertexPosition.x < xHalfLength) maxVertexPosition.x = xHalfLength;
+        if (maxVertexPosition.y < yHalfLength) maxVertexPosition.y = yHalfLength;
+        if (maxVertexPosition.z < zHalfLength) maxVertexPosition.z = zHalfLength;
+
+        if (minVertexPosition.x > -xHalfLength) minVertexPosition.x = -xHalfLength;
+        if (minVertexPosition.y > -yHalfLength) minVertexPosition.y = -yHalfLength;
+        if (minVertexPosition.z > -zHalfLength) minVertexPosition.z = -zHalfLength;
 
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
         if (smoothNormals)
@@ -2688,11 +2739,14 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.y = std::max(maxVertexPosition.y, cylindricalHeight / 2.0f + radius);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -1.0f * (cylindricalHeight / 2.0f + radius));
+        float capsuleHalfHeight = cylindricalHeight / 2.0f + radius;
+
+        if (maxVertexPosition.y < capsuleHalfHeight) maxVertexPosition.y = capsuleHalfHeight;
+        if (minVertexPosition.y > -capsuleHalfHeight) minVertexPosition.y = -capsuleHalfHeight;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -2770,12 +2824,14 @@ namespace Project001
         for (size_t i = 0; i < positions.size(); ++i)
         {
             const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentPosition.x);
-            meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, currentPosition.z);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
 
-            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentPosition.x);
-            meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, currentPosition.z);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
         if (smoothNormals)
@@ -3207,11 +3263,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.y = std::max(maxVertexPosition.y, 0.5f * height);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -0.5f * height);
+        if (maxVertexPosition.y < 0.5f * height) maxVertexPosition.y = 0.5f * height;
+        if (minVertexPosition.y > -0.5f * height) minVertexPosition.y = -0.5f * height;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -3243,11 +3300,14 @@ namespace Project001
                 float x = radius * std::sinf(faceAngle);
                 float z = radius * std::cosf(faceAngle);
 
-                meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, x);
-                meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, z);
+                float vertexRadius = std::sqrt(x * x + (0.5f * height) * (0.5f * height) + z * z);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-                meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, x);
-                meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, z);
+                if (maxVertexPosition.x < x) maxVertexPosition.x = x;
+                if (maxVertexPosition.z < z) maxVertexPosition.z = z;
+
+                if (minVertexPosition.x > x) minVertexPosition.x = x;
+                if (minVertexPosition.z > z) minVertexPosition.z = z;
 
                 MeshVertex bottomVertex;
                 bottomVertex.position = glm::vec3(x, -0.5f * height, z);
@@ -3328,11 +3388,14 @@ namespace Project001
                 float newX = radius * std::sinf(faceAngle);
                 float newZ = radius * std::cosf(faceAngle);
 
-                meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, previousX);
-                meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, previousZ);
+                float vertexRadius = std::sqrtf(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-                meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, previousX);
-                meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, previousZ);
+                if (maxVertexPosition.x < previousX) maxVertexPosition.x = previousX;
+                if (maxVertexPosition.z < previousZ) maxVertexPosition.z = previousZ;
+
+                if (minVertexPosition.x > previousX) minVertexPosition.x = previousX;
+                if (minVertexPosition.z > previousZ) minVertexPosition.z = previousZ;
 
                 glm::vec3 vectorToTop(0.0f - newX, 0.5f * height, 0.0f - newZ);
                 glm::vec3 vectorToPrevious(previousX - newX, 0.0f, previousZ - newZ);
@@ -3434,11 +3497,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.y = std::max(maxVertexPosition.y, 0.5f * height);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -0.5f * height);
+        if (maxVertexPosition.y < 0.5f * height) maxVertexPosition.y = 0.5f * height;
+        if (minVertexPosition.y > -0.5f * height) minVertexPosition.y = -0.5f * height;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -3467,11 +3531,14 @@ namespace Project001
                 float x = radius * std::sinf(faceAngle);
                 float z = radius * std::cosf(faceAngle);
 
-                maxVertexPosition.x = std::max(maxVertexPosition.x, x);
-                maxVertexPosition.z = std::max(maxVertexPosition.z, z);
+                float vertexRadius = std::sqrtf(x * x + (0.5f * height) * (0.5f * height) + z * z);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-                minVertexPosition.x = std::min(minVertexPosition.x, x);
-                minVertexPosition.z = std::min(minVertexPosition.z, z);
+                if (maxVertexPosition.x < x) maxVertexPosition.x = x;
+                if (maxVertexPosition.z < z) maxVertexPosition.z = z;
+
+                if (minVertexPosition.x > x) minVertexPosition.x = x;
+                if (minVertexPosition.z > z) minVertexPosition.z = z;
 
                 MeshVertex topVertex;
                 topVertex.position = glm::vec3(x, 0.5f * height, z);
@@ -3591,11 +3658,14 @@ namespace Project001
                 float newX = radius * std::sinf(faceAngle);
                 float newZ = radius * std::cosf(faceAngle);
 
-                maxVertexPosition.x = std::max(maxVertexPosition.x, previousX);
-                maxVertexPosition.z = std::max(maxVertexPosition.z, previousZ);
+                float vertexRadius = std::sqrtf(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-                minVertexPosition.x = std::min(minVertexPosition.x, previousX);
-                minVertexPosition.z = std::min(minVertexPosition.z, previousZ);
+                if (maxVertexPosition.x < previousX) maxVertexPosition.x = previousX;
+                if (maxVertexPosition.z < previousZ) maxVertexPosition.z = previousZ;
+
+                if (minVertexPosition.x > previousX) minVertexPosition.x = previousX;
+                if (minVertexPosition.z > previousZ) minVertexPosition.z = previousZ;
 
                 glm::vec3 vectorToPrevious(previousX - newX, 0.0f, previousZ - newZ);
                 glm::vec3 bodyNormal = glm::normalize(glm::cross(vectorToPrevious, glm::vec3(0.0f, -1.0f, 0.0f)));
@@ -3716,11 +3786,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.y = std::max(maxVertexPosition.y, radius);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -1.0f * radius);
+        if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
+        if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -3794,12 +3865,14 @@ namespace Project001
         for (size_t i = 0; i < positions.size(); ++i)
         {
             const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            maxVertexPosition.x = std::max(maxVertexPosition.x, currentPosition.x);
-            maxVertexPosition.z = std::max(maxVertexPosition.z, currentPosition.z);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, currentPosition.x);
-            minVertexPosition.z = std::min(minVertexPosition.z, currentPosition.z);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
         // initial triangles
@@ -4022,11 +4095,12 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
-        maxVertexPosition.y = std::max(maxVertexPosition.y, radius);
-        minVertexPosition.y = std::min(maxVertexPosition.y, -1.0f * radius);
+        if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
+        if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
 
         size_t initialVertexCount = meshVertexArray.size();
 
@@ -4092,12 +4166,14 @@ namespace Project001
         for (size_t i = 0; i < positions.size(); ++i)
         {
             const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentPosition.x);
-            meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, currentPosition.z);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
 
-            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentPosition.x);
-            meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, currentPosition.z);
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
         const size_t firstBodyPosition = longitudinalSections;
@@ -4429,6 +4505,7 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
@@ -4463,13 +4540,17 @@ namespace Project001
 
         for (size_t i = 0; i < positions.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, positions[i].x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, positions[i].y);
-            maxVertexPosition.z = std::max(maxVertexPosition.z, positions[i].z);
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxRadius < vertexRadius) maxRadius = vertexRadius;
 
-            minVertexPosition.x = std::min(minVertexPosition.x, positions[i].x);
-            minVertexPosition.y = std::min(minVertexPosition.y, positions[i].y);
-            minVertexPosition.z = std::min(minVertexPosition.z, positions[i].z);
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
         return true;
@@ -4491,6 +4572,7 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxRadius = meshData.maxRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
@@ -4531,6 +4613,28 @@ namespace Project001
                 bottomVertex.position = end + perpendicular;
                 bottomVertex.normal = unitPerpendicular;
                 destMeshVertexArrayPtr->push_back(bottomVertex);
+
+                float vertexRadius = glm::length(topVertex.position);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
+
+                if (maxVertexPosition.x < topVertex.position.x) maxVertexPosition.x = topVertex.position.x;
+                if (maxVertexPosition.y < topVertex.position.y) maxVertexPosition.y = topVertex.position.y;
+                if (maxVertexPosition.z < topVertex.position.z) maxVertexPosition.z = topVertex.position.z;
+
+                if (minVertexPosition.x > topVertex.position.x) minVertexPosition.x = topVertex.position.x;
+                if (minVertexPosition.y > topVertex.position.y) minVertexPosition.y = topVertex.position.y;
+                if (minVertexPosition.z > topVertex.position.z) minVertexPosition.z = topVertex.position.z;
+
+                vertexRadius = glm::length(bottomVertex.position);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
+
+                if (maxVertexPosition.x < bottomVertex.position.x) maxVertexPosition.x = bottomVertex.position.x;
+                if (maxVertexPosition.y < bottomVertex.position.y) maxVertexPosition.y = bottomVertex.position.y;
+                if (maxVertexPosition.z < bottomVertex.position.z) maxVertexPosition.z = bottomVertex.position.z;
+
+                if (minVertexPosition.x > bottomVertex.position.x) minVertexPosition.x = bottomVertex.position.x;
+                if (minVertexPosition.y > bottomVertex.position.y) minVertexPosition.y = bottomVertex.position.y;
+                if (minVertexPosition.z > bottomVertex.position.z) minVertexPosition.z = bottomVertex.position.z;
 
                 unitPerpendicular = rotation * unitPerpendicular;
             }
@@ -4627,6 +4731,29 @@ namespace Project001
                 bottomRightBodyVertex.position = end + perpendicular;
                 bottomRightBodyVertex.normal = normal;
                 destMeshVertexArrayPtr->push_back(bottomRightBodyVertex);
+
+                float vertexRadius = glm::length(topLeftBodyVertex.position);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
+
+                if (maxVertexPosition.x < topLeftBodyVertex.position.x) maxVertexPosition.x = topLeftBodyVertex.position.x;
+                if (maxVertexPosition.y < topLeftBodyVertex.position.y) maxVertexPosition.y = topLeftBodyVertex.position.y;
+                if (maxVertexPosition.z < topLeftBodyVertex.position.z) maxVertexPosition.z = topLeftBodyVertex.position.z;
+
+                if (minVertexPosition.x > topLeftBodyVertex.position.x) minVertexPosition.x = topLeftBodyVertex.position.x;
+                if (minVertexPosition.y > topLeftBodyVertex.position.y) minVertexPosition.y = topLeftBodyVertex.position.y;
+                if (minVertexPosition.z > topLeftBodyVertex.position.z) minVertexPosition.z = topLeftBodyVertex.position.z;
+
+                vertexRadius = glm::length(bottomLeftBodyVertex.position);
+                if (maxRadius < vertexRadius) maxRadius = vertexRadius;
+
+                if (maxVertexPosition.x < bottomLeftBodyVertex.position.x) maxVertexPosition.x = bottomLeftBodyVertex.position.x;
+                if (maxVertexPosition.y < bottomLeftBodyVertex.position.y) maxVertexPosition.y = bottomLeftBodyVertex.position.y;
+                if (maxVertexPosition.z < bottomLeftBodyVertex.position.z) maxVertexPosition.z = bottomLeftBodyVertex.position.z;
+
+                if (minVertexPosition.x > bottomLeftBodyVertex.position.x) minVertexPosition.x = bottomLeftBodyVertex.position.x;
+                if (minVertexPosition.y > bottomLeftBodyVertex.position.y) minVertexPosition.y = bottomLeftBodyVertex.position.y;
+                if (minVertexPosition.z > bottomLeftBodyVertex.position.z) minVertexPosition.z = bottomLeftBodyVertex.position.z;
+
             }
 
             if (triangulate)
@@ -4668,16 +4795,15 @@ namespace Project001
         MeshData& destinationMeshData,
         const MeshData& sourceMeshData)
     {
-        destinationMeshData.maxVertexPosition = sourceMeshData.maxVertexPosition;
-        destinationMeshData.minVertexPosition = sourceMeshData.minVertexPosition;
+        if (destinationMeshData.maxRadius < sourceMeshData.maxRadius) destinationMeshData.maxRadius = sourceMeshData.maxRadius;
 
-        destinationMeshData.maxVertexPosition.x = std::max(destinationMeshData.maxVertexPosition.x, sourceMeshData.maxVertexPosition.x);
-        destinationMeshData.maxVertexPosition.y = std::max(destinationMeshData.maxVertexPosition.y, sourceMeshData.maxVertexPosition.y);
-        destinationMeshData.maxVertexPosition.z = std::max(destinationMeshData.maxVertexPosition.z, sourceMeshData.maxVertexPosition.z);
+        if (destinationMeshData.maxVertexPosition.x < sourceMeshData.maxVertexPosition.x) destinationMeshData.maxVertexPosition.x = sourceMeshData.maxVertexPosition.x;
+        if (destinationMeshData.maxVertexPosition.y < sourceMeshData.maxVertexPosition.y) destinationMeshData.maxVertexPosition.y = sourceMeshData.maxVertexPosition.y;
+        if (destinationMeshData.maxVertexPosition.z < sourceMeshData.maxVertexPosition.z) destinationMeshData.maxVertexPosition.z = sourceMeshData.maxVertexPosition.z;
 
-        destinationMeshData.minVertexPosition.x = std::min(destinationMeshData.minVertexPosition.x, sourceMeshData.minVertexPosition.x);
-        destinationMeshData.minVertexPosition.y = std::min(destinationMeshData.minVertexPosition.y, sourceMeshData.minVertexPosition.y);
-        destinationMeshData.minVertexPosition.z = std::min(destinationMeshData.minVertexPosition.z, sourceMeshData.minVertexPosition.z);
+        if (destinationMeshData.minVertexPosition.x > sourceMeshData.minVertexPosition.x) destinationMeshData.minVertexPosition.x = sourceMeshData.minVertexPosition.x;
+        if (destinationMeshData.minVertexPosition.y > sourceMeshData.minVertexPosition.y) destinationMeshData.minVertexPosition.y = sourceMeshData.minVertexPosition.y;
+        if (destinationMeshData.minVertexPosition.z > sourceMeshData.minVertexPosition.z) destinationMeshData.minVertexPosition.z = sourceMeshData.minVertexPosition.z;
 
         for (size_t i = 0; i < sourceMeshData.meshVertexArray.size(); ++i)
         {
@@ -4708,16 +4834,23 @@ namespace Project001
             meshData.meshVertexArray[i].position /= biggestDimension;
         }
 
+        meshData.maxRadius /= biggestDimension;
         meshData.maxVertexPosition /= biggestDimension;
         meshData.minVertexPosition /= biggestDimension;
     }
 
     void MeshLoader::RecenterMesh(MeshData& meshData)
     {
+        meshData.maxRadius = 0;
+
         glm::vec3 centerShift = (meshData.maxVertexPosition + meshData.minVertexPosition) / 2.0f;
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
-            meshData.meshVertexArray[i].position -= centerShift;
+            glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
+            currentPosition -= centerShift;
+
+            float vertexRadius = glm::length(currentPosition);
+            if (meshData.maxRadius < vertexRadius) meshData.maxRadius = vertexRadius;
         }
 
         meshData.maxVertexPosition -= centerShift;
@@ -4726,6 +4859,7 @@ namespace Project001
 
     void MeshLoader::RecalculateMeshMinMax(MeshData& meshData)
     {
+        meshData.maxRadius = 0;
         meshData.maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
         meshData.maxVertexPosition.y = -1.0f * std::numeric_limits<float>::infinity();
         meshData.maxVertexPosition.z = -1.0f * std::numeric_limits<float>::infinity();
@@ -4735,15 +4869,17 @@ namespace Project001
 
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
-            const glm::vec3& position = meshData.meshVertexArray[i].position;
+            const glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
+            float vertexRadius = glm::length(currentPosition);
+            if (meshData.maxRadius < vertexRadius) meshData.maxRadius = vertexRadius;
 
-            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, position.x);
-            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, position.y);
-            meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, position.z);
+            if (meshData.maxVertexPosition.x < currentPosition.x) meshData.maxVertexPosition.x = currentPosition.x;
+            if (meshData.maxVertexPosition.y < currentPosition.y) meshData.maxVertexPosition.y = currentPosition.y;
+            if (meshData.maxVertexPosition.z < currentPosition.z) meshData.maxVertexPosition.z = currentPosition.z;
 
-            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, position.x);
-            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, position.y);
-            meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, position.z);
+            if (meshData.minVertexPosition.x > currentPosition.x) meshData.minVertexPosition.x = currentPosition.x;
+            if (meshData.minVertexPosition.y > currentPosition.y) meshData.minVertexPosition.y = currentPosition.y;
+            if (meshData.minVertexPosition.z > currentPosition.z) meshData.minVertexPosition.z = currentPosition.z;
         }
     }
 
@@ -4791,9 +4927,15 @@ namespace Project001
         MeshData& meshData,
         glm::vec3 scale)
     {
+        meshData.maxRadius = 0;
+
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
-            meshData.meshVertexArray[i].position *= scale;
+            glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
+            currentPosition *= scale;
+
+            float vertexRadius = glm::length(currentPosition);
+            if (meshData.maxRadius < vertexRadius) meshData.maxRadius = vertexRadius;
         }
 
         meshData.maxVertexPosition *= scale;
@@ -4804,9 +4946,15 @@ namespace Project001
         MeshData& meshData,
         glm::vec3 translation)
     {
+        meshData.maxRadius = 0;
+
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
-            meshData.meshVertexArray[i].position += translation;
+            glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
+            currentPosition += translation;
+
+            float vertexRadius = glm::length(currentPosition);
+            if (meshData.maxRadius < vertexRadius) meshData.maxRadius = vertexRadius;
         }
 
         meshData.maxVertexPosition += translation;
@@ -5045,6 +5193,7 @@ namespace Project001
         {
             const MeshVertex& currentMeshVertex = meshData.meshVertexArray[0];
 
+            meshData.maxRadius = 0;
             meshData.maxVertexPosition.x = currentMeshVertex.position.x;
             meshData.maxVertexPosition.y = currentMeshVertex.position.y;
             meshData.maxVertexPosition.z = currentMeshVertex.position.z;
@@ -5055,15 +5204,17 @@ namespace Project001
 
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
-            const MeshVertex& currentMeshVertex = meshData.meshVertexArray[i];
+            const glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
+            float vertexRadius = glm::length(currentPosition);
+            if (meshData.maxRadius < vertexRadius) meshData.maxRadius = vertexRadius;
 
-            meshData.maxVertexPosition.x = std::max(meshData.maxVertexPosition.x, currentMeshVertex.position.x);
-            meshData.maxVertexPosition.y = std::max(meshData.maxVertexPosition.y, currentMeshVertex.position.y);
-            meshData.maxVertexPosition.z = std::max(meshData.maxVertexPosition.z, currentMeshVertex.position.z);
+            if (meshData.maxVertexPosition.x < currentPosition.x) meshData.maxVertexPosition.x = currentPosition.x;
+            if (meshData.maxVertexPosition.y < currentPosition.y) meshData.maxVertexPosition.y = currentPosition.y;
+            if (meshData.maxVertexPosition.z < currentPosition.z) meshData.maxVertexPosition.z = currentPosition.z;
 
-            meshData.minVertexPosition.x = std::min(meshData.minVertexPosition.x, currentMeshVertex.position.x);
-            meshData.minVertexPosition.y = std::min(meshData.minVertexPosition.y, currentMeshVertex.position.y);
-            meshData.minVertexPosition.z = std::min(meshData.minVertexPosition.z, currentMeshVertex.position.z);
+            if (meshData.minVertexPosition.x > currentPosition.x) meshData.minVertexPosition.x = currentPosition.x;
+            if (meshData.minVertexPosition.y > currentPosition.y) meshData.minVertexPosition.y = currentPosition.y;
+            if (meshData.minVertexPosition.z > currentPosition.z) meshData.minVertexPosition.z = currentPosition.z;
         }
     }
 

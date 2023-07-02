@@ -1151,7 +1151,7 @@ void TestScene010::Test_Get2D_Point_LineSegment_Distance() const
 void TestScene010::Test_RotateSlope() const
 {
     float slope01 = 0.0f;
-    float rotation01 = glm::pi<float>();
+    constexpr float rotation01 = glm::pi<float>();
     float result01 = Project001::RotateSlope(slope01, rotation01);
 }
 

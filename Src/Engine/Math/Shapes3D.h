@@ -90,31 +90,7 @@ namespace Project001
 
     inline float Plane::GetDistanceFromOrigin()
     {
-        // point on plane = (x0, y0, z0)
-        // point = (x1, y1, z1)
-        // plane normal vector = (A, B, C)
-        // D = -A*x0 - B*y0 - C*z0
-        // d = distance from plane to point
-        // d = (A*x1 + B*y1 + C*z1 + D) / sqrt(A^2 + B^2 +C^2)
-        //
-        // Substitude (0, 0, 0) for point:
-        // d = (D) / sqrt(A^2 + B^2 +C^2)
-        // d = (-A*x0 - B*y0 - C*z0) / sqrt(A^2 + B^2 +C^2)
-        // 
-        // if the distance is negative, the point is in the opposite direction
-        // to that of the plane normal
-
-        float& A = normal.x;
-        float& B = normal.y;
-        float& C = normal.z;
-        float& x0 = center.x;
-        float& y0 = center.y;
-        float& z0 = center.z;
-
-        float numerator = -A * x0 - B * y0 - C * z0;
-        float denominator = glm::sqrt(A * A + B * B + C * C);
-
-        return numerator / denominator;
+        return glm::dot(normal, center);
     }
 
     struct Triangle

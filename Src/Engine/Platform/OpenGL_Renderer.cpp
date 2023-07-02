@@ -24,21 +24,15 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    OpenGL_Renderer::OpenGL_Renderer(
-        Window* windowPtr,
-        unsigned int frameBufferWidth,
-        unsigned int frameBufferHeight,
-        unsigned int indexBufferCapacity,
-        unsigned int vertexBufferCapacity,
-        bool multisampleAntiAliasing)
-        : windowPtr_(windowPtr)
+    OpenGL_Renderer::OpenGL_Renderer(const RendererInfo& rendererInfo)
+        : windowPtr_(rendererInfo.windowPtr)
         , redrawGrid_(true)
-        , depthTesting_(true)
-        , multisampleAntiAliasing_(multisampleAntiAliasing)
-        , indexBufferCapacity_(indexBufferCapacity)
-        , vertexBufferCapacity_(vertexBufferCapacity)
-        , frameBufferWidth_(frameBufferWidth)
-        , frameBufferHeight_(frameBufferHeight)
+        , depthTesting_(rendererInfo.depthTesting)
+        , multisampleAntiAliasing_(rendererInfo.multisampleAntiAliasing)
+        , indexBufferCapacity_(rendererInfo.indexBufferCapacity)
+        , vertexBufferCapacity_(rendererInfo.vertexBufferCapacity)
+        , frameBufferWidth_(rendererInfo.frameBufferWidth)
+        , frameBufferHeight_(rendererInfo.frameBufferHeight)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)

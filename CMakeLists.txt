@@ -129,6 +129,8 @@ set(ENGINE_FILES
     "Src/Engine/RenderData.h"
     "Src/Engine/Renderer.cpp"
     "Src/Engine/Renderer.h"
+    "Src/Engine/RenderSystem.cpp"
+    "Src/Engine/RenderSystem.h"
     "Src/Engine/Scene.cpp"
     "Src/Engine/Scene.h"
     "Src/Engine/SoundData.h"
@@ -146,6 +148,7 @@ set(ENGINE_FILES
 source_group("Src/Engine" FILES ${ENGINE_FILES})
 
 set (COMPONENTS_FILES
+    "Src/Engine/Components/Camera.cpp"
     "Src/Engine/Components/Camera.h"
     "Src/Engine/Components/CollisionBody.cpp"
     "Src/Engine/Components/CollisionBody.h"

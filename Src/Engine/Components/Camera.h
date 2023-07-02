@@ -1,12 +1,35 @@
 #pragma once
 
 #include "Engine/Components/Placement.h"
-#include "Engine/Math/VectorUtilities.h"
 
 
 
 namespace Project001
 {
+    // plane normals face into the center of the frustum
+    // normals are unit vectors
+    // distances are from the origin
+    struct FrustumPlanes
+    {
+        glm::vec3 leftPlaneNormal_;
+        float leftPlaneDistance_;
+
+        glm::vec3 rightPlaneNormal_;
+        float rightPlaneDistance_;
+
+        glm::vec3 bottomPlaneNormal_;
+        float bottomPlaneDistance_;
+
+        glm::vec3 topPlaneNormal_;
+        float topPlaneDistance_;
+
+        glm::vec3 nearPlaneNormal_;
+        float nearPlaneDistance_;
+
+        glm::vec3 farPlaneNormal_;
+        float farPlaneDistance_;
+    };
+
     class Camera : public Placement
     {
     public:
@@ -56,6 +79,8 @@ namespace Project001
 
         glm::mat4 GetProjectionMatrix() const;
 
+        void GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const;
+
         glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const;
 
     protected:
@@ -82,19 +107,6 @@ namespace Project001
         float nearCutoff_;
         float farCutoff_;
     };
-
-    inline Camera::Camera()
-        : turnedOn_(false)
-        , cameraProjection_(CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
-        , fieldOfVision_(45.0f)
-        , aspectRatio_(1.0f)
-        , leftCutoff_(-5.0f)
-        , rightCutoff_(5.0f)
-        , bottomCutoff_(-5.0f)
-        , topCutoff_(5.0f)
-        , nearCutoff_(0.1f)
-        , farCutoff_(50.0f)
-    {}
 
     inline bool Camera::IsTurnedOn() const
     {
@@ -209,57 +221,5 @@ namespace Project001
     inline void Camera::SetFarCutoff(float farCutoff)
     {
         farCutoff_ = farCutoff;
-    }
-
-    inline glm::mat4 Camera::GetViewMatrix() const
-    {
-        // const glm::vec3& eye = position_;
-        // const glm::vec3& r = -GetLeftVector();
-        // const glm::vec3& u = GetUpVector();
-        // const glm::vec3& f = GetForwardVector();
-        // glm::mat4 lookAtMatrix(1);
-        // lookAtMatrix[0][0] = r.x;
-        // lookAtMatrix[1][0] = r.y;
-        // lookAtMatrix[2][0] = r.z;
-        // lookAtMatrix[0][1] = u.x;
-        // lookAtMatrix[1][1] = u.y;
-        // lookAtMatrix[2][1] = u.z;
-        // lookAtMatrix[0][2] = -f.x;
-        // lookAtMatrix[1][2] = -f.y;
-        // lookAtMatrix[2][2] = -f.z;
-        // lookAtMatrix[3][0] = -glm::dot(r, eye);
-        // lookAtMatrix[3][1] = -glm::dot(u, eye);
-        // lookAtMatrix[3][2] = glm::dot(f, eye);
-        // return lookAtMatrix;
-
-        glm::vec3 eye = position_;
-        glm::vec3 center = position_ + GetForwardVector();
-        glm::vec3 up = GetUpVector();
-        return glm::lookAt(eye, center, up);
-    }
-
-    inline glm::mat4 Camera::GetProjectionMatrix() const
-    {
-        if (cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
-        {
-            return glm::perspective(fieldOfVision_, aspectRatio_, nearCutoff_, farCutoff_);
-        }
-        else
-        {
-            return glm::ortho(leftCutoff_, rightCutoff_, bottomCutoff_, topCutoff_, nearCutoff_, farCutoff_);
-        }
-    }
-
-    inline glm::vec2 Camera::ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const
-    {
-        float cutoffWidth = rightCutoff_ - leftCutoff_;
-        float cutoffHeight = topCutoff_ - bottomCutoff_;
-        glm::vec2 orthoPoint(
-            cutoffWidth * (float)windowPoint.x / (float)viewportWidth - rightCutoff_,
-            cutoffHeight * (float)windowPoint.y / (float)viewportHeight - topCutoff_);
-        orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
-        orthoPoint.x += position_.x;
-        orthoPoint.y += position_.y;
-        return orthoPoint;
     }
 }

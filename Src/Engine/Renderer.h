@@ -10,15 +10,21 @@ namespace Project001
 
     class Window;
 
+    struct RendererInfo
+    {
+        Window* windowPtr;
+        unsigned int frameBufferWidth;
+        unsigned int frameBufferHeight;
+        unsigned int indexBufferCapacity;
+        unsigned int vertexBufferCapacity;
+        bool multisampleAntiAliasing;
+        bool depthTesting;
+    };
+
     class Renderer
     {
     public:
-        static Renderer* Create(
-            Window* windowPtr,
-            unsigned int frameBufferWidth,
-            unsigned int frameBufferHeight,
-            unsigned int indexBufferCapacity,
-            unsigned int vertexBufferCapacity);
+        static Renderer* Create(const RendererInfo& rendererInfo);
 
         virtual ~Renderer();
 
@@ -29,6 +35,10 @@ namespace Project001
         virtual void SetIndexBufferCapacity(unsigned int capacity) = 0;
 
         virtual void SetVertexBufferCapacity(unsigned int capacity) = 0;
+
+        virtual void GetFramebufferSize(
+            unsigned int& width,
+            unsigned int& height) const = 0;
 
         virtual void SetFramebufferSize(
             unsigned int width,

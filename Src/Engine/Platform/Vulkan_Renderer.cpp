@@ -49,32 +49,26 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    Vulkan_Renderer::Vulkan_Renderer(
-        Window* windowPtr,
-        unsigned int frameBufferWidth,
-        unsigned int frameBufferHeight,
-        unsigned int indexBufferCapacity,
-        unsigned int vertexBufferCapacity,
-        bool multisampleAntiAliasing)
-        : windowPtr_(windowPtr)
-        , frameBufferWidth_(frameBufferWidth)
-        , frameBufferHeight_(frameBufferHeight)
-        , indexBufferCapacity_(indexBufferCapacity)
-        , vertexBufferCapacity_(vertexBufferCapacity)
-        , multisampleAntiAliasing_(multisampleAntiAliasing)
-        , depthTesting_(true)
+    Vulkan_Renderer::Vulkan_Renderer(const RendererInfo& rendererInfo)
+        : windowPtr_(rendererInfo.windowPtr)
+        , frameBufferWidth_(rendererInfo.frameBufferWidth)
+        , frameBufferHeight_(rendererInfo.frameBufferHeight)
+        , indexBufferCapacity_(rendererInfo.indexBufferCapacity)
+        , vertexBufferCapacity_(rendererInfo.vertexBufferCapacity)
+        , multisampleAntiAliasing_(rendererInfo.multisampleAntiAliasing)
+        , depthTesting_(rendererInfo.depthTesting)
         , viewportX_(0)
         , viewportY_(0)
-        , viewportWidth_(frameBufferWidth)
-        , viewportHeight_(frameBufferHeight)
+        , viewportWidth_(rendererInfo.frameBufferWidth)
+        , viewportHeight_(rendererInfo.frameBufferHeight)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
         , viewPosition_(0.0f, 0.0f, 0.0f)
         , projectionMatrix_(1.0f)
         , framebufferResized_(false)
-        , pendingFrameBufferWidth_(frameBufferWidth)
-        , pendingFrameBufferHeight_(frameBufferHeight)
+        , pendingFrameBufferWidth_(rendererInfo.frameBufferWidth)
+        , pendingFrameBufferHeight_(rendererInfo.frameBufferHeight)
         , vulkanInstance_(VK_NULL_HANDLE)
         , debugMessenger_(VK_NULL_HANDLE)
         , surface_(VK_NULL_HANDLE)

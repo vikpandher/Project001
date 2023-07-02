@@ -38,13 +38,15 @@ namespace Project001
             windowPtr_->SetWindowPosition((screenWidth - windowWidth_) / 2, (screenHeight - windowHeight_) / 2);
         }
 
-        rendererPtr_ = Renderer::Create(
-            windowPtr_,
-            applicationInfo.frameBufferWidth,
-            applicationInfo.frameBufferHeight,
-            applicationInfo.indexBufferCapacity,
-            applicationInfo.vertexBufferCapacity
-        );
+        Project001::RendererInfo rendererInfo = {};
+        rendererInfo.windowPtr = windowPtr_;
+        rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
+        rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
+        rendererInfo.indexBufferCapacity = applicationInfo.indexBufferCapacity;
+        rendererInfo.vertexBufferCapacity = applicationInfo.vertexBufferCapacity;
+        rendererInfo.multisampleAntiAliasing = false;
+        rendererInfo.depthTesting = true;
+        rendererPtr_ = Renderer::Create(rendererInfo);
         soundPlayerPtr_ = SoundPlayer::Create();
         componentStoresPtr_ = new ComponentStores();
     }

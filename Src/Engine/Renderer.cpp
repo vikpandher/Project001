@@ -11,17 +11,12 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    Renderer* Renderer::Create(
-        Window* windowPtr,
-        unsigned int frameBufferWidth,
-        unsigned int frameBufferHeight,
-        unsigned int indexBufferCapacity,
-        unsigned int vertexBufferCapacity)
+    Renderer* Renderer::Create(const RendererInfo& rendererInfo)
     {
 #ifdef VULKAN_MODE
-        return new Vulkan_Renderer(windowPtr, frameBufferWidth, frameBufferHeight, indexBufferCapacity, vertexBufferCapacity, true);
+        return new Vulkan_Renderer(rendererInfo);
 #else
-        return new OpenGL_Renderer(windowPtr, frameBufferWidth, frameBufferWidth, indexBufferCapacity, vertexBufferCapacity, true);
+        return new OpenGL_Renderer(rendererInfo);
 #endif
     }
 

@@ -17,13 +17,7 @@ namespace Project001
     class OpenGL_Renderer : public Renderer
     {
     public:
-        OpenGL_Renderer(
-            Window* windowPtr,
-            unsigned int frameBufferWidth,
-            unsigned int frameBufferHeight,
-            unsigned int indexBufferCapacity,
-            unsigned int vertexBufferCapacity,
-            bool multisampleAntiAliasing);
+        OpenGL_Renderer(const RendererInfo& rendererInfo);
         ~OpenGL_Renderer() override;
 
         void SetDepthTesting(bool depthTesting) override;
@@ -33,6 +27,10 @@ namespace Project001
         void SetIndexBufferCapacity(unsigned int capacity) override;
 
         void SetVertexBufferCapacity(unsigned int capacity) override;
+
+        void GetFramebufferSize(
+            unsigned int& width,
+            unsigned int& height) const override;
 
         void SetFramebufferSize(
             unsigned int width,
@@ -232,6 +230,14 @@ namespace Project001
     inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)
     {
         depthTesting_ = depthTesting;
+    }
+
+    inline void OpenGL_Renderer::GetFramebufferSize(
+        unsigned int& width,
+        unsigned int& height) const
+    {
+        width = frameBufferWidth_;
+        height = frameBufferHeight_;
     }
 
     inline void OpenGL_Renderer::GetViewport(

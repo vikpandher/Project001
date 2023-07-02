@@ -7,10 +7,12 @@
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
+#include "Engine/CollisionSystem2D.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
 #include "Engine/Renderer.h"
+#include "Engine/RenderSystem.h"
 #include "Engine/Window.h"
 
 
@@ -64,8 +66,9 @@ bool TestSceneBase002::OnInitialize()
             cameraPtr->SetBottomCutoff(-3.5f);
             cameraPtr->SetLeftCutoff(aspectRatio * -3.5f);
             cameraPtr->SetRightCutoff(aspectRatio * 3.5f);
+            cameraPtr->SetNearCutoff(-1.0f);
+            cameraPtr->SetFarCutoff(1.0f);
         }
-        cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->SetProjectionToOrthographic();
         cameraPtr->TurnOn();
@@ -290,68 +293,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
 void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    int windowFramebufferWidth;
-    int windowFramebufferHeight;
-    windowPtr_->GetFramebufferSize(windowFramebufferWidth, windowFramebufferHeight);
-    if (windowFramebufferWidth > 0 && windowFramebufferHeight > 0)
-    {
-        rendererPtr_->ClearDirectionalLight();
-        rendererPtr_->ClearPointLights();
-        rendererPtr_->ClearSpotLights();
-
-        rendererPtr_->BeginRendering();
-        rendererPtr_->Clear();
-
-        Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-
-        if (cameraPtr->IsTurnedOn())
-        {
-            rendererPtr_->SetViewMatrix(cameraPtr->GetViewMatrix());
-            rendererPtr_->SetViewPosition(cameraPtr->GetPosition());
-            rendererPtr_->SetProjectionMatrix(cameraPtr->GetProjectionMatrix());
-
-            Project001::RenderedModel* renderedModelArray = nullptr;
-            size_t renderedModelCount = 0;
-
-            componentStoresPtr_->GetAllComponents<Project001::RenderedModel>(renderedModelArray, renderedModelCount);
-
-            for (unsigned int i = 0; i < renderedModelCount; ++i)
-            {
-                Project001::RenderedModel& currentRenderedModel = renderedModelArray[i];
-
-                if (currentRenderedModel.IsVisible())
-                {
-                    const Project001::MeshData* currentMeshDataPtr = currentRenderedModel.GetMeshDataPtr();
-                    if (currentMeshDataPtr != nullptr)
-                    {
-                        _FAIL_CHECK(rendererPtr_->AddMesh(
-                            currentMeshDataPtr->meshVertexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                            currentMeshDataPtr->meshIndexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                            currentRenderedModel.GetTextureId(),
-                            currentRenderedModel.GetSpecularId(),
-                            currentRenderedModel.GetPosition(),
-                            currentRenderedModel.GetOrientation(),
-                            currentRenderedModel.GetScale(),
-                            currentRenderedModel.GetColor(),
-                            currentRenderedModel.GetShininess(),
-                            currentRenderedModel.GetTranslucent(),
-                            currentRenderedModel.GetLit()));
-                    }
-                }
-            }
-
-            Project001::Camera* cameraPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-
-            rendererPtr_->Render();
-        }
-
-        rendererPtr_->FinishRendering();
-        rendererPtr_->SwapBuffers();
-    }
+    Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 
     renderEvent.handled = true;
 }

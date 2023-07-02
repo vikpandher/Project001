@@ -3,7 +3,7 @@
 
 namespace Project001
 {
-    // Checking Point overlap --------------------------------------------------
+    // Checking Point Overlap --------------------------------------------------
 
     inline bool Check3D_Point_Point_Overlap(
         const glm::vec3& pointA_position,
@@ -154,7 +154,7 @@ namespace Project001
     inline bool Check3D_Point_Capsule_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& capsule_start,
-        const glm::vec3 capsule_end,
+        const glm::vec3& capsule_end,
         const float& capsule_radius)
     {
         glm::vec3 closestPointOnLineSegment;
@@ -165,7 +165,63 @@ namespace Project001
         return FloatLessThanOrEqualToFloat(distanceSquared, capsuleRadiusSquared);
     }
 
-    // Checking Line overlap ---------------------------------------------------
+    inline bool Check3D_Point_Frustum_Overlap(
+        const glm::vec3& point_position,
+        const glm::vec3& frustum_leftPlaneNormal,
+        const float& frustum_leftPlaneDistance,
+        const glm::vec3& frustum_rightPlaneNormal,
+        const float& frustum_rightPlaneDistance,
+        const glm::vec3& frustum_bottomPlaneNormal,
+        const float& frustum_bottomPlaneDistance,
+        const glm::vec3& frustum_topPlaneNormal,
+        const float& frustum_topPlaneDistance,
+        const glm::vec3& frustum_nearPlaneNormal,
+        const float& frustum_nearPlaneDistance,
+        const glm::vec3& frustum_farPlaneNormal,
+        const float& frustum_farPlaneDistance)
+    {
+        float distance;
+
+        Get3D_Point_Plane_Distance(point_position, frustum_nearPlaneNormal, frustum_nearPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(point_position, frustum_farPlaneNormal, frustum_farPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(point_position, frustum_rightPlaneNormal, frustum_rightPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(point_position, frustum_leftPlaneNormal, frustum_leftPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(point_position, frustum_topPlaneNormal, frustum_topPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(point_position, frustum_bottomPlaneNormal, frustum_bottomPlaneDistance, distance);
+        if (distance < 0.0f)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Checking Line Overlap ---------------------------------------------------
 
     inline bool Check3D_Line_Point_Overlap(
         const glm::vec3& line_position,
@@ -435,7 +491,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Ray overlap ----------------------------------------------------
+    // Checking Ray Overlap ----------------------------------------------------
 
     inline bool Check3D_Ray_Point_Overlap(
         const glm::vec3& ray_position,
@@ -674,7 +730,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking LineSegment overlap --------------------------------------------
+    // Checking LineSegment Overlap --------------------------------------------
 
     inline bool Check3D_LineSegment_Point_Overlap(
         const glm::vec3& lineSegment_start,
@@ -851,7 +907,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Plane overlap --------------------------------------------------
+    // Checking Plane Overlap --------------------------------------------------
 
     inline bool Check3D_Plane_Point_Overlap(
         const glm::vec3& plane_normal,
@@ -977,7 +1033,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Triangle overlap -----------------------------------------------
+    // Checking Triangle Overlap -----------------------------------------------
 
     inline bool Check3D_Triangle_Point_Overlap(
         const glm::vec3& triangle_corner1,
@@ -1275,7 +1331,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Axis Aligned Bounding Box overlap ------------------------------
+    // Checking Axis Aligned Bounding Box Overlap ------------------------------
 
     inline bool Check3D_AABB_Point_Overlap(
         const glm::vec3& aabb_min,
@@ -1397,7 +1453,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Oriented Bounding Box overlap ----------------------------------
+    // Checking Oriented Bounding Box Overlap ----------------------------------
 
     inline bool Check3D_OBB_Point_Overlap(
         const glm::vec3& obb_halfSize,
@@ -1523,7 +1579,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(closestPoint_position, sphere_position, sphere_radius);
     }
 
-    // Checking Sphere overlap -------------------------------------------------
+    // Checking Sphere Overlap -------------------------------------------------
 
     inline bool Check3D_Sphere_Point_Overlap(
         const glm::vec3& sphere_position,
@@ -1617,7 +1673,64 @@ namespace Project001
         return Check3D_LineSegment_Sphere_Overlap(capsule_start, capsule_end, sphere_position, sphere_radius + capsule_radius);
     }
 
-    // Checking Sphere overlap -------------------------------------------------
+    inline bool Check3D_Sphere_Frustum_Overlap(
+        const glm::vec3& sphere_position,
+        const float& sphere_radius,
+        const glm::vec3& frustum_leftPlaneNormal,
+        const float& frustum_leftPlaneDistance,
+        const glm::vec3& frustum_rightPlaneNormal,
+        const float& frustum_rightPlaneDistance,
+        const glm::vec3& frustum_bottomPlaneNormal,
+        const float& frustum_bottomPlaneDistance,
+        const glm::vec3& frustum_topPlaneNormal,
+        const float& frustum_topPlaneDistance,
+        const glm::vec3& frustum_nearPlaneNormal,
+        const float& frustum_nearPlaneDistance,
+        const glm::vec3& frustum_farPlaneNormal,
+        const float& frustum_farPlaneDistance)
+    {
+        float distance;
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_nearPlaneNormal, frustum_nearPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_farPlaneNormal, frustum_farPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_rightPlaneNormal, frustum_rightPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_leftPlaneNormal, frustum_leftPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_topPlaneNormal, frustum_topPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        Get3D_Point_Plane_Distance(sphere_position, frustum_bottomPlaneNormal, frustum_bottomPlaneDistance, distance);
+        if (distance < -sphere_radius)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Checking Capsule Overlap -------------------------------------------------
 
     inline bool Check3D_Capsule_Point_Overlap(
         const glm::vec3& capsule_start,
@@ -1636,6 +1749,74 @@ namespace Project001
         const float& sphere_radius)
     {
         return Check3D_Sphere_Capsule_Overlap(sphere_position, sphere_radius, capsule_start, capsule_end, capsule_radius);
+    }
+
+    // Checking Frustum Overlap ------------------------------------------------
+
+    inline bool Check3D_Frustum_Point_Overlap(
+        const glm::vec3& frustum_leftPlaneNormal,
+        const float& frustum_leftPlaneDistance,
+        const glm::vec3& frustum_rightPlaneNormal,
+        const float& frustum_rightPlaneDistance,
+        const glm::vec3& frustum_bottomPlaneNormal,
+        const float& frustum_bottomPlaneDistance,
+        const glm::vec3& frustum_topPlaneNormal,
+        const float& frustum_topPlaneDistance,
+        const glm::vec3& frustum_nearPlaneNormal,
+        const float& frustum_nearPlaneDistance,
+        const glm::vec3& frustum_farPlaneNormal,
+        const float& frustum_farPlaneDistance,
+        const glm::vec3& point_position)
+    {
+        Check3D_Point_Frustum_Overlap(
+            point_position,
+            frustum_leftPlaneNormal,
+            frustum_leftPlaneDistance,
+            frustum_rightPlaneNormal,
+            frustum_rightPlaneDistance,
+            frustum_bottomPlaneNormal,
+            frustum_bottomPlaneDistance,
+            frustum_topPlaneNormal,
+            frustum_topPlaneDistance,
+            frustum_nearPlaneNormal,
+            frustum_nearPlaneDistance,
+            frustum_farPlaneNormal,
+            frustum_farPlaneDistance
+        );
+    }
+
+    inline bool Check3D_Frustum_Sphere_Overlap(
+        const glm::vec3& frustum_leftPlaneNormal,
+        const float& frustum_leftPlaneDistance,
+        const glm::vec3& frustum_rightPlaneNormal,
+        const float& frustum_rightPlaneDistance,
+        const glm::vec3& frustum_bottomPlaneNormal,
+        const float& frustum_bottomPlaneDistance,
+        const glm::vec3& frustum_topPlaneNormal,
+        const float& frustum_topPlaneDistance,
+        const glm::vec3& frustum_nearPlaneNormal,
+        const float& frustum_nearPlaneDistance,
+        const glm::vec3& frustum_farPlaneNormal,
+        const float& frustum_farPlaneDistance,
+        const glm::vec3& sphere_position,
+        const float& sphere_radius)
+    {
+        Check3D_Sphere_Frustum_Overlap(
+            sphere_position,
+            sphere_radius,
+            frustum_leftPlaneNormal,
+            frustum_leftPlaneDistance,
+            frustum_rightPlaneNormal,
+            frustum_rightPlaneDistance,
+            frustum_bottomPlaneNormal,
+            frustum_bottomPlaneDistance,
+            frustum_topPlaneNormal,
+            frustum_topPlaneDistance,
+            frustum_nearPlaneNormal,
+            frustum_nearPlaneDistance,
+            frustum_farPlaneNormal,
+            frustum_farPlaneDistance
+        );
     }
 
     // Getting Closest Point ---------------------------------------------------
@@ -2425,7 +2606,7 @@ namespace Project001
 
         glm::vec3 normal_ratio = planeA_normal / planeB_normal;
 
-        // Check if planes are parallel; if they are, they don't overlap
+        // Check if planes are parallel; if they are, they don't Overlap
         return !(FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
             FloatEqualToFloat(normal_ratio.x, normal_ratio.z));
     }
