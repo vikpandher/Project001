@@ -493,7 +493,7 @@ namespace Project001
         }
     }
 
-    bool Vulkan_Renderer::AddMesh(
+    bool Vulkan_Renderer::AddMeshToBatch(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
@@ -518,7 +518,7 @@ namespace Project001
                 return false;
             }
 
-            Render();
+            RenderBatch();
         }
 
         if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
@@ -561,7 +561,7 @@ namespace Project001
 
         if (getTextureFailed)
         {
-            Render();
+            RenderBatch();
             GetTextureUnit(textureId, textureUnit);
             GetTextureUnit(specularId, specularUnit);
         }
@@ -599,7 +599,7 @@ namespace Project001
         return true;
     }
 
-    void Vulkan_Renderer::Render()
+    void Vulkan_Renderer::RenderBatch()
     {
         if (framebufferResized_)
         {
@@ -2029,8 +2029,8 @@ namespace Project001
         }
         else
         {
-            std::vector<char> vertShaderCode = ReadFile("../Shaders/batchShader_vert.spv");
-            std::vector<char> fragShaderCode = ReadFile("../Shaders/batchShader_frag.spv");
+            std::vector<char> vertShaderCode = ReadFile("../Shaders/primaryShader_vert.spv");
+            std::vector<char> fragShaderCode = ReadFile("../Shaders/primaryShader_frag.spv");
 
             vertexBatchShaderModule_ = CreateShaderModule(vertShaderCode);
             fragmentBatchShaderModule_ = CreateShaderModule(fragShaderCode);

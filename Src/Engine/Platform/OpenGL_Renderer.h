@@ -102,7 +102,7 @@ namespace Project001
 
         void Clear() override;
 
-        bool AddMesh(
+        bool AddMeshToBatch(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
             const unsigned int* meshIndicies,
@@ -117,7 +117,7 @@ namespace Project001
             bool translucent,
             bool lit);
 
-        void Render();
+        void RenderBatch();
 
         void FinishRendering();
 

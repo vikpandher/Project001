@@ -4,7 +4,7 @@
 
 namespace Project001
 {
-    namespace BatchShader
+    namespace PrimaryShader
     {
         // making this static limit's its scope to its translation unit
         // ---------------------------------------------------------------------

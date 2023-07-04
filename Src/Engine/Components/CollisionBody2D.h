@@ -1,9 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "Engine/Components/Placement2D.h"
 #include "Engine/Math/Shapes2D.h"
+#include "Engine/Components/CollisionData.h"
 
 
 
@@ -14,62 +13,106 @@ namespace Project001
     public:
         CollisionBody2D();
 
-        size_t AddPoint(const Point2D& point);
-        Point2D& GetPoint(size_t index);
-        std::vector<Point2D>& GetPoints();
+        void SetTangible(bool tangible);
+        const bool GetTangible() const;
 
-        size_t AddLine(const Line2D& line);
-        Line2D& GetLine(size_t index);
-        std::vector<Line2D>& GetLines();
+        size_t AddPoint(const Point2D& point, unsigned int id = 0);
+        const std::vector<Point2D>& GetPoints() const;
+        const std::vector<unsigned int>& GetPointIds() const;
+        const std::vector<Point2D>& GetTransformedPoints() const;
+        const std::vector<unsigned int>& GetTransformedPointIds() const;
 
-        size_t AddRay(const Ray2D& ray);
-        Ray2D& GetRay(size_t index);
-        std::vector<Ray2D>& GetRays();
+        size_t AddLine(const Line2D& line, unsigned int id = 0);
+        const std::vector<Line2D>& GetLines() const;
+        const std::vector<unsigned int>& GetLineIds() const;
+        const std::vector<Line2D>& GetTransformedLines() const;
+        const std::vector<unsigned int>& GetTransformedLineIds() const;
 
-        size_t AddLineSegment(const LineSegment2D& lineSegment);
-        LineSegment2D& GetLineSegment(size_t index);
-        std::vector<LineSegment2D>& GetLineSegments();
+        size_t AddRay(const Ray2D& ray, unsigned int id = 0);
+        const std::vector<Ray2D>& GetRays() const;
+        const std::vector<unsigned int>& GetRayIds() const;
+        const std::vector<Ray2D>& GetTransformedRays() const;
+        const std::vector<unsigned int>& GetTransformedRayIds() const;
 
-        size_t AddRectangle(const Rectangle2D& rectangle);
-        Rectangle2D& GetRectangle(size_t index);
-        std::vector<Rectangle2D>& GetRectangles();
+        size_t AddLineSegment(const LineSegment2D& lineSegment, unsigned int id = 0);
+        const std::vector<LineSegment2D>& GetLineSegments() const;
+        const std::vector<unsigned int>& GetLineSegmentIds() const;
+        const std::vector<LineSegment2D>& GetTransformedLineSegments() const;
+        const std::vector<unsigned int>& GetTransformedLineSegmentIds() const;
 
-        size_t AddOrientedRectangle(const OrientedRectangle2D& orientedRectangle);
-        OrientedRectangle2D& GetOrientedRectangle(size_t index);
-        std::vector<OrientedRectangle2D>& GetOrientedRectangles();
+        size_t AddRectangle(const Rectangle2D& rectangle, unsigned int id = 0);
+        const std::vector<Rectangle2D>& GetRectangles() const;
+        const std::vector<unsigned int>& GetRectangleIds() const;
+        const std::vector<Rectangle2D>& GetTransformedRectangles() const;
+        const std::vector<unsigned int>& GetTransformedRectangleIds() const;
 
-        size_t AddCircle(const Circle2D& circle);
-        Circle2D& GetCircle(size_t index);
-        std::vector<Circle2D>& GetCircles();
+        size_t AddOrientedRectangle(const OrientedRectangle2D& orientedRectangle, unsigned int id = 0);
+        const std::vector<OrientedRectangle2D>& GetOrientedRectangles() const;
+        const std::vector<unsigned int>& GetOrientedRectangleIds() const;
+        const std::vector<OrientedRectangle2D>& GetTransformedOrientedRectangles() const;
+        const std::vector<unsigned int>& GetTransformedOrientedRectangleIds() const;
 
-        size_t AddCapsule(const Capsule2D& capsule);
-        Capsule2D& GetCapsule(size_t index);
-        std::vector<Capsule2D>& GetCapsules();
+        size_t AddCircle(const Circle2D& circle, unsigned int id = 0);
+        const std::vector<Circle2D>& GetCircles() const;
+        const std::vector<unsigned int>& GetCircleIds() const;
+        const std::vector<Circle2D>& GetTransformedCircles() const;
+        const std::vector<unsigned int>& GetTransformedCircleIds() const;
 
-        size_t AddTriangle(const Triangle2D& triangle);
-        Triangle2D& GetTriangle(size_t index);
-        std::vector<Triangle2D>& GetTriangles();
+        size_t AddCapsule(const Capsule2D& capsule, unsigned int id = 0);
+        const std::vector<Capsule2D>& GetCapsules() const;
+        const std::vector<unsigned int>& GetCapsuleIds() const;
+        const std::vector<Capsule2D>& GetTransformedCapsules() const;
+        const std::vector<unsigned int>& GetTransformedCapsuleIds() const;
 
-        size_t AddPolygon(const std::vector<glm::vec2>& polygon);
-        std::vector<glm::vec2>& GetPolygon(size_t index);
-        std::vector<std::vector<glm::vec2>>& GetPolygons();
+        size_t AddTriangle(const Triangle2D& triangle, unsigned int id = 0);
+        const std::vector<Triangle2D>& GetTriangles() const;
+        const std::vector<unsigned int>& GetTriangleIds() const;
+        const std::vector<Triangle2D>& GetTransformedTriangles() const;
+        const std::vector<unsigned int>& GetTransformedTriangleIds() const;
 
-        size_t AddConvexPolygon(const std::vector<glm::vec2>& convexPolygon);
-        std::vector<glm::vec2>& GetConvexPolygon(size_t index);
-        std::vector<std::vector<glm::vec2>>& GetConvexPolygons();
+        size_t AddPolygon(const Polygon2D& polygon, unsigned int id = 0);
+        const std::vector<Polygon2D>& GetPolygons() const;
+        const std::vector<unsigned int>& GetPolygonIds() const;
+        const std::vector<Polygon2D>& GetTransformedPolygons() const;
+        const std::vector<unsigned int>& GetTransformedPolygonIds() const;
 
-        void CalculateBoundingRadius();
+        size_t AddConvexPolygon(const ConvexPolygon2D& convexPolygon, unsigned int id = 0);
+        const std::vector<ConvexPolygon2D>& GetConvexPolygons() const;
+        const std::vector<unsigned int>& GetConvexPolygonIds() const;
+        const std::vector<ConvexPolygon2D>& GetTransformedConvexPolygons() const;
+        const std::vector<unsigned int>& GetTransformedConvexPolygonIds() const;
+
+        bool BoundingRadiusUpToDate() const;
+        bool TransformedShapesUpToDate() const;
+
         float GetBoundingRadius() const;
-        void SetBoundingRadius(float boundingRadius);
+        void CalculateBoundingRadius();
 
-        void CalculateTransforedShapes();
+        void CalculateTransformedShapes();
 
-        bool GetColliding() const;
-        void SetColliding(bool colliding);
+        void AddCollision(const CollisionData& collision);
+        void ClearCollisions();
+        const std::vector<CollisionData>& GetCollisions() const;
 
-        void CalculateCollision(CollisionBody2D& other);
+        // Overwriten:
 
-        bool GetCollision(const Point2D& point);
+        void SetPosition(const glm::vec2& position);
+        void SetPosition(float x, float y);
+        void SetPositionX(float x);
+        void SetPositionY(float y);
+
+        void AddTranslation(const glm::vec2& translation);
+        void AddTranslation(float x, float y);
+        void AddTranslationX(float x);
+        void AddTranslationY(float y);
+
+        void RevolveAround(const glm::vec2& focalPoint, float angleInRadians);
+
+        void TranslateUp(float d);
+        void TranslateRight(float d);
+
+        void AddRotation(float angleInRadians);
+        void SetRotation(float angleInRadians);
 
     protected:
         // Inherited:
@@ -85,8 +128,20 @@ namespace Project001
         std::vector<Circle2D> circles_;
         std::vector<Capsule2D> capsules_;
         std::vector<Triangle2D> triangles_;
-        std::vector<std::vector<glm::vec2>> polygons_;
-        std::vector<std::vector<glm::vec2>> convexPolygons_;
+        std::vector<Polygon2D> polygons_;
+        std::vector<ConvexPolygon2D> convexPolygons_;
+
+        std::vector<unsigned int> pointIds_;
+        std::vector<unsigned int> lineIds_;
+        std::vector<unsigned int> rayIds_;
+        std::vector<unsigned int> lineSegmentIds_;
+        std::vector<unsigned int> rectangleIds_;
+        std::vector<unsigned int> orientedRectangleIds_;
+        std::vector<unsigned int> circleIds_;
+        std::vector<unsigned int> capsuleIds_;
+        std::vector<unsigned int> triangleIds_;
+        std::vector<unsigned int> polygonIds_;
+        std::vector<unsigned int> convexPolygonIds_;
 
         std::vector<Point2D> transformedPoints_;
         std::vector<Line2D> transformedLines_;
@@ -97,193 +152,373 @@ namespace Project001
         std::vector<Circle2D> transformedCircles_;
         std::vector<Capsule2D> transformedCapsules_;
         std::vector<Triangle2D> transformedTriangles_;
-        std::vector<std::vector<glm::vec2>> transformedPolygons_;
-        std::vector<std::vector<glm::vec2>> transformedConvexPolygons_;
+        std::vector<Polygon2D> transformedPolygons_;
+        std::vector<ConvexPolygon2D> transformedConvexPolygons_;
+
+        // When being transformed a shape can become a different shape.
+        // For example, with a rotation rectangle becomes orientedRectangle.
+        // So there are transformed id vectors.
+        std::vector<unsigned int> transformedPointIds_;
+        std::vector<unsigned int> transformedLineIds_;
+        std::vector<unsigned int> transformedRayIds_;
+        std::vector<unsigned int> transformedLineSegmentIds_;
+        std::vector<unsigned int> transformedRectangleIds_;
+        std::vector<unsigned int> transformedOrientedRectangleIds_;
+        std::vector<unsigned int> transformedCircleIds_;
+        std::vector<unsigned int> transformedCapsuleIds_;
+        std::vector<unsigned int> transformedTriangleIds_;
+        std::vector<unsigned int> transformedPolygonIds_;
+        std::vector<unsigned int> transformedConvexPolygonIds_;
+
+        bool tangible_;
 
         float boundingRadius_;
 
-        bool colliding_;
+        bool boundingRadiusUpToDate_;
+        bool transformedShapesUpToDate_;
+
+        std::vector<CollisionData> collisions_;
     };
 
     inline CollisionBody2D::CollisionBody2D()
-        : boundingRadius_(0.0f)
-        , colliding_(false)
+        : tangible_(true)
+        , boundingRadius_(0.0f)
+        , boundingRadiusUpToDate_(false)
+        , transformedShapesUpToDate_(false)
     {}
 
-    inline size_t CollisionBody2D::AddPoint(const Point2D& point)
+    inline void CollisionBody2D::SetTangible(bool tangible)
     {
+        tangible_ = tangible;
+    }
+
+    inline const bool CollisionBody2D::GetTangible() const
+    {
+        return tangible_;
+    }
+
+    inline size_t CollisionBody2D::AddPoint(const Point2D& point, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         points_.push_back(point);
+        pointIds_.push_back(id);
         return points_.size() - 1;
     }
 
-    inline Point2D& CollisionBody2D::GetPoint(size_t index)
-    {
-        return points_[index];
-    }
-
-    inline std::vector<Point2D>& CollisionBody2D::GetPoints()
+    inline const std::vector<Point2D>& CollisionBody2D::GetPoints() const
     {
         return points_;
     }
 
-    inline size_t CollisionBody2D::AddLine(const Line2D& line)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetPointIds() const
     {
+        return pointIds_;
+    }
+
+    inline const std::vector<Point2D>& CollisionBody2D::GetTransformedPoints() const
+    {
+        return transformedPoints_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedPointIds() const
+    {
+        return transformedPointIds_;
+    }
+
+    inline size_t CollisionBody2D::AddLine(const Line2D& line, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         lines_.push_back(line);
+        lineIds_.push_back(id);
         return lines_.size() - 1;
     }
 
-    inline Line2D& CollisionBody2D::GetLine(size_t index)
-    {
-        return lines_[index];
-    }
-
-    inline std::vector<Line2D>& CollisionBody2D::GetLines()
+    inline const std::vector<Line2D>& CollisionBody2D::GetLines() const
     {
         return lines_;
     }
 
-    inline size_t CollisionBody2D::AddRay(const Ray2D& ray)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetLineIds() const
     {
+        return lineIds_;
+    }
+
+    inline const std::vector<Line2D>& CollisionBody2D::GetTransformedLines() const
+    {
+        return transformedLines_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedLineIds() const
+    {
+        return transformedLineIds_;
+    }
+
+    inline size_t CollisionBody2D::AddRay(const Ray2D& ray, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         rays_.push_back(ray);
+        rayIds_.push_back(id);
         return rays_.size() - 1;
     }
 
-    inline Ray2D& CollisionBody2D::GetRay(size_t index)
-    {
-        return rays_[index];
-    }
-
-    inline std::vector<Ray2D>& CollisionBody2D::GetRays()
+    inline const std::vector<Ray2D>& CollisionBody2D::GetRays() const
     {
         return rays_;
     }
 
-    inline size_t CollisionBody2D::AddLineSegment(const LineSegment2D& lineSegment)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetRayIds() const
     {
+        return rayIds_;
+    }
+
+    inline const std::vector<Ray2D>& CollisionBody2D::GetTransformedRays() const
+    {
+        return transformedRays_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedRayIds() const
+    {
+        return transformedRayIds_;
+    }
+
+    inline size_t CollisionBody2D::AddLineSegment(const LineSegment2D& lineSegment, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         lineSegments_.push_back(lineSegment);
+        lineSegmentIds_.push_back(id);
         return lineSegments_.size() - 1;
     }
 
-    inline LineSegment2D& CollisionBody2D::GetLineSegment(size_t index)
-    {
-        return lineSegments_[index];
-    }
-
-    inline std::vector<LineSegment2D>& CollisionBody2D::GetLineSegments()
+    inline const std::vector<LineSegment2D>& CollisionBody2D::GetLineSegments() const
     {
         return lineSegments_;
     }
 
-    inline size_t CollisionBody2D::AddRectangle(const Rectangle2D& rectangle)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetLineSegmentIds() const
     {
+        return lineSegmentIds_;
+    }
+
+    inline const std::vector<LineSegment2D>& CollisionBody2D::GetTransformedLineSegments() const
+    {
+        return transformedLineSegments_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedLineSegmentIds() const
+    {
+        return transformedLineSegmentIds_;
+    }
+
+    inline size_t CollisionBody2D::AddRectangle(const Rectangle2D& rectangle, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         rectangles_.push_back(rectangle);
+        rectangleIds_.push_back(id);
         return rectangles_.size() - 1;
     }
 
-    inline Rectangle2D& CollisionBody2D::GetRectangle(size_t index)
-    {
-        return rectangles_[index];
-    }
-
-    inline std::vector<Rectangle2D>& CollisionBody2D::GetRectangles()
+    inline const std::vector<Rectangle2D>& CollisionBody2D::GetRectangles() const
     {
         return rectangles_;
     }
 
-    inline size_t CollisionBody2D::AddOrientedRectangle(const OrientedRectangle2D& orientedRectangle)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetRectangleIds() const
     {
+        return rectangleIds_;
+    }
+
+    inline const std::vector<Rectangle2D>& CollisionBody2D::GetTransformedRectangles() const
+    {
+        return transformedRectangles_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedRectangleIds() const
+    {
+        return transformedRectangleIds_;
+    }
+
+    inline size_t CollisionBody2D::AddOrientedRectangle(const OrientedRectangle2D& orientedRectangle, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         orientedRectangles_.push_back(orientedRectangle);
+        orientedRectangleIds_.push_back(id);
         return orientedRectangles_.size() - 1;
     }
 
-    inline OrientedRectangle2D& CollisionBody2D::GetOrientedRectangle(size_t index)
-    {
-        return orientedRectangles_[index];
-    }
-
-    inline std::vector<OrientedRectangle2D>& CollisionBody2D::GetOrientedRectangles()
+    inline const std::vector<OrientedRectangle2D>& CollisionBody2D::GetOrientedRectangles() const
     {
         return orientedRectangles_;
     }
 
-    inline size_t CollisionBody2D::AddCircle(const Circle2D& circle)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetOrientedRectangleIds() const
     {
+        return orientedRectangleIds_;
+    }
+
+    inline const std::vector<OrientedRectangle2D>& CollisionBody2D::GetTransformedOrientedRectangles() const
+    {
+        return transformedOrientedRectangles_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedOrientedRectangleIds() const
+    {
+        return transformedOrientedRectangleIds_;
+    }
+
+    inline size_t CollisionBody2D::AddCircle(const Circle2D& circle, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         circles_.push_back(circle);
+        circleIds_.push_back(id);
         return circles_.size() - 1;
     }
 
-    inline Circle2D& CollisionBody2D::GetCircle(size_t index)
-    {
-        return circles_[index];
-    }
-
-    inline std::vector<Circle2D>& CollisionBody2D::GetCircles()
+    inline const std::vector<Circle2D>& CollisionBody2D::GetCircles() const
     {
         return circles_;
     }
 
-    inline size_t CollisionBody2D::AddCapsule(const Capsule2D& capsule)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetCircleIds() const
     {
+        return circleIds_;
+    }
+
+    inline const std::vector<Circle2D>& CollisionBody2D::GetTransformedCircles() const
+    {
+        return transformedCircles_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedCircleIds() const
+    {
+        return transformedCircleIds_;
+    }
+
+    inline size_t CollisionBody2D::AddCapsule(const Capsule2D& capsule, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         capsules_.push_back(capsule);
+        capsuleIds_.push_back(id);
         return capsules_.size() - 1;
     }
 
-    inline Capsule2D& CollisionBody2D::GetCapsule(size_t index)
-    {
-        return capsules_[index];
-    }
-
-    inline std::vector<Capsule2D>& CollisionBody2D::GetCapsules()
+    inline const std::vector<Capsule2D>& CollisionBody2D::GetCapsules() const
     {
         return capsules_;
     }
 
-    inline size_t CollisionBody2D::AddTriangle(const Triangle2D& triangle)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetCapsuleIds() const
     {
+        return capsuleIds_;
+    }
+
+    inline const std::vector<Capsule2D>& CollisionBody2D::GetTransformedCapsules() const
+    {
+        return transformedCapsules_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedCapsuleIds() const
+    {
+        return transformedCapsuleIds_;
+    }
+
+    inline size_t CollisionBody2D::AddTriangle(const Triangle2D& triangle, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         triangles_.push_back(triangle);
+        triangleIds_.push_back(id);
         return triangles_.size() - 1;
     }
 
-    inline Triangle2D& CollisionBody2D::GetTriangle(size_t index)
-    {
-        return triangles_[index];
-    }
-
-    inline std::vector<Triangle2D>& CollisionBody2D::GetTriangles()
+    inline const std::vector<Triangle2D>& CollisionBody2D::GetTriangles() const
     {
         return triangles_;
     }
 
-    inline size_t CollisionBody2D::AddPolygon(const std::vector<glm::vec2>& polygon)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTriangleIds() const
     {
+        return triangleIds_;
+    }
+
+    inline const std::vector<Triangle2D>& CollisionBody2D::GetTransformedTriangles() const
+    {
+        return transformedTriangles_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedTriangleIds() const
+    {
+        return transformedTriangleIds_;
+    }
+
+    inline size_t CollisionBody2D::AddPolygon(const Polygon2D& polygon, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         polygons_.push_back(polygon);
+        polygonIds_.push_back(id);
         return polygons_.size() - 1;
     }
 
-    inline std::vector<glm::vec2>& CollisionBody2D::GetPolygon(size_t index)
-    {
-        return polygons_[index];
-    }
-
-    inline std::vector<std::vector<glm::vec2>>& CollisionBody2D::GetPolygons()
+    inline const std::vector<Polygon2D>& CollisionBody2D::GetPolygons() const
     {
         return polygons_;
     }
 
-    inline size_t CollisionBody2D::AddConvexPolygon(const std::vector<glm::vec2>& convexPolygon)
+    inline const std::vector<unsigned int>& CollisionBody2D::GetPolygonIds() const
     {
+        return polygonIds_;
+    }
+
+    inline const std::vector<Polygon2D>& CollisionBody2D::GetTransformedPolygons() const
+    {
+        return transformedPolygons_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedPolygonIds() const
+    {
+        return transformedPolygonIds_;
+    }
+
+    inline size_t CollisionBody2D::AddConvexPolygon(const ConvexPolygon2D& convexPolygon, unsigned int id)
+    {
+        boundingRadiusUpToDate_ = false;
+        transformedShapesUpToDate_ = false;
         convexPolygons_.push_back(convexPolygon);
+        convexPolygonIds_.push_back(id);
         return polygons_.size() - 1;
     }
 
-    inline std::vector<glm::vec2>& CollisionBody2D::GetConvexPolygon(size_t index)
-    {
-        return convexPolygons_[index];
-    }
-
-    inline std::vector<std::vector<glm::vec2>>& CollisionBody2D::GetConvexPolygons()
+    inline const std::vector<ConvexPolygon2D>& CollisionBody2D::GetConvexPolygons() const
     {
         return convexPolygons_;
+    }
+
+    inline const std::vector<ConvexPolygon2D>& CollisionBody2D::GetTransformedConvexPolygons() const
+    {
+        return transformedConvexPolygons_;
+    }
+
+    inline const std::vector<unsigned int>& CollisionBody2D::GetTransformedConvexPolygonIds() const
+    {
+        return transformedConvexPolygonIds_;
+    }
+
+    inline bool CollisionBody2D::BoundingRadiusUpToDate() const
+    {
+        return boundingRadiusUpToDate_;
+    }
+
+    inline bool CollisionBody2D::TransformedShapesUpToDate() const
+    {
+        return transformedShapesUpToDate_;
     }
 
     inline float CollisionBody2D::GetBoundingRadius() const
@@ -291,18 +526,96 @@ namespace Project001
         return boundingRadius_;
     }
 
-    inline void CollisionBody2D::SetBoundingRadius(float boundingRadius)
+    inline void CollisionBody2D::AddCollision(const CollisionData& collision)
     {
-        boundingRadius_ = boundingRadius;
+        collisions_.push_back(collision);
     }
 
-    inline bool CollisionBody2D::GetColliding() const
+    inline void CollisionBody2D::ClearCollisions()
     {
-        return colliding_;
+        collisions_.clear();
     }
 
-    inline void CollisionBody2D::SetColliding(bool colliding)
+    inline const std::vector<CollisionData>& CollisionBody2D::GetCollisions() const
     {
-        colliding_ = colliding;
+        return collisions_;
+    }
+
+    inline void CollisionBody2D::SetPosition(const glm::vec2& position)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::SetPosition(position);
+    }
+
+    inline void CollisionBody2D::SetPosition(float x, float y)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::SetPosition(x, y);
+    }
+
+    inline void CollisionBody2D::SetPositionX(float x)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::SetPositionX(x);
+    }
+
+    inline void CollisionBody2D::SetPositionY(float y)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::SetPositionY(y);
+    }
+
+    inline void CollisionBody2D::AddTranslation(const glm::vec2& translation)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::AddTranslation(translation);
+    }
+
+    inline void CollisionBody2D::AddTranslation(float x, float y)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::AddTranslation(x, y);
+    }
+
+    inline void CollisionBody2D::AddTranslationX(float x)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::AddTranslationX(x);
+    }
+
+    inline void CollisionBody2D::AddTranslationY(float y)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::AddTranslationY(y);
+    }
+
+    inline void CollisionBody2D::RevolveAround(const glm::vec2& focalPoint, float angleInRadians)
+    {
+        transformedShapesUpToDate_ = false;
+        Position2D::RevolveAround(focalPoint, angleInRadians);
+    }
+
+    inline void CollisionBody2D::TranslateUp(float d)
+    {
+        transformedShapesUpToDate_ = false;
+        Placement2D::TranslateUp(d);
+    }
+
+    inline void CollisionBody2D::TranslateRight(float d)
+    {
+        transformedShapesUpToDate_ = false;
+        Placement2D::TranslateRight(d);
+    }
+
+    inline void CollisionBody2D::AddRotation(float angleInRadians)
+    {
+        transformedShapesUpToDate_ = false;
+        Placement2D::AddRotation(angleInRadians);
+    }
+
+    inline void CollisionBody2D::SetRotation(float angleInRadians)
+    {
+        transformedShapesUpToDate_ = false;
+        Placement2D::SetRotation(angleInRadians);
     }
 }

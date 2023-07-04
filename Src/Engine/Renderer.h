@@ -111,7 +111,7 @@ namespace Project001
 
         virtual void Clear() = 0;
 
-        virtual bool AddMesh(
+        virtual bool AddMeshToBatch(
             const MeshVertex* meshVerticies,
             unsigned int meshVertexCount,
             const unsigned int* meshIndicies,
@@ -126,7 +126,7 @@ namespace Project001
             bool translucent,
             bool lit) = 0;
 
-        virtual void Render() = 0;
+        virtual void RenderBatch() = 0;
 
         virtual void FinishRendering() = 0;
 

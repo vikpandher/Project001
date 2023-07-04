@@ -198,7 +198,7 @@ namespace Project001
                         const MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
                         if (currentMeshDataPtr != nullptr)
                         {
-                            _FAIL_CHECK(rendererPtr->AddMesh(
+                            _FAIL_CHECK(rendererPtr->AddMeshToBatch(
                                 currentMeshDataPtr->meshVertexArray.data(),
                                 (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                                 currentMeshDataPtr->meshIndexArray.data(),
@@ -216,7 +216,7 @@ namespace Project001
                     }
                 }
 
-                rendererPtr->Render();
+                rendererPtr->RenderBatch();
             }
 
             rendererPtr->FinishRendering();

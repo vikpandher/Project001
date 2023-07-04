@@ -113,6 +113,8 @@ set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
     "Src/Engine/BiMap.h"
+    "Src/Engine/CollisionSystem2D.cpp"
+    "Src/Engine/CollisionSystem2D.h"
     "Src/Engine/ComponentContainer.h"
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
@@ -154,6 +156,7 @@ set (COMPONENTS_FILES
     "Src/Engine/Components/CollisionBody.h"
     "Src/Engine/Components/CollisionBody2D.cpp"
     "Src/Engine/Components/CollisionBody2D.h"
+    "Src/Engine/Components/CollisionData.h"
     "Src/Engine/Components/LightSource.h"
     "Src/Engine/Components/Placement.h"
     "Src/Engine/Components/Placement2D.h"
@@ -205,9 +208,9 @@ set(PLATFORM_FILES
 source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
 
 set(SHADER_SOURCE_FILES
-    "Src/Engine/Platform/ShaderSource/BatchShaderSource.h"
     "Src/Engine/Platform/ShaderSource/GridShaderSource.h"
     "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
+    "Src/Engine/Platform/ShaderSource/PrimaryShaderSource.h"
     "Src/Engine/Platform/ShaderSource/ScreenShaderSource.h"
     "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"
 )

@@ -81,7 +81,7 @@ namespace Project001
 
         void GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const;
 
-        glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const;
+        glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, const glm::vec2& viewportPoint) const;
 
     protected:
         // Inherited:

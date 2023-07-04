@@ -2,6 +2,7 @@
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody2D.h"
+#include "Engine/CollisionSystem2D.h"
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
@@ -21,7 +22,7 @@
 
 TestSceneBase002::TestSceneBase002()
     : cursorGrabbingEntity_(false)
-    , previousWorldCursorDownPosition_(0.0f, 0.0f)
+    , previousWorldCursorPosition_(0.0f, 0.0f)
 {
     ClearResources();
 }
@@ -74,6 +75,17 @@ bool TestSceneBase002::OnInitialize()
         cameraPtr->TurnOn();
     }
 
+    // cursor entity
+    // -------------------------------------------------------------------------
+    {
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(cursorEntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
+
+        Project001::CollisionBody2D* collisionBodyPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBodyPtr));
+        collisionBodyPtr->AddPoint(Project001::Point2D(), 1);
+    }
+
     return true;
 }
 
@@ -108,47 +120,50 @@ void TestSceneBase002::ClearResources()
     meshDataPtrArray_.clear();
 
     mainCameraEntityId_ = (unsigned int)-1;
+    cursorEntityId_ = (unsigned int)-1;
     entityIds_.clear();
 }
 
 void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
 {
-    if (cursorGrabbingEntity_)
+    int windowWidth, windowHeight;
+    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+
+    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
+    rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+
+    // Convert coordinates from window to viewport
+    glm::vec2 viewportCursorPosition(
+        cursorPositionEvent.xPosition - xOffset,
+        windowHeight - yOffset - cursorPositionEvent.yPosition
+    );
+
+    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
     {
-        glm::vec2 cursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
+        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
-        int windowWidth, windowHeight;
-        windowPtr_->GetWindowSize(windowWidth, windowHeight);
+        // Convert coordinates from viewport to world
+        glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
+            viewportWidth,
+            viewportHeight,
+            viewportCursorPosition
+        );
 
-        unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-        rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+        Project001::CollisionBody2D* cursorCollisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, cursorCollisionBody2DPtr));
+        cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
 
-        // Convert coordinates from window to viewport
-        cursorPosition.y = windowHeight - yOffset - cursorPosition.y;
-        cursorPosition.x = cursorPosition.x - xOffset;
-
-        if (cursorPosition.x < viewportWidth || cursorPosition.y < viewportHeight)
+        if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
         {
-            Project001::Camera* cameraPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-            cursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(viewportWidth, viewportHeight, cursorPosition);
+            unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
 
-            float xOffset = cursorPosition.x - previousWorldCursorDownPosition_.x;
-            float yOffset = cursorPosition.y - previousWorldCursorDownPosition_.y;
-
-            if (selectedEntityIdIndex_ < entityIds_.size())
-            {
-                unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
-
-                Project001::CollisionBody2D* collisionBody2DPtr;
-                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedEntityId, collisionBody2DPtr));
-                collisionBody2DPtr->AddTranslationX(xOffset);
-                collisionBody2DPtr->AddTranslationY(yOffset);
-            }
-
-            previousWorldCursorDownPosition_.x = cursorPosition.x;
-            previousWorldCursorDownPosition_.y = cursorPosition.y;
+            Project001::CollisionBody2D* selectedCollisionBody2DPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedEntityId, selectedCollisionBody2DPtr));
+            selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
         }
+
+        previousWorldCursorPosition_ = worldCursorPosition;
     }
 
     cursorPositionEvent.handled = true;
@@ -226,6 +241,8 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             }
         }
     }
+
+    keyEvent.handled = true;
 }
 
 void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
@@ -240,55 +257,35 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        glm::vec2 cursorPosition;
-        windowPtr_->GetCursorPosition(cursorPosition.x, cursorPosition.y);
+        Project001::CollisionSystem2D::CalculateCollisionsForGivenEntity(cursorEntityId_, componentStoresPtr_);
 
-        int windowWidth, windowHeight;
-        windowPtr_->GetWindowSize(windowWidth, windowHeight);
-
-        unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-        rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
-
-        // Convert coordinates from window to viewport
-        cursorPosition.y = windowHeight - yOffset - cursorPosition.y;
-        cursorPosition.x = cursorPosition.x - xOffset;
-
-        if (cursorPosition.x < viewportWidth || cursorPosition.y < viewportHeight)
+        Project001::CollisionBody2D* cursorCollisionBody2DPtr;
+        if (componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, cursorCollisionBody2DPtr))
         {
-            Project001::Camera* cameraPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-            previousWorldCursorDownPosition_ = cameraPtr->ConvertPointFromViewportToOrthoWorld(viewportWidth, viewportHeight, cursorPosition);
-
-            Project001::CollisionBody2D* collisionBody2DArray = nullptr;
-            size_t collisionBodyCount = 0;
-
-            componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+            const std::vector<Project001::CollisionData>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
 
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
             // added.
-            for (int i = (int)collisionBodyCount - 1; i >= 0; --i)
+            for (int i = (int)cursorCollisions.size() - 1; i >= 0; --i)
             {
-                Project001::CollisionBody2D& currentCollisionBody2D = collisionBody2DArray[i];
-                if (currentCollisionBody2D.GetCollision(previousWorldCursorDownPosition_))
+                const Project001::CollisionData& currentCollision = cursorCollisions[i];
+
+                for (unsigned int j = 0; j < entityIds_.size(); ++j)
                 {
-                    unsigned int entityId;
-                    _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&currentCollisionBody2D, entityId));
-
-                    for (unsigned int i = 0; i < entityIds_.size(); ++i)
+                    if (currentCollision.otherEntityId == entityIds_[j])
                     {
-                        if (entityId == entityIds_[i])
-                        {
-                            selectedEntityIdIndex_ = i;
-                        }
-                    }
+                        selectedEntityIdIndex_ = j;
 
-                    cursorGrabbingEntity_ = true;
-                    break;
+                        cursorGrabbingEntity_ = true;
+                        break;
+                    }
                 }
             }
         }
     }
+
+    mouseButtonEvent.handled = true;
 }
 
 void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
@@ -330,7 +327,11 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     UpdatedSelectedEntityPosition(timestep_ns);
     Sync_RenderedModel_CollisionBody_Components();
 
-    DetectCollisions();
+    Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+
+    ColorCollisions();
+
+    updateEvent.handled = true;
 }
 
 void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
@@ -431,67 +432,6 @@ void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
     }
 }
 
-void TestSceneBase002::DetectCollisions()
-{
-    Project001::CollisionBody2D* collisionBody2DArray = nullptr;
-    size_t collisionBodyCount = 0;
-
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
-
-    for (unsigned int i = 0; i < collisionBodyCount; ++i)
-    {
-        Project001::CollisionBody2D& currentCollisionBody2D = collisionBody2DArray[i];
-        currentCollisionBody2D.CalculateTransforedShapes();
-        currentCollisionBody2D.SetColliding(false);
-    }
-
-    if (collisionBodyCount > 0)
-    {
-        for (unsigned int i = 0; i < collisionBodyCount - 1; ++i)
-        {
-            Project001::CollisionBody2D& firstCollisionBody2D = collisionBody2DArray[i];
-            for (unsigned int j = i + 1; j < collisionBodyCount; ++j)
-            {
-                Project001::CollisionBody2D& secondCollisionBody2D = collisionBody2DArray[j];
-                firstCollisionBody2D.CalculateCollision(secondCollisionBody2D);
-            }
-        }
-    }
-
-    for (unsigned int i = 0; i < collisionBodyCount; ++i)
-    {
-        Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
-
-        unsigned int entityId;
-        _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&collisionBody2D, entityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(entityId, renderedModelPtr));
-
-        if (collisionBody2D.GetColliding())
-        {
-            if (selectedEntityIdIndex_ < entityIds_.size() && entityId == entityIds_[selectedEntityIdIndex_])
-            {
-                renderedModelPtr->SetColorRGB(1.0f, 0.75f, 0.25f);
-            }
-            else
-            {
-                renderedModelPtr->SetColorRGB(1.0f, 0.25f, 0.25f);
-            }
-        }
-        else
-        {
-            if (selectedEntityIdIndex_ < entityIds_.size() && entityId == entityIds_[selectedEntityIdIndex_])
-            {
-                renderedModelPtr->SetColorRGB(0.25f, 0.25f, 1.0f);
-            }
-            else
-            {
-                renderedModelPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
-            }
-        }
-    }
-}
-
 void TestSceneBase002::Sync_RenderedModel_CollisionBody_Components()
 {
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
@@ -515,6 +455,60 @@ void TestSceneBase002::Sync_RenderedModel_CollisionBody_Components()
             const float& rotation = collisionBody2D.GetRotation();
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddWorldRotationZ(rotation);
+        }
+    }
+}
+
+void TestSceneBase002::ColorCollisions()
+{
+    Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
+    size_t collisionBodyCount = 0;
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    for (size_t i = 0; i < collisionBodyCount; ++i)
+    {
+        bool collisionBodyColliding = false;
+
+        Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+        const std::vector<Project001::CollisionData>& currentCollisions = currentCollisionBody.GetCollisions();
+        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        {
+            const Project001::CollisionData& currentCollision = currentCollisions[j];
+            if (currentCollision.otherShapeId == 0)
+            {
+                collisionBodyColliding = true;
+                break;
+            }
+        }
+
+        unsigned int collidingEntityId;
+        _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&currentCollisionBody, collidingEntityId));
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        bool renderedModelFound = componentStoresPtr_->GetComponent<Project001::RenderedModel>(collidingEntityId, renderedModelPtr);
+
+        if (renderedModelFound)
+        {
+            if (collisionBodyColliding)
+            {
+                if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
+                {
+                    renderedModelPtr->SetColorRGB(1.0f, 0.75f, 0.25f);
+                }
+                else
+                {
+                    renderedModelPtr->SetColorRGB(1.0f, 0.25f, 0.25f);
+                }
+            }
+            else
+            {
+                if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
+                {
+                    renderedModelPtr->SetColorRGB(0.25f, 0.25f, 1.0f);
+                }
+                else
+                {
+                    renderedModelPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
+                }
+            }
         }
     }
 }

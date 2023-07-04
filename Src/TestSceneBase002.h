@@ -52,9 +52,9 @@ protected:
 
     void UpdatedSelectedEntityPosition(unsigned long timestep_ns);
 
-    void DetectCollisions();
-
     void Sync_RenderedModel_CollisionBody_Components();
+
+    void ColorCollisions();
 
     // -------------------------------------------------------------------------
 
@@ -71,13 +71,14 @@ protected:
     // Entity Ids: -------------------------------------------------------------
 
     unsigned int mainCameraEntityId_;
+    unsigned int cursorEntityId_;
 
     std::vector<unsigned int> entityIds_;
 
     // Scene Data: -------------------------------------------------------------
 
     bool cursorGrabbingEntity_;
-    glm::vec2 previousWorldCursorDownPosition_;
+    glm::vec2 previousWorldCursorPosition_;
     unsigned int selectedEntityIdIndex_;
 
 private:

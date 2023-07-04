@@ -131,13 +131,13 @@ namespace Project001
         }
     }
 
-    glm::vec2 Camera::ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, glm::vec2 windowPoint) const
+    glm::vec2 Camera::ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, const glm::vec2& viewportPoint) const
     {
         float cutoffWidth = rightCutoff_ - leftCutoff_;
         float cutoffHeight = topCutoff_ - bottomCutoff_;
         glm::vec2 orthoPoint(
-            cutoffWidth * (float)windowPoint.x / (float)viewportWidth - rightCutoff_,
-            cutoffHeight * (float)windowPoint.y / (float)viewportHeight - topCutoff_);
+            cutoffWidth * (float)viewportPoint.x / (float)viewportWidth - rightCutoff_,
+            cutoffHeight * (float)viewportPoint.y / (float)viewportHeight - topCutoff_);
         orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
         orthoPoint.x += position_.x;
         orthoPoint.y += position_.y;

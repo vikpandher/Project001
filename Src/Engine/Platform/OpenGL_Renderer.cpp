@@ -10,9 +10,9 @@
 
 #include "Engine/Platform/OpenGL_Shader.h"
 #include "Engine/Platform/OpenGL_Texture.h"
-#include "Engine/Platform/ShaderSource/BatchShaderSource.h"
 #include "Engine/Platform/ShaderSource/GridShaderSource.h"
 #include "Engine/Platform/ShaderSource/NormalShaderSource.h"
+#include "Engine/Platform/ShaderSource/PrimaryShaderSource.h"
 #include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
 #include "Engine/Platform/ShaderSource/WireFrameShaderSource.h"
 
@@ -71,8 +71,8 @@ namespace Project001
         glEnableVertexAttribArray(1);
 
         primaryShaderPtr_ = new OpenGL_Shader(
-            BatchShader::g_vertexShaderSource,
-            BatchShader::g_fragmentShaderSource
+            PrimaryShader::g_vertexShaderSource,
+            PrimaryShader::g_fragmentShaderSource
         );
         primaryShaderPtr_->Use();
 
@@ -372,7 +372,7 @@ namespace Project001
         redrawGrid_ = true;
     }
 
-    bool OpenGL_Renderer::AddMesh(
+    bool OpenGL_Renderer::AddMeshToBatch(
         const MeshVertex* meshVerticies,
         unsigned int meshVertexCount,
         const unsigned int* meshIndicies,
@@ -397,7 +397,7 @@ namespace Project001
                 return false;
             }
 
-            Render();
+            RenderBatch();
         }
 
         bool getTextureFailed = false;
@@ -434,7 +434,7 @@ namespace Project001
 
         if (getTextureFailed)
         {
-            Render();
+            RenderBatch();
             GetTextureUnit(textureId, textureUnit);
             GetTextureUnit(specularId, specularUnit);
         }
@@ -472,7 +472,7 @@ namespace Project001
         return true;
     }
 
-    void OpenGL_Renderer::Render()
+    void OpenGL_Renderer::RenderBatch()
     {
         windowPtr_->MakeContextCurrent();
 
