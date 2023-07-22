@@ -6,8 +6,8 @@
 #include "glad/glad.h"
 
 #include "Engine/Logger.h"
-#include "Engine/MeshVertex.h"
 
+#include "Engine/Platform/OpenGL_Mesh.h"
 #include "Engine/Platform/OpenGL_Shader.h"
 #include "Engine/Platform/OpenGL_Texture.h"
 #include "Engine/Platform/ShaderSource/GridShaderSource.h"
@@ -29,8 +29,9 @@ namespace Project001
         , redrawGrid_(true)
         , depthTesting_(rendererInfo.depthTesting)
         , multisampleAntiAliasing_(rendererInfo.multisampleAntiAliasing)
-        , indexBufferCapacity_(rendererInfo.indexBufferCapacity)
-        , vertexBufferCapacity_(rendererInfo.vertexBufferCapacity)
+        , instanceBufferCapacity_(rendererInfo.instanceBufferCapacity)
+        , batchedIndexBufferCapacity_(rendererInfo.batchedIndexBufferCapacity)
+        , batchedVertexBufferCapacity_(rendererInfo.batchedVertexBufferCapacity)
         , frameBufferWidth_(rendererInfo.frameBufferWidth)
         , frameBufferHeight_(rendererInfo.frameBufferHeight)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
@@ -41,8 +42,10 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        SetIndexBufferCapacity(indexBufferCapacity_);
-        SetVertexBufferCapacity(vertexBufferCapacity_);
+        SetInstanceBufferCapacity(instanceBufferCapacity_);
+
+        SetBatchedIndexBufferCapacity(batchedIndexBufferCapacity_);
+        SetBatchedVertexBufferCapacity(batchedVertexBufferCapacity_);
 
         if (s_drawGrid)
         {
@@ -61,14 +64,17 @@ namespace Project001
         };
 
         glGenVertexArrays(1, &screenVertexArrayId_);
-        glGenBuffers(1, &screenVertexBufferId_);
         glBindVertexArray(screenVertexArrayId_);
+
+        glGenBuffers(1, &screenVertexBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, screenVertexBufferId_);
         glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), &screenQuadVertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-        glEnableVertexAttribArray(1);
+
+        const GLuint positionAttributeIndex = 0;
+        const GLuint textureCoordinateAttributeIndex = 1;
+
+        glVertexAttribPointer(positionAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
         primaryShaderPtr_ = new OpenGL_Shader(
             PrimaryShader::g_vertexShaderSource,
@@ -118,6 +124,8 @@ namespace Project001
 
         screenShaderPtr_->SetInt("u_ScreenTexture", 0);
 
+        glUseProgram(0);
+
         CreateScreenFramebuffers();
 
         GLint viewPortData[4];
@@ -142,27 +150,31 @@ namespace Project001
         delete normalShaderPtr_;
         delete screenShaderPtr_;
 
+        DeleteAllMeshes();
         DeleteAllTextures();
 
+        glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        glDeleteBuffers(1, &vertexBufferId_);
-        glDeleteBuffers(1, &indexBufferId_);
-        glDeleteVertexArrays(1, &vertexArrayId_);
+        glDeleteVertexArrays(1, &batchedVertexArrayId_);
+        glDeleteBuffers(1, &batchedVertexBufferId_);
+        glDeleteBuffers(1, &batchedIndexBufferId_);
 
         CleanUpScreenFramebuffers();
 
-        glDeleteBuffers(1, &gridVertexBufferId_);
         glDeleteVertexArrays(1, &gridVertexArrayId_);
+        glDeleteBuffers(1, &gridVertexBufferId_);
 
-        glDeleteBuffers(1, &screenVertexBufferId_);
         glDeleteVertexArrays(1, &screenVertexArrayId_);
+        glDeleteBuffers(1, &screenVertexBufferId_);
     }
 
     void OpenGL_Renderer::SetMultisampleAntiAliasing(
         bool multisampleAntiAliasing)
     {
+        windowPtr_->MakeContextCurrent();
+
         if (multisampleAntiAliasing != multisampleAntiAliasing_)
         {
             multisampleAntiAliasing_ = multisampleAntiAliasing;
@@ -173,94 +185,112 @@ namespace Project001
         }
     }
 
-    void OpenGL_Renderer::SetIndexBufferCapacity(unsigned int capacity)
+    void OpenGL_Renderer::SetInstanceBufferCapacity(unsigned int capacity)
     {
-        indexBufferCapacity_ = capacity;
-        if (indexBufferCapacity_ % 3 != 0)
+        windowPtr_->MakeContextCurrent();
+
+        instanceBufferCapacity_ = capacity;
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &instanceBufferId_);
+        glGenBuffers(1, &instanceBufferId_);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * instanceBufferCapacity_, NULL, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
+            iter != meshPtrMap_.end(); ++iter)
+        {
+            iter->second->UpdateVertexArrayObject(instanceBufferId_);
+        }
+    }
+
+    void OpenGL_Renderer::SetBatchedIndexBufferCapacity(unsigned int capacity)
+    {
+        windowPtr_->MakeContextCurrent();
+
+        batchedIndexBufferCapacity_ = capacity;
+        if (batchedIndexBufferCapacity_ % 3 != 0)
         {
             _LOG_MESSAGE("Index Buffer Size Not Multiple Of 3");
         }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glDeleteBuffers(1, &indexBufferId_);
-        glGenBuffers(1, &indexBufferId_);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glDeleteBuffers(1, &batchedIndexBufferId_);
+        glGenBuffers(1, &batchedIndexBufferId_);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batchedIndexBufferId_);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * batchedIndexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    void OpenGL_Renderer::SetVertexBufferCapacity(unsigned int capacity)
+    void OpenGL_Renderer::SetBatchedVertexBufferCapacity(unsigned int capacity)
     {
-        vertexBufferCapacity_ = capacity;
+        windowPtr_->MakeContextCurrent();
+
+        batchedVertexBufferCapacity_ = capacity;
+
+        // If you try to use a VAO that references a deleted VBO (i.e., a buffer
+        // object ID that has been deleted), it will result in undefined
+        // behavior. Attributes referencing a new buffer can be set, but I'm
+        // just going to recreate the VAO as well.
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &batchedVertexArrayId_);
+        glGenVertexArrays(1, &batchedVertexArrayId_);
+        glBindVertexArray(batchedVertexArrayId_);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDeleteBuffers(1, &vertexBufferId_);
-        glGenBuffers(1, &vertexBufferId_);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glDeleteBuffers(1, &batchedVertexBufferId_);
+        glGenBuffers(1, &batchedVertexBufferId_);
+        glBindBuffer(GL_ARRAY_BUFFER, batchedVertexBufferId_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(BatchedVertexData) * batchedVertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
 
-        // It's important to note that if you try to use a VAO that references
-        // a deleted buffer object (i.e., a buffer object ID that has been
-        // deleted), it will result in undefined behavior. So we recreate the
-        // VAO as well.
-        glDeleteVertexArrays(1, &vertexArrayId_);
-        glGenVertexArrays(1, &vertexArrayId_);
-        glBindVertexArray(vertexArrayId_);
-
-        GLuint positionAttributeIndex = 0;
-        GLuint textureCoordinateAttributeIndex = 1;
-        GLuint normalAttributeIndex = 2;
-        GLuint colorAttributeIndex = 3;
-        GLuint textureUnitAttributeIndex = 4;
-        GLuint specularUnitAttributeIndex = 5;
-        GLuint shininessAttributeIndex = 6;
-        GLuint scaleAttributeIndex = 7;
-        GLuint translationAttributeIndex = 8;
-        GLuint orientationAttributeIndex = 9;
-        GLuint litAttributeIndex = 10;
+        const GLuint positionAttributeIndex = 0;
+        const GLuint textureCoordinateAttributeIndex = 1;
+        const GLuint normalAttributeIndex = 2;
+        const GLuint colorAttributeIndex = 3;
+        const GLuint textureUnitAttributeIndex = 4;
+        const GLuint specularUnitAttributeIndex = 5;
+        const GLuint shininessAttributeIndex = 6;
+        const GLuint scaleAttributeIndex = 7;
+        const GLuint translationAttributeIndex = 8;
+        const GLuint orientationAttributeIndex = 9;
+        const GLuint litAttributeIndex = 10;
 
         unsigned long long attributeOffset = 0;
 
-        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(positionAttributeIndex);
+        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
+        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec2);
 
-        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(normalAttributeIndex);
+        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(colorAttributeIndex);
+        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec4);
 
-        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(textureUnitAttributeIndex);
+        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(specularUnitAttributeIndex);
+        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(shininessAttributeIndex);
+        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(scaleAttributeIndex);
+        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(translationAttributeIndex);
+        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(orientationAttributeIndex);
+        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
         attributeOffset += sizeof(glm::quat);
 
-        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
-        glEnableVertexAttribArray(litAttributeIndex);
-        // attributeOffset += sizeof(float);
+        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     void OpenGL_Renderer::SetFramebufferSize(
@@ -285,6 +315,8 @@ namespace Project001
         bool multisampleAntiAliasing,
         bool mipMaps)
     {
+        windowPtr_->MakeContextCurrent();
+
         unsigned int textureUnit = (unsigned int)texturePtrMap_.size() + 1; // reserving 0 for the screenTexture
         if (textureUnit >= s_numberOfTextureUnits_)
         {
@@ -309,6 +341,8 @@ namespace Project001
 
     bool OpenGL_Renderer::DeleteTexture(unsigned int textureId)
     {
+        windowPtr_->MakeContextCurrent();
+
         if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
         {
             delete texturePtrMap_[textureId];
@@ -322,6 +356,8 @@ namespace Project001
 
     void OpenGL_Renderer::DeleteAllTextures()
     {
+        windowPtr_->MakeContextCurrent();
+
         for (std::map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
             iter != texturePtrMap_.end(); ++iter)
         {
@@ -372,10 +408,71 @@ namespace Project001
         redrawGrid_ = true;
     }
 
-    bool OpenGL_Renderer::AddMeshToBatch(
-        const MeshVertex* meshVerticies,
+    void OpenGL_Renderer::CreateMesh(
+        unsigned int& meshId,
+        const MeshVertex* meshVertexPtr,
         unsigned int meshVertexCount,
-        const unsigned int* meshIndicies,
+        const unsigned int* meshIndexPtr,
+        unsigned int meshIndexCount)
+    {
+        windowPtr_->MakeContextCurrent();
+
+        if (recycledMeshIds_.empty())
+        {
+            meshId = (unsigned int)meshPtrMap_.size();
+        }
+        else
+        {
+            meshId = recycledMeshIds_.front();
+            recycledMeshIds_.pop_front();
+        }
+
+        OpenGL_Mesh* newMeshPtr= new OpenGL_Mesh(meshVertexPtr, meshVertexCount, meshIndexPtr, meshIndexCount);
+        newMeshPtr->UpdateVertexArrayObject(instanceBufferId_);
+        meshPtrMap_[meshId] = newMeshPtr;
+    }
+
+    bool OpenGL_Renderer::DeleteMesh(unsigned int meshId)
+    {
+        windowPtr_->MakeContextCurrent();
+
+        if (meshPtrMap_.find(meshId) != meshPtrMap_.end())
+        {
+            delete meshPtrMap_[meshId];
+            recycledMeshIds_.push_back(meshId);
+            return true;
+        }
+
+        return false;
+    }
+
+    void OpenGL_Renderer::DeleteAllMeshes()
+    {
+        windowPtr_->MakeContextCurrent();
+
+        for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
+            iter != meshPtrMap_.end(); ++iter)
+        {
+            delete iter->second;
+        }
+        meshPtrMap_.clear();
+        recycledMeshIds_.clear();
+    }
+
+    bool OpenGL_Renderer::RenderMesh(
+        unsigned int meshId,
+        const MeshInstanceData* meshInstanceDataPtr,
+        unsigned int meshInstanceCount)
+    {
+        // TODO
+
+        return false;
+    }
+
+    bool OpenGL_Renderer::AddMeshToBatch(
+        const MeshVertex* meshVertexPtr,
+        unsigned int meshVertexCount,
+        const unsigned int* meshIndexPtr,
         unsigned int meshIndexCount,
         unsigned int textureId,
         unsigned int specularId,
@@ -387,11 +484,11 @@ namespace Project001
         bool translucent,
         bool lit)
     {
-        if ((vertexBuffer_.size() + meshVertexCount) > vertexBufferCapacity_ ||
-            (indexBuffer_.size() + meshIndexCount) > indexBufferCapacity_)
+        if ((batchedVertexBuffer_.size() + meshVertexCount) > batchedVertexBufferCapacity_ ||
+            (batchedIndexBuffer_.size() + meshIndexCount) > batchedIndexBufferCapacity_)
         {
-            if (meshVertexCount > vertexBufferCapacity_ ||
-                meshIndexCount > indexBufferCapacity_)
+            if (meshVertexCount > batchedVertexBufferCapacity_ ||
+                meshIndexCount > batchedIndexBufferCapacity_)
             {
                 _LOG_ERROR("Mesh larger then buffer!");
                 return false;
@@ -439,13 +536,13 @@ namespace Project001
             GetTextureUnit(specularId, specularUnit);
         }
 
-        unsigned int vertexBufferOffset = (unsigned int)vertexBuffer_.size();
+        unsigned int vertexBufferOffset = (unsigned int)batchedVertexBuffer_.size();
 
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
-            const MeshVertex& currentMeshVertex = meshVerticies[j];
+            const MeshVertex& currentMeshVertex = meshVertexPtr[j];
 
-            VertexData newVertex;
+            BatchedVertexData newVertex;
             newVertex.position = currentMeshVertex.position;
             newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
             newVertex.normal = currentMeshVertex.normal;
@@ -461,12 +558,12 @@ namespace Project001
             newVertex.orientation.w = orientation.w;
             newVertex.lit = lit;
 
-            vertexBuffer_.push_back(newVertex);
+            batchedVertexBuffer_.push_back(newVertex);
         }
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            indexBuffer_.push_back(vertexBufferOffset + meshIndicies[j]);
+            batchedIndexBuffer_.push_back(vertexBufferOffset + meshIndexPtr[j]);
         }
 
         return true;
@@ -476,16 +573,16 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        RenderToTexture();
+        RenderBatchToTexture();
     }
 
     void OpenGL_Renderer::FinishRendering()
     {
         windowPtr_->MakeContextCurrent();
 
-        if (!vertexBuffer_.empty() && !indexBuffer_.empty())
+        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
         {
-            RenderToTexture();
+            RenderBatchToTexture();
         }
 
         RenderTextureToScreen();
@@ -497,6 +594,28 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
+
+    void OpenGL_Renderer::EnableVertexAttribArrays(unsigned int  first, unsigned int  last)
+    {
+        // The VAO does not store the enabled/disabled state of the attribute
+        // arrays.
+        for (unsigned int i = first; i <= last; ++i)
+        {
+            glEnableVertexAttribArray(i);
+        }
+    }
+
+    void OpenGL_Renderer::DisableVertexAttribArrays(unsigned int  first, unsigned int  last)
+    {
+        // If too many glEnableVertexAttribArray calls enabled, including ones
+        // that aren't being using, it can have performance implications,
+        // especially if those attributes aren't being utilized in your vertex
+        // shaders. So I'll disable them when the VAO isn't bound.
+        for (unsigned int i = first; i <= last; ++i)
+        {
+            glDisableVertexAttribArray(i);
+        }
+    }
 
     void OpenGL_Renderer::CreateGridBufferAndArray()
     {
@@ -797,14 +916,20 @@ namespace Project001
         gridVertexCount_ = (unsigned int)gridVerticies.size();
 
         glGenVertexArrays(1, &gridVertexArrayId_);
-        glGenBuffers(1, &gridVertexBufferId_);
         glBindVertexArray(gridVertexArrayId_);
+
+        glGenBuffers(1, &gridVertexBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, gridVertexBufferId_);
         glBufferData(GL_ARRAY_BUFFER, gridVertexCount_ * sizeof(GridVertexData), &gridVerticies.front(), GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
+
+        const GLuint positionAttributeIndex = 0;
+        const GLuint colorCoordinateAttributeIndex = 1;
+
+        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)0);
+        glVertexAttribPointer(colorCoordinateAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)(sizeof(float) * 3));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     void OpenGL_Renderer::CreateScreenFramebuffers()
@@ -952,7 +1077,12 @@ namespace Project001
         }
     }
 
-    void OpenGL_Renderer::RenderToTexture()
+    void OpenGL_Renderer::RenderMeshToTexture(OpenGL_Mesh* meshPtr)
+    {
+        // TODO
+    }
+
+    void OpenGL_Renderer::RenderBatchToTexture()
     {
         glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
 
@@ -976,19 +1106,107 @@ namespace Project001
 
         if (s_drawGrid)
         {
-            redrawGrid_ = false;
-
-            gridShaderPtr_->Use();
-            gridShaderPtr_->SetMat4("u_View", viewMatrix_);
-            gridShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-            gridShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
-
-            glBindVertexArray(gridVertexArrayId_);
-            glBindBuffer(GL_ARRAY_BUFFER, gridVertexBufferId_);
-
-            glDrawArrays(GL_LINES, 0, gridVertexCount_);
+            DrawGrid();
         }
 
+        UsePrimaryShaderAndUpdateItsUniforms();
+
+        glBindVertexArray(batchedVertexArrayId_);
+        EnableVertexAttribArrays(0, 10);
+        glBindBuffer(GL_ARRAY_BUFFER, batchedVertexBufferId_);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batchedIndexBufferId_);
+
+        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BatchedVertexData) * batchedVertexBuffer_.size(), &batchedVertexBuffer_[0]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * batchedIndexBuffer_.size(), &batchedIndexBuffer_[0]);
+        }
+
+        // The VBO doesn't need to be bound to draw with it
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        if (!s_cullBackface)
+        {
+            glCullFace(GL_FRONT);
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+        glCullFace(GL_BACK);
+        glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+
+
+        if (s_drawWireframe)
+        {
+            wireframeShaderPtr_->Use();
+
+            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
+            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
+        if (s_drawNormals)
+        {
+            normalShaderPtr_->Use();
+
+            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
+            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        }
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        DisableVertexAttribArrays(0, 10);
+
+        // Clear local buffers
+        // ---------------------------------------------------------------------
+
+        IncreaseTectureUnitStaleness();
+
+        batchedVertexBuffer_.clear();
+        batchedIndexBuffer_.clear();
+    }
+
+    void OpenGL_Renderer::DrawGrid()
+    {
+        redrawGrid_ = false;
+
+        gridShaderPtr_->Use();
+        gridShaderPtr_->SetMat4("u_View", viewMatrix_);
+        gridShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+        gridShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+        glBindVertexArray(gridVertexArrayId_);
+        EnableVertexAttribArrays(0, 1);
+        glDrawArrays(GL_LINES, 0, gridVertexCount_);
+        DisableVertexAttribArrays(0, 1);
+    }
+
+    void OpenGL_Renderer::RenderTextureToScreen()
+    {
+        if (multisampleAntiAliasing_)
+        {
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);
+            glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        }
+
+        glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+
+        screenShaderPtr_->Use();
+
+        glBindVertexArray(screenVertexArrayId_);
+        EnableVertexAttribArrays(0, 2);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        DisableVertexAttribArrays(0, 2);
+    }
+
+    void OpenGL_Renderer::UsePrimaryShaderAndUpdateItsUniforms()
+    {
         primaryShaderPtr_->Use();
 
         // Camera
@@ -1073,75 +1291,6 @@ namespace Project001
             primaryShaderPtr_->SetVec3((stringPrefix + stringI + "].specular").c_str(), emptySpotLight.specular);
             ++i;
         }
-
-        glBindVertexArray(vertexArrayId_);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-
-        if (!vertexBuffer_.empty() && !indexBuffer_.empty())
-        {
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(VertexData) * vertexBuffer_.size(), &vertexBuffer_[0]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * indexBuffer_.size(), &indexBuffer_[0]);
-        }
-
-        if (!s_cullBackface)
-        {
-            glCullFace(GL_FRONT);
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-        glCullFace(GL_BACK);
-        glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-
-
-        if (s_drawWireframe)
-        {
-            wireframeShaderPtr_->Use();
-
-            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
-            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
-
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-
-        if (s_drawNormals)
-        {
-            normalShaderPtr_->Use();
-
-            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
-            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
-
-            glDrawElements(GL_TRIANGLES, (GLsizei)indexBuffer_.size(), GL_UNSIGNED_INT, 0);
-        }
-
-        // Clear local buffers
-        // ---------------------------------------------------------------------
-
-        IncreaseTectureUnitStaleness();
-
-        vertexBuffer_.clear();
-        indexBuffer_.clear();
-    }
-
-    void OpenGL_Renderer::RenderTextureToScreen()
-    {
-        if (multisampleAntiAliasing_)
-        {
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFrameBufferId_);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rttFrameBufferId_);
-            glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        }
-
-        glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glDisable(GL_DEPTH_TEST);
-
-        screenShaderPtr_->Use();
-
-        glBindVertexArray(screenVertexArrayId_);
-
-        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     const bool OpenGL_Renderer::s_cullBackface = true;

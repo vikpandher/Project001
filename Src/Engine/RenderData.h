@@ -155,9 +155,10 @@ namespace Project001
         alignas(16) glm::vec3 specular;
     };
 
-    struct VertexData
+    // Combines VertexData with InstanceData
+    struct BatchedVertexData
     {
-        VertexData()
+        BatchedVertexData()
             : position(0.0f, 0.0f, 0.0f)
             , textureCoordinate(0.0f, 0.0f)
             , normal(0.0f, 0.0f, 0.0f)
@@ -174,6 +175,44 @@ namespace Project001
         glm::vec3 position;
         glm::vec2 textureCoordinate;
         glm::vec3 normal;
+        glm::vec4 color;
+        float textureUnit;
+        float specularUnit;
+        float shininess;
+        glm::vec3 scale;
+        glm::vec3 translation;
+        glm::vec4 orientation; // x, y, z, w
+        float lit;
+    };
+
+    // instance agnostic data
+    struct VertexData
+    {
+        VertexData()
+            : position(0.0f, 0.0f, 0.0f)
+            , textureCoordinate(0.0f, 0.0f)
+            , normal(0.0f, 0.0f, 0.0f)
+        {}
+
+        glm::vec3 position;
+        glm::vec2 textureCoordinate;
+        glm::vec3 normal;
+    };
+
+    // instance specific data
+    struct InstanceData
+    {
+        InstanceData()
+            : color(1.0f, 1.0f, 1.0f, 1.0f)
+            , textureUnit(-1.0f)
+            , specularUnit(99.0f)
+            , shininess(32.0f)
+            , scale(1.0f, 1.0f, 1.0f)
+            , translation(0.0f, 0.0f, 0.0f)
+            , orientation(0.0f, 0.0f, 0.0f, 1.0f)
+            , lit(1.0f)
+        {}
+
         glm::vec4 color;
         float textureUnit;
         float specularUnit;

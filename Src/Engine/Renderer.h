@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Engine/RenderData.h"
+#include "Engine/MeshVertex.h"
+
+#include "glm/gtc/quaternion.hpp"
 
 
 
 namespace Project001
 {
-    struct MeshVertex;
-
     class Window;
 
     struct RendererInfo
@@ -15,10 +15,57 @@ namespace Project001
         Window* windowPtr;
         unsigned int frameBufferWidth;
         unsigned int frameBufferHeight;
-        unsigned int indexBufferCapacity;
-        unsigned int vertexBufferCapacity;
+        unsigned int instanceBufferCapacity;
+        unsigned int batchedIndexBufferCapacity;
+        unsigned int batchedVertexBufferCapacity;
         bool multisampleAntiAliasing;
         bool depthTesting;
+    };
+
+    struct MeshInstanceData
+    {
+        MeshInstanceData()
+            : textureId(0)
+            , specularId(0)
+            , position(0.0f, 0.0f, 0.0f)
+            , orientation(0.0f, 0.0f, 0.0f, 1.0f)
+            , scale(1.0f, 1.0f, 1.0f)
+            , color(1.0f, 1.0f, 1.0f, 1.0f)
+            , shininess(32.0f)
+            , translucent(false)
+            , lit(true)
+        {}
+
+        MeshInstanceData(
+            unsigned int textureId,
+            unsigned int specularId,
+            const glm::vec3& position,
+            const glm::quat& orientation,
+            const glm::vec3& scale,
+            const glm::vec4& color,
+            float shininess,
+            bool translucent,
+            bool lit)
+            : textureId(textureId)
+            , specularId(specularId)
+            , position(position)
+            , orientation(orientation)
+            , scale(scale)
+            , color(color)
+            , shininess(shininess)
+            , translucent(translucent)
+            , lit(lit)
+        {}
+
+        unsigned int textureId;
+        unsigned int specularId;
+        glm::vec3 position;
+        glm::quat orientation;
+        glm::vec3 scale;
+        glm::vec4 color;
+        float shininess;
+        bool translucent;
+        bool lit;
     };
 
     class Renderer
@@ -32,9 +79,10 @@ namespace Project001
 
         virtual void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) = 0;
 
-        virtual void SetIndexBufferCapacity(unsigned int capacity) = 0;
+        virtual void SetInstanceBufferCapacity(unsigned int capacity) = 0;
 
-        virtual void SetVertexBufferCapacity(unsigned int capacity) = 0;
+        virtual void SetBatchedIndexBufferCapacity(unsigned int capacity) = 0;
+        virtual void SetBatchedVertexBufferCapacity(unsigned int capacity) = 0;
 
         virtual void GetFramebufferSize(
             unsigned int& width,
@@ -111,10 +159,26 @@ namespace Project001
 
         virtual void Clear() = 0;
 
-        virtual bool AddMeshToBatch(
-            const MeshVertex* meshVerticies,
+        virtual void CreateMesh(
+            unsigned int& meshId,
+            const MeshVertex* meshVertexPtr,
             unsigned int meshVertexCount,
-            const unsigned int* meshIndicies,
+            const unsigned int* meshIndexPtr,
+            unsigned int meshIndexCount) = 0;
+
+        virtual bool DeleteMesh(unsigned int meshId) = 0;
+
+        virtual void DeleteAllMeshes() = 0;
+
+        virtual bool RenderMesh(
+            unsigned int meshId,
+            const MeshInstanceData* meshInstanceDataPtr,
+            unsigned int meshInstanceCount) = 0;
+
+        virtual bool AddMeshToBatch(
+            const MeshVertex* meshVertexPtr,
+            unsigned int meshVertexCount,
+            const unsigned int* meshIndexPtr,
             unsigned int meshIndexCount,
             unsigned int textureId,
             unsigned int specularId,

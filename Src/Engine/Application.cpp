@@ -42,8 +42,9 @@ namespace Project001
         rendererInfo.windowPtr = windowPtr_;
         rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
         rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
-        rendererInfo.indexBufferCapacity = applicationInfo.indexBufferCapacity;
-        rendererInfo.vertexBufferCapacity = applicationInfo.vertexBufferCapacity;
+        rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
+        rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
+        rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
         rendererInfo.multisampleAntiAliasing = false;
         rendererInfo.depthTesting = true;
         rendererPtr_ = Renderer::Create(rendererInfo);

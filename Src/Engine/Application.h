@@ -25,8 +25,9 @@ namespace Project001
         unsigned int windowHeight;
         unsigned int frameBufferWidth;
         unsigned int frameBufferHeight;
-        unsigned int indexBufferCapacity;
-        unsigned int vertexBufferCapacity;
+        unsigned int instanceBufferCapacity;
+        unsigned int batchedIndexBufferCapacity;
+        unsigned int batchedVertexBufferCapacity;
     };
 
     class Application

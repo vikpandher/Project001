@@ -34,8 +34,9 @@ int main(int argc, char** argv)
     applicationInfo.windowHeight = 160 * sizeScalar;
     applicationInfo.frameBufferWidth = 240 * sizeScalar;
     applicationInfo.frameBufferHeight = 160 * sizeScalar;
-    applicationInfo.indexBufferCapacity = 1024 * 8;
-    applicationInfo.vertexBufferCapacity = 1024 * 8;
+    applicationInfo.instanceBufferCapacity = 1024 * 8;
+    applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
+    applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
 
     // tests shape generation (001)

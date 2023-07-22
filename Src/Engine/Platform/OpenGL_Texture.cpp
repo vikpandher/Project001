@@ -21,7 +21,7 @@ namespace Project001
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D, textureId_);
 
-        glm::uint format = 0;
+        int format = 0;
         if (bytesPerPixel == 1)
         {
             format = GL_RED;

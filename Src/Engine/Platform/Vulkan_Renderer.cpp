@@ -1,7 +1,6 @@
 #include "Vulkan_Renderer.h"
 
 #include "Engine/Platform/Vulkan_Error.h"
-#include "Engine/MeshData.h"
 #include "Engine/Window.h"
 
 #include <array>
@@ -53,8 +52,8 @@ namespace Project001
         : windowPtr_(rendererInfo.windowPtr)
         , frameBufferWidth_(rendererInfo.frameBufferWidth)
         , frameBufferHeight_(rendererInfo.frameBufferHeight)
-        , indexBufferCapacity_(rendererInfo.indexBufferCapacity)
-        , vertexBufferCapacity_(rendererInfo.vertexBufferCapacity)
+        , indexBufferCapacity_(rendererInfo.batchedIndexBufferCapacity)
+        , vertexBufferCapacity_(rendererInfo.batchedVertexBufferCapacity)
         , multisampleAntiAliasing_(rendererInfo.multisampleAntiAliasing)
         , depthTesting_(rendererInfo.depthTesting)
         , viewportX_(0)
@@ -256,7 +255,12 @@ namespace Project001
         DeleteVulkanInstance();
     }
 
-    void Vulkan_Renderer::SetIndexBufferCapacity(unsigned int capacity)
+    void Vulkan_Renderer::SetInstanceBufferCapacity(unsigned int capacity)
+    {
+        // TODO
+    }
+
+    void Vulkan_Renderer::SetBatchedIndexBufferCapacity(unsigned int capacity)
     {
         vkDeviceWaitIdle(logicalDevice_);
         indexBufferCapacity_ = capacity;
@@ -265,7 +269,7 @@ namespace Project001
         CreateIndexDataBuffers();
     }
 
-    void Vulkan_Renderer::SetVertexBufferCapacity(unsigned int capacity)
+    void Vulkan_Renderer::SetBatchedVertexBufferCapacity(unsigned int capacity)
     {
         vkDeviceWaitIdle(logicalDevice_);
         vertexBufferCapacity_ = capacity;
@@ -493,10 +497,40 @@ namespace Project001
         }
     }
 
-    bool Vulkan_Renderer::AddMeshToBatch(
-        const MeshVertex* meshVerticies,
+    void Vulkan_Renderer::CreateMesh(
+        unsigned int& meshId,
+        const MeshVertex* meshVertexPtr,
         unsigned int meshVertexCount,
-        const unsigned int* meshIndicies,
+        const unsigned int* meshIndexPtr,
+        unsigned int meshIndexCount)
+    {
+        // TODO
+    }
+
+    bool Vulkan_Renderer::DeleteMesh(unsigned int meshId)
+    {
+        // TODO
+        return false;
+    }
+
+    void Vulkan_Renderer::DeleteAllMeshes()
+    {
+        // TODO
+    }
+
+    bool Vulkan_Renderer::RenderMesh(
+        unsigned int meshId,
+        const MeshInstanceData* meshInstanceDataPtr,
+        unsigned int meshInstanceCount)
+    {
+        // TODO
+        return false;
+    }
+
+    bool Vulkan_Renderer::AddMeshToBatch(
+        const MeshVertex* meshVertexPtr,
+        unsigned int meshVertexCount,
+        const unsigned int* meshIndexPtr,
         unsigned int meshIndexCount,
         unsigned int textureId,
         unsigned int specularId,
@@ -570,9 +604,9 @@ namespace Project001
 
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
-            const MeshVertex& currentMeshVertex = meshVerticies[j];
+            const MeshVertex& currentMeshVertex = meshVertexPtr[j];
 
-            VertexData newVertex;
+            BatchedVertexData newVertex;
             newVertex.position = currentMeshVertex.position;
             newVertex.textureCoordinate = currentMeshVertex.textureCoordinate;
             newVertex.normal = currentMeshVertex.normal;
@@ -593,7 +627,7 @@ namespace Project001
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            *(indexStagingBufferDataPtr_ + indexCount_++) = (uint32_t)(vertexBufferOffset + meshIndicies[j]);
+            *(indexStagingBufferDataPtr_ + indexCount_++) = (uint32_t)(vertexBufferOffset + meshIndexPtr[j]);
         }
 
         return true;
@@ -648,7 +682,7 @@ namespace Project001
             if (vertexCount_ > 0)
             {
                 VkBufferCopy vertexCopyRegion = {};
-                vertexCopyRegion.size = sizeof(VertexData) * vertexCount_;
+                vertexCopyRegion.size = sizeof(BatchedVertexData) * vertexCount_;
                 vkCmdCopyBuffer(commandBuffer_, vertexStagingBuffer_, vertexBuffer_, 1, &vertexCopyRegion);
             }
 
@@ -1680,7 +1714,7 @@ namespace Project001
         }
         else
         {
-            VkDeviceSize vertexBufferSize = sizeof(VertexData) * vertexBufferCapacity_;
+            VkDeviceSize vertexBufferSize = sizeof(BatchedVertexData) * vertexBufferCapacity_;
 
             CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer_, vertexStagingBufferMemory_);
             _VK_CHECK(vkMapMemory(logicalDevice_, vertexStagingBufferMemory_, 0, vertexBufferSize, 0, (void**)&vertexStagingBufferDataPtr_));
@@ -3602,64 +3636,64 @@ namespace Project001
 
         VkVertexInputBindingDescription bindingDescription = {};
         bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(VertexData);
+        bindingDescription.stride = sizeof(BatchedVertexData);
         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         std::array<VkVertexInputAttributeDescription, 11> attributeDescriptions = {};
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(VertexData, position);
+        attributeDescriptions[0].offset = offsetof(BatchedVertexData, position);
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(VertexData, textureCoordinate);
+        attributeDescriptions[1].offset = offsetof(BatchedVertexData, textureCoordinate);
 
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
         attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(VertexData, normal);
+        attributeDescriptions[2].offset = offsetof(BatchedVertexData, normal);
 
         attributeDescriptions[3].binding = 0;
         attributeDescriptions[3].location = 3;
         attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[3].offset = offsetof(VertexData, color);
+        attributeDescriptions[3].offset = offsetof(BatchedVertexData, color);
 
         attributeDescriptions[4].binding = 0;
         attributeDescriptions[4].location = 4;
         attributeDescriptions[4].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[4].offset = offsetof(VertexData, textureUnit);
+        attributeDescriptions[4].offset = offsetof(BatchedVertexData, textureUnit);
 
         attributeDescriptions[5].binding = 0;
         attributeDescriptions[5].location = 5;
         attributeDescriptions[5].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[5].offset = offsetof(VertexData, specularUnit);
+        attributeDescriptions[5].offset = offsetof(BatchedVertexData, specularUnit);
 
         attributeDescriptions[6].binding = 0;
         attributeDescriptions[6].location = 6;
         attributeDescriptions[6].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[6].offset = offsetof(VertexData, shininess);
+        attributeDescriptions[6].offset = offsetof(BatchedVertexData, shininess);
 
         attributeDescriptions[7].binding = 0;
         attributeDescriptions[7].location = 7;
         attributeDescriptions[7].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[7].offset = offsetof(VertexData, scale);
+        attributeDescriptions[7].offset = offsetof(BatchedVertexData, scale);
 
         attributeDescriptions[8].binding = 0;
         attributeDescriptions[8].location = 8;
         attributeDescriptions[8].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[8].offset = offsetof(VertexData, translation);
+        attributeDescriptions[8].offset = offsetof(BatchedVertexData, translation);
 
         attributeDescriptions[9].binding = 0;
         attributeDescriptions[9].location = 9;
         attributeDescriptions[9].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[9].offset = offsetof(VertexData, orientation);
+        attributeDescriptions[9].offset = offsetof(BatchedVertexData, orientation);
 
         attributeDescriptions[10].binding = 0;
         attributeDescriptions[10].location = 10;
         attributeDescriptions[10].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[10].offset = offsetof(VertexData, lit);
+        attributeDescriptions[10].offset = offsetof(BatchedVertexData, lit);
 
         vertexInputInfo.vertexBindingDescriptionCount = 1;
         vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)attributeDescriptions.size();

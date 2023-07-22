@@ -1,7 +1,5 @@
 #pragma once
 
-#include "glm/glm.hpp"
-
 
 
 namespace Project001
@@ -29,6 +27,6 @@ namespace Project001
         // void Unbind();
 
     protected:
-        glm::uint textureId_;
+        unsigned int textureId_;
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/BiMap.h"
+#include "Engine/RenderData.h"
 #include "Engine/Renderer.h"
 
 #include "vulkan/vulkan.h"
@@ -22,9 +23,10 @@ namespace Project001
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
-        void SetIndexBufferCapacity(unsigned int capacity) override;
+        void SetInstanceBufferCapacity(unsigned int capacity) override;
 
-        void SetVertexBufferCapacity(unsigned int capacity) override;
+        void SetBatchedIndexBufferCapacity(unsigned int capacity) override;
+        void SetBatchedVertexBufferCapacity(unsigned int capacity) override;
 
         void GetFramebufferSize(
             unsigned int& width,
@@ -108,10 +110,26 @@ namespace Project001
 
         void Clear() override;
 
-        bool AddMeshToBatch(
-            const MeshVertex* meshVerticies,
+        void CreateMesh(
+            unsigned int& meshId,
+            const MeshVertex* meshVertexPtr,
             unsigned int meshVertexCount,
-            const unsigned int* meshIndicies,
+            const unsigned int* meshIndexPtr,
+            unsigned int meshIndexCount) override;
+
+        bool DeleteMesh(unsigned int meshId) override;
+
+        void DeleteAllMeshes() override;
+
+        bool RenderMesh(
+            unsigned int meshId,
+            const MeshInstanceData* meshInstanceDataPtr,
+            unsigned int meshInstanceCount) override;
+
+        bool AddMeshToBatch(
+            const MeshVertex* meshVertexPtr,
+            unsigned int meshVertexCount,
+            const unsigned int* meshIndexPtr,
             unsigned int meshIndexCount,
             unsigned int textureId,
             unsigned int specularId,
@@ -637,7 +655,7 @@ namespace Project001
 
         VkBuffer vertexStagingBuffer_;
         VkDeviceMemory vertexStagingBufferMemory_;
-        VertexData* vertexStagingBufferDataPtr_;
+        BatchedVertexData* vertexStagingBufferDataPtr_;
         size_t vertexCount_;
         VkBuffer vertexBuffer_;
         VkDeviceMemory vertexBufferMemory_;

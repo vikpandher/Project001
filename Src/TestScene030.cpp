@@ -45,8 +45,8 @@ bool TestScene030::OnInitialize()
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
-    int columns = 20;
-    int rows = 10;
+    int columns = 50;
+    int rows = 30;
     int depthRows = 10;
 
     for (int i = columns / -2; i < (columns + 1) / 2; ++i)

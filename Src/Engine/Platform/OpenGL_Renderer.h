@@ -3,6 +3,7 @@
 // https://www.khronos.org/registry/OpenGL/specs/gl/
 
 #include "Engine/BiMap.h"
+#include "Engine/RenderData.h"
 #include "Engine/Renderer.h"
 
 #include <deque>
@@ -11,6 +12,7 @@
 
 namespace Project001
 {
+    class OpenGL_Mesh;
     class OpenGL_Shader;
     class OpenGL_Texture;
 
@@ -24,9 +26,10 @@ namespace Project001
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
-        void SetIndexBufferCapacity(unsigned int capacity) override;
+        void SetInstanceBufferCapacity(unsigned int capacity) override;
 
-        void SetVertexBufferCapacity(unsigned int capacity) override;
+        void SetBatchedIndexBufferCapacity(unsigned int capacity) override;
+        void SetBatchedVertexBufferCapacity(unsigned int capacity) override;
 
         void GetFramebufferSize(
             unsigned int& width,
@@ -102,10 +105,27 @@ namespace Project001
 
         void Clear() override;
 
-        bool AddMeshToBatch(
-            const MeshVertex* meshVerticies,
+        void CreateMesh(
+            unsigned int& meshId,
+            const MeshVertex* meshVertexPtr,
             unsigned int meshVertexCount,
-            const unsigned int* meshIndicies,
+            const unsigned int* meshIndexPtr,
+            unsigned int meshIndexCount) override;
+
+        bool DeleteMesh(unsigned int meshId) override;
+
+        void DeleteAllMeshes() override;
+
+        // TODO
+        bool RenderMesh(
+            unsigned int meshId,
+            const MeshInstanceData* meshInstanceDataPtr,
+            unsigned int meshInstanceCount) override;
+
+        bool AddMeshToBatch(
+            const MeshVertex* meshVertexPtr,
+            unsigned int meshVertexCount,
+            const unsigned int* meshIndexPtr,
             unsigned int meshIndexCount,
             unsigned int textureId,
             unsigned int specularId,
@@ -124,6 +144,9 @@ namespace Project001
         void SwapBuffers() override;
 
     protected:
+        void EnableVertexAttribArrays(unsigned int first, unsigned int  last);
+        void DisableVertexAttribArrays(unsigned int  first, unsigned int  last);
+
         void CreateGridBufferAndArray();
 
         void CreateScreenFramebuffers();
@@ -144,9 +167,16 @@ namespace Project001
 
         void IncreaseTectureUnitStaleness();
 
-        void RenderToTexture();
+        // TODO
+        void RenderMeshToTexture(OpenGL_Mesh* meshPtr);
+
+        void RenderBatchToTexture();
+
+        void DrawGrid();
 
         void RenderTextureToScreen();
+
+        void UsePrimaryShaderAndUpdateItsUniforms();
 
         static const bool s_cullBackface;
         static const bool s_drawWireframe;
@@ -169,8 +199,10 @@ namespace Project001
         bool depthTesting_;
         bool multisampleAntiAliasing_;
 
-        unsigned int indexBufferCapacity_;
-        unsigned int vertexBufferCapacity_;
+        unsigned int instanceBufferCapacity_;
+
+        unsigned int batchedIndexBufferCapacity_;
+        unsigned int batchedVertexBufferCapacity_;
 
         OpenGL_Shader* primaryShaderPtr_;
         OpenGL_Shader* gridShaderPtr_;
@@ -178,16 +210,19 @@ namespace Project001
         OpenGL_Shader* normalShaderPtr_;
         OpenGL_Shader* screenShaderPtr_;
 
-        unsigned int vertexBufferId_;
-        unsigned int indexBufferId_;
-        unsigned int vertexArrayId_;
+        unsigned int instanceBufferId_;
+        unsigned int instanceCount_;
 
-        unsigned int gridVertexBufferId_;
+        unsigned int batchedVertexArrayId_;
+        unsigned int batchedVertexBufferId_;
+        unsigned int batchedIndexBufferId_;
+
         unsigned int gridVertexArrayId_;
+        unsigned int gridVertexBufferId_;
         unsigned int gridVertexCount_;
 
-        unsigned int screenVertexBufferId_;
         unsigned int screenVertexArrayId_;
+        unsigned int screenVertexBufferId_;
 
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
@@ -221,8 +256,13 @@ namespace Project001
         std::vector<PointLight> pointLights_;
         std::vector<SpotLight> spotLights_;
 
-        std::vector<VertexData> vertexBuffer_;
-        std::vector<unsigned int> indexBuffer_;
+        std::deque<unsigned int> recycledMeshIds_;
+        std::map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
+
+        std::vector<InstanceData> instanceBuffer_;
+
+        std::vector<BatchedVertexData> batchedVertexBuffer_;
+        std::vector<unsigned int> batchedIndexBuffer_;
 
     private:
     };

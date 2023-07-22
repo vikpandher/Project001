@@ -1,5 +1,5 @@
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    message(FATAL_ERROR "Prevented in-tree build. Please create a build directory outside of the SDL source code and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
+    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
 endif()
 
 # cmake_minimum_required(VERSION 3.17.0)
@@ -30,7 +30,7 @@ set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
-set(CMAKE_VULKAN_MODE TRUE)
+set(CMAKE_VULKAN_MODE FALSE)
 
 # If TRUE, removes the console on a windows build
 # If FALSE, windows build has a console
@@ -194,6 +194,8 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenAL_SoundPlayer.cpp"
     "Src/Engine/Platform/OpenAL_SoundPlayer.h"
     "Src/Engine/Platform/OpenGL_Error.h"
+    "Src/Engine/Platform/OpenGL_Mesh.cpp"
+    "Src/Engine/Platform/OpenGL_Mesh.h"
     "Src/Engine/Platform/OpenGL_Renderer.cpp"
     "Src/Engine/Platform/OpenGL_Renderer.h"
     "Src/Engine/Platform/OpenGL_Shader.cpp"
