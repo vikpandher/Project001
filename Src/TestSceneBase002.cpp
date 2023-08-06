@@ -92,6 +92,7 @@ bool TestSceneBase002::OnInitialize()
 bool TestSceneBase002::OnDeinitialize()
 {
     rendererPtr_->DeleteAllTextures();
+    rendererPtr_->DeleteAllMeshes();
     componentStoresPtr_->DeleteAllEntities();
     ClearResources();
 

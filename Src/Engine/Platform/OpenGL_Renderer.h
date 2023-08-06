@@ -116,7 +116,6 @@ namespace Project001
 
         void DeleteAllMeshes() override;
 
-        // TODO
         bool RenderMesh(
             unsigned int meshId,
             const MeshInstanceData* meshInstanceDataPtr,
@@ -134,7 +133,6 @@ namespace Project001
             const glm::vec3& scale,
             const glm::vec4& color,
             float shininess,
-            bool translucent,
             bool lit);
 
         void RenderBatch();
@@ -144,9 +142,6 @@ namespace Project001
         void SwapBuffers() override;
 
     protected:
-        void EnableVertexAttribArrays(unsigned int first, unsigned int  last);
-        void DisableVertexAttribArrays(unsigned int  first, unsigned int  last);
-
         void CreateGridBufferAndArray();
 
         void CreateScreenFramebuffers();
@@ -167,7 +162,6 @@ namespace Project001
 
         void IncreaseTectureUnitStaleness();
 
-        // TODO
         void RenderMeshToTexture(OpenGL_Mesh* meshPtr);
 
         void RenderBatchToTexture();
@@ -211,7 +205,6 @@ namespace Project001
         OpenGL_Shader* screenShaderPtr_;
 
         unsigned int instanceBufferId_;
-        unsigned int instanceCount_;
 
         unsigned int batchedVertexArrayId_;
         unsigned int batchedVertexBufferId_;

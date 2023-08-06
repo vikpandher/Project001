@@ -46,9 +46,13 @@ namespace Project001
 
     OpenGL_Mesh::~OpenGL_Mesh()
     {
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
         glDeleteVertexArrays(1, &vertexArrayId_);
-        glDeleteBuffers(GL_ARRAY_BUFFER, &vertexBufferId_);
-        glDeleteBuffers(GL_ELEMENT_ARRAY_BUFFER, &indexBufferId_);
+        glDeleteBuffers(1, &vertexBufferId_);
+        glDeleteBuffers(1, &indexBufferId_);
     }
 
     void OpenGL_Mesh::UpdateVertexArrayObject(unsigned int instanceBufferId)
@@ -67,12 +71,15 @@ namespace Project001
         unsigned long long attributeOffset = 0;
 
         glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(positionAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
         attributeOffset += sizeof(glm::vec2);
 
         glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(normalAttributeIndex);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId);
 
@@ -88,27 +95,45 @@ namespace Project001
         attributeOffset = 0;
 
         glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(colorAttributeIndex);
+        glVertexAttribDivisor(colorAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec4);
 
         glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureUnitAttributeIndex);
+        glVertexAttribDivisor(textureUnitAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(specularUnitAttributeIndex);
+        glVertexAttribDivisor(specularUnitAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(shininessAttributeIndex);
+        glVertexAttribDivisor(shininessAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(scaleAttributeIndex);
+        glVertexAttribDivisor(scaleAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(translationAttributeIndex);
+        glVertexAttribDivisor(translationAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(orientationAttributeIndex);
+        glVertexAttribDivisor(orientationAttributeIndex, 1);
         attributeOffset += sizeof(glm::quat);
 
         glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glEnableVertexAttribArray(litAttributeIndex);
+        glVertexAttribDivisor(litAttributeIndex, 1);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -117,11 +142,9 @@ namespace Project001
     void OpenGL_Mesh::Render(unsigned int instanceCount)
     {
         glBindVertexArray(vertexArrayId_);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
 
         glDrawElementsInstanced(GL_TRIANGLES, indexCount_, GL_UNSIGNED_INT, 0, instanceCount);
 
         glBindVertexArray(0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 }

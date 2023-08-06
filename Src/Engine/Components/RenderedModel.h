@@ -10,13 +10,34 @@ namespace Project001
     class RenderedModel : public Placement
     {
     public:
+        enum class RenderedModelType
+        {
+            RENDERED_MODEL_TYPE_NOT_LOADED,
+            RENDERED_MODEL_TYPE_LOADED_CPU_SIDE,
+            RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
+        };
+
         RenderedModel();
+
+        // RenderedModelType is set by the following functions:
+        // SetMeshDataPtr
+        //     * Sets it to RENDERED_MODEL_TYPE_LOADED_CPU_SIDE
+        // SetMeshId
+        //     * Sets it to RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
+
+        RenderedModelType GetRenderedModelType() const;
 
         bool IsVisible() const;
         void SetVisibility(bool visible);
 
         const MeshData* GetMeshDataPtr() const;
         void SetMeshDataPtr(const MeshData* meshData);
+
+        unsigned int GetMeshId() const;
+        void SetMeshId(unsigned int meshId);
+
+        float GetMaxRadius() const;
+        void SetMaxRadius(float maxRadius);
 
         unsigned int GetTextureId() const;
         void SetTextureId(unsigned int textureId);
@@ -50,8 +71,15 @@ namespace Project001
         // glm::vec3 position_;
         // glm::quat orientation_;
 
+        RenderedModelType renderedModelType_;
+
         bool visible_;
-        const MeshData* meshDataPtr_;
+
+        const MeshData* meshDataPtr_; // Used when RENDERED_MODEL_TYPE_LOADED_CPU_SIDE
+
+        unsigned int meshId_;         // Used when RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
+        float maxRadius_;             // Used when RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
+
         unsigned int textureId_;
         unsigned int specularId_;
         glm::vec3 scale_;
@@ -62,8 +90,11 @@ namespace Project001
     };
 
     inline RenderedModel::RenderedModel()
-        : visible_(true)
+        : renderedModelType_(RenderedModelType::RENDERED_MODEL_TYPE_NOT_LOADED)
+        , visible_(true)
         , meshDataPtr_(nullptr)
+        , meshId_((unsigned int)-1)
+        , maxRadius_(0.0f)
         , textureId_((unsigned int)-1)
         , specularId_((unsigned int)-1)
         , scale_(1.0f, 1.0f, 1.0f)
@@ -72,6 +103,11 @@ namespace Project001
         , translucent_(false)
         , lit_(true)
     {}
+
+    inline RenderedModel::RenderedModelType RenderedModel::GetRenderedModelType() const
+    {
+        return renderedModelType_;
+    }
 
     inline bool RenderedModel::IsVisible() const
     {
@@ -90,7 +126,29 @@ namespace Project001
 
     inline void RenderedModel::SetMeshDataPtr(const MeshData* meshDataPtr)
     {
+        renderedModelType_ = RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE;
         meshDataPtr_ = meshDataPtr;
+    }
+
+    inline unsigned int RenderedModel::GetMeshId() const
+    {
+        return meshId_;
+    }
+
+    inline void RenderedModel::SetMeshId(unsigned int meshId)
+    {
+        renderedModelType_ = RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE;
+        meshId_ = meshId;
+    }
+
+    inline float RenderedModel::GetMaxRadius() const
+    {
+        return maxRadius_;
+    }
+
+    inline void RenderedModel::SetMaxRadius(float maxRadius)
+    {
+        maxRadius_ = maxRadius;
     }
 
     inline unsigned int RenderedModel::GetTextureId() const

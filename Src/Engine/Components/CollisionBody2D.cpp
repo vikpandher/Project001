@@ -25,7 +25,7 @@ namespace Project001
 
         if (lines_.size() > 0 || rays_.size() > 0)
         {
-            boundingRadius_ = INFINITY;
+            boundingRadius_ = std::numeric_limits<float>::infinity();
             return;
         }
 

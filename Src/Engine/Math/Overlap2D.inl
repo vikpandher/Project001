@@ -18,7 +18,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope)
     {
-        if (line_slope == INFINITY)
+        if (line_slope == std::numeric_limits<float>::infinity())
         {
             // vertical slope, so just compare x
             return FloatEqualToFloat(point_position.x, line_position.x);
@@ -2196,7 +2196,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope)
     {
-        if (line_slope == INFINITY)
+        if (line_slope == std::numeric_limits<float>::infinity())
         {
             float distance = std::abs(point_position.x - line_position.x);
             return distance * distance;
@@ -2214,7 +2214,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope)
     {
-        if (line_slope == INFINITY)
+        if (line_slope == std::numeric_limits<float>::infinity())
         {
             float distance = std::abs(point_position.x - line_position.x);
             return distance * distance;
@@ -2475,7 +2475,7 @@ namespace Project001
         float denominator = end.x - start.x;
         if (denominator == 0.0f)
         {
-            return INFINITY;
+            return std::numeric_limits<float>::infinity();
         }
         else
         {
@@ -2528,8 +2528,8 @@ namespace Project001
             const glm::vec2& lineSegmentA_end = convexPolygonA_corners[end_indexA];
             glm::vec2 axisOfSeparation(-(lineSegmentA_end.y - lineSegmentA_start.y), lineSegmentA_end.x - lineSegmentA_start.x);
 
-            float projectionA_max = -INFINITY;
-            float projectionA_min = INFINITY;
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
             for (size_t i = 0; i < convexPolygonA_cornerCount; ++i)
             {
                 float currentProjection = glm::dot(convexPolygonA_corners[i], axisOfSeparation);
@@ -2545,8 +2545,8 @@ namespace Project001
                 }
             }
 
-            float projectionB_max = -INFINITY;
-            float projectionB_min = INFINITY;
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
             for (size_t i = 0; i < convexPolygonB_cornerCount; ++i)
             {
                 float currentProjection = glm::dot(convexPolygonB_corners[i], axisOfSeparation);
@@ -2591,11 +2591,11 @@ namespace Project001
 
     inline glm::vec2 Get2D_DirectionFromSlope(float slope)
     {
-        if (slope == INFINITY)
+        if (slope == std::numeric_limits<float>::infinity())
         {
             return glm::vec2(1.0f, 0.0f);
         }
-        else if (slope == -INFINITY)
+        else if (slope == -std::numeric_limits<float>::infinity())
         {
             return glm::vec2(-1.0f, 0.0f);
         }
@@ -2609,7 +2609,7 @@ namespace Project001
     {
         if (direction.x == 0.0f)
         {
-            return INFINITY;
+            return std::numeric_limits<float>::infinity();
         }
         else
         {

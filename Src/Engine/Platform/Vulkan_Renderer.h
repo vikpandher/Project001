@@ -138,7 +138,6 @@ namespace Project001
             const glm::vec3& scale,
             const glm::vec4& color,
             float shininess,
-            bool translucent,
             bool lit) override;
 
         void RenderBatch() override;
@@ -465,15 +464,28 @@ namespace Project001
         void CreateSwapchainFramebuffers();
         void DeleteSwapchainFramebuffers();
 
+        // ---------------------------------------------------------------------
 
-
-
+        // Used by:
+        //     Vulkan_Renderer(const RendererInfo& rendererInfo)
+        //     SwapBuffers()
         void AcquireNextImage();
 
+        // Used by:
+        //     Clear()
+        //     RenderBatch()
+        //     FinishRendering()
         void HandleFramebufferResize();
 
+        // Used by:
+        //     SwapBuffers()
+        //     AcquireNextImage()
         void HandleSwapchainFramebufferResize();
 
+        // Used by:
+        //     SwapBuffers()
+        //     PickPhysicalDevice()
+        //     HandleSwapchainFramebufferResize()
         void UpdateSurfaceCapabilities();
 
         void CreateImageView(

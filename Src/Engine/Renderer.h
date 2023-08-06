@@ -32,7 +32,6 @@ namespace Project001
             , scale(1.0f, 1.0f, 1.0f)
             , color(1.0f, 1.0f, 1.0f, 1.0f)
             , shininess(32.0f)
-            , translucent(false)
             , lit(true)
         {}
 
@@ -44,7 +43,6 @@ namespace Project001
             const glm::vec3& scale,
             const glm::vec4& color,
             float shininess,
-            bool translucent,
             bool lit)
             : textureId(textureId)
             , specularId(specularId)
@@ -53,7 +51,6 @@ namespace Project001
             , scale(scale)
             , color(color)
             , shininess(shininess)
-            , translucent(translucent)
             , lit(lit)
         {}
 
@@ -64,7 +61,6 @@ namespace Project001
         glm::vec3 scale;
         glm::vec4 color;
         float shininess;
-        bool translucent;
         bool lit;
     };
 
@@ -187,7 +183,6 @@ namespace Project001
             const glm::vec3& scale,
             const glm::vec4& color,
             float shininess,
-            bool translucent,
             bool lit) = 0;
 
         virtual void RenderBatch() = 0;

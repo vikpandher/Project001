@@ -74,7 +74,12 @@ namespace Project001
         const GLuint textureCoordinateAttributeIndex = 1;
 
         glVertexAttribPointer(positionAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+        glEnableVertexAttribArray(positionAttributeIndex);
         glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         primaryShaderPtr_ = new OpenGL_Shader(
             PrimaryShader::g_vertexShaderSource,
@@ -195,7 +200,7 @@ namespace Project001
         glDeleteBuffers(1, &instanceBufferId_);
         glGenBuffers(1, &instanceBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * instanceBufferCapacity_, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceData) * instanceBufferCapacity_, NULL, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
@@ -258,39 +263,50 @@ namespace Project001
         unsigned long long attributeOffset = 0;
 
         glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(positionAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureCoordinateAttributeIndex);
         attributeOffset += sizeof(glm::vec2);
 
         glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(normalAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(colorAttributeIndex);
         attributeOffset += sizeof(glm::vec4);
 
         glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(textureUnitAttributeIndex);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(specularUnitAttributeIndex);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(shininessAttributeIndex);
         attributeOffset += sizeof(float);
 
         glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(scaleAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(translationAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
         glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(orientationAttributeIndex);
         attributeOffset += sizeof(glm::quat);
 
         glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertexData), (void*)attributeOffset);
+        glEnableVertexAttribArray(litAttributeIndex);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     void OpenGL_Renderer::SetFramebufferSize(
@@ -464,9 +480,97 @@ namespace Project001
         const MeshInstanceData* meshInstanceDataPtr,
         unsigned int meshInstanceCount)
     {
-        // TODO
+        if (meshInstanceCount == 0)
+        {
+            // Want to draw nothing, so draw nothing
+            return true;
+        }
 
-        return false;
+        windowPtr_->MakeContextCurrent();
+
+        if (meshPtrMap_.find(meshId) == meshPtrMap_.end())
+        {
+            _LOG_ERROR("Mesh Id not found!");
+            return false;
+        }
+
+        OpenGL_Mesh* meshPtr = meshPtrMap_[meshId];
+
+        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
+        {
+            RenderBatch();
+        }
+
+        for (unsigned int i = 0; i < meshInstanceCount; ++i)
+        {
+            if (instanceBuffer_.size() == instanceBufferCapacity_)
+            {
+                RenderMeshToTexture(meshPtr);
+            }
+
+            const MeshInstanceData& currentMeshInstanceData = meshInstanceDataPtr[i];
+
+            unsigned int textureId = currentMeshInstanceData.textureId;
+            unsigned int specularId = currentMeshInstanceData.specularId;
+
+            bool getTextureFailed = false;
+
+            float textureUnit = -1.0f;
+            if (textureId != (unsigned int)-1)
+            {
+                int getTextureUnitResult = GetTextureUnit(textureId, textureUnit);
+                if (getTextureUnitResult == 1)
+                {
+                    getTextureFailed = true;
+                }
+                else if (getTextureUnitResult == 2)
+                {
+                    _LOG_ERROR("TextureId %u not found!", textureId);
+                    return false;
+                }
+            }
+
+            float specularUnit = -1.0f;
+            if (specularId != (unsigned int)-1)
+            {
+                int getTextureUnitResult = GetTextureUnit(specularId, specularUnit);
+                if (getTextureUnitResult == 1)
+                {
+                    getTextureFailed = true;
+                }
+                else if (getTextureUnitResult == 2)
+                {
+                    _LOG_ERROR("SpecularId %u not found!", specularId);
+                    return false;
+                }
+            }
+
+            if (getTextureFailed)
+            {
+                RenderMeshToTexture(meshPtr);
+                GetTextureUnit(textureId, textureUnit);
+                GetTextureUnit(specularId, specularUnit);
+            }
+
+            InstanceData newInstance;
+            newInstance.color = currentMeshInstanceData.color;
+            newInstance.textureUnit = textureUnit;
+            newInstance.specularUnit = specularUnit;
+            newInstance.shininess = currentMeshInstanceData.shininess;
+            newInstance.scale = currentMeshInstanceData.scale;
+            newInstance.translation = currentMeshInstanceData.position;
+            newInstance.orientation.x = currentMeshInstanceData.orientation.x;
+            newInstance.orientation.y = currentMeshInstanceData.orientation.y;
+            newInstance.orientation.z = currentMeshInstanceData.orientation.z;
+            newInstance.orientation.w = currentMeshInstanceData.orientation.w;
+            newInstance.lit = currentMeshInstanceData.lit;
+
+            instanceBuffer_.push_back(newInstance);
+        }
+
+        RenderMeshToTexture(meshPtr);
+
+        return true;
     }
 
     bool OpenGL_Renderer::AddMeshToBatch(
@@ -481,7 +585,6 @@ namespace Project001
         const glm::vec3& scale,
         const glm::vec4& color,
         float shininess,
-        bool translucent,
         bool lit)
     {
         if ((batchedVertexBuffer_.size() + meshVertexCount) > batchedVertexBufferCapacity_ ||
@@ -594,28 +697,6 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
-
-    void OpenGL_Renderer::EnableVertexAttribArrays(unsigned int  first, unsigned int  last)
-    {
-        // The VAO does not store the enabled/disabled state of the attribute
-        // arrays.
-        for (unsigned int i = first; i <= last; ++i)
-        {
-            glEnableVertexAttribArray(i);
-        }
-    }
-
-    void OpenGL_Renderer::DisableVertexAttribArrays(unsigned int  first, unsigned int  last)
-    {
-        // If too many glEnableVertexAttribArray calls enabled, including ones
-        // that aren't being using, it can have performance implications,
-        // especially if those attributes aren't being utilized in your vertex
-        // shaders. So I'll disable them when the VAO isn't bound.
-        for (unsigned int i = first; i <= last; ++i)
-        {
-            glDisableVertexAttribArray(i);
-        }
-    }
 
     void OpenGL_Renderer::CreateGridBufferAndArray()
     {
@@ -926,10 +1007,12 @@ namespace Project001
         const GLuint colorCoordinateAttributeIndex = 1;
 
         glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)0);
+        glEnableVertexAttribArray(positionAttributeIndex);
         glVertexAttribPointer(colorCoordinateAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(GridVertexData), (void*)(sizeof(float) * 3));
+        glEnableVertexAttribArray(colorCoordinateAttributeIndex);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     void OpenGL_Renderer::CreateScreenFramebuffers()
@@ -1079,7 +1162,72 @@ namespace Project001
 
     void OpenGL_Renderer::RenderMeshToTexture(OpenGL_Mesh* meshPtr)
     {
-        // TODO
+        glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
+
+        if (multisampleAntiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
+
+        if (depthTesting_)
+        {
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
+        }
+
+        if (s_drawGrid)
+        {
+            DrawGrid();
+        }
+
+        UsePrimaryShaderAndUpdateItsUniforms();
+
+        glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId_);
+        if (!instanceBuffer_.empty())
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(InstanceData) * instanceBuffer_.size(), &instanceBuffer_[0]);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        if (!s_cullBackface)
+        {
+            glCullFace(GL_FRONT);
+            meshPtr->Render((unsigned int)instanceBuffer_.size());
+        }
+        glCullFace(GL_BACK);
+        meshPtr->Render((unsigned int)instanceBuffer_.size());
+
+        if (s_drawWireframe)
+        {
+            wireframeShaderPtr_->Use();
+
+            wireframeShaderPtr_->SetMat4("u_View", viewMatrix_);
+            wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+            wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
+
+            meshPtr->Render((unsigned int)instanceBuffer_.size());
+        }
+
+        if (s_drawNormals)
+        {
+            normalShaderPtr_->Use();
+
+            normalShaderPtr_->SetMat4("u_View", viewMatrix_);
+            normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
+
+            meshPtr->Render((unsigned int)instanceBuffer_.size());
+        }
+
+        IncreaseTectureUnitStaleness();
+
+        instanceBuffer_.clear();
     }
 
     void OpenGL_Renderer::RenderBatchToTexture()
@@ -1112,7 +1260,6 @@ namespace Project001
         UsePrimaryShaderAndUpdateItsUniforms();
 
         glBindVertexArray(batchedVertexArrayId_);
-        EnableVertexAttribArrays(0, 10);
         glBindBuffer(GL_ARRAY_BUFFER, batchedVertexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batchedIndexBufferId_);
 
@@ -1155,9 +1302,8 @@ namespace Project001
             glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
         }
 
+        glBindVertexArray(0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        DisableVertexAttribArrays(0, 10);
 
         // Clear local buffers
         // ---------------------------------------------------------------------
@@ -1178,9 +1324,10 @@ namespace Project001
         gridShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
 
         glBindVertexArray(gridVertexArrayId_);
-        EnableVertexAttribArrays(0, 1);
+
         glDrawArrays(GL_LINES, 0, gridVertexCount_);
-        DisableVertexAttribArrays(0, 1);
+
+        glBindVertexArray(0);
     }
 
     void OpenGL_Renderer::RenderTextureToScreen()
@@ -1200,9 +1347,10 @@ namespace Project001
         screenShaderPtr_->Use();
 
         glBindVertexArray(screenVertexArrayId_);
-        EnableVertexAttribArrays(0, 2);
+
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        DisableVertexAttribArrays(0, 2);
+
+        glBindVertexArray(0);
     }
 
     void OpenGL_Renderer::UsePrimaryShaderAndUpdateItsUniforms()

@@ -5163,12 +5163,12 @@ namespace Project001
             // intersectionPoint.x = NAN;
             // intersectionPoint.y = NAN;
         }
-        else if (slope1 == INFINITY || slope1 == -INFINITY)
+        else if (slope1 == std::numeric_limits<float>::infinity() || slope1 == -std::numeric_limits<float>::infinity())
         {
             x = x1;
             y = m2 * (x1 - x2) + y2;
         }
-        else if (slope2 == INFINITY || slope2 == -INFINITY)
+        else if (slope2 == std::numeric_limits<float>::infinity() || slope2 == -std::numeric_limits<float>::infinity())
         {
             x = x2;
             y = m1 * (x2 - x1) + y1;

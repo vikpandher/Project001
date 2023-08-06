@@ -22,6 +22,8 @@
 #include "TestScene013.h"
 #include "TestScene020.h"
 #include "TestScene030.h"
+#include "TestScene031.h"
+#include "TestScene032.h"
 
 
 
@@ -38,6 +40,18 @@ int main(int argc, char** argv)
     applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
+
+    // tests framerate with many verticies (TODO) (001)
+    TestScene030* testScene030Ptr = new TestScene030();
+    applicationPtr->AddScene(testScene030Ptr);
+
+    // tests framerate with many verticies (TODO) (001)
+    TestScene031* testScene031Ptr = new TestScene031();
+    applicationPtr->AddScene(testScene031Ptr);
+
+    // (TODO) (001)
+    TestScene032* testScene032Ptr = new TestScene032();
+    applicationPtr->AddScene(testScene032Ptr);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -79,10 +93,6 @@ int main(int argc, char** argv)
     TestScene020* testScene020Ptr = new TestScene020();
     applicationPtr->AddScene(testScene020Ptr);
 
-    // tests framerate with many verticies (TODO) (001)
-    TestScene030* testScene030Ptr = new TestScene030();
-    applicationPtr->AddScene(testScene030Ptr);
-
     applicationPtr->Run();
 
     delete applicationPtr;
@@ -97,6 +107,8 @@ int main(int argc, char** argv)
     delete testScene013Ptr;
     delete testScene020Ptr;
     delete testScene030Ptr;
+    delete testScene031Ptr;
+    delete testScene032Ptr;
 
     return 0;
 }

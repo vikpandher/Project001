@@ -64,7 +64,7 @@ bool TestSceneBase001::OnInitialize()
             float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
             cameraPtr->SetAspectRatio(aspectRatio);
         }
-        cameraPtr->SetPosition(0.0f, 0.0f, 5.0f);
+        cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
         cameraPtr->AddYaw(glm::pi<float>());
         // cameraPtr->SetProjectionToOrthographic();
         // cameraPtr->SetLeftCutoff(aspectRatio * -5.0f);
@@ -94,6 +94,7 @@ bool TestSceneBase001::OnDeinitialize()
 {
     ClearResources();
     rendererPtr_->DeleteAllTextures();
+    rendererPtr_->DeleteAllMeshes();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
     componentStoresPtr_->DeleteAllEntities();

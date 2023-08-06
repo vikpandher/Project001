@@ -1,4 +1,4 @@
-#include "TestScene030.h"
+#include "TestScene031.h"
 
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Application.h"
@@ -14,32 +14,43 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene030::TestScene030()
+TestScene031::TestScene031()
 {
     ClearResources();
 }
 
-TestScene030::~TestScene030()
+TestScene031::~TestScene031()
 {}
 
-const char* TestScene030::Name()
+const char* TestScene031::Name()
 {
-    return "TestScene030";
+    return "TestScene031";
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene030::OnInitialize()
+bool TestScene031::OnInitialize()
 {
     bool success = TestSceneBase001::OnInitialize();
 
     // Generate mesh
     // -------------------------------------------------------------------------
-    Project001::MeshData* meshDataPtr00_ = new Project001::MeshData();
-    meshDataPtrArray_.push_back(meshDataPtr00_);
+    Project001::MeshData* meshDataPtr00 = new Project001::MeshData();
+    meshDataPtrArray_.push_back(meshDataPtr00);
     glm::vec3 min(-0.04f, -0.04f, -0.04f);
     glm::vec3 max(0.04f, 0.04f, 0.04f);
-    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*meshDataPtr00_, min, max, false));
+    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*meshDataPtr00, min, max, false));
+
+    unsigned int meshId00;
+    rendererPtr_->CreateMesh(
+        meshId00,
+        meshDataPtr00->meshVertexArray.data(),
+        meshDataPtr00->meshVertexArray.size(),
+        meshDataPtr00->meshIndexArray.data(),
+        meshDataPtr00->meshIndexArray.size()
+    );
+
+    float maxRadius00 = meshDataPtr00->maxRadius;
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -80,14 +91,15 @@ bool TestScene030::OnInitialize()
             0.5f + currentPosition.z * 0.1f,
             0.5f
         );
-        renderedModelPtr->SetMeshDataPtr(meshDataPtr00_);
+        renderedModelPtr->SetMeshId(meshId00);
         renderedModelPtr->SetTranslucent(true);
+        renderedModelPtr->SetMaxRadius(maxRadius00);
     }
 
     return success && true;
 }
 
-bool TestScene030::OnDeinitialize()
+bool TestScene031::OnDeinitialize()
 {
     bool success = TestSceneBase001::OnDeinitialize();
 
@@ -96,17 +108,17 @@ bool TestScene030::OnDeinitialize()
     return success && true;
 }
 
-void TestScene030::OnHandleEvent(Project001::Event& event)
+void TestScene031::OnHandleEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene030::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene031::ProcessKeyEvent, this, std::placeholders::_1));
 
     TestSceneBase001::OnHandleEvent(event);
 }
 
-void TestScene030::ClearResources()
+void TestScene031::ClearResources()
 {}
 
-void TestScene030::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+void TestScene031::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     Project001::KeyCode& keyCode = keyEvent.keyCode;
     Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
@@ -116,11 +128,11 @@ void TestScene030::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene031"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene032"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene031"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene032"));
             }
         }
     }

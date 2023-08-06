@@ -1088,10 +1088,10 @@ void TestScene010::Test_Get2D_Point_Line_Distance() const
     glm::vec2 point_p0_n2(0.0f, -2.0f);
     glm::vec2 point_p2_n2(2.0f, -2.0f);
 
-    float distance01 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p0, INFINITY);
+    float distance01 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p0, std::numeric_limits<float>::infinity());
     _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance01, 4.0f));
 
-    float distance02 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p1_p0, INFINITY);
+    float distance02 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p1_p0, std::numeric_limits<float>::infinity());
     _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance02, 0.0f));
 
     float distance03 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p1, 0.0f);
@@ -1160,7 +1160,7 @@ void TestScene010::Test_Misc() const
     glm::vec2 testVec(3.0f, 4.0f);
     float length = glm::length(testVec);
 
-    float infinity = INFINITY;
+    float infinity = std::numeric_limits<float>::infinity();
     infinity += 1;
     infinity *= 2;
     infinity /= 0;

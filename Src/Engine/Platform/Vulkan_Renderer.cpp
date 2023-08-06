@@ -539,7 +539,6 @@ namespace Project001
         const glm::vec3& scale,
         const glm::vec4& color,
         float shininess,
-        bool translucent,
         bool lit)
     {
         if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
@@ -2722,11 +2721,6 @@ namespace Project001
         }
         swapchainFramebuffers_.clear();
     }
-
-
-
-
-
 
     void Vulkan_Renderer::AcquireNextImage()
     {

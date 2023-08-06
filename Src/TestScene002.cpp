@@ -599,7 +599,7 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
         renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetSpecularId(patternSpecular02TextureId_);
+        renderedModelPtr->SetSpecularId(patternSpecular01TextureId_);
         renderedModelPtr->SetScale(0.5f, 0.75f, 1.0f);
         renderedModelPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
         renderedModelPtr->SetShininess(24.0f);
