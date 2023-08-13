@@ -52,8 +52,9 @@ namespace Project001
         : windowPtr_(rendererInfo.windowPtr)
         , frameBufferWidth_(rendererInfo.frameBufferWidth)
         , frameBufferHeight_(rendererInfo.frameBufferHeight)
-        , indexBufferCapacity_(rendererInfo.batchedIndexBufferCapacity)
-        , vertexBufferCapacity_(rendererInfo.batchedVertexBufferCapacity)
+        , instanceBufferCapacity_(rendererInfo.instanceBufferCapacity)
+        , batchedIndexBufferCapacity_(rendererInfo.batchedIndexBufferCapacity)
+        , batchedVertexBufferCapacity_(rendererInfo.batchedVertexBufferCapacity)
         , multisampleAntiAliasing_(rendererInfo.multisampleAntiAliasing)
         , depthTesting_(rendererInfo.depthTesting)
         , viewportX_(0)
@@ -92,18 +93,24 @@ namespace Project001
         , renderFinishedSemaphore_(VK_NULL_HANDLE)
         , swapchain_(VK_NULL_HANDLE)
         , swapchainImageCount_(0)
-        , indexStagingBuffer_(VK_NULL_HANDLE)
-        , indexStagingBufferMemory_(VK_NULL_HANDLE)
-        , indexStagingBufferDataPtr_(NULL)
-        , indexCount_(0)
-        , indexBuffer_(VK_NULL_HANDLE)
-        , indexBufferMemory_(VK_NULL_HANDLE)
-        , vertexStagingBuffer_(VK_NULL_HANDLE)
-        , vertexStagingBufferMemory_(VK_NULL_HANDLE)
-        , vertexStagingBufferDataPtr_(NULL)
-        , vertexCount_(0)
-        , vertexBuffer_(VK_NULL_HANDLE)
-        , vertexBufferMemory_(VK_NULL_HANDLE)
+        , instanceStagingBuffer_(VK_NULL_HANDLE)
+        , instanceStagingBufferMemory_(VK_NULL_HANDLE)
+        , instanceStagingBufferDataPtr_(NULL)
+        , instanceCount_(0)
+        , instanceBuffer_(VK_NULL_HANDLE)
+        , instanceBufferMemory_(VK_NULL_HANDLE)
+        , batchedIndexStagingBuffer_(VK_NULL_HANDLE)
+        , batchedIndexStagingBufferMemory_(VK_NULL_HANDLE)
+        , batchedIndexStagingBufferDataPtr_(NULL)
+        , batchedIndexCount_(0)
+        , batchedIndexBuffer_(VK_NULL_HANDLE)
+        , batchedIndexBufferMemory_(VK_NULL_HANDLE)
+        , batchedVertexStagingBuffer_(VK_NULL_HANDLE)
+        , batchedVertexStagingBufferMemory_(VK_NULL_HANDLE)
+        , batchedVertexStagingBufferDataPtr_(NULL)
+        , batchedVertexCount_(0)
+        , batchedVertexBuffer_(VK_NULL_HANDLE)
+        , batchedVertexBufferMemory_(VK_NULL_HANDLE)
         , vertexShaderUniformBuffer_(VK_NULL_HANDLE)
         , vertexShaderUniformBufferMemory_(VK_NULL_HANDLE)
         , fragmentShaderUniformBuffer_(VK_NULL_HANDLE)
@@ -128,6 +135,10 @@ namespace Project001
         , primaryGraphicsPipeline2_(VK_NULL_HANDLE)
         , primaryGraphicsPipeline3_(VK_NULL_HANDLE)
         , primaryGraphicsPipeline4_(VK_NULL_HANDLE)
+        , primaryGraphicsPipeline5_(VK_NULL_HANDLE)
+        , primaryGraphicsPipeline6_(VK_NULL_HANDLE)
+        , primaryGraphicsPipeline7_(VK_NULL_HANDLE)
+        , primaryGraphicsPipeline8_(VK_NULL_HANDLE)
         , vertexScreenShaderModule_(VK_NULL_HANDLE)
         , screenTexture_({})
         , depthImage_(VK_NULL_HANDLE)
@@ -164,9 +175,11 @@ namespace Project001
 
         CreateSwapchain();
 
-        CreateIndexDataBuffers();
+        CreateInstanceDataBuffers();
 
-        CreateVertexDataBuffers();
+        CreateBatchedIndexDataBuffers();
+
+        CreateBatchedVertexDataBuffers();
 
         CreateOtherDataBuffers();
 
@@ -236,9 +249,11 @@ namespace Project001
 
         DeleteOtherDataBuffers();
 
-        DeleteVertexDataBuffers();
+        DeleteBatchedVertexDataBuffers();
 
-        DeleteIndexDataBuffers();
+        DeleteBatchedIndexDataBuffers();
+
+        DeleteInstanceDataBuffers();
 
         DeleteSwapchain();
 
@@ -257,28 +272,32 @@ namespace Project001
 
     void Vulkan_Renderer::SetInstanceBufferCapacity(unsigned int capacity)
     {
-        // TODO
+        vkDeviceWaitIdle(logicalDevice_);
+        instanceBufferCapacity_ = capacity;
+        instanceCount_ = 0;
+        DeleteInstanceDataBuffers();
+        CreateInstanceDataBuffers();
     }
 
     void Vulkan_Renderer::SetBatchedIndexBufferCapacity(unsigned int capacity)
     {
         vkDeviceWaitIdle(logicalDevice_);
-        indexBufferCapacity_ = capacity;
-        indexCount_ = 0;
-        DeleteIndexDataBuffers();
-        CreateIndexDataBuffers();
+        batchedIndexBufferCapacity_ = capacity;
+        batchedIndexCount_ = 0;
+        DeleteBatchedIndexDataBuffers();
+        CreateBatchedIndexDataBuffers();
     }
 
     void Vulkan_Renderer::SetBatchedVertexBufferCapacity(unsigned int capacity)
     {
         vkDeviceWaitIdle(logicalDevice_);
-        vertexBufferCapacity_ = capacity;
-        vertexCount_ = 0;
-        DeleteVertexDataBuffers();
-        CreateVertexDataBuffers();
+        batchedVertexBufferCapacity_ = capacity;
+        batchedVertexCount_ = 0;
+        DeleteBatchedVertexDataBuffers();
+        CreateBatchedVertexDataBuffers();
     }
 
-    bool Vulkan_Renderer::CreateTexture(
+    void Vulkan_Renderer::CreateTexture(
         unsigned int& textureId,
         unsigned char* data,
         unsigned int width,
@@ -305,8 +324,6 @@ namespace Project001
 
         CreateTexture(data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps, textureMap_[textureId]);
         textureIdToUnitBiMap_.Add(textureId, textureUnit);
-
-        return true;
     }
 
     bool Vulkan_Renderer::DeleteTexture(unsigned int textureId)
@@ -504,18 +521,44 @@ namespace Project001
         const unsigned int* meshIndexPtr,
         unsigned int meshIndexCount)
     {
-        // TODO
+        if (recycledMeshIds_.empty())
+        {
+            meshId = (unsigned int)meshMap_.size();
+        }
+        else
+        {
+            meshId = recycledMeshIds_.front();
+            recycledMeshIds_.pop_front();
+        }
+
+        CreateMesh(meshVertexPtr, meshVertexCount, meshIndexPtr, meshIndexCount, meshMap_[meshId]);
     }
 
     bool Vulkan_Renderer::DeleteMesh(unsigned int meshId)
     {
-        // TODO
+        vkDeviceWaitIdle(logicalDevice_);
+
+        if (meshMap_.find(meshId) != meshMap_.end())
+        {
+            DeleteMesh(meshMap_[meshId]);
+            recycledMeshIds_.push_back(meshId);
+            return true;
+        }
+
         return false;
     }
 
     void Vulkan_Renderer::DeleteAllMeshes()
     {
-        // TODO
+        vkDeviceWaitIdle(logicalDevice_);
+
+        for (std::map<unsigned int, Vulkan_Mesh>::iterator iter = meshMap_.begin();
+            iter != meshMap_.end(); ++iter)
+        {
+            DeleteMesh(iter->second);
+        }
+        meshMap_.clear();
+        recycledMeshIds_.clear();
     }
 
     bool Vulkan_Renderer::RenderMesh(
@@ -523,8 +566,95 @@ namespace Project001
         const MeshInstanceData* meshInstanceDataPtr,
         unsigned int meshInstanceCount)
     {
-        // TODO
-        return false;
+        if (meshInstanceCount == 0)
+        {
+            // Want to draw nothing, so draw nothing
+            return true;
+        }
+
+        if (meshMap_.find(meshId) == meshMap_.end())
+        {
+            _LOG_ERROR("Mesh Id not found!");
+            return false;
+        }
+
+        Vulkan_Mesh& mesh = meshMap_[meshId];
+
+        if(batchedVertexCount_ > 0 && batchedIndexCount_ > 0)
+        {
+            RenderBatch();
+        }
+
+        for (unsigned int i = 0; i < meshInstanceCount; ++i)
+        {
+            if (instanceCount_ == instanceBufferCapacity_)
+            {
+                RenderMeshToTexture(mesh);
+            }
+
+            const MeshInstanceData& currentMeshInstanceData = meshInstanceDataPtr[i];
+
+            unsigned int textureId = currentMeshInstanceData.textureId;
+            unsigned int specularId = currentMeshInstanceData.specularId;
+
+            bool getTextureFailed = false;
+
+            float textureUnit = -1.0f;
+            if (textureId != (unsigned int)-1)
+            {
+                int getTextureUnitResult = GetTextureUnit(textureId, textureUnit);
+                if (getTextureUnitResult == 1)
+                {
+                    getTextureFailed = true;
+                }
+                else if (getTextureUnitResult == 2)
+                {
+                    _LOG_ERROR("TextureId %u not found!", textureId);
+                    return false;
+                }
+            }
+
+            float specularUnit = -1.0f;
+            if (specularId != (unsigned int)-1)
+            {
+                int getTextureUnitResult = GetTextureUnit(specularId, specularUnit);
+                if (getTextureUnitResult == 1)
+                {
+                    getTextureFailed = true;
+                }
+                else if (getTextureUnitResult == 2)
+                {
+                    _LOG_ERROR("SpecularId %u not found!", specularId);
+                    return false;
+                }
+            }
+
+            if (getTextureFailed)
+            {
+                RenderMeshToTexture(mesh);
+                GetTextureUnit(textureId, textureUnit);
+                GetTextureUnit(specularId, specularUnit);
+            }
+
+            InstanceData newInstance;
+            newInstance.color = currentMeshInstanceData.color;
+            newInstance.textureUnit = textureUnit;
+            newInstance.specularUnit = specularUnit;
+            newInstance.shininess = currentMeshInstanceData.shininess;
+            newInstance.scale = currentMeshInstanceData.scale;
+            newInstance.translation = currentMeshInstanceData.position;
+            newInstance.orientation.x = currentMeshInstanceData.orientation.x;
+            newInstance.orientation.y = currentMeshInstanceData.orientation.y;
+            newInstance.orientation.z = currentMeshInstanceData.orientation.z;
+            newInstance.orientation.w = currentMeshInstanceData.orientation.w;
+            newInstance.lit = currentMeshInstanceData.lit;
+
+            *(instanceStagingBufferDataPtr_ + instanceCount_++) = newInstance;
+        }
+
+        RenderMeshToTexture(mesh);
+
+        return true;
     }
 
     bool Vulkan_Renderer::AddMeshToBatch(
@@ -541,23 +671,17 @@ namespace Project001
         float shininess,
         bool lit)
     {
-        if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
-            (indexCount_ + meshIndexCount) > indexBufferCapacity_)
+        if ((batchedVertexCount_ + meshVertexCount) > batchedVertexBufferCapacity_ ||
+            (batchedIndexCount_ + meshIndexCount) > batchedIndexBufferCapacity_)
         {
-            if (meshVertexCount > vertexBufferCapacity_ ||
-                meshIndexCount > indexBufferCapacity_)
+            if (meshVertexCount > batchedVertexBufferCapacity_ ||
+                meshIndexCount > batchedIndexBufferCapacity_)
             {
                 _LOG_ERROR("Mesh larger then buffer!");
                 return false;
             }
 
             RenderBatch();
-        }
-
-        if ((vertexCount_ + meshVertexCount) > vertexBufferCapacity_ ||
-            (indexCount_ + meshIndexCount) > indexBufferCapacity_)
-        {
-            return false;
         }
 
         bool getTextureFailed = false;
@@ -599,7 +723,7 @@ namespace Project001
             GetTextureUnit(specularId, specularUnit);
         }
 
-        size_t vertexBufferOffset = vertexCount_;
+        size_t batchedVertexBufferOffset = batchedVertexCount_;
 
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
@@ -621,12 +745,12 @@ namespace Project001
             newVertex.orientation.w = orientation.w;
             newVertex.lit = lit;
 
-            *(vertexStagingBufferDataPtr_ + vertexCount_++) = newVertex;
+            *(batchedVertexStagingBufferDataPtr_ + batchedVertexCount_++) = newVertex;
         }
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            *(indexStagingBufferDataPtr_ + indexCount_++) = (uint32_t)(vertexBufferOffset + meshIndexPtr[j]);
+            *(batchedIndexStagingBufferDataPtr_ + batchedIndexCount_++) = (uint32_t)(batchedVertexBufferOffset + meshIndexPtr[j]);
         }
 
         return true;
@@ -678,18 +802,18 @@ namespace Project001
 
             _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
 
-            if (vertexCount_ > 0)
+            if (batchedVertexCount_ > 0)
             {
                 VkBufferCopy vertexCopyRegion = {};
-                vertexCopyRegion.size = sizeof(BatchedVertexData) * vertexCount_;
-                vkCmdCopyBuffer(commandBuffer_, vertexStagingBuffer_, vertexBuffer_, 1, &vertexCopyRegion);
+                vertexCopyRegion.size = sizeof(BatchedVertexData) * batchedVertexCount_;
+                vkCmdCopyBuffer(commandBuffer_, batchedVertexStagingBuffer_, batchedVertexBuffer_, 1, &vertexCopyRegion);
             }
 
-            if (indexCount_ > 0)
+            if (batchedIndexCount_ > 0)
             {
                 VkBufferCopy indexCopyRegion = {};
-                indexCopyRegion.size = sizeof(uint32_t) * indexCount_;
-                vkCmdCopyBuffer(commandBuffer_, indexStagingBuffer_, indexBuffer_, 1, &indexCopyRegion);
+                indexCopyRegion.size = sizeof(uint32_t) * batchedIndexCount_;
+                vkCmdCopyBuffer(commandBuffer_, batchedIndexStagingBuffer_, batchedIndexBuffer_, 1, &indexCopyRegion);
             }
 
             _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
@@ -772,15 +896,15 @@ namespace Project001
             scissor.extent = { frameBufferWidth_, frameBufferHeight_ };
             vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
 
-            VkBuffer vertexBuffers[] = { vertexBuffer_ };
+            VkBuffer vertexBuffers[] = { batchedVertexBuffer_ };
             VkDeviceSize offsets[] = { 0 };
             vkCmdBindVertexBuffers(commandBuffer_, 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffer_, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(commandBuffer_, batchedIndexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 
             vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffer_, (uint32_t)indexCount_, 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer_, (uint32_t)batchedIndexCount_, 1, 0, 0, 0);
 
             vkCmdEndRenderPass(commandBuffer_);
 
@@ -788,8 +912,8 @@ namespace Project001
 
             _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
         }
-        vertexCount_ = 0;
-        indexCount_ = 0;
+        batchedVertexCount_ = 0;
+        batchedIndexCount_ = 0;
     }
 
     void Vulkan_Renderer::FinishRendering()
@@ -1649,92 +1773,136 @@ namespace Project001
         swapchain_ = VK_NULL_HANDLE;
     }
 
-    void Vulkan_Renderer::CreateIndexDataBuffers()
+    void Vulkan_Renderer::CreateInstanceDataBuffers()
     {
-        if (indexStagingBuffer_ != VK_NULL_HANDLE)
+        if (instanceStagingBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: indexStagingBuffer_ already exists");
+            _LOG_ERROR("Vulkan Error: instanceStagingBuffer_ already exists");
         }
-        else if (indexStagingBufferMemory_ != VK_NULL_HANDLE)
+        else if (instanceStagingBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: indexStagingBufferMemory_ already exists");
+            _LOG_ERROR("Vulkan Error: instanceStagingBufferMemory_ already exists");
         }
-        else if (indexBuffer_ != VK_NULL_HANDLE)
+        else if (instanceBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: indexBuffer_ already exists");
+            _LOG_ERROR("Vulkan Error: instanceBuffer_ already exists");
         }
-        else if (indexBufferMemory_ != VK_NULL_HANDLE)
+        else if (instanceBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: indexBufferMemory_ already exists");
+            _LOG_ERROR("Vulkan Error: instanceBufferMemory_ already exists");
         }
         else
         {
-            VkDeviceSize indexBufferSize = sizeof(uint32_t) * indexBufferCapacity_;
+            VkDeviceSize instanceBufferSize = sizeof(InstanceData) * instanceBufferCapacity_;
 
-            CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indexStagingBuffer_, indexStagingBufferMemory_);
-            _VK_CHECK(vkMapMemory(logicalDevice_, indexStagingBufferMemory_, 0, indexBufferSize, 0, (void**)&indexStagingBufferDataPtr_));
+            CreateBuffer(instanceBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, instanceStagingBuffer_, instanceStagingBufferMemory_);
+            _VK_CHECK(vkMapMemory(logicalDevice_, instanceStagingBufferMemory_, 0, instanceBufferSize, 0, (void**)&instanceStagingBufferDataPtr_));
 
-            CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer_, indexBufferMemory_);
+            CreateBuffer(instanceBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer_, instanceBufferMemory_);
         }
     }
 
-    void Vulkan_Renderer::DeleteIndexDataBuffers()
+    void Vulkan_Renderer::DeleteInstanceDataBuffers()
     {
-        vkDestroyBuffer(logicalDevice_, indexBuffer_, nullptr);
-        indexBuffer_ = VK_NULL_HANDLE;
-        vkFreeMemory(logicalDevice_, indexBufferMemory_, nullptr);
-        indexBufferMemory_ = VK_NULL_HANDLE;
-        vkUnmapMemory(logicalDevice_, indexStagingBufferMemory_);
-        vkDestroyBuffer(logicalDevice_, indexStagingBuffer_, nullptr);
-        indexStagingBuffer_ = VK_NULL_HANDLE;
-        vkFreeMemory(logicalDevice_, indexStagingBufferMemory_, nullptr);
-        indexStagingBufferMemory_ = VK_NULL_HANDLE;
-        indexStagingBufferDataPtr_ = NULL;
-        indexCount_ = 0;
+        vkDestroyBuffer(logicalDevice_, instanceBuffer_, nullptr);
+        instanceBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, instanceBufferMemory_, nullptr);
+        instanceBufferMemory_ = VK_NULL_HANDLE;
+        vkUnmapMemory(logicalDevice_, instanceStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, instanceStagingBuffer_, nullptr);
+        instanceStagingBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, instanceStagingBufferMemory_, nullptr);
+        instanceStagingBufferMemory_ = VK_NULL_HANDLE;
+        instanceStagingBufferDataPtr_ = NULL;
+        instanceCount_ = 0;
     }
 
-    void Vulkan_Renderer::CreateVertexDataBuffers()
+    void Vulkan_Renderer::CreateBatchedIndexDataBuffers()
     {
-        if (vertexStagingBuffer_ != VK_NULL_HANDLE)
+        if (batchedIndexStagingBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexStagingBuffer_ already exists");
+            _LOG_ERROR("Vulkan Error: batchedIndexStagingBuffer_ already exists");
         }
-        else if (vertexStagingBufferMemory_ != VK_NULL_HANDLE)
+        else if (batchedIndexStagingBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexStagingBufferMemory_ already exists");
+            _LOG_ERROR("Vulkan Error: batchedIndexStagingBufferMemory_ already exists");
         }
-        else if (vertexBuffer_ != VK_NULL_HANDLE)
+        else if (batchedIndexBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexBuffer_ already exists");
+            _LOG_ERROR("Vulkan Error: batchedIndexBuffer_ already exists");
         }
-        else if (vertexBufferMemory_ != VK_NULL_HANDLE)
+        else if (batchedIndexBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexBufferMemory_ already exists");
+            _LOG_ERROR("Vulkan Error: batchedIndexBufferMemory_ already exists");
         }
         else
         {
-            VkDeviceSize vertexBufferSize = sizeof(BatchedVertexData) * vertexBufferCapacity_;
+            VkDeviceSize batchedIndexBufferSize = sizeof(uint32_t) * batchedIndexBufferCapacity_;
 
-            CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer_, vertexStagingBufferMemory_);
-            _VK_CHECK(vkMapMemory(logicalDevice_, vertexStagingBufferMemory_, 0, vertexBufferSize, 0, (void**)&vertexStagingBufferDataPtr_));
+            CreateBuffer(batchedIndexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, batchedIndexStagingBuffer_, batchedIndexStagingBufferMemory_);
+            _VK_CHECK(vkMapMemory(logicalDevice_, batchedIndexStagingBufferMemory_, 0, batchedIndexBufferSize, 0, (void**)&batchedIndexStagingBufferDataPtr_));
 
-            CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_);
+            CreateBuffer(batchedIndexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, batchedIndexBuffer_, batchedIndexBufferMemory_);
         }
     }
 
-    void Vulkan_Renderer::DeleteVertexDataBuffers()
+    void Vulkan_Renderer::DeleteBatchedIndexDataBuffers()
     {
-        vkDestroyBuffer(logicalDevice_, vertexBuffer_, nullptr);
-        vertexBuffer_ = VK_NULL_HANDLE;
-        vkFreeMemory(logicalDevice_, vertexBufferMemory_, nullptr);
-        vertexBufferMemory_ = VK_NULL_HANDLE;
-        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory_);
-        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer_, nullptr);
-        vertexStagingBuffer_ = VK_NULL_HANDLE;
-        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory_, nullptr);
-        vertexStagingBufferMemory_ = VK_NULL_HANDLE;
-        vertexStagingBufferDataPtr_ = NULL;
-        vertexCount_ = 0;
+        vkDestroyBuffer(logicalDevice_, batchedIndexBuffer_, nullptr);
+        batchedIndexBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, batchedIndexBufferMemory_, nullptr);
+        batchedIndexBufferMemory_ = VK_NULL_HANDLE;
+        vkUnmapMemory(logicalDevice_, batchedIndexStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, batchedIndexStagingBuffer_, nullptr);
+        batchedIndexStagingBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, batchedIndexStagingBufferMemory_, nullptr);
+        batchedIndexStagingBufferMemory_ = VK_NULL_HANDLE;
+        batchedIndexStagingBufferDataPtr_ = NULL;
+        batchedIndexCount_ = 0;
+    }
+
+    void Vulkan_Renderer::CreateBatchedVertexDataBuffers()
+    {
+        if (batchedVertexStagingBuffer_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: batchedVertexStagingBuffer_ already exists");
+        }
+        else if (batchedVertexStagingBufferMemory_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: batchedVertexStagingBufferMemory_ already exists");
+        }
+        else if (batchedVertexBuffer_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: batchedVertexBuffer_ already exists");
+        }
+        else if (batchedVertexBufferMemory_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: batchedVertexBufferMemory_ already exists");
+        }
+        else
+        {
+            VkDeviceSize batchedVertexBufferSize = sizeof(BatchedVertexData) * batchedVertexBufferCapacity_;
+
+            CreateBuffer(batchedVertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, batchedVertexStagingBuffer_, batchedVertexStagingBufferMemory_);
+            _VK_CHECK(vkMapMemory(logicalDevice_, batchedVertexStagingBufferMemory_, 0, batchedVertexBufferSize, 0, (void**)&batchedVertexStagingBufferDataPtr_));
+
+            CreateBuffer(batchedVertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, batchedVertexBuffer_, batchedVertexBufferMemory_);
+        }
+    }
+
+    void Vulkan_Renderer::DeleteBatchedVertexDataBuffers()
+    {
+        vkDestroyBuffer(logicalDevice_, batchedVertexBuffer_, nullptr);
+        batchedVertexBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, batchedVertexBufferMemory_, nullptr);
+        batchedVertexBufferMemory_ = VK_NULL_HANDLE;
+        vkUnmapMemory(logicalDevice_, batchedVertexStagingBufferMemory_);
+        vkDestroyBuffer(logicalDevice_, batchedVertexStagingBuffer_, nullptr);
+        batchedVertexStagingBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, batchedVertexStagingBufferMemory_, nullptr);
+        batchedVertexStagingBufferMemory_ = VK_NULL_HANDLE;
+        batchedVertexStagingBufferDataPtr_ = NULL;
+        batchedVertexCount_ = 0;
     }
 
     void Vulkan_Renderer::CreateOtherDataBuffers()
@@ -2137,15 +2305,162 @@ namespace Project001
         }
         else
         {
-            primaryGraphicsPipeline1_ = CreatePrimaryGraphicsPipeline(primaryRenderPass1_, false, false);
-            primaryGraphicsPipeline2_ = CreatePrimaryGraphicsPipeline(primaryRenderPass2_, false, true);
-            primaryGraphicsPipeline3_ = CreatePrimaryGraphicsPipeline(primaryRenderPass3_, true, false);
-            primaryGraphicsPipeline4_ = CreatePrimaryGraphicsPipeline(primaryRenderPass4_, true, true);
+            std::vector<VkVertexInputBindingDescription> bindingDescriptions1;
+            bindingDescriptions1.resize(1);
+
+            bindingDescriptions1[0].binding = 0;
+            bindingDescriptions1[0].stride = sizeof(BatchedVertexData);
+            bindingDescriptions1[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions1;
+            attributeDescriptions1.resize(11);
+
+            attributeDescriptions1[0].binding = 0;
+            attributeDescriptions1[0].location = 0;
+            attributeDescriptions1[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions1[0].offset = offsetof(BatchedVertexData, position);
+
+            attributeDescriptions1[1].binding = 0;
+            attributeDescriptions1[1].location = 1;
+            attributeDescriptions1[1].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions1[1].offset = offsetof(BatchedVertexData, textureCoordinate);
+
+            attributeDescriptions1[2].binding = 0;
+            attributeDescriptions1[2].location = 2;
+            attributeDescriptions1[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions1[2].offset = offsetof(BatchedVertexData, normal);
+
+            attributeDescriptions1[3].binding = 0;
+            attributeDescriptions1[3].location = 3;
+            attributeDescriptions1[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions1[3].offset = offsetof(BatchedVertexData, color);
+
+            attributeDescriptions1[4].binding = 0;
+            attributeDescriptions1[4].location = 4;
+            attributeDescriptions1[4].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions1[4].offset = offsetof(BatchedVertexData, textureUnit);
+
+            attributeDescriptions1[5].binding = 0;
+            attributeDescriptions1[5].location = 5;
+            attributeDescriptions1[5].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions1[5].offset = offsetof(BatchedVertexData, specularUnit);
+
+            attributeDescriptions1[6].binding = 0;
+            attributeDescriptions1[6].location = 6;
+            attributeDescriptions1[6].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions1[6].offset = offsetof(BatchedVertexData, shininess);
+
+            attributeDescriptions1[7].binding = 0;
+            attributeDescriptions1[7].location = 7;
+            attributeDescriptions1[7].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions1[7].offset = offsetof(BatchedVertexData, scale);
+
+            attributeDescriptions1[8].binding = 0;
+            attributeDescriptions1[8].location = 8;
+            attributeDescriptions1[8].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions1[8].offset = offsetof(BatchedVertexData, translation);
+
+            attributeDescriptions1[9].binding = 0;
+            attributeDescriptions1[9].location = 9;
+            attributeDescriptions1[9].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions1[9].offset = offsetof(BatchedVertexData, orientation);
+
+            attributeDescriptions1[10].binding = 0;
+            attributeDescriptions1[10].location = 10;
+            attributeDescriptions1[10].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions1[10].offset = offsetof(BatchedVertexData, lit);
+
+            primaryGraphicsPipeline1_ = CreatePrimaryGraphicsPipeline(primaryRenderPass1_, bindingDescriptions1, attributeDescriptions1, false, false);
+            primaryGraphicsPipeline2_ = CreatePrimaryGraphicsPipeline(primaryRenderPass2_, bindingDescriptions1, attributeDescriptions1, false, true);
+            primaryGraphicsPipeline3_ = CreatePrimaryGraphicsPipeline(primaryRenderPass3_, bindingDescriptions1, attributeDescriptions1, true, false);
+            primaryGraphicsPipeline4_ = CreatePrimaryGraphicsPipeline(primaryRenderPass4_, bindingDescriptions1, attributeDescriptions1, true, true);
+
+            std::vector<VkVertexInputBindingDescription> bindingDescriptions2;
+            bindingDescriptions2.resize(2);
+
+            bindingDescriptions2[0].binding = 0;
+            bindingDescriptions2[0].stride = sizeof(VertexData);
+            bindingDescriptions2[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            bindingDescriptions2[1].binding = 1;
+            bindingDescriptions2[1].stride = sizeof(InstanceData);
+            bindingDescriptions2[1].inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions2;
+            attributeDescriptions2.resize(11);
+
+            attributeDescriptions2[0].binding = 0;
+            attributeDescriptions2[0].location = 0;
+            attributeDescriptions2[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions2[0].offset = offsetof(VertexData, position);
+
+            attributeDescriptions2[1].binding = 0;
+            attributeDescriptions2[1].location = 1;
+            attributeDescriptions2[1].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions2[1].offset = offsetof(VertexData, textureCoordinate);
+
+            attributeDescriptions2[2].binding = 0;
+            attributeDescriptions2[2].location = 2;
+            attributeDescriptions2[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions2[2].offset = offsetof(VertexData, normal);
+
+            attributeDescriptions2[3].binding = 1;
+            attributeDescriptions2[3].location = 3;
+            attributeDescriptions2[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions2[3].offset = offsetof(InstanceData, color);
+
+            attributeDescriptions2[4].binding = 1;
+            attributeDescriptions2[4].location = 4;
+            attributeDescriptions2[4].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions2[4].offset = offsetof(InstanceData, textureUnit);
+
+            attributeDescriptions2[5].binding = 1;
+            attributeDescriptions2[5].location = 5;
+            attributeDescriptions2[5].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions2[5].offset = offsetof(InstanceData, specularUnit);
+
+            attributeDescriptions2[6].binding = 1;
+            attributeDescriptions2[6].location = 6;
+            attributeDescriptions2[6].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions2[6].offset = offsetof(InstanceData, shininess);
+
+            attributeDescriptions2[7].binding = 1;
+            attributeDescriptions2[7].location = 7;
+            attributeDescriptions2[7].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions2[7].offset = offsetof(InstanceData, scale);
+
+            attributeDescriptions2[8].binding = 1;
+            attributeDescriptions2[8].location = 8;
+            attributeDescriptions2[8].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions2[8].offset = offsetof(InstanceData, translation);
+
+            attributeDescriptions2[9].binding = 1;
+            attributeDescriptions2[9].location = 9;
+            attributeDescriptions2[9].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions2[9].offset = offsetof(InstanceData, orientation);
+
+            attributeDescriptions2[10].binding = 1;
+            attributeDescriptions2[10].location = 10;
+            attributeDescriptions2[10].format = VK_FORMAT_R32_SFLOAT;
+            attributeDescriptions2[10].offset = offsetof(InstanceData, lit);
+
+            primaryGraphicsPipeline5_ = CreatePrimaryGraphicsPipeline(primaryRenderPass1_, bindingDescriptions2, attributeDescriptions2, false, false);
+            primaryGraphicsPipeline6_ = CreatePrimaryGraphicsPipeline(primaryRenderPass2_, bindingDescriptions2, attributeDescriptions2, false, true);
+            primaryGraphicsPipeline7_ = CreatePrimaryGraphicsPipeline(primaryRenderPass3_, bindingDescriptions2, attributeDescriptions2, true, false);
+            primaryGraphicsPipeline8_ = CreatePrimaryGraphicsPipeline(primaryRenderPass4_, bindingDescriptions2, attributeDescriptions2, true, true);
         }
     }
 
     void Vulkan_Renderer::DeletePrimaryGraphicsPipelines()
     {
+        vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline8_, nullptr);
+        primaryGraphicsPipeline8_ = VK_NULL_HANDLE;
+        vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline7_, nullptr);
+        primaryGraphicsPipeline7_ = VK_NULL_HANDLE;
+        vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline6_, nullptr);
+        primaryGraphicsPipeline6_ = VK_NULL_HANDLE;
+        vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline5_, nullptr);
+        primaryGraphicsPipeline5_ = VK_NULL_HANDLE;
         vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline4_, nullptr);
         primaryGraphicsPipeline4_ = VK_NULL_HANDLE;
         vkDestroyPipeline(logicalDevice_, primaryGraphicsPipeline3_, nullptr);
@@ -2789,6 +3104,159 @@ namespace Project001
         }
     }
 
+    void Vulkan_Renderer::RenderMeshToTexture(Vulkan_Mesh& mesh)
+    {
+        if (framebufferResized_)
+        {
+            HandleFramebufferResize();
+            framebufferResized_ = false;
+        }
+
+        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
+        {
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+
+            ApplyTextureBindings();
+            IncreaseTectureUnitStaleness();
+
+            VertexShaderUniformBufferObject vsubo = { viewMatrix_, projectionMatrix_ };
+            void* data1;
+            _VK_CHECK(vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1));
+            memcpy(data1, &vsubo, sizeof(vsubo));
+            vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
+
+            FragmentShaderUniformBufferObject fsubo;
+            fsubo.viewPosition = viewPosition_;
+            fsubo.directionalLight = directionalLight_;
+            for (size_t i = 0; i < NUMBER_OF_POINT_LIGHTS && i < pointLights_.size(); ++i)
+            {
+                fsubo.pointLights[i] = pointLights_[i];
+            }
+            for (size_t i = 0; i < NUMBER_OF_SPOT_LIGHTS && i < spotLights_.size(); ++i)
+            {
+                fsubo.spotLights[i] = spotLights_[i];
+            }
+
+            void* data2;
+            _VK_CHECK(vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2));
+            memcpy(data2, &fsubo, sizeof(fsubo));
+            vkUnmapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_);
+
+            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+
+            if (instanceCount_ > 0)
+            {
+                VkBufferCopy instanceCopyRegion = {};
+                instanceCopyRegion.size = sizeof(InstanceData) * instanceCount_;
+                vkCmdCopyBuffer(commandBuffer_, instanceStagingBuffer_, instanceBuffer_, 1, &instanceCopyRegion);
+            }
+
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer_;
+
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+
+            // ---------------------------------------------------------------------
+
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+
+            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+
+            VkRenderPass currentRenderPass;
+            VkFramebuffer currentFrameBuffer;
+            VkPipeline currentGraphicsPipeline;
+            if (multisampleAntiAliasing_)
+            {
+                if (depthTesting_)
+                {
+                    currentRenderPass = primaryRenderPass4_;
+                    currentFrameBuffer = primaryFrameBuffer4_;
+                    currentGraphicsPipeline = primaryGraphicsPipeline8_;
+                }
+                else
+                {
+                    currentRenderPass = primaryRenderPass3_;
+                    currentFrameBuffer = primaryFrameBuffer3_;
+                    currentGraphicsPipeline = primaryGraphicsPipeline7_;
+                }
+            }
+            else
+            {
+                if (depthTesting_)
+                {
+                    currentRenderPass = primaryRenderPass2_;
+                    currentFrameBuffer = primaryFrameBuffer2_;
+                    currentGraphicsPipeline = primaryGraphicsPipeline6_;
+                }
+                else
+                {
+                    currentRenderPass = primaryRenderPass1_;
+                    currentFrameBuffer = primaryFrameBuffer1_;
+                    currentGraphicsPipeline = primaryGraphicsPipeline5_;
+                }
+            }
+
+            VkRenderPassBeginInfo renderPassInfo = {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = currentRenderPass;
+            renderPassInfo.framebuffer = currentFrameBuffer;
+            renderPassInfo.renderArea.offset = { 0, 0 };
+            renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
+
+            vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, currentGraphicsPipeline);
+
+            // viewport.y is non zero and viewport.height is negative to flip y axis
+            // (making it behave like it does in OpenGL)
+            // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
+            VkViewport viewport = {};
+            viewport.x = 0.0f;
+            viewport.y = (float)frameBufferHeight_;
+            viewport.width = (float)frameBufferWidth_;
+            viewport.height = -(float)frameBufferHeight_;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
+
+            VkRect2D scissor = {};
+            scissor.offset = { 0, 0 };
+            scissor.extent = { frameBufferWidth_, frameBufferHeight_ };
+            vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
+
+            VkBuffer vertexBuffers[] = { mesh.vertexBuffer_, instanceBuffer_ };
+            VkDeviceSize offsets[] = { 0, 0 };
+            vkCmdBindVertexBuffers(commandBuffer_, 0, 2, vertexBuffers, offsets);
+
+            vkCmdBindIndexBuffer(commandBuffer_, mesh.indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
+
+            vkCmdDrawIndexed(commandBuffer_, (uint32_t)mesh.indexCount_, (uint32_t)instanceCount_, 0, 0, 0);
+
+            vkCmdEndRenderPass(commandBuffer_);
+
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+        }
+
+        instanceCount_ = 0;
+    }
+
     void Vulkan_Renderer::HandleFramebufferResize()
     {
         vkDeviceWaitIdle(logicalDevice_);
@@ -2971,6 +3439,74 @@ namespace Project001
         _LOG_ERROR("Vulkan Error: Failed to find suitable memory type!");
 
         return (uint32_t)-1;
+    }
+
+    void Vulkan_Renderer::CreateMesh(
+        const MeshVertex* meshVertexPtr,
+        unsigned int meshVertexCount,
+        const unsigned int* meshIndexPtr,
+        unsigned int meshIndexCount,
+        Vulkan_Mesh& mesh)
+    {
+        mesh.vertexCount_ = meshVertexCount;
+        VkDeviceSize vertexBufferSize = sizeof(VertexData) * meshVertexCount;
+        VkBuffer vertexStagingBuffer;
+        VkDeviceMemory vertexStagingBufferMemory;
+        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer, vertexStagingBufferMemory);
+
+        void* vertexStagingBufferDataPtr;
+        _VK_CHECK(vkMapMemory(logicalDevice_, vertexStagingBufferMemory, 0, vertexBufferSize, 0, &vertexStagingBufferDataPtr));
+        memcpy(vertexStagingBufferDataPtr, meshVertexPtr, vertexBufferSize);
+
+        CreateBuffer(vertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mesh.vertexBuffer_, mesh.vertexBufferMemory_);
+
+        VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+        VkBufferCopy vertexCopyRegion = {};
+        vertexCopyRegion.size = vertexBufferSize;
+        vkCmdCopyBuffer(commandBuffer, vertexStagingBuffer, mesh.vertexBuffer_, 1, &vertexCopyRegion);
+
+        EndSingleTimeCommands(commandBuffer);
+
+        vkUnmapMemory(logicalDevice_, vertexStagingBufferMemory);
+        vkDestroyBuffer(logicalDevice_, vertexStagingBuffer, nullptr);
+        vkFreeMemory(logicalDevice_, vertexStagingBufferMemory, nullptr);
+
+        mesh.indexCount_ = meshIndexCount;
+        VkDeviceSize indexBufferSize = sizeof(unsigned int) * meshIndexCount;
+        VkBuffer indexStagingBuffer;
+        VkDeviceMemory indexStagingBufferMemory;
+        CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indexStagingBuffer, indexStagingBufferMemory);
+
+        void* indexStagingBufferDataPtr;
+        _VK_CHECK(vkMapMemory(logicalDevice_, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexStagingBufferDataPtr));
+        memcpy(indexStagingBufferDataPtr, meshIndexPtr, indexBufferSize);
+
+        CreateBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mesh.indexBuffer_, mesh.indexBufferMemory_);
+
+        commandBuffer = BeginSingleTimeCommands();
+
+        VkBufferCopy indexCopyRegion = {};
+        indexCopyRegion.size = indexBufferSize;
+        vkCmdCopyBuffer(commandBuffer, indexStagingBuffer, mesh.indexBuffer_, 1, &indexCopyRegion);
+
+        EndSingleTimeCommands(commandBuffer);
+
+        vkUnmapMemory(logicalDevice_, indexStagingBufferMemory);
+        vkDestroyBuffer(logicalDevice_, indexStagingBuffer, nullptr);
+        vkFreeMemory(logicalDevice_, indexStagingBufferMemory, nullptr);
+    }
+
+    void Vulkan_Renderer::DeleteMesh(Vulkan_Mesh& mesh)
+    {
+        vkDestroyBuffer(logicalDevice_, mesh.vertexBuffer_, nullptr);
+        mesh.vertexBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, mesh.vertexBufferMemory_, nullptr);
+        mesh.vertexBufferMemory_ = VK_NULL_HANDLE;
+        vkDestroyBuffer(logicalDevice_, mesh.indexBuffer_, nullptr);
+        mesh.indexBuffer_ = VK_NULL_HANDLE;
+        vkFreeMemory(logicalDevice_, mesh.indexBufferMemory_, nullptr);
+        mesh.indexBufferMemory_ = VK_NULL_HANDLE;
     }
 
     void Vulkan_Renderer::CreateTexture(
@@ -3606,6 +4142,8 @@ namespace Project001
 
     VkPipeline Vulkan_Renderer::CreatePrimaryGraphicsPipeline(
         VkRenderPass& renderPass,
+        const std::vector<VkVertexInputBindingDescription>& vertexInputBindingDescriptions,
+        const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescriptions,
         bool msaa,
         bool depthTesting)
     {
@@ -3628,71 +4166,10 @@ namespace Project001
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-        VkVertexInputBindingDescription bindingDescription = {};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(BatchedVertexData);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-        std::array<VkVertexInputAttributeDescription, 11> attributeDescriptions = {};
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(BatchedVertexData, position);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(BatchedVertexData, textureCoordinate);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(BatchedVertexData, normal);
-
-        attributeDescriptions[3].binding = 0;
-        attributeDescriptions[3].location = 3;
-        attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[3].offset = offsetof(BatchedVertexData, color);
-
-        attributeDescriptions[4].binding = 0;
-        attributeDescriptions[4].location = 4;
-        attributeDescriptions[4].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[4].offset = offsetof(BatchedVertexData, textureUnit);
-
-        attributeDescriptions[5].binding = 0;
-        attributeDescriptions[5].location = 5;
-        attributeDescriptions[5].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[5].offset = offsetof(BatchedVertexData, specularUnit);
-
-        attributeDescriptions[6].binding = 0;
-        attributeDescriptions[6].location = 6;
-        attributeDescriptions[6].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[6].offset = offsetof(BatchedVertexData, shininess);
-
-        attributeDescriptions[7].binding = 0;
-        attributeDescriptions[7].location = 7;
-        attributeDescriptions[7].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[7].offset = offsetof(BatchedVertexData, scale);
-
-        attributeDescriptions[8].binding = 0;
-        attributeDescriptions[8].location = 8;
-        attributeDescriptions[8].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[8].offset = offsetof(BatchedVertexData, translation);
-
-        attributeDescriptions[9].binding = 0;
-        attributeDescriptions[9].location = 9;
-        attributeDescriptions[9].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[9].offset = offsetof(BatchedVertexData, orientation);
-
-        attributeDescriptions[10].binding = 0;
-        attributeDescriptions[10].location = 10;
-        attributeDescriptions[10].format = VK_FORMAT_R32_SFLOAT;
-        attributeDescriptions[10].offset = offsetof(BatchedVertexData, lit);
-
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)attributeDescriptions.size();
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexInputBindingDescriptions.size();
+        vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexInputAttributeDescriptions.size();
+        vertexInputInfo.pVertexBindingDescriptions = vertexInputBindingDescriptions.data();
+        vertexInputInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

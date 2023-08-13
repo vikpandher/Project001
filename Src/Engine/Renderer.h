@@ -105,7 +105,7 @@ namespace Project001
 
         virtual void SetClearColor(const glm::vec4& color) = 0;
 
-        virtual bool CreateTexture(
+        virtual void CreateTexture(
             unsigned int& textureId,
             unsigned char* data,
             unsigned int width,

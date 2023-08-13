@@ -49,12 +49,11 @@ namespace Project001
             unsigned int width,
             unsigned int height) override;
 
-
         void SetBorderColor(const glm::vec4& color) override;
 
         void SetClearColor(const glm::vec4& color) override;
 
-        bool CreateTexture(
+        void CreateTexture(
             unsigned int& textureId,
             unsigned char* data,
             unsigned int width,
@@ -147,6 +146,25 @@ namespace Project001
         void SwapBuffers() override;
 
     protected:
+        struct Vulkan_Mesh
+        {
+            size_t indexCount_;
+            VkBuffer indexBuffer_;
+            VkDeviceMemory indexBufferMemory_;
+
+            size_t vertexCount_;
+            VkBuffer vertexBuffer_;
+            VkDeviceMemory vertexBufferMemory_;
+
+            bool Initialized()
+            {
+                return indexBuffer_ != VK_NULL_HANDLE &&
+                    indexBufferMemory_ != VK_NULL_HANDLE &&
+                    vertexBuffer_ != VK_NULL_HANDLE &&
+                    vertexBufferMemory_ != VK_NULL_HANDLE;
+            }
+        };
+
         struct Vulkan_Texture
         {
             VkImage textureImage_;
@@ -253,31 +271,46 @@ namespace Project001
         //     physicalDevice_
         //     logicalDevice_
         // Creates:
-        //     indexStagingBuffer_
-        //     indexBuffer_
+        //     instanceStagingBuffer_
+        //     instanceBuffer_
         // Allocates:
-        //     indexStagingBufferMemory_
-        //     indexBufferMemory_
+        //     instanceStagingBufferMemory_
+        //     instanceBufferMemory_
         // Sets:
-        //     indexStagingBufferDataPtr_
-        //     indexCount_
-        void CreateIndexDataBuffers();
-        void DeleteIndexDataBuffers();
+        //     instanceStagingBufferDataPtr_
+        //     instanceCount_
+        void CreateInstanceDataBuffers();
+        void DeleteInstanceDataBuffers();
 
         // Requires:
         //     physicalDevice_
         //     logicalDevice_
         // Creates:
-        //     vertexStagingBuffer_
-        //     vertexBuffer_
+        //     batchedIndexStagingBuffer_
+        //     batchedIndexBuffer_
         // Allocates:
-        //     vertexStagingBufferMemory_
-        //     vertexBufferMemory_
+        //     batchedIndexStagingBufferMemory_
+        //     batchedIndexBufferMemory_
         // Sets:
-        //     vertexStagingBufferDataPtr_
-        //     vertexCount_
-        void CreateVertexDataBuffers();
-        void DeleteVertexDataBuffers();
+        //     batchedIndexStagingBufferDataPtr_
+        //     batchedIndexCount_
+        void CreateBatchedIndexDataBuffers();
+        void DeleteBatchedIndexDataBuffers();
+
+        // Requires:
+        //     physicalDevice_
+        //     logicalDevice_
+        // Creates:
+        //     batchedVertexStagingBuffer_
+        //     batchedVertexBuffer_
+        // Allocates:
+        //     batchedVertexStagingBufferMemory_
+        //     batchedVertexBufferMemory_
+        // Sets:
+        //     batchedVertexStagingBufferDataPtr_
+        //     batchedVertexCount_
+        void CreateBatchedVertexDataBuffers();
+        void DeleteBatchedVertexDataBuffers();
 
         // Requires:
         //     physicalDevice_
@@ -472,6 +505,10 @@ namespace Project001
         void AcquireNextImage();
 
         // Used by:
+        //     bool RenderMesh(...)
+        void RenderMeshToTexture(Vulkan_Mesh& mesh);
+
+        // Used by:
         //     Clear()
         //     RenderBatch()
         //     FinishRendering()
@@ -517,6 +554,15 @@ namespace Project001
         uint32_t FindMemoryType(
             uint32_t typeFilter,
             VkMemoryPropertyFlags memoryPropertyFlags);
+
+        void CreateMesh(
+            const MeshVertex* meshVertexPtr,
+            unsigned int meshVertexCount,
+            const unsigned int* meshIndexPtr,
+            unsigned int meshIndexCount,
+            Vulkan_Mesh& mesh);
+
+        void DeleteMesh(Vulkan_Mesh& mesh);
 
         void CreateTexture(
             unsigned char* data,
@@ -581,6 +627,8 @@ namespace Project001
 
         VkPipeline CreatePrimaryGraphicsPipeline(
             VkRenderPass& renderPass,
+            const std::vector<VkVertexInputBindingDescription>& vertexInputBindingDescriptions,
+            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescriptions,
             bool msaa,
             bool depthTesting);
 
@@ -599,8 +647,9 @@ namespace Project001
         Window* windowPtr_;
         unsigned int frameBufferWidth_;
         unsigned int frameBufferHeight_;
-        unsigned int indexBufferCapacity_;
-        unsigned int vertexBufferCapacity_;
+        unsigned int instanceBufferCapacity_;
+        unsigned int batchedIndexBufferCapacity_;
+        unsigned int batchedVertexBufferCapacity_;
         bool multisampleAntiAliasing_;
         bool depthTesting_;
 
@@ -658,19 +707,26 @@ namespace Project001
         std::vector<VkImage> swapchainImages_;
         std::vector<VkImageView> swapchainImageViews_;
 
-        VkBuffer indexStagingBuffer_;
-        VkDeviceMemory indexStagingBufferMemory_;
-        uint32_t* indexStagingBufferDataPtr_;
-        size_t indexCount_;
-        VkBuffer indexBuffer_;
-        VkDeviceMemory indexBufferMemory_;
+        VkBuffer instanceStagingBuffer_;
+        VkDeviceMemory instanceStagingBufferMemory_;
+        InstanceData* instanceStagingBufferDataPtr_;
+        size_t instanceCount_;
+        VkBuffer instanceBuffer_;
+        VkDeviceMemory instanceBufferMemory_;
 
-        VkBuffer vertexStagingBuffer_;
-        VkDeviceMemory vertexStagingBufferMemory_;
-        BatchedVertexData* vertexStagingBufferDataPtr_;
-        size_t vertexCount_;
-        VkBuffer vertexBuffer_;
-        VkDeviceMemory vertexBufferMemory_;
+        VkBuffer batchedIndexStagingBuffer_;
+        VkDeviceMemory batchedIndexStagingBufferMemory_;
+        uint32_t* batchedIndexStagingBufferDataPtr_;
+        size_t batchedIndexCount_;
+        VkBuffer batchedIndexBuffer_;
+        VkDeviceMemory batchedIndexBufferMemory_;
+
+        VkBuffer batchedVertexStagingBuffer_;
+        VkDeviceMemory batchedVertexStagingBufferMemory_;
+        BatchedVertexData* batchedVertexStagingBufferDataPtr_;
+        size_t batchedVertexCount_;
+        VkBuffer batchedVertexBuffer_;
+        VkDeviceMemory batchedVertexBufferMemory_;
 
         VkBuffer vertexShaderUniformBuffer_;
         VkDeviceMemory vertexShaderUniformBufferMemory_;
@@ -700,10 +756,14 @@ namespace Project001
         VkRenderPass primaryRenderPass3_; // Yes MSAA && No  DepthTesting
         VkRenderPass primaryRenderPass4_; // Yes MSAA && Yes DepthTesting
 
-        VkPipeline primaryGraphicsPipeline1_;
-        VkPipeline primaryGraphicsPipeline2_;
-        VkPipeline primaryGraphicsPipeline3_;
-        VkPipeline primaryGraphicsPipeline4_;
+        VkPipeline primaryGraphicsPipeline1_; // Batched   Render && No  MSAA && No  DepthTesting
+        VkPipeline primaryGraphicsPipeline2_; // Batched   Render && No  MSAA && Yes DepthTesting
+        VkPipeline primaryGraphicsPipeline3_; // Batched   Render && Yes MSAA && No  DepthTesting
+        VkPipeline primaryGraphicsPipeline4_; // Batched   Render && Yes MSAA && Yes DepthTesting
+        VkPipeline primaryGraphicsPipeline5_; // Instanced Render && No  MSAA && No  DepthTesting
+        VkPipeline primaryGraphicsPipeline6_; // Instanced Render && No  MSAA && Yes DepthTesting
+        VkPipeline primaryGraphicsPipeline7_; // Instanced Render && Yes MSAA && No  DepthTesting
+        VkPipeline primaryGraphicsPipeline8_; // Instanced Render && Yes MSAA && Yes DepthTesting
 
         Vulkan_Texture screenTexture_;
         VkImage depthImage_;
@@ -736,6 +796,9 @@ namespace Project001
         std::map<unsigned int, Vulkan_Texture> textureMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
+
+        std::deque<unsigned int> recycledMeshIds_;
+        std::map<unsigned int, Vulkan_Mesh> meshMap_;
 
     private:
     };

@@ -55,7 +55,7 @@ namespace Project001
 
         void SetClearColor(const glm::vec4& color) override;
 
-        bool CreateTexture(
+        void CreateTexture(
             unsigned int& textureId,
             unsigned char* data,
             unsigned int width,
@@ -241,6 +241,9 @@ namespace Project001
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
 
+        std::deque<unsigned int> recycledMeshIds_;
+        std::map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
+
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
         glm::mat4 projectionMatrix_;
@@ -248,9 +251,6 @@ namespace Project001
         DirectionalLight directionalLight_;
         std::vector<PointLight> pointLights_;
         std::vector<SpotLight> spotLights_;
-
-        std::deque<unsigned int> recycledMeshIds_;
-        std::map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
 
         std::vector<InstanceData> instanceBuffer_;
 

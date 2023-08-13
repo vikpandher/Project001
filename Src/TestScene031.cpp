@@ -45,9 +45,9 @@ bool TestScene031::OnInitialize()
     rendererPtr_->CreateMesh(
         meshId00,
         meshDataPtr00->meshVertexArray.data(),
-        meshDataPtr00->meshVertexArray.size(),
+        (unsigned int)meshDataPtr00->meshVertexArray.size(),
         meshDataPtr00->meshIndexArray.data(),
-        meshDataPtr00->meshIndexArray.size()
+        (unsigned int)meshDataPtr00->meshIndexArray.size()
     );
 
     float maxRadius00 = meshDataPtr00->maxRadius;

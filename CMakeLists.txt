@@ -30,7 +30,7 @@ set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
-set(CMAKE_VULKAN_MODE FALSE)
+set(CMAKE_VULKAN_MODE TRUE)
 
 # If TRUE, removes the console on a windows build
 # If FALSE, windows build has a console

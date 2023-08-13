@@ -322,7 +322,7 @@ namespace Project001
         CreateScreenFramebuffers();
     }
 
-    bool OpenGL_Renderer::CreateTexture(
+    void OpenGL_Renderer::CreateTexture(
         unsigned int& textureId,
         unsigned char* data,
         unsigned int width,
@@ -351,8 +351,6 @@ namespace Project001
 
         texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps);
         textureIdToUnitBiMap_.Add(textureId, textureUnit);
-
-        return true;
     }
 
     bool OpenGL_Renderer::DeleteTexture(unsigned int textureId)

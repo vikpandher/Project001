@@ -41,13 +41,13 @@ bool TestScene032::OnInitialize()
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(earth001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
+        rendererPtr_->CreateTexture(earth001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
-        _FAIL_CHECK(rendererPtr_->CreateTexture(specular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
+        rendererPtr_->CreateTexture(specular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     for (size_t i = 0; i < 35; ++i)
@@ -63,7 +63,7 @@ bool TestScene032::OnInitialize()
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        _FAIL_CHECK(rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false));
+        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x23_TextureIds_.push_back(tempTextureId);
     }
 
@@ -142,7 +142,7 @@ bool TestScene032::OnInitialize()
     { // cone
         cone001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cone001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64, 0.32, 8, false));
+        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
 
         rendererPtr_->CreateMesh(
             cone001_MeshId_,
