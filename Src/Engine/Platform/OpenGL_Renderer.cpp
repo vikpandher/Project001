@@ -200,7 +200,7 @@ namespace Project001
         glDeleteBuffers(1, &instanceBufferId_);
         glGenBuffers(1, &instanceBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceData) * instanceBufferCapacity_, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceData) * instanceBufferCapacity_, NULL, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
@@ -223,7 +223,7 @@ namespace Project001
         glDeleteBuffers(1, &batchedIndexBufferId_);
         glGenBuffers(1, &batchedIndexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batchedIndexBufferId_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * batchedIndexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * batchedIndexBufferCapacity_, NULL, GL_STREAM_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
@@ -246,7 +246,7 @@ namespace Project001
         glDeleteBuffers(1, &batchedVertexBufferId_);
         glGenBuffers(1, &batchedVertexBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, batchedVertexBufferId_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(BatchedVertexData) * batchedVertexBufferCapacity_, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(BatchedVertexData) * batchedVertexBufferCapacity_, NULL, GL_STREAM_DRAW);
 
         const GLuint positionAttributeIndex = 0;
         const GLuint textureCoordinateAttributeIndex = 1;

@@ -34,7 +34,7 @@ namespace Project001
 
         glGenBuffers(1, &indexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * meshIndexCount, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * meshIndexCount, NULL, GL_STATIC_DRAW);
         unsigned int* mappedIndexDataPtr = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
         for (unsigned int i = 0; i < meshIndexCount; ++i)
         {

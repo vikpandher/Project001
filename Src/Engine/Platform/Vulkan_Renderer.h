@@ -237,15 +237,17 @@ namespace Project001
         //     logicalDevice_
         //     commandPool_
         // Allocates:
-        //     commandBuffer_
-        void CreateCommandBuffer();
+        //     renderingCommandBuffer_
+        void CreateCommandBuffers();
 
         // Requires:
         //     logicalDevice_
         // Creates:
-        //     mainFence_
+        //     renderingFence_
+        //     batchedDataTransferFence_
+        //     instanceDataTransferFence_
         //     imageAvailableSemaphore_
-        //     renderFinishedSemaphore_
+        //     readyToPresentSemaphore_
         void CreateSyncObjects();
         void DeleteSyncObjects();
 
@@ -500,9 +502,36 @@ namespace Project001
         // ---------------------------------------------------------------------
 
         // Used by:
-        //     Vulkan_Renderer(const RendererInfo& rendererInfo)
+        //     RenderBatch()
+        //     RenderMeshToTexture(...)
+        void UpdateUniformBuffers();
+
+        // Used by:
+        //     Vulkan_Renderer(...)
         //     SwapBuffers()
         void AcquireNextImage();
+
+        // Used by:
+        //     Clear()
+        //     RenderBatch()
+        //     FinishRendering()
+        //     SwapBuffers()
+        //     AcquireNextImage()
+        //     RenderMeshToTexture(...)
+        VkCommandBuffer GetNextCommandBuffer();
+
+        // Used by:
+        //     AcquireNextImage()
+        void ResetCommandBuffers();
+
+        // Unused
+        VkSemaphore GetCurrentSemaphore();
+
+        // Unused
+        VkSemaphore GetNextSemaphore();
+
+        // Unused
+        void ResetSemaphores();
 
         // Used by:
         //     bool RenderMesh(...)
@@ -696,11 +725,19 @@ namespace Project001
 
         VkCommandPool commandPool_;
 
-        VkCommandBuffer commandBuffer_;
+        VkCommandBuffer renderingCommandBuffer_;
 
-        VkFence mainFence_;
+        std::vector<VkCommandBuffer> commandBuffers_;
+        size_t nextCommandBufferIndex_;
+
+        VkFence renderingFence_;
+        VkFence batchedDataTransferFence_;
+        VkFence instanceDataTransferFence_;
         VkSemaphore imageAvailableSemaphore_;
-        VkSemaphore renderFinishedSemaphore_;
+        VkSemaphore readyToPresentSemaphore_;
+
+        std::vector<VkSemaphore> semaphores_; // Unused
+        size_t currentSemaphoreIndex_;
 
         VkSwapchainKHR swapchain_;
         uint32_t swapchainImageCount_;

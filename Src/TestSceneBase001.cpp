@@ -213,9 +213,13 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     mouseButtonEvent.handled = true;
 }
 
+// #include <iostream>
+
 void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
+
+    // std::cout << "timestep_ns: " << renderEvent.timestep_ns << std::endl;
 
     renderEvent.handled = true;
 }

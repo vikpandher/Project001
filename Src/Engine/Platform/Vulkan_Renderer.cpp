@@ -87,10 +87,14 @@ namespace Project001
         , graphicsQueue_(VK_NULL_HANDLE)
         , presentQueue_(VK_NULL_HANDLE)
         , commandPool_(VK_NULL_HANDLE)
-        , commandBuffer_(VK_NULL_HANDLE)
-        , mainFence_(VK_NULL_HANDLE)
+        , renderingCommandBuffer_(VK_NULL_HANDLE)
+        , nextCommandBufferIndex_(0)
+        , renderingFence_(VK_NULL_HANDLE)
+        , batchedDataTransferFence_(VK_NULL_HANDLE)
+        , instanceDataTransferFence_(VK_NULL_HANDLE)
         , imageAvailableSemaphore_(VK_NULL_HANDLE)
-        , renderFinishedSemaphore_(VK_NULL_HANDLE)
+        , readyToPresentSemaphore_(VK_NULL_HANDLE)
+        , currentSemaphoreIndex_(0)
         , swapchain_(VK_NULL_HANDLE)
         , swapchainImageCount_(0)
         , instanceStagingBuffer_(VK_NULL_HANDLE)
@@ -169,7 +173,7 @@ namespace Project001
 
         CreateCommandPool();
 
-        CreateCommandBuffer();
+        CreateCommandBuffers();
 
         CreateSyncObjects();
 
@@ -421,15 +425,26 @@ namespace Project001
         if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0 ||
             surfaceExtent_.width > 0 && surfaceExtent_.height > 0)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
-
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            VkMemoryBarrier renderingMemoryBarrier = {};
+            renderingMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            renderingMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            renderingMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                1, &renderingMemoryBarrier,
+                0, nullptr,
+                0, nullptr
+            );
 
             if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
             {
@@ -453,7 +468,7 @@ namespace Project001
                 primaryRenderPassInfo.renderArea.offset = { 0, 0 };
                 primaryRenderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };;
 
-                vkCmdBeginRenderPass(commandBuffer_, &primaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+                vkCmdBeginRenderPass(commandBuffer, &primaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
                 std::array<VkClearAttachment, 2> primaryClearAttachments = {};
 
@@ -472,9 +487,9 @@ namespace Project001
                 primaryClearRect.rect.offset = { 0, 0 };
                 primaryClearRect.rect.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-                vkCmdClearAttachments(commandBuffer_, (uint32_t)primaryClearAttachments.size(), primaryClearAttachments.data(), 1, &primaryClearRect);
+                vkCmdClearAttachments(commandBuffer, (uint32_t)primaryClearAttachments.size(), primaryClearAttachments.data(), 1, &primaryClearRect);
 
-                vkCmdEndRenderPass(commandBuffer_);
+                vkCmdEndRenderPass(commandBuffer);
             }
 
             if (surfaceExtent_.width > 0 && surfaceExtent_.height > 0)
@@ -486,7 +501,7 @@ namespace Project001
                 secondaryRenderPassInfo.renderArea.offset = { 0, 0 };
                 secondaryRenderPassInfo.renderArea.extent = surfaceExtent_;
 
-                vkCmdBeginRenderPass(commandBuffer_, &secondaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+                vkCmdBeginRenderPass(commandBuffer, &secondaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
                 VkClearAttachment secondaryColorClearAttachment = {};
                 secondaryColorClearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -498,19 +513,19 @@ namespace Project001
                 secondaryClearRect.rect.offset = { 0, 0 };
                 secondaryClearRect.rect.extent = { surfaceExtent_.width, surfaceExtent_.height };
 
-                vkCmdClearAttachments(commandBuffer_, 1, &secondaryColorClearAttachment, 1, &secondaryClearRect);
+                vkCmdClearAttachments(commandBuffer, 1, &secondaryColorClearAttachment, 1, &secondaryClearRect);
 
-                vkCmdEndRenderPass(commandBuffer_);
+                vkCmdEndRenderPass(commandBuffer);
             }
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE));
         }
     }
 
@@ -636,6 +651,8 @@ namespace Project001
                 GetTextureUnit(specularId, specularUnit);
             }
 
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &instanceDataTransferFence_, VK_TRUE, UINT64_MAX));
+
             InstanceData newInstance;
             newInstance.color = currentMeshInstanceData.color;
             newInstance.textureUnit = textureUnit;
@@ -725,6 +742,8 @@ namespace Project001
 
         size_t batchedVertexBufferOffset = batchedVertexCount_;
 
+        _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &batchedDataTransferFence_, VK_TRUE, UINT64_MAX));
+
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
             const MeshVertex& currentMeshVertex = meshVertexPtr[j];
@@ -750,7 +769,9 @@ namespace Project001
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            *(batchedIndexStagingBufferDataPtr_ + batchedIndexCount_++) = (uint32_t)(batchedVertexBufferOffset + meshIndexPtr[j]);
+            uint32_t newIndex = (uint32_t)(batchedVertexBufferOffset + meshIndexPtr[j]);
+
+            *(batchedIndexStagingBufferDataPtr_ + batchedIndexCount_++) = newIndex;
         }
 
         return true;
@@ -764,75 +785,143 @@ namespace Project001
             framebufferResized_ = false;
         }
 
-        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
+        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0 &&
+            batchedVertexCount_ > 0 && batchedIndexCount_ > 0)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &batchedDataTransferFence_));
 
-            ApplyTextureBindings();
-            IncreaseTectureUnitStaleness();
-
-            VertexShaderUniformBufferObject vsubo = { viewMatrix_, projectionMatrix_ };
-            void* data1;
-            _VK_CHECK(vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1));
-            memcpy(data1, &vsubo, sizeof(vsubo));
-            vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
-
-            FragmentShaderUniformBufferObject fsubo;
-            fsubo.viewPosition = viewPosition_;
-            fsubo.directionalLight = directionalLight_;
-            for (size_t i = 0; i < NUMBER_OF_POINT_LIGHTS && i < pointLights_.size(); ++i)
-            {
-                fsubo.pointLights[i] = pointLights_[i];
-            }
-            for (size_t i = 0; i < NUMBER_OF_SPOT_LIGHTS && i < spotLights_.size(); ++i)
-            {
-                fsubo.spotLights[i] = spotLights_[i];
-            }
-
-            void* data2;
-            _VK_CHECK(vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2));
-            memcpy(data2, &fsubo, sizeof(fsubo));
-            vkUnmapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_);
-
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            VkBufferMemoryBarrier batchedVertexBufferUpdateBarrier = {};
+            batchedVertexBufferUpdateBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            batchedVertexBufferUpdateBarrier.srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            batchedVertexBufferUpdateBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            batchedVertexBufferUpdateBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedVertexBufferUpdateBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedVertexBufferUpdateBarrier.buffer = batchedVertexBuffer_;
+            batchedVertexBufferUpdateBarrier.offset = 0;
+            batchedVertexBufferUpdateBarrier.size = VK_WHOLE_SIZE;
 
-            if (batchedVertexCount_ > 0)
-            {
-                VkBufferCopy vertexCopyRegion = {};
-                vertexCopyRegion.size = sizeof(BatchedVertexData) * batchedVertexCount_;
-                vkCmdCopyBuffer(commandBuffer_, batchedVertexStagingBuffer_, batchedVertexBuffer_, 1, &vertexCopyRegion);
-            }
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                0,
+                0, nullptr,
+                1, &batchedVertexBufferUpdateBarrier,
+                0, nullptr
+            );
 
-            if (batchedIndexCount_ > 0)
-            {
-                VkBufferCopy indexCopyRegion = {};
-                indexCopyRegion.size = sizeof(uint32_t) * batchedIndexCount_;
-                vkCmdCopyBuffer(commandBuffer_, batchedIndexStagingBuffer_, batchedIndexBuffer_, 1, &indexCopyRegion);
-            }
+            VkBufferCopy vertexCopyRegion = {};
+            vertexCopyRegion.size = sizeof(BatchedVertexData) * batchedVertexCount_;
+            vkCmdCopyBuffer(commandBuffer, batchedVertexStagingBuffer_, batchedVertexBuffer_, 1, &vertexCopyRegion);
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            VkBufferMemoryBarrier batchedVertexBufferUpdateBarrier2 = {};
+            batchedVertexBufferUpdateBarrier2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            batchedVertexBufferUpdateBarrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            batchedVertexBufferUpdateBarrier2.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            batchedVertexBufferUpdateBarrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedVertexBufferUpdateBarrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedVertexBufferUpdateBarrier2.buffer = batchedVertexBuffer_;
+            batchedVertexBufferUpdateBarrier2.offset = 0;
+            batchedVertexBufferUpdateBarrier2.size = VK_WHOLE_SIZE;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                0,
+                0, nullptr,
+                1, &batchedVertexBufferUpdateBarrier2,
+                0, nullptr
+            );
+
+            VkBufferMemoryBarrier batchedIndexBufferUpdateBarrier = {};
+            batchedIndexBufferUpdateBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            batchedIndexBufferUpdateBarrier.srcAccessMask = VK_ACCESS_INDEX_READ_BIT;
+            batchedIndexBufferUpdateBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            batchedIndexBufferUpdateBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedIndexBufferUpdateBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedIndexBufferUpdateBarrier.buffer = batchedIndexBuffer_;
+            batchedIndexBufferUpdateBarrier.offset = 0;
+            batchedIndexBufferUpdateBarrier.size = VK_WHOLE_SIZE;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                0,
+                0, nullptr,
+                1, &batchedIndexBufferUpdateBarrier,
+                0, nullptr
+            );
+
+            VkBufferCopy indexCopyRegion = {};
+            indexCopyRegion.size = sizeof(uint32_t) * batchedIndexCount_;
+            vkCmdCopyBuffer(commandBuffer, batchedIndexStagingBuffer_, batchedIndexBuffer_, 1, &indexCopyRegion);
+
+            VkBufferMemoryBarrier batchedIndexBufferUpdateBarrier2 = {};
+            batchedIndexBufferUpdateBarrier2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            batchedIndexBufferUpdateBarrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            batchedIndexBufferUpdateBarrier2.dstAccessMask = VK_ACCESS_INDEX_READ_BIT;
+            batchedIndexBufferUpdateBarrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedIndexBufferUpdateBarrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            batchedIndexBufferUpdateBarrier2.buffer = batchedIndexBuffer_;
+            batchedIndexBufferUpdateBarrier2.offset = 0;
+            batchedIndexBufferUpdateBarrier2.size = VK_WHOLE_SIZE;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                0,
+                0, nullptr,
+                1, &batchedIndexBufferUpdateBarrier2,
+                0, nullptr
+            );
+
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, batchedDataTransferFence_));
 
             // ---------------------------------------------------------------------
 
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &renderingFence_, VK_TRUE, UINT64_MAX));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &renderingFence_));
 
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            ApplyTextureBindings();
+            IncreaseTectureUnitStaleness();
+            UpdateUniformBuffers();
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            _VK_CHECK(vkResetCommandBuffer(renderingCommandBuffer_, 0));
+
+            VkCommandBufferBeginInfo beginInfo2 = {};
+            beginInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(renderingCommandBuffer_, &beginInfo2));
+
+            VkMemoryBarrier renderingMemoryBarrier = {};
+            renderingMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            renderingMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            renderingMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            vkCmdPipelineBarrier(
+                renderingCommandBuffer_,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                1, &renderingMemoryBarrier,
+                0, nullptr,
+                0, nullptr
+            );
 
             VkRenderPass currentRenderPass;
             VkFramebuffer currentFrameBuffer;
@@ -875,9 +964,9 @@ namespace Project001
             renderPassInfo.renderArea.offset = { 0, 0 };
             renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-            vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, currentGraphicsPipeline);
+            vkCmdBindPipeline(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, currentGraphicsPipeline);
 
             // viewport.y is non zero and viewport.height is negative to flip y axis
             // (making it behave like it does in OpenGL)
@@ -889,31 +978,37 @@ namespace Project001
             viewport.height = -(float)frameBufferHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
-            vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
+            vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
 
             VkRect2D scissor = {};
             scissor.offset = { 0, 0 };
             scissor.extent = { frameBufferWidth_, frameBufferHeight_ };
-            vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
+            vkCmdSetScissor(renderingCommandBuffer_, 0, 1, &scissor);
 
             VkBuffer vertexBuffers[] = { batchedVertexBuffer_ };
             VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(commandBuffer_, 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(renderingCommandBuffer_, 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffer_, batchedIndexBuffer_, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(renderingCommandBuffer_, batchedIndexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 
-            vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
+            vkCmdBindDescriptorSets(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffer_, (uint32_t)batchedIndexCount_, 1, 0, 0, 0);
+            vkCmdDrawIndexed(renderingCommandBuffer_, (uint32_t)batchedIndexCount_, 1, 0, 0, 0);
 
-            vkCmdEndRenderPass(commandBuffer_);
+            vkCmdEndRenderPass(renderingCommandBuffer_);
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(renderingCommandBuffer_));
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            VkSubmitInfo submitInfo2 = {};
+            submitInfo2.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo2.commandBufferCount = 1;
+            submitInfo2.pCommandBuffers = &renderingCommandBuffer_;
+
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo2, renderingFence_));
+
+            batchedVertexCount_ = 0;
+            batchedIndexCount_ = 0;
         }
-        batchedVertexCount_ = 0;
-        batchedIndexCount_ = 0;
     }
 
     void Vulkan_Renderer::FinishRendering()
@@ -927,15 +1022,26 @@ namespace Project001
         if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0 &&
             surfaceExtent_.width > 0 && surfaceExtent_.height > 0)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
-
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            VkMemoryBarrier renderingMemoryBarrier = {};
+            renderingMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            renderingMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            renderingMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                1, &renderingMemoryBarrier,
+                0, nullptr,
+                0, nullptr
+            );
 
             VkImageMemoryBarrier imageMemoryBarrier = {};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -953,7 +1059,7 @@ namespace Project001
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             vkCmdPipelineBarrier(
-                commandBuffer_,
+                commandBuffer,
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                 0,
                 0, nullptr,
@@ -968,9 +1074,9 @@ namespace Project001
             renderPassInfo.renderArea.offset = { 0, 0 };
             renderPassInfo.renderArea.extent = surfaceExtent_;
 
-            vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryGraphicsPipeline_);
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryGraphicsPipeline_);
 
             // viewport.y is non zero and viewport.height is negative to flip y axis
             // (making it behave like it does in OpenGL)
@@ -982,22 +1088,22 @@ namespace Project001
             viewport.height = -(float)viewportHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
-            vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
+            vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
             VkRect2D scissor = {};
             scissor.offset = { 0, 0 };
             scissor.extent = surfaceExtent_;
-            vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
+            vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
             VkBuffer vertexBuffers[] = { screenVertexBuffer_ };
             VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(commandBuffer_, 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryPipelineLayout_, 0, 1, &secondaryDescriptorSet_, 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, secondaryPipelineLayout_, 0, 1, &secondaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDraw(commandBuffer_, 6, 1, 0, 0);
+            vkCmdDraw(commandBuffer, 6, 1, 0, 0);
 
-            vkCmdEndRenderPass(commandBuffer_);
+            vkCmdEndRenderPass(commandBuffer);
 
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -1005,7 +1111,7 @@ namespace Project001
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
             vkCmdPipelineBarrier(
-                commandBuffer_,
+                commandBuffer,
                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                 0,
                 0, nullptr,
@@ -1013,14 +1119,14 @@ namespace Project001
                 1, &imageMemoryBarrier
             );
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE));
         }
     }
 
@@ -1028,15 +1134,11 @@ namespace Project001
     {
         if (swapchain_ != VK_NULL_HANDLE)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
-
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
             VkImageMemoryBarrier imageMemoryBarrier = {};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1052,7 +1154,7 @@ namespace Project001
             imageMemoryBarrier.subresourceRange.layerCount = 1;
 
             vkCmdPipelineBarrier(
-                commandBuffer_,
+                commandBuffer,
                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                 0,
                 0, nullptr,
@@ -1060,23 +1162,23 @@ namespace Project001
                 1, &imageMemoryBarrier
             );
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
             submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores = &renderFinishedSemaphore_;
+            submitInfo.pSignalSemaphores = &readyToPresentSemaphore_;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE));
 
             VkPresentInfoKHR presentInfo = {};
             presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
             presentInfo.waitSemaphoreCount = 1;
-            presentInfo.pWaitSemaphores = &renderFinishedSemaphore_;
+            presentInfo.pWaitSemaphores = &readyToPresentSemaphore_;
 
             VkSwapchainKHR swapChains[] = { swapchain_ };
             presentInfo.swapchainCount = 1;
@@ -1637,14 +1739,15 @@ namespace Project001
     {
         vkDestroyCommandPool(logicalDevice_, commandPool_, nullptr);
         commandPool_ = VK_NULL_HANDLE;
-        commandBuffer_ = VK_NULL_HANDLE;
+        renderingCommandBuffer_ = VK_NULL_HANDLE;
+        commandBuffers_.clear();
     }
 
-    void Vulkan_Renderer::CreateCommandBuffer()
+    void Vulkan_Renderer::CreateCommandBuffers()
     {
-        if (commandBuffer_ != VK_NULL_HANDLE)
+        if (renderingCommandBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: commandBuffer_ already exists");
+            _LOG_ERROR("Vulkan Error: renderingCommandBuffer_ already exists");
         }
         else
         {
@@ -1654,23 +1757,31 @@ namespace Project001
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocInfo.commandBufferCount = 1;
 
-            _VK_CHECK(vkAllocateCommandBuffers(logicalDevice_, &allocInfo, &commandBuffer_));
+            _VK_CHECK(vkAllocateCommandBuffers(logicalDevice_, &allocInfo, &renderingCommandBuffer_));
         }
     }
 
     void Vulkan_Renderer::CreateSyncObjects()
     {
-        if (mainFence_ != VK_NULL_HANDLE)
+        if (renderingFence_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: mainFence_ already exists");
+            _LOG_ERROR("Vulkan Error: renderingFence_ already exists");
+        }
+        else if (batchedDataTransferFence_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: batchedDataTransferFence_ already exists");
+        }
+        else if (instanceDataTransferFence_ != VK_NULL_HANDLE)
+        {
+            _LOG_ERROR("Vulkan Error: instanceDataTransferFence_ already exists");
         }
         else if (imageAvailableSemaphore_ != VK_NULL_HANDLE)
         {
             _LOG_ERROR("Vulkan Error: imageAvailableSemaphore_ already exists");
         }
-        else if (renderFinishedSemaphore_ != VK_NULL_HANDLE)
+        else if (readyToPresentSemaphore_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: renderFinishedSemaphore_ already exists");
+            _LOG_ERROR("Vulkan Error: readyToPresentSemaphore_ already exists");
         }
         else
         {
@@ -1678,24 +1789,30 @@ namespace Project001
             fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
             fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-            _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &mainFence_));
+            _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &renderingFence_));
+            _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &batchedDataTransferFence_));
+            _VK_CHECK(vkCreateFence(logicalDevice_, &fenceInfo, nullptr, &instanceDataTransferFence_));
 
             VkSemaphoreCreateInfo semaphoreInfo = {};
             semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
             _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphore_));
-            _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphore_));
+            _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &readyToPresentSemaphore_));
         }
     }
 
     void Vulkan_Renderer::DeleteSyncObjects()
     {
-        vkDestroyFence(logicalDevice_, mainFence_, nullptr);
-        mainFence_ = VK_NULL_HANDLE;
+        vkDestroyFence(logicalDevice_, renderingFence_, nullptr);
+        renderingFence_ = VK_NULL_HANDLE;
+        vkDestroyFence(logicalDevice_, batchedDataTransferFence_, nullptr);
+        batchedDataTransferFence_ = VK_NULL_HANDLE;
+        vkDestroyFence(logicalDevice_, instanceDataTransferFence_, nullptr);
+        instanceDataTransferFence_ = VK_NULL_HANDLE;
         vkDestroySemaphore(logicalDevice_, imageAvailableSemaphore_, nullptr);
         imageAvailableSemaphore_ = VK_NULL_HANDLE;
-        vkDestroySemaphore(logicalDevice_, renderFinishedSemaphore_, nullptr);
-        renderFinishedSemaphore_ = VK_NULL_HANDLE;
+        vkDestroySemaphore(logicalDevice_, readyToPresentSemaphore_, nullptr);
+        readyToPresentSemaphore_ = VK_NULL_HANDLE;
     }
 
     void Vulkan_Renderer::CreateSwapchain()
@@ -3037,13 +3154,36 @@ namespace Project001
         swapchainFramebuffers_.clear();
     }
 
+    void Vulkan_Renderer::UpdateUniformBuffers()
+    {
+        VertexShaderUniformBufferObject vsubo = { viewMatrix_, projectionMatrix_ };
+        void* data1;
+        _VK_CHECK(vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1));
+        memcpy(data1, &vsubo, sizeof(vsubo));
+        vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
+
+        FragmentShaderUniformBufferObject fsubo;
+        fsubo.viewPosition = viewPosition_;
+        fsubo.directionalLight = directionalLight_;
+        for (size_t i = 0; i < NUMBER_OF_POINT_LIGHTS && i < pointLights_.size(); ++i)
+        {
+            fsubo.pointLights[i] = pointLights_[i];
+        }
+        for (size_t i = 0; i < NUMBER_OF_SPOT_LIGHTS && i < spotLights_.size(); ++i)
+        {
+            fsubo.spotLights[i] = spotLights_[i];
+        }
+
+        void* data2;
+        _VK_CHECK(vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2));
+        memcpy(data2, &fsubo, sizeof(fsubo));
+        vkUnmapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_);
+    }
+
     void Vulkan_Renderer::AcquireNextImage()
     {
         if (swapchain_ != VK_NULL_HANDLE)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
-
             VkResult result = vkAcquireNextImageKHR(logicalDevice_, swapchain_, UINT64_MAX, imageAvailableSemaphore_, VK_NULL_HANDLE, &currentSwapchainFramebufferIndex_);
 
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -3057,12 +3197,14 @@ namespace Project001
                 _LOG_ERROR("Vulkan Error: Failed to acquire swap chain image!");
             }
 
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            _VK_CHECK(vkQueueWaitIdle(graphicsQueue_));
+
+            ResetCommandBuffers();
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
             VkMemoryBarrier memoryBarrier = {};
 
@@ -3080,7 +3222,7 @@ namespace Project001
             imageMemoryBarrier.subresourceRange.layerCount = 1;
 
             vkCmdPipelineBarrier(
-                commandBuffer_,
+                commandBuffer,
                 VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                 0,
                 0, nullptr,
@@ -3088,20 +3230,83 @@ namespace Project001
                 1, &imageMemoryBarrier
             );
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
             VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
             submitInfo.waitSemaphoreCount = 1;
             submitInfo.pWaitSemaphores = &imageAvailableSemaphore_;
             submitInfo.pWaitDstStageMask = waitStages;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE));
         }
+    }
+
+    VkCommandBuffer Vulkan_Renderer::GetNextCommandBuffer()
+    {
+        if (nextCommandBufferIndex_ >= commandBuffers_.size())
+        {
+            VkCommandBufferAllocateInfo allocInfo = {};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.commandPool = commandPool_;
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocInfo.commandBufferCount = 1;
+
+            VkCommandBuffer newCommandBuffer;
+            _VK_CHECK(vkAllocateCommandBuffers(logicalDevice_, &allocInfo, &newCommandBuffer));
+            commandBuffers_.push_back(newCommandBuffer);
+        }
+        nextCommandBufferIndex_++;
+        return commandBuffers_[nextCommandBufferIndex_ - 1];
+    }
+
+    void Vulkan_Renderer::ResetCommandBuffers()
+    {
+        for (size_t i = 0; i < commandBuffers_.size(); ++i)
+        {
+            _VK_CHECK(vkResetCommandBuffer(commandBuffers_[i], 0));
+        }
+        nextCommandBufferIndex_ = 0;
+    }
+
+    VkSemaphore Vulkan_Renderer::GetCurrentSemaphore()
+    {
+        if (semaphores_.empty())
+        {
+            VkSemaphoreCreateInfo semaphoreInfo = {};
+            semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+            VkSemaphore newSemaphore;
+            _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &newSemaphore));
+            semaphores_.push_back(newSemaphore);
+        }
+
+        return semaphores_[currentSemaphoreIndex_];
+    }
+
+    VkSemaphore Vulkan_Renderer::GetNextSemaphore()
+    {
+        if (currentSemaphoreIndex_ >= semaphores_.size())
+        {
+            VkSemaphoreCreateInfo semaphoreInfo = {};
+            semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+            VkSemaphore newSemaphore;
+            _VK_CHECK(vkCreateSemaphore(logicalDevice_, &semaphoreInfo, nullptr, &newSemaphore));
+            semaphores_.push_back(newSemaphore);
+        }
+
+        currentSemaphoreIndex_++;
+        return semaphores_[currentSemaphoreIndex_];
+    }
+
+    void Vulkan_Renderer::ResetSemaphores()
+    {
+        currentSemaphoreIndex_ = 0;
     }
 
     void Vulkan_Renderer::RenderMeshToTexture(Vulkan_Mesh& mesh)
@@ -3112,68 +3317,99 @@ namespace Project001
             framebufferResized_ = false;
         }
 
-        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
+        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0 &&
+            instanceCount_ > 0)
         {
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &instanceDataTransferFence_));
 
-            ApplyTextureBindings();
-            IncreaseTectureUnitStaleness();
-
-            VertexShaderUniformBufferObject vsubo = { viewMatrix_, projectionMatrix_ };
-            void* data1;
-            _VK_CHECK(vkMapMemory(logicalDevice_, vertexShaderUniformBufferMemory_, 0, sizeof(vsubo), 0, &data1));
-            memcpy(data1, &vsubo, sizeof(vsubo));
-            vkUnmapMemory(logicalDevice_, vertexShaderUniformBufferMemory_);
-
-            FragmentShaderUniformBufferObject fsubo;
-            fsubo.viewPosition = viewPosition_;
-            fsubo.directionalLight = directionalLight_;
-            for (size_t i = 0; i < NUMBER_OF_POINT_LIGHTS && i < pointLights_.size(); ++i)
-            {
-                fsubo.pointLights[i] = pointLights_[i];
-            }
-            for (size_t i = 0; i < NUMBER_OF_SPOT_LIGHTS && i < spotLights_.size(); ++i)
-            {
-                fsubo.spotLights[i] = spotLights_[i];
-            }
-
-            void* data2;
-            _VK_CHECK(vkMapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_, 0, sizeof(fsubo), 0, &data2));
-            memcpy(data2, &fsubo, sizeof(fsubo));
-            vkUnmapMemory(logicalDevice_, fragmentShaderUniformBufferMemory_);
-
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            VkBufferMemoryBarrier instanceBufferUpdateBarrier = {};
+            instanceBufferUpdateBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            instanceBufferUpdateBarrier.srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            instanceBufferUpdateBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            instanceBufferUpdateBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            instanceBufferUpdateBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            instanceBufferUpdateBarrier.buffer = instanceBuffer_;
+            instanceBufferUpdateBarrier.offset = 0;
+            instanceBufferUpdateBarrier.size = VK_WHOLE_SIZE;
 
-            if (instanceCount_ > 0)
-            {
-                VkBufferCopy instanceCopyRegion = {};
-                instanceCopyRegion.size = sizeof(InstanceData) * instanceCount_;
-                vkCmdCopyBuffer(commandBuffer_, instanceStagingBuffer_, instanceBuffer_, 1, &instanceCopyRegion);
-            }
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                0,
+                0, nullptr,
+                1, &instanceBufferUpdateBarrier,
+                0, nullptr
+            );
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            VkBufferCopy instanceCopyRegion = {};
+            instanceCopyRegion.size = sizeof(InstanceData) * instanceCount_;
+            vkCmdCopyBuffer(commandBuffer, instanceStagingBuffer_, instanceBuffer_, 1, &instanceCopyRegion);
+
+            VkBufferMemoryBarrier instanceBufferUpdateBarrier2 = {};
+            instanceBufferUpdateBarrier2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            instanceBufferUpdateBarrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            instanceBufferUpdateBarrier2.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            instanceBufferUpdateBarrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            instanceBufferUpdateBarrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            instanceBufferUpdateBarrier2.buffer = instanceBuffer_;
+            instanceBufferUpdateBarrier2.offset = 0;
+            instanceBufferUpdateBarrier2.size = VK_WHOLE_SIZE;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                0,
+                0, nullptr,
+                1, &instanceBufferUpdateBarrier2,
+                0, nullptr
+            );
+
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer_;
+            submitInfo.pCommandBuffers = &commandBuffer;
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, instanceDataTransferFence_));
 
             // ---------------------------------------------------------------------
 
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &mainFence_, VK_TRUE, UINT64_MAX));
-            _VK_CHECK(vkResetFences(logicalDevice_, 1, &mainFence_));
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &renderingFence_, VK_TRUE, UINT64_MAX));
+            _VK_CHECK(vkResetFences(logicalDevice_, 1, &renderingFence_));
 
-            _VK_CHECK(vkResetCommandBuffer(commandBuffer_, 0));
+            ApplyTextureBindings();
+            IncreaseTectureUnitStaleness();
+            UpdateUniformBuffers();
 
-            _VK_CHECK(vkBeginCommandBuffer(commandBuffer_, &beginInfo));
+            _VK_CHECK(vkResetCommandBuffer(renderingCommandBuffer_, 0));
+
+            VkCommandBufferBeginInfo beginInfo2 = {};
+            beginInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(renderingCommandBuffer_, &beginInfo2));
+
+            VkMemoryBarrier renderingMemoryBarrier = {};
+            renderingMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            renderingMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            renderingMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            vkCmdPipelineBarrier(
+                renderingCommandBuffer_,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                1, &renderingMemoryBarrier,
+                0, nullptr,
+                0, nullptr
+            );
 
             VkRenderPass currentRenderPass;
             VkFramebuffer currentFrameBuffer;
@@ -3216,9 +3452,9 @@ namespace Project001
             renderPassInfo.renderArea.offset = { 0, 0 };
             renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-            vkCmdBeginRenderPass(commandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, currentGraphicsPipeline);
+            vkCmdBindPipeline(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, currentGraphicsPipeline);
 
             // viewport.y is non zero and viewport.height is negative to flip y axis
             // (making it behave like it does in OpenGL)
@@ -3230,31 +3466,36 @@ namespace Project001
             viewport.height = -(float)frameBufferHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
-            vkCmdSetViewport(commandBuffer_, 0, 1, &viewport);
+            vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
 
             VkRect2D scissor = {};
             scissor.offset = { 0, 0 };
             scissor.extent = { frameBufferWidth_, frameBufferHeight_ };
-            vkCmdSetScissor(commandBuffer_, 0, 1, &scissor);
+            vkCmdSetScissor(renderingCommandBuffer_, 0, 1, &scissor);
 
             VkBuffer vertexBuffers[] = { mesh.vertexBuffer_, instanceBuffer_ };
             VkDeviceSize offsets[] = { 0, 0 };
-            vkCmdBindVertexBuffers(commandBuffer_, 0, 2, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(renderingCommandBuffer_, 0, 2, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffer_, mesh.indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(renderingCommandBuffer_, mesh.indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 
-            vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
+            vkCmdBindDescriptorSets(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffer_, (uint32_t)mesh.indexCount_, (uint32_t)instanceCount_, 0, 0, 0);
+            vkCmdDrawIndexed(renderingCommandBuffer_, (uint32_t)mesh.indexCount_, (uint32_t)instanceCount_, 0, 0, 0);
 
-            vkCmdEndRenderPass(commandBuffer_);
+            vkCmdEndRenderPass(renderingCommandBuffer_);
 
-            _VK_CHECK(vkEndCommandBuffer(commandBuffer_));
+            _VK_CHECK(vkEndCommandBuffer(renderingCommandBuffer_));
 
-            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, mainFence_));
+            VkSubmitInfo submitInfo2 = {};
+            submitInfo2.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo2.commandBufferCount = 1;
+            submitInfo2.pCommandBuffers = &renderingCommandBuffer_;
+
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo2, renderingFence_));
+
+            instanceCount_ = 0;
         }
-
-        instanceCount_ = 0;
     }
 
     void Vulkan_Renderer::HandleFramebufferResize()
@@ -3793,8 +4034,8 @@ namespace Project001
         imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
         imageMemoryBarrier.subresourceRange.layerCount = 1;
 
-        VkPipelineStageFlags sourceStage;
-        VkPipelineStageFlags destinationStage;
+        VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_NONE;
+        VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_NONE;
 
         if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
         {
@@ -3977,7 +4218,6 @@ namespace Project001
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
         _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
         return commandBuffer;
@@ -4086,7 +4326,7 @@ namespace Project001
             depthAttachmentDescription.format = depthFormat_;
             depthAttachmentDescription.samples = sampleCount;
             depthAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-            depthAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            depthAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // VK_ATTACHMENT_STORE_OP_DONT_CARE
             depthAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             depthAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             depthAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
