@@ -16,6 +16,9 @@ namespace Project001
         void SetTangible(bool tangible);
         const bool GetTangible() const;
 
+        void SetCollisionGroupMask(uint32_t collisionGroupMask);
+        uint32_t GetCollisionGroupMask() const;
+
         size_t AddPoint(const Point2D& point, unsigned int id = 0);
         const std::vector<Point2D>& GetPoints() const;
         const std::vector<unsigned int>& GetPointIds() const;
@@ -172,6 +175,8 @@ namespace Project001
 
         bool tangible_;
 
+        uint32_t collisionGroupMask_;
+
         float boundingRadius_;
 
         bool boundingRadiusUpToDate_;
@@ -182,6 +187,7 @@ namespace Project001
 
     inline CollisionBody2D::CollisionBody2D()
         : tangible_(true)
+        , collisionGroupMask_(0b00000000000000000000000000000001)
         , boundingRadius_(0.0f)
         , boundingRadiusUpToDate_(false)
         , transformedShapesUpToDate_(false)
@@ -195,6 +201,16 @@ namespace Project001
     inline const bool CollisionBody2D::GetTangible() const
     {
         return tangible_;
+    }
+
+    inline void CollisionBody2D::SetCollisionGroupMask(uint32_t collisionGroupMask)
+    {
+        collisionGroupMask_ = collisionGroupMask;
+    }
+
+    inline uint32_t CollisionBody2D::GetCollisionGroupMask() const
+    {
+        return collisionGroupMask_;
     }
 
     inline size_t CollisionBody2D::AddPoint(const Point2D& point, unsigned int id)

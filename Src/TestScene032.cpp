@@ -64,7 +64,7 @@ bool TestScene032::OnInitialize()
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
         rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
-        _32x23_TextureIds_.push_back(tempTextureId);
+        _32x32_TextureIds_.push_back(tempTextureId);
     }
 
     // Generate meshes
@@ -362,7 +362,7 @@ bool TestScene032::OnInitialize()
             Project001::RenderedModel* renderedModelPtr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
             renderedModelPtr->SetMeshId(line001_MeshId_);
-            renderedModelPtr->SetTextureId(_32x23_TextureIds_[i]);
+            renderedModelPtr->SetTextureId(_32x32_TextureIds_[i]);
             renderedModelPtr->SetMaxRadius(line001_MaxRadius_);
             renderedModelPtr->SetScale(0.5f, 0.5f, 0.5f);
             renderedModelPtr->SetPosition(positions[i]);
@@ -394,7 +394,7 @@ void TestScene032::ClearResources()
 
     specular001_TextureId_ = (unsigned int)-1;
 
-    _32x23_TextureIds_.clear();
+    _32x32_TextureIds_.clear();
 
     icosphere001_MeshDataPtr_ = nullptr;
     icosphere001_MeshId_ = (unsigned int)-1;
@@ -437,11 +437,11 @@ void TestScene032::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene002"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene033"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene002"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene033"));
             }
         }
     }

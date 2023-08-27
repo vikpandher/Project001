@@ -65,7 +65,8 @@ namespace Project001
                     collisionBodyA->GetPosition(),
                     collisionBodyA->GetBoundingRadius(),
                     collisionBodyB->GetPosition(),
-                    collisionBodyB->GetBoundingRadius()))
+                    collisionBodyB->GetBoundingRadius()) &&
+                    (collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()))
                 {
                     CalculateCollisions(entityIdA, *collisionBodyA, entityIdB, *collisionBodyB, true);
                 }
@@ -127,7 +128,8 @@ namespace Project001
                 collisionBodyPtr->GetPosition(),
                 collisionBodyPtr->GetBoundingRadius(),
                 otherCollisionBodyPtr->GetPosition(),
-                otherCollisionBodyPtr->GetBoundingRadius()))
+                otherCollisionBodyPtr->GetBoundingRadius()) &&
+                (collisionBodyPtr->GetCollisionGroupMask() & otherCollisionBodyPtr->GetCollisionGroupMask()))
             {
                 CalculateCollisions(entityId, *collisionBodyPtr, otherEntityId, *otherCollisionBodyPtr, false);
             }

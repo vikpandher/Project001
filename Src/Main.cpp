@@ -24,6 +24,7 @@
 #include "TestScene030.h"
 #include "TestScene031.h"
 #include "TestScene032.h"
+#include "TestScene033.h"
 
 
 
@@ -41,17 +42,9 @@ int main(int argc, char** argv)
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
 
-    // tests framerate with many verticies (TODO) (001)
-    TestScene030* testScene030Ptr = new TestScene030();
-    applicationPtr->AddScene(testScene030Ptr);
-
-    // tests framerate with many verticies (TODO) (001)
-    TestScene031* testScene031Ptr = new TestScene031();
-    applicationPtr->AddScene(testScene031Ptr);
-
-    // (TODO) (001)
-    TestScene032* testScene032Ptr = new TestScene032();
-    applicationPtr->AddScene(testScene032Ptr);
+    // tests multiple cameras (001)
+    TestScene033* testScene033Ptr = new TestScene033();
+    applicationPtr->AddScene(testScene033Ptr);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -93,6 +86,18 @@ int main(int argc, char** argv)
     TestScene020* testScene020Ptr = new TestScene020();
     applicationPtr->AddScene(testScene020Ptr);
 
+    // tests framerate with many verticies batched rendering (001)
+    TestScene030* testScene030Ptr = new TestScene030();
+    applicationPtr->AddScene(testScene030Ptr);
+
+    // tests framerate with many verticies instanced rendering (001)
+    TestScene031* testScene031Ptr = new TestScene031();
+    applicationPtr->AddScene(testScene031Ptr);
+
+    // tests rendering batched and instanced together (001)
+    TestScene032* testScene032Ptr = new TestScene032();
+    applicationPtr->AddScene(testScene032Ptr);
+
     applicationPtr->Run();
 
     delete applicationPtr;
@@ -109,6 +114,7 @@ int main(int argc, char** argv)
     delete testScene030Ptr;
     delete testScene031Ptr;
     delete testScene032Ptr;
+    delete testScene033Ptr;
 
     return 0;
 }

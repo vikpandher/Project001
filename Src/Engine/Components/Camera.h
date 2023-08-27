@@ -39,6 +39,16 @@ namespace Project001
         void TurnOn();
         void TurnOff();
 
+        // only meshes and lights with matching camera masks will be drawn by
+        // this camera
+        void SetCameraMask(uint32_t cameraMask);
+        uint32_t GetCameraMask() const;
+
+        // lower priority value camera will be rendered with first, so higher
+        // priorty camera's are drawn on-top
+        void SetPriorityValue(int priorityValue);
+        int GetPriorityValue() const;
+
         // Other View Controls
         // ---------------------------------------------------------------------
 
@@ -96,6 +106,10 @@ namespace Project001
 
         bool turnedOn_;
 
+        uint32_t cameraMask_;
+
+        int priorityValue_;
+
         CameraProjection cameraProjection_;
 
         float fieldOfVision_; // only used in perspective projection
@@ -121,6 +135,26 @@ namespace Project001
     inline void Camera::TurnOff()
     {
         turnedOn_ = false;
+    }
+
+    inline void Camera::SetCameraMask(uint32_t cameraMask)
+    {
+        cameraMask_ = cameraMask;
+    }
+
+    inline uint32_t Camera::GetCameraMask() const
+    {
+        return cameraMask_;
+    }
+
+    inline void Camera::SetPriorityValue(int priorityValue)
+    {
+        priorityValue_ = priorityValue;
+    }
+
+    inline int Camera::GetPriorityValue() const
+    {
+        return priorityValue_;
     }
 
     inline bool Camera::IsProjectionOrthographic() const

@@ -29,7 +29,7 @@ namespace Project001
         void Clear();
 
         unsigned int lineSpacing_px;
-        std::map<unsigned char, Project001::GlyphMetrics> glyphMetricsMap;
+        std::map<unsigned char, GlyphMetrics> glyphMetricsMap;
     };
 
     inline FontData::FontData()

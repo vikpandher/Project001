@@ -35,362 +35,378 @@ namespace Project001
             size_t cameraCount = 0;
             componentStoresPtr->GetAllComponents<Camera>(cameraPtrs, cameraCount);
 
-            Camera* mainCameraPtr = nullptr;
+            s_cameraPtrs_.clear();
+
             for (size_t i = 0; i < cameraCount; ++i)
             {
                 Camera& currentCamera = cameraPtrs[i];
+
                 if (currentCamera.IsTurnedOn())
                 {
-                    mainCameraPtr = &currentCamera;
-                    break;
+                    s_cameraPtrs_.push_back(&currentCamera);
                 }
             }
 
-            if (mainCameraPtr != nullptr)
+            std::sort(s_cameraPtrs_.begin(), s_cameraPtrs_.end(),
+                [](Camera* a, Camera* b)->bool
+                {
+                    const int& aPriorityValue = a->GetPriorityValue();
+                    const int& bPriorityValue = b->GetPriorityValue();
+
+                    return aPriorityValue < bPriorityValue;
+                });
+
+            for (size_t i = 0; i < cameraCount; ++i)
             {
-                glm::mat4 cameraViewMatrix = mainCameraPtr->GetViewMatrix();
-                glm::vec3 cameraPosition = mainCameraPtr->GetPosition();
-                glm::mat4 cameraProjectionMatrix = mainCameraPtr->GetProjectionMatrix();
-
-                FrustumPlanes cameraFrustumPlanes;
-                mainCameraPtr->GetProjectionFrustumPlanes(cameraFrustumPlanes);
-
-                rendererPtr->SetViewMatrix(cameraViewMatrix);
-                rendererPtr->SetViewPosition(cameraPosition);
-                rendererPtr->SetProjectionMatrix(cameraProjectionMatrix);
-
-                // Apply Lights
-                // -------------------------------------------------------------
-
-                LightSource* lightSourceArray = nullptr;
-                size_t lightSourceCount = 0;
-                componentStoresPtr->GetAllComponents<LightSource>(lightSourceArray, lightSourceCount);
-
-                for (unsigned int i = 0; i < lightSourceCount; ++i)
+                Camera& currentCamera = *s_cameraPtrs_[i];
+                if (currentCamera.IsTurnedOn())
                 {
-                    LightSource& currentLightSource = lightSourceArray[i];
-                    if (currentLightSource.IsTurnedOn())
+                    glm::mat4 cameraViewMatrix = currentCamera.GetViewMatrix();
+                    glm::vec3 cameraPosition = currentCamera.GetPosition();
+                    glm::mat4 cameraProjectionMatrix = currentCamera.GetProjectionMatrix();
+
+                    FrustumPlanes cameraFrustumPlanes;
+                    currentCamera.GetProjectionFrustumPlanes(cameraFrustumPlanes);
+
+                    rendererPtr->SetViewMatrix(cameraViewMatrix);
+                    rendererPtr->SetViewPosition(cameraPosition);
+                    rendererPtr->SetProjectionMatrix(cameraProjectionMatrix);
+
+                    // Apply Lights
+                    // -------------------------------------------------------------
+
+                    LightSource* lightSourceArray = nullptr;
+                    size_t lightSourceCount = 0;
+                    componentStoresPtr->GetAllComponents<LightSource>(lightSourceArray, lightSourceCount);
+
+                    for (unsigned int i = 0; i < lightSourceCount; ++i)
                     {
-                        if (currentLightSource.IsLightTypeDirectional())
+                        LightSource& currentLightSource = lightSourceArray[i];
+                        if (currentLightSource.IsTurnedOn() &&
+                            (currentCamera.GetCameraMask() & currentLightSource.GetCameraMask()))
                         {
-                            rendererPtr->SetDirectionalLight(
-                                currentLightSource.GetDirection(),
-                                currentLightSource.GetAmbientColor(),
-                                currentLightSource.GetDiffuseColor(),
-                                currentLightSource.GetSpecularColor()
-                            );
-                        }
-                        else if (currentLightSource.IsLightTypePoint())
-                        {
-                            rendererPtr->AddPointLight(
-                                currentLightSource.GetPosition(),
-                                currentLightSource.GetAttenuationConstant(),
-                                currentLightSource.GetLinearAttenuation(),
-                                currentLightSource.GetQuadraticAttenuation(),
-                                currentLightSource.GetAmbientColor(),
-                                currentLightSource.GetDiffuseColor(),
-                                currentLightSource.GetSpecularColor()
-                            );
-                        }
-                        else if (currentLightSource.IsLightTypeSpot())
-                        {
-                            rendererPtr->AddSpotLight(
-                                currentLightSource.GetPosition(),
-                                currentLightSource.GetDirection(),
-                                currentLightSource.GetCutoff(),
-                                currentLightSource.GetOuterCutoff(),
-                                currentLightSource.GetAttenuationConstant(),
-                                currentLightSource.GetLinearAttenuation(),
-                                currentLightSource.GetQuadraticAttenuation(),
-                                currentLightSource.GetAmbientColor(),
-                                currentLightSource.GetDiffuseColor(),
-                                currentLightSource.GetSpecularColor()
-                            );
-                        }
-                    }
-                }
-
-                // Sort Models
-                // -------------------------------------------------------------
-
-                s_batchedRenderedModelPtrs_.clear();
-                s_instancedRenderedModelPtrs_.clear();
-                s_translucentInstancedRenderedModelPtrs_.clear();
-
-                RenderedModel* renderedModelArrayPtr = nullptr;
-                size_t renderedModelCount = 0;
-                componentStoresPtr->GetAllComponents<RenderedModel>(renderedModelArrayPtr, renderedModelCount);
-
-                for (size_t i = 0; i < renderedModelCount; ++i)
-                {
-                    RenderedModel& currentRenderedModel = renderedModelArrayPtr[i];
-
-                    if (!currentRenderedModel.IsVisible())
-                    {
-                        continue;
-                    }
-
-                    // Frustum Culling
-
-                    const glm::vec3& renderedModelScale = currentRenderedModel.GetScale();
-
-                    float largestScalingFactor = renderedModelScale.x;
-
-                    if (largestScalingFactor < renderedModelScale.y)
-                    {
-                        largestScalingFactor = renderedModelScale.y;
-                    }
-
-                    if (largestScalingFactor < renderedModelScale.z)
-                    {
-                        largestScalingFactor = renderedModelScale.z;
-                    }
-
-                    float maxRadius = 0;
-                    if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
-                    {
-                        maxRadius = currentRenderedModel.GetMeshDataPtr()->maxRadius;
-                    }
-                    else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
-                    {
-                        maxRadius = currentRenderedModel.GetMaxRadius();
-                    }
-
-                    // This is an approximation. The true larest radius will be less then or equal to this value.
-                    float scaledMaxRadius = maxRadius * largestScalingFactor;
-
-                    bool inFrustum = Check3D_Sphere_Frustum_Overlap(
-                        currentRenderedModel.GetPosition(),
-                        scaledMaxRadius,
-                        cameraFrustumPlanes.leftPlaneNormal_,
-                        cameraFrustumPlanes.leftPlaneDistance_,
-                        cameraFrustumPlanes.rightPlaneNormal_,
-                        cameraFrustumPlanes.rightPlaneDistance_,
-                        cameraFrustumPlanes.bottomPlaneNormal_,
-                        cameraFrustumPlanes.bottomPlaneDistance_,
-                        cameraFrustumPlanes.topPlaneNormal_,
-                        cameraFrustumPlanes.topPlaneDistance_,
-                        cameraFrustumPlanes.nearPlaneNormal_,
-                        cameraFrustumPlanes.nearPlaneDistance_,
-                        cameraFrustumPlanes.farPlaneNormal_,
-                        cameraFrustumPlanes.farPlaneDistance_
-                    );
-
-                    if (!inFrustum)
-                    {
-                        continue;
-                    }
-
-                    if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
-                    {
-                        s_batchedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                    }
-                    else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
-                    {
-                        if (currentRenderedModel.GetTranslucent())
-                        {
-                            s_translucentInstancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                        }
-                        else
-                        {
-                            s_instancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                        }
-                    }
-                }
-
-                // Sorting Instanced Models
-                std::sort(s_instancedRenderedModelPtrs_.begin(), s_instancedRenderedModelPtrs_.end(),
-                    [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
-                    {
-                        unsigned int aMeshId = a->GetMeshId();
-                        unsigned int bMeshId = b->GetMeshId();
-
-                        if (aMeshId == bMeshId)
-                        {
-                            // same ids so the closer one is drawn first
-                            glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                            glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                            float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                            float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                            return disatanceSquaredA < disatanceSquaredB;
-                        }
-                        else
-                        {
-                            // smaller id is drawn first (this groups the ids)
-                            return aMeshId < bMeshId;
-                        }
-                    });
-
-                // Sorting Batched Models (Translucent and Non-Translucent)
-                std::sort(s_batchedRenderedModelPtrs_.begin(), s_batchedRenderedModelPtrs_.end(),
-                    [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
-                    {
-                        bool aTranslucent = a->GetTranslucent();
-                        bool bTranslucent = b->GetTranslucent();
-                        if (aTranslucent)
-                        {
-                            if (bTranslucent)
+                            if (currentLightSource.IsLightTypeDirectional())
                             {
-                                // both are translucent so the farther is drawn first
+                                rendererPtr->SetDirectionalLight(
+                                    currentLightSource.GetDirection(),
+                                    currentLightSource.GetAmbientColor(),
+                                    currentLightSource.GetDiffuseColor(),
+                                    currentLightSource.GetSpecularColor()
+                                );
+                            }
+                            else if (currentLightSource.IsLightTypePoint())
+                            {
+                                rendererPtr->AddPointLight(
+                                    currentLightSource.GetPosition(),
+                                    currentLightSource.GetAttenuationConstant(),
+                                    currentLightSource.GetLinearAttenuation(),
+                                    currentLightSource.GetQuadraticAttenuation(),
+                                    currentLightSource.GetAmbientColor(),
+                                    currentLightSource.GetDiffuseColor(),
+                                    currentLightSource.GetSpecularColor()
+                                );
+                            }
+                            else if (currentLightSource.IsLightTypeSpot())
+                            {
+                                rendererPtr->AddSpotLight(
+                                    currentLightSource.GetPosition(),
+                                    currentLightSource.GetDirection(),
+                                    currentLightSource.GetCutoff(),
+                                    currentLightSource.GetOuterCutoff(),
+                                    currentLightSource.GetAttenuationConstant(),
+                                    currentLightSource.GetLinearAttenuation(),
+                                    currentLightSource.GetQuadraticAttenuation(),
+                                    currentLightSource.GetAmbientColor(),
+                                    currentLightSource.GetDiffuseColor(),
+                                    currentLightSource.GetSpecularColor()
+                                );
+                            }
+                        }
+                    }
+
+                    // Sort Models
+                    // -------------------------------------------------------------
+
+                    s_batchedRenderedModelPtrs_.clear();
+                    s_instancedRenderedModelPtrs_.clear();
+                    s_translucentInstancedRenderedModelPtrs_.clear();
+
+                    RenderedModel* renderedModelArrayPtr = nullptr;
+                    size_t renderedModelCount = 0;
+                    componentStoresPtr->GetAllComponents<RenderedModel>(renderedModelArrayPtr, renderedModelCount);
+
+                    for (size_t i = 0; i < renderedModelCount; ++i)
+                    {
+                        RenderedModel& currentRenderedModel = renderedModelArrayPtr[i];
+
+                        if (!currentRenderedModel.IsVisible() ||
+                            !(currentCamera.GetCameraMask() & currentRenderedModel.GetCameraMask()))
+                        {
+                            continue;
+                        }
+
+                        // Frustum Culling
+
+                        const glm::vec3& renderedModelScale = currentRenderedModel.GetScale();
+
+                        float largestScalingFactor = renderedModelScale.x;
+
+                        if (largestScalingFactor < renderedModelScale.y)
+                        {
+                            largestScalingFactor = renderedModelScale.y;
+                        }
+
+                        if (largestScalingFactor < renderedModelScale.z)
+                        {
+                            largestScalingFactor = renderedModelScale.z;
+                        }
+
+                        float maxRadius = 0;
+                        if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
+                        {
+                            maxRadius = currentRenderedModel.GetMeshDataPtr()->maxRadius;
+                        }
+                        else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
+                        {
+                            maxRadius = currentRenderedModel.GetMaxRadius();
+                        }
+
+                        // This is an approximation. The true larest radius will be less then or equal to this value.
+                        float scaledMaxRadius = maxRadius * largestScalingFactor;
+
+                        bool inFrustum = Check3D_Sphere_Frustum_Overlap(
+                            currentRenderedModel.GetPosition(),
+                            scaledMaxRadius,
+                            cameraFrustumPlanes.leftPlaneNormal_,
+                            cameraFrustumPlanes.leftPlaneDistance_,
+                            cameraFrustumPlanes.rightPlaneNormal_,
+                            cameraFrustumPlanes.rightPlaneDistance_,
+                            cameraFrustumPlanes.bottomPlaneNormal_,
+                            cameraFrustumPlanes.bottomPlaneDistance_,
+                            cameraFrustumPlanes.topPlaneNormal_,
+                            cameraFrustumPlanes.topPlaneDistance_,
+                            cameraFrustumPlanes.nearPlaneNormal_,
+                            cameraFrustumPlanes.nearPlaneDistance_,
+                            cameraFrustumPlanes.farPlaneNormal_,
+                            cameraFrustumPlanes.farPlaneDistance_
+                        );
+
+                        if (!inFrustum)
+                        {
+                            continue;
+                        }
+
+                        if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
+                        {
+                            s_batchedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
+                        }
+                        else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
+                        {
+                            if (currentRenderedModel.GetTranslucent())
+                            {
+                                s_translucentInstancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
+                            }
+                            else
+                            {
+                                s_instancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
+                            }
+                        }
+                    }
+
+                    // Sorting Instanced Models
+                    std::sort(s_instancedRenderedModelPtrs_.begin(), s_instancedRenderedModelPtrs_.end(),
+                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
+                        {
+                            unsigned int aMeshId = a->GetMeshId();
+                            unsigned int bMeshId = b->GetMeshId();
+
+                            if (aMeshId == bMeshId)
+                            {
+                                // same ids so the closer one is drawn first
                                 glm::vec3 distanceA = cameraPosition - a->GetPosition();
                                 glm::vec3 distanceB = cameraPosition - b->GetPosition();
                                 float disatanceSquaredA = glm::dot(distanceA, distanceA);
                                 float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                return disatanceSquaredA > disatanceSquaredB;
+                                return disatanceSquaredA < disatanceSquaredB;
                             }
                             else
                             {
-                                // the one that is translucent is drawn last
-                                return false;
+                                // smaller id is drawn first (this groups the ids)
+                                return aMeshId < bMeshId;
                             }
-                        }
-                        if (bTranslucent)
+                        });
+
+                    // Sorting Batched Models (Translucent and Non-Translucent)
+                    std::sort(s_batchedRenderedModelPtrs_.begin(), s_batchedRenderedModelPtrs_.end(),
+                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
                         {
-                            // the one that is translucent is drawn last
-                            return true;
-                        }
-                        else
+                            bool aTranslucent = a->GetTranslucent();
+                            bool bTranslucent = b->GetTranslucent();
+                            if (aTranslucent)
+                            {
+                                if (bTranslucent)
+                                {
+                                    // both are translucent so the farther is drawn first
+                                    glm::vec3 distanceA = cameraPosition - a->GetPosition();
+                                    glm::vec3 distanceB = cameraPosition - b->GetPosition();
+                                    float disatanceSquaredA = glm::dot(distanceA, distanceA);
+                                    float disatanceSquaredB = glm::dot(distanceB, distanceB);
+                                    return disatanceSquaredA > disatanceSquaredB;
+                                }
+                                else
+                                {
+                                    // the one that is translucent is drawn last
+                                    return false;
+                                }
+                            }
+                            if (bTranslucent)
+                            {
+                                // the one that is translucent is drawn last
+                                return true;
+                            }
+                            else
+                            {
+                                // both are not translucent so the closer is drawn first
+                                glm::vec3 distanceA = cameraPosition - a->GetPosition();
+                                glm::vec3 distanceB = cameraPosition - b->GetPosition();
+                                float disatanceSquaredA = glm::dot(distanceA, distanceA);
+                                float disatanceSquaredB = glm::dot(distanceB, distanceB);
+                                return disatanceSquaredA < disatanceSquaredB;
+                            }
+                        });
+
+                    // Sorting Translucent Instanced Models
+                    std::sort(s_translucentInstancedRenderedModelPtrs_.begin(), s_translucentInstancedRenderedModelPtrs_.end(),
+                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
                         {
-                            // both are not translucent so the closer is drawn first
+                            // the farther one is drawn first
                             glm::vec3 distanceA = cameraPosition - a->GetPosition();
                             glm::vec3 distanceB = cameraPosition - b->GetPosition();
                             float disatanceSquaredA = glm::dot(distanceA, distanceA);
                             float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                            return disatanceSquaredA < disatanceSquaredB;
-                        }
-                    });
+                            return disatanceSquaredA > disatanceSquaredB;
+                        });
 
-                // Sorting Translucent Instanced Models
-                std::sort(s_translucentInstancedRenderedModelPtrs_.begin(), s_translucentInstancedRenderedModelPtrs_.end(),
-                    [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
+                    // Rendering Instanced models
+                    // -------------------------------------------------------------
+
+                    if (!s_instancedRenderedModelPtrs_.empty())
                     {
-                        // the farther one is drawn first
-                        glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                        glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                        float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                        float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                        return disatanceSquaredA > disatanceSquaredB;
-                    });
+                        unsigned int previousMeshId = s_instancedRenderedModelPtrs_[0]->GetMeshId();
 
-                // Rendering Instanced models
-                // -------------------------------------------------------------
-
-                if (!s_instancedRenderedModelPtrs_.empty())
-                {
-                    unsigned int previousMeshId = s_instancedRenderedModelPtrs_[0]->GetMeshId();
-
-                    for (unsigned int i = 0; i < s_instancedRenderedModelPtrs_.size(); ++i)
-                    {
-                        RenderedModel*& currentRenderedModelPtr = s_instancedRenderedModelPtrs_[i];
-
-                        const unsigned int& meshId = s_instancedRenderedModelPtrs_[i]->GetMeshId();
-
-                        if (meshId != previousMeshId)
+                        for (unsigned int i = 0; i < s_instancedRenderedModelPtrs_.size(); ++i)
                         {
-                            _FAIL_CHECK(rendererPtr->RenderMesh(
-                                previousMeshId,
-                                s_meshInstanceDataArray_.data(),
-                                (unsigned int)s_meshInstanceDataArray_.size()));
+                            RenderedModel*& currentRenderedModelPtr = s_instancedRenderedModelPtrs_[i];
 
-                            previousMeshId = meshId;
-                            s_meshInstanceDataArray_.clear();
+                            const unsigned int& meshId = s_instancedRenderedModelPtrs_[i]->GetMeshId();
+
+                            if (meshId != previousMeshId)
+                            {
+                                _FAIL_CHECK(rendererPtr->RenderMesh(
+                                    previousMeshId,
+                                    s_meshInstanceDataArray_.data(),
+                                    (unsigned int)s_meshInstanceDataArray_.size()));
+
+                                previousMeshId = meshId;
+                                s_meshInstanceDataArray_.clear();
+                            }
+
+                            MeshInstanceData meshInstanceData;
+                            meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
+                            meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
+                            meshInstanceData.position = currentRenderedModelPtr->GetPosition();
+                            meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
+                            meshInstanceData.scale = currentRenderedModelPtr->GetScale();
+                            meshInstanceData.color = currentRenderedModelPtr->GetColor();
+                            meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
+                            meshInstanceData.lit = currentRenderedModelPtr->GetLit();
+
+                            s_meshInstanceDataArray_.push_back(meshInstanceData);
                         }
 
-                        MeshInstanceData meshInstanceData;
-                        meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
-                        meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
-                        meshInstanceData.position = currentRenderedModelPtr->GetPosition();
-                        meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
-                        meshInstanceData.scale = currentRenderedModelPtr->GetScale();
-                        meshInstanceData.color = currentRenderedModelPtr->GetColor();
-                        meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
-                        meshInstanceData.lit = currentRenderedModelPtr->GetLit();
+                        _FAIL_CHECK(rendererPtr->RenderMesh(
+                            previousMeshId,
+                            s_meshInstanceDataArray_.data(),
+                            (unsigned int)s_meshInstanceDataArray_.size()));
 
-                        s_meshInstanceDataArray_.push_back(meshInstanceData);
+                        s_meshInstanceDataArray_.clear();
                     }
 
-                    _FAIL_CHECK(rendererPtr->RenderMesh(
-                        previousMeshId,
-                        s_meshInstanceDataArray_.data(),
-                        (unsigned int)s_meshInstanceDataArray_.size()));
+                    // Rendering Batched Models (Translucent and Non-Translucent)
+                    // -------------------------------------------------------------
 
-                    s_meshInstanceDataArray_.clear();
-                }
-
-                // Rendering Batched Models (Translucent and Non-Translucent)
-                // -------------------------------------------------------------
-
-                for (unsigned int i = 0; i < s_batchedRenderedModelPtrs_.size(); ++i)
-                {
-                    RenderedModel*& currentRenderedModelPtr = s_batchedRenderedModelPtrs_[i];
-
-                    const MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
-                    if (currentMeshDataPtr != nullptr)
+                    for (unsigned int i = 0; i < s_batchedRenderedModelPtrs_.size(); ++i)
                     {
-                        _FAIL_CHECK(rendererPtr->AddMeshToBatch(
-                            currentMeshDataPtr->meshVertexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                            currentMeshDataPtr->meshIndexArray.data(),
-                            (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                            currentRenderedModelPtr->GetTextureId(),
-                            currentRenderedModelPtr->GetSpecularId(),
-                            currentRenderedModelPtr->GetPosition(),
-                            currentRenderedModelPtr->GetOrientation(),
-                            currentRenderedModelPtr->GetScale(),
-                            currentRenderedModelPtr->GetColor(),
-                            currentRenderedModelPtr->GetShininess(),
-                            currentRenderedModelPtr->GetLit()));
-                    }
-                }
+                        RenderedModel*& currentRenderedModelPtr = s_batchedRenderedModelPtrs_[i];
 
-                if (!s_batchedRenderedModelPtrs_.empty())
-                {
-                    rendererPtr->RenderBatch();
-                }
-
-                // Rendering Translucent Instanced models
-                // -------------------------------------------------------------
-
-                if (!s_translucentInstancedRenderedModelPtrs_.empty())
-                {
-                    unsigned int previousMeshId = s_translucentInstancedRenderedModelPtrs_[0]->GetMeshId();
-
-                    for (unsigned int i = 0; i < s_translucentInstancedRenderedModelPtrs_.size(); ++i)
-                    {
-                        RenderedModel*& currentRenderedModelPtr = s_translucentInstancedRenderedModelPtrs_[i];
-
-                        const unsigned int& meshId = s_translucentInstancedRenderedModelPtrs_[i]->GetMeshId();
-
-                        if (meshId != previousMeshId)
+                        const MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
+                        if (currentMeshDataPtr != nullptr)
                         {
-                            _FAIL_CHECK(rendererPtr->RenderMesh(
-                                previousMeshId,
-                                s_meshInstanceDataArray_.data(),
-                                (unsigned int)s_meshInstanceDataArray_.size()));
-
-                            previousMeshId = meshId;
-                            s_meshInstanceDataArray_.clear();
+                            _FAIL_CHECK(rendererPtr->AddMeshToBatch(
+                                currentMeshDataPtr->meshVertexArray.data(),
+                                (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                                currentMeshDataPtr->meshIndexArray.data(),
+                                (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                                currentRenderedModelPtr->GetTextureId(),
+                                currentRenderedModelPtr->GetSpecularId(),
+                                currentRenderedModelPtr->GetPosition(),
+                                currentRenderedModelPtr->GetOrientation(),
+                                currentRenderedModelPtr->GetScale(),
+                                currentRenderedModelPtr->GetColor(),
+                                currentRenderedModelPtr->GetShininess(),
+                                currentRenderedModelPtr->GetLit()));
                         }
-
-                        MeshInstanceData meshInstanceData;
-                        meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
-                        meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
-                        meshInstanceData.position = currentRenderedModelPtr->GetPosition();
-                        meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
-                        meshInstanceData.scale = currentRenderedModelPtr->GetScale();
-                        meshInstanceData.color = currentRenderedModelPtr->GetColor();
-                        meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
-                        meshInstanceData.lit = currentRenderedModelPtr->GetLit();
-
-                        s_meshInstanceDataArray_.push_back(meshInstanceData);
                     }
 
-                    _FAIL_CHECK(rendererPtr->RenderMesh(
-                        previousMeshId,
-                        s_meshInstanceDataArray_.data(),
-                        (unsigned int)s_meshInstanceDataArray_.size()));
+                    if (!s_batchedRenderedModelPtrs_.empty())
+                    {
+                        rendererPtr->RenderBatch();
+                    }
 
-                    s_meshInstanceDataArray_.clear();
+                    // Rendering Translucent Instanced models
+                    // -------------------------------------------------------------
+
+                    if (!s_translucentInstancedRenderedModelPtrs_.empty())
+                    {
+                        unsigned int previousMeshId = s_translucentInstancedRenderedModelPtrs_[0]->GetMeshId();
+
+                        for (unsigned int i = 0; i < s_translucentInstancedRenderedModelPtrs_.size(); ++i)
+                        {
+                            RenderedModel*& currentRenderedModelPtr = s_translucentInstancedRenderedModelPtrs_[i];
+
+                            const unsigned int& meshId = s_translucentInstancedRenderedModelPtrs_[i]->GetMeshId();
+
+                            if (meshId != previousMeshId)
+                            {
+                                _FAIL_CHECK(rendererPtr->RenderMesh(
+                                    previousMeshId,
+                                    s_meshInstanceDataArray_.data(),
+                                    (unsigned int)s_meshInstanceDataArray_.size()));
+
+                                previousMeshId = meshId;
+                                s_meshInstanceDataArray_.clear();
+                            }
+
+                            MeshInstanceData meshInstanceData;
+                            meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
+                            meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
+                            meshInstanceData.position = currentRenderedModelPtr->GetPosition();
+                            meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
+                            meshInstanceData.scale = currentRenderedModelPtr->GetScale();
+                            meshInstanceData.color = currentRenderedModelPtr->GetColor();
+                            meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
+                            meshInstanceData.lit = currentRenderedModelPtr->GetLit();
+
+                            s_meshInstanceDataArray_.push_back(meshInstanceData);
+                        }
+
+                        _FAIL_CHECK(rendererPtr->RenderMesh(
+                            previousMeshId,
+                            s_meshInstanceDataArray_.data(),
+                            (unsigned int)s_meshInstanceDataArray_.size()));
+
+                        s_meshInstanceDataArray_.clear();
+                    }
                 }
             }
 
@@ -400,6 +416,8 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
+
+    std::vector<Camera*> RenderSystem::s_cameraPtrs_;
 
     std::vector<RenderedModel*> RenderSystem::s_batchedRenderedModelPtrs_;
     std::vector<RenderedModel*> RenderSystem::s_instancedRenderedModelPtrs_;

@@ -105,6 +105,8 @@ set(SOURCE_FILES
     "Src/TestScene031.h"
     "Src/TestScene032.cpp"
     "Src/TestScene032.h"
+    "Src/TestScene033.cpp"
+    "Src/TestScene033.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"

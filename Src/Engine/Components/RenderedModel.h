@@ -30,6 +30,9 @@ namespace Project001
         bool IsVisible() const;
         void SetVisibility(bool visible);
 
+        void SetCameraMask(uint32_t cameraMask);
+        uint32_t GetCameraMask() const;
+
         const MeshData* GetMeshDataPtr() const;
         void SetMeshDataPtr(const MeshData* meshData);
 
@@ -75,6 +78,8 @@ namespace Project001
 
         bool visible_;
 
+        uint32_t cameraMask_;
+
         const MeshData* meshDataPtr_; // Used when RENDERED_MODEL_TYPE_LOADED_CPU_SIDE
 
         unsigned int meshId_;         // Used when RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
@@ -92,6 +97,7 @@ namespace Project001
     inline RenderedModel::RenderedModel()
         : renderedModelType_(RenderedModelType::RENDERED_MODEL_TYPE_NOT_LOADED)
         , visible_(true)
+        , cameraMask_(0b00000000000000000000000000000001)
         , meshDataPtr_(nullptr)
         , meshId_((unsigned int)-1)
         , maxRadius_(0.0f)
@@ -117,6 +123,16 @@ namespace Project001
     inline void RenderedModel::SetVisibility(bool visible)
     {
         visible_ = visible;
+    }
+
+    inline void RenderedModel::SetCameraMask(uint32_t cameraMask)
+    {
+        cameraMask_ = cameraMask;
+    }
+
+    inline uint32_t RenderedModel::GetCameraMask() const
+    {
+        return cameraMask_;
     }
 
     inline const MeshData* RenderedModel::GetMeshDataPtr() const

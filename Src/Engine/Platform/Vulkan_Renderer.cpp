@@ -226,8 +226,9 @@ namespace Project001
 
     Vulkan_Renderer::~Vulkan_Renderer()
     {
-        // this calls vkDeviceWaitIdle
-        DeleteAllTextures();
+        DeleteAllTextures(); // this calls vkDeviceWaitIdle
+
+        DeleteAllMeshes(); // this calls vkDeviceWaitIdle
 
         DeleteSwapchainFramebuffers();
 

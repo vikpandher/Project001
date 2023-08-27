@@ -11,16 +11,19 @@ namespace Project001
     public:
         LightSource();
 
-        bool IsTurnedOn() const;
-        void TurnOn();
-        void TurnOff();
-
         bool IsLightTypeDirectional() const;
         bool IsLightTypePoint() const;
         bool IsLightTypeSpot() const;
         void SetLightTypeDirectional();
         void SetLightTypePoint();
         void SetLightTypeSpot();
+
+        bool IsTurnedOn() const;
+        void TurnOn();
+        void TurnOff();
+
+        void SetCameraMask(uint32_t cameraMask);
+        uint32_t GetCameraMask() const;
 
         const glm::vec3& GetDirection() const;
         float GetDirectionX() const;
@@ -70,9 +73,11 @@ namespace Project001
             LIGHT_TYPE_SPOT
         };
 
+        LightType lightType_;
+
         bool turnedOn_;
 
-        LightType lightType_;
+        uint32_t cameraMask_;
 
         // Direction the light is going
         // 
@@ -136,8 +141,9 @@ namespace Project001
     };
 
     inline LightSource::LightSource()
-        : turnedOn_(false)
-        , lightType_(LightType::LIGHT_TYPE_POINT)
+        : lightType_(LightType::LIGHT_TYPE_POINT)
+        , turnedOn_(false)
+        , cameraMask_(0b00000000000000000000000000000001)
         , direction_(0.0f, 0.0f, 0.0f)
         , cutoff_(0.99f)
         , outerCutoff_(0.97f)
@@ -148,21 +154,6 @@ namespace Project001
         , diffuse_(1.0f, 1.0f, 1.0f)
         , specular_(0.0f, 0.0f, 0.0f)
     {}
-
-    inline bool LightSource::IsTurnedOn() const
-    {
-        return turnedOn_;
-    }
-
-    inline void LightSource::TurnOn()
-    {
-        turnedOn_ = true;
-    }
-
-    inline void LightSource::TurnOff()
-    {
-        turnedOn_ = false;
-    }
 
     inline bool LightSource::IsLightTypeDirectional() const
     {
@@ -192,6 +183,31 @@ namespace Project001
     inline void LightSource::SetLightTypeSpot()
     {
         lightType_ = LightType::LIGHT_TYPE_SPOT;
+    }
+
+    inline bool LightSource::IsTurnedOn() const
+    {
+        return turnedOn_;
+    }
+
+    inline void LightSource::TurnOn()
+    {
+        turnedOn_ = true;
+    }
+
+    inline void LightSource::TurnOff()
+    {
+        turnedOn_ = false;
+    }
+
+    inline void LightSource::SetCameraMask(uint32_t cameraMask)
+    {
+        cameraMask_ = cameraMask;
+    }
+
+    inline uint32_t LightSource::GetCameraMask() const
+    {
+        return cameraMask_;
     }
 
     inline const glm::vec3& LightSource::GetDirection() const

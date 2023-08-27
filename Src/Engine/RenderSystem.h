@@ -8,6 +8,7 @@
 
 namespace Project001
 {
+    class Camera;
     class ComponentStores;
     class RenderedModel;
 
@@ -17,6 +18,8 @@ namespace Project001
         static void Render(ComponentStores* componentStoresPtr, Renderer* rendererPtr);
 
     protected:
+        static std::vector<Camera*> s_cameraPtrs_;
+
         static std::vector<RenderedModel*> s_batchedRenderedModelPtrs_;
         static std::vector<RenderedModel*> s_instancedRenderedModelPtrs_;
         static std::vector<RenderedModel*> s_translucentInstancedRenderedModelPtrs_;

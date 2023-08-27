@@ -39,7 +39,7 @@ protected:
 
     unsigned int specular001_TextureId_;
 
-    std::vector<unsigned int> _32x23_TextureIds_;
+    std::vector<unsigned int> _32x32_TextureIds_;
 
     // Mesh Data: --------------------------------------------------------------
 

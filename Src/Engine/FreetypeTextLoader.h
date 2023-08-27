@@ -25,7 +25,7 @@ namespace Project001
 
         static bool LoadMesh(
             MeshData& meshData,
-            FontData& fontData,
+            const FontData& fontData,
             const std::string& text,
             float pixelSize = 0.01f,
             bool centeredLines = false,

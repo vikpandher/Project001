@@ -8,6 +8,8 @@ namespace Project001
 {
     Camera::Camera()
         : turnedOn_(false)
+        , cameraMask_(0b00000000000000000000000000000001)
+        , priorityValue_(0)
         , cameraProjection_(CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
         , fieldOfVision_(glm::radians(45.0f))
         , aspectRatio_(1.0f)

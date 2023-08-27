@@ -387,7 +387,7 @@ bool TestScene004::OnInitialize()
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
         rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
-        _32x23_TextureIds_.push_back(tempTextureId);
+        _32x32_TextureIds_.push_back(tempTextureId);
     }
 
     for (size_t i = 35; i < 70; ++i)
@@ -404,7 +404,7 @@ bool TestScene004::OnInitialize()
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
         rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
-        _32x23_TextureIds_.push_back(tempTextureId);
+        _32x32_TextureIds_.push_back(tempTextureId);
     }
 
     // Calculating positions
@@ -442,7 +442,7 @@ bool TestScene004::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
         renderedModelPtr->SetPosition(modelEntityPositions[i]);
         renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
-        renderedModelPtr->SetTextureId(_32x23_TextureIds_[i]);
+        renderedModelPtr->SetTextureId(_32x32_TextureIds_[i]);
     }
 
     return success && true;
@@ -466,7 +466,7 @@ void TestScene004::OnHandleEvent(Project001::Event& event)
 
 void TestScene004::ClearResources()
 {
-    _32x23_TextureIds_.clear();
+    _32x32_TextureIds_.clear();
 }
 
 void TestScene004::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
