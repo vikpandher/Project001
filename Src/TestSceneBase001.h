@@ -48,7 +48,7 @@ protected:
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns);
+    void UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns);
 
     void SyncLightSourcePosition();
 

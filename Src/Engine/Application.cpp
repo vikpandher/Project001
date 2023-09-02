@@ -21,7 +21,7 @@ namespace Project001
         : windowTitle_(applicationInfo.windowTitle)
         , windowWidth_(applicationInfo.windowWidth)
         , windowHeight_(applicationInfo.windowHeight)
-        , desiredFrameDuration_ns_(1000000000ul / 60ul)
+        , desiredFrameDuration_ns_(1000000000ull / 60ull)
         , sleepyRunLoop_(true)
         , running_(false)
         , activeScenePtr_(nullptr)
@@ -91,14 +91,15 @@ namespace Project001
         std::chrono::system_clock::time_point lastFrameTimeStamp;
         std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
 
-        unsigned long simulationTimeDebt_ns = 0ul;
+        unsigned long long simulationTimeDebt_ns = 0ull;
+        size_t unsigned_long_size = sizeof(unsigned long);
 
         while (running_)
         {
             lastFrameTimeStamp = currentFrameTimeStamp;
             currentFrameTimeStamp = std::chrono::system_clock::now();
-            std::chrono::duration<unsigned long, std::nano> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-            unsigned long lastFrameDuration_ns = lastFrameDuration.count();
+            std::chrono::duration<unsigned long long, std::nano> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+            unsigned long long lastFrameDuration_ns = lastFrameDuration.count();
 
             // Sleep to achive desired frame duration
             // -----------------------------------------------------------------
@@ -107,7 +108,7 @@ namespace Project001
             {
                 if (lastFrameDuration_ns < desiredFrameDuration_ns_)
                 {
-                    std::chrono::duration<unsigned long, std::nano> delta_ns(desiredFrameDuration_ns_ - lastFrameDuration_ns);
+                    std::chrono::duration<unsigned long long, std::nano> delta_ns(desiredFrameDuration_ns_ - lastFrameDuration_ns);
                     std::this_thread::sleep_for(delta_ns);
                 }
                 currentFrameTimeStamp = std::chrono::system_clock::now();

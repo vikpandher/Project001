@@ -49,6 +49,22 @@ namespace Project001
             unsigned int width,
             unsigned int height) override;
 
+        void GetCameraViewport(
+            float& x,
+            float& y,
+            float& width,
+            float& height) override;
+
+        void SetCameraViewport(
+            float x,
+            float y,
+            float width,
+            float height) override;
+
+        // Border color for the borders when the framebuffer's aspect ratio is
+        // different from the window's.
+        // The alpha value of the border color sets the windows overall
+        // transparency.
         void SetBorderColor(const glm::vec4& color) override;
 
         void SetClearColor(const glm::vec4& color) override;
@@ -108,6 +124,8 @@ namespace Project001
         void BeginRendering() override;
 
         void Clear() override;
+
+        void ClearDepthOnly() override;
 
         void CreateMesh(
             unsigned int& meshId,
@@ -687,6 +705,11 @@ namespace Project001
         unsigned int viewportWidth_;
         unsigned int viewportHeight_;
 
+        float cameraViewportX_;
+        float cameraViewportY_;
+        float cameraViewportWidth_;
+        float cameraViewportHeight_;
+
         glm::vec4 borderColor_;
         glm::vec4 clearColor_;
 
@@ -891,6 +914,30 @@ namespace Project001
         viewportY_ = y;
         viewportWidth_ = width;
         viewportHeight_ = height;
+    }
+
+    inline void Vulkan_Renderer::GetCameraViewport(
+        float& x,
+        float& y,
+        float& width,
+        float& height)
+    {
+        x = cameraViewportX_;
+        y = cameraViewportY_;
+        width = cameraViewportWidth_;
+        height = cameraViewportHeight_;
+    }
+
+    inline void Vulkan_Renderer::SetCameraViewport(
+        float x,
+        float y,
+        float width,
+        float height)
+    {
+        cameraViewportX_ = x;
+        cameraViewportY_ = y;
+        cameraViewportWidth_ = width;
+        cameraViewportHeight_ = height;
     }
 
     inline void Vulkan_Renderer::SetBorderColor(const glm::vec4& color)

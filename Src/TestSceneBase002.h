@@ -50,7 +50,7 @@ protected:
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void UpdatedSelectedEntityPosition(unsigned long timestep_ns);
+    void UpdatedSelectedEntityPosition(unsigned long long timestep_ns);
 
     void Sync_RenderedModel_CollisionBody_Components();
 

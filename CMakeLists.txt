@@ -2,8 +2,7 @@ if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
     message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
 endif()
 
-# cmake_minimum_required(VERSION 3.17.0)
-cmake_minimum_required(VERSION 3.14.5)
+cmake_minimum_required(VERSION 3.22.0)
 
 option(PRINT_DEBUG_OUTPUT "" TRUE)
 
@@ -97,8 +96,6 @@ set(SOURCE_FILES
     "Src/TestScene012.h"
     "Src/TestScene013.cpp"
     "Src/TestScene013.h"
-    "Src/TestScene020.cpp"
-    "Src/TestScene020.h"
     "Src/TestScene030.cpp"
     "Src/TestScene030.h"
     "Src/TestScene031.cpp"
@@ -107,6 +104,8 @@ set(SOURCE_FILES
     "Src/TestScene032.h"
     "Src/TestScene033.cpp"
     "Src/TestScene033.h"
+    "Src/TestScene050.cpp"
+    "Src/TestScene050.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
@@ -193,12 +192,15 @@ set (MATH_FILES
 source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_FILES
-    "${CMAKE_GLAD_FILE}"
     "Src/Engine/Platform/GLFW_Window.cpp"
     "Src/Engine/Platform/GLFW_Window.h"
     "Src/Engine/Platform/OpenAL_Error.h"
     "Src/Engine/Platform/OpenAL_SoundPlayer.cpp"
     "Src/Engine/Platform/OpenAL_SoundPlayer.h"
+)
+
+set(PLATFORM_OPENGL_FILES
+    "${CMAKE_GLAD_FILE}"
     "Src/Engine/Platform/OpenGL_Error.h"
     "Src/Engine/Platform/OpenGL_Mesh.cpp"
     "Src/Engine/Platform/OpenGL_Mesh.h"
@@ -208,14 +210,17 @@ set(PLATFORM_FILES
     "Src/Engine/Platform/OpenGL_Shader.h"
     "Src/Engine/Platform/OpenGL_Texture.cpp"
     "Src/Engine/Platform/OpenGL_Texture.h"
+)
+
+set(PLATFORM_VULKAN_FILES
     "Src/Engine/Platform/Vulkan_Error.h"
     "Src/Engine/Platform/Vulkan_Renderer.cpp"
     "Src/Engine/Platform/Vulkan_Renderer.h"
 )
 
-source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES})
+source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES} ${PLATFORM_OPENGL_FILES} ${PLATFORM_VULKAN_FILES})
 
-set(SHADER_SOURCE_FILES
+set(PLATFORM_SHADER_SOURCE_FILES
     "Src/Engine/Platform/ShaderSource/GridShaderSource.h"
     "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
     "Src/Engine/Platform/ShaderSource/PrimaryShaderSource.h"
@@ -223,7 +228,15 @@ set(SHADER_SOURCE_FILES
     "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"
 )
 
-source_group("Src/Engine/Platform/ShaderSource" FILES ${SHADER_SOURCE_FILES})
+source_group("Src/Engine/Platform/ShaderSource" FILES ${PLATFORM_SHADER_SOURCE_FILES})
+
+# The following makes it so the unused graphics platform files doesn't get
+# compiled, but the files are still listed in the visual studio project
+if(${CMAKE_VULKAN_MODE})
+    set_source_files_properties(${PLATFORM_OPENGL_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+else()
+    set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+endif()
 
 add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${SOURCE_FILES}
@@ -231,7 +244,9 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${COMPONENTS_FILES}
     ${MATH_FILES}
     ${PLATFORM_FILES}
-    ${SHADER_SOURCE_FILES}
+    ${PLATFORM_OPENGL_FILES}
+    ${PLATFORM_VULKAN_FILES}
+    ${PLATFORM_SHADER_SOURCE_FILES}
 )
 
 target_include_directories("${PROJECT_NAME}"

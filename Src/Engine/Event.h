@@ -1068,7 +1068,7 @@ namespace Project001
 
     struct UpdateEvent : Event
     {
-        UpdateEvent(unsigned int threadId, unsigned long timestep_ns)
+        UpdateEvent(unsigned int threadId, unsigned long long timestep_ns)
             : Event()
             , threadId(threadId)
             , timestep_ns(timestep_ns)
@@ -1077,12 +1077,12 @@ namespace Project001
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_UPDATE)
 
         unsigned int threadId;
-        unsigned long timestep_ns;
+        unsigned long long timestep_ns;
     };
 
     struct RenderEvent : Event
     {
-        RenderEvent(unsigned int threadId, unsigned long timestep_ns)
+        RenderEvent(unsigned int threadId, unsigned long long timestep_ns)
             : Event()
             , threadId(threadId)
             , timestep_ns(timestep_ns)
@@ -1091,6 +1091,6 @@ namespace Project001
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_RENDER)
 
         unsigned int threadId;
-        unsigned long timestep_ns;
+        unsigned long long timestep_ns;
     };
 }

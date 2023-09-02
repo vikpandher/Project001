@@ -101,6 +101,20 @@ namespace Project001
             unsigned int width,
             unsigned int height) = 0;
 
+        // measurements are relative to the viewport
+        // x = 0.0 and y = 0.0 is the bottom left
+        virtual void GetCameraViewport(
+            float& x,
+            float& y,
+            float& width,
+            float& height) = 0;
+
+        virtual void SetCameraViewport(
+            float x,
+            float y,
+            float width,
+            float height) = 0;
+
         virtual void SetBorderColor(const glm::vec4& color) = 0;
 
         virtual void SetClearColor(const glm::vec4& color) = 0;
@@ -154,6 +168,8 @@ namespace Project001
         virtual void BeginRendering() = 0;
 
         virtual void Clear() = 0;
+
+        virtual void ClearDepthOnly() = 0;
 
         virtual void CreateMesh(
             unsigned int& meshId,

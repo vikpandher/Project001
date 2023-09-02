@@ -21,10 +21,6 @@ namespace Project001
         rendererPtr->GetFramebufferSize(framebufferWidth, framebufferHeight);
         if (framebufferWidth > 0 && framebufferHeight > 0)
         {
-            rendererPtr->ClearDirectionalLight();
-            rendererPtr->ClearPointLights();
-            rendererPtr->ClearSpotLights();
-
             rendererPtr->BeginRendering();
             rendererPtr->Clear();
 
@@ -56,7 +52,7 @@ namespace Project001
                     return aPriorityValue < bPriorityValue;
                 });
 
-            for (size_t i = 0; i < cameraCount; ++i)
+            for (size_t i = 0; i < s_cameraPtrs_.size(); ++i)
             {
                 Camera& currentCamera = *s_cameraPtrs_[i];
                 if (currentCamera.IsTurnedOn())
@@ -68,9 +64,31 @@ namespace Project001
                     FrustumPlanes cameraFrustumPlanes;
                     currentCamera.GetProjectionFrustumPlanes(cameraFrustumPlanes);
 
+                    rendererPtr->ClearDirectionalLight();
+                    rendererPtr->ClearPointLights();
+                    rendererPtr->ClearSpotLights();
+                    rendererPtr->ClearDepthOnly();
+
                     rendererPtr->SetViewMatrix(cameraViewMatrix);
                     rendererPtr->SetViewPosition(cameraPosition);
                     rendererPtr->SetProjectionMatrix(cameraProjectionMatrix);
+
+                    float cameraViewportX;
+                    float cameraViewportY;
+                    float cameraViewportWidth;
+                    float cameraViewportHeight;
+                    currentCamera.GetCameraViewport(
+                        cameraViewportX,
+                        cameraViewportY,
+                        cameraViewportWidth,
+                        cameraViewportHeight
+                    );
+                    rendererPtr->SetCameraViewport(
+                        cameraViewportX,
+                        cameraViewportY,
+                        cameraViewportWidth,
+                        cameraViewportHeight
+                    );
 
                     // Apply Lights
                     // -------------------------------------------------------------

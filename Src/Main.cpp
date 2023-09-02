@@ -20,11 +20,11 @@
 #include "TestScene011.h"
 #include "TestScene012.h"
 #include "TestScene013.h"
-#include "TestScene020.h"
 #include "TestScene030.h"
 #include "TestScene031.h"
 #include "TestScene032.h"
 #include "TestScene033.h"
+#include "TestScene050.h"
 
 
 
@@ -41,10 +41,6 @@ int main(int argc, char** argv)
     applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
-
-    // tests multiple cameras (001)
-    TestScene033* testScene033Ptr = new TestScene033();
-    applicationPtr->AddScene(testScene033Ptr);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -82,10 +78,6 @@ int main(int argc, char** argv)
     TestScene013* testScene013Ptr = new TestScene013();
     applicationPtr->AddScene(testScene013Ptr);
 
-    // tests sound (001)
-    TestScene020* testScene020Ptr = new TestScene020();
-    applicationPtr->AddScene(testScene020Ptr);
-
     // tests framerate with many verticies batched rendering (001)
     TestScene030* testScene030Ptr = new TestScene030();
     applicationPtr->AddScene(testScene030Ptr);
@@ -97,6 +89,14 @@ int main(int argc, char** argv)
     // tests rendering batched and instanced together (001)
     TestScene032* testScene032Ptr = new TestScene032();
     applicationPtr->AddScene(testScene032Ptr);
+
+    // tests multiple cameras (001)
+    TestScene033* testScene033Ptr = new TestScene033();
+    applicationPtr->AddScene(testScene033Ptr);
+
+    // tests sound (001)
+    TestScene050* testScene050Ptr = new TestScene050();
+    applicationPtr->AddScene(testScene050Ptr);
 
     applicationPtr->Run();
 
@@ -110,11 +110,11 @@ int main(int argc, char** argv)
     delete testScene011Ptr;
     delete testScene012Ptr;
     delete testScene013Ptr;
-    delete testScene020Ptr;
     delete testScene030Ptr;
     delete testScene031Ptr;
     delete testScene032Ptr;
     delete testScene033Ptr;
+    delete testScene050Ptr;
 
     return 0;
 }

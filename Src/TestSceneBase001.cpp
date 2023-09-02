@@ -240,7 +240,7 @@ void TestSceneBase001::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
 void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    unsigned long timestep_ns = updateEvent.timestep_ns;
+    unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     // Update Entities
     UpdateMainCameraEntityPositionAndRoll(timestep_ns);
@@ -255,7 +255,7 @@ void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     updateEvent.handled = true;
 }
 
-void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long timestep_ns)
+void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 

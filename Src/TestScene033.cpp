@@ -72,6 +72,30 @@ bool TestScene033::OnInitialize()
         cameraPtr->SetPriorityValue(100);
     }
 
+    // Tertiary camera
+    // -------------------------------------------------------------------------
+    {
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tertiaryCameraEntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(tertiaryCameraEntityId_));
+
+        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(tertiaryCameraEntityId_, cameraPtr));
+        int aspectRatioNumerator;
+        int aspectRatioDenominator;
+        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            cameraPtr->SetAspectRatio(aspectRatio);
+        }
+        // cameraPtr->SetCameraViewport(0.5f, 0.25f, 0.25f, 0.25f);
+        cameraPtr->SetCameraViewport(0.75f, 0.0f, 0.25f, 0.25f);
+        cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
+        cameraPtr->AddYaw(glm::pi<float>());
+        cameraPtr->TurnOn();
+        cameraPtr->SetPriorityValue(101);
+    }
+
     // Load textures
     // -------------------------------------------------------------------------
 
@@ -154,12 +178,19 @@ bool TestScene033::OnInitialize()
         meshDataPtrArray_.push_back(ui_counter_MeshDataPtr_);
     }
 
+    {
+        ui_largeText_MeshDataPtr_ = new Project001::MeshData();
+        meshDataPtrArray_.push_back(ui_largeText_MeshDataPtr_);
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_largeText_MeshDataPtr_, font01_FontData_, "SSS", fontPixelSize_));
+        Project001::MeshLoader::RecenterMesh(*ui_largeText_MeshDataPtr_);
+    }
+
     // Generate entities
     // -------------------------------------------------------------------------
 
     std::vector<glm::vec3> modelEntityPositions;
     int columns = 9;
-    int rows = 7;
+    int rows = 5;
     int depthRows = 1;
 
     for (int i = columns / -2; i < (columns + 1) / 2; ++i)
@@ -208,6 +239,7 @@ bool TestScene033::OnInitialize()
         renderedModelPtr->SetLit(false);
         renderedModelPtr->SetMeshDataPtr(ui_testText_MeshDataPtr_);
         renderedModelPtr->SetTextureId(font01_TextureId_);
+        renderedModelPtr->SetTranslucent(true);
 
         float lineOffset = fontPixelSize_ * (float)font01_FontData_.lineSpacing_px;
 
@@ -225,6 +257,7 @@ bool TestScene033::OnInitialize()
         renderedModelPtr->SetLit(false);
         renderedModelPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
         renderedModelPtr->SetTextureId(font01_TextureId_);
+        renderedModelPtr->SetTranslucent(true);
         renderedModelPtr->SetPositionX(secondaryCameraHalfWidth - 0.2f);
         renderedModelPtr->SetPositionY(secondaryCameraHalfHeight - 0.2f);
     }
@@ -239,8 +272,24 @@ bool TestScene033::OnInitialize()
         renderedModelPtr->SetLit(false);
         renderedModelPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
         renderedModelPtr->SetTextureId(font01_TextureId_);
+        renderedModelPtr->SetTranslucent(true);
         renderedModelPtr->SetPositionX(0.2f - secondaryCameraHalfWidth);
         renderedModelPtr->SetPositionY(0.2f - secondaryCameraHalfHeight);
+    }
+
+    {
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_largeText_EntityId_));
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(ui_largeText_EntityId_));
+        Project001::RenderedModel* renderedModelPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(ui_largeText_EntityId_, renderedModelPtr));
+        renderedModelPtr->SetCameraMask(secondaryCameraMask_);
+        renderedModelPtr->SetLit(false);
+        renderedModelPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
+        renderedModelPtr->SetTextureId(font01_TextureId_);
+        renderedModelPtr->SetTranslucent(true);
+        renderedModelPtr->SetScale(5.0f, 5.0f, 5.0f);
+        renderedModelPtr->SetColorRGB(0.0f, 0.0f, 0.0f);
     }
 
     return success && true;
@@ -288,9 +337,13 @@ void TestScene033::ClearResources()
     counter_ = 0;
     ui_counter_MeshDataPtr_ = nullptr;
 
+    ui_largeText_MeshDataPtr_ = nullptr;
+
     // Entity Ids: -------------------------------------------------------------
 
     secondaryCameraEntityId_ = (unsigned int)-1;
+
+    tertiaryCameraEntityId_ = (unsigned int)-1;
 
     square_EntityIds_.clear();
 
@@ -299,6 +352,8 @@ void TestScene033::ClearResources()
     ui_fps_EntityId_ = (unsigned int)-1;
 
     ui_counter_EntityId_ = (unsigned int)-1;
+
+    ui_largeText_EntityId_ = (unsigned int)-1;
 }
 
 void TestScene033::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -311,11 +366,11 @@ void TestScene033::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene002"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene050"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene002"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene050"));
             }
         }
     }
@@ -323,7 +378,7 @@ void TestScene033::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
 void TestScene033::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    float fps = 1000000000.0f / renderEvent.timestep_ns;
+    float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
     _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, font01_FontData_, fps_string, fontPixelSize_));

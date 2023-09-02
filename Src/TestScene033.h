@@ -61,12 +61,16 @@ protected:
     unsigned int counter_;
     Project001::MeshData* ui_counter_MeshDataPtr_;
 
+    Project001::MeshData* ui_largeText_MeshDataPtr_;
+
     // Entity Ids: -------------------------------------------------------------
 
     uint32_t mainCameraMask_ =      0b00000000000000000000000000000001;
     uint32_t secondaryCameraMask_ = 0b00000000000000000000000000000010;
 
     unsigned int secondaryCameraEntityId_;
+
+    unsigned int tertiaryCameraEntityId_;
 
     std::vector<unsigned int> square_EntityIds_;
 
@@ -75,6 +79,8 @@ protected:
     unsigned int ui_fps_EntityId_;
 
     unsigned int ui_counter_EntityId_;
+
+    unsigned int ui_largeText_EntityId_;
 
 private:
 };

@@ -49,6 +49,7 @@ namespace Project001
 #endif
             glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
             // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 
             glfwSetErrorCallback([](int errorCode, const char* description)
                 {
@@ -69,7 +70,7 @@ namespace Project001
         {
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             {
-                _LOG_ERROR("Failed to initialize Glad!");
+                _LOG_ERROR("Failed to initialize OpenGL!");
             }
             else
             {

@@ -82,6 +82,18 @@ namespace Project001
         float GetFarCutoff() const;
         void SetFarCutoff(float farCutoff);
 
+        void GetCameraViewport(
+            float& x,
+            float& y,
+            float& width,
+            float& height);
+
+        void SetCameraViewport(
+            float x,
+            float y,
+            float width,
+            float height);
+
         // 
         // ---------------------------------------------------------------------
 
@@ -120,6 +132,11 @@ namespace Project001
         float topCutoff_; // only used in othographic projection
         float nearCutoff_;
         float farCutoff_;
+
+        float cameraViewportX_;
+        float cameraViewportY_;
+        float cameraViewportWidth_;
+        float cameraViewportHeight_;
     };
 
     inline bool Camera::IsTurnedOn() const
@@ -255,5 +272,29 @@ namespace Project001
     inline void Camera::SetFarCutoff(float farCutoff)
     {
         farCutoff_ = farCutoff;
+    }
+
+    inline void Camera::GetCameraViewport(
+        float& x,
+        float& y,
+        float& width,
+        float& height)
+    {
+        x = cameraViewportX_;
+        y = cameraViewportY_;
+        width = cameraViewportWidth_;
+        height = cameraViewportHeight_;
+    }
+
+    inline void Camera::SetCameraViewport(
+        float x,
+        float y,
+        float width,
+        float height)
+    {
+        cameraViewportX_ = x;
+        cameraViewportY_ = y;
+        cameraViewportWidth_ = width;
+        cameraViewportHeight_ = height;
     }
 }

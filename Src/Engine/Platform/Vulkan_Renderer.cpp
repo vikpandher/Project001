@@ -61,6 +61,10 @@ namespace Project001
         , viewportY_(0)
         , viewportWidth_(rendererInfo.frameBufferWidth)
         , viewportHeight_(rendererInfo.frameBufferHeight)
+        , cameraViewportX_(0.0f)
+        , cameraViewportY_(0.0f)
+        , cameraViewportWidth_(1.0f)
+        , cameraViewportHeight_(1.0f)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
@@ -530,6 +534,90 @@ namespace Project001
         }
     }
 
+    void Vulkan_Renderer::ClearDepthOnly()
+    {
+        if (framebufferResized_)
+        {
+            HandleFramebufferResize();
+            framebufferResized_ = false;
+        }
+
+        if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0 ||
+            surfaceExtent_.width > 0 && surfaceExtent_.height > 0)
+        {
+            VkCommandBuffer commandBuffer = GetNextCommandBuffer();
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            _VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+
+            VkMemoryBarrier renderingMemoryBarrier = {};
+            renderingMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            renderingMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            renderingMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                1, &renderingMemoryBarrier,
+                0, nullptr,
+                0, nullptr
+            );
+
+            if (frameBufferWidth_ > 0 && frameBufferHeight_ > 0)
+            {
+                VkRenderPass currentRenderPass;
+                VkFramebuffer currentFrameBuffer;
+                if (multisampleAntiAliasing_)
+                {
+                    currentRenderPass = primaryRenderPass4_;
+                    currentFrameBuffer = primaryFrameBuffer4_;
+                }
+                else
+                {
+                    currentRenderPass = primaryRenderPass2_;
+                    currentFrameBuffer = primaryFrameBuffer2_;
+                }
+
+                VkRenderPassBeginInfo primaryRenderPassInfo = {};
+                primaryRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+                primaryRenderPassInfo.renderPass = currentRenderPass;
+                primaryRenderPassInfo.framebuffer = currentFrameBuffer;
+                primaryRenderPassInfo.renderArea.offset = { 0, 0 };
+                primaryRenderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };;
+
+                vkCmdBeginRenderPass(commandBuffer, &primaryRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+                std::array<VkClearAttachment, 1> primaryClearAttachments = {};
+
+                VkClearAttachment& depthClearAttachment = primaryClearAttachments[0];
+                depthClearAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                depthClearAttachment.clearValue.depthStencil = { 1.0f, 0 };
+                depthClearAttachment.colorAttachment = VK_ATTACHMENT_UNUSED;
+
+                VkClearRect primaryClearRect = {};
+                primaryClearRect.layerCount = 1;
+                primaryClearRect.rect.offset = { 0, 0 };
+                primaryClearRect.rect.extent = { frameBufferWidth_, frameBufferHeight_ };
+
+                vkCmdClearAttachments(commandBuffer, (uint32_t)primaryClearAttachments.size(), primaryClearAttachments.data(), 1, &primaryClearRect);
+
+                vkCmdEndRenderPass(commandBuffer);
+            }
+
+            _VK_CHECK(vkEndCommandBuffer(commandBuffer));
+
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+
+            _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE));
+        }
+    }
+
     void Vulkan_Renderer::CreateMesh(
         unsigned int& meshId,
         const MeshVertex* meshVertexPtr,
@@ -962,8 +1050,8 @@ namespace Project001
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = currentRenderPass;
             renderPassInfo.framebuffer = currentFrameBuffer;
-            renderPassInfo.renderArea.offset = { 0, 0 };
-            renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
+            renderPassInfo.renderArea.offset = { (int32_t)(frameBufferWidth_ * cameraViewportX_), (int32_t)(frameBufferHeight_ * cameraViewportY_) };
+            renderPassInfo.renderArea.extent = { (uint32_t)(frameBufferWidth_ * cameraViewportWidth_), (uint32_t)(frameBufferHeight_ * cameraViewportHeight_) };
 
             vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -973,10 +1061,10 @@ namespace Project001
             // (making it behave like it does in OpenGL)
             // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
             VkViewport viewport = {};
-            viewport.x = 0.0f;
-            viewport.y = (float)frameBufferHeight_;
-            viewport.width = (float)frameBufferWidth_;
-            viewport.height = -(float)frameBufferHeight_;
+            viewport.x = (float)frameBufferWidth_ * cameraViewportX_;
+            viewport.y = (float)frameBufferHeight_ - (float)frameBufferHeight_ * cameraViewportY_;
+            viewport.width = (float)frameBufferWidth_ * cameraViewportWidth_;
+            viewport.height = -(float)frameBufferHeight_ * cameraViewportHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
@@ -3080,7 +3168,13 @@ namespace Project001
             multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
             VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-            colorBlendAttachment.blendEnable = VK_FALSE;
+            colorBlendAttachment.blendEnable = VK_TRUE;
+            colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+            colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
             colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
             VkPipelineColorBlendStateCreateInfo colorBlending = {};
@@ -3450,8 +3544,8 @@ namespace Project001
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = currentRenderPass;
             renderPassInfo.framebuffer = currentFrameBuffer;
-            renderPassInfo.renderArea.offset = { 0, 0 };
-            renderPassInfo.renderArea.extent = { frameBufferWidth_, frameBufferHeight_ };
+            renderPassInfo.renderArea.offset = { (int32_t)(frameBufferWidth_ * cameraViewportX_), (int32_t)(frameBufferHeight_ * cameraViewportY_) };
+            renderPassInfo.renderArea.extent = { (uint32_t)(frameBufferWidth_ * cameraViewportWidth_), (uint32_t)(frameBufferHeight_ * cameraViewportHeight_) };
 
             vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -3461,10 +3555,10 @@ namespace Project001
             // (making it behave like it does in OpenGL)
             // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
             VkViewport viewport = {};
-            viewport.x = 0.0f;
-            viewport.y = (float)frameBufferHeight_;
-            viewport.width = (float)frameBufferWidth_;
-            viewport.height = -(float)frameBufferHeight_;
+            viewport.x = (float)frameBufferWidth_ * cameraViewportX_;
+            viewport.y = (float)frameBufferHeight_ - (float)frameBufferHeight_ * cameraViewportY_;
+            viewport.width = (float)frameBufferWidth_ * cameraViewportWidth_;
+            viewport.height = -(float)frameBufferHeight_ * cameraViewportHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
@@ -4443,7 +4537,7 @@ namespace Project001
         colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 

@@ -19,6 +19,10 @@ namespace Project001
         , topCutoff_(5.0f)
         , nearCutoff_(0.1f)
         , farCutoff_(50.0f)
+        , cameraViewportX_(0.0f)
+        , cameraViewportY_(0.0f)
+        , cameraViewportWidth_(1.0f)
+        , cameraViewportHeight_(1.0f)
     {}
 
     glm::mat4 Camera::GetViewMatrix() const

@@ -323,7 +323,7 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
 void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    unsigned long timestep_ns = updateEvent.timestep_ns;
+    unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     UpdatedSelectedEntityPosition(timestep_ns);
     Sync_RenderedModel_CollisionBody_Components();
@@ -335,7 +335,7 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     updateEvent.handled = true;
 }
 
-void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long timestep_ns)
+void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 

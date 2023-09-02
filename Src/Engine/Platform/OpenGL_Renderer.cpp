@@ -34,6 +34,10 @@ namespace Project001
         , batchedVertexBufferCapacity_(rendererInfo.batchedVertexBufferCapacity)
         , frameBufferWidth_(rendererInfo.frameBufferWidth)
         , frameBufferHeight_(rendererInfo.frameBufferHeight)
+        , cameraViewportX_(0.0f)
+        , cameraViewportY_(0.0f)
+        , cameraViewportWidth_(1.0f)
+        , cameraViewportHeight_(1.0f)
         , borderColor_(0.1f, 0.1f, 0.1f, 1.0f)
         , clearColor_(0.0f, 0.0f, 0.0f, 1.0f)
         , viewMatrix_(1.0f)
@@ -391,10 +395,8 @@ namespace Project001
         glEnable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);
-        // glBlendEquation(GL_FUNC_ADD);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -420,6 +422,22 @@ namespace Project001
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         redrawGrid_ = true;
+    }
+
+    void OpenGL_Renderer::ClearDepthOnly()
+    {
+        windowPtr_->MakeContextCurrent();
+
+        if (multisampleAntiAliasing_)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
+        }
+
+        glClear(GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGL_Renderer::CreateMesh(
@@ -685,6 +703,8 @@ namespace Project001
         {
             RenderBatchToTexture();
         }
+
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ZERO, GL_ONE);
 
         RenderTextureToScreen();
     }
@@ -1024,7 +1044,7 @@ namespace Project001
 
             glGenTextures(1, &msaaTextureId_);
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_);
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, frameBufferWidth_, frameBufferHeight_, GL_TRUE);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, frameBufferWidth_, frameBufferHeight_, GL_TRUE);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaaTextureId_, 0);
         }
 
@@ -1033,7 +1053,7 @@ namespace Project001
 
         glGenTextures(1, &rttTextureId_);
         glBindTexture(GL_TEXTURE_2D, rttTextureId_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameBufferWidth_, frameBufferHeight_, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, frameBufferWidth_, frameBufferHeight_, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rttTextureId_, 0);
@@ -1160,7 +1180,12 @@ namespace Project001
 
     void OpenGL_Renderer::RenderMeshToTexture(OpenGL_Mesh* meshPtr)
     {
-        glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
+        glViewport(
+            GLint(frameBufferWidth_ * cameraViewportX_),
+            GLint(frameBufferHeight_ * cameraViewportY_),
+            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
+            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
+        );
 
         if (multisampleAntiAliasing_)
         {
@@ -1230,7 +1255,12 @@ namespace Project001
 
     void OpenGL_Renderer::RenderBatchToTexture()
     {
-        glViewport(0, 0, frameBufferWidth_, frameBufferHeight_);
+        glViewport(
+            GLint(frameBufferWidth_ * cameraViewportX_),
+            GLint(frameBufferHeight_ * cameraViewportY_),
+            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
+            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
+        );
 
         if (multisampleAntiAliasing_)
         {
