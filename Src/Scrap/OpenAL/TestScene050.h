@@ -2,8 +2,6 @@
 
 #include "TestSceneBase001.h"
 
-#include "Engine/SoundData.h"
-
 
 
 namespace Project001
@@ -34,22 +32,16 @@ protected:
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void UpdateCameraListenerPosition();
     void UpdateShape01EntityPosition(unsigned long long timestep_ns);
 
     // SoundBuffer Ids: --------------------------------------------------------
 
-    Project001::SoundData soundData01;
-    unsigned int soundBufferId01;
-    unsigned int soundSourceId01;
-
-    Project001::SoundData soundData02;
-    unsigned int soundBufferId02;
-    unsigned int soundSourceId02;
+    unsigned int  song01SoundBufferId_;
 
     // SoundSource Ids: --------------------------------------------------------
 
+    unsigned int song01SoundSourceId_;
+
 private:
-    // Tests Play, Pause, Stop, SoundSource Position, and Listener Position
-    void TestSoundPlayer();
+    void TestOpenAL() const;
 };

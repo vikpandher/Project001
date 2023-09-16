@@ -17,9 +17,8 @@ set(CMAKE_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include")
 set(CMAKE_GLFW_LIBRARY "C:/Users/vikpa/Documents/Dev/glfw/build/src/Release/glfw3.lib")
 # https://github.com/g-truc/glm.git
 set(CMAKE_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm")
-# https://github.com/kcat/openal-soft.git
-set(CMAKE_OPENAL_INCLUDE "C:/Users/vikpa/Documents/Dev/openal-soft/include")
-set(CMAKE_OPENAL_LIBRARY "C:/Users/vikpa/Documents/Dev/openal-soft/build/Release/OpenAL32.lib")
+# https://github.com/mackron/miniaudio.git
+set(CMAKE_MINIAUDIO_INCLUDE "C:/Users/vikpa/Documents/Dev/miniaudio")
 # https://github.com/nothings/stb.git
 set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
@@ -191,12 +190,14 @@ set (MATH_FILES
 
 source_group("Src/Engine/Math" FILES ${MATH_FILES})
 
-set(PLATFORM_FILES
+set(PLATFORM_GLFW_FILES
     "Src/Engine/Platform/GLFW_Window.cpp"
     "Src/Engine/Platform/GLFW_Window.h"
-    "Src/Engine/Platform/OpenAL_Error.h"
-    "Src/Engine/Platform/OpenAL_SoundPlayer.cpp"
-    "Src/Engine/Platform/OpenAL_SoundPlayer.h"
+)
+
+set(PLATFORM_MINIAUDIO_FILES
+    "Src/Engine/Platform/MiniAudio_SoundPlayer.cpp"
+    "Src/Engine/Platform/MiniAudio_SoundPlayer.h"
 )
 
 set(PLATFORM_OPENGL_FILES
@@ -218,7 +219,12 @@ set(PLATFORM_VULKAN_FILES
     "Src/Engine/Platform/Vulkan_Renderer.h"
 )
 
-source_group("Src/Engine/Platform" FILES ${PLATFORM_FILES} ${PLATFORM_OPENGL_FILES} ${PLATFORM_VULKAN_FILES})
+source_group("Src/Engine/Platform" FILES
+    ${PLATFORM_GLFW_FILES}
+    ${PLATFORM_MINIAUDIO_FILES}
+    ${PLATFORM_OPENGL_FILES}
+    ${PLATFORM_VULKAN_FILES}
+)
 
 set(PLATFORM_SHADER_SOURCE_FILES
     "Src/Engine/Platform/ShaderSource/GridShaderSource.h"
@@ -243,7 +249,8 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${ENGINE_FILES}
     ${COMPONENTS_FILES}
     ${MATH_FILES}
-    ${PLATFORM_FILES}
+    ${PLATFORM_GLFW_FILES}
+    ${PLATFORM_MINIAUDIO_FILES}
     ${PLATFORM_OPENGL_FILES}
     ${PLATFORM_VULKAN_FILES}
     ${PLATFORM_SHADER_SOURCE_FILES}
@@ -255,7 +262,7 @@ target_include_directories("${PROJECT_NAME}"
     "${CMAKE_GLAD_INCLUDE}"
     "${CMAKE_GLFW_INCLUDE}"
     "${CMAKE_GLM_INCLUDE}"
-    "${CMAKE_OPENAL_INCLUDE}"
+    "${CMAKE_MINIAUDIO_INCLUDE}"
     "${CMAKE_STB_INCLUDE}"
     "${CMAKE_VULKAN_INCLUDE}"
     "Src"
@@ -273,7 +280,6 @@ target_link_libraries("${PROJECT_NAME}"
     PRIVATE
     "${CMAKE_FREETYPE_LIBRARY}"
     "${CMAKE_GLFW_LIBRARY}"
-    "${CMAKE_OPENAL_LIBRARY}"
     "${CMAKE_VULKAN_LIBRARY}"
 )
 
@@ -307,8 +313,7 @@ if(${PRINT_DEBUG_OUTPUT})
     message("CMAKE_GLFW_INCLUDE: ${CMAKE_GLFW_INCLUDE}")
     message("CMAKE_GLFW_LIBRARY: ${CMAKE_GLFW_LIBRARY}")
     message("CMAKE_GLM_INCLUDE: ${CMAKE_GLM_INCLUDE}")
-    message("CMAKE_OPENAL_INCLUDE: ${CMAKE_OPENAL_INCLUDE}")
-    message("CMAKE_OPENAL_LIBRARY: ${CMAKE_OPENAL_LIBRARY}")
+    message("CMAKE_MINIAUDIO_INCLUDE: ${CMAKE_MINIAUDIO_INCLUDE}")
     message("CMAKE_STB_INCLUDE: ${CMAKE_STB_INCLUDE}")
     message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
     message("CMAKE_VULKAN_INCLUDE: ${CMAKE_VULKAN_INCLUDE}")

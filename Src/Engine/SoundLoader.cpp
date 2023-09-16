@@ -13,18 +13,21 @@ namespace Project001
     bool SoundLoader::LoadSoundOGG(SoundData& soundData, const std::string& path)
     {
         int numberOfChannels;
-        int sampleRate;
-        int length = stb_vorbis_decode_filename(path.c_str(), &numberOfChannels, &sampleRate, (short**)&soundData.data);
+        int sampleRate_Hz;
+        int numberOfSamplesPerChannel = stb_vorbis_decode_filename(path.c_str(), &numberOfChannels, &sampleRate_Hz, (short**)&soundData.data);
 
-        if (length < 1)
+        if (numberOfSamplesPerChannel < 1)
         {
             free(soundData.data);
             return false;
         }
+
         soundData.numberOfChannels = (unsigned int)numberOfChannels;
-        soundData.sampleRate = (unsigned int)sampleRate;
-        soundData.bitsPerSample = 16;
-        soundData.size = length * soundData.numberOfChannels * sizeof(short);
+        soundData.sampleRate_Hz = (unsigned int)sampleRate_Hz;
+        soundData.bitsPerSample = 16; // Assuming 16-bit samples.
+        soundData.sizeInFrames = (unsigned int)numberOfSamplesPerChannel;
+        soundData.sizeInBytes = soundData.sizeInFrames * soundData.numberOfChannels * soundData.bitsPerSample / 8;
+        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
 
         return true;
     }
@@ -105,6 +108,27 @@ namespace Project001
             return false;
         }
 
+        uint32_t audioFormat = ConvertToUInt32(buffer, 2);
+
+        if (audioFormat == 1)
+        {
+            // PCM (integer samples)
+            // Handle integer sample data
+        }
+        else if (audioFormat == 3)
+        {
+            // IEEE floating-point (floating-point samples)
+            // Handle floating-point sample data
+
+            // Opting not to at this time.
+            return false;
+        }
+        else
+        {
+            // Unsupported audio format
+            return false;
+        }
+
         // NumChannels
         if (!inputFileStream.read(buffer, 2))
         {
@@ -119,7 +143,7 @@ namespace Project001
             // ERROR: could not read the SampleRate
             return false;
         }
-        soundData.sampleRate = ConvertToUInt32(buffer, 4);
+        soundData.sampleRate_Hz = ConvertToUInt32(buffer, 4);
 
         // ByteRate (sampleRate * bitsPerSample * channels) / 8
         if (!inputFileStream.read(buffer, 4))
@@ -166,7 +190,11 @@ namespace Project001
             // ERROR: could not read the Subchunk2 Size
             return false;
         }
-        soundData.size = ConvertToUInt32(buffer, 4);
+        soundData.sizeInBytes = ConvertToUInt32(buffer, 4);
+
+        size_t bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
+        soundData.sizeInFrames = soundData.sizeInBytes / bytesPerFrame;
+        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
 
         if (inputFileStream.eof())
         {
@@ -179,10 +207,10 @@ namespace Project001
             return false;
         }
 
-        soundData.data = malloc((size_t)soundData.size);
+        soundData.data = malloc((size_t)soundData.sizeInBytes);
 
         // Data
-        inputFileStream.read((char*)soundData.data, (size_t)soundData.size);
+        inputFileStream.read((char*)soundData.data, (size_t)soundData.sizeInBytes);
 
         return true;
     }

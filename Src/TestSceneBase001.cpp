@@ -317,12 +317,5 @@ void TestSceneBase001::SyncLightSourcePosition()
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
 
     lightSourcePtr->SetPosition(cameraPtr->GetPosition());
-
-    soundPlayerPtr_->UpdateListener(
-        cameraPtr->GetPosition(),
-        cameraPtr->GetForwardVector(),
-        cameraPtr->GetUpVector(),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        1.0f
-    );
 }
+

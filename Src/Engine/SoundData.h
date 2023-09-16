@@ -15,18 +15,22 @@ namespace Project001
         void Clear();
     
         void* data;
+        unsigned int sizeInBytes;
         unsigned int numberOfChannels;
-        unsigned int sampleRate;
+        unsigned int sampleRate_Hz;
         unsigned int bitsPerSample;
-        unsigned int size;
+        unsigned int sizeInFrames; // the number of samples per channel;
+        float duration_s;
     };
 
     inline SoundData::SoundData()
         : data(nullptr)
+        , sizeInBytes(0)
         , numberOfChannels(0)
-        , sampleRate(0)
+        , sampleRate_Hz(0)
         , bitsPerSample(0)
-        , size(0)
+        , sizeInFrames(0)
+        , duration_s(0.0f)
     {}
 
     inline SoundData::~SoundData()
@@ -39,9 +43,11 @@ namespace Project001
     {
         free(data);
         data = nullptr;
+        sizeInBytes = 0;
         numberOfChannels = 0;
-        sampleRate = 0;
+        sampleRate_Hz = 0;
         bitsPerSample = 0;
-        size = 0;
+        sizeInFrames = 0;
+        duration_s = 0.0f;
     }
 }
