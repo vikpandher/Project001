@@ -305,7 +305,7 @@ namespace Project001
                             return disatanceSquaredA > disatanceSquaredB;
                         });
 
-                    // Rendering Instanced models
+                    // Rendering Instanced Models
                     // -------------------------------------------------------------
 
                     if (!s_instancedRenderedModelPtrs_.empty())
@@ -381,7 +381,7 @@ namespace Project001
                         rendererPtr->RenderBatch();
                     }
 
-                    // Rendering Translucent Instanced models
+                    // Rendering Translucent Instanced Models
                     // -------------------------------------------------------------
 
                     if (!s_translucentInstancedRenderedModelPtrs_.empty())

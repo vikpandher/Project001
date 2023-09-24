@@ -3,7 +3,6 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedModel.h"
-#include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
@@ -17,10 +16,6 @@
 // public ----------------------------------------------------------------------
 
 TestSceneBase001::TestSceneBase001()
-    : componentStoresPtr_(nullptr)
-    , rendererPtr_(nullptr)
-    , windowPtr_(nullptr)
-    , previousCursorDownPosition_(0.0f)
 {
     ClearResources();
 }
@@ -66,9 +61,6 @@ bool TestSceneBase001::OnInitialize()
         }
         cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
         cameraPtr->AddYaw(glm::pi<float>());
-        // cameraPtr->SetProjectionToOrthographic();
-        // cameraPtr->SetLeftCutoff(aspectRatio * -5.0f);
-        // cameraPtr->SetRightCutoff(aspectRatio * 5.0f);
         cameraPtr->TurnOn();
     }
 
@@ -99,6 +91,11 @@ bool TestSceneBase001::OnDeinitialize()
     soundPlayerPtr_->DeleteAllSoundBuffers();
     componentStoresPtr_->DeleteAllEntities();
 
+    windowPtr_ = nullptr;
+    rendererPtr_ = nullptr;
+    soundPlayerPtr_ = nullptr;
+    componentStoresPtr_ = nullptr;
+
     return true;
 }
 
@@ -114,15 +111,23 @@ void TestSceneBase001::OnHandleEvent(Project001::Event& event)
 
 void TestSceneBase001::ClearResources()
 {
+    // Mesh Data ---------------------------------------------------------------
+
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
         delete meshDataPtrArray_[i];
     }
     meshDataPtrArray_.clear();
 
+    // Entity Ids --------------------------------------------------------------
+
     mainCameraEntityId_ = (unsigned int)-1;
     lightSourceEntityId_ = (unsigned int)-1;
     entityIds_.clear();
+
+    // Scene Data --------------------------------------------------------------
+
+    previousCursorDownPosition_ = glm::vec2(0.0f, 0.0f);
 }
 
 void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)

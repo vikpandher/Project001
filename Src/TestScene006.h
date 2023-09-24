@@ -34,15 +34,15 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Font Data: --------------------------------------------------------------
+    // Font Data ---------------------------------------------------------------
 
     Project001::FontData fontData_;
 
-    // Texture Data: -----------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
 
     Project001::TextureData fontTextureData_;
 
-    // Texture Ids: ------------------------------------------------------------
+    // Texture Ids -------------------------------------------------------------
 
     unsigned int fontTextureId_;
 

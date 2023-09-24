@@ -7,7 +7,6 @@
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
-#include "Engine/Application.h"
 #include "Engine/CollisionSystem2D.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -21,8 +20,9 @@
 // public ----------------------------------------------------------------------
 
 TestSceneBase002::TestSceneBase002()
-    : cursorGrabbingEntity_(false)
-    , previousWorldCursorPosition_(0.0f, 0.0f)
+    : windowPtr_(nullptr)
+    , rendererPtr_(nullptr)
+    , componentStoresPtr_(nullptr)
 {
     ClearResources();
 }
@@ -62,11 +62,13 @@ bool TestSceneBase002::OnInitialize()
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
             float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float secondaryCameraHalfHeight = 3.5f;
+            float secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(3.5f);
-            cameraPtr->SetBottomCutoff(-3.5f);
-            cameraPtr->SetLeftCutoff(aspectRatio * -3.5f);
-            cameraPtr->SetRightCutoff(aspectRatio * 3.5f);
+            cameraPtr->SetTopCutoff(secondaryCameraHalfHeight);
+            cameraPtr->SetBottomCutoff(-secondaryCameraHalfHeight);
+            cameraPtr->SetLeftCutoff(-secondaryCameraHalfWidth);
+            cameraPtr->SetRightCutoff(secondaryCameraHalfWidth);
             cameraPtr->SetNearCutoff(-1.0f);
             cameraPtr->SetFarCutoff(1.0f);
         }
@@ -91,10 +93,14 @@ bool TestSceneBase002::OnInitialize()
 
 bool TestSceneBase002::OnDeinitialize()
 {
+    ClearResources();
     rendererPtr_->DeleteAllTextures();
     rendererPtr_->DeleteAllMeshes();
     componentStoresPtr_->DeleteAllEntities();
-    ClearResources();
+
+    windowPtr_ = nullptr;
+    rendererPtr_ = nullptr;
+    componentStoresPtr_ = nullptr;
 
     return true;
 }
@@ -112,7 +118,7 @@ void TestSceneBase002::OnHandleEvent(Project001::Event& event)
 
 void TestSceneBase002::ClearResources()
 {
-    selectedEntityIdIndex_ = (unsigned int)-1;
+    // Mesh Data ---------------------------------------------------------------
 
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
@@ -120,9 +126,17 @@ void TestSceneBase002::ClearResources()
     }
     meshDataPtrArray_.clear();
 
+    // Entity Ids --------------------------------------------------------------
+
     mainCameraEntityId_ = (unsigned int)-1;
     cursorEntityId_ = (unsigned int)-1;
     entityIds_.clear();
+
+    // Scene Data --------------------------------------------------------------
+
+    cursorGrabbingEntity_ = false;
+    previousWorldCursorPosition_ = glm::vec2(0.0f, 0.0f);
+    selectedEntityIdIndex_ = (unsigned int)-1;
 }
 
 void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)

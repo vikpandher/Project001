@@ -22,13 +22,13 @@ set(CMAKE_MINIAUDIO_INCLUDE "C:/Users/vikpa/Documents/Dev/miniaudio")
 # https://github.com/nothings/stb.git
 set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
 # https://vulkan.lunarg.com/
-set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.224.1")
+set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.261.1")
 set(CMAKE_VULKAN_INCLUDE "${CMAKE_VULKAN_REPO}/Include")
 set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
-set(CMAKE_VULKAN_MODE TRUE)
+set(CMAKE_VULKAN_MODE FALSE)
 
 # If TRUE, removes the console on a windows build
 # If FALSE, windows build has a console

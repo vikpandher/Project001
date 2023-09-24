@@ -1276,13 +1276,7 @@ namespace Project001
             presentInfo.pImageIndices = &currentSwapchainFramebufferIndex_;
 
             VkResult result = vkQueuePresentKHR(presentQueue_, &presentInfo);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR)
-            {
-                HandleSwapchainFramebufferResize();
-                result = vkQueuePresentKHR(presentQueue_, &presentInfo);
-            }
-
-            if (result == VK_SUBOPTIMAL_KHR)
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
             {
                 HandleSwapchainFramebufferResize();
             }

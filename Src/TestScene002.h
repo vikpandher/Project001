@@ -31,7 +31,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Texture Ids: ------------------------------------------------------------
+    // Texture Ids -------------------------------------------------------------
 
     unsigned int dice01TextureId_;
     unsigned int dice02TextureId_;

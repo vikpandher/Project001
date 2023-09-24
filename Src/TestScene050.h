@@ -37,7 +37,7 @@ protected:
     void UpdateCameraListenerPosition();
     void UpdateShape01EntityPosition(unsigned long long timestep_ns);
 
-    // SoundBuffer Ids: --------------------------------------------------------
+    // SoundBuffer & SoundSource Ids -------------------------------------------
 
     Project001::SoundData soundData01;
     unsigned int soundBufferId01;
@@ -46,8 +46,6 @@ protected:
     Project001::SoundData soundData02;
     unsigned int soundBufferId02;
     unsigned int soundSourceId02;
-
-    // SoundSource Ids: --------------------------------------------------------
 
 private:
     // Tests Play, Pause, Stop, SoundSource Position, and Listener Position

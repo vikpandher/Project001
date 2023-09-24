@@ -9,6 +9,7 @@ namespace Project001
         // ---------------------------------------------------------------------
         static const char* g_vertexShaderSource = R"(
 #version 330 core
+#extension GL_ARB_separate_shader_objects : enable
 
 layout (location = 0) in vec3 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
@@ -51,6 +52,7 @@ void main()
         // ---------------------------------------------------------------------
         static const char* g_geometryShaderSource = R"(
 #version 330 core
+#extension GL_ARB_separate_shader_objects : enable
 
 layout(triangles) in;
 layout(line_strip, max_vertices=6) out;
@@ -86,6 +88,7 @@ void GenerateLine(int index)
         // ---------------------------------------------------------------------
         static const char* g_fragmentShaderSource = R"(
 #version 330 core
+#extension GL_ARB_separate_shader_objects : enable
 
 in vec4 v_Color;
 

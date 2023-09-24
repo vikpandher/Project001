@@ -38,7 +38,7 @@ protected:
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    // Texture Data: -----------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
 
     std::vector<unsigned int> _32x32_TextureIds_;
     std::vector<unsigned int> _48x48_TextureIds_;
@@ -47,7 +47,7 @@ protected:
     Project001::TextureData font01_TextureData_;
     unsigned int font01_TextureId_;
 
-    // Mesh Data: --------------------------------------------------------------
+    // Mesh Data ---------------------------------------------------------------
 
     Project001::MeshData* square_MeshDataPtr_;
     unsigned int square_MeshId_;
@@ -63,9 +63,8 @@ protected:
 
     Project001::MeshData* ui_largeText_MeshDataPtr_;
 
-    // Entity Ids: -------------------------------------------------------------
+    // Entity Ids --------------------------------------------------------------
 
-    uint32_t mainCameraMask_ =      0b00000000000000000000000000000001;
     uint32_t secondaryCameraMask_ = 0b00000000000000000000000000000010;
 
     unsigned int secondaryCameraEntityId_;

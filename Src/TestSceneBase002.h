@@ -10,7 +10,6 @@
 
 namespace Project001
 {
-    class ComponentStores;
     struct MeshData;
 
     struct CursorPositionEvent;
@@ -64,18 +63,18 @@ protected:
 
     Project001::ComponentStores* componentStoresPtr_;
 
-    // Mesh Data: --------------------------------------------------------------
+    // Mesh Data ---------------------------------------------------------------
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
-    // Entity Ids: -------------------------------------------------------------
+    // Entity Ids --------------------------------------------------------------
 
     unsigned int mainCameraEntityId_;
     unsigned int cursorEntityId_;
 
     std::vector<unsigned int> entityIds_;
 
-    // Scene Data: -------------------------------------------------------------
+    // Scene Data --------------------------------------------------------------
 
     bool cursorGrabbingEntity_;
     glm::vec2 previousWorldCursorPosition_;

@@ -33,7 +33,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Texture Data: -----------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
 
     unsigned int earth001_TextureId_;
 
@@ -41,7 +41,7 @@ protected:
 
     std::vector<unsigned int> _32x32_TextureIds_;
 
-    // Mesh Data: --------------------------------------------------------------
+    // Mesh Data ---------------------------------------------------------------
 
     Project001::MeshData* icosphere001_MeshDataPtr_;
     unsigned int icosphere001_MeshId_;
@@ -59,7 +59,7 @@ protected:
     unsigned int cone001_MeshId_;
     float cone001_MaxRadius_;
 
-    // Entity Ids: -------------------------------------------------------------
+    // Entity Ids --------------------------------------------------------------
 
     unsigned int centerIcosphereEntityId_;
 

@@ -31,7 +31,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Texture Ids: ------------------------------------------------------------
+    // Texture Ids -------------------------------------------------------------
 
     unsigned int earthTextureId_;
     unsigned int rgb120x60TextureId_;

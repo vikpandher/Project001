@@ -31,7 +31,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Texture Ids: ------------------------------------------------------------
+    // Texture Ids -------------------------------------------------------------
 
     std::vector<unsigned int> _32x32_TextureIds_;
 

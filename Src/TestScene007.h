@@ -33,7 +33,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
-    // Texture Ids: ------------------------------------------------------------
+    // Texture Ids -------------------------------------------------------------
 
     unsigned int _32x32_123abc_TextureId_;
 
