@@ -1,7 +1,7 @@
 #include "TestScene050.h"
 
 #include "Engine/Components/Camera.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
@@ -98,11 +98,11 @@ bool TestScene050::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 0.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         soundPlayerPtr_->PlaySoundSource(soundSourceId02);
     }
 
@@ -182,9 +182,9 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
-    Project001::RenderedModel* renderedModelPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(entityIds_[0], renderedModelPtr));
-    glm::vec3 currentPosition = renderedModelPtr->GetPosition();
+    Project001::RenderedMesh* renderedMeshPtr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(entityIds_[0], renderedMeshPtr));
+    glm::vec3 currentPosition = renderedMeshPtr->GetPosition();
 
     if (currentPosition == glm::vec3(0.0f, 0.0f, 0.0f))
     {
@@ -195,11 +195,11 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
     currentPositionPolar.y += timestep_s;
     glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
 
-    renderedModelPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
+    renderedMeshPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
 
     glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
 
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02, renderedModelPtr->GetPosition()));
+    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02, renderedMeshPtr->GetPosition()));
     _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02, velocity));
 }
 

@@ -1,7 +1,7 @@
 #include "TestScene033.h"
 
 #include "Engine/Components/Camera.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
@@ -188,7 +188,7 @@ bool TestScene033::OnInitialize()
     // Generate entities
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     int columns = 9;
     int rows = 5;
     int depthRows = 1;
@@ -199,97 +199,97 @@ bool TestScene033::OnInitialize()
         {
             for (int k = depthRows / -2; k < (depthRows + 1) / 2; ++k)
             {
-                modelEntityPositions.emplace_back(1.0f * i, 1.0f * j, 1.0f * k);
+                meshEntityPositions.emplace_back(1.0f * i, 1.0f * j, 1.0f * k);
             }
         }
     }
 
-    for (size_t i = 0; i < modelEntityPositions.size(); i++)
+    for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         square_EntityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[i];
+        glm::vec3 currentPosition = meshEntityPositions[i];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshId(square_MeshId_);
-        renderedModelPtr->SetMaxRadius(square_MaxRadius_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshId(square_MeshId_);
+        renderedMeshPtr->SetMaxRadius(square_MaxRadius_);
 
         if (i < _32x32_TextureIds_.size())
         {
-            renderedModelPtr->SetTextureId(_32x32_TextureIds_[i]);
+            renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
         }
         else if (i < _32x32_TextureIds_.size() + _48x48_TextureIds_.size())
         {
-            renderedModelPtr->SetTextureId(_48x48_TextureIds_[i - _32x32_TextureIds_.size()]);
+            renderedMeshPtr->SetTextureId(_48x48_TextureIds_[i - _32x32_TextureIds_.size()]);
         }
     }
 
     {
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_testText_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(ui_testText_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(ui_testText_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetCameraMask(secondaryCameraMask_);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetMeshDataPtr(ui_testText_MeshDataPtr_);
-        renderedModelPtr->SetTextureId(font01_TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_testText_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_testText_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_testText_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
 
         float lineOffset = fontPixelSize_ * (float)font01_FontData_.lineSpacing_px;
 
-        renderedModelPtr->SetPositionX(-secondaryCameraHalfWidth + 0.2f);
-        renderedModelPtr->SetPositionY(secondaryCameraHalfHeight - lineOffset);
+        renderedMeshPtr->SetPositionX(-secondaryCameraHalfWidth + 0.2f);
+        renderedMeshPtr->SetPositionY(secondaryCameraHalfHeight - lineOffset);
     }
 
     {
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_fps_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(ui_fps_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(ui_fps_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetCameraMask(secondaryCameraMask_);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
-        renderedModelPtr->SetTextureId(font01_TextureId_);
-        renderedModelPtr->SetTranslucent(true);
-        renderedModelPtr->SetPositionX(secondaryCameraHalfWidth - 0.2f);
-        renderedModelPtr->SetPositionY(secondaryCameraHalfHeight - 0.2f);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_fps_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetPositionX(secondaryCameraHalfWidth - 0.2f);
+        renderedMeshPtr->SetPositionY(secondaryCameraHalfHeight - 0.2f);
     }
 
     {
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_counter_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(ui_counter_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(ui_counter_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetCameraMask(secondaryCameraMask_);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
-        renderedModelPtr->SetTextureId(font01_TextureId_);
-        renderedModelPtr->SetTranslucent(true);
-        renderedModelPtr->SetPositionX(0.2f - secondaryCameraHalfWidth);
-        renderedModelPtr->SetPositionY(0.2f - secondaryCameraHalfHeight);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_counter_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_counter_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetPositionX(0.2f - secondaryCameraHalfWidth);
+        renderedMeshPtr->SetPositionY(0.2f - secondaryCameraHalfHeight);
     }
 
     {
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_largeText_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(ui_largeText_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(ui_largeText_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetCameraMask(secondaryCameraMask_);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
-        renderedModelPtr->SetTextureId(font01_TextureId_);
-        renderedModelPtr->SetTranslucent(true);
-        renderedModelPtr->SetScale(5.0f, 5.0f, 5.0f);
-        renderedModelPtr->SetColorRGB(0.0f, 0.0f, 0.0f);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_largeText_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_largeText_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetScale(5.0f, 5.0f, 5.0f);
+        renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 0.0f);
     }
 
     return success && true;
@@ -366,11 +366,11 @@ void TestScene033::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_X)
         {
-            SendEvent(Project001::SwitchSceneEvent("TestScene050"));
+            SendEvent(Project001::SwitchSceneEvent("TestScene034"));
             if (!IsActiveScene())
             {
                 Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene050"));
+                SendEvent(Project001::InitializeSceneEvent("TestScene034"));
             }
         }
     }

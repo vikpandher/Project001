@@ -1,6 +1,6 @@
 #include "TestScene003.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -324,12 +324,12 @@ bool TestScene003::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -3; --i)
     {
         for (int j = -3; j <= 3; ++j)
         {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
         }
     }
     size_t positionPosition = 0;
@@ -341,12 +341,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
     }
 
     // generated shape entity 02
@@ -356,13 +356,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 03
@@ -372,13 +372,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 04
@@ -388,13 +388,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 05
@@ -404,13 +404,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 06
@@ -420,13 +420,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 07
@@ -436,13 +436,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
-        renderedModelPtr->SetTextureId(earthTextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
+        renderedMeshPtr->SetTextureId(earthTextureId_);
     }
 
     // generated shape entity 08
@@ -452,12 +452,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
     }
 
     // generated shape entity 09
@@ -467,13 +467,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 10
@@ -483,13 +483,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 11
@@ -499,13 +499,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 12
@@ -515,13 +515,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 13
@@ -531,13 +531,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 14
@@ -547,13 +547,13 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
-        renderedModelPtr->SetTextureId(rgb120x60TextureId_);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
+        renderedMeshPtr->SetTextureId(rgb120x60TextureId_);
     }
 
     // generated shape entity 15
@@ -563,12 +563,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
     }
 
     // generated shape entity 16
@@ -578,12 +578,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
     }
 
     // generated shape entity 17
@@ -593,12 +593,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
     }
 
     // generated shape entity 18
@@ -608,12 +608,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
     }
 
     // generated shape entity 19
@@ -623,12 +623,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
     }
 
     // generated shape entity 20
@@ -638,12 +638,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
     }
 
     // generated shape entity 21
@@ -653,12 +653,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
     }
 
     // generated shape entity 22
@@ -668,12 +668,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
     }
 
     // generated shape entity 23
@@ -683,12 +683,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
     }
 
     // generated shape entity 24
@@ -698,12 +698,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
     }
 
     // generated shape entity 25
@@ -713,12 +713,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
     }
 
     // generated shape entity 26
@@ -728,12 +728,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
     }
 
     // generated shape entity 27
@@ -743,12 +743,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
     }
 
     // generated shape entity 28
@@ -758,12 +758,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
     }
 
     // generated shape entity 29
@@ -773,12 +773,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
     }
 
     // generated shape entity 30
@@ -788,12 +788,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
     }
 
     // generated shape entity 31
@@ -803,12 +803,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
     }
 
     // generated shape entity 32
@@ -818,12 +818,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
     }
 
     // generated shape entity 33
@@ -833,12 +833,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
     }
 
     // generated shape entity 34
@@ -848,12 +848,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[33]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[33]);
     }
 
     // generated shape entity 35
@@ -863,12 +863,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[34]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[34]);
     }
 
     // generated shape entity 36
@@ -878,12 +878,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[35]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[35]);
     }
 
     // generated shape entity 37
@@ -893,12 +893,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[36]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[36]);
     }
 
     // generated shape entity 38
@@ -908,12 +908,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[37]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[37]);
     }
 
     // generated shape entity 39
@@ -923,12 +923,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[38]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[38]);
     }
 
     // generated shape entity 40
@@ -938,12 +938,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[39]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[39]);
     }
 
     // generated shape entity 41
@@ -953,12 +953,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[40]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[40]);
     }
 
     // generated shape entity 42
@@ -968,12 +968,12 @@ bool TestScene003::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[41]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[41]);
     }
 
     return success && true;

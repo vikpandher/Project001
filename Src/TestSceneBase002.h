@@ -51,7 +51,7 @@ protected:
 
     void UpdatedSelectedEntityPosition(unsigned long long timestep_ns);
 
-    void Sync_RenderedModel_CollisionBody_Components();
+    void Sync_RenderedMesh_CollisionBody_Components();
 
     void ColorCollisions();
 

@@ -1,6 +1,6 @@
 #include "TestScene007.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -46,13 +46,13 @@ bool TestScene007::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
-    modelEntityPositions.emplace_back(0.0f, 0.0f, 0.0f);
+    std::vector<glm::vec3> meshEntityPositions;
+    meshEntityPositions.emplace_back(0.0f, 0.0f, 0.0f);
     // for (int i = 2; i >= -2; --i)
     // {
     //     for (int j = -3; j <= 3; ++j)
     //     {
-    //         modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+    //         meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
     //     }
     // }
     size_t positionPosition = 0;
@@ -78,14 +78,14 @@ bool TestScene007::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(_32x32_123abc_TextureId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(_32x32_123abc_TextureId_);
     }
 
     return success && true;

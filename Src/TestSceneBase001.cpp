@@ -2,7 +2,7 @@
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
 #include "Engine/Logger.h"

@@ -2,7 +2,7 @@
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody2D.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
@@ -36,12 +36,12 @@ bool TestScene012::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -2; --i)
     {
         for (int j = -2; j <= 2; ++j)
         {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
         }
     }
     size_t positionPosition = 0;
@@ -58,14 +58,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -88,14 +88,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -118,14 +118,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -148,14 +148,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -178,14 +178,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -213,14 +213,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -249,14 +249,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -280,14 +280,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -310,14 +310,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -345,14 +345,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -421,14 +421,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -461,14 +461,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -515,14 +515,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -557,14 +557,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -599,14 +599,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -630,14 +630,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
@@ -661,14 +661,14 @@ bool TestScene012::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;

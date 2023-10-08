@@ -1,6 +1,6 @@
 #include "TestScene031.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -55,7 +55,7 @@ bool TestScene031::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     int columns = 50;
     int rows = 30;
     int depthRows = 10;
@@ -66,34 +66,34 @@ bool TestScene031::OnInitialize()
         {
             for (int k = depthRows / -2; k < (depthRows + 1) / 2; ++k)
             {
-                modelEntityPositions.emplace_back(0.1f * i, 0.1f * j, 0.1f * k);
+                meshEntityPositions.emplace_back(0.1f * i, 0.1f * j, 0.1f * k);
             }
         }
     }
 
     // Generate entities
     // -------------------------------------------------------------------------
-    for (size_t i = 0; i < modelEntityPositions.size(); i++)
+    for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = modelEntityPositions[i];
+        glm::vec3 currentPosition = meshEntityPositions[i];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(currentPosition);
-        renderedModelPtr->SetColor(
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetColor(
             0.5f + currentPosition.x * 0.1f,
             0.5f + currentPosition.y * 0.1f,
             0.5f + currentPosition.z * 0.1f,
             0.5f
         );
-        renderedModelPtr->SetMeshId(meshId00);
-        renderedModelPtr->SetTranslucent(true);
-        renderedModelPtr->SetMaxRadius(maxRadius00);
+        renderedMeshPtr->SetMeshId(meshId00);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetMaxRadius(maxRadius00);
     }
 
     return success && true;

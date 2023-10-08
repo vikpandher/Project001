@@ -3,7 +3,7 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody2D.h"
 #include "Engine/CollisionSystem2D.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/Overlap2D.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
@@ -340,7 +340,7 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     UpdatedSelectedEntityPosition(timestep_ns);
-    Sync_RenderedModel_CollisionBody_Components();
+    Sync_RenderedMesh_CollisionBody_Components();
 
     Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
 
@@ -447,7 +447,7 @@ void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep
     }
 }
 
-void TestSceneBase002::Sync_RenderedModel_CollisionBody_Components()
+void TestSceneBase002::Sync_RenderedMesh_CollisionBody_Components()
 {
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
@@ -461,15 +461,15 @@ void TestSceneBase002::Sync_RenderedModel_CollisionBody_Components()
         unsigned int entityId;
         _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&collisionBody2D, entityId));
         
-        Project001::RenderedModel* renderedModelPtr;
-        if (componentStoresPtr_->GetComponent<Project001::RenderedModel>(entityId, renderedModelPtr))
+        Project001::RenderedMesh* renderedMeshPtr;
+        if (componentStoresPtr_->GetComponent<Project001::RenderedMesh>(entityId, renderedMeshPtr))
         {
             const float& positionX = collisionBody2D.GetPosition().x;
             const float& positionY = collisionBody2D.GetPosition().y;
-            renderedModelPtr->SetPosition(positionX, positionY, 0.0f);
+            renderedMeshPtr->SetPosition(positionX, positionY, 0.0f);
             const float& rotation = collisionBody2D.GetRotation();
-            renderedModelPtr->ResetOrientation();
-            renderedModelPtr->AddWorldRotationZ(rotation);
+            renderedMeshPtr->ResetOrientation();
+            renderedMeshPtr->AddWorldRotationZ(rotation);
         }
     }
 }
@@ -497,31 +497,31 @@ void TestSceneBase002::ColorCollisions()
 
         unsigned int collidingEntityId;
         _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(&currentCollisionBody, collidingEntityId));
-        Project001::RenderedModel* renderedModelPtr = nullptr;
-        bool renderedModelFound = componentStoresPtr_->GetComponent<Project001::RenderedModel>(collidingEntityId, renderedModelPtr);
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        bool renderedMeshFound = componentStoresPtr_->GetComponent<Project001::RenderedMesh>(collidingEntityId, renderedMeshPtr);
 
-        if (renderedModelFound)
+        if (renderedMeshFound)
         {
             if (collisionBodyColliding)
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
-                    renderedModelPtr->SetColorRGB(1.0f, 0.75f, 0.25f);
+                    renderedMeshPtr->SetColorRGB(1.0f, 0.75f, 0.25f);
                 }
                 else
                 {
-                    renderedModelPtr->SetColorRGB(1.0f, 0.25f, 0.25f);
+                    renderedMeshPtr->SetColorRGB(1.0f, 0.25f, 0.25f);
                 }
             }
             else
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
-                    renderedModelPtr->SetColorRGB(0.25f, 0.25f, 1.0f);
+                    renderedMeshPtr->SetColorRGB(0.25f, 0.25f, 1.0f);
                 }
                 else
                 {
-                    renderedModelPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
+                    renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
                 }
             }
         }

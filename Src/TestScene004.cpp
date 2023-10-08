@@ -1,6 +1,6 @@
 #include "TestScene004.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -410,12 +410,12 @@ bool TestScene004::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -2; --i)
     {
         for (int j = -3; j <= 3; ++j)
         {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
         }
     }
 
@@ -424,7 +424,7 @@ bool TestScene004::OnInitialize()
     {
         for (int j = -3; j <= 3; ++j)
         {
-            modelEntityPositions.emplace_back((float)j, (float)i, -1.0f);
+            meshEntityPositions.emplace_back((float)j, (float)i, -1.0f);
         }
     }
 
@@ -436,13 +436,13 @@ bool TestScene004::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[i]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
-        renderedModelPtr->SetTextureId(_32x32_TextureIds_[i]);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[i]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
+        renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
     }
 
     return success && true;

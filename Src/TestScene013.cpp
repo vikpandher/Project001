@@ -2,7 +2,7 @@
 
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/Overlap3D_UnitTests.h"
 #include "Engine/Math/CoordinateSystems.h"
 #include "Engine/Math/VectorUtilities.h"
@@ -42,12 +42,12 @@ bool TestScene013::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    // std::vector<glm::vec3> modelEntityPositions;
+    // std::vector<glm::vec3> meshEntityPositions;
     // for (int i = 1; i >= -1; --i)
     // {
     //     for (int j = -2; j <= 2; ++j)
     //     {
-    //         modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+    //         meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
     //     }
     // }
     // size_t positionPosition = 0;
@@ -68,13 +68,13 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // Line
@@ -110,12 +110,12 @@ bool TestScene013::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
             entityIds_.push_back(tempEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-            renderedModelPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-            renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedModelPtr->SetLit(false);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
         }
 
         // shape 2
@@ -128,12 +128,12 @@ bool TestScene013::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
             entityIds_.push_back(tempEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-            renderedModelPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-            renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedModelPtr->SetLit(false);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
         }
     }
 
@@ -166,12 +166,12 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
     }
 
     // Box 2
@@ -185,13 +185,13 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // Triangle
@@ -212,12 +212,12 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
     }
 
     // Triangle 2
@@ -235,12 +235,12 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
     }
 
     // Point
@@ -260,12 +260,12 @@ bool TestScene013::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetLit(false);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
     }
 
     return success && true;

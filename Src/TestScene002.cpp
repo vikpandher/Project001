@@ -2,7 +2,7 @@
 
 #include "TestComponents.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/BiMap.h"
 #include "Engine/ComponentStores.h"
@@ -489,12 +489,12 @@ bool TestScene002::OnInitialize()
     // Calculating positions
     // -------------------------------------------------------------------------
 
-    std::vector<glm::vec3> modelEntityPositions;
+    std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -3; --i)
     {
         for (int j = -3; j <= 3; ++j)
         {
-            modelEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
         }
     }
     size_t positionPosition = 0;
@@ -506,15 +506,15 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetTextureId(thonkTextureId_);
-        renderedModelPtr->SetSpecularId(thonkSpecularTextureId_);
-        renderedModelPtr->SetShininess(32.0f);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetTextureId(thonkTextureId_);
+        renderedMeshPtr->SetSpecularId(thonkSpecularTextureId_);
+        renderedMeshPtr->SetShininess(32.0f);
     }
 
     // cube entity 02
@@ -524,14 +524,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetTextureId(dice01TextureId_);
-        renderedModelPtr->SetShininess(32.0f);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetTextureId(dice01TextureId_);
+        renderedMeshPtr->SetShininess(32.0f);
     }
 
     // cube entity 03
@@ -541,15 +541,15 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetTextureId(dice02TextureId_);
-        renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
-        renderedModelPtr->SetShininess(32.0f);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetTextureId(dice02TextureId_);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+        renderedMeshPtr->SetShininess(32.0f);
     }
 
     // cube entity 04
@@ -559,14 +559,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
-        renderedModelPtr->SetTranslucent(true);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // cube entity 05
@@ -576,14 +576,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
-        renderedModelPtr->SetTranslucent(true);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // cube entity 06
@@ -593,16 +593,16 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetSpecularId(patternSpecular01TextureId_);
-        renderedModelPtr->SetScale(0.5f, 0.75f, 1.0f);
-        renderedModelPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
-        renderedModelPtr->SetShininess(24.0f);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetSpecularId(patternSpecular01TextureId_);
+        renderedMeshPtr->SetScale(0.5f, 0.75f, 1.0f);
+        renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
+        renderedMeshPtr->SetShininess(24.0f);
     }
 
     // cube entity 07
@@ -612,17 +612,17 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedModelPtr->SetSpecularId(patternSpecular02TextureId_);
-        renderedModelPtr->AddPitch(glm::pi<float>() / 4.0f);
-        renderedModelPtr->AddYaw(glm::pi<float>() / 4.0f);
-        renderedModelPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
-        renderedModelPtr->SetShininess(4.0f);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetSpecularId(patternSpecular02TextureId_);
+        renderedMeshPtr->AddPitch(glm::pi<float>() / 4.0f);
+        renderedMeshPtr->AddYaw(glm::pi<float>() / 4.0f);
+        renderedMeshPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
+        renderedMeshPtr->SetShininess(4.0f);
     }
 
     // generated shape entity 01
@@ -632,15 +632,15 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
-        renderedModelPtr->SetTranslucent(true);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
+        renderedMeshPtr->SetTranslucent(true);
     }
  
     // generated shape entity 02
@@ -650,15 +650,15 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
-        renderedModelPtr->SetTranslucent(true);
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 03
@@ -668,14 +668,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 04
@@ -685,14 +685,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 05
@@ -702,14 +702,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 06
@@ -719,14 +719,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 07
@@ -736,14 +736,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 08
@@ -753,14 +753,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 09
@@ -770,14 +770,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 10
@@ -787,14 +787,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 11
@@ -804,14 +804,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 12
@@ -821,14 +821,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 13
@@ -838,14 +838,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 14
@@ -855,13 +855,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 15
@@ -871,13 +871,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 16
@@ -887,13 +887,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 17
@@ -903,13 +903,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 18
@@ -919,13 +919,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 19
@@ -935,13 +935,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 20
@@ -951,13 +951,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 21
@@ -967,13 +967,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 22
@@ -983,13 +983,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 23
@@ -999,13 +999,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 24
@@ -1015,13 +1015,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 25
@@ -1031,13 +1031,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 26
@@ -1047,13 +1047,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 27
@@ -1063,13 +1063,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 28
@@ -1079,13 +1079,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 29
@@ -1095,13 +1095,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 30
@@ -1111,13 +1111,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 31
@@ -1127,13 +1127,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     // generated shape entity 32
@@ -1143,13 +1143,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(modelEntityPositions[positionPosition++]);
-        renderedModelPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
-        renderedModelPtr->SetTextureId(_100x100TextureId_);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
+        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     return success && true;

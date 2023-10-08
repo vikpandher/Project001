@@ -24,6 +24,7 @@
 #include "TestScene031.h"
 #include "TestScene032.h"
 #include "TestScene033.h"
+#include "TestScene034.h"
 #include "TestScene050.h"
 
 
@@ -94,6 +95,10 @@ int main(int argc, char** argv)
     TestScene033* testScene033Ptr = new TestScene033();
     applicationPtr->AddScene(testScene033Ptr);
 
+    // tests models (001)
+    TestScene034* testScene034Ptr = new TestScene034();
+    applicationPtr->AddScene(testScene034Ptr);
+
     // tests sound (001)
     TestScene050* testScene050Ptr = new TestScene050();
     applicationPtr->AddScene(testScene050Ptr);
@@ -114,6 +119,7 @@ int main(int argc, char** argv)
     delete testScene031Ptr;
     delete testScene032Ptr;
     delete testScene033Ptr;
+    delete testScene034Ptr;
     delete testScene050Ptr;
 
     return 0;

@@ -517,6 +517,11 @@ namespace Project001
         return convexPolygons_;
     }
 
+    inline const std::vector<unsigned int>& CollisionBody2D::GetConvexPolygonIds() const
+    {
+        return convexPolygonIds_;
+    }
+
     inline const std::vector<ConvexPolygon2D>& CollisionBody2D::GetTransformedConvexPolygons() const
     {
         return transformedConvexPolygons_;

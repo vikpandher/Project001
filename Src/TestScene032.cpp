@@ -1,7 +1,7 @@
 #include "TestScene032.h"
 
 #include "Engine/Components/Camera.h"
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
@@ -161,35 +161,35 @@ bool TestScene032::OnInitialize()
     { // icosphere at the center (CPU side mesh)
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerIcosphereEntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(centerIcosphereEntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(centerIcosphereEntityId_, renderedModelPtr));
-        renderedModelPtr->SetMeshDataPtr(icosphere001_MeshDataPtr_);
-        renderedModelPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerIcosphereEntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetMeshDataPtr(icosphere001_MeshDataPtr_);
+        renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     { // star at the center top (CPU side mesh)
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerStar001_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(centerStar001_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(centerStar001_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetMeshDataPtr(line001_MeshDataPtr_);
-        renderedModelPtr->SetPosition(0.0f, 1.0f, 1.0f);
-        renderedModelPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
-        renderedModelPtr->SetTranslucent(true);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar001_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerStar001_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
+        renderedMeshPtr->SetPosition(0.0f, 1.0f, 1.0f);
+        renderedMeshPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
+        renderedMeshPtr->SetTranslucent(true);
     }
 
     { // star at the center bottom (CPU side mesh)
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerStar002_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(centerStar002_EntityId_));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(centerStar002_EntityId_, renderedModelPtr));
-        renderedModelPtr->SetMeshDataPtr(line001_MeshDataPtr_);
-        renderedModelPtr->SetPosition(0.0f, -1.0f, -1.0f);
-        renderedModelPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar002_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerStar002_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
+        renderedMeshPtr->SetPosition(0.0f, -1.0f, -1.0f);
+        renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
     }
 
     { // icosphere group (GPU side mesh)
@@ -218,16 +218,16 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
             icosphereEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(newEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
-            renderedModelPtr->SetMeshId(icosphere001_MeshId_);
-            renderedModelPtr->SetTextureId(earth001_TextureId_);
-            renderedModelPtr->SetSpecularId(specular001_TextureId_);
-            renderedModelPtr->SetShininess(32.0f);
-            renderedModelPtr->SetMaxRadius(icosphere001_MaxRadius_);
-            renderedModelPtr->SetScale(0.5f, 0.5f, 0.5f);
-            renderedModelPtr->SetPosition(positions[i]);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
+            renderedMeshPtr->SetTextureId(earth001_TextureId_);
+            renderedMeshPtr->SetSpecularId(specular001_TextureId_);
+            renderedMeshPtr->SetShininess(32.0f);
+            renderedMeshPtr->SetMaxRadius(icosphere001_MaxRadius_);
+            renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
+            renderedMeshPtr->SetPosition(positions[i]);
         }
     }
 
@@ -257,12 +257,12 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
             arcEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(newEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
-            renderedModelPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
-            renderedModelPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
-            renderedModelPtr->SetPosition(positions[i]);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
+            renderedMeshPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
+            renderedMeshPtr->SetPosition(positions[i]);
         }
     }
 
@@ -292,14 +292,14 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
             arcEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(newEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
-            renderedModelPtr->SetMeshId(arc001_MeshId_);
-            renderedModelPtr->SetMaxRadius(arc001_MaxRadius_);
-            renderedModelPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
-            renderedModelPtr->SetTranslucent(true);
-            renderedModelPtr->SetPosition(positions[i]);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetMeshId(arc001_MeshId_);
+            renderedMeshPtr->SetMaxRadius(arc001_MaxRadius_);
+            renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPosition(positions[i]);
         }
     }
 
@@ -329,12 +329,12 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
             coneEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(newEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
-            renderedModelPtr->SetMeshId(cone001_MeshId_);
-            renderedModelPtr->SetMaxRadius(cone001_MaxRadius_);
-            renderedModelPtr->SetPosition(positions[i]);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetMeshId(cone001_MeshId_);
+            renderedMeshPtr->SetMaxRadius(cone001_MaxRadius_);
+            renderedMeshPtr->SetPosition(positions[i]);
         }
     }
 
@@ -358,14 +358,14 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
             starEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(newEntityId));
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(newEntityId, renderedModelPtr));
-            renderedModelPtr->SetMeshId(line001_MeshId_);
-            renderedModelPtr->SetTextureId(_32x32_TextureIds_[i]);
-            renderedModelPtr->SetMaxRadius(line001_MaxRadius_);
-            renderedModelPtr->SetScale(0.5f, 0.5f, 0.5f);
-            renderedModelPtr->SetPosition(positions[i]);
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            Project001::RenderedMesh* renderedMeshPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            renderedMeshPtr->SetMeshId(line001_MeshId_);
+            renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
+            renderedMeshPtr->SetMaxRadius(line001_MaxRadius_);
+            renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
+            renderedMeshPtr->SetPosition(positions[i]);
         }
     }
 

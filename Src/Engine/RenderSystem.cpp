@@ -14,7 +14,9 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    void RenderSystem::Render(ComponentStores* componentStoresPtr, Renderer* rendererPtr)
+    void RenderSystem::Render(
+        ComponentStores* componentStoresPtr,
+        Renderer* rendererPtr)
     {
         unsigned int framebufferWidth;
         unsigned int framebufferHeight;
@@ -61,8 +63,8 @@ namespace Project001
                     glm::vec3 cameraPosition = currentCamera.GetPosition();
                     glm::mat4 cameraProjectionMatrix = currentCamera.GetProjectionMatrix();
 
-                    FrustumPlanes cameraFrustumPlanes;
-                    currentCamera.GetProjectionFrustumPlanes(cameraFrustumPlanes);
+                    FrustumPlanes currentCameraFrustumPlanes;
+                    currentCamera.GetProjectionFrustumPlanes(currentCameraFrustumPlanes);
 
                     rendererPtr->ClearDirectionalLight();
                     rendererPtr->ClearPointLights();
@@ -142,12 +144,21 @@ namespace Project001
                         }
                     }
 
-                    // Sort Models
+                    // Sort Meshes
                     // -------------------------------------------------------------
 
-                    s_batchedRenderedModelPtrs_.clear();
-                    s_instancedRenderedModelPtrs_.clear();
-                    s_translucentInstancedRenderedModelPtrs_.clear();
+                    s_batchedRenderedMeshPtrs_.clear();
+                    s_instancedRenderedMeshPtrs_.clear();
+                    s_translucentInstancedRenderedMeshPtrs_.clear();
+
+                    RenderedMesh* renderedMeshArrayPtr = nullptr;
+                    size_t renderedMeshCount = 0;
+                    componentStoresPtr->GetAllComponents<RenderedMesh>(renderedMeshArrayPtr, renderedMeshCount);
+
+                    for (size_t i = 0; i < renderedMeshCount; ++i)
+                    {
+                        GroupMeshPtr(&renderedMeshArrayPtr[i], &currentCamera, &currentCameraFrustumPlanes);
+                    }
 
                     RenderedModel* renderedModelArrayPtr = nullptr;
                     size_t renderedModelCount = 0;
@@ -157,83 +168,21 @@ namespace Project001
                     {
                         RenderedModel& currentRenderedModel = renderedModelArrayPtr[i];
 
-                        if (!currentRenderedModel.IsVisible() ||
-                            !(currentCamera.GetCameraMask() & currentRenderedModel.GetCameraMask()))
+                        if (!currentRenderedModel.TransformedMeshesUpToDate())
                         {
-                            continue;
+                            currentRenderedModel.CalculateTransformedMeshes();
                         }
 
-                        // Frustum Culling
-
-                        const glm::vec3& renderedModelScale = currentRenderedModel.GetScale();
-
-                        float largestScalingFactor = renderedModelScale.x;
-
-                        if (largestScalingFactor < renderedModelScale.y)
+                        const std::vector<RenderedMesh>& transformedMeshes = currentRenderedModel.GetTransformedRenderedMeshes();
+                        for (size_t j = 0; j < transformedMeshes.size(); ++j)
                         {
-                            largestScalingFactor = renderedModelScale.y;
-                        }
-
-                        if (largestScalingFactor < renderedModelScale.z)
-                        {
-                            largestScalingFactor = renderedModelScale.z;
-                        }
-
-                        float maxRadius = 0;
-                        if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
-                        {
-                            maxRadius = currentRenderedModel.GetMeshDataPtr()->maxRadius;
-                        }
-                        else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
-                        {
-                            maxRadius = currentRenderedModel.GetMaxRadius();
-                        }
-
-                        // This is an approximation. The true larest radius will be less then or equal to this value.
-                        float scaledMaxRadius = maxRadius * largestScalingFactor;
-
-                        bool inFrustum = Check3D_Sphere_Frustum_Overlap(
-                            currentRenderedModel.GetPosition(),
-                            scaledMaxRadius,
-                            cameraFrustumPlanes.leftPlaneNormal_,
-                            cameraFrustumPlanes.leftPlaneDistance_,
-                            cameraFrustumPlanes.rightPlaneNormal_,
-                            cameraFrustumPlanes.rightPlaneDistance_,
-                            cameraFrustumPlanes.bottomPlaneNormal_,
-                            cameraFrustumPlanes.bottomPlaneDistance_,
-                            cameraFrustumPlanes.topPlaneNormal_,
-                            cameraFrustumPlanes.topPlaneDistance_,
-                            cameraFrustumPlanes.nearPlaneNormal_,
-                            cameraFrustumPlanes.nearPlaneDistance_,
-                            cameraFrustumPlanes.farPlaneNormal_,
-                            cameraFrustumPlanes.farPlaneDistance_
-                        );
-
-                        if (!inFrustum)
-                        {
-                            continue;
-                        }
-
-                        if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE)
-                        {
-                            s_batchedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                        }
-                        else if (currentRenderedModel.GetRenderedModelType() == RenderedModel::RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE)
-                        {
-                            if (currentRenderedModel.GetTranslucent())
-                            {
-                                s_translucentInstancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                            }
-                            else
-                            {
-                                s_instancedRenderedModelPtrs_.emplace_back(&currentRenderedModel);
-                            }
+                            GroupMeshPtr(&transformedMeshes[j], &currentCamera, &currentCameraFrustumPlanes);
                         }
                     }
 
-                    // Sorting Instanced Models
-                    std::sort(s_instancedRenderedModelPtrs_.begin(), s_instancedRenderedModelPtrs_.end(),
-                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
+                    // Sorting Instanced Meshes
+                    std::sort(s_instancedRenderedMeshPtrs_.begin(), s_instancedRenderedMeshPtrs_.end(),
+                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
                         {
                             unsigned int aMeshId = a->GetMeshId();
                             unsigned int bMeshId = b->GetMeshId();
@@ -254,9 +203,9 @@ namespace Project001
                             }
                         });
 
-                    // Sorting Batched Models (Translucent and Non-Translucent)
-                    std::sort(s_batchedRenderedModelPtrs_.begin(), s_batchedRenderedModelPtrs_.end(),
-                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
+                    // Sorting Batched Meshes (Translucent and Non-Translucent)
+                    std::sort(s_batchedRenderedMeshPtrs_.begin(), s_batchedRenderedMeshPtrs_.end(),
+                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
                         {
                             bool aTranslucent = a->GetTranslucent();
                             bool bTranslucent = b->GetTranslucent();
@@ -293,9 +242,9 @@ namespace Project001
                             }
                         });
 
-                    // Sorting Translucent Instanced Models
-                    std::sort(s_translucentInstancedRenderedModelPtrs_.begin(), s_translucentInstancedRenderedModelPtrs_.end(),
-                        [cameraPosition](RenderedModel* a, RenderedModel* b)->bool
+                    // Sorting Translucent Instanced Meshes
+                    std::sort(s_translucentInstancedRenderedMeshPtrs_.begin(), s_translucentInstancedRenderedMeshPtrs_.end(),
+                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
                         {
                             // the farther one is drawn first
                             glm::vec3 distanceA = cameraPosition - a->GetPosition();
@@ -305,18 +254,18 @@ namespace Project001
                             return disatanceSquaredA > disatanceSquaredB;
                         });
 
-                    // Rendering Instanced Models
+                    // Rendering Instanced Meshes
                     // -------------------------------------------------------------
 
-                    if (!s_instancedRenderedModelPtrs_.empty())
+                    if (!s_instancedRenderedMeshPtrs_.empty())
                     {
-                        unsigned int previousMeshId = s_instancedRenderedModelPtrs_[0]->GetMeshId();
+                        unsigned int previousMeshId = s_instancedRenderedMeshPtrs_[0]->GetMeshId();
 
-                        for (unsigned int i = 0; i < s_instancedRenderedModelPtrs_.size(); ++i)
+                        for (unsigned int i = 0; i < s_instancedRenderedMeshPtrs_.size(); ++i)
                         {
-                            RenderedModel*& currentRenderedModelPtr = s_instancedRenderedModelPtrs_[i];
+                            const RenderedMesh*& currentRenderedMeshPtr = s_instancedRenderedMeshPtrs_[i];
 
-                            const unsigned int& meshId = s_instancedRenderedModelPtrs_[i]->GetMeshId();
+                            const unsigned int& meshId = s_instancedRenderedMeshPtrs_[i]->GetMeshId();
 
                             if (meshId != previousMeshId)
                             {
@@ -330,14 +279,14 @@ namespace Project001
                             }
 
                             MeshInstanceData meshInstanceData;
-                            meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
-                            meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
-                            meshInstanceData.position = currentRenderedModelPtr->GetPosition();
-                            meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
-                            meshInstanceData.scale = currentRenderedModelPtr->GetScale();
-                            meshInstanceData.color = currentRenderedModelPtr->GetColor();
-                            meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
-                            meshInstanceData.lit = currentRenderedModelPtr->GetLit();
+                            meshInstanceData.textureId = currentRenderedMeshPtr->GetTextureId();
+                            meshInstanceData.specularId = currentRenderedMeshPtr->GetSpecularId();
+                            meshInstanceData.position = currentRenderedMeshPtr->GetPosition();
+                            meshInstanceData.orientation = currentRenderedMeshPtr->GetOrientation();
+                            meshInstanceData.scale = currentRenderedMeshPtr->GetScale();
+                            meshInstanceData.color = currentRenderedMeshPtr->GetColor();
+                            meshInstanceData.shininess = currentRenderedMeshPtr->GetShininess();
+                            meshInstanceData.lit = currentRenderedMeshPtr->GetLit();
 
                             s_meshInstanceDataArray_.push_back(meshInstanceData);
                         }
@@ -350,14 +299,14 @@ namespace Project001
                         s_meshInstanceDataArray_.clear();
                     }
 
-                    // Rendering Batched Models (Translucent and Non-Translucent)
+                    // Rendering Batched Meshes (Translucent and Non-Translucent)
                     // -------------------------------------------------------------
 
-                    for (unsigned int i = 0; i < s_batchedRenderedModelPtrs_.size(); ++i)
+                    for (unsigned int i = 0; i < s_batchedRenderedMeshPtrs_.size(); ++i)
                     {
-                        RenderedModel*& currentRenderedModelPtr = s_batchedRenderedModelPtrs_[i];
+                        const RenderedMesh*& currentRenderedMeshPtr = s_batchedRenderedMeshPtrs_[i];
 
-                        const MeshData* currentMeshDataPtr = currentRenderedModelPtr->GetMeshDataPtr();
+                        const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
                         if (currentMeshDataPtr != nullptr)
                         {
                             _FAIL_CHECK(rendererPtr->AddMeshToBatch(
@@ -365,34 +314,34 @@ namespace Project001
                                 (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                                 currentMeshDataPtr->meshIndexArray.data(),
                                 (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                                currentRenderedModelPtr->GetTextureId(),
-                                currentRenderedModelPtr->GetSpecularId(),
-                                currentRenderedModelPtr->GetPosition(),
-                                currentRenderedModelPtr->GetOrientation(),
-                                currentRenderedModelPtr->GetScale(),
-                                currentRenderedModelPtr->GetColor(),
-                                currentRenderedModelPtr->GetShininess(),
-                                currentRenderedModelPtr->GetLit()));
+                                currentRenderedMeshPtr->GetTextureId(),
+                                currentRenderedMeshPtr->GetSpecularId(),
+                                currentRenderedMeshPtr->GetPosition(),
+                                currentRenderedMeshPtr->GetOrientation(),
+                                currentRenderedMeshPtr->GetScale(),
+                                currentRenderedMeshPtr->GetColor(),
+                                currentRenderedMeshPtr->GetShininess(),
+                                currentRenderedMeshPtr->GetLit()));
                         }
                     }
 
-                    if (!s_batchedRenderedModelPtrs_.empty())
+                    if (!s_batchedRenderedMeshPtrs_.empty())
                     {
                         rendererPtr->RenderBatch();
                     }
 
-                    // Rendering Translucent Instanced Models
+                    // Rendering Translucent Instanced Meshes
                     // -------------------------------------------------------------
 
-                    if (!s_translucentInstancedRenderedModelPtrs_.empty())
+                    if (!s_translucentInstancedRenderedMeshPtrs_.empty())
                     {
-                        unsigned int previousMeshId = s_translucentInstancedRenderedModelPtrs_[0]->GetMeshId();
+                        unsigned int previousMeshId = s_translucentInstancedRenderedMeshPtrs_[0]->GetMeshId();
 
-                        for (unsigned int i = 0; i < s_translucentInstancedRenderedModelPtrs_.size(); ++i)
+                        for (unsigned int i = 0; i < s_translucentInstancedRenderedMeshPtrs_.size(); ++i)
                         {
-                            RenderedModel*& currentRenderedModelPtr = s_translucentInstancedRenderedModelPtrs_[i];
+                            const RenderedMesh*& currentRenderedMeshPtr = s_translucentInstancedRenderedMeshPtrs_[i];
 
-                            const unsigned int& meshId = s_translucentInstancedRenderedModelPtrs_[i]->GetMeshId();
+                            const unsigned int& meshId = s_translucentInstancedRenderedMeshPtrs_[i]->GetMeshId();
 
                             if (meshId != previousMeshId)
                             {
@@ -406,14 +355,14 @@ namespace Project001
                             }
 
                             MeshInstanceData meshInstanceData;
-                            meshInstanceData.textureId = currentRenderedModelPtr->GetTextureId();
-                            meshInstanceData.specularId = currentRenderedModelPtr->GetSpecularId();
-                            meshInstanceData.position = currentRenderedModelPtr->GetPosition();
-                            meshInstanceData.orientation = currentRenderedModelPtr->GetOrientation();
-                            meshInstanceData.scale = currentRenderedModelPtr->GetScale();
-                            meshInstanceData.color = currentRenderedModelPtr->GetColor();
-                            meshInstanceData.shininess = currentRenderedModelPtr->GetShininess();
-                            meshInstanceData.lit = currentRenderedModelPtr->GetLit();
+                            meshInstanceData.textureId = currentRenderedMeshPtr->GetTextureId();
+                            meshInstanceData.specularId = currentRenderedMeshPtr->GetSpecularId();
+                            meshInstanceData.position = currentRenderedMeshPtr->GetPosition();
+                            meshInstanceData.orientation = currentRenderedMeshPtr->GetOrientation();
+                            meshInstanceData.scale = currentRenderedMeshPtr->GetScale();
+                            meshInstanceData.color = currentRenderedMeshPtr->GetColor();
+                            meshInstanceData.shininess = currentRenderedMeshPtr->GetShininess();
+                            meshInstanceData.lit = currentRenderedMeshPtr->GetLit();
 
                             s_meshInstanceDataArray_.push_back(meshInstanceData);
                         }
@@ -435,11 +384,90 @@ namespace Project001
 
     // protected ---------------------------------------------------------------
 
+    void RenderSystem::GroupMeshPtr(
+        const RenderedMesh* renderedMeshPtr,
+        const Camera* cameraPtr,
+        const FrustumPlanes* frustumPlanesPtr)
+    {
+        if (!renderedMeshPtr->GetVisible() ||
+            !(cameraPtr->GetCameraMask() & renderedMeshPtr->GetCameraMask()))
+        {
+            return;
+        }
+
+        // Frustum Culling
+
+        const glm::vec3& renderedMeshScale = renderedMeshPtr->GetScale();
+
+        float largestScalingFactor = renderedMeshScale.x;
+
+        if (largestScalingFactor < renderedMeshScale.y)
+        {
+            largestScalingFactor = renderedMeshScale.y;
+        }
+
+        if (largestScalingFactor < renderedMeshScale.z)
+        {
+            largestScalingFactor = renderedMeshScale.z;
+        }
+
+        float maxRadius = 0;
+        if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
+        {
+            maxRadius = renderedMeshPtr->GetMeshDataPtr()->maxRadius;
+        }
+        else if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
+        {
+            maxRadius = renderedMeshPtr->GetMaxRadius();
+        }
+
+        // This is an approximation. The true larest radius will be less then or equal to this value.
+        float scaledMaxRadius = maxRadius * largestScalingFactor;
+
+        bool inFrustum = Check3D_Sphere_Frustum_Overlap(
+            renderedMeshPtr->GetPosition(),
+            scaledMaxRadius,
+            frustumPlanesPtr->leftPlaneNormal_,
+            frustumPlanesPtr->leftPlaneDistance_,
+            frustumPlanesPtr->rightPlaneNormal_,
+            frustumPlanesPtr->rightPlaneDistance_,
+            frustumPlanesPtr->bottomPlaneNormal_,
+            frustumPlanesPtr->bottomPlaneDistance_,
+            frustumPlanesPtr->topPlaneNormal_,
+            frustumPlanesPtr->topPlaneDistance_,
+            frustumPlanesPtr->nearPlaneNormal_,
+            frustumPlanesPtr->nearPlaneDistance_,
+            frustumPlanesPtr->farPlaneNormal_,
+            frustumPlanesPtr->farPlaneDistance_
+        );
+
+        if (!inFrustum)
+        {
+            return;
+        }
+
+        if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
+        {
+            s_batchedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
+        }
+        else if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
+        {
+            if (renderedMeshPtr->GetTranslucent())
+            {
+                s_translucentInstancedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
+            }
+            else
+            {
+                s_instancedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
+            }
+        }
+    }
+
     std::vector<Camera*> RenderSystem::s_cameraPtrs_;
 
-    std::vector<RenderedModel*> RenderSystem::s_batchedRenderedModelPtrs_;
-    std::vector<RenderedModel*> RenderSystem::s_instancedRenderedModelPtrs_;
-    std::vector<RenderedModel*> RenderSystem::s_translucentInstancedRenderedModelPtrs_;
+    std::vector<const RenderedMesh*> RenderSystem::s_batchedRenderedMeshPtrs_;
+    std::vector<const RenderedMesh*> RenderSystem::s_instancedRenderedMeshPtrs_;
+    std::vector<const RenderedMesh*> RenderSystem::s_translucentInstancedRenderedMeshPtrs_;
 
     std::vector<MeshInstanceData> RenderSystem::s_meshInstanceDataArray_;
 }

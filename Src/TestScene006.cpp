@@ -1,6 +1,6 @@
 #include "TestScene006.h"
 
-#include "Engine/Components/RenderedModel.h"
+#include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
@@ -72,12 +72,12 @@ bool TestScene006::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 2.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(fontTextureId_);
     }
 
     // generated shape entity 02
@@ -111,12 +111,12 @@ bool TestScene006::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(-2.0f, 1.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(fontTextureId_);
     }
 
     // generated shape entity 03
@@ -131,12 +131,12 @@ bool TestScene006::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 0.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(fontTextureId_);
     }
 
     // generated shape entity 04
@@ -151,13 +151,13 @@ bool TestScene006::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(0.0f, 1.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
-        renderedModelPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(fontTextureId_);
+        renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
     }
 
     // generated shape entity 05
@@ -172,13 +172,13 @@ bool TestScene006::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
-        renderedModelPtr->SetPosition(2.0f, 1.0f, 0.0f);
-        renderedModelPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedModelPtr->SetTextureId(fontTextureId_);
-        renderedModelPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(fontTextureId_);
+        renderedMeshPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
     }
 
     return success && true;

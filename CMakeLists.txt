@@ -103,6 +103,8 @@ set(SOURCE_FILES
     "Src/TestScene032.h"
     "Src/TestScene033.cpp"
     "Src/TestScene033.h"
+    "Src/TestScene034.cpp"
+    "Src/TestScene034.h"
     "Src/TestScene050.cpp"
     "Src/TestScene050.h"
     "Src/TestSceneBase001.cpp"
@@ -166,6 +168,8 @@ set (COMPONENTS_FILES
     "Src/Engine/Components/Placement2D.h"
     "Src/Engine/Components/Position.h"
     "Src/Engine/Components/Position2D.h"
+    "Src/Engine/Components/RenderedMesh.h"
+    "Src/Engine/Components/RenderedModel.cpp"
     "Src/Engine/Components/RenderedModel.h"
 )
 

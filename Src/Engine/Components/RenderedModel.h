@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/Components/Placement.h"
-#include "Engine/MeshData.h"
+#include "Engine/Components/RenderedMesh.h"
 
 
 
@@ -10,181 +9,103 @@ namespace Project001
     class RenderedModel : public Placement
     {
     public:
-        enum class RenderedModelType
-        {
-            RENDERED_MODEL_TYPE_NOT_LOADED,
-            RENDERED_MODEL_TYPE_LOADED_CPU_SIDE,
-            RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
-        };
-
         RenderedModel();
 
-        // RenderedModelType is set by the following functions:
-        // SetMeshDataPtr
-        //     * Sets it to RENDERED_MODEL_TYPE_LOADED_CPU_SIDE
-        // SetMeshId
-        //     * Sets it to RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
+        // Gets applied to RenderedMeshes
+        bool GetVisible() const;
+        void SetVisible(bool visible);
 
-        RenderedModelType GetRenderedModelType() const;
-
-        bool IsVisible() const;
-        void SetVisibility(bool visible);
-
-        void SetCameraMask(uint32_t cameraMask);
-        uint32_t GetCameraMask() const;
-
-        const MeshData* GetMeshDataPtr() const;
-        void SetMeshDataPtr(const MeshData* meshData);
-
-        unsigned int GetMeshId() const;
-        void SetMeshId(unsigned int meshId);
-
-        float GetMaxRadius() const;
-        void SetMaxRadius(float maxRadius);
-
-        unsigned int GetTextureId() const;
-        void SetTextureId(unsigned int textureId);
-
-        unsigned int GetSpecularId() const;
-        void SetSpecularId(unsigned int specularId);
-
+        // Gets applied to the RenderedMeshes
         const glm::vec3& GetScale() const;
-        void SetScale(const glm::vec3& scale);
-        void SetScale(float x, float y, float z);
-        void SetScaleX(float x);
-        void SetScaleY(float y);
-        void SetScaleZ(float z);
+        void SetScale(glm::vec3 scale);
 
-        const glm::vec4& GetColor() const;
-        void SetColor(const glm::vec4& color);
-        void SetColor(float r, float g, float b, float a);
-        void SetColorRGB(float r, float g, float b);
+        std::vector<RenderedMesh>& GetRenderedMeshes();
+        const std::vector<RenderedMesh>& GetRenderedMeshes() const;
+        const std::vector<RenderedMesh>& GetTransformedRenderedMeshes() const;
 
-        float GetShininess() const;
-        void SetShininess(float shininess);
+        bool TransformedMeshesUpToDate() const;
 
-        bool GetTranslucent() const;
-        void SetTranslucent(bool translucent);
+        void CalculateTransformedMeshes();
 
-        bool GetLit() const;
-        void SetLit(bool lit);
+        // Overwriten:
+
+        void SetPosition(const glm::vec3& position);
+        void SetPosition(float x, float y, float z);
+        void SetPositionX(float x);
+        void SetPositionY(float y);
+        void SetPositionZ(float z);
+
+        void AddTranslation(const glm::vec3& translation);
+        void AddTranslation(float x, float y, float z);
+        void AddTranslationX(float x);
+        void AddTranslationY(float y);
+        void AddTranslationZ(float z);
+
+        void MoveForward(float translation);
+        void MoveBack(float translation);
+        void MoveRight(float translation);
+        void MoveLeft(float translation);
+        void MoveUp(float translation);
+        void MoveDown(float translation);
+
+        void RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal);
+        void RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians);
+
+        void ResetOrientation();
+
+        void SetOrientation(const glm::quat& orientation);
+        void SetOrientation(float w, float x, float y, float z);
+
+        void AddRotation(const glm::quat& rotation);
+
+        void AddRelativeRotation(float rotationInRadians, const glm::vec3 axis);
+
+        void AddRelativeRotationX(float rotationInRadians);
+        void AddRelativeRotationY(float rotationInRadians);
+        void AddRelativeRotationZ(float rotationInRadians);
+
+        void AddPitch(float rotationInRadians);
+        void AddYaw(float rotationInRadians);
+        void AddRoll(float rotationInRadians);
+
+        void AddWorldRotation(float rotationInRadians, const glm::vec3 axis);
+
+        void AddWorldRotationX(float rotationInRadians);
+        void AddWorldRotationY(float rotationInRadians);
+        void AddWorldRotationZ(float rotationInRadians);
+
+        void LookAt(const glm::vec3& direction, const glm::vec3& up);
+        void LookAt(const glm::vec3& direction);
 
     protected:
         // Inherited:
         // glm::vec3 position_;
         // glm::quat orientation_;
 
-        RenderedModelType renderedModelType_;
-
         bool visible_;
-
-        uint32_t cameraMask_;
-
-        const MeshData* meshDataPtr_; // Used when RENDERED_MODEL_TYPE_LOADED_CPU_SIDE
-
-        unsigned int meshId_;         // Used when RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
-        float maxRadius_;             // Used when RENDERED_MODEL_TYPE_LOADED_GPU_SIDE
-
-        unsigned int textureId_;
-        unsigned int specularId_;
         glm::vec3 scale_;
-        float shininess_; // 32.0f looks good
-        glm::vec4 color_;
-        bool translucent_;
-        bool lit_;
+
+        std::vector<RenderedMesh> renderedMeshes_;
+
+        std::vector<RenderedMesh> transformedRenderedMeshes_;
+
+        bool transformedMeshesUpToDate_;
     };
 
     inline RenderedModel::RenderedModel()
-        : renderedModelType_(RenderedModelType::RENDERED_MODEL_TYPE_NOT_LOADED)
-        , visible_(true)
-        , cameraMask_(0b00000000000000000000000000000001)
-        , meshDataPtr_(nullptr)
-        , meshId_((unsigned int)-1)
-        , maxRadius_(0.0f)
-        , textureId_((unsigned int)-1)
-        , specularId_((unsigned int)-1)
+        : visible_(true)
         , scale_(1.0f, 1.0f, 1.0f)
-        , color_(1.0f, 1.0f, 1.0f, 1.0f)
-        , shininess_(0.0f)
-        , translucent_(false)
-        , lit_(true)
+        , transformedMeshesUpToDate_(false)
     {}
 
-    inline RenderedModel::RenderedModelType RenderedModel::GetRenderedModelType() const
-    {
-        return renderedModelType_;
-    }
-
-    inline bool RenderedModel::IsVisible() const
+    inline bool RenderedModel::GetVisible() const
     {
         return visible_;
     }
 
-    inline void RenderedModel::SetVisibility(bool visible)
+    inline void RenderedModel::SetVisible(bool visible)
     {
         visible_ = visible;
-    }
-
-    inline void RenderedModel::SetCameraMask(uint32_t cameraMask)
-    {
-        cameraMask_ = cameraMask;
-    }
-
-    inline uint32_t RenderedModel::GetCameraMask() const
-    {
-        return cameraMask_;
-    }
-
-    inline const MeshData* RenderedModel::GetMeshDataPtr() const
-    {
-        return meshDataPtr_;
-    }
-
-    inline void RenderedModel::SetMeshDataPtr(const MeshData* meshDataPtr)
-    {
-        renderedModelType_ = RenderedModelType::RENDERED_MODEL_TYPE_LOADED_CPU_SIDE;
-        meshDataPtr_ = meshDataPtr;
-    }
-
-    inline unsigned int RenderedModel::GetMeshId() const
-    {
-        return meshId_;
-    }
-
-    inline void RenderedModel::SetMeshId(unsigned int meshId)
-    {
-        renderedModelType_ = RenderedModelType::RENDERED_MODEL_TYPE_LOADED_GPU_SIDE;
-        meshId_ = meshId;
-    }
-
-    inline float RenderedModel::GetMaxRadius() const
-    {
-        return maxRadius_;
-    }
-
-    inline void RenderedModel::SetMaxRadius(float maxRadius)
-    {
-        maxRadius_ = maxRadius;
-    }
-
-    inline unsigned int RenderedModel::GetTextureId() const
-    {
-        return textureId_;
-    }
-
-    inline void RenderedModel::SetTextureId(unsigned int textureId)
-    {
-        textureId_ = textureId;
-    }
-
-    inline unsigned int RenderedModel::GetSpecularId() const
-    {
-        return specularId_;
-    }
-
-    inline void RenderedModel::SetSpecularId(unsigned int specularId)
-    {
-        specularId_ = specularId;
     }
 
     inline const glm::vec3& RenderedModel::GetScale() const
@@ -192,85 +113,239 @@ namespace Project001
         return scale_;
     }
 
-    inline void RenderedModel::SetScale(const glm::vec3& scale)
+    inline void RenderedModel::SetScale(glm::vec3 scale)
     {
         scale_ = scale;
     }
 
-    inline void RenderedModel::SetScale(float x, float y, float z)
+    inline std::vector<RenderedMesh>& RenderedModel::GetRenderedMeshes()
     {
-        scale_.x = x;
-        scale_.y = y;
-        scale_.z = z;
+        transformedMeshesUpToDate_ = false;
+        return renderedMeshes_;
     }
 
-    inline void RenderedModel::SetScaleX(float x)
+    inline const std::vector<RenderedMesh>& RenderedModel::GetRenderedMeshes() const
     {
-        scale_.x = x;
+        return renderedMeshes_;
     }
 
-    inline void RenderedModel::SetScaleY(float y)
+    inline const std::vector<RenderedMesh>& RenderedModel::GetTransformedRenderedMeshes() const
     {
-        scale_.y = y;
+        return transformedRenderedMeshes_;
     }
 
-    inline void RenderedModel::SetScaleZ(float z)
+    inline bool RenderedModel::TransformedMeshesUpToDate() const
     {
-        scale_.z = z;
+        return transformedMeshesUpToDate_;
     }
 
-    inline const glm::vec4& RenderedModel::GetColor() const
+    inline void RenderedModel::SetPosition(const glm::vec3& position)
     {
-        return color_;
+        transformedMeshesUpToDate_ = false;
+        Placement::SetPosition(position);
     }
 
-    inline void RenderedModel::SetColor(const glm::vec4& color)
+    inline void RenderedModel::SetPosition(float x, float y, float z)
     {
-        color_ = color;
+        transformedMeshesUpToDate_ = false;
+        Placement::SetPosition(x, y, z);
     }
 
-    inline void RenderedModel::SetColor(float r, float g, float b, float a)
+    inline void RenderedModel::SetPositionX(float x)
     {
-        color_.r = r;
-        color_.g = g;
-        color_.b = b;
-        color_.a = a;
+        transformedMeshesUpToDate_ = false;
+        Placement::SetPositionX(x);
     }
 
-    inline void RenderedModel::SetColorRGB(float r, float g, float b)
+    inline void RenderedModel::SetPositionY(float y)
     {
-        color_.r = r;
-        color_.g = g;
-        color_.b = b;
+        transformedMeshesUpToDate_ = false;
+        Placement::SetPositionY(y);
     }
 
-    inline float RenderedModel::GetShininess() const
+    inline void RenderedModel::SetPositionZ(float z)
     {
-        return shininess_;
+        transformedMeshesUpToDate_ = false;
+        Placement::SetPositionZ(z);
     }
 
-    inline void RenderedModel::SetShininess(float shininess)
+    inline void RenderedModel::AddTranslation(const glm::vec3& translation)
     {
-        shininess_ = shininess;
+        transformedMeshesUpToDate_ = false;
+        Placement::AddTranslation(translation);
     }
 
-    inline bool RenderedModel::GetTranslucent() const
+    inline void RenderedModel::AddTranslation(float x, float y, float z)
     {
-        return translucent_;
+        transformedMeshesUpToDate_ = false;
+        Placement::AddTranslation(x, y, z);
     }
 
-    inline void RenderedModel::SetTranslucent(bool translucent)
+    inline void RenderedModel::AddTranslationX(float x)
     {
-        translucent_ = translucent;
+        transformedMeshesUpToDate_ = false;
+        Placement::AddTranslationX(x);
     }
 
-    inline bool RenderedModel::GetLit() const
+    inline void RenderedModel::AddTranslationY(float y)
     {
-        return lit_;
+        transformedMeshesUpToDate_ = false;
+        Placement::AddTranslationY(y);
     }
 
-    inline void RenderedModel::SetLit(bool lit)
+    inline void RenderedModel::AddTranslationZ(float z)
     {
-        lit_ = lit;
+        transformedMeshesUpToDate_ = false;
+        Placement::AddTranslationZ(z);
+    }
+
+    inline void RenderedModel::MoveForward(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveForward(translation);
+    }
+
+    inline void RenderedModel::MoveBack(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveBack(translation);
+    }
+
+    inline void RenderedModel::MoveRight(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveRight(translation);
+    }
+
+    inline void RenderedModel::MoveLeft(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveLeft(translation);
+    }
+
+    inline void RenderedModel::MoveUp(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveUp(translation);
+    }
+
+    inline void RenderedModel::MoveDown(float translation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::MoveDown(translation);
+    }
+
+    inline void RenderedModel::RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::RevolveAround(focalPoint, angleInRadians, normal);
+    }
+
+    inline void RenderedModel::RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::RevolveAroundHorizontally(focalPoint, angleInRadians);
+    }
+
+    inline void RenderedModel::ResetOrientation()
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::ResetOrientation();
+    }
+
+    inline void RenderedModel::SetOrientation(const glm::quat& orientation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::SetOrientation(orientation);
+    }
+
+    inline void RenderedModel::SetOrientation(float w, float x, float y, float z)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::SetOrientation(w, x, y, z);
+    }
+
+    inline void RenderedModel::AddRotation(const glm::quat& rotation)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRotation(rotation);
+    }
+
+    inline void RenderedModel::AddRelativeRotation(float rotationInRadians, const glm::vec3 axis)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRelativeRotation(rotationInRadians, axis);
+    }
+
+    inline void RenderedModel::AddRelativeRotationX(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRelativeRotationX(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddRelativeRotationY(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRelativeRotationY(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddRelativeRotationZ(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRelativeRotationZ(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddPitch(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddPitch(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddYaw(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddYaw(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddRoll(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddRoll(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddWorldRotation(float rotationInRadians, const glm::vec3 axis)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddWorldRotation(rotationInRadians, axis);
+    }
+
+    inline void RenderedModel::AddWorldRotationX(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddWorldRotationX(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddWorldRotationY(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddWorldRotationY(rotationInRadians);
+    }
+
+    inline void RenderedModel::AddWorldRotationZ(float rotationInRadians)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::AddWorldRotationZ(rotationInRadians);
+    }
+
+    inline void RenderedModel::LookAt(const glm::vec3& direction, const glm::vec3& up)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::LookAt(direction, up);
+    }
+
+    inline void RenderedModel::LookAt(const glm::vec3& direction)
+    {
+        transformedMeshesUpToDate_ = false;
+        Placement::LookAt(direction);
     }
 }
