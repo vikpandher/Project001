@@ -39,13 +39,13 @@ protected:
 
     // SoundBuffer & SoundSource Ids -------------------------------------------
 
-    Project001::SoundData soundData01;
-    unsigned int soundBufferId01;
-    unsigned int soundSourceId01;
+    Project001::SoundData soundData01_;
+    unsigned int soundBufferId01_;
+    unsigned int soundSourceId01_;
 
-    Project001::SoundData soundData02;
-    unsigned int soundBufferId02;
-    unsigned int soundSourceId02;
+    Project001::SoundData soundData02_;
+    unsigned int soundBufferId02_;
+    unsigned int soundSourceId02_;
 
 private:
     // Tests Play, Pause, Stop, SoundSource Position, and Listener Position

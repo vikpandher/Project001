@@ -124,6 +124,7 @@ bool TestScene032::OnInitialize()
         }
 
         line001_MeshDataPtr_ = new Project001::MeshData();
+        meshDataPtrArray_.push_back(line001_MeshDataPtr_);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.24f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
         Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);
@@ -154,7 +155,7 @@ bool TestScene032::OnInitialize()
 
         cone001_MaxRadius_ = cone001_MeshDataPtr_->maxRadius;
     }
- 
+
     // Generate entities
     // -------------------------------------------------------------------------
 

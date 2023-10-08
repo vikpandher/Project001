@@ -55,41 +55,41 @@ bool TestScene050::OnInitialize()
     // Load sounds
     // -------------------------------------------------------------------------
 
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01, "../Sounds/f_congratulations.ogg"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01_, "../Sounds/f_congratulations.ogg"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
-        soundBufferId01,
-        soundData01.data,
-        soundData01.sizeInBytes,
-        soundData01.numberOfChannels,
-        soundData01.sampleRate_Hz,
-        soundData01.bitsPerSample,
-        soundData01.sizeInFrames
+        soundBufferId01_,
+        soundData01_.data,
+        soundData01_.sizeInBytes,
+        soundData01_.numberOfChannels,
+        soundData01_.sampleRate_Hz,
+        soundData01_.bitsPerSample,
+        soundData01_.sizeInFrames
     ));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
-        soundSourceId01,
-        soundBufferId01
+        soundSourceId01_,
+        soundBufferId01_
     ));
 
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02, "../Sounds/bounce.wav"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02_, "../Sounds/bounce.wav"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
-        soundBufferId02,
-        soundData02.data,
-        soundData02.sizeInBytes,
-        soundData02.numberOfChannels,
-        soundData02.sampleRate_Hz,
-        soundData02.bitsPerSample,
-        soundData02.sizeInFrames
+        soundBufferId02_,
+        soundData02_.data,
+        soundData02_.sizeInBytes,
+        soundData02_.numberOfChannels,
+        soundData02_.sampleRate_Hz,
+        soundData02_.bitsPerSample,
+        soundData02_.sizeInFrames
     ));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
-        soundSourceId02,
-        soundBufferId02
+        soundSourceId02_,
+        soundBufferId02_
     ));
 
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceLooping(soundSourceId02, true));
+    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceLooping(soundSourceId02_, true));
 
     // generated shape entity 01
     // -------------------------------------------------------------------------
@@ -103,7 +103,7 @@ bool TestScene050::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        soundPlayerPtr_->PlaySoundSource(soundSourceId02);
+        soundPlayerPtr_->PlaySoundSource(soundSourceId02_);
     }
 
     return success && true;
@@ -128,13 +128,13 @@ void TestScene050::OnHandleEvent(Project001::Event& event)
 
 void TestScene050::ClearResources()
 {
-    soundData01.Clear();
-    soundBufferId01 = (unsigned int)-1;
-    soundSourceId01 = (unsigned int)-1;
+    soundData01_.Clear();
+    soundBufferId01_ = (unsigned int)-1;
+    soundSourceId01_ = (unsigned int)-1;
 
-    soundData02.Clear();
-    soundBufferId02 = (unsigned int)-1;
-    soundSourceId02 = (unsigned int)-1;
+    soundData02_.Clear();
+    soundBufferId02_ = (unsigned int)-1;
+    soundSourceId02_ = (unsigned int)-1;
 }
 
 void TestScene050::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -199,8 +199,8 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
 
     glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
 
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02, renderedMeshPtr->GetPosition()));
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02, velocity));
+    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02_, renderedMeshPtr->GetPosition()));
+    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02_, velocity));
 }
 
 // private: --------------------------------------------------------------------

@@ -1,6 +1,13 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef _WIN32
+#ifdef WINDOWS_MEMORY_LEAK_CHECK
+#define _CRTDBG_MAP_ALLOC // Required for _CrtSetDbgFlag to work correctly
+#include <crtdbg.h>
+#endif
+#endif
+
 #if (('1234' >> 24) == '1')
     #define LITTLE_ENDIAN
 #elif (('4321' >> 24) == '1')
@@ -31,6 +38,13 @@
 
 int main(int argc, char** argv)
 {
+#ifdef _WIN32
+#ifdef WINDOWS_MEMORY_LEAK_CHECK
+    // Enable memory leak detection
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+#endif
+
     const size_t sizeScalar = 4;
     Project001::ApplicationInfo applicationInfo = {};
     applicationInfo.windowTitle = "Project001";

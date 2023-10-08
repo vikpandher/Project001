@@ -8,6 +8,12 @@
 
 namespace Project001
 {
+    void Logger::DestroyLogger()
+    {
+        delete s_instance_;
+        s_instance_ = nullptr;
+    }
+
     // NOTES:
     // ANSI escape color codes :
     // *these don't work on windows (only in visual studio console)

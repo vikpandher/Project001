@@ -104,6 +104,7 @@ namespace Project001
         if (s_glfwWindowCount_ == 0)
         {
             glfwTerminate();
+            s_recycledWindowIds_.clear();
         }
     }
 

@@ -107,6 +107,7 @@ bool TestScene034::OnInitialize()
         }
 
         line001_MeshDataPtr_ = new Project001::MeshData();
+        meshDataPtrArray_.push_back(line001_MeshDataPtr_);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
         Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);

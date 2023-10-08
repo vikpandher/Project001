@@ -2,6 +2,7 @@
 
 #include "Engine/ComponentStores.h"
 #include "Engine/Event.h"
+#include "Engine/Logger.h"
 #include "Engine/Renderer.h"
 #include "Engine/SoundPlayer.h"
 #include "Engine/Scene.h"
@@ -58,6 +59,8 @@ namespace Project001
         delete soundPlayerPtr_;
         delete rendererPtr_;
         delete windowPtr_;
+
+        _DESTROY_LOGGER();
     }
 
     bool Application::AddScene(Scene* scenePtr)
@@ -140,6 +143,11 @@ namespace Project001
 
             OnHandleEvent(RenderEvent(0, lastFrameDuration_ns));
             windowPtr_->PollEvents();
+        }
+
+        if (activeScenePtr_ != nullptr)
+        {
+            activeScenePtr_->Deinitialize();
         }
     }
 

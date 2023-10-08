@@ -184,7 +184,9 @@ namespace Project001
         std::map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_uninit(iter->second);
+            ma_sound*& soundPtr = iter->second;
+            ma_sound_uninit(soundPtr);
+            delete soundPtr;
             recycledSoundSourceIds_.push_back(soundSourceId);
             return true;
         }
@@ -198,7 +200,9 @@ namespace Project001
         for (std::map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.begin();
             iter != soundSourcePtrMap_.end(); ++iter)
         {
-            ma_sound_uninit(iter->second);
+            ma_sound*& soundPtr = iter->second;
+            ma_sound_uninit(soundPtr);
+            delete soundPtr;
         }
         soundSourcePtrMap_.clear();
         recycledSoundSourceIds_.clear();

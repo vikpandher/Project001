@@ -155,6 +155,7 @@ namespace Project001
         windowPtr_->MakeContextCurrent();
 
         delete primaryShaderPtr_;
+        delete gridShaderPtr_;
         delete wireframeShaderPtr_;
         delete normalShaderPtr_;
         delete screenShaderPtr_;
@@ -165,6 +166,8 @@ namespace Project001
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        glDeleteBuffers(1, &instanceBufferId_);
 
         glDeleteVertexArrays(1, &batchedVertexArrayId_);
         glDeleteBuffers(1, &batchedVertexBufferId_);

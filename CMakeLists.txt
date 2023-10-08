@@ -34,6 +34,10 @@ set(CMAKE_VULKAN_MODE FALSE)
 # If FALSE, windows build has a console
 set(CMAKE_WINDOWS_NO_CONSOLE FALSE)
 
+# If TRUE, adds memory leak check to windows build
+# If FALSE, doesn't
+set(CMAKE_WINDOWS_MEMORY_LEAK_CHECK TRUE)
+
 # ##############################################################################
 # ##############################################################################
 
@@ -72,6 +76,9 @@ if (${CMAKE_WINDOWS_NO_CONSOLE})
     set(CMAKE_WIN32 WIN32)
 endif()
 
+if (${CMAKE_WINDOWS_MEMORY_LEAK_CHECK})
+    add_definitions(-DWINDOWS_MEMORY_LEAK_CHECK)
+endif()
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -325,6 +332,7 @@ if(${PRINT_DEBUG_OUTPUT})
 
     message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
     message("CMAKE_WINDOWS_NO_CONSOLE: ${CMAKE_WINDOWS_NO_CONSOLE}")
+    message("CMAKE_WINDOWS_MEMORY_LEAK_CHECK: ${CMAKE_WINDOWS_MEMORY_LEAK_CHECK}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
