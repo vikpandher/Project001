@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include "Engine/Math/Shapes2D.h"
 
 
 
@@ -26,7 +26,6 @@ namespace Project001
             CollisionBody2D& collisionBodyB,
             bool recordInBodyB);
 
-        // TODO: Replace this with a quad-tree
         static std::vector<CollisionBody2D*> s_tangibleCollisionBodyPtrs_;
     };
 }

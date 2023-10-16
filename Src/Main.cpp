@@ -18,6 +18,7 @@
 
 #include "Engine/Application.h"
 
+#include "TestScene001.h"
 #include "TestScene002.h"
 #include "TestScene003.h"
 #include "TestScene004.h"
@@ -56,6 +57,10 @@ int main(int argc, char** argv)
     applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
+
+    // main menu
+    TestScene001* testScene001Ptr = new TestScene001();
+    applicationPtr->AddScene(testScene001Ptr);
 
     // tests shape generation (001)
     TestScene002* testScene002Ptr = new TestScene002();
@@ -120,6 +125,7 @@ int main(int argc, char** argv)
     applicationPtr->Run();
 
     delete applicationPtr;
+    delete testScene001Ptr;
     delete testScene002Ptr;
     delete testScene003Ptr;
     delete testScene004Ptr;

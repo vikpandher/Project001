@@ -12,17 +12,10 @@ namespace Project001
 
     void CollisionSystem2D::CalculateCollisions(ComponentStores* componentStoresPtr)
     {
-        // Get Collision Bodies
         CollisionBody2D* collisionBodyPtrs = nullptr;
         size_t collisionBodyCount = 0;
-        bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+        componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
 
-        if (!componentFound)
-        {
-            return;
-        }
-
-        // Apply Collision Body Transformations
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
@@ -34,13 +27,12 @@ namespace Project001
                 currentCollisionBody.CalculateBoundingRadius();
             }
 
-            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
+            if (!currentCollisionBody.TransformedShapesUpToDate())
             {
-                currentCollisionBody.CalculateTransformedCollisionShapes();
+                currentCollisionBody.CalculateTransformedShapes();
             }
         }
 
-        // Sort out all tangible collision bodies
         s_tangibleCollisionBodyPtrs_.clear();
 
         for (size_t i = 0; i < collisionBodyCount; ++i)
@@ -58,7 +50,6 @@ namespace Project001
             return;
         }
 
-        // Calculate collisions
         for (unsigned int i = 0; i < s_tangibleCollisionBodyPtrs_.size() - 1; ++i)
         {
             Project001::CollisionBody2D*& collisionBodyA = s_tangibleCollisionBodyPtrs_[i];
@@ -70,12 +61,12 @@ namespace Project001
                 unsigned int entityIdB;
                 componentStoresPtr->GetComponentEntityId<CollisionBody2D>(collisionBodyB, entityIdB);
 
-                if ((collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()) &&
-                    Check2D_Circle_Circle_Overlap(
+                if (Check2D_Circle_Circle_Overlap(
                     collisionBodyA->GetPosition(),
                     collisionBodyA->GetBoundingRadius(),
                     collisionBodyB->GetPosition(),
-                    collisionBodyB->GetBoundingRadius()))
+                    collisionBodyB->GetBoundingRadius()) &&
+                    (collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()))
                 {
                     CalculateCollisions(entityIdA, *collisionBodyA, entityIdB, *collisionBodyB, true);
                 }
@@ -87,80 +78,60 @@ namespace Project001
         unsigned int entityId,
         ComponentStores* componentStoresPtr)
     {
-        // Get primary Entity's Collision Bodies
-        CollisionBody2D* primaryCollisionBodyPtr = nullptr;
-        bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(entityId, primaryCollisionBodyPtr);
+        CollisionBody2D* collisionBodyPtr = nullptr;
+        bool componentFound = componentStoresPtr->GetComponent<CollisionBody2D>(entityId, collisionBodyPtr);
 
-        if (!primaryComponentFound || !primaryCollisionBodyPtr->GetTangible())
+        if (!componentFound || !collisionBodyPtr->GetTangible())
         {
             return;
         }
 
-        // Get Collision Bodies
-        CollisionBody2D* collisionBodyPtrs = nullptr;
-        size_t collisionBodyCount = 0;
-        bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+        collisionBodyPtr->ClearCollisions();
 
-        if (!componentFound)
+        if (!collisionBodyPtr->BoundingRadiusUpToDate())
         {
-            return;
+            collisionBodyPtr->CalculateBoundingRadius();
         }
 
-        // Apply Collision Body Transformations
-        for (size_t i = 0; i < collisionBodyCount; ++i)
+        if (!collisionBodyPtr->TransformedShapesUpToDate())
         {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-
-            currentCollisionBody.ClearCollisions();
-
-            if (!currentCollisionBody.BoundingRadiusUpToDate())
-            {
-                currentCollisionBody.CalculateBoundingRadius();
-            }
-
-            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
-            {
-                currentCollisionBody.CalculateTransformedCollisionShapes();
-            }
+            collisionBodyPtr->CalculateTransformedShapes();
         }
 
-        // Sort out all tangible collision bodies
+        CollisionBody2D* otherCollisionBodyPtrs = nullptr;
+        size_t otherCollisionBodyCount = 0;
+        componentStoresPtr->GetAllComponents<CollisionBody2D>(otherCollisionBodyPtrs, otherCollisionBodyCount);
+
         s_tangibleCollisionBodyPtrs_.clear();
 
-        for (size_t i = 0; i < collisionBodyCount; ++i)
+        for (size_t i = 0; i < otherCollisionBodyCount; ++i)
         {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+            CollisionBody2D& otherCollisionBody = otherCollisionBodyPtrs[i];
 
-            if (currentCollisionBody.GetTangible())
+            unsigned int otherEntityId;
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(&otherCollisionBody, otherEntityId);
+
+            if (entityId != otherEntityId && otherCollisionBody.GetTangible())
             {
-                s_tangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                s_tangibleCollisionBodyPtrs_.push_back(&otherCollisionBody);
             }
         }
 
-        if (s_tangibleCollisionBodyPtrs_.size() == 0)
+        for (unsigned int i = 0; i < s_tangibleCollisionBodyPtrs_.size(); ++i)
         {
-            return;
-        }
+            Project001::CollisionBody2D*& otherCollisionBodyPtr = s_tangibleCollisionBodyPtrs_[i];
 
-        // Clear primary Entity's Collisions
-        primaryCollisionBodyPtr->ClearCollisions();
+            unsigned int otherEntityId;
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(otherCollisionBodyPtr, otherEntityId);
 
-        // Calculate collisions
-        for (unsigned int j = 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
-        {
-            Project001::CollisionBody2D*& currentCollisionBody = s_tangibleCollisionBodyPtrs_[j];
-            unsigned int currentEntityId;
-            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentCollisionBody, currentEntityId);
-
-            if (entityId != currentEntityId &&
-                (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBody->GetCollisionGroupMask()) &&
-                Check2D_Circle_Circle_Overlap(
-                primaryCollisionBodyPtr->GetPosition(),
-                primaryCollisionBodyPtr->GetBoundingRadius(),
-                currentCollisionBody->GetPosition(),
-                currentCollisionBody->GetBoundingRadius()))
+            if (Check2D_Circle_Circle_Overlap(
+                collisionBodyPtr->GetPosition(),
+                collisionBodyPtr->GetBoundingRadius(),
+                otherCollisionBodyPtr->GetPosition(),
+                otherCollisionBodyPtr->GetBoundingRadius()) &&
+                (collisionBodyPtr->GetCollisionGroupMask() & otherCollisionBodyPtr->GetCollisionGroupMask()))
             {
-                CalculateCollisions(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBody, false);
+                CalculateCollisions(entityId, *collisionBodyPtr, otherEntityId, *otherCollisionBodyPtr, false);
             }
         }
     }
@@ -174,29 +145,53 @@ namespace Project001
         CollisionBody2D& collisionBodyB,
         bool recordInBodyB)
     {
-        const std::vector<CollisionPoint2D>& transformedCollisionPointsA = collisionBodyA.GetTransformedCollisionPoints();
-        const std::vector<CollisionLine2D>& transformedCollisionLinesA = collisionBodyA.GetTransformedCollisionLines();
-        const std::vector<CollisionRay2D>& transformedCollisionRaysA = collisionBodyA.GetTransformedCollisionRays();
-        const std::vector<CollisionLineSegment2D>& transformedCollisionLineSegmentsA = collisionBodyA.GetTransformedCollisionLineSegments();
-        const std::vector<CollisionRectangle2D>& transformedCollisionRectanglesA = collisionBodyA.GetTransformedCollisionRectangles();
-        const std::vector<CollisionOrientedRectangle2D>& transformedCollisionOrientedRectanglesA = collisionBodyA.GetTransformedCollisionOrientedRectangles();
-        const std::vector<CollisionCircle2D>& transformedCollisionCirclesA = collisionBodyA.GetTransformedCollisionCircles();
-        const std::vector<CollisionCapsule2D>& transformedCollisionCapsulesA = collisionBodyA.GetTransformedCollisionCapsules();
-        const std::vector<CollisionTriangle2D>& transformedCollisionTrianglesA = collisionBodyA.GetTransformedCollisionTriangles();
-        const std::vector<CollisionPolygon2D>& transformedCollisionPolygonsA = collisionBodyA.GetTransformedCollisionPolygons();
-        const std::vector<CollisionConvexPolygon2D>& transformedCollisionConvexPolygonsA = collisionBodyA.GetTransformedCollisionConvexPolygons();
+        const std::vector<Point2D>& transformedPointsA = collisionBodyA.GetTransformedPoints();
+        const std::vector<Line2D>& transformedLinesA = collisionBodyA.GetTransformedLines();
+        const std::vector<Ray2D>& transformedRaysA = collisionBodyA.GetTransformedRays();
+        const std::vector<LineSegment2D>& transformedLineSegmentsA = collisionBodyA.GetTransformedLineSegments();
+        const std::vector<Rectangle2D>& transformedRectanglesA = collisionBodyA.GetTransformedRectangles();
+        const std::vector<OrientedRectangle2D>& transformedOrientedRectanglesA = collisionBodyA.GetTransformedOrientedRectangles();
+        const std::vector<Circle2D>& transformedCirclesA = collisionBodyA.GetTransformedCircles();
+        const std::vector<Capsule2D>& transformedCapsulesA = collisionBodyA.GetTransformedCapsules();
+        const std::vector<Triangle2D>& transformedTrianglesA = collisionBodyA.GetTransformedTriangles();
+        const std::vector<Polygon2D>& transformedPolygonsA = collisionBodyA.GetTransformedPolygons();
+        const std::vector<ConvexPolygon2D>& transformedConvexPolygonsA = collisionBodyA.GetTransformedConvexPolygons();
 
-        const std::vector<CollisionPoint2D>& transformedCollisionPointsB = collisionBodyB.GetTransformedCollisionPoints();
-        const std::vector<CollisionLine2D>& transformedCollisionLinesB = collisionBodyB.GetTransformedCollisionLines();
-        const std::vector<CollisionRay2D>& transformedCollisionRaysB = collisionBodyB.GetTransformedCollisionRays();
-        const std::vector<CollisionLineSegment2D>& transformedCollisionLineSegmentsB = collisionBodyB.GetTransformedCollisionLineSegments();
-        const std::vector<CollisionRectangle2D>& transformedCollisionRectanglesB = collisionBodyB.GetTransformedCollisionRectangles();
-        const std::vector<CollisionOrientedRectangle2D>& transformedCollisionOrientedRectanglesB = collisionBodyB.GetTransformedCollisionOrientedRectangles();
-        const std::vector<CollisionCircle2D>& transformedCollisionCirclesB = collisionBodyB.GetTransformedCollisionCircles();
-        const std::vector<CollisionCapsule2D>& transformedCollisionCapsulesB = collisionBodyB.GetTransformedCollisionCapsules();
-        const std::vector<CollisionTriangle2D>& transformedCollisionTrianglesB = collisionBodyB.GetTransformedCollisionTriangles();
-        const std::vector<CollisionPolygon2D>& transformedCollisionPolygonsB = collisionBodyB.GetTransformedCollisionPolygons();
-        const std::vector<CollisionConvexPolygon2D>& transformedCollisionConvexPolygonsB = collisionBodyB.GetTransformedCollisionConvexPolygons();
+        const std::vector<unsigned int>& transformedPointIdsA = collisionBodyA.GetTransformedPointIds();
+        const std::vector<unsigned int>& transformedLineIdsA = collisionBodyA.GetTransformedLineIds();
+        const std::vector<unsigned int>& transformedRayIdsA = collisionBodyA.GetTransformedRayIds();
+        const std::vector<unsigned int>& transformedLineSegmentIdsA = collisionBodyA.GetTransformedLineSegmentIds();
+        const std::vector<unsigned int>& transformedRectangleIdsA = collisionBodyA.GetTransformedRectangleIds();
+        const std::vector<unsigned int>& transformedOrientedRectangleIdsA = collisionBodyA.GetTransformedOrientedRectangleIds();
+        const std::vector<unsigned int>& transformedCircleIdsA = collisionBodyA.GetTransformedCircleIds();
+        const std::vector<unsigned int>& transformedCapsuleIdsA = collisionBodyA.GetTransformedCapsuleIds();
+        const std::vector<unsigned int>& transformedTriangleIdsA = collisionBodyA.GetTransformedTriangleIds();
+        const std::vector<unsigned int>& transformedPolygonIdsA = collisionBodyA.GetTransformedPolygonIds();
+        const std::vector<unsigned int>& transformedConvexPolygonIdsA = collisionBodyA.GetTransformedConvexPolygonIds();
+
+        const std::vector<Point2D>& transformedPointsB = collisionBodyB.GetTransformedPoints();
+        const std::vector<Line2D>& transformedLinesB = collisionBodyB.GetTransformedLines();
+        const std::vector<Ray2D>& transformedRaysB = collisionBodyB.GetTransformedRays();
+        const std::vector<LineSegment2D>& transformedLineSegmentsB = collisionBodyB.GetTransformedLineSegments();
+        const std::vector<Rectangle2D>& transformedRectanglesB = collisionBodyB.GetTransformedRectangles();
+        const std::vector<OrientedRectangle2D>& transformedOrientedRectanglesB = collisionBodyB.GetTransformedOrientedRectangles();
+        const std::vector<Circle2D>& transformedCirclesB = collisionBodyB.GetTransformedCircles();
+        const std::vector<Capsule2D>& transformedCapsulesB = collisionBodyB.GetTransformedCapsules();
+        const std::vector<Triangle2D>& transformedTrianglesB = collisionBodyB.GetTransformedTriangles();
+        const std::vector<Polygon2D>& transformedPolygonsB = collisionBodyB.GetTransformedPolygons();
+        const std::vector<ConvexPolygon2D>& transformedConvexPolygonsB = collisionBodyB.GetTransformedConvexPolygons();
+
+        const std::vector<unsigned int>& transformedPointIdsB = collisionBodyB.GetTransformedPointIds();
+        const std::vector<unsigned int>& transformedLineIdsB = collisionBodyB.GetTransformedLineIds();
+        const std::vector<unsigned int>& transformedRayIdsB = collisionBodyB.GetTransformedRayIds();
+        const std::vector<unsigned int>& transformedLineSegmentIdsB = collisionBodyB.GetTransformedLineSegmentIds();
+        const std::vector<unsigned int>& transformedRectangleIdsB = collisionBodyB.GetTransformedRectangleIds();
+        const std::vector<unsigned int>& transformedOrientedRectangleIdsB = collisionBodyB.GetTransformedOrientedRectangleIds();
+        const std::vector<unsigned int>& transformedCircleIdsB = collisionBodyB.GetTransformedCircleIds();
+        const std::vector<unsigned int>& transformedCapsuleIdsB = collisionBodyB.GetTransformedCapsuleIds();
+        const std::vector<unsigned int>& transformedTriangleIdsB = collisionBodyB.GetTransformedTriangleIds();
+        const std::vector<unsigned int>& transformedPolygonIdsB = collisionBodyB.GetTransformedPolygonIds();
+        const std::vector<unsigned int>& transformedConvexPolygonIdsB = collisionBodyB.GetTransformedConvexPolygonIds();
 
         CollisionData collisionA;
         collisionA.otherEntityId = entityIdB;
@@ -205,21 +200,12 @@ namespace Project001
         collisionB.otherEntityId = entityIdA;
 
         // point A & point B ---------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-                if (!pointB.tangible_)
-                {
-                    continue;
-                }
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Point_Point_Overlap(
                     pointA.position,
@@ -227,8 +213,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -244,21 +230,12 @@ namespace Project001
         }
 
         // point A & line B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
-            {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
-                if (!lineB.tangible_)
-                {
-                    continue;
-                }
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Point_Line_Overlap(
                     pointA.position,
@@ -267,8 +244,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -284,21 +261,12 @@ namespace Project001
         }
 
         // point A & ray B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
-            {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
-                if (!rayB.tangible_)
-                {
-                    continue;
-                }
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Point_Ray_Overlap(
                     pointA.position,
@@ -307,8 +275,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -324,21 +292,12 @@ namespace Project001
         }
 
         // point A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
-            {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
-                if (!lineSegmentB.tangible_)
-                {
-                    continue;
-                }
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Point_LineSegment_Overlap(
                     pointA.position,
@@ -347,8 +306,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -364,21 +323,12 @@ namespace Project001
         }
 
         // point A & rectangle B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-            {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
-                if (!rectangleB.tangible_)
-                {
-                    continue;
-                }
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Point_Rectangle_Overlap(
                     pointA.position,
@@ -387,8 +337,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -404,21 +354,12 @@ namespace Project001
         }
 
         // point A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
-                if (!orientedRectangleB.tangible_)
-                {
-                    continue;
-                }
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Point_OrientedRectangle_Overlap(
                     pointA.position,
@@ -428,8 +369,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -445,21 +386,12 @@ namespace Project001
         }
 
         // point A & circle B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                continue;
-            }
-
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-            {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-                if (!circleB.tangible_)
-                {
-                    continue;
-                }
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Point_Circle_Overlap(
                     pointA.position,
@@ -468,8 +400,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -485,12 +417,12 @@ namespace Project001
         }
 
         // point A & capsule B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Point_Capsule_Overlap(
                     pointA.position,
@@ -500,8 +432,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -517,12 +449,12 @@ namespace Project001
         }
 
         // point A & triangle B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Point_Triangle_Overlap(
                     pointA.position,
@@ -532,8 +464,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -549,12 +481,12 @@ namespace Project001
         }
 
         // point A & polygon B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Point2D& pointA = transformedPointsA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Point_Polygon_Overlap(
                     pointA.position,
@@ -563,8 +495,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -580,22 +512,22 @@ namespace Project001
         }
 
         // point A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
+        for (size_t i = 0; i < transformedPointsA.size(); ++i)
         {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Point2D& pointB = transformedPointsA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Point_ConvexPolygon_Overlap(
-                    pointA.position,
+                    pointB.position,
                     convexPolygonB.positions.data(),
                     convexPolygonB.positions.size());
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedPointIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -611,12 +543,12 @@ namespace Project001
         }
 
         // line A & point B ----------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Line_Point_Overlap(
                     lineA.position,
@@ -625,8 +557,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -642,12 +574,12 @@ namespace Project001
         }
 
         // line A & line B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Line_Line_Overlap(
                     lineA.position,
@@ -657,8 +589,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -674,12 +606,12 @@ namespace Project001
         }
 
         // line A & ray B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Line_Ray_Overlap(
                     lineA.position,
@@ -689,8 +621,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -706,12 +638,12 @@ namespace Project001
         }
 
         // line A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Line_LineSegment_Overlap(
                     lineA.position,
@@ -721,8 +653,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -738,12 +670,12 @@ namespace Project001
         }
 
         // line A & rectangle B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Line_Rectangle_Overlap(
                     lineA.position,
@@ -753,8 +685,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -770,24 +702,24 @@ namespace Project001
         }
 
         // line A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& rectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Line_OrientedRectangle_Overlap(
                     lineA.position,
                     lineA.slope,
-                    orientedRectangleB.halfSize,
-                    orientedRectangleB.position,
-                    orientedRectangleB.rotation);
+                    rectangleB.halfSize,
+                    rectangleB.position,
+                    rectangleB.rotation);
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -803,12 +735,12 @@ namespace Project001
         }
 
         // line A & circle B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Line_Circle_Overlap(
                     lineA.position,
@@ -818,8 +750,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -835,12 +767,12 @@ namespace Project001
         }
 
         // line A & capsule B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Line_Capsule_Overlap(
                     lineA.position,
@@ -851,8 +783,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -868,12 +800,12 @@ namespace Project001
         }
 
         // line A & triangle B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Line_Triangle_Overlap(
                     lineA.position,
@@ -884,8 +816,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -901,12 +833,12 @@ namespace Project001
         }
 
         // line A & polygon B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Line_Polygon_Overlap(
                     lineA.position,
@@ -916,8 +848,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -933,12 +865,12 @@ namespace Project001
         }
 
         // line A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
+        for (size_t i = 0; i < transformedLinesA.size(); ++i)
         {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Line2D& lineA = transformedLinesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Line_ConvexPolygon_Overlap(
                     lineA.position,
@@ -948,8 +880,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedLineIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -965,12 +897,12 @@ namespace Project001
         }
 
         // ray A & point B -----------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Ray_Point_Overlap(
                     rayA.position,
@@ -979,8 +911,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -996,12 +928,12 @@ namespace Project001
         }
 
         // ray A & line B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Ray_Line_Overlap(
                     rayA.position,
@@ -1011,8 +943,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1028,12 +960,12 @@ namespace Project001
         }
 
         // ray A & ray B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Ray_Ray_Overlap(
                     rayA.position,
@@ -1043,8 +975,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1060,12 +992,12 @@ namespace Project001
         }
 
         // ray A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Ray_LineSegment_Overlap(
                     rayA.position,
@@ -1075,8 +1007,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1092,12 +1024,12 @@ namespace Project001
         }
 
         // ray A & rectangle B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Ray_Rectangle_Overlap(
                     rayA.position,
@@ -1107,8 +1039,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1124,12 +1056,12 @@ namespace Project001
         }
 
         // ray A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Ray_OrientedRectangle_Overlap(
                     rayA.position,
@@ -1140,8 +1072,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1157,12 +1089,12 @@ namespace Project001
         }
 
         // ray A & circle B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Ray_Circle_Overlap(
                     rayA.position,
@@ -1172,8 +1104,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1189,12 +1121,12 @@ namespace Project001
         }
 
         // ray A & capsule B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Ray_Capsule_Overlap(
                     rayA.position,
@@ -1205,8 +1137,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1222,12 +1154,12 @@ namespace Project001
         }
 
         // ray A & triangle B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Ray_Triangle_Overlap(
                     rayA.position,
@@ -1238,8 +1170,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1255,12 +1187,12 @@ namespace Project001
         }
 
         // ray A & polygon B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Ray_Polygon_Overlap(
                     rayA.position,
@@ -1270,8 +1202,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1287,12 +1219,12 @@ namespace Project001
         }
 
         // ray A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
+        for (size_t i = 0; i < transformedRaysA.size(); ++i)
         {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Ray2D& rayA = transformedRaysA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Ray_ConvexPolygon_Overlap(
                     rayA.position,
@@ -1302,8 +1234,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedRayIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1319,12 +1251,12 @@ namespace Project001
         }
 
         // lineSegment A & point B ---------------------------------------------
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_LineSegment_Point_Overlap(
                     lineSegmentA.start,
@@ -1333,8 +1265,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1350,12 +1282,12 @@ namespace Project001
         }
 
         // lineSegment A & line B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_LineSegment_Line_Overlap(
                     lineSegmentA.start,
@@ -1365,8 +1297,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1382,12 +1314,12 @@ namespace Project001
         }
 
         // lineSegment A & ray B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_LineSegment_Ray_Overlap(
                     lineSegmentA.start,
@@ -1397,8 +1329,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1414,12 +1346,12 @@ namespace Project001
         }
 
         // lineSegment A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_LineSegment_LineSegment_Overlap(
                     lineSegmentA.start,
@@ -1429,8 +1361,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1446,12 +1378,12 @@ namespace Project001
         }
 
         // lineSegment A & rectangle B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_LineSegment_Rectangle_Overlap(
                     lineSegmentA.start,
@@ -1461,8 +1393,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1478,12 +1410,12 @@ namespace Project001
         }
 
         // lineSegment A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_LineSegment_OrientedRectangle_Overlap(
                     lineSegmentA.start,
@@ -1494,8 +1426,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1511,12 +1443,12 @@ namespace Project001
         }
 
         // lineSegment A & circle B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_LineSegment_Circle_Overlap(
                     lineSegmentA.start,
@@ -1526,8 +1458,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1543,12 +1475,12 @@ namespace Project001
         }
 
         // lineSegment A & capsule B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_LineSegment_Capsule_Overlap(
                     lineSegmentA.start,
@@ -1559,8 +1491,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1576,12 +1508,12 @@ namespace Project001
         }
 
         // lineSegment A & triangle B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_LineSegment_Triangle_Overlap(
                     lineSegmentA.start,
@@ -1592,8 +1524,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1609,12 +1541,12 @@ namespace Project001
         }
 
         // lineSegment A & polygon B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_LineSegment_Polygon_Overlap(
                     lineSegmentA.start,
@@ -1624,8 +1556,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1641,12 +1573,12 @@ namespace Project001
         }
 
         // lineSegment A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
+        for (size_t i = 0; i < transformedLineSegmentsA.size(); ++i)
         {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const LineSegment2D& lineSegmentA = transformedLineSegmentsA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_LineSegment_ConvexPolygon_Overlap(
                     lineSegmentA.start,
@@ -1656,8 +1588,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedLineSegmentIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1673,12 +1605,12 @@ namespace Project001
         }
 
         // rectangle A & point B -----------------------------------------------
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Rectangle_Point_Overlap(
                     rectangleA.bottomLeft,
@@ -1687,8 +1619,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1704,12 +1636,12 @@ namespace Project001
         }
 
         // rectangle A & line B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Rectangle_Line_Overlap(
                     rectangleA.bottomLeft,
@@ -1719,8 +1651,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1736,12 +1668,12 @@ namespace Project001
         }
 
         // rectangle A & ray B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Rectangle_Ray_Overlap(
                     rectangleA.bottomLeft,
@@ -1751,8 +1683,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1768,12 +1700,12 @@ namespace Project001
         }
 
         // rectangle A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsA.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsA.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsA[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsA[j];
 
                 bool collisionFound = Check2D_Rectangle_LineSegment_Overlap(
                     rectangleA.bottomLeft,
@@ -1783,8 +1715,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1800,12 +1732,12 @@ namespace Project001
         }
 
         // rectangle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Rectangle_Rectangle_Overlap(
                     rectangleA.bottomLeft,
@@ -1815,8 +1747,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1832,12 +1764,12 @@ namespace Project001
         }
 
         // rectangle A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Rectangle_OrientedRectangle_Overlap(
                     rectangleA.bottomLeft,
@@ -1848,8 +1780,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1865,12 +1797,12 @@ namespace Project001
         }
 
         // rectangle A & circle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Rectangle_Circle_Overlap(
                     rectangleA.bottomLeft,
@@ -1880,8 +1812,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1897,12 +1829,12 @@ namespace Project001
         }
 
         // rectangle A & capsule B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Rectangle_Capsule_Overlap(
                     rectangleA.bottomLeft,
@@ -1913,8 +1845,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1930,12 +1862,12 @@ namespace Project001
         }
 
         // rectangle A & triangle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Rectangle_Triangle_Overlap(
                     rectangleA.bottomLeft,
@@ -1946,8 +1878,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1963,12 +1895,12 @@ namespace Project001
         }
 
         // rectangle A & polygon B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Rectangle_Polygon_Overlap(
                     rectangleA.bottomLeft,
@@ -1978,8 +1910,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -1995,12 +1927,12 @@ namespace Project001
         }
 
         // rectangle A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedRectanglesA.size(); ++i)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Rectangle2D& rectangleA = transformedRectanglesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Rectangle_ConvexPolygon_Overlap(
                     rectangleA.bottomLeft,
@@ -2010,8 +1942,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2027,12 +1959,12 @@ namespace Project001
         }
 
         // orientedRectangle A & point B ---------------------------------------
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Point_Overlap(
                     orientedRectangleA.halfSize,
@@ -2042,8 +1974,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2059,12 +1991,12 @@ namespace Project001
         }
 
         // orientedRectangle A & line B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Line_Overlap(
                     orientedRectangleA.halfSize,
@@ -2075,8 +2007,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2092,12 +2024,12 @@ namespace Project001
         }
 
         // orientedRectangle A & ray B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Ray_Overlap(
                     orientedRectangleA.halfSize,
@@ -2108,8 +2040,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2125,12 +2057,12 @@ namespace Project001
         }
 
         // orientedRectangle A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_LineSegment_Overlap(
                     orientedRectangleA.halfSize,
@@ -2141,8 +2073,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2158,12 +2090,12 @@ namespace Project001
         }
 
         // orientedRectangle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Rectangle_Overlap(
                     orientedRectangleA.halfSize,
@@ -2174,8 +2106,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2191,12 +2123,12 @@ namespace Project001
         }
 
         // orientedRectangle A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_OrientedRectangle_Overlap(
                     orientedRectangleA.halfSize,
@@ -2208,8 +2140,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2225,12 +2157,12 @@ namespace Project001
         }
 
         // orientedRectangle A & circle B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Circle_Overlap(
                     orientedRectangleA.halfSize,
@@ -2241,8 +2173,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2258,12 +2190,12 @@ namespace Project001
         }
 
         // orientedRectangle A & capsule B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Capsule_Overlap(
                     orientedRectangleA.halfSize,
@@ -2275,8 +2207,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2292,12 +2224,12 @@ namespace Project001
         }
 
         // orientedRectangle A & triangle B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Triangle_Overlap(
                     orientedRectangleA.halfSize,
@@ -2309,8 +2241,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2326,12 +2258,12 @@ namespace Project001
         }
 
         // orientedRectangle A & polygon B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_Polygon_Overlap(
                     orientedRectangleA.halfSize,
@@ -2342,8 +2274,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2359,12 +2291,12 @@ namespace Project001
         }
 
         // orientedRectangle A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        for (size_t i = 0; i < transformedOrientedRectanglesA.size(); ++i)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const OrientedRectangle2D& orientedRectangleA = transformedOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_OrientedRectangle_ConvexPolygon_Overlap(
                     orientedRectangleA.halfSize,
@@ -2375,8 +2307,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedOrientedRectangleIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2392,12 +2324,12 @@ namespace Project001
         }
 
         // circle A & point B --------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Circle_Point_Overlap(
                     circleA.position,
@@ -2406,8 +2338,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2423,12 +2355,12 @@ namespace Project001
         }
 
         // circle A & line B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Circle_Line_Overlap(
                     circleA.position,
@@ -2438,8 +2370,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2455,12 +2387,12 @@ namespace Project001
         }
 
         // circle A & ray B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Circle_Ray_Overlap(
                     circleA.position,
@@ -2470,8 +2402,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2487,12 +2419,12 @@ namespace Project001
         }
 
         // circle A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Circle_LineSegment_Overlap(
                     circleA.position,
@@ -2502,8 +2434,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2519,12 +2451,12 @@ namespace Project001
         }
 
         // circle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Circle_Rectangle_Overlap(
                     circleA.position,
@@ -2534,8 +2466,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2551,12 +2483,12 @@ namespace Project001
         }
 
         // circle A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Circle_OrientedRectangle_Overlap(
                     circleA.position,
@@ -2567,8 +2499,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2584,12 +2516,12 @@ namespace Project001
         }
 
         // circle A & circle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Circle_Circle_Overlap(
                     circleA.position,
@@ -2599,8 +2531,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2616,12 +2548,12 @@ namespace Project001
         }
 
         // circle A & capsule B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Circle_Capsule_Overlap(
                     circleA.position,
@@ -2632,8 +2564,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2649,12 +2581,12 @@ namespace Project001
         }
 
         // circle A & triangle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Circle_Triangle_Overlap(
                     circleA.position,
@@ -2665,8 +2597,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2682,12 +2614,12 @@ namespace Project001
         }
 
         // circle A & polygon B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Circle_Polygon_Overlap(
                     circleA.position,
@@ -2697,8 +2629,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2714,12 +2646,12 @@ namespace Project001
         }
 
         // circle A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        for (size_t i = 0; i < transformedCirclesA.size(); ++i)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Circle2D& circleA = transformedCirclesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Circle_ConvexPolygon_Overlap(
                     circleA.position,
@@ -2729,8 +2661,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedCircleIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2746,12 +2678,12 @@ namespace Project001
         }
 
         // capsule A & point B -------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Capsule_Point_Overlap(
                     capsuleA.start,
@@ -2761,8 +2693,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2778,12 +2710,12 @@ namespace Project001
         }
 
         // capsule A & line B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Capsule_Line_Overlap(
                     capsuleA.start,
@@ -2794,8 +2726,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2811,12 +2743,12 @@ namespace Project001
         }
 
         // capsule A & ray B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Capsule_Ray_Overlap(
                     capsuleA.start,
@@ -2827,8 +2759,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2844,12 +2776,12 @@ namespace Project001
         }
 
         // capsule A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Capsule_LineSegment_Overlap(
                     capsuleA.start,
@@ -2860,8 +2792,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2877,12 +2809,12 @@ namespace Project001
         }
 
         // capsule & other rectangle
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Capsule_Rectangle_Overlap(
                     capsuleA.start,
@@ -2893,8 +2825,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2910,12 +2842,12 @@ namespace Project001
         }
 
         // capsule A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Capsule_OrientedRectangle_Overlap(
                     capsuleA.start,
@@ -2927,8 +2859,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2944,12 +2876,12 @@ namespace Project001
         }
 
         // capsule A & circle B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Capsule_Circle_Overlap(
                     capsuleA.start,
@@ -2960,8 +2892,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -2977,12 +2909,12 @@ namespace Project001
         }
 
         // capsule A & capsule B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Capsule_Capsule_Overlap(
                     capsuleA.start,
@@ -2994,8 +2926,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3011,12 +2943,12 @@ namespace Project001
         }
 
         // capsule A & triangle B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Capsule_Triangle_Overlap(
                     capsuleA.start,
@@ -3028,8 +2960,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3045,12 +2977,12 @@ namespace Project001
         }
 
         // capsule & other polygon
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Capsule_Polygon_Overlap(
                     capsuleA.start,
@@ -3061,8 +2993,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3078,12 +3010,12 @@ namespace Project001
         }
 
         // capsule A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        for (size_t i = 0; i < transformedCapsulesA.size(); ++i)
         {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Capsule2D& capsuleA = transformedCapsulesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Capsule_ConvexPolygon_Overlap(
                     capsuleA.start,
@@ -3094,8 +3026,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedCapsuleIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3111,12 +3043,12 @@ namespace Project001
         }
 
         // triangle A & point B ------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Triangle_Point_Overlap(
                     triangleA.corner1,
@@ -3126,8 +3058,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3143,12 +3075,12 @@ namespace Project001
         }
 
         // triangle A & line B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Triangle_Line_Overlap(
                     triangleA.corner1,
@@ -3159,8 +3091,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3176,12 +3108,12 @@ namespace Project001
         }
 
         // triangle A & ray B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Triangle_Ray_Overlap(
                     triangleA.corner1,
@@ -3192,8 +3124,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3209,12 +3141,12 @@ namespace Project001
         }
 
         // triangle A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Triangle_LineSegment_Overlap(
                     triangleA.corner1,
@@ -3225,8 +3157,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3242,12 +3174,12 @@ namespace Project001
         }
 
         // triangle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Triangle_Rectangle_Overlap(
                     triangleA.corner1,
@@ -3258,8 +3190,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3275,12 +3207,12 @@ namespace Project001
         }
 
         // triangle A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Triangle_OrientedRectangle_Overlap(
                     triangleA.corner1,
@@ -3292,8 +3224,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3309,12 +3241,12 @@ namespace Project001
         }
 
         // triangle A & circle B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Triangle_Circle_Overlap(
                     triangleA.corner1,
@@ -3325,8 +3257,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3342,12 +3274,12 @@ namespace Project001
         }
 
         // triangle A & capsule B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Triangle_Capsule_Overlap(
                     triangleA.corner1,
@@ -3359,8 +3291,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3376,12 +3308,12 @@ namespace Project001
         }
 
         // triangle A & triangle B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Triangle_Triangle_Overlap(
                     triangleA.corner1,
@@ -3393,8 +3325,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3410,12 +3342,12 @@ namespace Project001
         }
 
         // triangle A & polygon B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Triangle_Polygon_Overlap(
                     triangleA.corner1,
@@ -3426,8 +3358,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3443,12 +3375,12 @@ namespace Project001
         }
 
         // triangle A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        for (size_t i = 0; i < transformedTrianglesA.size(); ++i)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Triangle2D& triangleA = transformedTrianglesA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
                     triangleA.corner1,
@@ -3459,8 +3391,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedTriangleIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3476,12 +3408,12 @@ namespace Project001
         }
 
         // polygon A & point B -------------------------------------------------
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_Polygon_Point_Overlap(
                     polygonA.positions.data(),
@@ -3490,8 +3422,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3507,12 +3439,12 @@ namespace Project001
         }
 
         // polygon A & line B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_Polygon_Line_Overlap(
                     polygonA.positions.data(),
@@ -3522,8 +3454,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3539,12 +3471,12 @@ namespace Project001
         }
 
         // polygon A & ray B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_Polygon_Ray_Overlap(
                     polygonA.positions.data(),
@@ -3554,8 +3486,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3571,12 +3503,12 @@ namespace Project001
         }
 
         // polygon A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Polygon_LineSegment_Overlap(
                     polygonA.positions.data(),
@@ -3586,8 +3518,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3603,12 +3535,12 @@ namespace Project001
         }
 
         // polygon A & rectangle B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_Polygon_Rectangle_Overlap(
                     polygonA.positions.data(),
@@ -3618,8 +3550,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3635,12 +3567,12 @@ namespace Project001
         }
 
         // polygon A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Polygon_OrientedRectangle_Overlap(
                     polygonA.positions.data(),
@@ -3651,8 +3583,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3668,12 +3600,12 @@ namespace Project001
         }
 
         // polygon A & circle B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_Polygon_Circle_Overlap(
                     polygonA.positions.data(),
@@ -3683,8 +3615,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3700,12 +3632,12 @@ namespace Project001
         }
 
         // polygon A & capsule B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_Polygon_Capsule_Overlap(
                     polygonA.positions.data(),
@@ -3716,8 +3648,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3733,12 +3665,12 @@ namespace Project001
         }
 
         // polygon A & triangle B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_Polygon_Triangle_Overlap(
                     polygonA.positions.data(),
@@ -3749,8 +3681,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3766,12 +3698,12 @@ namespace Project001
         }
 
         // polygon A & polygon B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_Polygon_Polygon_Overlap(
                     polygonA.positions.data(),
@@ -3781,8 +3713,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3798,12 +3730,12 @@ namespace Project001
         }
 
         // polygon A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedPolygonsA.size(); ++i)
         {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const Polygon2D& polygonA = transformedPolygonsA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Polygon_ConvexPolygon_Overlap(
                     polygonA.positions.data(),
@@ -3813,8 +3745,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3830,12 +3762,12 @@ namespace Project001
         }
 
         // convexPolygon A & point B -------------------------------------------
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedPointsB.size(); ++j)
             {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+                const Point2D& pointB = transformedPointsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Point_Overlap(
                     convexPolygonA.positions.data(),
@@ -3844,8 +3776,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedPointIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3861,12 +3793,12 @@ namespace Project001
         }
 
         // convexPolygon A & line B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedLinesB.size(); ++j)
             {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
+                const Line2D& lineB = transformedLinesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Line_Overlap(
                     convexPolygonA.positions.data(),
@@ -3876,8 +3808,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedLineIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3893,12 +3825,12 @@ namespace Project001
         }
 
         // convexPolygon A & ray B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedRaysB.size(); ++j)
             {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
+                const Ray2D& rayB = transformedRaysB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
                     convexPolygonA.positions.data(),
@@ -3908,8 +3840,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedRayIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3925,12 +3857,12 @@ namespace Project001
         }
 
         // convexPolygon A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
+                const LineSegment2D& lineSegmentB = transformedLineSegmentsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_LineSegment_Overlap(
                     convexPolygonA.positions.data(),
@@ -3940,8 +3872,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedLineSegmentIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3957,12 +3889,12 @@ namespace Project001
         }
 
         // convexPolygon A & rectangle B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const Rectangle2D& rectangleB = transformedRectanglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Rectangle_Overlap(
                     convexPolygonA.positions.data(),
@@ -3972,8 +3904,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -3989,12 +3921,12 @@ namespace Project001
         }
 
         // convexPolygon A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const OrientedRectangle2D& orientedRectangleB = transformedOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_OrientedRectangle_Overlap(
                     convexPolygonA.positions.data(),
@@ -4005,8 +3937,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedOrientedRectangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -4022,12 +3954,12 @@ namespace Project001
         }
 
         // convexPolygon A & circle B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const Circle2D& circleB = transformedCirclesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Circle_Overlap(
                     convexPolygonA.positions.data(),
@@ -4037,8 +3969,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedCircleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -4054,12 +3986,12 @@ namespace Project001
         }
 
         // convexPolygon A & capsule B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const Capsule2D& capsuleB = transformedCapsulesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Capsule_Overlap(
                     convexPolygonA.positions.data(),
@@ -4070,8 +4002,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedCapsuleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -4087,12 +4019,12 @@ namespace Project001
         }
 
         // convexPolygon A & triangle B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const Triangle2D& triangleB = transformedTrianglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
                     convexPolygonA.positions.data(),
@@ -4103,8 +4035,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedTriangleIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -4120,12 +4052,12 @@ namespace Project001
         }
 
         // convexPolygon A & polygon B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPolygonsB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedPolygonsB.size(); ++j)
             {
-                const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
+                const Polygon2D& polygonB = transformedPolygonsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Polygon_Overlap(
                     convexPolygonA.positions.data(),
@@ -4135,8 +4067,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 
@@ -4152,12 +4084,12 @@ namespace Project001
         }
 
         // convexPolygon A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        for (size_t i = 0; i < transformedConvexPolygonsA.size(); ++i)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            const ConvexPolygon2D& convexPolygonA = transformedConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const ConvexPolygon2D& convexPolygonB = transformedConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
                     convexPolygonA.positions.data(),
@@ -4167,8 +4099,8 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeId = transformedConvexPolygonIdsA[i];
+                    collisionA.otherShapeId = transformedConvexPolygonIdsB[j];
 
                     collisionBodyA.AddCollision(collisionA);
 

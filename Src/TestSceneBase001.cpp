@@ -103,6 +103,7 @@ void TestSceneBase001::OnHandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneBase001::ProcessCursorPositionEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneBase001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestSceneBase001::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestSceneBase001::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestSceneBase001::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestSceneBase001::ProcessScrollEvent, this, std::placeholders::_1));
@@ -204,6 +205,26 @@ void TestSceneBase001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEv
     frameBufferSizeEvent.handled = true;
 }
 
+void TestSceneBase001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+{
+    Project001::KeyCode& keyCode = keyEvent.keyCode;
+    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
+    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
+
+    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    {
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
+        {
+            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            if (!IsActiveScene())
+            {
+                Deinitialize();
+                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+            }
+        }
+    }
+}
+
 void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
@@ -233,12 +254,12 @@ void TestSceneBase001::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
 
-    float speedConstant = 0.1f;
+    float speedConstant = 0.2f;
     float cameraTranslation = speedConstant * yOffset;
 
     Project001::Camera* cameraPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
-    cameraPtr->MoveForward(cameraTranslation);
+    cameraPtr->MoveBack(cameraTranslation);
 
     scrollEvent.handled = true;
 }

@@ -76,11 +76,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddRectangle(Project001::Rectangle2D(
+        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+        collisionRectangles.emplace_back(
             glm::vec2(-0.32f, -0.24f),
             glm::vec2(0.32f, 0.24f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // orientedRectangle 1
@@ -112,12 +112,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddOrientedRectangle(Project001::OrientedRectangle2D(
+        std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+        collisionOrientedRectangles.emplace_back(
             glm::vec2(0.48f, 0.32f),
             glm::vec2(),
             glm::quarter_pi<float>()
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // circle 1
@@ -143,11 +143,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCircle(Project001::Circle2D(
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        collisionCircles.emplace_back(
             glm::vec2(),
             0.32f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // capsule 1
@@ -173,12 +173,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCapsule(Project001::Capsule2D(
+        std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+        collisionCapsules.emplace_back(
             glm::vec2(0.0f, -0.40f),
             glm::vec2(0.0f, 0.40f),
             0.12f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // triangle 1
@@ -208,12 +208,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddTriangle(Project001::Triangle2D(
+        std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
+        collisionTriangles.emplace_back(
             glm::vec2(-0.48f, -0.48f),
             glm::vec2(0.48f, 0.0f),
             glm::vec2(0.0f, 0.48f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // rectangle 2
@@ -244,11 +244,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddRectangle(Project001::Rectangle2D(
+        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+        collisionRectangles.emplace_back(
             glm::vec2(-0.24f, -0.32f),
             glm::vec2(0.24f, 0.32f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // orientedRectangle 2
@@ -280,12 +280,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddOrientedRectangle(Project001::OrientedRectangle2D(
+        std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+        collisionOrientedRectangles.emplace_back(
             glm::vec2(0.32f, 0.16f),
             glm::vec2(),
             -1.0f * glm::quarter_pi<float>()
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // circle 2
@@ -311,11 +311,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCircle(Project001::Circle2D(
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        collisionCircles.emplace_back(
             glm::vec2(),
             0.24f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // capsule 2
@@ -342,12 +342,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCapsule(Project001::Capsule2D(
+        std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+        collisionCapsules.emplace_back(
             glm::vec2(-0.32f, 0.0f),
             glm::vec2(0.32f, 0.0f),
             0.12f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // triangle 2
@@ -377,12 +377,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddTriangle(Project001::Triangle2D(
+        std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
+        collisionTriangles.emplace_back(
             glm::vec2(-0.32f, 0.32f),
             glm::vec2(0.32f, -0.32f),
             glm::vec2(0.32f, 0.16f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // rectangle 3
@@ -413,11 +413,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddRectangle(Project001::Rectangle2D(
+        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+        collisionRectangles.emplace_back(
             glm::vec2(-0.24f, -0.16f),
             glm::vec2(0.24f, 0.16f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // orientedRectangle 3
@@ -449,12 +449,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddOrientedRectangle(Project001::OrientedRectangle2D(
+        std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+        collisionOrientedRectangles.emplace_back(
             glm::vec2(0.24f, 0.16f),
             glm::vec2(),
             glm::quarter_pi<float>()
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // circle 3
@@ -480,11 +480,11 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCircle(Project001::Circle2D(
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        collisionCircles.emplace_back(
             glm::vec2(),
             0.16f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // capsule 3
@@ -510,12 +510,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddCapsule(Project001::Capsule2D(
+        std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+        collisionCapsules.emplace_back(
             glm::vec2(0.0f, -0.24f),
             glm::vec2(0.0f, 0.24f),
             0.08f
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     // triangle 3
@@ -545,12 +545,12 @@ bool TestScene011::OnInitialize()
         Project001::CollisionBody2D* collisionBody2DPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DPtr));
         collisionBody2DPtr->SetPosition(currentPosition);
-        collisionBody2DPtr->AddTriangle(Project001::Triangle2D(
+        std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
+        collisionTriangles.emplace_back(
             glm::vec2(-0.32f, -0.32f),
             glm::vec2(0.32f, 0.0f),
             glm::vec2(0.0f, 0.32f)
-        ));
-        collisionBody2DPtr->CalculateBoundingRadius();
+        );
     }
 
     return success && true;

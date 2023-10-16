@@ -4,13 +4,6 @@
 
 
 
-namespace Project001
-{
-    struct MeshData;
-
-    struct KeyEvent;
-}
-
 class TestScene032 : public TestSceneBase001
 {
 public:

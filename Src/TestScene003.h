@@ -4,11 +4,6 @@
 
 
 
-namespace Project001
-{
-    struct KeyEvent;
-}
-
 class TestScene003 : public TestSceneBase001
 {
 public:

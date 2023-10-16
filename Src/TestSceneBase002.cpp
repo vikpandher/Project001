@@ -83,9 +83,10 @@ bool TestSceneBase002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(cursorEntityId_));
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
 
-        Project001::CollisionBody2D* collisionBodyPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBodyPtr));
-        collisionBodyPtr->AddPoint(Project001::Point2D(), 1);
+        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+        collisionPoints.emplace_back(glm::vec3(), 1, true);
     }
 
     return true;
@@ -232,7 +233,16 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_N)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
+        {
+            SendEvent(Project001::SwitchSceneEvent("TestScene001"));
+            if (!IsActiveScene())
+            {
+                Deinitialize();
+                SendEvent(Project001::InitializeSceneEvent("TestScene001"));
+            }
+        }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_N)
         {
             selectedEntityIdIndex_++;
             if (selectedEntityIdIndex_ >= entityIds_.size())
