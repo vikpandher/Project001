@@ -8,7 +8,7 @@
 
 // 3D Shape List ---------------------------------------------------------------
 // 
-// * Point
+// * Point (TODO)
 // * Line (TODO)
 // * Ray (TODO)
 // * LineSegment (TODO)
@@ -25,7 +25,7 @@
 // 
 // Overlap Functions:
 //             | Poi | Lin | Ray | LiS | Pla | Tri | AAB | OBB | Sph | Cap | Fru |
-// Point       |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  ?  |
+// Point       |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  \  |
 // Line        | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |  X  |     |     |
 // Ray         | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |  X  |     |     |
 // LineSegment | --- | --- | --- |  X  |  X  |  X  |  X  |  X  |  X  |     |     |
@@ -33,7 +33,7 @@
 // Triangle    | --- | --- | --- | --- | --- |  X  |  X  |  X  |  X  |     |     |
 // AABB        | --- | --- | --- | --- | --- | --- |  X  |  X  |  X  |     |     |
 // OBB         | --- | --- | --- | --- | --- | --- | --- |  X  |  X  |     |     |
-// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  X  |  \  |  ?  |
+// Sphere      | --- | --- | --- | --- | --- | --- | --- | --- |  X  |  \  |  \  |
 // Capsule     | --- |     |     |     |     |     |     |     | --- |     |     |
 // Frustum     | --- |     |     |     |     |     |     |     | --- |     |     |
 // 
@@ -105,7 +105,7 @@ namespace Project001
         const glm::vec3& capsule_end,
         const float& capsule_radius);
 
-    // Frustom planes face into its center.
+    // Frustom planes must face into its center.
     bool Check3D_Point_Frustum_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& frustum_leftPlaneNormal,
@@ -644,7 +644,7 @@ namespace Project001
         const glm::vec3& capsule_end,
         const float& capsule_radius);
 
-    // Frustom planes face into its center.
+    // Frustom planes must face into its center.
     bool Check3D_Sphere_Frustum_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
@@ -678,6 +678,7 @@ namespace Project001
 
     // Checking Frustum Overlap ------------------------------------------------
 
+    // Frustom planes must face into its center.
     bool Check3D_Frustum_Point_Overlap(
         const glm::vec3& frustum_leftPlaneNormal,
         const float& frustum_leftPlaneDistance,
@@ -693,7 +694,7 @@ namespace Project001
         const float& frustum_farPlaneDistance,
         const glm::vec3& point_position);
 
-    // Frustom planes face into its center.
+    // Frustom planes must face into its center.
     bool Check3D_Frustum_Sphere_Overlap(
         const glm::vec3& frustum_leftPlaneNormal,
         const float& frustum_leftPlaneDistance,

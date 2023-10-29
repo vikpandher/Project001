@@ -159,7 +159,7 @@ bool TestScene033::OnInitialize()
             (unsigned int)square_MeshDataPtr_->meshIndexArray.size()
         );
 
-        square_MaxRadius_ = square_MeshDataPtr_->maxRadius;
+        square_MaxBoundingRadius_ = square_MeshDataPtr_->maxBoundingRadius;
     }
 
     {
@@ -217,7 +217,7 @@ bool TestScene033::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(currentPosition);
         renderedMeshPtr->SetMeshId(square_MeshId_);
-        renderedMeshPtr->SetMaxRadius(square_MaxRadius_);
+        renderedMeshPtr->SetMaxBoundingRadius(square_MaxBoundingRadius_);
 
         if (i < _32x32_TextureIds_.size())
         {
@@ -328,7 +328,7 @@ void TestScene033::ClearResources()
 
     square_MeshDataPtr_ = nullptr;
     square_MeshId_ = (unsigned int)-1;
-    square_MaxRadius_ = 0.0f;
+    square_MaxBoundingRadius_ = 0.0f;
 
     ui_testText_MeshDataPtr_ = nullptr;
 

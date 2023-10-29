@@ -39,8 +39,8 @@ namespace Project001
         unsigned int GetMeshId() const;
         void SetMeshId(unsigned int meshId);
 
-        float GetMaxRadius() const;
-        void SetMaxRadius(float maxRadius);
+        float GetMaxBoundingRadius() const;
+        void SetMaxBoundingRadius(float maxBoundingRadius);
 
         unsigned int GetTextureId() const;
         void SetTextureId(unsigned int textureId);
@@ -79,7 +79,7 @@ namespace Project001
         RenderedMeshType renderedMeshType_;
         const MeshData* meshDataPtr_; // Used when RENDERED_MESH_TYPE_LOADED_CPU_SIDE
         unsigned int meshId_;         // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
-        float maxRadius_;             // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
+        float maxBoundingRadius_;     // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
         unsigned int textureId_;
         unsigned int specularId_;
         glm::vec3 scale_;
@@ -95,7 +95,7 @@ namespace Project001
         , renderedMeshType_(RenderedMeshType::RENDERED_MESH_TYPE_NOT_LOADED)
         , meshDataPtr_(nullptr)
         , meshId_((unsigned int)-1)
-        , maxRadius_(0.0f)
+        , maxBoundingRadius_(0.0f)
         , textureId_((unsigned int)-1)
         , specularId_((unsigned int)-1)
         , scale_(1.0f, 1.0f, 1.0f)
@@ -152,14 +152,14 @@ namespace Project001
         meshId_ = meshId;
     }
 
-    inline float RenderedMesh::GetMaxRadius() const
+    inline float RenderedMesh::GetMaxBoundingRadius() const
     {
-        return maxRadius_;
+        return maxBoundingRadius_;
     }
 
-    inline void RenderedMesh::SetMaxRadius(float maxRadius)
+    inline void RenderedMesh::SetMaxBoundingRadius(float maxBoundingRadius)
     {
-        maxRadius_ = maxRadius;
+        maxBoundingRadius_ = maxBoundingRadius;
     }
 
     inline unsigned int RenderedMesh::GetTextureId() const

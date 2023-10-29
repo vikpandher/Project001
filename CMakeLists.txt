@@ -82,6 +82,7 @@ endif()
 
 set(SOURCE_FILES
     "Src/Main.cpp"
+    "Src/TestButtonInfo001.h"
     "Src/TestComponents.cpp"
     "Src/TestComponents.h"
     "Src/TestScene001.cpp"

@@ -2,10 +2,11 @@
 
 #include "Engine/Scene.h"
 
+#include "Engine/Event.h"
+
 #include "glm/glm.hpp"
 
-#include <map>
-
+#include <vector>
 
 
 namespace Project001
@@ -13,12 +14,6 @@ namespace Project001
     struct FontData;
     struct MeshData;
     struct TextureData;
-
-    struct CursorPositionEvent;
-    struct FrameBufferSizeEvent;
-    struct MouseButtonEvent;
-    struct RenderEvent;
-    struct UpdateEvent;
 }
 
 class TestScene001 : public Project001::Scene
@@ -43,9 +38,16 @@ protected:
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
+    void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
+
+    // requires:
+    //     mainCameraEntityId_
+    // 
+    // xPosition and yPosition are window coordinates
+    void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
 
     // -------------------------------------------------------------------------
 
@@ -68,7 +70,12 @@ protected:
     Project001::MeshData* rectangleMeshDataPtr_;
     unsigned int rectangularMeshId_;
 
+    Project001::MeshData* selectorMeshDataPtr_;
+    unsigned int selectorMeshId_;
+
     Project001::MeshData* circleMeshDataPtr_;
+
+    std::vector<Project001::MeshData*> textMeshDataPtrs_;
 
     float fontPixelSize_ = 0.0032f;
 
@@ -89,21 +96,23 @@ protected:
     unsigned int cursorPressCollisionShapeId_ = 101;
     unsigned int cursorReleaseCollisionShapeId_ = 102;
 
+    std::vector<unsigned int> buttonEntityIds_;
+
+    unsigned int selectorEntityId_;
+
     // -------------------------------------------------------------------------
 
     glm::vec2 previousWorldCursorPosition_;
     glm::vec2 previousWorldCursorPress_;
     glm::vec2 previousWorldCursorRelease_;
 
-    struct Button001
-    {
-        std::string textString_;
-        Project001::MeshData* textMeshDataPtr_ = nullptr;
-    };
+    unsigned int selectedEntityId_;
 
-    std::map<unsigned int, Button001> buttons_;
-
-    unsigned int buttonCollisionShapeId_ = 200;
+    static const Project001::KeyCode s_keyCodeMoveUp_ = Project001::KeyCode::KEY_CODE_W;
+    static const Project001::KeyCode s_keyCodeMoveLeft_ = Project001::KeyCode::KEY_CODE_A;
+    static const Project001::KeyCode s_keyCodeMoveDown_ = Project001::KeyCode::KEY_CODE_S;
+    static const Project001::KeyCode s_keyCodeMoveRight_ = Project001::KeyCode::KEY_CODE_D;
+    static const Project001::KeyCode s_keyCodeSelect_ = Project001::KeyCode::KEY_CODE_ENTER;
 
 private:
 };

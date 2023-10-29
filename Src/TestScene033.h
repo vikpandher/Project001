@@ -44,7 +44,7 @@ protected:
 
     Project001::MeshData* square_MeshDataPtr_;
     unsigned int square_MeshId_;
-    float square_MaxRadius_;
+    float square_MaxBoundingRadius_;
 
     float fontPixelSize_ = 0.01f;
     Project001::MeshData* ui_testText_MeshDataPtr_;

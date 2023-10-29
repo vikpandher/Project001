@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cstring>
 #include <typeinfo>
-#include <vector>
 
 
 
@@ -45,13 +45,17 @@ namespace Project001
         template <typename Component>
         bool GetComponent(const unsigned int& entityId, Component*& componentPtr);
 
-        // Get a pointers to a contiguous array of all components.
+        // Get a pointer to a contiguous array of all components.
         template <typename Component>
         bool GetAllComponents(Component*& componentPtr, size_t& componetCount);
 
         // Get the entityId for a given component.
         template <typename Component>
         bool GetComponentEntityId(const Component* const& componentPtr, unsigned int& entityId) const;
+
+        // Get a pointer to a contiguous array of all entityIds that have the given component.
+        template <typename Component>
+        bool GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const;
 
     protected:
         // Here's a function that calls the component's destructor. Needed to
@@ -105,10 +109,13 @@ namespace Project001
         // This will have gaps for when an entity id doesn't have a component.
         // The gaps will have a index value of -1, indicating that there are
         // no components for that entity id.
+        // 
+        // NOTE: Maybe I'll replace this with a unordered_map in the future.
         int* entityIdToComponentIndiciesMemoryPtr_;
 
         // Number of entity ids the entityId-to-component-indicies memory can
-        // hold
+        // hold. It grows as the entity id value grows, not the number of entity
+        // ids.
         size_t entityIdCapacity_;
 
         // How the entityId-to-component-indicies memory resizes when the
@@ -475,6 +482,21 @@ namespace Project001
 
         size_t componentEntityIdIndex = componentOffset / componentSize_;
         entityId = *(componentEntityIdMemoryPtr_ + componentEntityIdIndex);
+
+        return true;
+    }
+
+    template <typename Component>
+    inline bool ComponentContainer::GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const
+    {
+        size_t componentTypeId = typeid(Component).hash_code();
+        if (componentTypeId != componentTypeId_)
+        {
+            return false;
+        }
+
+        componentEntityIdPtr = componentEntityIdMemoryPtr_;
+        componentCount = componentCount_;
 
         return true;
     }

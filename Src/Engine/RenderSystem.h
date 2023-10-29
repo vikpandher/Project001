@@ -28,9 +28,7 @@ namespace Project001
 
         static std::vector<Camera*> s_cameraPtrs_;
 
-        static std::vector<const RenderedMesh*> s_batchedRenderedMeshPtrs_;
-        static std::vector<const RenderedMesh*> s_instancedRenderedMeshPtrs_;
-        static std::vector<const RenderedMesh*> s_translucentInstancedRenderedMeshPtrs_;
+        static std::vector<const RenderedMesh*> s_renderedMeshPtrs_;
 
         static std::vector<MeshInstanceData> s_meshInstanceDataArray_;
     };

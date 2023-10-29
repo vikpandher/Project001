@@ -18,14 +18,14 @@ namespace Project001
 
         std::vector<MeshVertex> meshVertexArray;
         std::vector<unsigned int> meshIndexArray;
-        float maxRadius;
+        float maxBoundingRadius;
         glm::vec3 maxVertexPosition;
         glm::vec3 minVertexPosition;
     };
 
     inline MeshData::MeshData()
     {
-        maxRadius = 0;
+        maxBoundingRadius = 0;
         maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
         maxVertexPosition.y = -1.0f * std::numeric_limits<float>::infinity();
         maxVertexPosition.z = -1.0f * std::numeric_limits<float>::infinity();
@@ -39,7 +39,7 @@ namespace Project001
         meshVertexArray.clear();
         meshIndexArray.clear();
 
-        maxRadius = 0;
+        maxBoundingRadius = 0;
         maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
         maxVertexPosition.y = -1.0f * std::numeric_limits<float>::infinity();
         maxVertexPosition.z = -1.0f * std::numeric_limits<float>::infinity();

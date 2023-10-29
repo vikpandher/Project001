@@ -83,7 +83,7 @@ bool TestScene032::OnInitialize()
             (unsigned int)icosphere001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        icosphere001_MaxRadius_ = icosphere001_MeshDataPtr_->maxRadius;
+        icosphere001_MaxBoundingRadius_ = icosphere001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // arc
@@ -101,7 +101,7 @@ bool TestScene032::OnInitialize()
             (unsigned int)arc001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        arc001_MaxRadius_ = arc001_MeshDataPtr_->maxRadius;
+        arc001_MaxBoundingRadius_ = arc001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // line star
@@ -137,7 +137,7 @@ bool TestScene032::OnInitialize()
             (unsigned int)line001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        line001_MaxRadius_ = line001_MeshDataPtr_->maxRadius;
+        line001_MaxBoundingRadius_ = line001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // cone
@@ -153,19 +153,20 @@ bool TestScene032::OnInitialize()
             (unsigned int)cone001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        cone001_MaxRadius_ = cone001_MeshDataPtr_->maxRadius;
+        cone001_MaxBoundingRadius_ = cone001_MeshDataPtr_->maxBoundingRadius;
     }
 
     // Generate entities
     // -------------------------------------------------------------------------
 
-    { // icosphere at the center (CPU side mesh)
+    { // icosphere at the center (GPU side mesh)
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerIcosphereEntityId_));
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerIcosphereEntityId_, renderedMeshPtr));
-        renderedMeshPtr->SetMeshDataPtr(icosphere001_MeshDataPtr_);
+        renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
+        renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MeshDataPtr_->maxBoundingRadius);
         renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -226,7 +227,7 @@ bool TestScene032::OnInitialize()
             renderedMeshPtr->SetTextureId(earth001_TextureId_);
             renderedMeshPtr->SetSpecularId(specular001_TextureId_);
             renderedMeshPtr->SetShininess(32.0f);
-            renderedMeshPtr->SetMaxRadius(icosphere001_MaxRadius_);
+            renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MaxBoundingRadius_);
             renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
             renderedMeshPtr->SetPosition(positions[i]);
         }
@@ -297,7 +298,7 @@ bool TestScene032::OnInitialize()
             Project001::RenderedMesh* renderedMeshPtr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
             renderedMeshPtr->SetMeshId(arc001_MeshId_);
-            renderedMeshPtr->SetMaxRadius(arc001_MaxRadius_);
+            renderedMeshPtr->SetMaxBoundingRadius(arc001_MaxBoundingRadius_);
             renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
             renderedMeshPtr->SetTranslucent(true);
             renderedMeshPtr->SetPosition(positions[i]);
@@ -334,7 +335,7 @@ bool TestScene032::OnInitialize()
             Project001::RenderedMesh* renderedMeshPtr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
             renderedMeshPtr->SetMeshId(cone001_MeshId_);
-            renderedMeshPtr->SetMaxRadius(cone001_MaxRadius_);
+            renderedMeshPtr->SetMaxBoundingRadius(cone001_MaxBoundingRadius_);
             renderedMeshPtr->SetPosition(positions[i]);
         }
     }
@@ -364,7 +365,7 @@ bool TestScene032::OnInitialize()
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
             renderedMeshPtr->SetMeshId(line001_MeshId_);
             renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
-            renderedMeshPtr->SetMaxRadius(line001_MaxRadius_);
+            renderedMeshPtr->SetMaxBoundingRadius(line001_MaxBoundingRadius_);
             renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
             renderedMeshPtr->SetPosition(positions[i]);
         }
@@ -399,19 +400,19 @@ void TestScene032::ClearResources()
 
     icosphere001_MeshDataPtr_ = nullptr;
     icosphere001_MeshId_ = (unsigned int)-1;
-    icosphere001_MaxRadius_ = 0.0f;
+    icosphere001_MaxBoundingRadius_ = 0.0f;
 
     arc001_MeshDataPtr_ = nullptr;
     arc001_MeshId_ = (unsigned int)-1;
-    arc001_MaxRadius_ = 0.0f;
+    arc001_MaxBoundingRadius_ = 0.0f;
 
     line001_MeshDataPtr_ = nullptr;
     line001_MeshId_ = (unsigned int)-1;
-    line001_MaxRadius_ = 0.0f;
+    line001_MaxBoundingRadius_ = 0.0f;
 
     cone001_MeshDataPtr_ = nullptr;
     cone001_MeshId_ = (unsigned int)-1;
-    cone001_MaxRadius_ = 0.0f;
+    cone001_MaxBoundingRadius_ = 0.0f;
 
     centerIcosphereEntityId_ = (unsigned int)-1;
 

@@ -38,19 +38,19 @@ protected:
 
     Project001::MeshData* icosphere001_MeshDataPtr_;
     unsigned int icosphere001_MeshId_;
-    float icosphere001_MaxRadius_;
+    float icosphere001_MaxBoundingRadius_;
 
     Project001::MeshData* arc001_MeshDataPtr_;
     unsigned int arc001_MeshId_;
-    float arc001_MaxRadius_;
+    float arc001_MaxBoundingRadius_;
 
     Project001::MeshData* line001_MeshDataPtr_;
     unsigned int line001_MeshId_;
-    float line001_MaxRadius_;
+    float line001_MaxBoundingRadius_;
 
     Project001::MeshData* cone001_MeshDataPtr_;
     unsigned int cone001_MeshId_;
-    float cone001_MaxRadius_;
+    float cone001_MaxBoundingRadius_;
 
     // Entity Ids --------------------------------------------------------------
 

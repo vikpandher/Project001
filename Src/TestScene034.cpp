@@ -84,7 +84,7 @@ bool TestScene034::OnInitialize()
             (unsigned int)cube001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        cube001_MaxRadius_ = cube001_MeshDataPtr_->maxRadius;
+        cube001_MaxBoundingRadius_ = cube001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // line star
@@ -120,7 +120,7 @@ bool TestScene034::OnInitialize()
             (unsigned int)line001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        line001_MaxRadius_ = line001_MeshDataPtr_->maxRadius;
+        line001_MaxBoundingRadius_ = line001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // cone
@@ -136,7 +136,7 @@ bool TestScene034::OnInitialize()
             (unsigned int)cone001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        cone001_MaxRadius_ = cone001_MeshDataPtr_->maxRadius;
+        cone001_MaxBoundingRadius_ = cone001_MeshDataPtr_->maxBoundingRadius;
     }
  
     // Generate entities
@@ -181,7 +181,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& cubeMesh = renderedMeshes.back();
         cubeMesh.SetMeshId(cube001_MeshId_);
-        cubeMesh.SetMaxRadius(cube001_MeshDataPtr_->maxRadius);
+        cubeMesh.SetMaxBoundingRadius(cube001_MeshDataPtr_->maxBoundingRadius);
         cubeMesh.SetTextureId(thonk001_TextureId_);
         cubeMesh.SetSpecularId(thonkSpecular001_TextureId_);
         cubeMesh.SetShininess(32.0f);
@@ -189,7 +189,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& redConeMesh = renderedMeshes.back();
         redConeMesh.SetMeshId(cone001_MeshId_);
-        redConeMesh.SetMaxRadius(cone001_MeshDataPtr_->maxRadius);
+        redConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
         redConeMesh.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
         redConeMesh.SetTranslucent(true);
         redConeMesh.SetPositionX(0.64f);
@@ -198,7 +198,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& redStarMesh = renderedMeshes.back();
         redStarMesh.SetMeshId(line001_MeshId_);
-        redStarMesh.SetMaxRadius(line001_MeshDataPtr_->maxRadius);
+        redStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
         redStarMesh.SetColor(0.8f, 0.2f, 0.2f, 1.0f);
         redStarMesh.SetTextureId(_32x32_TextureIds_[0]);
         redStarMesh.SetPositionX(-0.36f);
@@ -207,7 +207,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& greenConeMesh = renderedMeshes.back();
         greenConeMesh.SetMeshId(cone001_MeshId_);
-        greenConeMesh.SetMaxRadius(cone001_MeshDataPtr_->maxRadius);
+        greenConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
         greenConeMesh.SetColor(0.2f, 0.8f, 0.2f, 0.4f);
         greenConeMesh.SetTranslucent(true);
         greenConeMesh.SetPositionY(0.64f);
@@ -215,7 +215,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& greenStarMesh = renderedMeshes.back();
         greenStarMesh.SetMeshId(line001_MeshId_);
-        greenStarMesh.SetMaxRadius(line001_MeshDataPtr_->maxRadius);
+        greenStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
         greenStarMesh.SetColor(0.2f, 0.8f, 0.2f, 1.0f);
         greenStarMesh.SetTextureId(_32x32_TextureIds_[1]);
         greenStarMesh.SetPositionY(-0.36f);
@@ -224,7 +224,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& blueConeMesh = renderedMeshes.back();
         blueConeMesh.SetMeshId(cone001_MeshId_);
-        blueConeMesh.SetMaxRadius(cone001_MeshDataPtr_->maxRadius);
+        blueConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
         blueConeMesh.SetColor(0.2f, 0.2f, 0.8f, 0.4f);
         blueConeMesh.SetTranslucent(true);
         blueConeMesh.SetPositionZ(0.64f);
@@ -233,7 +233,7 @@ bool TestScene034::OnInitialize()
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& blueStarMesh = renderedMeshes.back();
         blueStarMesh.SetMeshId(line001_MeshId_);
-        blueStarMesh.SetMaxRadius(line001_MeshDataPtr_->maxRadius);
+        blueStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
         blueStarMesh.SetColor(0.2f, 0.2f, 0.8f, 1.0f);
         blueStarMesh.SetTextureId(_32x32_TextureIds_[2]);
         blueStarMesh.SetPositionZ(-0.36f);
@@ -273,15 +273,15 @@ void TestScene034::ClearResources()
 
     cube001_MeshDataPtr_ = nullptr;
     cube001_MeshId_ = (unsigned int)-1;
-    cube001_MaxRadius_ = 0.0f;
+    cube001_MaxBoundingRadius_ = 0.0f;
 
     line001_MeshDataPtr_ = nullptr;
     line001_MeshId_ = (unsigned int)-1;
-    line001_MaxRadius_ = 0.0f;
+    line001_MaxBoundingRadius_ = 0.0f;
 
     cone001_MeshDataPtr_ = nullptr;
     cone001_MeshId_ = (unsigned int)-1;
-    cone001_MaxRadius_ = 0.0f;
+    cone001_MaxBoundingRadius_ = 0.0f;
 }
 
 void TestScene034::ProcessKeyEvent(Project001::KeyEvent& keyEvent)

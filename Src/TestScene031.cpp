@@ -50,7 +50,7 @@ bool TestScene031::OnInitialize()
         (unsigned int)meshDataPtr00->meshIndexArray.size()
     );
 
-    float maxRadius00 = meshDataPtr00->maxRadius;
+    float maxBoundingRadius00 = meshDataPtr00->maxBoundingRadius;
 
     // Calculating positions
     // -------------------------------------------------------------------------
@@ -93,7 +93,7 @@ bool TestScene031::OnInitialize()
         );
         renderedMeshPtr->SetMeshId(meshId00);
         renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetMaxRadius(maxRadius00);
+        renderedMeshPtr->SetMaxBoundingRadius(maxBoundingRadius00);
     }
 
     return success && true;

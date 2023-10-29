@@ -901,6 +901,15 @@ namespace Project001
         glm::vec2& intersection_position);
 
     // Unused
+    unsigned int Get2D_Line_Circle_Intersections(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& intersection_position1,
+        glm::vec2& intersection_position2);
+
+    // Unused
     bool Check2D_Rectangle_Rectangle_Overlap_Alt(
         const glm::vec2& rectangleA_bottomLeft,
         const glm::vec2& rectangleA_topRight,

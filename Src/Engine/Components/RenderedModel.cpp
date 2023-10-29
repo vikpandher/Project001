@@ -26,7 +26,7 @@ namespace Project001
             else if (renderedMesh.GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
             {
                 transformedRenderedMesh.SetMeshId(renderedMesh.GetMeshId());
-                transformedRenderedMesh.SetMaxRadius(renderedMesh.GetMaxRadius());
+                transformedRenderedMesh.SetMaxBoundingRadius(renderedMesh.GetMaxBoundingRadius());
             }
             transformedRenderedMesh.SetTextureId(renderedMesh.GetTextureId());
             transformedRenderedMesh.SetSpecularId(renderedMesh.GetSpecularId());

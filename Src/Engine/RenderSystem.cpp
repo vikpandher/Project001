@@ -144,12 +144,10 @@ namespace Project001
                         }
                     }
 
-                    // Sort Meshes
+                    // Amassing Meshes
                     // -------------------------------------------------------------
 
-                    s_batchedRenderedMeshPtrs_.clear();
-                    s_instancedRenderedMeshPtrs_.clear();
-                    s_translucentInstancedRenderedMeshPtrs_.clear();
+                    s_renderedMeshPtrs_.clear();
 
                     RenderedMesh* renderedMeshArrayPtr = nullptr;
                     size_t renderedMeshCount = 0;
@@ -180,199 +178,178 @@ namespace Project001
                         }
                     }
 
-                    // Sorting Instanced Meshes
-                    std::sort(s_instancedRenderedMeshPtrs_.begin(), s_instancedRenderedMeshPtrs_.end(),
-                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
-                        {
-                            unsigned int aMeshId = a->GetMeshId();
-                            unsigned int bMeshId = b->GetMeshId();
+                    // Sorting Meshes
+                    // ---------------------------------------------------------
 
-                            if (aMeshId == bMeshId)
-                            {
-                                // same ids so the closer one is drawn first
-                                glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                                glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                                float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                                float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                return disatanceSquaredA < disatanceSquaredB;
-                            }
-                            else
-                            {
-                                // smaller id is drawn first (this groups the ids)
-                                return aMeshId < bMeshId;
-                            }
-                        });
+                    // Order:
+                    // * Non-Translucent Meshes are drawn first.
+                    //   * Instanced Non-Translucent Meshes are drawn before the Batched ones.
+                    //     * These are grouped by Id. The smallest Ids are drawn first.
+                    //     * Within an Id group (all the same Id) the closest are drawn first.
+                    //   * Batched Non-Translucent Meshes are drawn after the Instanced ones.
+                    //     * These are ordered so the closest are drawn first.
+                    // * Translucent Meshes are drawn last.
+                    //   * These are orthered so the farthest are drawn first.
+                    // 
+                    // | Drawn First ---------------------------------------------- Drawn Last |
+                    // |                 Non-Translucent                 |     Translucent     |
+                    // |        Instanced        |        Batched        |                     |
+                    // | Small Id ----- Large Id |                       |                     |
+                    // | Closer -------- Farther | Closer ------ Farther | Farther ---- Closer |
 
-                    // Sorting Batched Meshes (Translucent and Non-Translucent)
-                    std::sort(s_batchedRenderedMeshPtrs_.begin(), s_batchedRenderedMeshPtrs_.end(),
-                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
+                    std::sort(s_renderedMeshPtrs_.begin(), s_renderedMeshPtrs_.end(),
+                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool // true means "a" comes first
                         {
-                            bool aTranslucent = a->GetTranslucent();
-                            bool bTranslucent = b->GetTranslucent();
-                            if (aTranslucent)
+                            if (a->GetTranslucent())
                             {
-                                if (bTranslucent)
+                                if (b->GetTranslucent()) // both are translucent
                                 {
-                                    // both are translucent so the farther is drawn first
                                     glm::vec3 distanceA = cameraPosition - a->GetPosition();
                                     glm::vec3 distanceB = cameraPosition - b->GetPosition();
                                     float disatanceSquaredA = glm::dot(distanceA, distanceA);
                                     float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                    return disatanceSquaredA > disatanceSquaredB;
+                                    return disatanceSquaredA > disatanceSquaredB; // the farther one is drawn first
                                 }
-                                else
+                                else // only "a" is translucent
                                 {
-                                    // the one that is translucent is drawn last
-                                    return false;
+                                    return false; // the translucent one is drawn last
                                 }
                             }
-                            if (bTranslucent)
+                            else if (b->GetTranslucent()) // only "b" is translucent
                             {
-                                // the one that is translucent is drawn last
-                                return true;
+                                return true; // the translucent one is drawn last
                             }
-                            else
+                            else // both are not translucent
                             {
-                                // both are not translucent so the closer is drawn first
-                                glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                                glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                                float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                                float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                return disatanceSquaredA < disatanceSquaredB;
+                                if (a->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
+                                {
+                                    if (b->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE) // both are batched
+                                    {
+                                        glm::vec3 distanceA = cameraPosition - a->GetPosition();
+                                        glm::vec3 distanceB = cameraPosition - b->GetPosition();
+                                        float disatanceSquaredA = glm::dot(distanceA, distanceA);
+                                        float disatanceSquaredB = glm::dot(distanceB, distanceB);
+                                        return disatanceSquaredA < disatanceSquaredB; // the closest one is drawn first
+                                    }
+                                    else // only "a" is batched
+                                    {
+                                        return false; // the batched one is drawn last
+                                    }
+                                }
+                                else if (b->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE) // only "b" is batched
+                                {
+                                    return true; // the batched one is drawn last
+                                }
+                                else // both are instanced
+                                {
+                                    unsigned int aMeshId = a->GetMeshId();
+                                    unsigned int bMeshId = b->GetMeshId();
+
+                                    if (aMeshId != bMeshId) // both have different Ids
+                                    {
+                                        return aMeshId < bMeshId; // smaller id is drawn first (this groups the ids)
+                                    }
+                                    else // both have the same id
+                                    {
+                                        glm::vec3 distanceA = cameraPosition - a->GetPosition();
+                                        glm::vec3 distanceB = cameraPosition - b->GetPosition();
+                                        float disatanceSquaredA = glm::dot(distanceA, distanceA);
+                                        float disatanceSquaredB = glm::dot(distanceB, distanceB);
+                                        return disatanceSquaredA < disatanceSquaredB; // the closer one is drawn first
+                                    }
+                                }
                             }
                         });
 
-                    // Sorting Translucent Instanced Meshes
-                    std::sort(s_translucentInstancedRenderedMeshPtrs_.begin(), s_translucentInstancedRenderedMeshPtrs_.end(),
-                        [cameraPosition](const RenderedMesh* a, const RenderedMesh* b)->bool
-                        {
-                            // the farther one is drawn first
-                            glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                            glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                            float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                            float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                            return disatanceSquaredA > disatanceSquaredB;
-                        });
+                    // Rendering Meshes
+                    // ---------------------------------------------------------
 
-                    // Rendering Instanced Meshes
-                    // -------------------------------------------------------------
-
-                    if (!s_instancedRenderedMeshPtrs_.empty())
+                    if (!s_renderedMeshPtrs_.empty())
                     {
-                        unsigned int previousMeshId = s_instancedRenderedMeshPtrs_[0]->GetMeshId();
+                        const RenderedMesh* previousRenderedMeshPtr = s_renderedMeshPtrs_[0];
+                        RenderedMesh::RenderedMeshType previousRenderedMeshType = previousRenderedMeshPtr->GetRenderedMeshType();
 
-                        for (unsigned int i = 0; i < s_instancedRenderedMeshPtrs_.size(); ++i)
+                        for (unsigned int i = 0; i < s_renderedMeshPtrs_.size(); ++i)
                         {
-                            const RenderedMesh*& currentRenderedMeshPtr = s_instancedRenderedMeshPtrs_[i];
+                            const RenderedMesh*& currentRenderedMeshPtr = s_renderedMeshPtrs_[i];
+                            const RenderedMesh::RenderedMeshType& currentRenderedMeshType = currentRenderedMeshPtr->GetRenderedMeshType();
 
-                            const unsigned int& meshId = s_instancedRenderedMeshPtrs_[i]->GetMeshId();
-
-                            if (meshId != previousMeshId)
+                            if (currentRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // current mesh is instanced
                             {
-                                _FAIL_CHECK(rendererPtr->RenderMesh(
-                                    previousMeshId,
-                                    s_meshInstanceDataArray_.data(),
-                                    (unsigned int)s_meshInstanceDataArray_.size()));
+                                if (currentRenderedMeshType != previousRenderedMeshType) // previous mesh was batched
+                                {
+                                    rendererPtr->RenderBatch();
+                                }
+                                else if (currentRenderedMeshPtr->GetMeshId() != previousRenderedMeshPtr->GetMeshId()) // previous and current mesh ids are different
+                                {
+                                    _FAIL_CHECK(rendererPtr->RenderMesh(
+                                        previousRenderedMeshPtr->GetMeshId(),
+                                        s_meshInstanceDataArray_.data(),
+                                        (unsigned int)s_meshInstanceDataArray_.size()
+                                    ));
 
-                                previousMeshId = meshId;
-                                s_meshInstanceDataArray_.clear();
+                                    s_meshInstanceDataArray_.clear();
+                                }
+
+                                s_meshInstanceDataArray_.emplace_back(
+                                    currentRenderedMeshPtr->GetTextureId(),
+                                    currentRenderedMeshPtr->GetSpecularId(),
+                                    currentRenderedMeshPtr->GetPosition(),
+                                    currentRenderedMeshPtr->GetOrientation(),
+                                    currentRenderedMeshPtr->GetScale(),
+                                    currentRenderedMeshPtr->GetColor(),
+                                    currentRenderedMeshPtr->GetShininess(),
+                                    currentRenderedMeshPtr->GetLit()
+                                );
+                            }
+                            else // current mesh is batched
+                            {
+                                if (currentRenderedMeshType != previousRenderedMeshType) // previous mesh was instanced
+                                {
+                                    _FAIL_CHECK(rendererPtr->RenderMesh(
+                                        previousRenderedMeshPtr->GetMeshId(),
+                                        s_meshInstanceDataArray_.data(),
+                                        (unsigned int)s_meshInstanceDataArray_.size()
+                                    ));
+
+                                    s_meshInstanceDataArray_.clear();
+                                }
+
+                                const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
+                                _FAIL_CHECK(rendererPtr->AddMeshToBatch(
+                                    currentMeshDataPtr->meshVertexArray.data(),
+                                    (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                                    currentMeshDataPtr->meshIndexArray.data(),
+                                    (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                                    currentRenderedMeshPtr->GetTextureId(),
+                                    currentRenderedMeshPtr->GetSpecularId(),
+                                    currentRenderedMeshPtr->GetPosition(),
+                                    currentRenderedMeshPtr->GetOrientation(),
+                                    currentRenderedMeshPtr->GetScale(),
+                                    currentRenderedMeshPtr->GetColor(),
+                                    currentRenderedMeshPtr->GetShininess(),
+                                    currentRenderedMeshPtr->GetLit()
+                                ));
                             }
 
-                            MeshInstanceData meshInstanceData;
-                            meshInstanceData.textureId = currentRenderedMeshPtr->GetTextureId();
-                            meshInstanceData.specularId = currentRenderedMeshPtr->GetSpecularId();
-                            meshInstanceData.position = currentRenderedMeshPtr->GetPosition();
-                            meshInstanceData.orientation = currentRenderedMeshPtr->GetOrientation();
-                            meshInstanceData.scale = currentRenderedMeshPtr->GetScale();
-                            meshInstanceData.color = currentRenderedMeshPtr->GetColor();
-                            meshInstanceData.shininess = currentRenderedMeshPtr->GetShininess();
-                            meshInstanceData.lit = currentRenderedMeshPtr->GetLit();
-
-                            s_meshInstanceDataArray_.push_back(meshInstanceData);
+                            previousRenderedMeshPtr = currentRenderedMeshPtr;
+                            previousRenderedMeshType = currentRenderedMeshType;
                         }
 
-                        _FAIL_CHECK(rendererPtr->RenderMesh(
-                            previousMeshId,
-                            s_meshInstanceDataArray_.data(),
-                            (unsigned int)s_meshInstanceDataArray_.size()));
-
-                        s_meshInstanceDataArray_.clear();
-                    }
-
-                    // Rendering Batched Meshes (Translucent and Non-Translucent)
-                    // -------------------------------------------------------------
-
-                    for (unsigned int i = 0; i < s_batchedRenderedMeshPtrs_.size(); ++i)
-                    {
-                        const RenderedMesh*& currentRenderedMeshPtr = s_batchedRenderedMeshPtrs_[i];
-
-                        const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
-                        if (currentMeshDataPtr != nullptr)
+                        if (previousRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // last mesh was instanced
                         {
-                            _FAIL_CHECK(rendererPtr->AddMeshToBatch(
-                                currentMeshDataPtr->meshVertexArray.data(),
-                                (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
-                                currentMeshDataPtr->meshIndexArray.data(),
-                                (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
-                                currentRenderedMeshPtr->GetTextureId(),
-                                currentRenderedMeshPtr->GetSpecularId(),
-                                currentRenderedMeshPtr->GetPosition(),
-                                currentRenderedMeshPtr->GetOrientation(),
-                                currentRenderedMeshPtr->GetScale(),
-                                currentRenderedMeshPtr->GetColor(),
-                                currentRenderedMeshPtr->GetShininess(),
-                                currentRenderedMeshPtr->GetLit()));
+                            _FAIL_CHECK(rendererPtr->RenderMesh(
+                                previousRenderedMeshPtr->GetMeshId(),
+                                s_meshInstanceDataArray_.data(),
+                                (unsigned int)s_meshInstanceDataArray_.size()
+                            ));
+
+                            s_meshInstanceDataArray_.clear();
                         }
-                    }
-
-                    if (!s_batchedRenderedMeshPtrs_.empty())
-                    {
-                        rendererPtr->RenderBatch();
-                    }
-
-                    // Rendering Translucent Instanced Meshes
-                    // -------------------------------------------------------------
-
-                    if (!s_translucentInstancedRenderedMeshPtrs_.empty())
-                    {
-                        unsigned int previousMeshId = s_translucentInstancedRenderedMeshPtrs_[0]->GetMeshId();
-
-                        for (unsigned int i = 0; i < s_translucentInstancedRenderedMeshPtrs_.size(); ++i)
+                        else // last mesh was batched
                         {
-                            const RenderedMesh*& currentRenderedMeshPtr = s_translucentInstancedRenderedMeshPtrs_[i];
-
-                            const unsigned int& meshId = s_translucentInstancedRenderedMeshPtrs_[i]->GetMeshId();
-
-                            if (meshId != previousMeshId)
-                            {
-                                _FAIL_CHECK(rendererPtr->RenderMesh(
-                                    previousMeshId,
-                                    s_meshInstanceDataArray_.data(),
-                                    (unsigned int)s_meshInstanceDataArray_.size()));
-
-                                previousMeshId = meshId;
-                                s_meshInstanceDataArray_.clear();
-                            }
-
-                            MeshInstanceData meshInstanceData;
-                            meshInstanceData.textureId = currentRenderedMeshPtr->GetTextureId();
-                            meshInstanceData.specularId = currentRenderedMeshPtr->GetSpecularId();
-                            meshInstanceData.position = currentRenderedMeshPtr->GetPosition();
-                            meshInstanceData.orientation = currentRenderedMeshPtr->GetOrientation();
-                            meshInstanceData.scale = currentRenderedMeshPtr->GetScale();
-                            meshInstanceData.color = currentRenderedMeshPtr->GetColor();
-                            meshInstanceData.shininess = currentRenderedMeshPtr->GetShininess();
-                            meshInstanceData.lit = currentRenderedMeshPtr->GetLit();
-
-                            s_meshInstanceDataArray_.push_back(meshInstanceData);
+                            rendererPtr->RenderBatch();
                         }
-
-                        _FAIL_CHECK(rendererPtr->RenderMesh(
-                            previousMeshId,
-                            s_meshInstanceDataArray_.data(),
-                            (unsigned int)s_meshInstanceDataArray_.size()));
-
-                        s_meshInstanceDataArray_.clear();
                     }
                 }
             }
@@ -411,22 +388,22 @@ namespace Project001
             largestScalingFactor = renderedMeshScale.z;
         }
 
-        float maxRadius = 0;
+        float maxBoundingRadius = 0;
         if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
         {
-            maxRadius = renderedMeshPtr->GetMeshDataPtr()->maxRadius;
+            maxBoundingRadius = renderedMeshPtr->GetMeshDataPtr()->maxBoundingRadius;
         }
         else if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
         {
-            maxRadius = renderedMeshPtr->GetMaxRadius();
+            maxBoundingRadius = renderedMeshPtr->GetMaxBoundingRadius();
         }
 
         // This is an approximation. The true larest radius will be less then or equal to this value.
-        float scaledMaxRadius = maxRadius * largestScalingFactor;
+        float scaledMaxBoundingRadius = maxBoundingRadius * largestScalingFactor;
 
         bool inFrustum = Check3D_Sphere_Frustum_Overlap(
             renderedMeshPtr->GetPosition(),
-            scaledMaxRadius,
+            scaledMaxBoundingRadius,
             frustumPlanesPtr->leftPlaneNormal_,
             frustumPlanesPtr->leftPlaneDistance_,
             frustumPlanesPtr->rightPlaneNormal_,
@@ -446,28 +423,15 @@ namespace Project001
             return;
         }
 
-        if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
+        if (renderedMeshPtr->GetRenderedMeshType() != RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_NOT_LOADED)
         {
-            s_batchedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
-        }
-        else if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
-        {
-            if (renderedMeshPtr->GetTranslucent())
-            {
-                s_translucentInstancedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
-            }
-            else
-            {
-                s_instancedRenderedMeshPtrs_.emplace_back(renderedMeshPtr);
-            }
+            s_renderedMeshPtrs_.emplace_back(renderedMeshPtr);
         }
     }
 
     std::vector<Camera*> RenderSystem::s_cameraPtrs_;
 
-    std::vector<const RenderedMesh*> RenderSystem::s_batchedRenderedMeshPtrs_;
-    std::vector<const RenderedMesh*> RenderSystem::s_instancedRenderedMeshPtrs_;
-    std::vector<const RenderedMesh*> RenderSystem::s_translucentInstancedRenderedMeshPtrs_;
+    std::vector<const RenderedMesh*> RenderSystem::s_renderedMeshPtrs_;
 
     std::vector<MeshInstanceData> RenderSystem::s_meshInstanceDataArray_;
 }

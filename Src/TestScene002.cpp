@@ -1280,6 +1280,8 @@ void TestScene002::ComponentContainerTest() const
     TestComponent00* testComponent04ptr = nullptr;
     TestComponent00* testComponent05ptr = nullptr;
     TestComponent00* testComponent06ptr = nullptr;
+    TestComponent00* testComponent07ptr = nullptr;
+    TestComponent00* testComponent08ptr = nullptr;
 
     unsigned int entityId00 = (unsigned int)-1;
     unsigned int entityId01 = (unsigned int)-1;
@@ -1288,13 +1290,19 @@ void TestScene002::ComponentContainerTest() const
     unsigned int entityId04 = (unsigned int)-1;
     unsigned int entityId05 = (unsigned int)-1;
     unsigned int entityId06 = (unsigned int)-1;
+    unsigned int entityId07 = (unsigned int)-1;
+    unsigned int entityId08 = (unsigned int)-1;
 
     TestComponent00* allTestComponents = nullptr;
     size_t testComponentCount = (size_t)-1;
 
+    const unsigned int* allTestComponentEntityIds = nullptr;
+    size_t testComponentEntityIdCount = (size_t)-1;
+
     bool functionSuccess = true;
 
-    functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 8, 2, 2, 8);
+    // functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 8, 2, 2, 8);
+    functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 8, 2, 2, 0);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(0, 1, 2, 3);
     functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
@@ -1345,6 +1353,7 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.GetComponentEntityId(testComponent06ptr, entityId06);
 
     functionSuccess = componentContainer00.GetAllComponents(allTestComponents, testComponentCount);
+    functionSuccess = componentContainer00.GetAllComponentEntityIds<TestComponent00>(allTestComponentEntityIds, testComponentEntityIdCount);
 
     functionSuccess = componentContainer00.DeleteAllComponents();
 
@@ -1384,6 +1393,14 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.DeleteComponent(5);
     functionSuccess = componentContainer00.DeleteComponent(6);
 
+    functionSuccess = componentContainer00.CreateComponent<TestComponent00>(8, 88, 888, 8888);
+    functionSuccess = componentContainer00.GetComponent(8, testComponent08ptr);
+    functionSuccess = componentContainer00.GetComponentEntityId(testComponent08ptr, entityId08);
+
+    functionSuccess = componentContainer00.CreateComponent<TestComponent00>(7, 77, 777, 7777);
+    functionSuccess = componentContainer00.GetComponent(7, testComponent07ptr);
+    functionSuccess = componentContainer00.GetComponentEntityId(testComponent07ptr, entityId07);
+
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(6, 66, 666, 6666);
     functionSuccess = componentContainer00.GetComponent(6, testComponent06ptr);
     functionSuccess = componentContainer00.GetComponentEntityId(testComponent06ptr, entityId06);
@@ -1413,6 +1430,7 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.GetComponentEntityId(testComponent00ptr, entityId00);
 
     functionSuccess = componentContainer00.GetAllComponents(allTestComponents, testComponentCount);
+    functionSuccess = componentContainer00.GetAllComponentEntityIds<TestComponent00>(allTestComponentEntityIds, testComponentEntityIdCount);
 
     std::vector<TestComponent00*> allTestComponentPtrs;
     for (size_t i = 0; i < testComponentCount; ++i)
@@ -1460,6 +1478,12 @@ void TestScene002::ComponentStoresTest() const
     TestComponent00* testComponent0004ptr = nullptr;
     TestComponent00* testComponent0005ptr = nullptr;
     TestComponent00* testComponent0006ptr = nullptr;
+
+    TestComponent00* allTestComponent00s = nullptr;
+    size_t testComponent00Count = (size_t)-1;
+
+    const unsigned int* allTestComponent00EntityIds = nullptr;
+    size_t testComponent00EntityIdCount = (size_t)-1;
 
     TestComponent01* testComponent0101ptr = nullptr;
     TestComponent01* testComponent0102ptr = nullptr;
@@ -1513,6 +1537,9 @@ void TestScene002::ComponentStoresTest() const
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId06, 6, 66, 666);
     functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId06, testComponent0006ptr);
     functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0006ptr, entityId06_returned);
+
+    functionSuccess = testComponentStores.GetAllComponents(allTestComponent00s, testComponent00Count);
+    functionSuccess = testComponentStores.GetAllComponentEntityIds<TestComponent00>(allTestComponent00EntityIds, testComponent00EntityIdCount);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId06, 6.0f, 66.0f, 666.0f);
     functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId06, testComponent0106ptr);

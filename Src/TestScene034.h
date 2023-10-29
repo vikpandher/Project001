@@ -38,15 +38,15 @@ protected:
 
     Project001::MeshData* cube001_MeshDataPtr_;
     unsigned int cube001_MeshId_;
-    float cube001_MaxRadius_;
+    float cube001_MaxBoundingRadius_;
 
     Project001::MeshData* line001_MeshDataPtr_;
     unsigned int line001_MeshId_;
-    float line001_MaxRadius_;
+    float line001_MaxBoundingRadius_;
 
     Project001::MeshData* cone001_MeshDataPtr_;
     unsigned int cone001_MeshId_;
-    float cone001_MaxRadius_;
+    float cone001_MaxBoundingRadius_;
 
 private:
 };

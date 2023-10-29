@@ -1,9 +1,10 @@
 #pragma once
 
+#include "ComponentContainer.h"
+
 #include <queue>
 #include <unordered_map>
-
-#include "ComponentContainer.h"
+#include <vector>
 
 
 
@@ -38,11 +39,14 @@ namespace Project001
         bool GetComponent(unsigned int entityId, Component*& componentPtr);
 
         template <typename Component>
-        bool GetAllComponents(Component*& compoonentPtrs, size_t& count);
+        bool GetAllComponents(Component*& componentPtrs, size_t& componentCount);
 
         template <typename Component>
         bool GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId);
-        
+
+        template <typename Component>
+        bool GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const;
+
     protected:
         bool EntityExists(unsigned int entityId) const;
 
@@ -139,17 +143,16 @@ namespace Project001
     }
 
     template <typename Component>
-    inline bool ComponentStores::GetAllComponents(Component*& compoonentPtrs, size_t& count)
+    inline bool ComponentStores::GetAllComponents(Component*& componentPtrs, size_t& componentCount)
     {
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
         if (!ComponentTypeExists(componentTypeId))
         {
-            count = 0;
             return false;
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->GetAllComponents<Component>(compoonentPtrs, count);
+        return componentContainers_[componentContainerIndex]->GetAllComponents<Component>(componentPtrs, componentCount);
     }
 
     template <typename Component>
@@ -163,6 +166,19 @@ namespace Project001
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
         return componentContainers_[componentContainerIndex]->GetComponentEntityId<Component>(componentPtr, entityId);
+    }
+
+    template <typename Component>
+    inline bool ComponentStores::GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const
+    {
+        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        if (!ComponentTypeExists(componentTypeId))
+        {
+            return false;
+        }
+
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_.at(componentTypeId);
+        return componentContainers_[componentContainerIndex]->GetAllComponentEntityIds<Component>(componentEntityIdPtr, componentCount);
     }
 
     // protected ---------------------------------------------------------------

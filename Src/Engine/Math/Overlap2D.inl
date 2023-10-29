@@ -2358,6 +2358,52 @@ namespace Project001
         intersection_position.y = lineA_slope * intersection_position.x + yInterceptA;
     }
 
+    inline unsigned int Get2D_Line_Circle_Intersections(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& intersection_position1,
+        glm::vec2& intersection_position2)
+    {
+        // Calculate coefficients for the quadratic equation of the line and circle intersection
+        // a * x^2 + b * x + c = 0
+        float a = 1 + line_slope * line_slope;
+        float b = -2 * (line_position.x - circle_position.x + line_slope * (line_position.y - circle_position.y));
+        float c = (line_position.x - circle_position.x) * (line_position.x - circle_position.x) +
+            (line_position.y - circle_position.y) * (line_position.y - circle_position.y) -
+            circle_radius * circle_radius;
+
+        // Calculate the discriminant to determine the number of intersections
+        float discriminant = b * b - 4 * a * c;
+
+        if (discriminant > 0) {
+            // Two distinct intersection points
+            float t1 = (-b + std::sqrt(discriminant)) / (2 * a);
+            float t2 = (-b - std::sqrt(discriminant)) / (2 * a);
+
+            // Calculate the intersection points using t
+            intersection_position1.x = line_position.x + t1;
+            intersection_position1.y = line_slope * t1 + line_position.y;
+            intersection_position2.x = line_position.x + t2;
+            intersection_position2.y = line_slope * t2 + line_position.y;
+
+            return 2;
+        }
+        else if (discriminant == 0) {
+            // One intersection point (tangent)
+            float t = -b / (2 * a);
+
+            // Calculate the tangent intersection point
+            intersection_position1.x = line_position.x + t;
+            intersection_position1.y = line_slope * t + line_position.y;
+
+            return 1;
+        }
+
+        return 0;
+    }
+
     inline bool Check2D_Rectangle_Rectangle_Overlap_Alt(
         const glm::vec2& rectangleA_bottomLeft,
         const glm::vec2& rectangleA_topRight,
