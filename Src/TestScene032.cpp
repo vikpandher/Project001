@@ -194,6 +194,20 @@ bool TestScene032::OnInitialize()
         renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
     }
 
+    { // stencils out stuff positioned behind it, that is rendered after it (CPU side mesh)
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(stencil001_EntityId_));
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(stencil001_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(stencil001_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
+        renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
+        renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+        renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.2f);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetRenderPriorityOverride(-100);
+    }
+
     { // icosphere group (GPU side mesh)
         std::vector<glm::vec3> positions;
         int firstX = 1;
@@ -368,6 +382,7 @@ bool TestScene032::OnInitialize()
             renderedMeshPtr->SetMaxBoundingRadius(line001_MaxBoundingRadius_);
             renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
             renderedMeshPtr->SetPosition(positions[i]);
+            renderedMeshPtr->SetRenderPriorityOverride(-100);
         }
     }
 
@@ -419,6 +434,8 @@ void TestScene032::ClearResources()
     centerStar001_EntityId_ = (unsigned int)-1;
 
     centerStar002_EntityId_ = (unsigned int)-1;
+
+    stencil001_EntityId_ = (unsigned int)-1;
 
     icosphereEntityIds_.clear();
 

@@ -23,6 +23,7 @@ namespace Project001
         ~OpenGL_Renderer() override;
 
         void SetDepthTesting(bool depthTesting) override;
+        bool GetDepthTesting() const override;
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
@@ -286,6 +287,11 @@ namespace Project001
     inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)
     {
         depthTesting_ = depthTesting;
+    }
+
+    inline bool OpenGL_Renderer::GetDepthTesting() const
+    {
+        return depthTesting_;
     }
 
     inline void OpenGL_Renderer::GetFramebufferSize(

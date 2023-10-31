@@ -33,6 +33,12 @@ namespace Project001
     class Camera : public Placement
     {
     public:
+        enum class CameraProjection
+        {
+            CAMERA_PROJECTION_PERSPECTIVE,
+            CAMERA_PROJECTION_ORTHOGRAPHIC
+        };
+
         Camera();
 
         bool IsTurnedOn() const;
@@ -52,11 +58,11 @@ namespace Project001
         // Other View Controls
         // ---------------------------------------------------------------------
 
-        bool IsProjectionOrthographic() const;
-        void SetProjectionToOrthographic();
+        void SetProjection(CameraProjection cameraProjection);
+        CameraProjection GetProjection() const;
 
-        bool IsProjectionPerspective() const;
-        void SetProjectionToPerspective();
+        bool GetDepthTestEnabled() const;
+        void SetDepthTestEnabled(bool depthTestEnabled);
 
         float GetFieldOfVision() const;
         void SetFieldOfVision(float angleInRadians);
@@ -110,12 +116,6 @@ namespace Project001
         // glm::vec3 position_;
         // glm::quat orientation_;
 
-        enum class CameraProjection
-        {
-            CAMERA_PROJECTION_PERSPECTIVE,
-            CAMERA_PROJECTION_ORTHOGRAPHIC
-        };
-
         bool turnedOn_;
 
         uint32_t cameraMask_;
@@ -123,6 +123,8 @@ namespace Project001
         int priorityValue_;
 
         CameraProjection cameraProjection_;
+
+        bool depthTestEnabled_;
 
         float fieldOfVision_; // only used in perspective projection
         float aspectRatio_; // (width/height) only used in perspective projection
@@ -174,24 +176,24 @@ namespace Project001
         return priorityValue_;
     }
 
-    inline bool Camera::IsProjectionOrthographic() const
+    inline void Camera::SetProjection(CameraProjection cameraProjection)
     {
-        return cameraProjection_ == CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
+        cameraProjection_ = cameraProjection;
     }
 
-    inline void Camera::SetProjectionToOrthographic()
+    inline Camera::CameraProjection Camera::GetProjection() const
     {
-        cameraProjection_ = CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC;
+        return cameraProjection_;
     }
 
-    inline bool Camera::IsProjectionPerspective() const
+    inline bool Camera::GetDepthTestEnabled() const
     {
-        return cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
+        return depthTestEnabled_;
     }
 
-    inline void Camera::SetProjectionToPerspective()
+    inline void Camera::SetDepthTestEnabled(bool depthTestEnabled)
     {
-        cameraProjection_ = CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
+        depthTestEnabled_ = depthTestEnabled;
     }
 
     inline float Camera::GetFieldOfVision() const

@@ -37,7 +37,6 @@ bool TestSceneBase001::OnInitialize()
     windowPtr_ = GetApplicationWindowPtr();
 
     rendererPtr_ = GetApplicationRendererPtr();
-    rendererPtr_->SetDepthTesting(true);
 
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
 
@@ -61,6 +60,7 @@ bool TestSceneBase001::OnInitialize()
         }
         cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
         cameraPtr->AddYaw(glm::pi<float>());
+        cameraPtr->SetDepthTestEnabled(true);
         cameraPtr->TurnOn();
     }
 

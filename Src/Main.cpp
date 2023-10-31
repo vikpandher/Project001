@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     TestScene033* testScene033Ptr = new TestScene033();
     applicationPtr->AddScene(testScene033Ptr);
 
-    // tests models (001)
+    // tests manipulating models (001)
     TestScene034* testScene034Ptr = new TestScene034();
     applicationPtr->AddScene(testScene034Ptr);
 

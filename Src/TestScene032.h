@@ -60,6 +60,8 @@ protected:
 
     unsigned int centerStar002_EntityId_;
 
+    unsigned int stencil001_EntityId_;
+
     std::vector<unsigned int> icosphereEntityIds_;
 
     std::vector<unsigned int> arcEntityIds_;

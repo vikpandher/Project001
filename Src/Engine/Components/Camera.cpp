@@ -11,6 +11,7 @@ namespace Project001
         , cameraMask_(0b00000000000000000000000000000001)
         , priorityValue_(0)
         , cameraProjection_(CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
+        , depthTestEnabled_(true)
         , fieldOfVision_(glm::radians(45.0f))
         , aspectRatio_(1.0f)
         , leftCutoff_(-5.0f)

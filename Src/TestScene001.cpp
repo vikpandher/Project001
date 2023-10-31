@@ -213,7 +213,8 @@ bool TestScene001::OnInitialize()
             cameraPtr->SetFarCutoff(1.0f);
         }
         cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjectionToOrthographic();
+        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+        cameraPtr->SetDepthTestEnabled(false);
         cameraPtr->TurnOn();
     }
 

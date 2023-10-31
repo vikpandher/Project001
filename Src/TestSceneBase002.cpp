@@ -44,7 +44,6 @@ bool TestSceneBase002::OnInitialize()
     windowPtr_ = GetApplicationWindowPtr();
 
     rendererPtr_ = GetApplicationRendererPtr();
-    rendererPtr_->SetDepthTesting(false);
 
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
@@ -73,7 +72,8 @@ bool TestSceneBase002::OnInitialize()
             cameraPtr->SetFarCutoff(1.0f);
         }
         cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjectionToOrthographic();
+        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+        cameraPtr->SetDepthTestEnabled(false);
         cameraPtr->TurnOn();
     }
 

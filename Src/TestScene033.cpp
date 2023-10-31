@@ -66,7 +66,8 @@ bool TestScene033::OnInitialize()
             cameraPtr->SetFarCutoff(1.0f);
         }
         cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjectionToOrthographic();
+        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+        cameraPtr->SetDepthTestEnabled(true);
         cameraPtr->TurnOn();
         cameraPtr->SetCameraMask(secondaryCameraMask_);
         cameraPtr->SetPriorityValue(100);
@@ -92,6 +93,7 @@ bool TestScene033::OnInitialize()
         cameraPtr->SetCameraViewport(0.75f, 0.0f, 0.25f, 0.25f);
         cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
         cameraPtr->AddYaw(glm::pi<float>());
+        cameraPtr->SetDepthTestEnabled(true);
         cameraPtr->TurnOn();
         cameraPtr->SetPriorityValue(101);
     }

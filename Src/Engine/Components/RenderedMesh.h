@@ -39,8 +39,21 @@ namespace Project001
         unsigned int GetMeshId() const;
         void SetMeshId(unsigned int meshId);
 
+        // If the mesh is of type RENDERED_MESH_TYPE_LOADED_CPU_SIDE,
+        // meshDataPtr_->maxBoundingRadius is used for frustum culling.
+        // 
+        // If the mesh is of type RENDERED_MESH_TYPE_LOADED_GPU_SIDE,
+        // boundingRadius_ is used for frustum culling.
+        // 
+        // Frustum culling is done in RenderSystem.
+
         float GetMaxBoundingRadius() const;
         void SetMaxBoundingRadius(float maxBoundingRadius);
+
+        // lower priority mesh will be rendered by a camera first, so higher
+        // priorty meshes are drawn on-top
+        int GetRenderPriorityOverride() const;
+        void SetRenderPriorityOverride(int renderPriorityOverride);
 
         unsigned int GetTextureId() const;
         void SetTextureId(unsigned int textureId);
@@ -80,6 +93,7 @@ namespace Project001
         const MeshData* meshDataPtr_; // Used when RENDERED_MESH_TYPE_LOADED_CPU_SIDE
         unsigned int meshId_;         // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
         float maxBoundingRadius_;     // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
+        int renderPriorityOverride_;
         unsigned int textureId_;
         unsigned int specularId_;
         glm::vec3 scale_;
@@ -96,6 +110,7 @@ namespace Project001
         , meshDataPtr_(nullptr)
         , meshId_((unsigned int)-1)
         , maxBoundingRadius_(0.0f)
+        , renderPriorityOverride_(0)
         , textureId_((unsigned int)-1)
         , specularId_((unsigned int)-1)
         , scale_(1.0f, 1.0f, 1.0f)
@@ -160,6 +175,16 @@ namespace Project001
     inline void RenderedMesh::SetMaxBoundingRadius(float maxBoundingRadius)
     {
         maxBoundingRadius_ = maxBoundingRadius;
+    }
+
+    inline int RenderedMesh::GetRenderPriorityOverride() const
+    {
+        return renderPriorityOverride_;
+    }
+
+    inline void RenderedMesh::SetRenderPriorityOverride(int renderPriorityOverride)
+    {
+        renderPriorityOverride_ = renderPriorityOverride;
     }
 
     inline unsigned int RenderedMesh::GetTextureId() const

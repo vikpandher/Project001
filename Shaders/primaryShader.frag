@@ -165,10 +165,10 @@ void main()
     // -------------------------------------------------------------------------
     f_Color = textureColor * v_Color * vec4(totalAmbientAndDiffuseLightMultiplier, 1.0) + specularColor * vec4(totalSpecularLightMultiplier, 0.0);
 
-    if (f_Color.a == 0.0)
-    {
-        discard;
-    }
+    // if (f_Color.a == 0.0)
+    // {
+    //     discard;
+    // }
     
     // Gray Scale
     // float averageColor = (color.r + color.g + color.b) / 3.0;
