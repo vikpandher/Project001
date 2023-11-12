@@ -8,9 +8,10 @@
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
+#include "Engine/Renderer.h"
 
 #define _LOG_TEST(x) if ((x)) {_LOG_MESSAGE("%s %d --TEST-PASSED--", __FILENAME__, __LINE__);}\
 else {_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_assert(true, "")
@@ -22,7 +23,9 @@ else {_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_as
 
 // public ----------------------------------------------------------------------
 
-TestScene010::TestScene010()
+TestScene010::TestScene010(Project001::Application* applicationPtr)
+    : TestSceneBase002(applicationPtr, "TestScene010")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_010")
 {
     Test_GetCameraRollPitchYaw();
 
@@ -38,19 +41,25 @@ TestScene010::TestScene010()
 TestScene010::~TestScene010()
 {}
 
-const char* TestScene010::Name()
+void TestScene010::HandleEvent(Project001::Event& event)
 {
-    return "TestScene010";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene010::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase002::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene010::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene010::OnInitialize()
+void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase002::OnInitialize();
-
-    // Calculating positions
+    // Creating Entities
     // -------------------------------------------------------------------------
+
+    // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
     for (int i = 1; i >= -1; --i)
@@ -64,7 +73,7 @@ bool TestScene010::OnInitialize()
 
     // -------------------------------------------------------------------------
 
-    // point 1
+    // Point 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -91,7 +100,7 @@ bool TestScene010::OnInitialize()
         collisionPoints.emplace_back();
     }
 
-    // line 1
+    // Line 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -121,7 +130,7 @@ bool TestScene010::OnInitialize()
         collisionLines.emplace_back();
     }
 
-    // lineSegment 1
+    // LineSegment 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -154,7 +163,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // rectangle 1
+    // Rectangle 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -189,7 +198,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // orientedRectangle 1
+    // OrientedRectangle 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -226,7 +235,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // circle 1
+    // Circle 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -256,7 +265,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // capsule 1
+    // Capsule 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -287,7 +296,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // triangle 1
+    // Triangle 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -322,7 +331,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // point 2
+    // Point 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -349,7 +358,7 @@ bool TestScene010::OnInitialize()
         collisionPoints.emplace_back();
     }
 
-    // line 2
+    // Line 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -379,7 +388,7 @@ bool TestScene010::OnInitialize()
         collisionLines.emplace_back();
     }
 
-    // lineSegment 2
+    // LineSegment 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -412,7 +421,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // rectangle 2
+    // Rectangle 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -447,7 +456,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // orientedRectangle 2
+    // OrientedRectangle 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -484,7 +493,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // circle 2
+    // Circle 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -514,7 +523,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // capsule 2
+    // Capsule 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -546,7 +555,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // triangle 2
+    // Triangle 2
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -581,7 +590,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // point 3
+    // Point 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -608,7 +617,7 @@ bool TestScene010::OnInitialize()
         collisionPoints.emplace_back();
     }
 
-    // line 3
+    // Line 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -638,7 +647,7 @@ bool TestScene010::OnInitialize()
         collisionLines.emplace_back();
     }
 
-    // lineSegment 3
+    // LineSegment 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -671,7 +680,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // rectangle 3
+    // Rectangle 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -706,7 +715,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // orientedRectangle 3
+    // OrientedRectangle 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -743,7 +752,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // circle 3
+    // Circle 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -773,7 +782,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // capsule 3
+    // Capsule 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -804,7 +813,7 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    // triangle 3
+    // Triangle 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -839,44 +848,70 @@ bool TestScene010::OnInitialize()
         );
     }
 
-    return success && true;
-}
+    // Member Scenes -----------------------------------------------------------
 
-bool TestScene010::OnDeinitialize()
-{
-    bool success = TestSceneBase002::OnDeinitialize();
-
-    return success && true;
-}
-
-void TestScene010::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene010::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase002::OnHandleEvent(event);
-}
-
-void TestScene010::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene011"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene011"));
-            }
-        }
+        characterList.push_back(c);
     }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests 2d Shape Overlaps.\n"
+        "<Left-Click> on a shape to select it.\n"
+        "<Left-Click> on the background to de-select it.\n"
+        "When no shape is selected:\n"
+        "   Use <WASD> to move the camera up, left, down, and right.\n"
+        "   Use <Q> to roll camera left and <E> to roll camera right.\n"
+        "When a shape is selected:\n"
+        "   Use <WASD> to move the shape up, left, down, and right.\n"
+        "   Use <Q> to roll shape left and <E> to roll shape right.\n"
+        "Press <B> and <N> to cycle between shapes.\n"
+        "Use <Scroll> to zoom in and out.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-// private: --------------------------------------------------------------------
+void TestScene010::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+{
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+
+    // -------------------------------------------------------------------------
+
+    instructionScene_.Deinitialize();
+}
+
+// private ---------------------------------------------------------------------
 
 void TestScene010::Test_GetCameraRollPitchYaw() const
 {

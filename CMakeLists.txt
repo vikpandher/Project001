@@ -85,6 +85,8 @@ set(SOURCE_FILES
     "Src/TestButtonInfo001.h"
     "Src/TestComponents.cpp"
     "Src/TestComponents.h"
+    "Src/TestInstructionScene001.cpp"
+    "Src/TestInstructionScene001.h"
     "Src/TestScene001.cpp"
     "Src/TestScene001.h"
     "Src/TestScene002.cpp"

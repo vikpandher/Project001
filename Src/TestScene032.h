@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TestInstructionScene001.h"
 #include "TestSceneBase001.h"
 
 
@@ -7,31 +8,26 @@
 class TestScene032 : public TestSceneBase001
 {
 public:
-    TestScene032();
+    TestScene032(Project001::Application* applicationPtr);
     ~TestScene032();
 
     TestScene032(TestScene032& other) = delete;
     void operator=(const TestScene032&) = delete;
 
-    const char* Name() override;
+    void HandleEvent(Project001::Event& event) override;
 
 protected:
-    bool OnInitialize() override;
+    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
+    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    bool OnDeinitialize() override;
+    // -------------------------------------------------------------------------
 
-    void OnHandleEvent(Project001::Event& event) override;
-
-    void ClearResources();
-
-    void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    TestInstructionScene001 instructionScene_;
 
     // Texture Data ------------------------------------------------------------
 
     unsigned int earth001_TextureId_;
-
     unsigned int specular001_TextureId_;
-
     std::vector<unsigned int> _32x32_TextureIds_;
 
     // Mesh Data ---------------------------------------------------------------
@@ -55,19 +51,12 @@ protected:
     // Entity Ids --------------------------------------------------------------
 
     unsigned int centerIcosphereEntityId_;
-
     unsigned int centerStar001_EntityId_;
-
     unsigned int centerStar002_EntityId_;
-
-    unsigned int stencil001_EntityId_;
-
+    unsigned int psudoStencil001_EntityId_;
     std::vector<unsigned int> icosphereEntityIds_;
-
     std::vector<unsigned int> arcEntityIds_;
-
     std::vector<unsigned int> coneEntityIds_;
-
     std::vector<unsigned int> starEntityIds_;
 
 private:

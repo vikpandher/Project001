@@ -2,7 +2,7 @@
 
 #include "glm/glm.hpp"
 
-#include <map>
+#include <unordered_map>
 
 
 
@@ -29,7 +29,7 @@ namespace Project001
         void Clear();
 
         unsigned int lineSpacing_px;
-        std::map<unsigned char, GlyphMetrics> glyphMetricsMap;
+        std::unordered_map<unsigned char, GlyphMetrics> glyphMetricsMap;
     };
 
     inline FontData::FontData()

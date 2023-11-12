@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TestInstructionScene001.h"
 #include "TestSceneBase001.h"
 
 
@@ -7,24 +8,43 @@
 class TestScene030 : public TestSceneBase001
 {
 public:
-    TestScene030();
+    TestScene030(Project001::Application* applicationPtr);
     ~TestScene030();
 
     TestScene030(TestScene030& other) = delete;
     void operator=(const TestScene030&) = delete;
 
-    const char* Name() override;
+    void HandleEvent(Project001::Event& event) override;
 
 protected:
-    bool OnInitialize() override;
+    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
+    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    bool OnDeinitialize() override;
+    void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
+    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void OnHandleEvent(Project001::Event& event) override;
+    // -------------------------------------------------------------------------
 
-    void ClearResources();
+    TestInstructionScene001 instructionScene_;
 
-    void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    // Texture Data ------------------------------------------------------------
+
+    Project001::FontData* font01_FontDataPtr_;
+    Project001::TextureData* font01_TextureDataPtr_;
+    unsigned int font01_TextureId_;
+
+    // Mesh Data ---------------------------------------------------------------
+
+    const float fontPixelSize_ = 0.01f;
+    Project001::MeshData* ui_fps_MeshDataPtr_;
+
+    Project001::MeshData* ui_renderedMeshCount_MeshDataPtr_;
+
+    // Entity Ids --------------------------------------------------------------
+
+    unsigned int ui_fps_EntityId_;
+
+    unsigned int ui_renderedMeshCount_EntityId_;
 
 private:
 };

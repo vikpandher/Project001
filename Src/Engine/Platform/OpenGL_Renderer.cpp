@@ -210,7 +210,7 @@ namespace Project001
         glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceData) * instanceBufferCapacity_, NULL, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
+        for (std::unordered_map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
             iter != meshPtrMap_.end(); ++iter)
         {
             iter->second->UpdateVertexArrayObject(instanceBufferId_);
@@ -325,8 +325,11 @@ namespace Project001
         frameBufferWidth_ = width;
         frameBufferHeight_ = height;
 
-        CleanUpScreenFramebuffers();
-        CreateScreenFramebuffers();
+        if (frameBufferWidth_ != 0 && frameBufferHeight_ != 0)
+        {
+            CleanUpScreenFramebuffers();
+            CreateScreenFramebuffers();
+        }
     }
 
     void OpenGL_Renderer::CreateTexture(
@@ -379,7 +382,7 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        for (std::map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
+        for (std::unordered_map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
             iter != texturePtrMap_.end(); ++iter)
         {
             delete iter->second;
@@ -485,7 +488,7 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        for (std::map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
+        for (std::unordered_map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
             iter != meshPtrMap_.end(); ++iter)
         {
             delete iter->second;

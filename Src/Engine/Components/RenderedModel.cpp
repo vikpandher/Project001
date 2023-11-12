@@ -28,6 +28,7 @@ namespace Project001
                 transformedRenderedMesh.SetMeshId(renderedMesh.GetMeshId());
                 transformedRenderedMesh.SetMaxBoundingRadius(renderedMesh.GetMaxBoundingRadius());
             }
+            transformedRenderedMesh.SetRenderPriorityOverride(renderedMesh.GetRenderPriorityOverride());
             transformedRenderedMesh.SetTextureId(renderedMesh.GetTextureId());
             transformedRenderedMesh.SetSpecularId(renderedMesh.GetSpecularId());
             transformedRenderedMesh.SetScale(scale_ * renderedMesh.GetScale());

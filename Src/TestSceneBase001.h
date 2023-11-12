@@ -13,7 +13,9 @@ namespace Project001
     struct MeshData;
 
     struct CursorPositionEvent;
+    struct DeinitializeEvent;
     struct FrameBufferSizeEvent;
+    struct InitializeEvent;
     struct KeyEvent;
     struct MouseButtonEvent;
     struct RenderEvent;
@@ -24,22 +26,17 @@ namespace Project001
 class TestSceneBase001 : public Project001::Scene
 {
 public:
-    TestSceneBase001();
+    TestSceneBase001(Project001::Application* applicationPtr, const std::string& name);
     ~TestSceneBase001();
 
     TestSceneBase001(TestSceneBase001& other) = delete;
     void operator=(const TestSceneBase001&) = delete;
 
-    const char* Name() override;
+    void HandleEvent(Project001::Event& event) override;
 
 protected:
-    bool OnInitialize() override;
-
-    bool OnDeinitialize() override;
-
-    void OnHandleEvent(Project001::Event& event) override;
-
-    void ClearResources();
+    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
+    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
@@ -70,11 +67,14 @@ protected:
     // Entity Ids --------------------------------------------------------------
 
     unsigned int mainCameraEntityId_;
+    static const uint32_t s_uiCameraMask_ = 0b10000000000000000000000000000000;
+    unsigned int uiCameraEntityId_;
+
     unsigned int lightSourceEntityId_;
 
     std::vector<unsigned int> entityIds_;
 
-    // Scene Data --------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     glm::vec2 previousCursorDownPosition_;
 

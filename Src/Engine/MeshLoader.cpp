@@ -1739,7 +1739,7 @@ namespace Project001
         float width,
         float height,
         float bezelSize,
-        float bezelSections,
+        size_t bezelSections,
         bool triangulate)
     {
         if (height <= 0.0f || width <= 0.0f || bezelSize <= 0.0f || bezelSize >= width * 0.5f || bezelSections < 1)

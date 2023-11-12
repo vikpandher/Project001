@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TestInstructionScene001.h"
 #include "TestSceneBase002.h"
 
 
@@ -7,22 +8,21 @@
 class TestScene012 : public TestSceneBase002
 {
 public:
-    TestScene012();
+    TestScene012(Project001::Application* applicationPtr);
     ~TestScene012();
 
     TestScene012(TestScene012& other) = delete;
     void operator=(const TestScene012&) = delete;
 
-    const char* Name() override;
+    void HandleEvent(Project001::Event& event) override;
 
 protected:
-    bool OnInitialize() override;
+    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
+    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    bool OnDeinitialize() override;
+    // -------------------------------------------------------------------------
 
-    void OnHandleEvent(Project001::Event& event) override;
-
-    void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    TestInstructionScene001 instructionScene_;
 
 private:
 };

@@ -858,7 +858,7 @@ namespace Project001
 
         virtual EventType GetEventType() const = 0;
 
-        bool handled;
+        bool handled; // If am Event is handled, it will nolonger be Dispatched
     };
 
     template<typename DispatcherEvent, typename Function>
@@ -1030,6 +1030,24 @@ namespace Project001
     // Scene Events:
     // -------------------------------------------------------------------------
 
+    struct InitializeEvent : Event
+    {
+        InitializeEvent()
+            : Event()
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_INITIALIZE_SCENE)
+    };
+
+    struct DeinitializeEvent : Event
+    {
+        DeinitializeEvent()
+            : Event()
+        {}
+
+        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_DEINITIALIZE_SCENE)
+    };
+
     struct SwitchSceneEvent : Event
     {
         SwitchSceneEvent(std::string sceneName)
@@ -1038,30 +1056,6 @@ namespace Project001
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SWITCH_SCENE)
-
-        std::string sceneName;
-    };
-
-    struct InitializeSceneEvent : Event
-    {
-        InitializeSceneEvent(std::string sceneName)
-            : Event()
-            , sceneName(sceneName)
-        {}
-
-        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_INITIALIZE_SCENE)
-
-        std::string sceneName;
-    };
-
-    struct DeinitializeSceneEvent : Event
-    {
-        DeinitializeSceneEvent(std::string sceneName)
-            : Event()
-            , sceneName(sceneName)
-        {}
-
-        EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_DEINITIALIZE_SCENE)
 
         std::string sceneName;
     };

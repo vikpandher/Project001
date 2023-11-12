@@ -94,7 +94,9 @@ namespace Project001
         , renderingCommandBuffer_(VK_NULL_HANDLE)
         , nextCommandBufferIndex_(0)
         , renderingFence_(VK_NULL_HANDLE)
+        , justRenderedToBatch_(false)
         , batchedDataTransferFence_(VK_NULL_HANDLE)
+        , justRenderedToTexture_(false)
         , instanceDataTransferFence_(VK_NULL_HANDLE)
         , imageAvailableSemaphore_(VK_NULL_HANDLE)
         , readyToPresentSemaphore_(VK_NULL_HANDLE)
@@ -354,7 +356,7 @@ namespace Project001
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        for (std::map<unsigned int, Vulkan_Texture>::iterator iter = textureMap_.begin();
+        for (std::unordered_map<unsigned int, Vulkan_Texture>::iterator iter = textureMap_.begin();
             iter != textureMap_.end(); ++iter)
         {
             DeleteTexture(iter->second);
@@ -656,7 +658,7 @@ namespace Project001
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        for (std::map<unsigned int, Vulkan_Mesh>::iterator iter = meshMap_.begin();
+        for (std::unordered_map<unsigned int, Vulkan_Mesh>::iterator iter = meshMap_.begin();
             iter != meshMap_.end(); ++iter)
         {
             DeleteMesh(iter->second);
@@ -740,7 +742,11 @@ namespace Project001
                 GetTextureUnit(specularId, specularUnit);
             }
 
-            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &instanceDataTransferFence_, VK_TRUE, UINT64_MAX));
+            if (justRenderedToTexture_)
+            {
+                justRenderedToTexture_ = false;
+                _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &instanceDataTransferFence_, VK_TRUE, UINT64_MAX));
+            }
 
             InstanceData newInstance;
             newInstance.color = currentMeshInstanceData.color;
@@ -831,7 +837,11 @@ namespace Project001
 
         size_t batchedVertexBufferOffset = batchedVertexCount_;
 
-        _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &batchedDataTransferFence_, VK_TRUE, UINT64_MAX));
+        if (justRenderedToBatch_)
+        {
+            justRenderedToBatch_ = false;
+            _VK_CHECK(vkWaitForFences(logicalDevice_, 1, &batchedDataTransferFence_, VK_TRUE, UINT64_MAX));
+        }
 
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
@@ -1097,6 +1107,8 @@ namespace Project001
 
             batchedVertexCount_ = 0;
             batchedIndexCount_ = 0;
+
+            justRenderedToBatch_ = true;
         }
     }
 
@@ -3584,6 +3596,8 @@ namespace Project001
             _VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo2, renderingFence_));
 
             instanceCount_ = 0;
+
+            justRenderedToTexture_ = true;
         }
     }
 

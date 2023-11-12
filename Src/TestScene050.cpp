@@ -6,7 +6,7 @@
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -15,35 +15,43 @@
 #include "Engine/TextureLoader.h"
 #include "Engine/Window.h"
 
-#include <thread>
-#include <chrono>
-
 
 
 // public ----------------------------------------------------------------------
 
-TestScene050::TestScene050()
-{
-    ClearResources();
-
-    // TestSoundPlayer();
-}
+TestScene050::TestScene050(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene050")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_050")
+    , sound01_SoundDataPtr_(nullptr)
+    , soundBufferId01_((unsigned int)-1)
+    , soundSourceId01_((unsigned int)-1)
+    , sound02_SoundDataPtr_(nullptr)
+    , soundBufferId02_((unsigned int)-1)
+    , soundSourceId02_((unsigned int)-1)
+    , playingSound_(false)
+{}
 
 TestScene050::~TestScene050()
 {}
 
-const char* TestScene050::Name()
+void TestScene050::HandleEvent(Project001::Event& event)
 {
-    return "TestScene050";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene050::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene050::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene050::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene050::OnInitialize()
+void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
-    // Load meshes
+    // Load Meshes
     // -------------------------------------------------------------------------
 
     {
@@ -52,19 +60,20 @@ bool TestScene050::OnInitialize()
         _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.16f, 0, false));
     }
 
-    // Load sounds
+    // Load Sounds
     // -------------------------------------------------------------------------
 
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01_, "../Sounds/f_congratulations.ogg"));
+    sound01_SoundDataPtr_ = new Project001::SoundData();
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/f_congratulations.ogg"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
         soundBufferId01_,
-        soundData01_.data,
-        soundData01_.sizeInBytes,
-        soundData01_.numberOfChannels,
-        soundData01_.sampleRate_Hz,
-        soundData01_.bitsPerSample,
-        soundData01_.sizeInFrames
+        sound01_SoundDataPtr_->data,
+        sound01_SoundDataPtr_->sizeInBytes,
+        sound01_SoundDataPtr_->numberOfChannels,
+        sound01_SoundDataPtr_->sampleRate_Hz,
+        sound01_SoundDataPtr_->bitsPerSample,
+        sound01_SoundDataPtr_->sizeInFrames
     ));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
@@ -72,16 +81,17 @@ bool TestScene050::OnInitialize()
         soundBufferId01_
     ));
 
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02_, "../Sounds/bounce.wav"));
+    sound02_SoundDataPtr_ = new Project001::SoundData();
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/bounce.wav"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
         soundBufferId02_,
-        soundData02_.data,
-        soundData02_.sizeInBytes,
-        soundData02_.numberOfChannels,
-        soundData02_.sampleRate_Hz,
-        soundData02_.bitsPerSample,
-        soundData02_.sizeInFrames
+        sound02_SoundDataPtr_->data,
+        sound02_SoundDataPtr_->sizeInBytes,
+        sound02_SoundDataPtr_->numberOfChannels,
+        sound02_SoundDataPtr_->sampleRate_Hz,
+        sound02_SoundDataPtr_->bitsPerSample,
+        sound02_SoundDataPtr_->sizeInFrames
     ));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
@@ -91,7 +101,7 @@ bool TestScene050::OnInitialize()
 
     _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceLooping(soundSourceId02_, true));
 
-    // generated shape entity 01
+    // Generated Shape Entity 01
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -103,58 +113,80 @@ bool TestScene050::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        soundPlayerPtr_->PlaySoundSource(soundSourceId02_);
     }
 
-    return success && true;
+    // Member Scenes -----------------------------------------------------------
+
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
+    {
+        characterList.push_back(c);
+    }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests playing a spacial sound. The sound's\n"
+        "source is the Icosphere in the center.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-bool TestScene050::OnDeinitialize()
+void TestScene050::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    bool success = TestSceneBase001::OnDeinitialize();
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
 
-    ClearResources();
+    // -------------------------------------------------------------------------
 
-    return success && true;
-}
+    instructionScene_.Deinitialize();
 
-void TestScene050::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene050::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene050::ProcessUpdateEvent, this, std::placeholders::_1));
+    // SoundData ---------------------------------------------------------------
 
-    TestSceneBase001::OnHandleEvent(event);
-}
+    delete sound01_SoundDataPtr_;
+    sound01_SoundDataPtr_ = nullptr;
 
-void TestScene050::ClearResources()
-{
-    soundData01_.Clear();
     soundBufferId01_ = (unsigned int)-1;
     soundSourceId01_ = (unsigned int)-1;
 
-    soundData02_.Clear();
+    delete sound02_SoundDataPtr_;
+    sound02_SoundDataPtr_ = nullptr;
+
     soundBufferId02_ = (unsigned int)-1;
     soundSourceId02_ = (unsigned int)-1;
-}
 
-void TestScene050::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene002"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene002"));
-            }
-        }
-    }
+    playingSound_ = false;
 }
 
 void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -163,6 +195,12 @@ void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     UpdateCameraListenerPosition();
     // UpdateShape01EntityPosition(timestep_ns);
+
+    if (!playingSound_)
+    {
+        soundPlayerPtr_->PlaySoundSource(soundSourceId02_);
+        playingSound_ = true;
+    }
 }
 
 void TestScene050::UpdateCameraListenerPosition()
@@ -203,7 +241,7 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
     _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02_, velocity));
 }
 
-// private: --------------------------------------------------------------------
+// private ---------------------------------------------------------------------
 
 void TestScene050::TestSoundPlayer()
 {

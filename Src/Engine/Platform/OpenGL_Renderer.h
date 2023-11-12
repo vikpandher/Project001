@@ -261,12 +261,12 @@ namespace Project001
         unsigned int renderBufferId_;
 
         std::deque<unsigned int> recycledTextureIds_;
-        std::map<unsigned int, OpenGL_Texture*> texturePtrMap_;
+        std::unordered_map<unsigned int, OpenGL_Texture*> texturePtrMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
 
         std::deque<unsigned int> recycledMeshIds_;
-        std::map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
+        std::unordered_map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;

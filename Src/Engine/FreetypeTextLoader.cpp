@@ -45,7 +45,7 @@ namespace Project001
             return false;
         }
 
-        std::map<unsigned char, GlyphMetrics>& glyphMetricsMap = fontData.glyphMetricsMap;
+        std::unordered_map<unsigned char, GlyphMetrics>& glyphMetricsMap = fontData.glyphMetricsMap;
 
         for (size_t i = 0; i < characterList.size(); ++i)
         {
@@ -64,7 +64,7 @@ namespace Project001
         fontData.lineSpacing_px = face->size->metrics.height / METRICS_UNIT_MULTIPLIER;
 
         // load characters first time to calculate the size of the texture
-        for (std::map<unsigned char, GlyphMetrics>::iterator iter = glyphMetricsMap.begin(); iter != glyphMetricsMap.end(); ++iter)
+        for (std::unordered_map<unsigned char, GlyphMetrics>::iterator iter = glyphMetricsMap.begin(); iter != glyphMetricsMap.end(); ++iter)
         {
             const unsigned char& c = iter->first;
             error = FT_Load_Char(face, c, FT_LOAD_RENDER);
@@ -117,7 +117,7 @@ namespace Project001
         unsigned int nextCharacterOffsetX = 0;
         unsigned int nextCharacterOffsetY = verticalSpacing;
 
-        for (std::map<unsigned char, GlyphMetrics>::iterator iter = glyphMetricsMap.begin(); iter != glyphMetricsMap.end(); ++iter)
+        for (std::unordered_map<unsigned char, GlyphMetrics>::iterator iter = glyphMetricsMap.begin(); iter != glyphMetricsMap.end(); ++iter)
         {
             // left side spacing per glyph
             for (unsigned int j = 0; j < textureData.height - verticalSpacing; ++j)
@@ -312,7 +312,7 @@ namespace Project001
             }
             else
             {
-                const std::map<unsigned char, GlyphMetrics>::const_iterator glyphMapIter =
+                const std::unordered_map<unsigned char, GlyphMetrics>::const_iterator glyphMapIter =
                     fontData.glyphMetricsMap.find(c);
                 if (glyphMapIter != fontData.glyphMetricsMap.end())
                 {

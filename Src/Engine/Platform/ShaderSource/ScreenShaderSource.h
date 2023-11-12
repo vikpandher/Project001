@@ -9,7 +9,9 @@ namespace Project001
         // ---------------------------------------------------------------------
         static const char* g_vertexShaderSource = R"(
 #version 330 core
-#extension GL_ARB_separate_shader_objects : enable
+#if defined(GL_ARB_separate_shader_objects)
+    #extension GL_ARB_separate_shader_objects : enable
+#endif
 
 layout (location = 0) in vec2 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
@@ -27,7 +29,9 @@ void main()
         // ---------------------------------------------------------------------
         static const char* g_fragmentShaderSource = R"(
 #version 330 core
-#extension GL_ARB_separate_shader_objects : enable
+#if defined(GL_ARB_separate_shader_objects)
+    #extension GL_ARB_separate_shader_objects : enable
+#endif
 
 layout (location = 0) in vec2 v_TextureCoordinate;
 

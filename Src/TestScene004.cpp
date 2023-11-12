@@ -3,7 +3,7 @@
 #include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -14,27 +14,30 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene004::TestScene004()
-{
-    ClearResources();
-}
+TestScene004::TestScene004(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene004")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_004")
+{}
 
 TestScene004::~TestScene004()
 {}
 
-const char* TestScene004::Name()
+void TestScene004::HandleEvent(Project001::Event& event)
 {
-    return "TestScene004";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene004::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene004::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene004::OnInitialize()
+void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
-    // Load meshes
-    // -------------------------------------------------------------------------
+    // Mesh Data ---------------------------------------------------------------
 
     {
         // duplicate position at start
@@ -370,8 +373,9 @@ bool TestScene004::OnInitialize()
         _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*newMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
     }
 
-    // Load textures
-    // -------------------------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
+
+    std::vector<unsigned int> _32x32_TextureIds_;
 
     for (size_t i = 0; i < 35; ++i)
     {
@@ -407,8 +411,10 @@ bool TestScene004::OnInitialize()
         _32x32_TextureIds_.push_back(tempTextureId);
     }
 
-    // Calculating positions
+    // Creating Entities
     // -------------------------------------------------------------------------
+
+    // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -2; --i)
@@ -428,7 +434,7 @@ bool TestScene004::OnInitialize()
         }
     }
 
-    // generate entitys
+    // Generate Entitys
     // -------------------------------------------------------------------------
     for (size_t i = 0; i < 70; ++i)
     {
@@ -445,46 +451,60 @@ bool TestScene004::OnInitialize()
         renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
     }
 
-    return success && true;
-}
+    // Member Scenes -----------------------------------------------------------
 
-bool TestScene004::OnDeinitialize()
-{
-    bool success = TestSceneBase001::OnDeinitialize();
-
-    ClearResources();
-
-    return success && true;
-}
-
-void TestScene004::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene004::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene004::ClearResources()
-{
-    _32x32_TextureIds_.clear();
-}
-
-void TestScene004::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene006"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene006"));
-            }
-        }
+        characterList.push_back(c);
     }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests loading many textures at once,\n"
+        "as well as some more Mesh Generation.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
+}
+
+void TestScene004::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+{
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+
+    // -------------------------------------------------------------------------
+
+    instructionScene_.Deinitialize();
 }

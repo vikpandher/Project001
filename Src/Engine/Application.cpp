@@ -22,35 +22,72 @@ namespace Project001
         : windowTitle_(applicationInfo.windowTitle)
         , windowWidth_(applicationInfo.windowWidth)
         , windowHeight_(applicationInfo.windowHeight)
-        , desiredFrameDuration_ns_(1000000000ull / 60ull)
-        , sleepyRunLoop_(true)
+        , desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
+        , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
         , running_(false)
+        , windowPtr_(nullptr)
+        , rendererPtr_(nullptr)
+        , soundPlayerPtr_(nullptr)
+        , componentStoresPtr_(nullptr)
         , activeScenePtr_(nullptr)
+        , creationSuccessful_(false)
     {
         windowPtr_ = Window::Create(windowTitle_.c_str(), windowWidth_, windowHeight_);
-        windowPtr_->SetEventCallback(std::bind(&Application::OnHandleEvent, this, std::placeholders::_1));
-        windowPtr_->SetAspectRatio(windowWidth_, windowHeight_);
-
-        int screenWidth;
-        int screenHeight;
-        windowPtr_->GetScreenSize(screenWidth, screenHeight);
-        if (screenWidth > (int)windowWidth_ && screenHeight > (int)windowHeight_)
+        if (windowPtr_)
         {
-            windowPtr_->SetWindowPosition((screenWidth - windowWidth_) / 2, (screenHeight - windowHeight_) / 2);
-        }
+            windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
+            windowPtr_->SetAspectRatio(windowWidth_, windowHeight_);
 
-        Project001::RendererInfo rendererInfo = {};
-        rendererInfo.windowPtr = windowPtr_;
-        rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
-        rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
-        rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
-        rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
-        rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
-        rendererInfo.multisampleAntiAliasing = false;
-        rendererInfo.depthTesting = true;
-        rendererPtr_ = Renderer::Create(rendererInfo);
-        soundPlayerPtr_ = SoundPlayer::Create();
-        componentStoresPtr_ = new ComponentStores();
+            int screenWidth;
+            int screenHeight;
+            windowPtr_->GetScreenSize(screenWidth, screenHeight);
+            if (screenWidth > (int)windowWidth_ && screenHeight > (int)windowHeight_)
+            {
+                windowPtr_->SetWindowPosition((screenWidth - windowWidth_) / 2, (screenHeight - windowHeight_) / 2);
+            }
+
+            Project001::RendererInfo rendererInfo = {};
+            rendererInfo.windowPtr = windowPtr_;
+            rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
+            rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
+            rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
+            rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
+            rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
+            rendererInfo.multisampleAntiAliasing = false;
+            rendererInfo.depthTesting = true;
+            rendererPtr_ = Renderer::Create(rendererInfo);
+
+            if (rendererPtr_)
+            {
+                soundPlayerPtr_ = SoundPlayer::Create();
+
+                if (soundPlayerPtr_)
+                {
+                    componentStoresPtr_ = new ComponentStores();
+
+                    if (componentStoresPtr_)
+                    {
+                        creationSuccessful_ = true;
+                    }
+                    else
+                    {
+                        _LOG_ERROR("Application failed to create the ComponentStores");
+                    }
+                }
+                else
+                {
+                    _LOG_ERROR("Application failed to create the SoundPlayer");
+                }
+            }
+            else
+            {
+                _LOG_ERROR("Application failed to create the Renderer");
+            }
+        }
+        else
+        {
+            _LOG_ERROR("Application failed to create the Window");
+        }
     }
 
     Application::~Application()
@@ -60,36 +97,33 @@ namespace Project001
         delete rendererPtr_;
         delete windowPtr_;
 
-        _DESTROY_LOGGER();
-    }
+        activeScenePtr_ = nullptr;
 
-    bool Application::AddScene(Scene* scenePtr)
-    {
-        std::string name(scenePtr->Name());
-        if (sceneMap_.find(name) == sceneMap_.end())
+        std::unordered_map<std::string, Scene*>::iterator iter;
+        for (iter = sceneMap_.begin(); iter != sceneMap_.end(); ++iter)
         {
-            scenePtr->applicationPtr_ = this;
-            scenePtr->EventCallback = std::bind(&Application::OnHandleEvent, this, std::placeholders::_1);
-
-            sceneMap_[name] = scenePtr;
-
-            if (sceneMap_.size() == 1)
-            {
-                OnHandleEvent(SwitchSceneEvent(name));
-            }
-
-            return true;
+            NullifySceneApplicationPtr(iter->second);
         }
 
-        return false;
+        _DESTROY_LOGGER();
     }
 
     void Application::Run()
     {
-        if (activeScenePtr_ != nullptr && activeScenePtr_->Initialize())
+        if (!creationSuccessful_)
         {
-            running_ = true;
+            _LOG_ERROR("Failed to create Application");
+            return;
         }
+
+        if (!activeScenePtr_)
+        {
+            _LOG_ERROR("No Active Scene");
+            return;
+        }
+
+        HandleEvent(InitializeEvent());
+        running_ = true;
 
         std::chrono::system_clock::time_point lastFrameTimeStamp;
         std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
@@ -134,62 +168,36 @@ namespace Project001
             simulationTimeDebt_ns += lastFrameDuration_ns;
             while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
             {
-                OnHandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
+                HandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
             }
 
             // Render
             // -----------------------------------------------------------------
 
-            OnHandleEvent(RenderEvent(0, lastFrameDuration_ns));
+            HandleEvent(RenderEvent(0, lastFrameDuration_ns));
             windowPtr_->PollEvents();
         }
 
-        if (activeScenePtr_ != nullptr)
-        {
-            activeScenePtr_->Deinitialize();
-        }
+        HandleEvent(DeinitializeEvent());
     }
 
     // protected ------------------------------------------------------------------
 
-    void Application::OnHandleEvent(Event& event)
+    void Application::NullifySceneApplicationPtr(Scene* scene)
     {
-        if (activeScenePtr_ != nullptr)
-        {
-            activeScenePtr_->OnHandleEvent(event);
-        }
-
-        if (!event.handled)
-        {
-            DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
-            DispatchEvent<InitializeSceneEvent>(event, std::bind(&Application::ProcessInitializeSceneEvent, this, std::placeholders::_1));
-            DispatchEvent<DeinitializeSceneEvent>(event, std::bind(&Application::ProcessDeinitializeSceneEvent, this, std::placeholders::_1));
-
-            DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
-        }
+        scene->applicationPtr_ = nullptr;
     }
 
-    void Application::ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent)
+    void Application::HandleEvent(Event& event)
     {
-        std::string& name = deinitializeSceneEvent.sceneName;
-        if (sceneMap_.find(name) != sceneMap_.end())
+        if (activeScenePtr_)
         {
-            Scene* currentScenePtr_ = sceneMap_[name];
-            currentScenePtr_->Deinitialize();
+            activeScenePtr_->HandleEvent(event);
         }
-        deinitializeSceneEvent.handled = true;
-    }
 
-    void Application::ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent)
-    {
-        std::string& name = initializeSceneEvent.sceneName;
-        if (sceneMap_.find(name) != sceneMap_.end())
-        {
-            Scene* currentScenePtr_ = sceneMap_[name];
-            currentScenePtr_->Initialize();
-        }
-        initializeSceneEvent.handled = true;
+        DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
+        DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
     }
 
     void Application::ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent)
@@ -198,6 +206,10 @@ namespace Project001
         if (sceneMap_.find(name) != sceneMap_.end())
         {
             activeScenePtr_ = sceneMap_[name];
+        }
+        else
+        {
+            _LOG_MESSAGE("Failed to set active scene: %s", name.c_str());
         }
         switchSceneEvent.handled = true;
     }

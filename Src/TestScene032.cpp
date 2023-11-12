@@ -5,7 +5,7 @@
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -16,25 +16,52 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene032::TestScene032()
-{
-    ClearResources();
-}
+TestScene032::TestScene032(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene032")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_032")
+    , earth001_TextureId_((unsigned int)-1)
+    , specular001_TextureId_((unsigned int)-1)
+    , _32x32_TextureIds_()
+    , icosphere001_MeshDataPtr_(nullptr)
+    , icosphere001_MeshId_((unsigned int)-1)
+    , icosphere001_MaxBoundingRadius_(0.0f)
+    , arc001_MeshDataPtr_(nullptr)
+    , arc001_MeshId_((unsigned int)-1)
+    , arc001_MaxBoundingRadius_(0.0f)
+    , line001_MeshDataPtr_(nullptr)
+    , line001_MeshId_((unsigned int)-1)
+    , line001_MaxBoundingRadius_(0.0f)
+    , cone001_MeshDataPtr_(nullptr)
+    , cone001_MeshId_((unsigned int)-1)
+    , cone001_MaxBoundingRadius_(0.0f)
+    , centerIcosphereEntityId_((unsigned int)-1)
+    , centerStar001_EntityId_((unsigned int)-1)
+    , centerStar002_EntityId_((unsigned int)-1)
+    , psudoStencil001_EntityId_((unsigned int)-1)
+    , icosphereEntityIds_()
+    , arcEntityIds_()
+    , coneEntityIds_()
+    , starEntityIds_()
+{}
 
 TestScene032::~TestScene032()
 {}
 
-const char* TestScene032::Name()
+void TestScene032::HandleEvent(Project001::Event& event)
 {
-    return "TestScene032";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene032::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene032::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene032::OnInitialize()
+void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
     // Load Textures
     // -------------------------------------------------------------------------
 
@@ -195,11 +222,11 @@ bool TestScene032::OnInitialize()
     }
 
     { // stencils out stuff positioned behind it, that is rendered after it (CPU side mesh)
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(stencil001_EntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(psudoStencil001_EntityId_));
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(stencil001_EntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(stencil001_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_, renderedMeshPtr));
         renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
         renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
         renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
@@ -386,32 +413,72 @@ bool TestScene032::OnInitialize()
         }
     }
 
-    return success && true;
+    // Member Scenes -----------------------------------------------------------
+
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
+    {
+        characterList.push_back(c);
+    }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests rendering Batched and Instanced Meshes\n"
+        "with various rendering priorities. Some are translucent.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-bool TestScene032::OnDeinitialize()
+void TestScene032::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    bool success = TestSceneBase001::OnDeinitialize();
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
 
-    ClearResources();
+    // -------------------------------------------------------------------------
 
-    return success && true;
-}
+    instructionScene_.Deinitialize();
 
-void TestScene032::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene032::ProcessKeyEvent, this, std::placeholders::_1));
+    // Texture Data ------------------------------------------------------------
 
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene032::ClearResources()
-{
     earth001_TextureId_ = (unsigned int)-1;
-
     specular001_TextureId_ = (unsigned int)-1;
-
     _32x32_TextureIds_.clear();
+
+    // Mesh Data ---------------------------------------------------------------
+
+    // dont need to delete these here since they are added to meshDataPtrArray_
 
     icosphere001_MeshDataPtr_ = nullptr;
     icosphere001_MeshId_ = (unsigned int)-1;
@@ -429,39 +496,14 @@ void TestScene032::ClearResources()
     cone001_MeshId_ = (unsigned int)-1;
     cone001_MaxBoundingRadius_ = 0.0f;
 
+    // Entity Ids --------------------------------------------------------------
+
     centerIcosphereEntityId_ = (unsigned int)-1;
-
     centerStar001_EntityId_ = (unsigned int)-1;
-
     centerStar002_EntityId_ = (unsigned int)-1;
-
-    stencil001_EntityId_ = (unsigned int)-1;
-
+    psudoStencil001_EntityId_ = (unsigned int)-1;
     icosphereEntityIds_.clear();
-
     arcEntityIds_.clear();
-
     coneEntityIds_.clear();
-
     starEntityIds_.clear();
-}
-
-void TestScene032::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene033"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene033"));
-            }
-        }
-    }
 }

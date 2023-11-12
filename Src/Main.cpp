@@ -23,7 +23,7 @@
 #include "TestScene003.h"
 #include "TestScene004.h"
 #include "TestScene006.h"
-#include "TestScene007.h"
+// #include "TestScene007.h"
 #include "TestScene010.h"
 #include "TestScene011.h"
 #include "TestScene012.h"
@@ -56,81 +56,66 @@ int main(int argc, char** argv)
     applicationInfo.instanceBufferCapacity = 1024 * 8;
     applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
+    applicationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
+    applicationInfo.sleepyRunLoop = true;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
 
     // main menu
-    TestScene001* testScene001Ptr = new TestScene001();
-    applicationPtr->AddScene(testScene001Ptr);
+    TestScene001* testScene001Ptr = new TestScene001(applicationPtr);
 
     // tests shape generation (001)
-    TestScene002* testScene002Ptr = new TestScene002();
-    applicationPtr->AddScene(testScene002Ptr);
+    TestScene002* testScene002Ptr = new TestScene002(applicationPtr);
 
     // tests 3d shape generation (001)
-    TestScene003* testScene003Ptr = new TestScene003();
-    applicationPtr->AddScene(testScene003Ptr);
+    TestScene003* testScene003Ptr = new TestScene003(applicationPtr);
 
     // tests additional shape generation and rendering 35 textures (001)
-    TestScene004* testScene004Ptr = new TestScene004();
-    applicationPtr->AddScene(testScene004Ptr);
+    TestScene004* testScene004Ptr = new TestScene004(applicationPtr);
 
     // testing text generation (001)
-    TestScene006* testScene006Ptr = new TestScene006();
-    applicationPtr->AddScene(testScene006Ptr);
+    TestScene006* testScene006Ptr = new TestScene006(applicationPtr);
 
     // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
-    TestScene007* testScene007Ptr = new TestScene007();
-    applicationPtr->AddScene(testScene007Ptr);
+    // TestScene007* testScene007Ptr = new TestScene007(applicationPtr);
 
     // tests 2d shape overlap (002)
-    TestScene010* testScene010Ptr = new TestScene010();
-    applicationPtr->AddScene(testScene010Ptr);
+    TestScene010* testScene010Ptr = new TestScene010(applicationPtr);
 
     // tests 2d shape overlap (002)
-    TestScene011* testScene011Ptr = new TestScene011();
-    applicationPtr->AddScene(testScene011Ptr);
+    TestScene011* testScene011Ptr = new TestScene011(applicationPtr);
 
     // tests 2d shape overlap (002)
-    TestScene012* testScene012Ptr = new TestScene012();
-    applicationPtr->AddScene(testScene012Ptr);
+    TestScene012* testScene012Ptr = new TestScene012(applicationPtr);
 
     // tests 3d shape overlap tests (TODO) (001)
-    TestScene013* testScene013Ptr = new TestScene013();
-    applicationPtr->AddScene(testScene013Ptr);
+    TestScene013* testScene013Ptr = new TestScene013(applicationPtr);
 
     // tests framerate with many verticies batched rendering (001)
-    TestScene030* testScene030Ptr = new TestScene030();
-    applicationPtr->AddScene(testScene030Ptr);
+    TestScene030* testScene030Ptr = new TestScene030(applicationPtr);
 
     // tests framerate with many verticies instanced rendering (001)
-    TestScene031* testScene031Ptr = new TestScene031();
-    applicationPtr->AddScene(testScene031Ptr);
+    TestScene031* testScene031Ptr = new TestScene031(applicationPtr);
 
     // tests rendering batched and instanced together (001)
-    TestScene032* testScene032Ptr = new TestScene032();
-    applicationPtr->AddScene(testScene032Ptr);
+    TestScene032* testScene032Ptr = new TestScene032(applicationPtr);
 
     // tests multiple cameras (001)
-    TestScene033* testScene033Ptr = new TestScene033();
-    applicationPtr->AddScene(testScene033Ptr);
+    TestScene033* testScene033Ptr = new TestScene033(applicationPtr);
 
     // tests manipulating models (001)
-    TestScene034* testScene034Ptr = new TestScene034();
-    applicationPtr->AddScene(testScene034Ptr);
+    TestScene034* testScene034Ptr = new TestScene034(applicationPtr);
 
     // tests sound (001)
-    TestScene050* testScene050Ptr = new TestScene050();
-    applicationPtr->AddScene(testScene050Ptr);
+    TestScene050* testScene050Ptr = new TestScene050(applicationPtr);
 
     applicationPtr->Run();
 
-    delete applicationPtr;
     delete testScene001Ptr;
     delete testScene002Ptr;
     delete testScene003Ptr;
     delete testScene004Ptr;
     delete testScene006Ptr;
-    delete testScene007Ptr;
+    // delete testScene007Ptr;
     delete testScene010Ptr;
     delete testScene011Ptr;
     delete testScene012Ptr;
@@ -141,6 +126,7 @@ int main(int argc, char** argv)
     delete testScene033Ptr;
     delete testScene034Ptr;
     delete testScene050Ptr;
+    delete applicationPtr;
 
     return 0;
 }

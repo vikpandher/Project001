@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 
 
@@ -28,12 +28,12 @@ namespace Project001
         unsigned int instanceBufferCapacity;
         unsigned int batchedIndexBufferCapacity;
         unsigned int batchedVertexBufferCapacity;
+        unsigned long long desiredFrameDuration_ns;
+        bool sleepyRunLoop;
     };
 
     class Application
     {
-        friend class Scene;
-
     public:
         Application(const ApplicationInfo& applicationInfo);
         virtual ~Application();
@@ -41,15 +41,17 @@ namespace Project001
         Application(Application& other) = delete;
         void operator=(const Application&) = delete;
 
-        bool AddScene(Scene* scenePtr);
-
         void Run();
 
     protected:
-        void OnHandleEvent(Event& event);
+        friend class Scene;
 
-        void ProcessDeinitializeSceneEvent(DeinitializeSceneEvent& deinitializeSceneEvent);
-        void ProcessInitializeSceneEvent(InitializeSceneEvent& initializeSceneEvent);
+        // This function exists so that if the Application gets deleted before
+        // its Scenes, the Scenes won't be able to access junk memory.
+        void NullifySceneApplicationPtr(Scene* scene);
+
+        void HandleEvent(Event& event);
+
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
 
@@ -57,7 +59,7 @@ namespace Project001
         unsigned int windowWidth_;
         unsigned int windowHeight_;
 
-        unsigned long desiredFrameDuration_ns_;
+        unsigned long long desiredFrameDuration_ns_;
         bool sleepyRunLoop_;
 
         bool running_;
@@ -67,9 +69,10 @@ namespace Project001
         SoundPlayer* soundPlayerPtr_;
         ComponentStores* componentStoresPtr_;
 
+        std::unordered_map<std::string, Scene*> sceneMap_;
         Scene* activeScenePtr_;
-        std::map<std::string, Scene*> sceneMap_;
 
     private:
+        bool creationSuccessful_;
     };
 }

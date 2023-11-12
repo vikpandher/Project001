@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 
 
 
@@ -52,7 +52,7 @@ namespace Project001
         void Remove_Using_X(X x)
         {
             Y& y = mapXY_[x];
-            std::map<Y, X>::iterator iter = mapYX_.find(y);
+            std::unordered_map<Y, X>::iterator iter = mapYX_.find(y);
             mapXY_.erase(x);
             mapYX_.erase(iter);
         }
@@ -77,7 +77,7 @@ namespace Project001
         void Remove_Using_Y(Y y)
         {
             X& x = mapYX_[y];
-            std::map<X, Y>::iterator iter = mapXY_.find(x);
+            std::unordered_map<X, Y>::iterator iter = mapXY_.find(x);
             mapYX_.erase(y);
             mapXY_.erase(iter);
         }
@@ -88,8 +88,8 @@ namespace Project001
         }
         
     protected:
-        std::map<X, Y> mapXY_;
-        std::map<Y, X> mapYX_;
+        std::unordered_map<X, Y> mapXY_;
+        std::unordered_map<Y, X> mapYX_;
 
     private:
     };

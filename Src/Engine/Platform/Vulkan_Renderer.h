@@ -755,7 +755,9 @@ namespace Project001
         size_t nextCommandBufferIndex_;
 
         VkFence renderingFence_;
+        bool justRenderedToBatch_;
         VkFence batchedDataTransferFence_;
+        bool justRenderedToTexture_;
         VkFence instanceDataTransferFence_;
         VkSemaphore imageAvailableSemaphore_;
         VkSemaphore readyToPresentSemaphore_;
@@ -854,12 +856,12 @@ namespace Project001
         uint32_t currentSwapchainFramebufferIndex_;
 
         std::deque<unsigned int> recycledTextureIds_;
-        std::map<unsigned int, Vulkan_Texture> textureMap_;
+        std::unordered_map<unsigned int, Vulkan_Texture> textureMap_;
         BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
 
         std::deque<unsigned int> recycledMeshIds_;
-        std::map<unsigned int, Vulkan_Mesh> meshMap_;
+        std::unordered_map<unsigned int, Vulkan_Mesh> meshMap_;
 
     private:
     };

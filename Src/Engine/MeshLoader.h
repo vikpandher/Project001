@@ -99,7 +99,7 @@ namespace Project001
             float width,
             float height,
             float bezelSize,
-            float bezelSections,
+            size_t bezelSections,
             bool triangulate = s_triangulate);
 
         // texture origin is bottom left

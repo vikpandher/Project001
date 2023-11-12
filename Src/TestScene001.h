@@ -1,40 +1,27 @@
 #pragma once
 
-#include "Engine/Scene.h"
-
-#include "Engine/Event.h"
+#include "TestInstructionScene001.h"
 
 #include "glm/glm.hpp"
 
 #include <vector>
 
 
-namespace Project001
-{
-    struct FontData;
-    struct MeshData;
-    struct TextureData;
-}
 
 class TestScene001 : public Project001::Scene
 {
 public:
-    TestScene001();
+    TestScene001(Project001::Application* applicationPtr);
     ~TestScene001();
 
     TestScene001(TestScene001& other) = delete;
     void operator=(const TestScene001&) = delete;
 
-    const char* Name() override;
+    void HandleEvent(Project001::Event& event) override;
 
 protected:
-    bool OnInitialize() override;
-
-    bool OnDeinitialize() override;
-
-    void OnHandleEvent(Project001::Event& event) override;
-
-    void ClearResources();
+    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
+    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
@@ -43,13 +30,11 @@ protected:
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    // requires:
-    //     mainCameraEntityId_
-    // 
-    // xPosition and yPosition are window coordinates
     void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
 
     // -------------------------------------------------------------------------
+
+    TestInstructionScene001 instructionScene_;
 
     Project001::Window* windowPtr_;
 
@@ -75,26 +60,25 @@ protected:
 
     Project001::MeshData* circleMeshDataPtr_;
 
-    std::vector<Project001::MeshData*> textMeshDataPtrs_;
-
-    float fontPixelSize_ = 0.0032f;
+    const float buttonFontPixelSize_ = 0.0048f;
+    std::vector<Project001::MeshData*> buttonTextMeshDataPtrs_;
 
     // Entity Ids --------------------------------------------------------------
 
     unsigned int mainCameraEntityId_;
-    unsigned int cursorEntityId_;
+    static const uint32_t s_uiCameraMask_ = 0b10000000000000000000000000000000;
+    unsigned int uiCameraEntityId_;
 
+    unsigned int cursorEntityId_;
     unsigned int cursorPositionRenderedMeshIndex_;
     unsigned int cursorPressRenderedMeshIndex_;
     unsigned int cursorReleaseRenderedMeshIndex_;
-
+    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
+    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
+    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
     unsigned int cursorPositionCollisionPointIndex_;
     unsigned int cursorPressCollisionPointIndex_;
     unsigned int cursorReleaseCollisionPointIndex_;
-
-    unsigned int cursorPositionCollisionShapeId_ = 100;
-    unsigned int cursorPressCollisionShapeId_ = 101;
-    unsigned int cursorReleaseCollisionShapeId_ = 102;
 
     std::vector<unsigned int> buttonEntityIds_;
 
@@ -108,11 +92,12 @@ protected:
 
     unsigned int selectedEntityId_;
 
-    static const Project001::KeyCode s_keyCodeMoveUp_ = Project001::KeyCode::KEY_CODE_W;
-    static const Project001::KeyCode s_keyCodeMoveLeft_ = Project001::KeyCode::KEY_CODE_A;
-    static const Project001::KeyCode s_keyCodeMoveDown_ = Project001::KeyCode::KEY_CODE_S;
-    static const Project001::KeyCode s_keyCodeMoveRight_ = Project001::KeyCode::KEY_CODE_D;
-    static const Project001::KeyCode s_keyCodeSelect_ = Project001::KeyCode::KEY_CODE_ENTER;
+    static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
+    static const Project001::KeyCode s_keyCode_moveUp_ = Project001::KeyCode::KEY_CODE_W;
+    static const Project001::KeyCode s_keyCode_moveLeft_ = Project001::KeyCode::KEY_CODE_A;
+    static const Project001::KeyCode s_keyCode_moveDown_ = Project001::KeyCode::KEY_CODE_S;
+    static const Project001::KeyCode s_keyCode_moveRight_ = Project001::KeyCode::KEY_CODE_D;
+    static const Project001::KeyCode s_keyCode_select_ = Project001::KeyCode::KEY_CODE_SPACE;
 
 private:
 };

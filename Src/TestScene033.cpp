@@ -5,7 +5,6 @@
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
 #include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
@@ -17,25 +16,50 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene033::TestScene033()
-{
-    ClearResources();
-}
+TestScene033::TestScene033(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene033")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_033")
+    , _32x32_TextureIds_()
+    , _48x48_TextureIds_()
+    , font01_FontDataPtr_(nullptr)
+    , font01_TextureDataPtr_(nullptr)
+    , font01_TextureId_((unsigned int)-1)
+    , square_MeshDataPtr_(nullptr)
+    , square_MeshId_((unsigned int)-1)
+    , square_MaxBoundingRadius_(0.0f)
+    , ui_fps_MeshDataPtr_(nullptr)
+    , counter_(0)
+    , ui_counter_MeshDataPtr_(nullptr)
+    , ui_largeText_MeshDataPtr_(nullptr)
+    , secondaryCameraEntityId_((unsigned int)-1)
+    , tertiaryCameraEntityId_((unsigned int)-1)
+    , square_EntityIds_()
+    , ui_fps_EntityId_((unsigned int)-1)
+    , ui_counter_EntityId_((unsigned int)-1)
+    , ui_largeText_EntityId_((unsigned int)-1)
+{}
 
 TestScene033::~TestScene033()
 {}
 
-const char* TestScene033::Name()
+void TestScene033::HandleEvent(Project001::Event& event)
 {
-    return "TestScene033";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene033::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene033::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene033::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene033::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene033::OnInitialize()
+void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
     // Secindary camera
     // -------------------------------------------------------------------------
 
@@ -67,9 +91,8 @@ bool TestScene033::OnInitialize()
         }
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(true);
         cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(secondaryCameraMask_);
+        cameraPtr->SetCameraMask(s_secondaryCameraMask_);
         cameraPtr->SetPriorityValue(100);
     }
 
@@ -93,7 +116,6 @@ bool TestScene033::OnInitialize()
         cameraPtr->SetCameraViewport(0.75f, 0.0f, 0.25f, 0.25f);
         cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
         cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetDepthTestEnabled(true);
         cameraPtr->TurnOn();
         cameraPtr->SetPriorityValue(101);
     }
@@ -136,13 +158,15 @@ bool TestScene033::OnInitialize()
     }
 
     {
+        font01_FontDataPtr_ = new Project001::FontData();
+        font01_TextureDataPtr_ = new Project001::TextureData();
         std::vector<unsigned char> characterList;
         for (unsigned char c = 32; c < 127; ++c) // ASCII characters
         {
             characterList.push_back(c);
         }
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(font01_TextureData_, font01_FontData_, characterList, "../Fonts/Antonio-Regular.ttf", 48));
-        rendererPtr_->CreateTexture(font01_TextureId_, font01_TextureData_.data, font01_TextureData_.width, font01_TextureData_.height, font01_TextureData_.bytesPerPixel, false, false);
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(*font01_TextureDataPtr_, *font01_FontDataPtr_, characterList, "../Fonts/Antonio-Regular.ttf", 48));
+        rendererPtr_->CreateTexture(font01_TextureId_, font01_TextureDataPtr_->data, font01_TextureDataPtr_->width, font01_TextureDataPtr_->height, font01_TextureDataPtr_->bytesPerPixel, false, false);
     }
 
     // Generate meshes
@@ -165,12 +189,6 @@ bool TestScene033::OnInitialize()
     }
 
     {
-        ui_testText_MeshDataPtr_ = new Project001::MeshData();
-        meshDataPtrArray_.push_back(ui_testText_MeshDataPtr_);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_testText_MeshDataPtr_, font01_FontData_, "TEST LINE 001\nTEST LINE 002\nTEST LINE 003", fontPixelSize_));
-    }
-
-    {
         ui_fps_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(ui_fps_MeshDataPtr_);
     }
@@ -183,7 +201,7 @@ bool TestScene033::OnInitialize()
     {
         ui_largeText_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(ui_largeText_MeshDataPtr_);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_largeText_MeshDataPtr_, font01_FontData_, "SSS", fontPixelSize_));
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "SSS", fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_largeText_MeshDataPtr_);
     }
 
@@ -232,30 +250,12 @@ bool TestScene033::OnInitialize()
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_testText_EntityId_));
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_testText_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_testText_EntityId_, renderedMeshPtr));
-        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
-        renderedMeshPtr->SetLit(false);
-        renderedMeshPtr->SetMeshDataPtr(ui_testText_MeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetTranslucent(true);
-
-        float lineOffset = fontPixelSize_ * (float)font01_FontData_.lineSpacing_px;
-
-        renderedMeshPtr->SetPositionX(-secondaryCameraHalfWidth + 0.2f);
-        renderedMeshPtr->SetPositionY(secondaryCameraHalfHeight - lineOffset);
-    }
-
-    {
         _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_fps_EntityId_));
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_fps_EntityId_, renderedMeshPtr));
-        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
         renderedMeshPtr->SetTextureId(font01_TextureId_);
@@ -270,7 +270,7 @@ bool TestScene033::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_counter_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_counter_EntityId_, renderedMeshPtr));
-        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
         renderedMeshPtr->SetTextureId(font01_TextureId_);
@@ -285,7 +285,7 @@ bool TestScene033::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_largeText_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_largeText_EntityId_, renderedMeshPtr));
-        renderedMeshPtr->SetCameraMask(secondaryCameraMask_);
+        renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
         renderedMeshPtr->SetTextureId(font01_TextureId_);
@@ -294,45 +294,57 @@ bool TestScene033::OnInitialize()
         renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 0.0f);
     }
 
-    return success && true;
+    // Member Scenes -----------------------------------------------------------
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests rendering with multiple Cameras.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-bool TestScene033::OnDeinitialize()
+void TestScene033::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    bool success = TestSceneBase001::OnDeinitialize();
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
 
-    ClearResources();
+    // -------------------------------------------------------------------------
 
-    return success && true;
-}
+    instructionScene_.Deinitialize();
 
-void TestScene033::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene033::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene033::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene033::ProcessUpdateEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene033::ClearResources()
-{
     // Texture Data: -----------------------------------------------------------
 
     _32x32_TextureIds_.clear();
     _48x48_TextureIds_.clear();
 
-    font01_FontData_.Clear();
-    font01_TextureData_.Clear();
+    delete font01_FontDataPtr_;
+    font01_FontDataPtr_ = nullptr;
+
+    delete font01_TextureDataPtr_;
+    font01_TextureDataPtr_ = nullptr;
+
     font01_TextureId_ = (unsigned int)-1;
 
     // Mesh Data: --------------------------------------------------------------
 
+    // dont need to delete these here since they are added to meshDataPtrArray_
+
     square_MeshDataPtr_ = nullptr;
     square_MeshId_ = (unsigned int)-1;
     square_MaxBoundingRadius_ = 0.0f;
-
-    ui_testText_MeshDataPtr_ = nullptr;
 
     ui_fps_MeshDataPtr_ = nullptr;
 
@@ -349,8 +361,6 @@ void TestScene033::ClearResources()
 
     square_EntityIds_.clear();
 
-    ui_testText_EntityId_ = (unsigned int)-1;
-
     ui_fps_EntityId_ = (unsigned int)-1;
 
     ui_counter_EntityId_ = (unsigned int)-1;
@@ -358,32 +368,12 @@ void TestScene033::ClearResources()
     ui_largeText_EntityId_ = (unsigned int)-1;
 }
 
-void TestScene033::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene034"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene034"));
-            }
-        }
-    }
-}
-
 void TestScene033::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, font01_FontData_, fps_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
@@ -392,7 +382,7 @@ void TestScene033::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     std::string counter_string = std::to_string(++counter_);
     ui_counter_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_counter_MeshDataPtr_, font01_FontData_, counter_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_counter_MeshDataPtr_, *font01_FontDataPtr_, counter_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_counter_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_counter_MeshDataPtr_, 0.5f * ui_counter_MeshDataPtr_->GetSize());
 }

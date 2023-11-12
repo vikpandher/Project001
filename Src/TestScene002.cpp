@@ -6,7 +6,7 @@
 #include "Engine/Application.h"
 #include "Engine/BiMap.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -19,10 +19,10 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene002::TestScene002()
+TestScene002::TestScene002(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene002")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_002")
 {
-    ClearResources();
-
     BiMapTest();
     ComponentContainerTest();
     ComponentStoresTest();
@@ -33,19 +33,22 @@ TestScene002::TestScene002()
 TestScene002::~TestScene002()
 {}
 
-const char* TestScene002::Name()
+void TestScene002::HandleEvent(Project001::Event& event)
 {
-    return "TestScene002";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene002::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene002::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene002::OnInitialize()
+void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
-    // Load meshes
-    // -------------------------------------------------------------------------
+    // Mesh Data ---------------------------------------------------------------
 
     { // 0
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -441,53 +444,62 @@ bool TestScene002::OnInitialize()
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    // Load textures
-    // -------------------------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
+
+    unsigned int dice01TextureId = (unsigned int)-1;
+    unsigned int dice02TextureId = (unsigned int)-1;
+    unsigned int thonkTextureId = (unsigned int)-1;
+    unsigned int _100x100TextureId = (unsigned int)-1;
+    unsigned int patternSpecular01TextureId = (unsigned int)-1;
+    unsigned int patternSpecular02TextureId = (unsigned int)-1;
+    unsigned int thonkSpecularTextureId = (unsigned int)-1;
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/CounterclockwiseDie.png"));
-        rendererPtr_->CreateTexture(dice01TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(dice01TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/HallowDie.png"));
-        rendererPtr_->CreateTexture(dice02TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(dice02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
-        rendererPtr_->CreateTexture(thonkTextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(thonkTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/100x100_2.png"));
-        rendererPtr_->CreateTexture(_100x100TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(_100x100TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
-        rendererPtr_->CreateTexture(patternSpecular01TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(patternSpecular01TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular2.png"));
-        rendererPtr_->CreateTexture(patternSpecular02TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(patternSpecular02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
-        rendererPtr_->CreateTexture(thonkSpecularTextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(thonkSpecularTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
-    // Calculating positions
+    // Creating Entities
     // -------------------------------------------------------------------------
+
+    // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -3; --i)
@@ -499,7 +511,7 @@ bool TestScene002::OnInitialize()
     }
     size_t positionPosition = 0;
 
-    // cube entity 01
+    // Cube Entity 01
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -512,12 +524,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetTextureId(thonkTextureId_);
-        renderedMeshPtr->SetSpecularId(thonkSpecularTextureId_);
+        renderedMeshPtr->SetTextureId(thonkTextureId);
+        renderedMeshPtr->SetSpecularId(thonkSpecularTextureId);
         renderedMeshPtr->SetShininess(32.0f);
     }
 
-    // cube entity 02
+    // Cube Entity 02
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -530,11 +542,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetTextureId(dice01TextureId_);
+        renderedMeshPtr->SetTextureId(dice01TextureId);
         renderedMeshPtr->SetShininess(32.0f);
     }
 
-    // cube entity 03
+    // Cube Entity 03
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -547,12 +559,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetTextureId(dice02TextureId_);
+        renderedMeshPtr->SetTextureId(dice02TextureId);
         renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
         renderedMeshPtr->SetShininess(32.0f);
     }
 
-    // cube entity 04
+    // Cube Entity 04
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -569,7 +581,7 @@ bool TestScene002::OnInitialize()
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // cube entity 05
+    // Cube Entity 05
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -586,7 +598,7 @@ bool TestScene002::OnInitialize()
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // cube entity 06
+    // Cube Entity 06
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -599,13 +611,13 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetSpecularId(patternSpecular01TextureId_);
+        renderedMeshPtr->SetSpecularId(patternSpecular01TextureId);
         renderedMeshPtr->SetScale(0.5f, 0.75f, 1.0f);
         renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
         renderedMeshPtr->SetShininess(24.0f);
     }
 
-    // cube entity 07
+    // Cube Entity 07
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -618,14 +630,14 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetSpecularId(patternSpecular02TextureId_);
+        renderedMeshPtr->SetSpecularId(patternSpecular02TextureId);
         renderedMeshPtr->AddPitch(glm::pi<float>() / 4.0f);
         renderedMeshPtr->AddYaw(glm::pi<float>() / 4.0f);
         renderedMeshPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
         renderedMeshPtr->SetShininess(4.0f);
     }
 
-    // generated shape entity 01
+    // Generated Shape Entity 01
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -638,12 +650,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
         renderedMeshPtr->SetTranslucent(true);
     }
  
-    // generated shape entity 02
+    // Generated Shape Entity 02
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -656,12 +668,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 03
+    // Generated Shape Entity 03
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -673,12 +685,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 04
+    // Generated Shape Entity 04
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -690,12 +702,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 05
+    // Generated Shape Entity 05
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -707,12 +719,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 06
+    // Generated Shape Entity 06
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -724,12 +736,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 07
+    // Generated Shape Entity 07
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -741,12 +753,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 08
+    // Generated Shape Entity 08
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -758,12 +770,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 09
+    // Generated Shape Entity 09
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -775,12 +787,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 10
+    // Generated Shape Entity 10
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -792,12 +804,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 11
+    // Generated Shape Entity 11
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -809,12 +821,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 12
+    // Generated Shape Entity 12
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -826,12 +838,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 13
+    // Generated Shape Entity 13
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -843,12 +855,12 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 14
+    // Generated Shape Entity 14
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -860,11 +872,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 15
+    // Generated Shape Entity 15
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -876,11 +888,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 16
+    // Generated Shape Entity 16
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -892,11 +904,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 17
+    // Generated Shape Entity 17
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -908,11 +920,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 18
+    // Generated Shape Entity 18
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -924,11 +936,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 19
+    // Generated Shape Entity 19
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -940,11 +952,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 20
+    // Generated Shape Entity 20
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -956,11 +968,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 21
+    // Generated Shape Entity 21
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -972,11 +984,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 22
+    // Generated Shape Entity 22
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -988,11 +1000,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 23
+    // Generated Shape Entity 23
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1004,11 +1016,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 24
+    // Generated Shape Entity 24
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1020,11 +1032,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 25
+    // Generated Shape Entity 25
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1036,11 +1048,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 26
+    // Generated Shape Entity 26
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1052,11 +1064,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 27
+    // Generated Shape Entity 27
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1068,11 +1080,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 28
+    // Generated Shape Entity 28
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1084,11 +1096,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 29
+    // Generated Shape Entity 29
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1100,11 +1112,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 30
+    // Generated Shape Entity 30
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1116,11 +1128,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 31
+    // Generated Shape Entity 31
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1132,11 +1144,11 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    // generated shape entity 32
+    // Generated Shape Entity 32
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -1148,61 +1160,68 @@ bool TestScene002::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId_);
+        renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
 
-    return success && true;
-}
+    // Member Scenes -----------------------------------------------------------
 
-bool TestScene002::OnDeinitialize()
-{
-    bool success = TestSceneBase001::OnDeinitialize();
-
-    ClearResources();
-
-    return success && true;
-}
-
-void TestScene002::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene002::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene002::ClearResources()
-{
-    dice01TextureId_ = (unsigned int)-1;
-    dice02TextureId_ = (unsigned int)-1;
-    thonkTextureId_ = (unsigned int)-1;
-    _100x100TextureId_ = (unsigned int)-1;
-    patternSpecular01TextureId_ = (unsigned int)-1;
-    patternSpecular02TextureId_ = (unsigned int)-1;
-    thonkSpecularTextureId_ = (unsigned int)-1;
-}
-
-void TestScene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene003"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene003"));
-            }
-        }
+        characterList.push_back(c);
     }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests Mesh Generation.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-// private: --------------------------------------------------------------------
+void TestScene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+{
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+
+    // -------------------------------------------------------------------------
+
+    instructionScene_.Deinitialize();
+}
+
+// private ---------------------------------------------------------------------
 
 void TestScene002::BiMapTest() const
 {
@@ -1267,12 +1286,6 @@ void TestScene002::ComponentContainerTest() const
 
     Project001::ComponentContainer componentContainer00;
 
-    // TestComponent01* testComponent0Xptr = nullptr;
-    // Project001::ComponentContainer componentContainer01;
-    // componentContainer01.Initialize<TestComponent01>(2, 2, 8, 2, 2, 8);
-    // componentContainer01.CreateComponent<TestComponent01>(0, 1.0f, 2.0f, 3.0f);
-    // componentContainer01.GetComponent(0, testComponent0Xptr);
-
     TestComponent00* testComponent00ptr = nullptr;
     TestComponent00* testComponent01ptr = nullptr;
     TestComponent00* testComponent02ptr = nullptr;
@@ -1301,8 +1314,7 @@ void TestScene002::ComponentContainerTest() const
 
     bool functionSuccess = true;
 
-    // functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 8, 2, 2, 8);
-    functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 8, 2, 2, 0);
+    functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 7);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(0, 1, 2, 3);
     functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
@@ -1451,7 +1463,7 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.DeleteComponent(1);
     functionSuccess = componentContainer00.DeleteComponent(0);
 
-    functionSuccess = componentContainer00.Initialize<TestComponent01>(1, 3, 8, 1, 3, 8);
+    functionSuccess = componentContainer00.Initialize<TestComponent01>(1, 3, 8);
 }
 
 void TestScene002::ComponentStoresTest() const
@@ -1541,6 +1553,7 @@ void TestScene002::ComponentStoresTest() const
     functionSuccess = testComponentStores.GetAllComponents(allTestComponent00s, testComponent00Count);
     functionSuccess = testComponentStores.GetAllComponentEntityIds<TestComponent00>(allTestComponent00EntityIds, testComponent00EntityIdCount);
 
+    functionSuccess = testComponentStores.InitializeComponentContainer<TestComponent01>(2, 2, 5);
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId06, 6.0f, 66.0f, 666.0f);
     functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId06, testComponent0106ptr);
     functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0106ptr, entityId06_returned);

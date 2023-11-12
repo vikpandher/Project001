@@ -56,6 +56,8 @@ namespace Project001
 
             bool rendererPreviousDepthTesting = rendererPtr->GetDepthTesting();
 
+            s_cameraEntityIdToRenderedMeshCount_.clear();
+
             for (size_t i = 0; i < s_cameraPtrs_.size(); ++i)
             {
                 Camera& currentCamera = *s_cameraPtrs_[i];
@@ -183,6 +185,12 @@ namespace Project001
                         {
                             GroupMeshPtr(&transformedMeshes[j], &currentCamera, &currentCameraFrustumPlanes);
                         }
+                    }
+
+                    unsigned int currentCameraId = (unsigned int)-1;
+                    if (componentStoresPtr->GetComponentEntityId<Camera>(&currentCamera, currentCameraId))
+                    {
+                        s_cameraEntityIdToRenderedMeshCount_[currentCameraId] = s_renderedMeshPtrs_.size();
                     }
 
                     // Sorting Meshes
@@ -486,6 +494,12 @@ namespace Project001
         float maxBoundingRadius = 0;
         if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
         {
+            if (!renderedMeshPtr->GetMeshDataPtr())
+            {
+                _LOG_ERROR("Renderend Mesh expected a MeshDataPtr, but it was Null.");
+                return;
+            }
+
             maxBoundingRadius = renderedMeshPtr->GetMeshDataPtr()->maxBoundingRadius;
         }
         else if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE)
@@ -529,4 +543,6 @@ namespace Project001
     std::vector<const RenderedMesh*> RenderSystem::s_renderedMeshPtrs_;
 
     std::vector<MeshInstanceData> RenderSystem::s_meshInstanceDataArray_;
+
+    std::unordered_map<unsigned int, size_t> RenderSystem::s_cameraEntityIdToRenderedMeshCount_;
 }

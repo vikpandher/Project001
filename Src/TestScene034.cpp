@@ -5,7 +5,7 @@
 #include "Engine/Math/VectorUtilities.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
@@ -16,25 +16,41 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene034::TestScene034()
-{
-    ClearResources();
-}
+TestScene034::TestScene034(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene034")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_034")
+    , thonk001_TextureId_((unsigned int)-1)
+    , thonkSpecular001_TextureId_((unsigned int)-1)
+    , _32x32_TextureIds_()
+    , cube001_MeshDataPtr_(nullptr)
+    , cube001_MeshId_((unsigned int)-1)
+    , cube001_MaxBoundingRadius_(0.0f)
+    , line001_MeshDataPtr_(nullptr)
+    , line001_MeshId_((unsigned int)-1)
+    , line001_MaxBoundingRadius_(0.0f)
+    , cone001_MeshDataPtr_(nullptr)
+    , cone001_MeshId_((unsigned int)-1)
+    , cone001_MaxBoundingRadius_(0.0f)
+{}
 
 TestScene034::~TestScene034()
 {}
 
-const char* TestScene034::Name()
+void TestScene034::HandleEvent(Project001::Event& event)
 {
-    return "TestScene034";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene034::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene034::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene034::OnInitialize()
+void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
-
     // Load Textures
     // -------------------------------------------------------------------------
 
@@ -240,27 +256,63 @@ bool TestScene034::OnInitialize()
         blueStarMesh.AddRelativeRotationY(-glm::pi<float>());
     }
 
-    return success && true;
+    // Member Scenes -----------------------------------------------------------
+
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
+    {
+        characterList.push_back(c);
+    }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        font01_TextureData,
+        font01_FontData,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests performing transformations on Models.\n"
+        "Models are composed of many Meshes.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-bool TestScene034::OnDeinitialize()
+void TestScene034::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    bool success = TestSceneBase001::OnDeinitialize();
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
 
-    ClearResources();
+    // -------------------------------------------------------------------------
 
-    return success && true;
-}
+    instructionScene_.Deinitialize();
 
-void TestScene034::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene034::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene034::ClearResources()
-{
     // Texture Data ------------------------------------------------------------
 
     thonk001_TextureId_ = (unsigned int)-1;
@@ -270,6 +322,8 @@ void TestScene034::ClearResources()
     _32x32_TextureIds_.clear();
 
     // Mesh Data ---------------------------------------------------------------
+
+    // dont need to delete these here since they are added to meshDataPtrArray_
 
     cube001_MeshDataPtr_ = nullptr;
     cube001_MeshId_ = (unsigned int)-1;
@@ -282,24 +336,4 @@ void TestScene034::ClearResources()
     cone001_MeshDataPtr_ = nullptr;
     cone001_MeshId_ = (unsigned int)-1;
     cone001_MaxBoundingRadius_ = 0.0f;
-}
-
-void TestScene034::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene050"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene050"));
-            }
-        }
-    }
 }

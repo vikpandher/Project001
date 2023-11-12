@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <typeinfo>
-#include <unordered_map>
 
 
 
@@ -22,10 +21,14 @@ namespace Project001
         bool Initialize(
             const size_t& initialComponentCapacity,
             const size_t& componentMemoryGrowthRate,
-            const size_t& componentMemoryCapacityCap);
+            const size_t& componentMemoryCapacityCap,
+            const size_t& initialEntityIdCapacity,
+            const size_t& entityIdToComponentIndiciesMemoryGrowthRate,
+            const size_t& entityIdToComponentIndiciesMemoryCapacityCap);
 
-        // Create a component for the given entityId. Memory may resize. when
-        // that happens, all previous pointers become invalid.
+        // Create a component for the given entityId. Memory may resize so
+        // all previous pointers and if that happens all previously aquired
+        // pointers to components are invalid.
         template <typename Component, typename... Args>
         bool CreateComponent(const unsigned int& entityId, Args... args);
 
@@ -50,12 +53,12 @@ namespace Project001
         template <typename Component>
         bool GetComponentEntityId(const Component* const& componentPtr, unsigned int& entityId) const;
 
-        // Get a pointer to a contiguous array of all entityIds.
+        // Get a pointer to a contiguous array of all entityIds that have the given component.
         template <typename Component>
         bool GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const;
 
     protected:
-        // Here's a function that calls the component's destructor. It's used to
+        // Here's a function that calls the component's destructor. Needed to
         // delete components with destructors.
         void (*ComponentDestructionFunction_)(uint8_t* componentPtr);
 
@@ -71,8 +74,8 @@ namespace Project001
         uint8_t* componentMemoryPtr_;
 
         // A pointer to the memory holding the components' entity Ids.
-        // The indicies of the compoent entity Ids correspond with the order of
-        // the components stored in compoenentMemory.
+        // The index of the compoent entity Ids correspond with the order the
+        // components are stored in compoenentMemory.
         unsigned int* componentEntityIdMemoryPtr_;
 
         // Number of components the memory can hold
@@ -93,12 +96,40 @@ namespace Project001
         // result in a size larger then this, it is capped.
         // (also applies to component entity id memory)
         // 0 = no size cap
-        // n = memory size is capped at (n)
         size_t componentMemoryCapacityCap_;
 
-        // Maps an entity id to it's corresponding component in component
-        // memory.
-        std::unordered_map<unsigned int, unsigned int> entityIdToComponentMemoryIndexMap_;
+        // A pointer to memory that holds the indicies of components, in order
+        // according to their entity id, with the entity id being the index in
+        // entityIdToComponentIndiciesMemoryPtr_ that holds the index for the
+        // entity id's component.
+        // ex: entityIdToComponentIndiciesMemoryPtr_[0] will hold the index
+        // of (entity id == 0)'s component in component memory. 
+        // entityIdToComponentIndiciesMemoryPtr_[n] will hold the index of
+        // (entity id == n)'s component in component memory.
+        // This will have gaps for when an entity id doesn't have a component.
+        // The gaps will have a index value of -1, indicating that there are
+        // no components for that entity id.
+        // 
+        // NOTE: Maybe I'll replace this with a unordered_map in the future.
+        int* entityIdToComponentIndiciesMemoryPtr_;
+
+        // Number of entity ids the entityId-to-component-indicies memory can
+        // hold. It grows as the entity id value grows, not the number of entity
+        // ids.
+        size_t entityIdCapacity_;
+
+        // How the entityId-to-component-indicies memory resizes when the
+        // capacity is exceeded
+        // 0 = no resizeing occurs
+        // 1 = adds just enough for one more component
+        // 2 = component memory doubles in size
+        // n = component memory size increase by a multiple of (n)
+        size_t entityIdToComponentIndiciesMemoryGrowthRate_;
+
+        // The entityId-to-component-indicies memory is not allowed to excede
+        // this. If growth will result in a size larger then this, it is capped.
+        // 0 = no size cap
+        size_t entityIdToComponentIndiciesMemoryCapacityCap_;
 
     private:
         ComponentContainer(const ComponentContainer&);
@@ -117,6 +148,10 @@ namespace Project001
         , componentCount_(0)
         , componentMemoryGrowthRate_(0)
         , componentMemoryCapacityCap_(0)
+        , entityIdToComponentIndiciesMemoryPtr_(nullptr)
+        , entityIdCapacity_(0)
+        , entityIdToComponentIndiciesMemoryGrowthRate_(0)
+        , entityIdToComponentIndiciesMemoryCapacityCap_(0)
     {}
 
     inline ComponentContainer::~ComponentContainer()
@@ -130,17 +165,19 @@ namespace Project001
             }
         }
 
-        ComponentDestructionFunction_ = nullptr;
-
         free(componentMemoryPtr_);
         free(componentEntityIdMemoryPtr_);
+        free(entityIdToComponentIndiciesMemoryPtr_);
     }
 
     template <typename Component>
     inline bool ComponentContainer::Initialize(
         const size_t& initialComponentCapacity,
         const size_t& componentMemoryGrowthRate,
-        const size_t& componentMemoryCapacityCap)
+        const size_t& componentMemoryCapacityCap,
+        const size_t& initialEntityIdCapacity,
+        const size_t& entityIdToComponentIndiciesMemoryGrowthRate,
+        const size_t& entityIdToComponentIndiciesMemoryCapacityCap)
     {
         ComponentDestructionFunction_ = [](uint8_t* componentPtr) { ((Component*)componentPtr)->~Component(); };
 
@@ -170,6 +207,24 @@ namespace Project001
 
         componentMemoryCapacityCap_ = componentMemoryCapacityCap;
 
+        entityIdCapacity_ = initialEntityIdCapacity;
+
+        free(entityIdToComponentIndiciesMemoryPtr_);
+        entityIdToComponentIndiciesMemoryPtr_ = (int*)malloc(sizeof(size_t) * entityIdCapacity_);
+        if (entityIdToComponentIndiciesMemoryPtr_ == nullptr)
+        {
+            return false;
+        }
+
+        for (size_t i = 0; i < entityIdCapacity_; ++i)
+        {
+            *(entityIdToComponentIndiciesMemoryPtr_ + i) = -1;
+        }
+
+        entityIdToComponentIndiciesMemoryGrowthRate_ = entityIdToComponentIndiciesMemoryGrowthRate;
+
+        entityIdToComponentIndiciesMemoryCapacityCap_ = entityIdToComponentIndiciesMemoryCapacityCap;
+
         return true;
     }
 
@@ -178,6 +233,68 @@ namespace Project001
     {
         size_t componentTypeId = typeid(Component).hash_code();
         if (componentTypeId != componentTypeId_)
+        {
+            return false;
+        }
+
+        if (entityId >= entityIdCapacity_)
+        {
+            size_t newEntityIdCapacity;
+            if (entityIdToComponentIndiciesMemoryGrowthRate_ == 0)
+            {
+                newEntityIdCapacity = entityIdCapacity_;
+            }
+            else if (entityIdToComponentIndiciesMemoryGrowthRate_ == 1)
+            {
+                newEntityIdCapacity = entityId;
+            }
+            else // (entityIdToComponentIndiciesMemoryGrowthRate_ > 1)
+            {
+                newEntityIdCapacity = entityIdCapacity_;
+                size_t prevNewEntityIdCapacity;
+                while (newEntityIdCapacity <= entityId)
+                {
+                    prevNewEntityIdCapacity = newEntityIdCapacity;
+
+                    newEntityIdCapacity *= entityIdToComponentIndiciesMemoryGrowthRate_;
+
+                    if (newEntityIdCapacity < prevNewEntityIdCapacity)
+                    {
+                        // size_t overflow
+                        return false;
+                    }
+                }
+
+                if (entityIdToComponentIndiciesMemoryCapacityCap_ != 0 &&
+                    newEntityIdCapacity > entityIdToComponentIndiciesMemoryCapacityCap_)
+                {
+                    newEntityIdCapacity = entityIdToComponentIndiciesMemoryCapacityCap_;
+                }
+            }
+
+            if (entityId >= newEntityIdCapacity)
+            {
+                return false;
+            }
+
+            int* newEntityIdToComponentIndiciesMemoryPtr = (int*)malloc(sizeof(int) * newEntityIdCapacity);
+            if (newEntityIdToComponentIndiciesMemoryPtr == nullptr)
+            {
+                return false;
+            }
+
+            ::memcpy(newEntityIdToComponentIndiciesMemoryPtr, entityIdToComponentIndiciesMemoryPtr_, sizeof(int) * entityIdCapacity_);
+            for (size_t i = entityIdCapacity_; i < newEntityIdCapacity; ++i)
+            {
+                *(newEntityIdToComponentIndiciesMemoryPtr + i) = -1;
+            }
+
+            free(entityIdToComponentIndiciesMemoryPtr_);
+            entityIdToComponentIndiciesMemoryPtr_ = newEntityIdToComponentIndiciesMemoryPtr;
+
+            entityIdCapacity_ = newEntityIdCapacity;
+        }
+        else if (*(entityIdToComponentIndiciesMemoryPtr_ + entityId) != -1)
         {
             return false;
         }
@@ -243,7 +360,7 @@ namespace Project001
         Component* newComponentPtr = new((Component*)componentMemoryPtr_ + componentCount_) Component(args...);
         *(componentEntityIdMemoryPtr_ + componentCount_) = entityId;
 
-        entityIdToComponentMemoryIndexMap_[entityId] = (unsigned int)componentCount_;
+        *(entityIdToComponentIndiciesMemoryPtr_ + entityId) = (int)componentCount_;
 
         componentCount_++;
 
@@ -253,12 +370,13 @@ namespace Project001
     inline bool ComponentContainer::DeleteComponent(const unsigned int& entityId)
     {
         if (ComponentDestructionFunction_ == nullptr ||
-            entityIdToComponentMemoryIndexMap_.find(entityId) == entityIdToComponentMemoryIndexMap_.end())
+            entityId > entityIdCapacity_ ||
+            *(entityIdToComponentIndiciesMemoryPtr_ + entityId) < 0)
         {
             return false;
         }
 
-        int deletedComponentMemoryIndex = entityIdToComponentMemoryIndexMap_[entityId];
+        int deletedComponentMemoryIndex = *(entityIdToComponentIndiciesMemoryPtr_ + entityId);
         uint8_t* deletedComponentPtr = (uint8_t*)componentMemoryPtr_ + deletedComponentMemoryIndex * componentSize_;
 
         uint8_t* lastComponentPtr = (uint8_t*)componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
@@ -266,14 +384,14 @@ namespace Project001
         unsigned int lastComponentEntityId = *(componentEntityIdMemoryPtr_ + (componentCount_ - 1));
 
         ComponentDestructionFunction_(deletedComponentPtr);
-        entityIdToComponentMemoryIndexMap_.erase(entityId);
+        *(entityIdToComponentIndiciesMemoryPtr_ + entityId) = -1;
 
         if (entityId != lastComponentEntityId)
         {
             ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
             *(componentEntityIdMemoryPtr_ + deletedComponentMemoryIndex) = lastComponentEntityId;
 
-            entityIdToComponentMemoryIndexMap_[lastComponentEntityId] = deletedComponentMemoryIndex;
+            *(entityIdToComponentIndiciesMemoryPtr_ + lastComponentEntityId) = deletedComponentMemoryIndex;
         }
 
         componentCount_--;
@@ -296,7 +414,10 @@ namespace Project001
 
         componentCount_ = 0;
 
-        entityIdToComponentMemoryIndexMap_.clear();
+        for (size_t i = 0; i < entityIdCapacity_; ++i)
+        {
+            *(entityIdToComponentIndiciesMemoryPtr_ + i) = -1;
+        }
 
         return true;
     }
@@ -305,13 +426,17 @@ namespace Project001
     inline bool ComponentContainer::GetComponent(const unsigned int& entityId, Component*& componentPtr)
     {
         size_t componentTypeId = typeid(Component).hash_code();
-        if (componentTypeId != componentTypeId_ ||
-            entityIdToComponentMemoryIndexMap_.find(entityId) == entityIdToComponentMemoryIndexMap_.end())
+        if (componentTypeId != componentTypeId_)
         {
             return false;
         }
 
-        const unsigned int& componentIndex = entityIdToComponentMemoryIndexMap_[entityId];
+        if (entityId > entityIdCapacity_ || *(entityIdToComponentIndiciesMemoryPtr_ + entityId) < 0)
+        {
+            return false;
+        }
+
+        int componentIndex = *(entityIdToComponentIndiciesMemoryPtr_ + entityId);
         componentPtr = (Component*)componentMemoryPtr_ + componentIndex;
 
         return true;

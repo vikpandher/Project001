@@ -19,33 +19,62 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene001::TestScene001()
-    : windowPtr_(nullptr)
+TestScene001::TestScene001(Project001::Application* applicationPtr)
+    : Scene(applicationPtr, "TestScene001")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_001")
+    , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , soundPlayerPtr_(nullptr)
     , componentStoresPtr_(nullptr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
+    , font01_TextureId_((unsigned int)-1)
     , rectangleMeshDataPtr_(nullptr)
+    , rectangularMeshId_((unsigned int)-1)
     , selectorMeshDataPtr_(nullptr)
+    , selectorMeshId_((unsigned int)-1)
     , circleMeshDataPtr_(nullptr)
-{
-    ClearResources();
-}
+    , buttonTextMeshDataPtrs_()
+    , mainCameraEntityId_((unsigned int)-1)
+    , uiCameraEntityId_((unsigned int)-1)
+    , cursorEntityId_((unsigned int)-1)
+    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
+    , cursorPressRenderedMeshIndex_((unsigned int)-1)
+    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
+    , cursorPositionCollisionPointIndex_((unsigned int)-1)
+    , cursorPressCollisionPointIndex_((unsigned int)-1)
+    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
+    , buttonEntityIds_()
+    , selectorEntityId_((unsigned int)-1)
+    , previousWorldCursorPosition_()
+    , previousWorldCursorPress_()
+    , previousWorldCursorRelease_()
+    , selectedEntityId_((unsigned int)-1)
+{}
 
 TestScene001::~TestScene001()
 {}
 
-const char* TestScene001::Name()
+void TestScene001::HandleEvent(Project001::Event& event)
 {
-    return "TestScene001";
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene001::ProcessInitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene001::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene001::ProcessCursorPositionEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestScene001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene001::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene001::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene001::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene001::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene001::OnInitialize()
+void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING: %s", Name());
+    _LOG_MESSAGE("INITIALIZING: %s", GetName().c_str());
 
     windowPtr_ = GetApplicationWindowPtr();
 
@@ -70,7 +99,7 @@ bool TestScene001::OnInitialize()
             *font01_FontDataPtr_,
             characterList,
             "../Fonts/Antonio-Regular.ttf",
-            64
+            48
         ));
         rendererPtr_->CreateTexture(
             font01_TextureId_,
@@ -155,14 +184,11 @@ bool TestScene001::OnInitialize()
     circleMeshDataPtr_ = new Project001::MeshData();
     _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 12));
 
-    // Text Mesh Data ----------------------------------------------------------
-
     std::vector<std::string> buttonStrings;
     buttonStrings.emplace_back("TestScene002");
     buttonStrings.emplace_back("TestScene003");
     buttonStrings.emplace_back("TestScene004");
     buttonStrings.emplace_back("TestScene006");
-    buttonStrings.emplace_back("TestScene007");
     buttonStrings.emplace_back("TestScene010");
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
@@ -181,10 +207,10 @@ bool TestScene001::OnInitialize()
             *newTextMeshDataPtr,
             *font01_FontDataPtr_,
             buttonStrings[i],
-            fontPixelSize_
+            buttonFontPixelSize_
         ));
         Project001::MeshLoader::RecenterMesh(*newTextMeshDataPtr);
-        textMeshDataPtrs_.push_back(newTextMeshDataPtr);
+        buttonTextMeshDataPtrs_.push_back(newTextMeshDataPtr);
     }
 
     // Entity Ids --------------------------------------------------------------
@@ -202,13 +228,13 @@ bool TestScene001::OnInitialize()
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
             float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float secondaryCameraHalfHeight = 2.75f;
-            float secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
+            float mainCameraHalfHeight = 2.75f;
+            float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(secondaryCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-secondaryCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-secondaryCameraHalfWidth);
-            cameraPtr->SetRightCutoff(secondaryCameraHalfWidth);
+            cameraPtr->SetTopCutoff(mainCameraHalfHeight);
+            cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
+            cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
+            cameraPtr->SetRightCutoff(mainCameraHalfWidth);
             cameraPtr->SetNearCutoff(-1.0f);
             cameraPtr->SetFarCutoff(1.0f);
         }
@@ -216,6 +242,41 @@ bool TestScene001::OnInitialize()
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
         cameraPtr->SetDepthTestEnabled(false);
         cameraPtr->TurnOn();
+    }
+
+    // UI Camera Entity --------------------------------------------------------
+
+    float uiCameraHalfHeight = 0.0f;
+    float uiCameraHalfWidth = 0.0f;
+
+    {
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(uiCameraEntityId_));
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+
+        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraEntityId_, cameraPtr));
+        int aspectRatioNumerator;
+        int aspectRatioDenominator;
+        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            uiCameraHalfHeight = 3.5f;
+            uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
+            cameraPtr->SetAspectRatio(aspectRatio);
+            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
+            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
+            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
+            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
+            cameraPtr->SetNearCutoff(-1.0f);
+            cameraPtr->SetFarCutoff(1.0f);
+        }
+        cameraPtr->AddYaw(glm::pi<float>());
+        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+        cameraPtr->SetDepthTestEnabled(false);
+        cameraPtr->TurnOn();
+        cameraPtr->SetCameraMask(s_uiCameraMask_);
+        cameraPtr->SetPriorityValue(1000000);
     }
 
     // Cursor Entity -----------------------------------------------------------
@@ -270,11 +331,11 @@ bool TestScene001::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
         cursorPositionCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), cursorPositionCollisionShapeId_, true);
+        collisionPoints.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
         cursorPressCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), cursorPressCollisionShapeId_, false);
+        collisionPoints.emplace_back(glm::vec2(), s_cursorPressCollisionShapeId_, false);
         cursorReleaseCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), cursorReleaseCollisionShapeId_, false);
+        collisionPoints.emplace_back(glm::vec2(), s_cursorReleaseCollisionShapeId_, false);
     }
 
     // Button Entities
@@ -290,9 +351,9 @@ bool TestScene001::OnInitialize()
     // Test Scenes:
     // 
     // [ 002 ] [ 003 ] [ 004 ] [ 006 ]
-    // [ 007 ] [ 010 ] [ 011 ] [ 012 ]
-    // [ 013 ] [ 030 ] [ 031 ] [ 032 ]
-    // [ 033 ] [ 034 ] [ 050 ]
+    // [ 010 ] [ 011 ] [ 012 ] [ 013 ] 
+    // [ 030 ] [ 031 ] [ 032 ] [ 033 ]
+    // [ 034 ] [ 050 ]
 
     size_t columns = 4;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -334,7 +395,7 @@ bool TestScene001::OnInitialize()
 
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& textMesh = renderedMeshes.back();
-        textMesh.SetMeshDataPtr(textMeshDataPtrs_[i]);
+        textMesh.SetMeshDataPtr(buttonTextMeshDataPtrs_[i]);
         textMesh.SetTextureId(font01_TextureId_);
         textMesh.SetPositionZ(0.01f);
         textMesh.SetLit(false);
@@ -375,7 +436,7 @@ bool TestScene001::OnInitialize()
         {
             // first row goes up to the last row
             aboveRowIndex = rows - 1;
-            if (aboveRowIndex * columns + currentColumnIndex == buttonEntityIds_.size())
+            if (aboveRowIndex * columns + currentColumnIndex >= buttonEntityIds_.size())
             {
                 // if last row spot doesn't exist, go up to the second last row
                 aboveRowIndex--;
@@ -400,7 +461,7 @@ bool TestScene001::OnInitialize()
             // rows other then the last go down one row
             bellowRowIndex = currentRowIndex + 1;
             if (bellowRowIndex == rows - 1 &&
-                bellowRowIndex * columns + currentColumnIndex == buttonEntityIds_.size())
+                bellowRowIndex * columns + currentColumnIndex >= buttonEntityIds_.size())
             {
                 // if the bellow row is the last row and
                 // if the bellow row spot doesn't exist, go to the first row
@@ -416,7 +477,7 @@ bool TestScene001::OnInitialize()
             // first column goes left to the last column
             leftColumnIndex = columns - 1;
             if (currentRowIndex == rows - 1 &&
-                currentRowIndex * columns + leftColumnIndex == buttonEntityIds_.size())
+                currentRowIndex * columns + leftColumnIndex >= buttonEntityIds_.size())
             {
                 // if the current row is the last row and
                 // if the last column doesn't exist, go to the farthest left column
@@ -441,7 +502,7 @@ bool TestScene001::OnInitialize()
         {
             rightColumnIndex = currentColumnIndex + 1;
             if (currentRowIndex == rows - 1 &&
-                currentRowIndex * columns + rightColumnIndex == buttonEntityIds_.size())
+                currentRowIndex * columns + rightColumnIndex >= buttonEntityIds_.size())
             {
                 // if the current row is the last row and
                 // if the column to the right doesn't exist, go to the first column
@@ -472,37 +533,49 @@ bool TestScene001::OnInitialize()
         selectorMesh.SetVisible(false);
     }
 
-    return true;
+    // Member Scenes -----------------------------------------------------------
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This is the Main Menu Scene.\n"
+        "Use <WASD> to navigate and <Space> to select.\n"
+        "Alternativly use the <Mouse> and <Left-Click>.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &s_keyCode_toggleInstructions_;
+    instructionScene_.Initialize(instructionSceneInfo);
 }
 
-bool TestScene001::OnDeinitialize()
+void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    ClearResources();
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+
+    // -------------------------------------------------------------------------
+
     rendererPtr_->DeleteAllTextures();
     rendererPtr_->DeleteAllMeshes();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
     componentStoresPtr_->DeleteAllEntities();
 
-    return true;
-}
+    windowPtr_ = nullptr;
+    rendererPtr_ = nullptr;
+    soundPlayerPtr_ = nullptr;
+    componentStoresPtr_ = nullptr;
 
-void TestScene001::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene001::ProcessCursorPositionEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestScene001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene001::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene001::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene001::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene001::ProcessUpdateEvent, this, std::placeholders::_1));
-}
+    instructionScene_.Deinitialize();
 
-void TestScene001::ClearResources()
-{
     // Font Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
+    font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
+    font01_TextureDataPtr_ = nullptr;
     font01_TextureId_ = (unsigned int)-1;
 
     // Mesh Data ---------------------------------------------------------------
@@ -518,24 +591,24 @@ void TestScene001::ClearResources()
     delete circleMeshDataPtr_;
     circleMeshDataPtr_ = nullptr;
 
-    for (size_t i = 0; i < textMeshDataPtrs_.size(); ++i)
+    for (size_t i = 0; i < buttonTextMeshDataPtrs_.size(); ++i)
     {
-        delete textMeshDataPtrs_[i];
+        delete buttonTextMeshDataPtrs_[i];
     }
-    textMeshDataPtrs_.clear();
+    buttonTextMeshDataPtrs_.clear();
 
     // Entity Ids --------------------------------------------------------------
 
     mainCameraEntityId_ = (unsigned int)-1;
+    uiCameraEntityId_ = (unsigned int)-1;
+
     cursorEntityId_ = (unsigned int)-1;
-
-    cursorPositionRenderedMeshIndex_ = 0;
-    cursorPressRenderedMeshIndex_ = 0;
-    cursorReleaseRenderedMeshIndex_ = 0;
-
-    cursorPositionCollisionPointIndex_ = 0;
-    cursorPressCollisionPointIndex_ = 0;
-    cursorReleaseCollisionPointIndex_ = 0;
+    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
+    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
+    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
+    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
+    cursorPressCollisionPointIndex_ = (unsigned int)-1;
+    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
 
     buttonEntityIds_.clear();
 
@@ -561,8 +634,6 @@ void TestScene001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     Project001::CollisionBody2D* collisionBody2DPtr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
     collisionBody2DPtr->SetTangible(true);
-
-    cursorPositionEvent.handled = true;
 }
 
 void TestScene001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
@@ -601,8 +672,6 @@ void TestScene001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent&
         rendererPtr_->SetFramebufferSize(width, height);
         rendererPtr_->SetViewport(0, 0, width, height);
     }
-
-    frameBufferSizeEvent.handled = true;
 }
 
 void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -613,11 +682,12 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == s_keyCodeMoveUp_ ||
-            keyCode == s_keyCodeMoveLeft_ ||
-            keyCode == s_keyCodeMoveDown_ ||
-            keyCode == s_keyCodeMoveRight_ ||
-            keyCode == s_keyCodeSelect_)
+        if (keyCode == s_keyCode_toggleInstructions_ ||
+            keyCode == s_keyCode_moveUp_ ||
+            keyCode == s_keyCode_moveLeft_ ||
+            keyCode == s_keyCode_moveDown_ ||
+            keyCode == s_keyCode_moveRight_ ||
+            keyCode == s_keyCode_select_)
         {
             Project001::RenderedModel* renderedModelPtr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
@@ -639,24 +709,24 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             TestButtonInfo001* testButtonInfo001Ptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonInfo001>(selectedEntityId_, testButtonInfo001Ptr));
 
-            if (keyCode == s_keyCodeMoveUp_)
+            if (keyCode == s_keyCode_moveUp_)
             {
                 selectedEntityId_ = testButtonInfo001Ptr->aboveEntityId_;
 
             }
-            else if (keyCode == s_keyCodeMoveLeft_)
+            else if (keyCode == s_keyCode_moveLeft_)
             {
                 selectedEntityId_ = testButtonInfo001Ptr->leftEntityId_;
             }
-            else if (keyCode == s_keyCodeMoveDown_)
+            else if (keyCode == s_keyCode_moveDown_)
             {
                 selectedEntityId_ = testButtonInfo001Ptr->bellowEntityId_;
             }
-            else if (keyCode == s_keyCodeMoveRight_)
+            else if (keyCode == s_keyCode_moveRight_)
             {
                 selectedEntityId_ = testButtonInfo001Ptr->rightEntityId_;
             }
-            else if (keyCode == s_keyCodeSelect_)
+            else if (keyCode == s_keyCode_select_)
             {
                 TestButtonInfo001* testButtonInfo001Ptr;
                 _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonInfo001>(selectedEntityId_, testButtonInfo001Ptr));
@@ -665,28 +735,26 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
                 // the scene before I'm done using it.
                 std::string destinationSceneName = testButtonInfo001Ptr->textString_;
 
-                SendEvent(Project001::SwitchSceneEvent(destinationSceneName));
-                if (!IsActiveScene())
+                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneName));
+                if (GetActiveScene()->GetName() == destinationSceneName)
                 {
-                    Deinitialize();
-                    SendEvent(Project001::InitializeSceneEvent(destinationSceneName));
+                    SendEventToScene(GetName(), Project001::DeinitializeEvent());
+                    SendEventToApplication(Project001::InitializeEvent());
                 }
             }
         }
         else
         {
-            if (keyCode == s_keyCodeMoveUp_ || keyCode == s_keyCodeMoveLeft_)
+            if (keyCode == s_keyCode_moveUp_ || keyCode == s_keyCode_moveLeft_)
             {
                 selectedEntityId_ = buttonEntityIds_.back();
             }
-            else if (keyCode == s_keyCodeMoveDown_ || keyCode == s_keyCodeMoveRight_)
+            else if (keyCode == s_keyCode_moveDown_ || keyCode == s_keyCode_moveRight_)
             {
                 selectedEntityId_ = buttonEntityIds_.front();
             }
         }
     }
-
-    keyEvent.handled = true;
 }
 
 void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
@@ -731,15 +799,11 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             previousWorldCursorRelease_ = previousWorldCursorPosition_;
         }
     }
-
-    mouseButtonEvent.handled = true;
 }
 
 void TestScene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
-
-    renderEvent.handled = true;
 }
 
 void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -801,15 +865,15 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
                 if (collisionData.otherEntityId == cursorEntityId_)
                 {
-                    if (collisionData.otherShapeId == cursorPositionCollisionShapeId_)
+                    if (collisionData.otherShapeId == s_cursorPositionCollisionShapeId_)
                     {
                         collidingWithCursorPosition = true;
                     }
-                    if (collisionData.otherShapeId == cursorPressCollisionShapeId_)
+                    if (collisionData.otherShapeId == s_cursorPressCollisionShapeId_)
                     {
                         collidingWithCursorPress = true;
                     }
-                    if (collisionData.otherShapeId == cursorReleaseCollisionShapeId_)
+                    if (collisionData.otherShapeId == s_cursorReleaseCollisionShapeId_)
                     {
                         collidingWithCursorRelease = true;
                     }
@@ -841,13 +905,13 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
                 // the scene before I'm done using it.
                 std::string destinationSceneName = testButtonInfo001Ptr->textString_;
 
-                SendEvent(Project001::SwitchSceneEvent(destinationSceneName));
-                if (!IsActiveScene())
+                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneName));
+                if (GetActiveScene()->GetName() == destinationSceneName)
                 {
-                    Deinitialize();
-                    SendEvent(Project001::InitializeSceneEvent(destinationSceneName));
+                    SendEventToScene(GetName(), Project001::DeinitializeEvent());
+                    SendEventToApplication(Project001::InitializeEvent());
+                    return;
                 }
-                break;
             }
         }
     }
@@ -865,8 +929,6 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             renderedMeshes02[0].SetVisible(true);
         }
     }
-
-    updateEvent.handled = true;
 }
 
 void TestScene001::UpdatePreviousWorldCursorPosition(float xPosition, float yPosition)

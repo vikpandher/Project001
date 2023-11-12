@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Application.h"
+
 #include <functional>
 #include <string>
 
@@ -16,30 +18,18 @@ namespace Project001
 
     class Scene
     {
-        friend class Application;
-
     public:
-        Scene();
+        virtual ~Scene();
 
         Scene(Scene& other) = delete;
         void operator=(const Scene&) = delete;
 
-        virtual const char* Name() = 0;
+        const std::string& GetName();
 
-        bool IsInitialized();
-
-        bool Initialize();
-
-        bool Deinitialize();
-
-        void HandleEvent(Event& event);
+        virtual void HandleEvent(Event& event) = 0;
 
     protected:
-        virtual bool OnInitialize() = 0;
-
-        virtual bool OnDeinitialize() = 0;
-
-        virtual void OnHandleEvent(Event& event) = 0;
+        Scene(Application* applicationPtr, const std::string& name);
 
         ComponentStores* GetApplicaitonComponentStoresPtr();
 
@@ -53,48 +43,20 @@ namespace Project001
 
         Scene* GetActiveScene();
 
-        bool IsActiveScene();
+        void SendEventToApplication(Event& event);
 
-        void SendEvent(Event& event);
+        void SendEventToScene(const std::string& name, Event& event);
 
     private:
+        friend void Application::NullifySceneApplicationPtr(Scene* scene);
+
         Application* applicationPtr_;
 
-        std::function<void(Event&)> EventCallback;
-
-        bool initialized_;
+        std::string name_;
     };
 
-    inline bool Scene::IsInitialized()
+    inline const std::string& Scene::GetName()
     {
-        return initialized_;
-    }
-
-    inline bool Scene::Initialize()
-    {
-        if (!initialized_ && OnInitialize())
-        {
-            initialized_ = true;
-            return true;
-        }
-        return false;
-    }
-
-    inline bool Scene::Deinitialize()
-    {
-        if (initialized_ && OnDeinitialize())
-        {
-            initialized_ = false;
-            return true;
-        }
-        return false;
-    }
-
-    inline void Scene::HandleEvent(Event& event)
-    {
-        if (initialized_)
-        {
-            OnHandleEvent(event);
-        }
+        return name_;
     }
 }

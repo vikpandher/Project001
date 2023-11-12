@@ -3,6 +3,7 @@
 #include "ComponentContainer.h"
 
 #include <queue>
+#include <unordered_map>
 #include <vector>
 
 
@@ -24,9 +25,6 @@ namespace Project001
         void DeleteAllEntities();
 
         // Component Functions: ------------------------------------------------
-
-        template <typename Component>
-        bool InitializeComponentContainer(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap);
 
         template <typename Component, typename... Args>
         bool CreateComponent(unsigned int entityId, Args... args);
@@ -55,7 +53,7 @@ namespace Project001
         bool ComponentTypeExists(unsigned int componentTypeId) const;
 
         template <typename Component>
-        bool RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap);
+        bool RegisterNewComponent(unsigned int componentTypeId);
 
         unsigned int maxNumberOfEntities_;
         unsigned int maxTypesOfComponents_;
@@ -75,18 +73,6 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    template <typename Component>
-    inline bool ComponentStores::InitializeComponentContainer(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
-    {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
-        if (ComponentTypeExists(componentTypeId))
-        {
-            return false;
-        }
-
-        return RegisterNewComponent<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
-    }
-
     template <typename Component, typename... Args>
     inline bool ComponentStores::CreateComponent(unsigned int entityId, Args... args)
     {
@@ -96,7 +82,7 @@ namespace Project001
         }
 
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
-        if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent<Component>(1, 2, 0))
+        if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent<Component>(componentTypeId))
         {
             return false;
         }
@@ -207,8 +193,9 @@ namespace Project001
         return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
     }
 
+
     template <typename Component>
-    inline bool ComponentStores::RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
+    inline bool ComponentStores::RegisterNewComponent(unsigned int componentTypeId)
     {
         unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
 
@@ -217,11 +204,10 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
         componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
 
         ComponentContainer* newComponentContainerPtr = new ComponentContainer();
-        newComponentContainerPtr->Initialize<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
+        newComponentContainerPtr->Initialize<Component>(1, 2, 0, 1, 2, 0);
         componentContainers_.push_back(newComponentContainerPtr);
 
         return true;

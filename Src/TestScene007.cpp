@@ -14,37 +14,39 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene007::TestScene007()
-{
-    ClearResources();
-}
+TestScene007::TestScene007(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene007")
+{}
 
 TestScene007::~TestScene007()
 {}
 
-const char* TestScene007::Name()
+void TestScene007::HandleEvent(Project001::Event& event)
 {
-    return "TestScene007";
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene007::ProcessInitializeEvent, this, std::placeholders::_1));
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene007::OnInitialize()
+void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
+    // Load textures -----------------------------------------------------------
 
-    // Load textures
-    // -------------------------------------------------------------------------
+    unsigned int _32x32_123abc_TextureId;
 
     {
         Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
         // _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/viking_room.png"));
-        rendererPtr_->CreateTexture(_32x32_123abc_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(_32x32_123abc_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
-    // Calculating positions
+    // Creating Entities
     // -------------------------------------------------------------------------
+
+    // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
     meshEntityPositions.emplace_back(0.0f, 0.0f, 0.0f);
@@ -57,7 +59,7 @@ bool TestScene007::OnInitialize()
     // }
     size_t positionPosition = 0;
 
-    // generated shape entity 01
+    // Generated Shape Entity 01
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -85,49 +87,6 @@ bool TestScene007::OnInitialize()
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
         renderedMeshPtr->SetPosition(currentPosition);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(_32x32_123abc_TextureId_);
-    }
-
-    return success && true;
-}
-
-bool TestScene007::OnDeinitialize()
-{
-    bool success = TestSceneBase001::OnDeinitialize();
-
-    ClearResources();
-
-    return success && true;
-}
-
-void TestScene007::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene007::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene007::ClearResources()
-{
-    _32x32_123abc_TextureId_ = (unsigned int)-1;
-}
-
-void TestScene007::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene010"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene010"));
-            }
-        }
+        renderedMeshPtr->SetTextureId(_32x32_123abc_TextureId);
     }
 }

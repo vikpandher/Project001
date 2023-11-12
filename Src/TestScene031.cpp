@@ -1,12 +1,13 @@
 #include "TestScene031.h"
 
+#include "Engine/Components/Camera.h"
 #include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
 #include "Engine/ComponentStores.h"
-#include "Engine/Event.h"
+#include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
-#include "Engine/Renderer.h"
+#include "Engine/RenderSystem.h"
 #include "Engine/TextureLoader.h"
 #include "Engine/Window.h"
 
@@ -14,27 +15,67 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene031::TestScene031()
-{
-    ClearResources();
-}
+TestScene031::TestScene031(Project001::Application* applicationPtr)
+    : TestSceneBase001(applicationPtr, "TestScene031")
+    , instructionScene_(applicationPtr, "TestInstructionScene001_031")
+    , font01_FontDataPtr_(nullptr)
+    , font01_TextureDataPtr_(nullptr)
+    , font01_TextureId_((unsigned int)-1)
+    , ui_fps_MeshDataPtr_(nullptr)
+    , ui_renderedMeshCount_MeshDataPtr_(nullptr)
+    , ui_fps_EntityId_((unsigned int)-1)
+    , ui_renderedMeshCount_EntityId_((unsigned int)-1)
+{}
 
 TestScene031::~TestScene031()
 {}
 
-const char* TestScene031::Name()
+void TestScene031::HandleEvent(Project001::Event& event)
 {
-    return "TestScene031";
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene031::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    TestSceneBase001::HandleEvent(event);
+
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene031::ProcessInitializeEvent, this, std::placeholders::_1));
+
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene031::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene031::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-bool TestScene031::OnInitialize()
+void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    bool success = TestSceneBase001::OnInitialize();
+    // Texture Data ------------------------------------------------------------
 
-    // Generate mesh
-    // -------------------------------------------------------------------------
+    font01_FontDataPtr_ = new Project001::FontData();
+    font01_TextureDataPtr_ = new Project001::TextureData();
+    font01_TextureId_ = (unsigned int)-1;
+    std::vector<unsigned char> characterList;
+    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
+    {
+        characterList.push_back(c);
+    }
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+        *font01_TextureDataPtr_,
+        *font01_FontDataPtr_,
+        characterList,
+        "../Fonts/Antonio-Regular.ttf",
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font01_TextureId_,
+        font01_TextureDataPtr_->data,
+        font01_TextureDataPtr_->width,
+        font01_TextureDataPtr_->height,
+        font01_TextureDataPtr_->bytesPerPixel,
+        true,
+        false
+    );
+
+    // Generate Meshes ---------------------------------------------------------
     Project001::MeshData* meshDataPtr00 = new Project001::MeshData();
     meshDataPtrArray_.push_back(meshDataPtr00);
     glm::vec3 min(-0.04f, -0.04f, -0.04f);
@@ -52,13 +93,24 @@ bool TestScene031::OnInitialize()
 
     float maxBoundingRadius00 = meshDataPtr00->maxBoundingRadius;
 
-    // Calculating positions
-    // -------------------------------------------------------------------------
+    ui_fps_MeshDataPtr_ = new Project001::MeshData();
+    meshDataPtrArray_.push_back(ui_fps_MeshDataPtr_);
+
+    ui_renderedMeshCount_MeshDataPtr_ = new Project001::MeshData();
+    meshDataPtrArray_.push_back(ui_renderedMeshCount_MeshDataPtr_);
+
+    // Calculating Positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
+#ifdef NDEBUG
     int columns = 50;
-    int rows = 30;
+    int rows = 40;
+    int depthRows = 50;
+#else
+    int columns = 50;
+    int rows = 40;
     int depthRows = 10;
+#endif
 
     for (int i = columns / -2; i < (columns + 1) / 2; ++i)
     {
@@ -71,8 +123,7 @@ bool TestScene031::OnInitialize()
         }
     }
 
-    // Generate entities
-    // -------------------------------------------------------------------------
+    // Generate Entities -------------------------------------------------------
     for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
@@ -96,44 +147,118 @@ bool TestScene031::OnInitialize()
         renderedMeshPtr->SetMaxBoundingRadius(maxBoundingRadius00);
     }
 
-    return success && true;
-}
+    Project001::Camera* cameraPtr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraEntityId_, cameraPtr));
+    float uiCameraHalfHeight = cameraPtr->GetTopCutoff();
+    float uiCameraHalfWidth = cameraPtr->GetRightCutoff();
 
-bool TestScene031::OnDeinitialize()
-{
-    bool success = TestSceneBase001::OnDeinitialize();
-
-    ClearResources();
-
-    return success && true;
-}
-
-void TestScene031::OnHandleEvent(Project001::Event& event)
-{
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene031::ProcessKeyEvent, this, std::placeholders::_1));
-
-    TestSceneBase001::OnHandleEvent(event);
-}
-
-void TestScene031::ClearResources()
-{}
-
-void TestScene031::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
-{
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_X)
-        {
-            SendEvent(Project001::SwitchSceneEvent("TestScene032"));
-            if (!IsActiveScene())
-            {
-                Deinitialize();
-                SendEvent(Project001::InitializeSceneEvent("TestScene032"));
-            }
-        }
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_fps_EntityId_));
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_fps_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.2f);
+        renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
+    }
+
+    {
+        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_));
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_, renderedMeshPtr));
+        renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetMeshDataPtr(ui_renderedMeshCount_MeshDataPtr_);
+        renderedMeshPtr->SetTextureId(font01_TextureId_);
+        renderedMeshPtr->SetTranslucent(true);
+        renderedMeshPtr->SetPositionX(0.2f - uiCameraHalfWidth);
+        renderedMeshPtr->SetPositionY(0.2f - uiCameraHalfHeight);
+    }
+
+    // Member Scenes -----------------------------------------------------------
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests the fps when rendering many Instanced Meshes.\n"
+        "Instance information is sent to the the Renderer every frame.\n"
+        "24 Verticies per Mesh, 36 Indicies per Mesh.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <ESC> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
+}
+
+void TestScene031::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+{
+    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+
+    // -------------------------------------------------------------------------
+
+    instructionScene_.Deinitialize();
+
+    // Texture Data ------------------------------------------------------------
+
+    delete font01_FontDataPtr_;
+    font01_FontDataPtr_ = nullptr;
+
+    delete font01_TextureDataPtr_;
+    font01_TextureDataPtr_ = nullptr;
+
+    font01_TextureId_ = (unsigned int)-1;
+
+    // Mesh Data ---------------------------------------------------------------
+
+    // dont need to delete these here since they are added to meshDataPtrArray_
+
+    ui_fps_MeshDataPtr_ = nullptr;
+
+    ui_renderedMeshCount_MeshDataPtr_ = nullptr;
+
+    // Entity Ids --------------------------------------------------------------
+
+    ui_fps_EntityId_ = (unsigned int)-1;
+
+    ui_renderedMeshCount_EntityId_ = (unsigned int)-1;
+}
+
+void TestScene031::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
+{
+    float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
+    std::string fps_string = std::to_string(fps);
+    ui_fps_MeshDataPtr_->Clear();
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
+    Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
+}
+
+void TestScene031::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+{
+    size_t numberOfMeshesBeingRenderedForMainCamera = 0;
+    if (Project001::RenderSystem::GetNumberOfMeshesRendered(mainCameraEntityId_, numberOfMeshesBeingRenderedForMainCamera))
+    {
+        std::string count_string = std::to_string(numberOfMeshesBeingRenderedForMainCamera);
+        ui_renderedMeshCount_MeshDataPtr_->Clear();
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
+        Project001::MeshLoader::RecenterMesh(*ui_renderedMeshCount_MeshDataPtr_);
+        Project001::MeshLoader::TranslateMesh(*ui_renderedMeshCount_MeshDataPtr_, 0.5f * ui_renderedMeshCount_MeshDataPtr_->GetSize());
     }
 }
