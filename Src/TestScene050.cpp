@@ -125,7 +125,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         characterList.push_back(c);
     }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
         font01_TextureData,
         font01_FontData,
         characterList,
@@ -153,7 +153,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"
         "<Left-Click> and drag the <Mouse> to move camera.\n"
-        "Press <ESC> to return to Main Menu.\n"
+        "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = &font01_FontData;
@@ -424,6 +424,92 @@ void TestScene050::TestSoundPlayer()
     );
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    delete soundPlayerPtr;
+}
+
+void TestScene050::TestSoundPlayer2()
+{
+
+    Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
+
+    Project001::SoundData sound01_SoundData;
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound01_SoundData, "../Sounds/f_congratulations.ogg"));
+
+    unsigned int sound01_SoundBufferId;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
+        sound01_SoundBufferId,
+        sound01_SoundData.data,
+        sound01_SoundData.sizeInBytes,
+        sound01_SoundData.numberOfChannels,
+        sound01_SoundData.sampleRate_Hz,
+        sound01_SoundData.bitsPerSample,
+        sound01_SoundData.sizeInFrames
+    ));
+
+    unsigned int sound01_SoundSourceId01;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundSource(
+        sound01_SoundSourceId01,
+        sound01_SoundBufferId
+    ));
+
+    unsigned int sound01_SoundSourceId02;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundSource(
+        sound01_SoundSourceId02,
+        sound01_SoundBufferId
+    ));
+
+    // Project001::SoundData sound02_SoundData;
+    // _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound02_SoundData, "../Sounds/perfect.ogg"));
+    // 
+    // unsigned int sound02_SoundBufferId;
+    // _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
+    //     sound02_SoundBufferId,
+    //     sound02_SoundData.data,
+    //     sound02_SoundData.sizeInBytes,
+    //     sound02_SoundData.numberOfChannels,
+    //     sound02_SoundData.sampleRate_Hz,
+    //     sound02_SoundData.bitsPerSample,
+    //     sound02_SoundData.sizeInFrames
+    // ));
+    // 
+    // unsigned int sound02_SoundSourceId;
+    // _FAIL_CHECK(soundPlayerPtr->CreateSoundSource(
+    //     sound02_SoundSourceId,
+    //     sound02_SoundBufferId
+    // ));
+
+    // =========================================================================
+
+    //
+
+    _FAIL_CHECK(soundPlayerPtr->PlaySoundSource(sound01_SoundSourceId01));
+
+    std::this_thread::sleep_for(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::duration<float>(sound01_SoundData.duration_s * 0.2f)
+        )
+    );
+
+    //
+
+    _FAIL_CHECK(soundPlayerPtr->PlaySoundSource(sound01_SoundSourceId02));
+
+    std::this_thread::sleep_for(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::duration<float>(sound01_SoundData.duration_s)
+        )
+    );
+
+    //
+
+    // _FAIL_CHECK(soundPlayerPtr->PlaySoundSource(sound02_SoundSourceId));
+    // 
+    // std::this_thread::sleep_for(
+    //     std::chrono::duration_cast<std::chrono::milliseconds>(
+    //         std::chrono::duration<float>(sound02_SoundData.duration_s)
+    //     )
+    // );
 
     delete soundPlayerPtr;
 }

@@ -51,4 +51,7 @@ protected:
 private:
     // Tests Play, Pause, Stop, SoundSource Position, and Listener Position
     void TestSoundPlayer();
+
+    // Tests playing the same sound from two sources at the same time
+    void TestSoundPlayer2();
 };

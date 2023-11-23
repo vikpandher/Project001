@@ -858,7 +858,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         characterList.push_back(c);
     }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
         font01_TextureData,
         font01_FontData,
         characterList,
@@ -882,6 +882,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     instructionSceneInfo.instructionString = std::string(
         "This Scene tests 2d Shape Overlaps.\n"
         "<Left-Click> on a shape to select it.\n"
+        "<Left-Click> and drag to move it.\n"
         "<Left-Click> on the background to de-select it.\n"
         "When no shape is selected:\n"
         "   Use <WASD> to move the camera up, left, down, and right.\n"
@@ -891,7 +892,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "   Use <Q> to roll shape left and <E> to roll shape right.\n"
         "Press <B> and <N> to cycle between shapes.\n"
         "Use <Scroll> to zoom in and out.\n"
-        "Press <ESC> to return to Main Menu.\n"
+        "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = &font01_FontData;

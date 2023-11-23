@@ -58,7 +58,7 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         characterList.push_back(c);
     }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
         *font01_TextureDataPtr_,
         *font01_FontDataPtr_,
         characterList,
@@ -196,7 +196,7 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"
         "<Left-Click> and drag the <Mouse> to move camera.\n"
-        "Press <ESC> to return to Main Menu.\n"
+        "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
@@ -245,7 +245,7 @@ void TestScene031::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
@@ -257,7 +257,7 @@ void TestScene031::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         std::string count_string = std::to_string(numberOfMeshesBeingRenderedForMainCamera);
         ui_renderedMeshCount_MeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_renderedMeshCount_MeshDataPtr_);
         Project001::MeshLoader::TranslateMesh(*ui_renderedMeshCount_MeshDataPtr_, 0.5f * ui_renderedMeshCount_MeshDataPtr_->GetSize());
     }

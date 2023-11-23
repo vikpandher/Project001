@@ -80,8 +80,9 @@ namespace Project001
             NULL
         );
 
-        ma_audio_buffer* audioBufferPtr;
-        ma_result result = ma_audio_buffer_alloc_and_init(&bufferConfig, &audioBufferPtr);
+        ma_audio_buffer* audioBufferPtr = new ma_audio_buffer;
+        // ma_result result = ma_audio_buffer_alloc_and_init(&bufferConfig, &audioBufferPtr);
+        ma_result result = ma_audio_buffer_init(&bufferConfig, audioBufferPtr);
         if (result != MA_SUCCESS)
         {
             _LOG_ERROR("Failed to create sound buffer (ma_audio_buffer).");
@@ -123,7 +124,9 @@ namespace Project001
         std::unordered_map<unsigned int, void*>::iterator iter = soundBufferPtrMap_.find(soundBufferId);
         if (iter != soundBufferPtrMap_.end())
         {
-            ma_audio_buffer_uninit_and_free((ma_audio_buffer*)iter->second);
+            // ma_audio_buffer_uninit_and_free((ma_audio_buffer*)iter->second);
+            ma_audio_buffer_uninit((ma_audio_buffer*)iter->second);
+            delete (ma_audio_buffer*)iter->second;
             recycledSoundBufferIds_.push_back(soundBufferId);
             return true;
         }
@@ -137,7 +140,9 @@ namespace Project001
         for (std::unordered_map<unsigned int, void*>::iterator iter = soundBufferPtrMap_.begin();
             iter != soundBufferPtrMap_.end(); ++iter)
         {
-            ma_audio_buffer_uninit_and_free((ma_audio_buffer*)iter->second);
+            // ma_audio_buffer_uninit_and_free((ma_audio_buffer*)iter->second);
+            ma_audio_buffer_uninit((ma_audio_buffer*)iter->second);
+            delete (ma_audio_buffer*)iter->second;
         }
         soundBufferPtrMap_.clear();
         recycledSoundBufferIds_.clear();
@@ -156,8 +161,26 @@ namespace Project001
         }
         audioBufferPtr = (ma_audio_buffer*)iter->second;
 
-        ma_sound* soundPtr = new ma_sound;
-        ma_result result = ma_sound_init_from_data_source(enginePtr_, &audioBufferPtr->ref.ds, 0, NULL, soundPtr);
+        MiniAudio_SoundSource newSoundSource;
+        newSoundSource.audioBufferPtr = new ma_audio_buffer;
+        newSoundSource.soundPtr = new ma_sound;
+
+        ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(
+            audioBufferPtr->ref.format,
+            audioBufferPtr->ref.channels,
+            audioBufferPtr->ref.sizeInFrames,
+            audioBufferPtr->ref.pData,
+            NULL
+        );
+
+        ma_result result = ma_audio_buffer_init(&bufferConfig, (ma_audio_buffer*)newSoundSource.audioBufferPtr);
+        if (result != MA_SUCCESS)
+        {
+            _LOG_ERROR("Failed to create sound buffer (ma_audio_buffer).");
+            return false;
+        }
+
+        result = ma_sound_init_from_data_source(enginePtr_, &((ma_audio_buffer*)newSoundSource.audioBufferPtr)->ref.ds, 0, NULL, newSoundSource.soundPtr);
         if (result != MA_SUCCESS)
         {
             _LOG_ERROR("Failed to create sound source (ma_sound).");
@@ -174,19 +197,21 @@ namespace Project001
             recycledSoundSourceIds_.pop_front();
         }
 
-        soundSourcePtrMap_[soundSourceId] = soundPtr;
+        soundSourcePtrMap_[soundSourceId] = newSoundSource;
 
         return true;
     }
 
     bool MiniAudio_SoundPlayer::DeleteSoundSource(unsigned int soundSourceId)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound*& soundPtr = iter->second;
-            ma_sound_uninit(soundPtr);
-            delete soundPtr;
+            MiniAudio_SoundSource& soundSource = iter->second;
+            ma_sound_stop(soundSource.soundPtr);
+            ma_sound_uninit(soundSource.soundPtr);
+            delete soundSource.soundPtr;
+            delete soundSource.audioBufferPtr;
             recycledSoundSourceIds_.push_back(soundSourceId);
             return true;
         }
@@ -197,23 +222,35 @@ namespace Project001
 
     void MiniAudio_SoundPlayer::DeleteAllSoundSources()
     {
-        for (std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.begin();
+        for (std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.begin();
             iter != soundSourcePtrMap_.end(); ++iter)
         {
-            ma_sound*& soundPtr = iter->second;
-            ma_sound_uninit(soundPtr);
-            delete soundPtr;
+            MiniAudio_SoundSource& soundSource = iter->second;
+            ma_sound_stop(soundSource.soundPtr);
+            ma_sound_uninit(soundSource.soundPtr);
+            delete soundSource.soundPtr;
+            delete soundSource.audioBufferPtr;
         }
         soundSourcePtrMap_.clear();
         recycledSoundSourceIds_.clear();
     }
 
-    bool MiniAudio_SoundPlayer::PlaySoundSource(unsigned int soundSourceId)
+    bool MiniAudio_SoundPlayer::GetIsPlayingSoundSource(unsigned int soundSourceId)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_result result = ma_sound_start(iter->second);
+            return (bool)ma_sound_is_playing(iter->second.soundPtr);
+        }
+        return false;
+    }
+
+    bool MiniAudio_SoundPlayer::PlaySoundSource(unsigned int soundSourceId)
+    {
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        if (iter != soundSourcePtrMap_.end())
+        {
+            ma_result result = ma_sound_start(iter->second.soundPtr);
             return result == ma_result::MA_SUCCESS;
         }
         return false;
@@ -221,10 +258,10 @@ namespace Project001
 
     bool MiniAudio_SoundPlayer::PauseSoundSource(unsigned int soundSourceId)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_result result = ma_sound_stop(iter->second);
+            ma_result result = ma_sound_stop(iter->second.soundPtr);
             return result == ma_result::MA_SUCCESS;
         }
         return false;
@@ -232,17 +269,17 @@ namespace Project001
 
     bool MiniAudio_SoundPlayer::StopSoundSource(unsigned int soundSourceId)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_result result = ma_sound_stop(iter->second);
+            ma_result result = ma_sound_stop(iter->second.soundPtr);
 
             if (result != ma_result::MA_SUCCESS)
             {
                 return false;
             }
 
-            result = ma_data_source_seek_to_pcm_frame(iter->second->pDataSource, 0);
+            result = ma_data_source_seek_to_pcm_frame(iter->second.soundPtr->pDataSource, 0);
 
             return result == ma_result::MA_SUCCESS;
         }
@@ -253,10 +290,10 @@ namespace Project001
         unsigned int soundSourceId,
         const glm::vec3& position)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_position(iter->second, position.x, position.y, position.z);
+            ma_sound_set_position(iter->second.soundPtr, position.x, position.y, position.z);
             return true;
         }
         return false;
@@ -266,10 +303,10 @@ namespace Project001
         unsigned int soundSourceId,
         glm::vec3& position) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_vec3f soundPosition = ma_sound_get_position(iter->second);
+            ma_vec3f soundPosition = ma_sound_get_position(iter->second.soundPtr);
             position.x = soundPosition.x;
             position.y = soundPosition.y;
             position.z = soundPosition.z;
@@ -282,10 +319,10 @@ namespace Project001
         unsigned int soundSourceId,
         const glm::vec3& forward)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_direction(iter->second, forward.x, forward.y, forward.z);
+            ma_sound_set_direction(iter->second.soundPtr, forward.x, forward.y, forward.z);
             return true;
         }
         return false;
@@ -295,10 +332,10 @@ namespace Project001
         unsigned int soundSourceId,
         glm::vec3& forward) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_vec3f direction = ma_sound_get_direction(iter->second);
+            ma_vec3f direction = ma_sound_get_direction(iter->second.soundPtr);
             forward.x = direction.x;
             forward.y = direction.y;
             forward.z = direction.z;
@@ -311,10 +348,10 @@ namespace Project001
         unsigned int soundSourceId,
         const glm::vec3& velocity)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_velocity(iter->second, velocity.x, velocity.y, velocity.z);
+            ma_sound_set_velocity(iter->second.soundPtr, velocity.x, velocity.y, velocity.z);
             return true;
         }
         return false;
@@ -324,10 +361,10 @@ namespace Project001
         unsigned int soundSourceId,
         glm::vec3& velocity) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_vec3f soundVelocity = ma_sound_get_velocity(iter->second);
+            ma_vec3f soundVelocity = ma_sound_get_velocity(iter->second.soundPtr);
             velocity.x = soundVelocity.x;
             velocity.y = soundVelocity.y;
             velocity.z = soundVelocity.z;
@@ -342,10 +379,10 @@ namespace Project001
         float outerAngleInRadians,
         float outerGain)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_cone(iter->second, innerAngleInRadians, outerAngleInRadians, outerGain);
+            ma_sound_set_cone(iter->second.soundPtr, innerAngleInRadians, outerAngleInRadians, outerGain);
             return true;
         }
         return false;
@@ -357,10 +394,10 @@ namespace Project001
         float& outerAngleInRadians,
         float& outerGain) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_get_cone(iter->second, &innerAngleInRadians, &outerAngleInRadians, &outerGain);
+            ma_sound_get_cone(iter->second.soundPtr, &innerAngleInRadians, &outerAngleInRadians, &outerGain);
             return true;
         }
         return false;
@@ -370,10 +407,10 @@ namespace Project001
         unsigned int soundSourceId,
         float volume)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_volume(iter->second, volume);
+            ma_sound_set_volume(iter->second.soundPtr, volume);
             return true;
         }
         return false;
@@ -383,10 +420,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& volume) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            volume = ma_sound_get_volume(iter->second);
+            volume = ma_sound_get_volume(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -396,10 +433,10 @@ namespace Project001
         unsigned int soundSourceId,
         float pitch)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_pitch(iter->second, pitch);
+            ma_sound_set_pitch(iter->second.soundPtr, pitch);
             return true;
         }
         return false;
@@ -409,10 +446,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& pitch) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            pitch = ma_sound_get_pitch(iter->second);
+            pitch = ma_sound_get_pitch(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -422,10 +459,10 @@ namespace Project001
         unsigned int soundSourceId,
         float rollOff)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_rolloff(iter->second, rollOff);
+            ma_sound_set_rolloff(iter->second.soundPtr, rollOff);
             return true;
         }
         return false;
@@ -435,10 +472,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& rollOff) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            rollOff = ma_sound_get_rolloff(iter->second);
+            rollOff = ma_sound_get_rolloff(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -448,10 +485,10 @@ namespace Project001
         unsigned int soundSourceId,
         float minGain)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_min_gain(iter->second, minGain);
+            ma_sound_set_min_gain(iter->second.soundPtr, minGain);
             return true;
         }
         return false;
@@ -461,10 +498,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& minGain) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            minGain = ma_sound_get_min_gain(iter->second);
+            minGain = ma_sound_get_min_gain(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -474,10 +511,10 @@ namespace Project001
         unsigned int soundSourceId,
         float maxGain)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_max_gain(iter->second, maxGain);
+            ma_sound_set_max_gain(iter->second.soundPtr, maxGain);
             return true;
         }
         return false;
@@ -487,10 +524,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& maxGain) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            maxGain = ma_sound_get_max_gain(iter->second);
+            maxGain = ma_sound_get_max_gain(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -500,10 +537,10 @@ namespace Project001
         unsigned int soundSourceId,
         float minDistance)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_min_distance(iter->second, minDistance);
+            ma_sound_set_min_distance(iter->second.soundPtr, minDistance);
             return true;
         }
         return false;
@@ -513,10 +550,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& minDistance) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            minDistance = ma_sound_get_min_distance(iter->second);
+            minDistance = ma_sound_get_min_distance(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -526,10 +563,10 @@ namespace Project001
         unsigned int soundSourceId,
         float maxDistance)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_max_distance(iter->second, maxDistance);
+            ma_sound_set_max_distance(iter->second.soundPtr, maxDistance);
             return true;
         }
         return false;
@@ -539,10 +576,10 @@ namespace Project001
         unsigned int soundSourceId,
         float& maxDistance) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            maxDistance = ma_sound_get_max_distance(iter->second);
+            maxDistance = ma_sound_get_max_distance(iter->second.soundPtr);
             return true;
         }
         return false;
@@ -552,10 +589,10 @@ namespace Project001
         unsigned int soundSourceId,
         bool looping)
     {
-        std::unordered_map<unsigned int, ma_sound*>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            ma_sound_set_looping (iter->second, looping);
+            ma_sound_set_looping (iter->second.soundPtr, looping);
             return true;
         }
         return false;
@@ -565,10 +602,10 @@ namespace Project001
         unsigned int soundSourceId,
         bool& looping) const
     {
-        std::unordered_map<unsigned int, ma_sound*>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
+        std::unordered_map<unsigned int, MiniAudio_SoundSource>::const_iterator iter = soundSourcePtrMap_.find(soundSourceId);
         if (iter != soundSourcePtrMap_.end())
         {
-            looping = ma_sound_is_looping(iter->second);
+            looping = ma_sound_is_looping(iter->second.soundPtr);
             return true;
         }
         return false;

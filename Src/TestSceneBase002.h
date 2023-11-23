@@ -14,7 +14,6 @@ namespace Project001
 
     struct CursorPositionEvent;
     struct DeinitializeEvent;
-    struct FrameBufferSizeEvent;
     struct InitializeEvent;
     struct KeyEvent;
     struct MouseButtonEvent;
@@ -39,7 +38,6 @@ protected:
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
-    void ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent);
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);

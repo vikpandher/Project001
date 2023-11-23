@@ -38,7 +38,6 @@ void TestSceneBase001::HandleEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestSceneBase001::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
     Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestSceneBase001::ProcessCursorPositionEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::FrameBufferSizeEvent>(event, std::bind(&TestSceneBase001::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestSceneBase001::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestSceneBase001::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestSceneBase001::ProcessRenderEvent, this, std::placeholders::_1));
@@ -201,44 +200,6 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
 
         previousCursorDownPosition_.x = currentXPosition;
         previousCursorDownPosition_.y = currentYPosition;
-    }
-}
-
-void TestSceneBase001::ProcessFrameBufferSizeEvent(Project001::FrameBufferSizeEvent& frameBufferSizeEvent)
-{
-    const int& height = frameBufferSizeEvent.height;
-    const int& width = frameBufferSizeEvent.width;
-
-    int aspectRatioNumerator, aspectRatioDenominator;
-    windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-
-    if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
-    {
-        float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-
-        int adjustedHeight = (int)(width / aspectRatio);
-        int adjustedWidth = (int)(height * aspectRatio);
-
-        if (adjustedWidth > width)
-        {
-            adjustedWidth = width;
-        }
-
-        if (adjustedHeight > height)
-        {
-            adjustedHeight = height;
-        }
-
-        int lowerLeftX = (width - adjustedWidth) / 2;
-        int lowerLeftY = (height - adjustedHeight) / 2;
-
-        rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
-        rendererPtr_->SetViewport(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
-    }
-    else
-    {
-        rendererPtr_->SetFramebufferSize(width, height);
-        rendererPtr_->SetViewport(0, 0, width, height);
     }
 }
 

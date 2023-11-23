@@ -46,7 +46,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 
     {
         hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
             *hiddenInstructionMeshDataPtr_,
             *initializationInfo.fontDataPtr,
             initializationInfo.hiddenInstructionString,
@@ -55,7 +55,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
         Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
 
         instructionMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
             *instructionMeshDataPtr_,
             *initializationInfo.fontDataPtr,
             initializationInfo.instructionString,

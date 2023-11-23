@@ -6,16 +6,19 @@
 
 #include <vector>
 
+namespace Project001
+{
+    struct SoundData;
+}
 
-
-class TestScene001 : public Project001::Scene
+class TestScene051 : public Project001::Scene
 {
 public:
-    TestScene001(Project001::Application* applicationPtr);
-    ~TestScene001();
+    TestScene051(Project001::Application* applicationPtr);
+    ~TestScene051();
 
-    TestScene001(TestScene001& other) = delete;
-    void operator=(const TestScene001&) = delete;
+    TestScene051(TestScene051& other) = delete;
+    void operator=(const TestScene051&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -43,6 +46,12 @@ protected:
 
     Project001::ComponentStores* componentStoresPtr_;
 
+    // SoundData ---------------------------------------------------------------
+
+    Project001::SoundData* sound01_SoundDataPtr_;
+    unsigned int sound01_SoundBufferId_;
+    std::vector<unsigned int> buttonSoundSourceIds_;
+
     // Font Data ---------------------------------------------------------------
 
     Project001::FontData* font01_FontDataPtr_;
@@ -53,9 +62,6 @@ protected:
 
     Project001::MeshData* rectangleMeshDataPtr_;
     unsigned int rectangularMeshId_;
-
-    Project001::MeshData* selectorMeshDataPtr_;
-    unsigned int selectorMeshId_;
 
     Project001::MeshData* circleMeshDataPtr_;
 
@@ -80,8 +86,8 @@ protected:
     unsigned int cursorReleaseCollisionPointIndex_;
 
     std::vector<unsigned int> buttonEntityIds_;
-
-    unsigned int selectorEntityId_;
+    static const glm::vec4 s_buttonColor_;
+    static const glm::vec4 s_buttonColor2_;
 
     // -------------------------------------------------------------------------
 
@@ -89,14 +95,7 @@ protected:
     glm::vec2 previousWorldCursorPress_;
     glm::vec2 previousWorldCursorRelease_;
 
-    unsigned int selectedEntityId_;
-
     static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
-    static const Project001::KeyCode s_keyCode_moveUp_ = Project001::KeyCode::KEY_CODE_W;
-    static const Project001::KeyCode s_keyCode_moveLeft_ = Project001::KeyCode::KEY_CODE_A;
-    static const Project001::KeyCode s_keyCode_moveDown_ = Project001::KeyCode::KEY_CODE_S;
-    static const Project001::KeyCode s_keyCode_moveRight_ = Project001::KeyCode::KEY_CODE_D;
-    static const Project001::KeyCode s_keyCode_select_ = Project001::KeyCode::KEY_CODE_SPACE;
 
 private:
 };

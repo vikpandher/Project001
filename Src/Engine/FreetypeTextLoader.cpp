@@ -12,10 +12,10 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    bool FreetypeTextLoader::LoadTexture(
+    bool FreetypeTextLoader::LoadTextureDataAndFontData(
         TextureData& textureData,
         FontData& fontData,
-        std::vector<unsigned char> characterList,
+        const std::vector<unsigned char>& characterList,
         const char* fontPath,
         unsigned int fontHeightInPixels,
         unsigned int horizontalSpacing,
@@ -258,7 +258,7 @@ namespace Project001
         return true;
     }
 
-    bool FreetypeTextLoader::LoadMesh(
+    bool FreetypeTextLoader::LoadMeshData(
         MeshData& meshData,
         const FontData& fontData,
         const std::string& text,
@@ -312,70 +312,72 @@ namespace Project001
             }
             else
             {
-                const std::unordered_map<unsigned char, GlyphMetrics>::const_iterator glyphMapIter =
+                const std::unordered_map<unsigned char, GlyphMetrics>::const_iterator glyphMetricsMapIter =
                     fontData.glyphMetricsMap.find(c);
-                if (glyphMapIter != fontData.glyphMetricsMap.end())
+                if (glyphMetricsMapIter != fontData.glyphMetricsMap.end())
                 {
-                    const GlyphMetrics& currentGlyphMetrics = glyphMapIter->second;
-                    float left = currentPenPosition.x + (float)currentGlyphMetrics.horiBearingX_px * pixelSize;
-                    float right = left + (float)currentGlyphMetrics.width_px * pixelSize;
-                    float top = currentPenPosition.y + (float)currentGlyphMetrics.horiBearingY_px * pixelSize;
-                    float bottom = top - (float)currentGlyphMetrics.height_px * pixelSize;
-
-                    topRight.position.x = right;
-                    topRight.position.y = top;
-                    topLeft.position.x = left;
-                    topLeft.position.y = top;
-                    bottomLeft.position.x = left;
-                    bottomLeft.position.y = bottom;
-                    bottomRight.position.x = right;
-                    bottomRight.position.y = bottom;
-
-                    topRight.textureCoordinate = currentGlyphMetrics.textureTopRight;
-                    topLeft.textureCoordinate.x = currentGlyphMetrics.textureBottomLeft.x;
-                    topLeft.textureCoordinate.y = currentGlyphMetrics.textureTopRight.y;
-                    bottomLeft.textureCoordinate = currentGlyphMetrics.textureBottomLeft;
-                    bottomRight.textureCoordinate.x = currentGlyphMetrics.textureTopRight.x;
-                    bottomRight.textureCoordinate.y = currentGlyphMetrics.textureBottomLeft.y;
-
-                    if (trangulate)
+                    const GlyphMetrics& currentGlyphMetrics = glyphMetricsMapIter->second;
+                    if (currentGlyphMetrics.height_px != 0)
                     {
-                        meshVertexArray.push_back(topRight);
-                        meshVertexArray.push_back(topLeft);
-                        meshVertexArray.push_back(bottomLeft);
-                        meshVertexArray.push_back(bottomLeft);
-                        meshVertexArray.push_back(bottomRight);
-                        meshVertexArray.push_back(topRight);
+                        float left = currentPenPosition.x + (float)currentGlyphMetrics.horiBearingX_px * pixelSize;
+                        float right = left + (float)currentGlyphMetrics.width_px * pixelSize;
+                        float top = currentPenPosition.y + (float)currentGlyphMetrics.horiBearingY_px * pixelSize;
+                        float bottom = top - (float)currentGlyphMetrics.height_px * pixelSize;
 
-                        meshIndexArray.push_back(currentVertexCount++);
-                        meshIndexArray.push_back(currentVertexCount++);
-                        meshIndexArray.push_back(currentVertexCount++);
-                        meshIndexArray.push_back(currentVertexCount++);
-                        meshIndexArray.push_back(currentVertexCount++);
-                        meshIndexArray.push_back(currentVertexCount++);
+                        topRight.position.x = right;
+                        topRight.position.y = top;
+                        topLeft.position.x = left;
+                        topLeft.position.y = top;
+                        bottomLeft.position.x = left;
+                        bottomLeft.position.y = bottom;
+                        bottomRight.position.x = right;
+                        bottomRight.position.y = bottom;
+
+                        topRight.textureCoordinate = currentGlyphMetrics.textureTopRight;
+                        topLeft.textureCoordinate.x = currentGlyphMetrics.textureBottomLeft.x;
+                        topLeft.textureCoordinate.y = currentGlyphMetrics.textureTopRight.y;
+                        bottomLeft.textureCoordinate = currentGlyphMetrics.textureBottomLeft;
+                        bottomRight.textureCoordinate.x = currentGlyphMetrics.textureTopRight.x;
+                        bottomRight.textureCoordinate.y = currentGlyphMetrics.textureBottomLeft.y;
+
+                        if (trangulate)
+                        {
+                            meshVertexArray.push_back(topRight);
+                            meshVertexArray.push_back(topLeft);
+                            meshVertexArray.push_back(bottomLeft);
+                            meshVertexArray.push_back(bottomLeft);
+                            meshVertexArray.push_back(bottomRight);
+                            meshVertexArray.push_back(topRight);
+
+                            meshIndexArray.push_back(currentVertexCount++);
+                            meshIndexArray.push_back(currentVertexCount++);
+                            meshIndexArray.push_back(currentVertexCount++);
+                            meshIndexArray.push_back(currentVertexCount++);
+                            meshIndexArray.push_back(currentVertexCount++);
+                            meshIndexArray.push_back(currentVertexCount++);
+                        }
+                        else
+                        {
+                            meshVertexArray.push_back(topRight);
+                            meshVertexArray.push_back(topLeft);
+                            meshVertexArray.push_back(bottomLeft);
+                            meshVertexArray.push_back(bottomRight);
+
+                            meshIndexArray.push_back(currentVertexCount);
+                            meshIndexArray.push_back(currentVertexCount + 1);
+                            meshIndexArray.push_back(currentVertexCount + 2);
+                            meshIndexArray.push_back(currentVertexCount + 2);
+                            meshIndexArray.push_back(currentVertexCount + 3);
+                            meshIndexArray.push_back(currentVertexCount);
+
+                            currentVertexCount += 4;
+                        }
                     }
-                    else
-                    {
-                        meshVertexArray.push_back(topRight);
-                        meshVertexArray.push_back(topLeft);
-                        meshVertexArray.push_back(bottomLeft);
-                        meshVertexArray.push_back(bottomRight);
-
-                        meshIndexArray.push_back(currentVertexCount);
-                        meshIndexArray.push_back(currentVertexCount + 1);
-                        meshIndexArray.push_back(currentVertexCount + 2);
-                        meshIndexArray.push_back(currentVertexCount + 2);
-                        meshIndexArray.push_back(currentVertexCount + 3);
-                        meshIndexArray.push_back(currentVertexCount);
-
-                        currentVertexCount += 4;
-                    }
-
                     currentPenPosition.x += (float)currentGlyphMetrics.horiAdvance_px * pixelSize;
                 }
                 else
                 {
-                    _LOG_MESSAGE("Warning, failed to generate mesh for character: %c", c);
+                    _LOG_MESSAGE("Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
                     // return false;
                 }
             }
@@ -403,6 +405,55 @@ namespace Project001
         return true;
     }
 
+    bool FreetypeTextLoader::LoadGlpyhMeshData(
+        GlyphMeshData& glyphMeshData,
+        const FontData& fontData,
+        unsigned char character,
+        float pixelSize,
+        bool trangulate)
+    {
+        const std::unordered_map<unsigned char, GlyphMetrics>::const_iterator glyphMetricsMapIter =
+            fontData.glyphMetricsMap.find(character);
+        if (glyphMetricsMapIter == fontData.glyphMetricsMap.end())
+        {
+            _LOG_MESSAGE("Warning, character glyph not found for: %c", character);
+            return false;
+        }
+
+        const GlyphMetrics& currentGlyphMetrics = glyphMetricsMapIter->second;
+        LoadGlpyhMeshData_H(glyphMeshData, currentGlyphMetrics, fontData, character, pixelSize, trangulate);
+
+        return true;
+    }
+
+    bool FreetypeTextLoader::LoadFontMeshData(
+        FontMeshData& fontMeshData,
+        const FontData& fontData,
+        float pixelSize,
+        bool trangulate)
+    {
+        std::unordered_map<unsigned char, GlyphMetrics>::const_iterator glyphMetricsMapIter =
+            fontData.glyphMetricsMap.begin();
+        for (; glyphMetricsMapIter != fontData.glyphMetricsMap.end(); ++glyphMetricsMapIter)
+        {
+            const unsigned char& character = glyphMetricsMapIter->first;
+            const GlyphMetrics& glyphMetrics = glyphMetricsMapIter->second;
+            std::unordered_map<unsigned char, GlyphMeshData>::const_iterator glyphMeshDataMapIter =
+                fontMeshData.glyphMeshDataMap.find(character);
+            if (glyphMeshDataMapIter != fontMeshData.glyphMeshDataMap.end())
+            {
+                _LOG_MESSAGE("Warning, reloading character mesh data for: %c", character);
+                fontMeshData.glyphMeshDataMap[character].horiAdvance = 0.0f;
+                fontMeshData.glyphMeshDataMap[character].meshData.Clear();
+            }
+
+            GlyphMeshData& glyphMeshData = fontMeshData.glyphMeshDataMap[character];
+            LoadGlpyhMeshData_H(glyphMeshData, glyphMetrics, fontData, character, pixelSize, trangulate);
+        }
+
+        return true;
+    }
+
     // protected ---------------------------------------------------------------
 
     unsigned int FreetypeTextLoader::GetTextureIndex(
@@ -423,6 +474,116 @@ namespace Project001
             textureIndex = (x + xOffset + (y + yOffset) * textureWidth) * 4;
         }
         return textureIndex;
+    }
+
+    void FreetypeTextLoader::LoadGlpyhMeshData_H(
+        GlyphMeshData& glyphMeshData,
+        const GlyphMetrics& glyphMetrics,
+        const FontData& fontData,
+        unsigned char character,
+        float pixelSize,
+        bool trangulate)
+    {
+        glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
+        if (glyphMetrics.height_px == 0)
+        {
+            _LOG_MESSAGE("Warning, character not printable: %c (ASCII: %i)", character, character);
+            return;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = glyphMeshData.meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = glyphMeshData.meshData.meshIndexArray;
+        glm::vec3& maxVertexPosition = glyphMeshData.meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = glyphMeshData.meshData.minVertexPosition;
+
+        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
+        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+
+        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        MeshVertex topRight;
+        MeshVertex topLeft;
+        MeshVertex bottomLeft;
+        MeshVertex bottomRight;
+
+        topRight.normal = normal;
+        topLeft.normal = normal;
+        bottomLeft.normal = normal;
+        bottomRight.normal = normal;
+
+        float left = (float)glyphMetrics.horiBearingX_px * pixelSize;
+        float right = left + (float)glyphMetrics.width_px * pixelSize;
+        float top = (float)glyphMetrics.horiBearingY_px * pixelSize;
+        float bottom = top - (float)glyphMetrics.height_px * pixelSize;
+
+        topRight.position.x = right;
+        topRight.position.y = top;
+        topLeft.position.x = left;
+        topLeft.position.y = top;
+        bottomLeft.position.x = left;
+        bottomLeft.position.y = bottom;
+        bottomRight.position.x = right;
+        bottomRight.position.y = bottom;
+
+        maxVertexPosition.x = std::max(maxVertexPosition.x, topRight.position.x);
+        maxVertexPosition.y = std::max(maxVertexPosition.y, topRight.position.y);
+        maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
+
+        minVertexPosition.x = std::min(minVertexPosition.x, bottomLeft.position.x);
+        minVertexPosition.y = std::min(minVertexPosition.y, bottomLeft.position.y);
+        minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
+
+        topRight.textureCoordinate = glyphMetrics.textureTopRight;
+        topLeft.textureCoordinate.x = glyphMetrics.textureBottomLeft.x;
+        topLeft.textureCoordinate.y = glyphMetrics.textureTopRight.y;
+        bottomLeft.textureCoordinate = glyphMetrics.textureBottomLeft;
+        bottomRight.textureCoordinate.x = glyphMetrics.textureTopRight.x;
+        bottomRight.textureCoordinate.y = glyphMetrics.textureBottomLeft.y;
+
+        if (trangulate)
+        {
+            meshVertexArray.push_back(topRight);
+            meshVertexArray.push_back(topLeft);
+            meshVertexArray.push_back(bottomLeft);
+            meshVertexArray.push_back(bottomLeft);
+            meshVertexArray.push_back(bottomRight);
+            meshVertexArray.push_back(topRight);
+
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+        }
+        else
+        {
+            meshVertexArray.push_back(topRight);
+            meshVertexArray.push_back(topLeft);
+            meshVertexArray.push_back(bottomLeft);
+            meshVertexArray.push_back(bottomRight);
+
+            meshIndexArray.push_back(currentVertexCount);
+            meshIndexArray.push_back(currentVertexCount + 1);
+            meshIndexArray.push_back(currentVertexCount + 2);
+            meshIndexArray.push_back(currentVertexCount + 2);
+            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount);
+
+            // currentVertexCount += 4;
+        }
+
+        float& maxBoundingRadius = glyphMeshData.meshData.maxBoundingRadius;
+
+        for (size_t i = 0; i < meshVertexArray.size(); ++i)
+        {
+            glm::vec3& currentPosition = meshVertexArray[i].position;
+
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+        }
     }
 
     const bool FreetypeTextLoader::s_flipVerticalyOnLoad = true;

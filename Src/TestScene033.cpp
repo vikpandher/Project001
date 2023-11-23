@@ -165,8 +165,22 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             characterList.push_back(c);
         }
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(*font01_TextureDataPtr_, *font01_FontDataPtr_, characterList, "../Fonts/Antonio-Regular.ttf", 48));
-        rendererPtr_->CreateTexture(font01_TextureId_, font01_TextureDataPtr_->data, font01_TextureDataPtr_->width, font01_TextureDataPtr_->height, font01_TextureDataPtr_->bytesPerPixel, false, false);
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
+            *font01_TextureDataPtr_,
+            *font01_FontDataPtr_,
+            characterList,
+            "../Fonts/Antonio-Regular.ttf",
+            48
+        ));
+        rendererPtr_->CreateTexture(
+            font01_TextureId_,
+            font01_TextureDataPtr_->data,
+            font01_TextureDataPtr_->width,
+            font01_TextureDataPtr_->height,
+            font01_TextureDataPtr_->bytesPerPixel,
+            false,
+            false
+        );
     }
 
     // Generate meshes
@@ -201,7 +215,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         ui_largeText_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(ui_largeText_MeshDataPtr_);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "SSS", fontPixelSize_));
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "SSS", fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_largeText_MeshDataPtr_);
     }
 
@@ -306,7 +320,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"
         "<Left-Click> and drag the <Mouse> to move camera.\n"
-        "Press <ESC> to return to Main Menu.\n"
+        "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
@@ -373,7 +387,7 @@ void TestScene033::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
@@ -382,7 +396,7 @@ void TestScene033::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     std::string counter_string = std::to_string(++counter_);
     ui_counter_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMesh(*ui_counter_MeshDataPtr_, *font01_FontDataPtr_, counter_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_counter_MeshDataPtr_, *font01_FontDataPtr_, counter_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_counter_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_counter_MeshDataPtr_, 0.5f * ui_counter_MeshDataPtr_->GetSize());
 }

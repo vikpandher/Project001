@@ -6,7 +6,7 @@
 
 
 
-struct TestButtonInfo001
+struct TestButtonData001
 {
     std::string textString_;
 

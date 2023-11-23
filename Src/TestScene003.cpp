@@ -993,7 +993,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         characterList.push_back(c);
     }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTexture(
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
         font01_TextureData,
         font01_FontData,
         characterList,
@@ -1020,7 +1020,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"
         "<Left-Click> and drag the <Mouse> to move camera.\n"
-        "Press <ESC> to return to Main Menu.\n"
+        "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = &font01_FontData;

@@ -364,6 +364,9 @@ namespace Project001
                 sourceWindow.EventCallback(event);
             });
 
+        // The framebuffer size might change if the window is resized or if the
+        // pixel density (DPI scaling) of the window changes, resulting in a
+        // different framebuffer size but the same window size.
         glfwSetFramebufferSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
                 GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);

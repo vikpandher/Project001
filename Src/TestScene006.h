@@ -21,9 +21,21 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
+    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
+
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
+
+    // Entity Ids --------------------------------------------------------------
+
+    unsigned int zzzEntityId_;
+    unsigned int printableEntityId_;
+    unsigned int sphinxEntityId_;
+
+    // -------------------------------------------------------------------------
+
+    unsigned long long timestamp_ns_;
 
 private:
 };

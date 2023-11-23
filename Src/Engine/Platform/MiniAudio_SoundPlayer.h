@@ -46,6 +46,8 @@ namespace Project001
 
         // ---------------------------------------------------------------------
 
+        bool GetIsPlayingSoundSource(unsigned int soundSourceId) override;
+
         bool PlaySoundSource(unsigned int soundSourceId) override;
 
         bool PauseSoundSource(unsigned int soundSourceId) override;
@@ -173,6 +175,21 @@ namespace Project001
             float& outerGain) const override;
 
     protected:
+        struct MiniAudio_SoundSource
+        {
+            // MiniAudio_SoundSource has it's own audio buffer because miniaudio
+            // audio buffers hold the cursor that tracks the position in the
+            // data while playing. Two sound sources can't simultaniously play
+            // from the same audio buffer at different positions in the audio
+            // data.
+            // 
+            // This audio buffer won't allocate or deallocate the data though,
+            // it will point to data allocated by the audio buffers in 
+            // soundBufferPtrMap_.
+            void* audioBufferPtr;
+            ma_sound* soundPtr;
+        };
+
         static unsigned int CalculateSizeInFrames(
             unsigned int sizeInBytes,
             unsigned int numberOfChannels,
@@ -184,7 +201,7 @@ namespace Project001
         std::unordered_map<unsigned int, void*> soundBufferPtrMap_;
 
         std::deque<unsigned int> recycledSoundSourceIds_;
-        std::unordered_map<unsigned int, ma_sound*> soundSourcePtrMap_;
+        std::unordered_map<unsigned int, MiniAudio_SoundSource> soundSourcePtrMap_;
 
         // TODO:
         // Work on deleting the associated sound sources when deleting a sound

@@ -34,6 +34,7 @@
 #include "TestScene033.h"
 #include "TestScene034.h"
 #include "TestScene050.h"
+#include "TestScene051.h"
 
 
 
@@ -58,6 +59,7 @@ int main(int argc, char** argv)
     applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
     applicationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
     applicationInfo.sleepyRunLoop = true;
+    applicationInfo.fixedSizeFramebuffer_ = false;
     Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
 
     // main menu
@@ -108,6 +110,9 @@ int main(int argc, char** argv)
     // tests sound (001)
     TestScene050* testScene050Ptr = new TestScene050(applicationPtr);
 
+    // tests sound
+    TestScene051* testScene051Ptr = new TestScene051(applicationPtr);
+
     applicationPtr->Run();
 
     delete testScene001Ptr;
@@ -126,6 +131,7 @@ int main(int argc, char** argv)
     delete testScene033Ptr;
     delete testScene034Ptr;
     delete testScene050Ptr;
+    delete testScene051Ptr;
     delete applicationPtr;
 
     return 0;

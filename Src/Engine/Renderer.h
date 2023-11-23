@@ -81,6 +81,11 @@ namespace Project001
         virtual void SetBatchedIndexBufferCapacity(unsigned int capacity) = 0;
         virtual void SetBatchedVertexBufferCapacity(unsigned int capacity) = 0;
 
+        // This renderer first renders to a texture and then renders that
+        // texture to the window.
+        // This framebuffer is the size of that first texture being rendered to.
+        // The window framebuffer will remain sized to the window. 
+
         virtual void GetFramebufferSize(
             unsigned int& width,
             unsigned int& height) const = 0;

@@ -36,6 +36,8 @@ namespace Project001
 
         // ---------------------------------------------------------------------
 
+        virtual bool GetIsPlayingSoundSource(unsigned int soundSourceId) = 0;
+
         virtual bool PlaySoundSource(unsigned int soundSourceId) = 0;
 
         virtual bool PauseSoundSource(unsigned int soundSourceId) = 0;

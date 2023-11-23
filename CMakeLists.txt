@@ -82,7 +82,7 @@ endif()
 
 set(SOURCE_FILES
     "Src/Main.cpp"
-    "Src/TestButtonInfo001.h"
+    "Src/TestButtonData001.h"
     "Src/TestComponents.cpp"
     "Src/TestComponents.h"
     "Src/TestInstructionScene001.cpp"
@@ -119,6 +119,8 @@ set(SOURCE_FILES
     "Src/TestScene034.h"
     "Src/TestScene050.cpp"
     "Src/TestScene050.h"
+    "Src/TestScene051.cpp"
+    "Src/TestScene051.h"
     "Src/TestSceneBase001.cpp"
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
@@ -138,6 +140,7 @@ set(ENGINE_FILES
     "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
     "Src/Engine/FontData.h"
+    "Src/Engine/FontMeshData.h"
     "Src/Engine/FreetypeTextLoader.cpp"
     "Src/Engine/FreetypeTextLoader.h"
     "Src/Engine/Logger.cpp"

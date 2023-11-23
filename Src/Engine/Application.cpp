@@ -24,6 +24,7 @@ namespace Project001
         , windowHeight_(applicationInfo.windowHeight)
         , desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
         , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
+        , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer_)
         , running_(false)
         , windowPtr_(nullptr)
         , rendererPtr_(nullptr)
@@ -196,8 +197,54 @@ namespace Project001
             activeScenePtr_->HandleEvent(event);
         }
 
+        DispatchEvent<FrameBufferSizeEvent>(event, std::bind(&Application::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
         DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));
         DispatchEvent<WindowCloseEvent>(event, std::bind(&Application::ProcessWindowCloseEvent, this, std::placeholders::_1));
+    }
+
+    void Application::ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent)
+    {
+        const int& height = frameBufferSizeEvent.height;
+        const int& width = frameBufferSizeEvent.width;
+
+        int aspectRatioNumerator, aspectRatioDenominator;
+        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+
+            int adjustedHeight = (int)(width / aspectRatio);
+            int adjustedWidth = (int)(height * aspectRatio);
+
+            if (adjustedWidth > width)
+            {
+                adjustedWidth = width;
+            }
+
+            if (adjustedHeight > height)
+            {
+                adjustedHeight = height;
+            }
+
+            int lowerLeftX = (width - adjustedWidth) / 2;
+            int lowerLeftY = (height - adjustedHeight) / 2;
+
+            if (!fixedSizeFramebuffer_)
+            {
+                rendererPtr_->SetFramebufferSize(adjustedWidth, adjustedHeight);
+            }
+            rendererPtr_->SetViewport(lowerLeftX, lowerLeftY, adjustedWidth, adjustedHeight);
+        }
+        else
+        {
+            if (!fixedSizeFramebuffer_)
+            {
+                rendererPtr_->SetFramebufferSize(width, height);
+            }
+            rendererPtr_->SetViewport(0, 0, width, height);
+        }
+        frameBufferSizeEvent.handled = true;
     }
 
     void Application::ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent)

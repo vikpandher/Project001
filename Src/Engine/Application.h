@@ -13,8 +13,7 @@ namespace Project001
     class Window;
 
     struct Event;
-    struct DeinitializeSceneEvent;
-    struct InitializeSceneEvent;
+    struct FrameBufferSizeEvent;
     struct SwitchSceneEvent;
     struct WindowCloseEvent;
 
@@ -30,6 +29,7 @@ namespace Project001
         unsigned int batchedVertexBufferCapacity;
         unsigned long long desiredFrameDuration_ns;
         bool sleepyRunLoop;
+        bool fixedSizeFramebuffer_;
     };
 
     class Application
@@ -52,6 +52,7 @@ namespace Project001
 
         void HandleEvent(Event& event);
 
+        void ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent);
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
 
@@ -61,6 +62,7 @@ namespace Project001
 
         unsigned long long desiredFrameDuration_ns_;
         bool sleepyRunLoop_;
+        bool fixedSizeFramebuffer_;
 
         bool running_;
 
