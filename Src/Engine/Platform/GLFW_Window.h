@@ -86,8 +86,6 @@ namespace Project001
         int aspectRatioDenominator_;
 
         bool vSyncEnabled_;
-
-    private:
     };
 
     // public ------------------------------------------------------------------

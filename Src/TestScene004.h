@@ -23,6 +23,4 @@ protected:
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
-
-private:
 };

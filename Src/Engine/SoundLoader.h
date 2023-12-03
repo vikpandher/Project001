@@ -19,7 +19,5 @@ namespace Project001
         static uint32_t ConvertToUInt32(const char* buffer, size_t len);
 
         static bool IsBigEndian();
-
-    private:
     };
 }

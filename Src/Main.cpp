@@ -65,52 +65,73 @@ int main(int argc, char** argv)
     // main menu
     TestScene001* testScene001Ptr = new TestScene001(applicationPtr);
 
-    // tests shape generation (001)
+    // tests shape generation
+    // * inherits 001
+    // * has "unit" tests
     TestScene002* testScene002Ptr = new TestScene002(applicationPtr);
 
-    // tests 3d shape generation (001)
+    // tests 3d shape generation
+    // * inherits 001
     TestScene003* testScene003Ptr = new TestScene003(applicationPtr);
 
-    // tests additional shape generation and rendering 35 textures (001)
+    // tests additional shape generation and rendering 35 textures
+    // * inherits 001
     TestScene004* testScene004Ptr = new TestScene004(applicationPtr);
 
-    // testing text generation (001)
+    // testing text generation
+    // * inherits 001
     TestScene006* testScene006Ptr = new TestScene006(applicationPtr);
 
-    // tests 2d MeshStores::Generate2DLine_v2 (TODO) (001)
+    // (TODO)
+    // tests 2d MeshStores::Generate2DLine_v2
+    // * inherits 001
     // TestScene007* testScene007Ptr = new TestScene007(applicationPtr);
 
-    // tests 2d shape overlap (002)
+    // tests 2d shape overlap
+    // * inherits 002
+    // * has "unit" tests
     TestScene010* testScene010Ptr = new TestScene010(applicationPtr);
 
-    // tests 2d shape overlap (002)
+    // tests 2d shape overlap
+    // * inherits 002
     TestScene011* testScene011Ptr = new TestScene011(applicationPtr);
 
-    // tests 2d shape overlap (002)
+    // tests 2d shape overlap
+    // * inherits 002
     TestScene012* testScene012Ptr = new TestScene012(applicationPtr);
 
-    // tests 3d shape overlap tests (TODO) (001)
+    // (TODO)
+    // tests 3d shape overlap tests
+    // * inherits 001
+    // * has "unit" tests
     TestScene013* testScene013Ptr = new TestScene013(applicationPtr);
 
-    // tests framerate with many verticies batched rendering (001)
+    // tests framerate with many verticies batched rendering
+    // * inherits 001
     TestScene030* testScene030Ptr = new TestScene030(applicationPtr);
 
-    // tests framerate with many verticies instanced rendering (001)
+    // tests framerate with many verticies instanced rendering
+    // * inherits 001
     TestScene031* testScene031Ptr = new TestScene031(applicationPtr);
 
-    // tests rendering batched and instanced together (001)
+    // tests rendering batched and instanced together
+    // * inherits 001
     TestScene032* testScene032Ptr = new TestScene032(applicationPtr);
 
-    // tests multiple cameras (001)
+    // tests multiple cameras
+    // * inherits 001
     TestScene033* testScene033Ptr = new TestScene033(applicationPtr);
 
-    // tests manipulating models (001)
+    // tests manipulating models
+    // * inherits 001
     TestScene034* testScene034Ptr = new TestScene034(applicationPtr);
 
-    // tests sound (001)
+    // tests sound
+    // * inherits 001
+    // * has "unit" tests
     TestScene050* testScene050Ptr = new TestScene050(applicationPtr);
 
-    // tests sound
+    // tests multiple sound sources
     TestScene051* testScene051Ptr = new TestScene051(applicationPtr);
 
     applicationPtr->Run();

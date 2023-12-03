@@ -52,7 +52,7 @@ namespace Project001
             const unsigned char& c = characterList[i];
             if (fontData.glyphMetricsMap.find(c) != fontData.glyphMetricsMap.end())
             {
-                _LOG_MESSAGE("Warning, reloading character glyph for: %c", c);
+                _LOG_MESSAGE("FreetypeTextLoader: Warning, reloading character glyph for: %c", c);
             }
             else
             {
@@ -377,7 +377,7 @@ namespace Project001
                 }
                 else
                 {
-                    _LOG_MESSAGE("Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
+                    _LOG_MESSAGE("FreetypeTextLoader: Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
                     // return false;
                 }
             }
@@ -416,7 +416,7 @@ namespace Project001
             fontData.glyphMetricsMap.find(character);
         if (glyphMetricsMapIter == fontData.glyphMetricsMap.end())
         {
-            _LOG_MESSAGE("Warning, character glyph not found for: %c", character);
+            _LOG_MESSAGE("FreetypeTextLoader: Warning, character glyph not found for: %c", character);
             return false;
         }
 
@@ -442,7 +442,7 @@ namespace Project001
                 fontMeshData.glyphMeshDataMap.find(character);
             if (glyphMeshDataMapIter != fontMeshData.glyphMeshDataMap.end())
             {
-                _LOG_MESSAGE("Warning, reloading character mesh data for: %c", character);
+                _LOG_MESSAGE("FreetypeTextLoader: Warning, reloading character mesh data for: %c", character);
                 fontMeshData.glyphMeshDataMap[character].horiAdvance = 0.0f;
                 fontMeshData.glyphMeshDataMap[character].meshData.Clear();
             }
@@ -487,7 +487,7 @@ namespace Project001
         glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
         if (glyphMetrics.height_px == 0)
         {
-            _LOG_MESSAGE("Warning, character not printable: %c (ASCII: %i)", character, character);
+            _LOG_MESSAGE("FreetypeTextLoader: Warning, character not printable: %c (ASCII: %i)", character, character);
             return;
         }
 

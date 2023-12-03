@@ -45,6 +45,4 @@ protected:
     Project001::MeshData* cone001_MeshDataPtr_;
     unsigned int cone001_MeshId_;
     float cone001_MaxBoundingRadius_;
-
-private:
 };

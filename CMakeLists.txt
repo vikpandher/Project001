@@ -132,7 +132,7 @@ source_group("Src" FILES ${SOURCE_FILES})
 set(ENGINE_FILES
     "Src/Engine/Application.cpp"
     "Src/Engine/Application.h"
-    "Src/Engine/BiMap.h"
+    "Src/Engine/AutoIdMap.h"
     "Src/Engine/CollisionSystem2D.cpp"
     "Src/Engine/CollisionSystem2D.h"
     "Src/Engine/ComponentContainer.h"
@@ -164,6 +164,7 @@ set(ENGINE_FILES
     "Src/Engine/TextureData.h"
     "Src/Engine/TextureLoader.cpp"
     "Src/Engine/TextureLoader.h"
+    "Src/Engine/UniqueBiMap.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
 )

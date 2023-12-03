@@ -36,6 +36,4 @@ protected:
     // -------------------------------------------------------------------------
 
     unsigned long long timestamp_ns_;
-
-private:
 };

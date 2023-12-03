@@ -4,13 +4,14 @@
 
 #include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
-#include "Engine/BiMap.h"
+#include "Engine/AutoIdMap.h"
 #include "Engine/ComponentStores.h"
 #include "Engine/FreetypeTextLoader.h"
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
 #include "Engine/TextureLoader.h"
+#include "Engine/UniqueBiMap.h"
 #include "Engine/Window.h"
 
 #include <algorithm>
@@ -23,7 +24,8 @@ TestScene002::TestScene002(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr, "TestScene002")
     , instructionScene_(applicationPtr, "TestInstructionScene001_002")
 {
-    BiMapTest();
+    AutoIdMapTest();
+    UniqueBiMapTest();
     ComponentContainerTest();
     ComponentStoresTest();
     MeshLoaderTest();
@@ -1223,57 +1225,137 @@ void TestScene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
 // private ---------------------------------------------------------------------
 
-void TestScene002::BiMapTest() const
+void TestScene002::AutoIdMapTest() const
 {
-    Project001::BiMap<unsigned int, std::string> testBiMap;
+    Project001::AutoIdMap<std::string> testAutoIdMap;
 
-    testBiMap.Add(0, "ZERO");
-    testBiMap.Add(1, "ONE");
-    testBiMap.Add(2, "TWO");
-    testBiMap.Add(3, "THREE");
+    unsigned int id00 = (unsigned int)-1;
+    unsigned int id01 = (unsigned int)-1;
+    unsigned int id02 = (unsigned int)-1;
+    unsigned int id03 = (unsigned int)-1;
+    unsigned int id04 = (unsigned int)-1;
+    unsigned int id05 = (unsigned int)-1;
+    unsigned int id06 = (unsigned int)-1;
+    unsigned int id07 = (unsigned int)-1;
 
-    size_t size = testBiMap.Size();
+    Project001::AutoIdMap<std::string>::iterator iter00 = testAutoIdMap.Add(id00, "value00");
+    Project001::AutoIdMap<std::string>::iterator iter01 = testAutoIdMap.Add(id01, "value01");
+    Project001::AutoIdMap<std::string>::iterator iter02 = testAutoIdMap.Add(id02, "value02");
+    Project001::AutoIdMap<std::string>::iterator iter03 = testAutoIdMap.Add(id03, "value03");
+    Project001::AutoIdMap<std::string>::iterator iter04 = testAutoIdMap.Add(id04, "value04");
+    Project001::AutoIdMap<std::string>::iterator iter05 = testAutoIdMap.Add(id05, "value05");
+    Project001::AutoIdMap<std::string>::iterator iter06 = testAutoIdMap.Add(id06, "value06");
+    Project001::AutoIdMap<std::string>::iterator iter07 = testAutoIdMap.Add(id07, "value07");
 
-    unsigned int x00;
-    std::string y00;
-    if (testBiMap.Find_X(0))
-    {
-        y00 = testBiMap.Get_Using_X(0);
-    }
-    if (testBiMap.Find_Y("ZERO"))
-    {
-        x00 = testBiMap.Get_Using_Y("ZERO");
-    }
+    Project001::AutoIdMap<std::string>::iterator iterA = testAutoIdMap.IteratorAtBeginning();
+    Project001::AutoIdMap<std::string>::iterator iterB = testAutoIdMap.IteratorPastTheEnd();
 
-    unsigned int x01;
-    std::string y01;
-    if (testBiMap.Find_X(1))
-    {
-        y01 = testBiMap.Get_Using_X(1);
-    }
-    if (testBiMap.Find_Y("ONE"))
-    {
-        x01 = testBiMap.Get_Using_Y("ONE");
-    }
+    iter00 = testAutoIdMap.Find((unsigned int)-1); // fail
+    iter01 = testAutoIdMap.Find(1000); // fail
+    iter02 = testAutoIdMap.Find(2000); // fail
+    iter03 = testAutoIdMap.Find(3000); // fail
 
-    unsigned int x02;
-    std::string y02;
-    if (testBiMap.Find_X(2))
-    {
-        y02 = testBiMap.Get_Using_X(2);
-    }
-    if (testBiMap.Find_Y("TWO"))
-    {
-        x02 = testBiMap.Get_Using_Y("TWO");
-    }
+    iter03 = testAutoIdMap.Find(id03);
+    iter02 = testAutoIdMap.Find(id02);
+    iter01 = testAutoIdMap.Find(id01);
+    iter00 = testAutoIdMap.Find(id00);
 
-    testBiMap.Remove_Using_X(0);
-    testBiMap.Remove_Using_Y("ONE");
+    iter07 = testAutoIdMap.Erase(iter07);
+    iter06 = testAutoIdMap.Erase(iter06);
+    iter05 = testAutoIdMap.Erase(iter05);
+    iter04 = testAutoIdMap.Erase(iter04);
+    iter03 = testAutoIdMap.Erase(iter03);
+    iter02 = testAutoIdMap.Erase(iter02);
+    iter01 = testAutoIdMap.Erase(iter01);
+    iter00 = testAutoIdMap.Erase(iter00);
 
-    testBiMap.Add(2, "TWENTY");
-    testBiMap.Add(30, "THREE");
+    iter00 = testAutoIdMap.Add(id00, "value08");
+    iter01 = testAutoIdMap.Add(id01, "value09");
+    iter02 = testAutoIdMap.Add(id02, "value10");
+    iter03 = testAutoIdMap.Add(id03, "value11");
 
-    testBiMap.Clear();
+    testAutoIdMap.Clear();
+
+    iter04 = testAutoIdMap.Add(id04, "value12");
+    iter05 = testAutoIdMap.Add(id05, "value13");
+    iter06 = testAutoIdMap.Add(id06, "value14");
+    iter07 = testAutoIdMap.Add(id07, "value15");
+
+    iter04 = testAutoIdMap.Erase(iter04);
+    iter05 = testAutoIdMap.Erase(iter05);
+    iter06 = testAutoIdMap.Erase(iter06);
+    iter07 = testAutoIdMap.Erase(iter07);
+
+    // iter00 = testAutoIdMap.Erase(iter00); // error
+    // iter01 = testAutoIdMap.Erase(iter01); // error
+    // iter02 = testAutoIdMap.Erase(iter02); // error
+    // iter03 = testAutoIdMap.Erase(iter03); // error
+
+    iter00 = testAutoIdMap.Add(id00, "value12");
+    iter01 = testAutoIdMap.Add(id01, "value13");
+    iter02 = testAutoIdMap.Add(id02, "value14");
+    iter03 = testAutoIdMap.Add(id03, "value15");
+
+    iter01 = testAutoIdMap.Erase(iter01);
+    iter02 = testAutoIdMap.Erase(iter02);
+
+    iter02 = testAutoIdMap.Add(id02, "value14-0");
+    iter01 = testAutoIdMap.Add(id01, "value13-0");
+
+    iter03 = testAutoIdMap.Erase(id03);
+    iter02 = testAutoIdMap.Erase(id02);
+    iter01 = testAutoIdMap.Erase(id01);
+    iter00 = testAutoIdMap.Erase(id00);
+
+    testAutoIdMap.Clear();
+}
+
+void TestScene002::UniqueBiMapTest() const
+{
+    Project001::UniqueBiMap<unsigned int, std::string> testUniqueBiMap;
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter = testUniqueBiMap.Add(0, "ZERO");
+    iter = testUniqueBiMap.Add(1, "ONE");
+    iter = testUniqueBiMap.Add(2, "TWO");
+    iter = testUniqueBiMap.Add(3, "THREE");
+    // iter = testUniqueBiMap.Add(4, "FOUR");
+
+    size_t size = testUniqueBiMap.Size();
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter00 = testUniqueBiMap.FindKey(0);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter01 = testUniqueBiMap.FindValue("ZERO");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter10 = testUniqueBiMap.FindKey(1);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter11 = testUniqueBiMap.FindValue("ONE");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter20 = testUniqueBiMap.FindKey(2);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter21 = testUniqueBiMap.FindValue("TWO");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter30 = testUniqueBiMap.FindKey(3);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter31 = testUniqueBiMap.FindValue("THREE");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter40 = testUniqueBiMap.FindKey(4);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iter41 = testUniqueBiMap.FindValue("FOUR");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterA = testUniqueBiMap.IteratorAtBeginning();
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterB = testUniqueBiMap.IteratorPastTheEnd();
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterC = testUniqueBiMap.EraseKey(0);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterD = testUniqueBiMap.EraseValue("ZERO");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterE = testUniqueBiMap.EraseValue("ONE");
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterF = testUniqueBiMap.EraseKey(1);
+
+    iter = testUniqueBiMap.Add(2, "TWENTY");
+    iter = testUniqueBiMap.Add(30, "THREE");
+
+    iter = testUniqueBiMap.Add(20, "TWENTY");
+    iter = testUniqueBiMap.Add(30, "THIRTY");
+
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterG = testUniqueBiMap.FindKey(20);
+    Project001::UniqueBiMap<unsigned int, std::string>::iterator iterH = testUniqueBiMap.Erase(iterG);
+
+    testUniqueBiMap.Clear();
 }
 
 void TestScene002::ComponentContainerTest() const

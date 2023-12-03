@@ -25,7 +25,8 @@ protected:
     TestInstructionScene001 instructionScene_;
 
 private:
-    void BiMapTest() const;
+    void AutoIdMapTest() const;
+    void UniqueBiMapTest() const;
     void ComponentContainerTest() const;
     void ComponentStoresTest() const;
     void MeshLoaderTest() const;

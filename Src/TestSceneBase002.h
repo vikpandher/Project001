@@ -77,6 +77,4 @@ protected:
     bool cursorGrabbingEntity_;
     glm::vec2 previousWorldCursorPosition_;
     unsigned int selectedEntityIdIndex_;
-
-private:
 };

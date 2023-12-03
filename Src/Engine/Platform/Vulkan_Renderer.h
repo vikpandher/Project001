@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Engine/BiMap.h"
+#include "Engine/AutoIdMap.h"
 #include "Engine/RenderData.h"
 #include "Engine/Renderer.h"
+#include "Engine/UniqueBiMap.h"
 
 #include "vulkan/vulkan.h"
-
-#include <deque>
 
 
 
@@ -855,15 +854,11 @@ namespace Project001
 
         uint32_t currentSwapchainFramebufferIndex_;
 
-        std::deque<unsigned int> recycledTextureIds_;
-        std::unordered_map<unsigned int, Vulkan_Texture> textureMap_;
-        BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
+        AutoIdMap<Vulkan_Texture> textureMap_;
+        UniqueBiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
 
-        std::deque<unsigned int> recycledMeshIds_;
-        std::unordered_map<unsigned int, Vulkan_Mesh> meshMap_;
-
-    private:
+        AutoIdMap<Vulkan_Mesh> meshMap_;
     };
 
     // public ------------------------------------------------------------------

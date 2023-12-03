@@ -97,6 +97,4 @@ protected:
     static const Project001::KeyCode s_keyCode_moveDown_ = Project001::KeyCode::KEY_CODE_S;
     static const Project001::KeyCode s_keyCode_moveRight_ = Project001::KeyCode::KEY_CODE_D;
     static const Project001::KeyCode s_keyCode_select_ = Project001::KeyCode::KEY_CODE_SPACE;
-
-private:
 };

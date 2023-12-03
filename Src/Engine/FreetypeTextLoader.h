@@ -63,7 +63,5 @@ namespace Project001
 
         static const bool s_flipVerticalyOnLoad;
         static const bool s_triangulate;
-
-    private:
     };
 }

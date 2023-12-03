@@ -1,43 +1,41 @@
 #include "ComponentStores.h"
 
+#include <algorithm>
+
 
 
 namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    ComponentStores::ComponentStores(unsigned int maxNumberOfEntities, unsigned int maxTypesOfComponents)
-        : maxNumberOfEntities_(maxNumberOfEntities)
-        , maxTypesOfComponents_(maxTypesOfComponents)
+    ComponentStores::ComponentStores()
+        : queueSorted_(true)
     {}
 
     ComponentStores::~ComponentStores()
     {
-        for (size_t i = 0; i < componentContainers_.size(); ++i)
+        for (size_t i = 0; i < componentContainerPtrs_.size(); ++i)
         {
-            delete componentContainers_[i];
+            delete componentContainerPtrs_[i];
         }
     }
 
     bool ComponentStores::CreateEntity(unsigned int& entityId)
     {
-        if (recycledEntityIds_.empty())
+        if (recycledIds_.empty())
         {
-            unsigned int numberOfEntities = (unsigned int)entityDeletedFlags_.size();
-
-            if (maxNumberOfEntities_ != 0 && numberOfEntities > maxNumberOfEntities_)
-            {
-                return false;
-            }
-
-            entityId = numberOfEntities;
-
+            entityId = (unsigned int)entityDeletedFlags_.size();
             entityDeletedFlags_.push_back(false);
         }
         else
         {
-            entityId = recycledEntityIds_.front();
-            recycledEntityIds_.pop();
+            if (!queueSorted_)
+            {
+                std::sort(recycledIds_.begin(), recycledIds_.end());
+                queueSorted_ = true;
+            }
+            entityId = recycledIds_.front();
+            recycledIds_.pop_front();
 
             entityDeletedFlags_[entityId] = false;
         }
@@ -52,12 +50,13 @@ namespace Project001
             return false;
         }
 
-        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
+        for (unsigned int i = 0; i < componentContainerPtrs_.size(); ++i)
         {
-            componentContainers_[i]->DeleteComponent(entityId);
+            componentContainerPtrs_[i]->DeleteComponent(entityId);
         }
 
-        recycledEntityIds_.push(entityId);
+        queueSorted_ = false;
+        recycledIds_.push_back(entityId);
 
         entityDeletedFlags_[entityId] = true;
 
@@ -66,21 +65,16 @@ namespace Project001
 
     void ComponentStores::DeleteAllEntities()
     {
-        for (unsigned int i = 0; i < componentContainers_.size(); ++i)
+        for (unsigned int i = 0; i < componentContainerPtrs_.size(); ++i)
         {
-            componentContainers_[i]->DeleteAllComponents();
+            // componentContainerPtrs_[i]->DeleteAllComponents();
+            delete componentContainerPtrs_[i];
         }
+        componentContainerPtrs_.clear();
+        componentTypeIdToComponentContainersIndexMap_.clear();
 
-        for (unsigned int i = 0; i < entityDeletedFlags_.size(); ++i)
-        {
-            const bool& currentEntityAlreadyDeleted = entityDeletedFlags_[i];
-
-            if (!currentEntityAlreadyDeleted)
-            {
-                recycledEntityIds_.push(i);
-
-                entityDeletedFlags_[i] = true;
-            }
-        }
+        queueSorted_ = true;
+        recycledIds_.clear();
+        entityDeletedFlags_.clear();
     }
 }

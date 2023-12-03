@@ -2,11 +2,10 @@
 
 // https://www.khronos.org/registry/OpenGL/specs/gl/
 
-#include "Engine/BiMap.h"
+#include "Engine/AutoIdMap.h"
+#include "Engine/UniqueBiMap.h"
 #include "Engine/RenderData.h"
 #include "Engine/Renderer.h"
-
-#include <deque>
 
 
 
@@ -260,13 +259,11 @@ namespace Project001
 
         unsigned int renderBufferId_;
 
-        std::deque<unsigned int> recycledTextureIds_;
-        std::unordered_map<unsigned int, OpenGL_Texture*> texturePtrMap_;
-        BiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
+        AutoIdMap<OpenGL_Texture*> texturePtrMap_;
+        UniqueBiMap<unsigned int, unsigned int> textureIdToUnitBiMap_;
         std::vector<unsigned int> textureUnitStalenessValues_;
 
-        std::deque<unsigned int> recycledMeshIds_;
-        std::unordered_map<unsigned int, OpenGL_Mesh*> meshPtrMap_;
+        AutoIdMap<OpenGL_Mesh*> meshPtrMap_;
 
         glm::mat4 viewMatrix_;
         glm::vec3 viewPosition_;
@@ -280,8 +277,6 @@ namespace Project001
 
         std::vector<BatchedVertexData> batchedVertexBuffer_;
         std::vector<unsigned int> batchedIndexBuffer_;
-
-    private:
     };
 
     inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)

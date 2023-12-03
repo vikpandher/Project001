@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Application.h"
-
 #include <functional>
 #include <string>
 
@@ -19,6 +17,8 @@ namespace Project001
     class Scene
     {
     public:
+        friend class Application;
+
         virtual ~Scene();
 
         Scene(Scene& other) = delete;
@@ -48,8 +48,6 @@ namespace Project001
         void SendEventToScene(const std::string& name, Event& event);
 
     private:
-        friend void Application::NullifySceneApplicationPtr(Scene* scene);
-
         Application* applicationPtr_;
 
         std::string name_;

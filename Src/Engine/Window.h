@@ -66,9 +66,5 @@ namespace Project001
         virtual const char** GetRequiredInstanceExtensions(uint32_t* count) = 0;
 
         virtual void SleepAndWaitForEvents() = 0;
-
-    protected:
-
-    private:
     };
 }

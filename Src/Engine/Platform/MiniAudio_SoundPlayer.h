@@ -2,8 +2,8 @@
 
 #include "Engine/SoundPlayer.h"
 
-#include <deque>
-#include <unordered_map>
+#include "Engine/AutoIdMap.h"
+
 
 
 // Note:
@@ -197,11 +197,9 @@ namespace Project001
 
         ma_engine* enginePtr_;
 
-        std::deque<unsigned int> recycledSoundBufferIds_;
-        std::unordered_map<unsigned int, void*> soundBufferPtrMap_;
+        AutoIdMap<void*> soundBufferPtrMap_;
 
-        std::deque<unsigned int> recycledSoundSourceIds_;
-        std::unordered_map<unsigned int, MiniAudio_SoundSource> soundSourcePtrMap_;
+        AutoIdMap<MiniAudio_SoundSource> soundSourceMap_;
 
         // TODO:
         // Work on deleting the associated sound sources when deleting a sound
@@ -209,8 +207,6 @@ namespace Project001
         // 
         // std::unordered_map<unsigned int, std::vector<unsigned int>> soundBufferIdSoundSourceIdsMap_;
         // std::unordered_map<unsigned int, unsigned int> soundSourceIdSoundBufferIdMap_;
-
-    private:
     };
 
     // protected ---------------------------------------------------------------

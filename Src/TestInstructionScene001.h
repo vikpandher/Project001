@@ -71,6 +71,4 @@ protected:
     // -------------------------------------------------------------------------
 
     Project001::KeyCode keyCode_toggleInstructions_;
-
-private:
 };

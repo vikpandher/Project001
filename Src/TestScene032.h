@@ -58,6 +58,4 @@ protected:
     std::vector<unsigned int> arcEntityIds_;
     std::vector<unsigned int> coneEntityIds_;
     std::vector<unsigned int> starEntityIds_;
-
-private:
 };

@@ -75,6 +75,4 @@ protected:
     // -------------------------------------------------------------------------
 
     glm::vec2 previousCursorDownPosition_;
-
-private:
 };

@@ -45,6 +45,4 @@ protected:
     unsigned int ui_fps_EntityId_;
 
     unsigned int ui_renderedMeshCount_EntityId_;
-
-private:
 };

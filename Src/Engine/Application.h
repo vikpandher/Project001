@@ -35,6 +35,8 @@ namespace Project001
     class Application
     {
     public:
+        friend class Scene;
+
         Application(const ApplicationInfo& applicationInfo);
         virtual ~Application();
 
@@ -44,12 +46,6 @@ namespace Project001
         void Run();
 
     protected:
-        friend class Scene;
-
-        // This function exists so that if the Application gets deleted before
-        // its Scenes, the Scenes won't be able to access junk memory.
-        void NullifySceneApplicationPtr(Scene* scene);
-
         void HandleEvent(Event& event);
 
         void ProcessFrameBufferSizeEvent(FrameBufferSizeEvent& frameBufferSizeEvent);

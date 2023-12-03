@@ -317,23 +317,15 @@ namespace Project001
         bool multisampleAntiAliasing,
         bool mipMaps)
     {
-        unsigned int textureUnit = (unsigned int)textureMap_.size();
+        unsigned int textureUnit = (unsigned int)textureMap_.Size();
         if (textureUnit >= NUMBER_OF_TEXTURE_UNITS)
         {
             textureUnit = NUMBER_OF_TEXTURE_UNITS - 1;
         }
 
-        if (recycledTextureIds_.empty())
-        {
-            textureId = (unsigned int)textureMap_.size();
-        }
-        else
-        {
-            textureId = recycledTextureIds_.front();
-            recycledTextureIds_.pop_front();
-        }
-
-        CreateTexture(data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps, textureMap_[textureId]);
+        Vulkan_Texture newTexture;
+        CreateTexture(data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps, newTexture);
+        textureMap_.Add(textureId, newTexture);
         textureIdToUnitBiMap_.Add(textureId, textureUnit);
     }
 
@@ -341,11 +333,12 @@ namespace Project001
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        if (textureMap_.find(textureId) != textureMap_.end())
+        AutoIdMap<Vulkan_Texture>::iterator iter = textureMap_.Find(textureId);
+        if (iter != textureMap_.IteratorPastTheEnd())
         {
-            DeleteTexture(textureMap_[textureId]);
-            textureIdToUnitBiMap_.Remove_Using_X(textureId);
-            recycledTextureIds_.push_back(textureId);
+            DeleteTexture(iter->second);
+            textureMap_.Erase(iter);
+            textureIdToUnitBiMap_.EraseKey(textureId);
             return true;
         }
 
@@ -356,14 +349,14 @@ namespace Project001
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        for (std::unordered_map<unsigned int, Vulkan_Texture>::iterator iter = textureMap_.begin();
-            iter != textureMap_.end(); ++iter)
+        for (AutoIdMap<Vulkan_Texture>::iterator iter = textureMap_.IteratorAtBeginning();
+            iter != textureMap_.IteratorPastTheEnd(); ++iter)
         {
             DeleteTexture(iter->second);
         }
-        textureMap_.clear();
+
+        textureMap_.Clear();
         textureIdToUnitBiMap_.Clear();
-        recycledTextureIds_.clear();
     }
 
     void Vulkan_Renderer::AddPointLight(
@@ -627,27 +620,20 @@ namespace Project001
         const unsigned int* meshIndexPtr,
         unsigned int meshIndexCount)
     {
-        if (recycledMeshIds_.empty())
-        {
-            meshId = (unsigned int)meshMap_.size();
-        }
-        else
-        {
-            meshId = recycledMeshIds_.front();
-            recycledMeshIds_.pop_front();
-        }
-
-        CreateMesh(meshVertexPtr, meshVertexCount, meshIndexPtr, meshIndexCount, meshMap_[meshId]);
+        Vulkan_Mesh newMesh;
+        CreateMesh(meshVertexPtr, meshVertexCount, meshIndexPtr, meshIndexCount, newMesh);
+        meshMap_.Add(meshId, newMesh);
     }
 
     bool Vulkan_Renderer::DeleteMesh(unsigned int meshId)
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        if (meshMap_.find(meshId) != meshMap_.end())
+        AutoIdMap<Vulkan_Mesh>::iterator iter = meshMap_.Find(meshId);
+        if (iter != meshMap_.IteratorPastTheEnd())
         {
-            DeleteMesh(meshMap_[meshId]);
-            recycledMeshIds_.push_back(meshId);
+            DeleteMesh(iter->second);
+            meshMap_.Erase(iter);
             return true;
         }
 
@@ -658,13 +644,13 @@ namespace Project001
     {
         vkDeviceWaitIdle(logicalDevice_);
 
-        for (std::unordered_map<unsigned int, Vulkan_Mesh>::iterator iter = meshMap_.begin();
-            iter != meshMap_.end(); ++iter)
+        for (AutoIdMap<Vulkan_Mesh>::iterator iter = meshMap_.IteratorAtBeginning();
+            iter != meshMap_.IteratorPastTheEnd(); ++iter)
         {
             DeleteMesh(iter->second);
         }
-        meshMap_.clear();
-        recycledMeshIds_.clear();
+
+        meshMap_.Clear();
     }
 
     bool Vulkan_Renderer::RenderMesh(
@@ -678,13 +664,14 @@ namespace Project001
             return true;
         }
 
-        if (meshMap_.find(meshId) == meshMap_.end())
+        AutoIdMap<Vulkan_Mesh>::iterator iter = meshMap_.Find(meshId);
+        if (iter == meshMap_.IteratorPastTheEnd())
         {
             _LOG_ERROR("Mesh Id not found!");
             return false;
         }
 
-        Vulkan_Mesh& mesh = meshMap_[meshId];
+        Vulkan_Mesh& mesh = iter->second;
 
         if(batchedVertexCount_ > 0 && batchedIndexCount_ > 0)
         {
@@ -1161,7 +1148,8 @@ namespace Project001
 
             vkCmdPipelineBarrier(
                 commandBuffer,
-                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                 0,
                 0, nullptr,
                 0, nullptr,
@@ -1213,7 +1201,8 @@ namespace Project001
 
             vkCmdPipelineBarrier(
                 commandBuffer,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                 0,
                 0, nullptr,
                 0, nullptr,
@@ -1256,7 +1245,8 @@ namespace Project001
 
             vkCmdPipelineBarrier(
                 commandBuffer,
-                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                 0,
                 0, nullptr,
                 0, nullptr,
@@ -3324,7 +3314,8 @@ namespace Project001
 
             vkCmdPipelineBarrier(
                 commandBuffer,
-                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                 0,
                 0, nullptr,
                 0, nullptr,
@@ -3990,9 +3981,10 @@ namespace Project001
 
     int Vulkan_Renderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
-        if (textureIdToUnitBiMap_.Find_X(textureId))
+        UniqueBiMap<unsigned int, unsigned int>::iterator iter = textureIdToUnitBiMap_.FindKey(textureId);
+        if (iter != textureIdToUnitBiMap_.IteratorPastTheEnd())
         {
-            unsigned int textureUnit_uint = textureIdToUnitBiMap_.Get_Using_X(textureId);
+            unsigned int textureUnit_uint = iter->second;
             textureUnitStalenessValues_[textureUnit_uint] = 0;
             textureUnit = (float)textureUnit_uint;
         }
@@ -4050,16 +4042,17 @@ namespace Project001
         unsigned int textureId,
         unsigned int textureUnit)
     {
-        if (textureUnit < NUMBER_OF_TEXTURE_UNITS &&
-            textureMap_.find(textureId) != textureMap_.end())
+        if (textureUnit < NUMBER_OF_TEXTURE_UNITS)
         {
-            textureIdToUnitBiMap_.Add(textureId, textureUnit);
-            return true;
+            AutoIdMap<Vulkan_Texture>::iterator iter = textureMap_.Find(textureId);
+            if (iter != textureMap_.IteratorPastTheEnd())
+            {
+                textureIdToUnitBiMap_.Add(textureId, textureUnit);
+                return true;
+            }
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     void Vulkan_Renderer::ApplyTextureBindings()
@@ -4070,10 +4063,10 @@ namespace Project001
         for (unsigned int i = 0; i < NUMBER_OF_TEXTURE_UNITS; i++)
         {
             Vulkan_Texture* currentTexturePtr;
-            if (textureIdToUnitBiMap_.Find_Y(i))
+            if (textureIdToUnitBiMap_.FindValue(i) != textureIdToUnitBiMap_.IteratorPastTheEnd())
             {
-                const unsigned int& textureId = textureIdToUnitBiMap_.Get_Using_Y(i);
-                currentTexturePtr = &textureMap_[textureId];
+                const unsigned int& textureId = textureIdToUnitBiMap_.FindValue(i)->first;
+                currentTexturePtr = &textureMap_.Find(textureId)->second;
             }
             else
             {
@@ -4179,7 +4172,8 @@ namespace Project001
 
         vkCmdPipelineBarrier(
             commandBuffer,
-            sourceStage, destinationStage,
+            sourceStage,
+            destinationStage,
             0,
             0, nullptr,
             0, nullptr,
@@ -4251,11 +4245,15 @@ namespace Project001
             imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                0,
                 0, nullptr,
                 0, nullptr,
-                1, &imageMemoryBarrier);
+                1, &imageMemoryBarrier
+            );
 
             VkImageBlit blit = {};
             blit.srcOffsets[0] = { 0, 0, 0 };
@@ -4282,11 +4280,15 @@ namespace Project001
             imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+            vkCmdPipelineBarrier(
+                commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                0,
                 0, nullptr,
                 0, nullptr,
-                1, &imageMemoryBarrier);
+                1, &imageMemoryBarrier
+            );
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
@@ -4298,11 +4300,15 @@ namespace Project001
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-        vkCmdPipelineBarrier(commandBuffer,
-            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+        vkCmdPipelineBarrier(
+            commandBuffer,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0,
             0, nullptr,
             0, nullptr,
-            1, &imageMemoryBarrier);
+            1, &imageMemoryBarrier
+        );
 
         EndSingleTimeCommands(commandBuffer);
     }

@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Engine/Application.h"
 #include "Engine/Logger.h"
 
 
@@ -13,9 +14,10 @@ namespace Project001
         if (applicationPtr_)
         {
             // Remove this from its Application's sceneMap.
-            if (applicationPtr_->sceneMap_.find(name_) != applicationPtr_->sceneMap_.end())
+            std::unordered_map<std::string, Scene*>::iterator iter = applicationPtr_->sceneMap_.find(name_);
+            if (iter != applicationPtr_->sceneMap_.end())
             {
-                applicationPtr_->sceneMap_.erase(name_);
+                applicationPtr_->sceneMap_.erase(iter);
             }
             if (applicationPtr_->activeScenePtr_ == this)
             {

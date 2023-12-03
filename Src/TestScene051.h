@@ -6,6 +6,8 @@
 
 #include <vector>
 
+
+
 namespace Project001
 {
     struct SoundData;
@@ -96,6 +98,4 @@ protected:
     glm::vec2 previousWorldCursorRelease_;
 
     static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
-
-private:
 };

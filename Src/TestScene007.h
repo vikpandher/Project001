@@ -17,6 +17,4 @@ public:
 
 protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
-
-private:
 };

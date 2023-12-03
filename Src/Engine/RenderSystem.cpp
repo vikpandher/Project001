@@ -8,6 +8,8 @@
 #include "Engine/Logger.h"
 #include "Engine/Renderer.h"
 
+#include <algorithm>
+
 
 
 namespace Project001

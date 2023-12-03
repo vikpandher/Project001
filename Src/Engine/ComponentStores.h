@@ -2,7 +2,7 @@
 
 #include "ComponentContainer.h"
 
-#include <queue>
+#include <deque>
 #include <vector>
 
 
@@ -12,8 +12,11 @@ namespace Project001
     class ComponentStores
     {
     public:
-        ComponentStores(unsigned int maxNumberOfEntities = 0, unsigned int maxTypesOfComponents = 0);
+        ComponentStores();
         ~ComponentStores();
+
+        ComponentStores(ComponentStores& other) = delete;
+        void operator=(const ComponentStores&) = delete;
 
         // Entity Functions: ---------------------------------------------------
 
@@ -57,20 +60,13 @@ namespace Project001
         template <typename Component>
         bool RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap);
 
-        unsigned int maxNumberOfEntities_;
-        unsigned int maxTypesOfComponents_;
-
-        std::queue<unsigned int> recycledEntityIds_;
-
+        bool queueSorted_;
+        std::deque<unsigned int> recycledIds_;
         std::vector<bool> entityDeletedFlags_;
 
         std::unordered_map<unsigned int, unsigned int> componentTypeIdToComponentContainersIndexMap_;
 
-        std::vector<ComponentContainer*> componentContainers_;
-
-    private:
-        ComponentStores(const ComponentStores&);
-        ComponentStores& operator=(const ComponentStores&);
+        std::vector<ComponentContainer*> componentContainerPtrs_;
     };
 
     // public ------------------------------------------------------------------
@@ -102,7 +98,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->CreateComponent<Component>(entityId, args...);
+        return componentContainerPtrs_[componentContainerIndex]->CreateComponent<Component>(entityId, args...);
     }
 
     template <typename Component>
@@ -120,7 +116,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->DeleteComponent(entityId);
+        return componentContainerPtrs_[componentContainerIndex]->DeleteComponent(entityId);
     }
 
     template <typename Component>
@@ -133,7 +129,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        componentContainers_[componentContainerIndex]->DeleteAllComponents();
+        componentContainerPtrs_[componentContainerIndex]->DeleteAllComponents();
 
         return true;
     }
@@ -153,7 +149,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->GetComponent<Component>(entityId, componentPtr);
+        return componentContainerPtrs_[componentContainerIndex]->GetComponent<Component>(entityId, componentPtr);
     }
 
     template <typename Component>
@@ -166,7 +162,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->GetAllComponents<Component>(componentPtrs, componentCount);
+        return componentContainerPtrs_[componentContainerIndex]->GetAllComponents<Component>(componentPtrs, componentCount);
     }
 
     template <typename Component>
@@ -179,7 +175,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainers_[componentContainerIndex]->GetComponentEntityId<Component>(componentPtr, entityId);
+        return componentContainerPtrs_[componentContainerIndex]->GetComponentEntityId<Component>(componentPtr, entityId);
     }
 
     template <typename Component>
@@ -192,7 +188,7 @@ namespace Project001
         }
 
         unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_.at(componentTypeId);
-        return componentContainers_[componentContainerIndex]->GetAllComponentEntityIds<Component>(componentEntityIdPtr, componentCount);
+        return componentContainerPtrs_[componentContainerIndex]->GetAllComponentEntityIds<Component>(componentEntityIdPtr, componentCount);
     }
 
     // protected ---------------------------------------------------------------
@@ -210,19 +206,13 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
     {
-        unsigned int nextComponentContainerIndex = (unsigned int)componentContainers_.size();
-
-        if (maxTypesOfComponents_ != 0 && nextComponentContainerIndex > maxTypesOfComponents_)
-        {
-            return false;
-        }
-
+        unsigned int nextComponentContainerIndex = (unsigned int)componentContainerPtrs_.size();
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
         componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
 
         ComponentContainer* newComponentContainerPtr = new ComponentContainer();
         newComponentContainerPtr->Initialize<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
-        componentContainers_.push_back(newComponentContainerPtr);
+        componentContainerPtrs_.push_back(newComponentContainerPtr);
 
         return true;
     }

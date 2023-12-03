@@ -1,11 +1,8 @@
 #include "OpenGL_Renderer.h"
 
-#include <algorithm>
 #include <string>
 
 #include "glad/glad.h"
-
-#include "Engine/Logger.h"
 
 #include "Engine/Platform/OpenGL_Mesh.h"
 #include "Engine/Platform/OpenGL_Shader.h"
@@ -16,6 +13,7 @@
 #include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
 #include "Engine/Platform/ShaderSource/WireFrameShaderSource.h"
 
+#include "Engine/Logger.h"
 #include "Engine/Window.h"
 
 
@@ -210,8 +208,8 @@ namespace Project001
         glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceData) * instanceBufferCapacity_, NULL, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        for (std::unordered_map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
-            iter != meshPtrMap_.end(); ++iter)
+        for (AutoIdMap<OpenGL_Mesh*>::iterator iter = meshPtrMap_.IteratorAtBeginning();
+            iter != meshPtrMap_.IteratorPastTheEnd(); ++iter)
         {
             iter->second->UpdateVertexArrayObject(instanceBufferId_);
         }
@@ -224,7 +222,7 @@ namespace Project001
         batchedIndexBufferCapacity_ = capacity;
         if (batchedIndexBufferCapacity_ % 3 != 0)
         {
-            _LOG_MESSAGE("Index Buffer Size Not Multiple Of 3");
+            _LOG_MESSAGE("OpenGL_Renderer: Index Buffer Size Not Multiple Of 3");
         }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glDeleteBuffers(1, &batchedIndexBufferId_);
@@ -343,23 +341,14 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        unsigned int textureUnit = (unsigned int)texturePtrMap_.size() + 1; // reserving 0 for the screenTexture
+        unsigned int textureUnit = (unsigned int)texturePtrMap_.Size() + 1; // reserving 0 for the screenTexture
         if (textureUnit >= s_numberOfTextureUnits_)
         {
             textureUnit = s_numberOfTextureUnits_ - 1;
         }
 
-        if (recycledTextureIds_.empty())
-        {
-            textureId = (unsigned int)texturePtrMap_.size();
-        }
-        else
-        {
-            textureId = recycledTextureIds_.front();
-            recycledTextureIds_.pop_front();
-        }
-
-        texturePtrMap_[textureId] = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps);
+        OpenGL_Texture* newTexturePtr = new OpenGL_Texture(textureUnit, data, width, height, bytesPerPixel, multisampleAntiAliasing, mipMaps);
+        texturePtrMap_.Add(textureId, newTexturePtr);
         textureIdToUnitBiMap_.Add(textureId, textureUnit);
     }
 
@@ -367,11 +356,12 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
+        AutoIdMap<OpenGL_Texture*>::iterator iter = texturePtrMap_.Find(textureId);
+        if (iter != texturePtrMap_.IteratorPastTheEnd())
         {
-            delete texturePtrMap_[textureId];
-            textureIdToUnitBiMap_.Remove_Using_X(textureId);
-            recycledTextureIds_.push_back(textureId);
+            delete iter->second;
+            texturePtrMap_.Erase(iter);
+            textureIdToUnitBiMap_.EraseKey(textureId);
             return true;
         }
 
@@ -382,14 +372,14 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        for (std::unordered_map<unsigned int, OpenGL_Texture*>::iterator iter = texturePtrMap_.begin();
-            iter != texturePtrMap_.end(); ++iter)
+        for (AutoIdMap<OpenGL_Texture*>::iterator iter = texturePtrMap_.IteratorAtBeginning();
+            iter != texturePtrMap_.IteratorPastTheEnd(); ++iter)
         {
             delete iter->second;
         }
-        texturePtrMap_.clear();
+
+        texturePtrMap_.Clear();
         textureIdToUnitBiMap_.Clear();
-        recycledTextureIds_.clear();
     }
 
     void OpenGL_Renderer::BeginRendering()
@@ -455,29 +445,20 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        if (recycledMeshIds_.empty())
-        {
-            meshId = (unsigned int)meshPtrMap_.size();
-        }
-        else
-        {
-            meshId = recycledMeshIds_.front();
-            recycledMeshIds_.pop_front();
-        }
-
         OpenGL_Mesh* newMeshPtr= new OpenGL_Mesh(meshVertexPtr, meshVertexCount, meshIndexPtr, meshIndexCount);
         newMeshPtr->UpdateVertexArrayObject(instanceBufferId_);
-        meshPtrMap_[meshId] = newMeshPtr;
+        meshPtrMap_.Add(meshId, newMeshPtr);
     }
 
     bool OpenGL_Renderer::DeleteMesh(unsigned int meshId)
     {
         windowPtr_->MakeContextCurrent();
 
-        if (meshPtrMap_.find(meshId) != meshPtrMap_.end())
+        AutoIdMap<OpenGL_Mesh*>::iterator iter = meshPtrMap_.Find(meshId);
+        if (iter != meshPtrMap_.IteratorPastTheEnd())
         {
-            delete meshPtrMap_[meshId];
-            recycledMeshIds_.push_back(meshId);
+            delete iter->second;
+            meshPtrMap_.Erase(iter);
             return true;
         }
 
@@ -488,13 +469,13 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        for (std::unordered_map<unsigned int, OpenGL_Mesh*>::iterator iter = meshPtrMap_.begin();
-            iter != meshPtrMap_.end(); ++iter)
+        for (AutoIdMap<OpenGL_Mesh*>::iterator iter = meshPtrMap_.IteratorAtBeginning();
+            iter != meshPtrMap_.IteratorPastTheEnd(); ++iter)
         {
             delete iter->second;
         }
-        meshPtrMap_.clear();
-        recycledMeshIds_.clear();
+
+        meshPtrMap_.Clear();
     }
 
     bool OpenGL_Renderer::RenderMesh(
@@ -510,13 +491,14 @@ namespace Project001
 
         windowPtr_->MakeContextCurrent();
 
-        if (meshPtrMap_.find(meshId) == meshPtrMap_.end())
+        AutoIdMap<OpenGL_Mesh*>::iterator iter = meshPtrMap_.Find(meshId);
+        if (iter == meshPtrMap_.IteratorPastTheEnd())
         {
             _LOG_ERROR("Mesh Id not found!");
             return false;
         }
 
-        OpenGL_Mesh* meshPtr = meshPtrMap_[meshId];
+        OpenGL_Mesh* meshPtr = iter->second;
 
         if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
         {
@@ -1109,28 +1091,24 @@ namespace Project001
     {
         if (textureUnit < s_numberOfTextureUnits_ && textureUnit > 0) // reserving 0 for the screenTexture
         {
-            if (texturePtrMap_.find(textureId) != texturePtrMap_.end())
+            AutoIdMap<OpenGL_Texture*>::iterator iter = texturePtrMap_.Find(textureId);
+            if (iter != texturePtrMap_.IteratorPastTheEnd())
             {
-                texturePtrMap_[textureId]->Bind(textureUnit);
+                iter->second->Bind(textureUnit);
                 textureIdToUnitBiMap_.Add(textureId, textureUnit);
                 return true;
             }
-            else
-            {
-                return false;
-            }
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     int OpenGL_Renderer::GetTextureUnit(unsigned int textureId, float& textureUnit)
     {
-        if (textureIdToUnitBiMap_.Find_X(textureId))
+        UniqueBiMap<unsigned int, unsigned int>::iterator iter = textureIdToUnitBiMap_.FindKey(textureId);
+        if (iter != textureIdToUnitBiMap_.IteratorPastTheEnd())
         {
-            unsigned int textureUnit_uint = textureIdToUnitBiMap_.Get_Using_X(textureId);
+            unsigned int textureUnit_uint = iter->second;
             textureUnitStalenessValues_[textureUnit_uint] = 0;
             textureUnit = (float)textureUnit_uint;
         }

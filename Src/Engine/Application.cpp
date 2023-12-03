@@ -103,7 +103,7 @@ namespace Project001
         std::unordered_map<std::string, Scene*>::iterator iter;
         for (iter = sceneMap_.begin(); iter != sceneMap_.end(); ++iter)
         {
-            NullifySceneApplicationPtr(iter->second);
+            iter->second->applicationPtr_ = nullptr;
         }
 
         _DESTROY_LOGGER();
@@ -185,11 +185,6 @@ namespace Project001
 
     // protected ------------------------------------------------------------------
 
-    void Application::NullifySceneApplicationPtr(Scene* scene)
-    {
-        scene->applicationPtr_ = nullptr;
-    }
-
     void Application::HandleEvent(Event& event)
     {
         if (activeScenePtr_)
@@ -256,7 +251,7 @@ namespace Project001
         }
         else
         {
-            _LOG_MESSAGE("Failed to set active scene: %s", name.c_str());
+            _LOG_MESSAGE("Application: Failed to set active scene: %s", name.c_str());
         }
         switchSceneEvent.handled = true;
     }

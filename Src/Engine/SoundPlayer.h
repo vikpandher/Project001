@@ -163,9 +163,5 @@ namespace Project001
             float& innerAngleInRadians,
             float& outerAngleInRadians,
             float& outerGain) const = 0;
-
-    protected:
-
-    private:
     };
 }

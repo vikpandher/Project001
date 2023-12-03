@@ -261,7 +261,5 @@ namespace Project001
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
 
         static const bool s_triangulate;
-
-    private:
     };
 }

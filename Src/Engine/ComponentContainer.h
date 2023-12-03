@@ -14,6 +14,9 @@ namespace Project001
         ComponentContainer();
         ~ComponentContainer();
 
+        ComponentContainer(ComponentContainer& other) = delete;
+        void operator=(const ComponentContainer&) = delete;
+
         // Initialize the memory used to store components and set its growth
         // behavior. This clears all previously stored components. A component
         // container can be intialized to any component type even after it has
@@ -99,10 +102,6 @@ namespace Project001
         // Maps an entity id to it's corresponding component in component
         // memory.
         std::unordered_map<unsigned int, unsigned int> entityIdToComponentMemoryIndexMap_;
-
-    private:
-        ComponentContainer(const ComponentContainer&);
-        ComponentContainer& operator=(const ComponentContainer&);
     };
     
     // public ------------------------------------------------------------------
@@ -252,13 +251,18 @@ namespace Project001
 
     inline bool ComponentContainer::DeleteComponent(const unsigned int& entityId)
     {
-        if (ComponentDestructionFunction_ == nullptr ||
-            entityIdToComponentMemoryIndexMap_.find(entityId) == entityIdToComponentMemoryIndexMap_.end())
+        if (ComponentDestructionFunction_ == nullptr)
         {
             return false;
         }
 
-        int deletedComponentMemoryIndex = entityIdToComponentMemoryIndexMap_[entityId];
+        std::unordered_map<unsigned int, unsigned int>::iterator iter = entityIdToComponentMemoryIndexMap_.find(entityId);
+        if (iter == entityIdToComponentMemoryIndexMap_.end())
+        {
+            return false;
+        }
+
+        int deletedComponentMemoryIndex = iter->second;
         uint8_t* deletedComponentPtr = (uint8_t*)componentMemoryPtr_ + deletedComponentMemoryIndex * componentSize_;
 
         uint8_t* lastComponentPtr = (uint8_t*)componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
@@ -266,7 +270,7 @@ namespace Project001
         unsigned int lastComponentEntityId = *(componentEntityIdMemoryPtr_ + (componentCount_ - 1));
 
         ComponentDestructionFunction_(deletedComponentPtr);
-        entityIdToComponentMemoryIndexMap_.erase(entityId);
+        entityIdToComponentMemoryIndexMap_.erase(iter);
 
         if (entityId != lastComponentEntityId)
         {
