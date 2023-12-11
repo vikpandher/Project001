@@ -18,9 +18,9 @@ namespace Project001
         void operator=(const ComponentContainer&) = delete;
 
         // Initialize the memory used to store components and set its growth
-        // behavior. This clears all previously stored components. A component
-        // container can be intialized to any component type even after it has
-        // already been initialized.
+        // behavior. This clears all previously stored components and frees the
+        // allocated memory. A component container can be intialized to any
+        // component type even after it has already been initialized.
         template <typename Component>
         bool Initialize(
             const size_t& initialComponentCapacity,
@@ -43,7 +43,7 @@ namespace Project001
 
         // Get a pointer to the component associated with the given entityId.
         template <typename Component>
-        bool GetComponent(const unsigned int& entityId, Component*& componentPtr);
+        bool GetComponent(Component*& componentPtr, const unsigned int& entityId);
 
         // Get a pointer to a contiguous array of all components.
         template <typename Component>
@@ -51,7 +51,7 @@ namespace Project001
 
         // Get the entityId for a given component.
         template <typename Component>
-        bool GetComponentEntityId(const Component* const& componentPtr, unsigned int& entityId) const;
+        bool GetComponentEntityId(unsigned int& entityId, const Component* const& componentPtr) const;
 
         // Get a pointer to a contiguous array of all entityIds.
         template <typename Component>
@@ -105,35 +105,6 @@ namespace Project001
     };
     
     // public ------------------------------------------------------------------
-
-    inline ComponentContainer::ComponentContainer()
-        : ComponentDestructionFunction_(nullptr)
-        , componentTypeId_(0)
-        , componentSize_(0)
-        , componentMemoryPtr_(nullptr)
-        , componentEntityIdMemoryPtr_(nullptr)
-        , componentCapacity_(0)
-        , componentCount_(0)
-        , componentMemoryGrowthRate_(0)
-        , componentMemoryCapacityCap_(0)
-    {}
-
-    inline ComponentContainer::~ComponentContainer()
-    {
-        if (ComponentDestructionFunction_ != nullptr)
-        {
-            for (size_t i = 0; i < componentCount_; ++i)
-            {
-                uint8_t* deletedComponent = componentMemoryPtr_ + i * componentSize_;
-                ComponentDestructionFunction_(deletedComponent);
-            }
-        }
-
-        ComponentDestructionFunction_ = nullptr;
-
-        free(componentMemoryPtr_);
-        free(componentEntityIdMemoryPtr_);
-    }
 
     template <typename Component>
     inline bool ComponentContainer::Initialize(
@@ -249,64 +220,8 @@ namespace Project001
         return true;
     }
 
-    inline bool ComponentContainer::DeleteComponent(const unsigned int& entityId)
-    {
-        if (ComponentDestructionFunction_ == nullptr)
-        {
-            return false;
-        }
-
-        std::unordered_map<unsigned int, unsigned int>::iterator iter = entityIdToComponentMemoryIndexMap_.find(entityId);
-        if (iter == entityIdToComponentMemoryIndexMap_.end())
-        {
-            return false;
-        }
-
-        int deletedComponentMemoryIndex = iter->second;
-        uint8_t* deletedComponentPtr = (uint8_t*)componentMemoryPtr_ + deletedComponentMemoryIndex * componentSize_;
-
-        uint8_t* lastComponentPtr = (uint8_t*)componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
-
-        unsigned int lastComponentEntityId = *(componentEntityIdMemoryPtr_ + (componentCount_ - 1));
-
-        ComponentDestructionFunction_(deletedComponentPtr);
-        entityIdToComponentMemoryIndexMap_.erase(iter);
-
-        if (entityId != lastComponentEntityId)
-        {
-            ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
-            *(componentEntityIdMemoryPtr_ + deletedComponentMemoryIndex) = lastComponentEntityId;
-
-            entityIdToComponentMemoryIndexMap_[lastComponentEntityId] = deletedComponentMemoryIndex;
-        }
-
-        componentCount_--;
-
-        return true;
-    }
-
-    inline bool ComponentContainer::DeleteAllComponents()
-    {
-        if (ComponentDestructionFunction_ == nullptr)
-        {
-            return false;
-        }
-
-        for (size_t i = 0; i < componentCount_; ++i)
-        {
-            uint8_t* deletedComponent = (uint8_t*)componentMemoryPtr_ + i * componentSize_;
-            ComponentDestructionFunction_(deletedComponent);
-        }
-
-        componentCount_ = 0;
-
-        entityIdToComponentMemoryIndexMap_.clear();
-
-        return true;
-    }
-
     template <typename Component>
-    inline bool ComponentContainer::GetComponent(const unsigned int& entityId, Component*& componentPtr)
+    inline bool ComponentContainer::GetComponent(Component*& componentPtr, const unsigned int& entityId)
     {
         size_t componentTypeId = typeid(Component).hash_code();
         if (componentTypeId != componentTypeId_ ||
@@ -337,7 +252,7 @@ namespace Project001
     }
 
     template <typename Component>
-    inline bool ComponentContainer::GetComponentEntityId(const Component* const& componentPtr, unsigned int& entityId) const
+    inline bool ComponentContainer::GetComponentEntityId(unsigned int& entityId, const Component* const& componentPtr) const
     {
         size_t componentTypeId = typeid(Component).hash_code();
         if (componentTypeId != componentTypeId_)

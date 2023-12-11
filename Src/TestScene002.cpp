@@ -10,6 +10,7 @@
 #include "Engine/Logger.h"
 #include "Engine/MeshLoader.h"
 #include "Engine/Renderer.h"
+#include "Engine/ResourceStores.h"
 #include "Engine/TextureLoader.h"
 #include "Engine/UniqueBiMap.h"
 #include "Engine/Window.h"
@@ -21,13 +22,15 @@
 // public ----------------------------------------------------------------------
 
 TestScene002::TestScene002(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene002")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_002")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
 {
     AutoIdMapTest();
     UniqueBiMapTest();
     ComponentContainerTest();
     ComponentStoresTest();
+    ResourceStoresTest();
+    ResourceStoresTest2();
     MeshLoaderTest();
     TextureLoaderTest();
 }
@@ -50,6 +53,8 @@ void TestScene002::HandleEvent(Project001::Event& event)
 
 void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene002:            %u", GetId());
+
     // Mesh Data ---------------------------------------------------------------
 
     { // 0
@@ -517,13 +522,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetTextureId(thonkTextureId);
@@ -535,13 +540,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetTextureId(dice01TextureId);
@@ -552,13 +557,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetTextureId(dice02TextureId);
@@ -570,13 +575,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
@@ -587,13 +592,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
@@ -604,13 +609,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetSpecularId(patternSpecular01TextureId);
@@ -623,13 +628,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetSpecularId(patternSpecular02TextureId);
@@ -643,13 +648,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -661,13 +666,13 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -679,12 +684,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -696,12 +701,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -713,12 +718,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -730,12 +735,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -747,12 +752,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -764,12 +769,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -781,12 +786,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -798,12 +803,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -815,12 +820,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -832,12 +837,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -849,12 +854,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -866,12 +871,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -882,12 +887,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -898,12 +903,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -914,12 +919,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -930,12 +935,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -946,12 +951,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -962,12 +967,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -978,12 +983,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -994,12 +999,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1010,12 +1015,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1026,12 +1031,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1042,12 +1047,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1058,12 +1063,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1074,12 +1079,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1090,12 +1095,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1106,12 +1111,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1122,12 +1127,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1138,12 +1143,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1154,12 +1159,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
@@ -1216,11 +1221,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene002:            %u", GetId());
 }
 
 // private ---------------------------------------------------------------------
@@ -1399,52 +1402,52 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.Initialize<TestComponent00>(2, 2, 7);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(0, 1, 2, 3);
-    functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent00ptr, entityId00);
+    functionSuccess = componentContainer00.GetComponent(testComponent00ptr, 0);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId00, testComponent00ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(1, 2, 3, 4);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent01ptr, entityId01);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId01, testComponent01ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(2, 3, 4, 5);
-    functionSuccess = componentContainer00.GetComponent(2, testComponent02ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent02ptr, entityId02);
+    functionSuccess = componentContainer00.GetComponent(testComponent02ptr, 2);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId02, testComponent02ptr);
 
-    functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
+    functionSuccess = componentContainer00.GetComponent(testComponent00ptr, 0);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(3, 4, 5, 6);
-    functionSuccess = componentContainer00.GetComponent(3, testComponent03ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent03ptr, entityId03);
+    functionSuccess = componentContainer00.GetComponent(testComponent03ptr, 3);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId03, testComponent03ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(4, 5, 6, 7);
-    functionSuccess = componentContainer00.GetComponent(4, testComponent04ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent04ptr, entityId04);
+    functionSuccess = componentContainer00.GetComponent(testComponent04ptr, 4);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId04, testComponent04ptr);
 
-    functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
-    functionSuccess = componentContainer00.GetComponent(2, testComponent02ptr);
-    functionSuccess = componentContainer00.GetComponent(3, testComponent03ptr);
+    functionSuccess = componentContainer00.GetComponent(testComponent00ptr, 0);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
+    functionSuccess = componentContainer00.GetComponent(testComponent02ptr, 2);
+    functionSuccess = componentContainer00.GetComponent(testComponent03ptr, 3);
 
     functionSuccess = componentContainer00.DeleteComponent(1);
     functionSuccess = componentContainer00.DeleteComponent(3);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
-    functionSuccess = componentContainer00.GetComponent(3, testComponent03ptr);
-    functionSuccess = componentContainer00.GetComponent(4, testComponent04ptr);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
+    functionSuccess = componentContainer00.GetComponent(testComponent03ptr, 3);
+    functionSuccess = componentContainer00.GetComponent(testComponent04ptr, 4);
 
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent00ptr, entityId00);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent01ptr, entityId01); //
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent02ptr, entityId02);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent03ptr, entityId03); //
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent04ptr, entityId04);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId00, testComponent00ptr);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId01, testComponent01ptr); //
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId02, testComponent02ptr);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId03, testComponent03ptr); //
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId04, testComponent04ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(5, 6, 7, 8);
-    functionSuccess = componentContainer00.GetComponent(5, testComponent05ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent05ptr, entityId05);
+    functionSuccess = componentContainer00.GetComponent(testComponent05ptr, 5);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId05, testComponent05ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(6, 7, 8, 9);
-    functionSuccess = componentContainer00.GetComponent(6, testComponent06ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent06ptr, entityId06);
+    functionSuccess = componentContainer00.GetComponent(testComponent06ptr, 6);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId06, testComponent06ptr);
 
     functionSuccess = componentContainer00.GetAllComponents(allTestComponents, testComponentCount);
     functionSuccess = componentContainer00.GetAllComponentEntityIds<TestComponent00>(allTestComponentEntityIds, testComponentEntityIdCount);
@@ -1452,32 +1455,32 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.DeleteAllComponents();
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(0, 1, 1, 1);
-    functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent00ptr, entityId00);
+    functionSuccess = componentContainer00.GetComponent(testComponent00ptr, 0);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId00, testComponent00ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(1, 2, 2, 2);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent01ptr, entityId01);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId01, testComponent01ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(2, 3, 3, 3);
-    functionSuccess = componentContainer00.GetComponent(2, testComponent02ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent02ptr, entityId02);
+    functionSuccess = componentContainer00.GetComponent(testComponent02ptr, 2);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId02, testComponent02ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(3, 4, 4, 4);
-    functionSuccess = componentContainer00.GetComponent(3, testComponent03ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent03ptr, entityId03);
+    functionSuccess = componentContainer00.GetComponent(testComponent03ptr, 3);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId03, testComponent03ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(4, 5, 5, 5);
-    functionSuccess = componentContainer00.GetComponent(4, testComponent04ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent04ptr, entityId04);
+    functionSuccess = componentContainer00.GetComponent(testComponent04ptr, 4);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId04, testComponent04ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(5, 6, 6, 6);
-    functionSuccess = componentContainer00.GetComponent(5, testComponent05ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent05ptr, entityId05);
+    functionSuccess = componentContainer00.GetComponent(testComponent05ptr, 5);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId05, testComponent05ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(6, 7, 7, 7);
-    functionSuccess = componentContainer00.GetComponent(6, testComponent06ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent06ptr, entityId06);
+    functionSuccess = componentContainer00.GetComponent(testComponent06ptr, 6);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId06, testComponent06ptr);
 
     functionSuccess = componentContainer00.DeleteComponent(0);
     functionSuccess = componentContainer00.DeleteComponent(1);
@@ -1488,40 +1491,40 @@ void TestScene002::ComponentContainerTest() const
     functionSuccess = componentContainer00.DeleteComponent(6);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(8, 88, 888, 8888);
-    functionSuccess = componentContainer00.GetComponent(8, testComponent08ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent08ptr, entityId08);
+    functionSuccess = componentContainer00.GetComponent(testComponent08ptr, 8);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId08, testComponent08ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(7, 77, 777, 7777);
-    functionSuccess = componentContainer00.GetComponent(7, testComponent07ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent07ptr, entityId07);
+    functionSuccess = componentContainer00.GetComponent(testComponent07ptr, 7);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId07, testComponent07ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(6, 66, 666, 6666);
-    functionSuccess = componentContainer00.GetComponent(6, testComponent06ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent06ptr, entityId06);
+    functionSuccess = componentContainer00.GetComponent(testComponent06ptr, 6);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId06, testComponent06ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(5, 55, 555, 5555);
-    functionSuccess = componentContainer00.GetComponent(5, testComponent05ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent05ptr, entityId05);
+    functionSuccess = componentContainer00.GetComponent(testComponent05ptr, 5);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId05, testComponent05ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(4, 44, 444, 4444);
-    functionSuccess = componentContainer00.GetComponent(4, testComponent04ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent04ptr, entityId04);
+    functionSuccess = componentContainer00.GetComponent(testComponent04ptr, 4);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId04, testComponent04ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(3, 33, 333, 3333);
-    functionSuccess = componentContainer00.GetComponent(3, testComponent03ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent03ptr, entityId03);
+    functionSuccess = componentContainer00.GetComponent(testComponent03ptr, 3);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId03, testComponent03ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(2, 22, 222, 2222);
-    functionSuccess = componentContainer00.GetComponent(2, testComponent02ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent02ptr, entityId02);
+    functionSuccess = componentContainer00.GetComponent(testComponent02ptr, 2);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId02, testComponent02ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(1, 11, 111, 1111);
-    functionSuccess = componentContainer00.GetComponent(1, testComponent01ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent01ptr, entityId01);
+    functionSuccess = componentContainer00.GetComponent(testComponent01ptr, 1);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId01, testComponent01ptr);
 
     functionSuccess = componentContainer00.CreateComponent<TestComponent00>(0, -1, -2, -3);
-    functionSuccess = componentContainer00.GetComponent(0, testComponent00ptr);
-    functionSuccess = componentContainer00.GetComponentEntityId(testComponent00ptr, entityId00);
+    functionSuccess = componentContainer00.GetComponent(testComponent00ptr, 0);
+    functionSuccess = componentContainer00.GetComponentEntityId(entityId00, testComponent00ptr);
 
     functionSuccess = componentContainer00.GetAllComponents(allTestComponents, testComponentCount);
     functionSuccess = componentContainer00.GetAllComponentEntityIds<TestComponent00>(allTestComponentEntityIds, testComponentEntityIdCount);
@@ -1592,78 +1595,78 @@ void TestScene002::ComponentStoresTest() const
 
     bool functionSuccess = true;
 
-    functionSuccess = testComponentStores.CreateEntity(entityId01);
+    testComponentStores.CreateEntity(entityId01);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId01, 1, 11, 111);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0001ptr, entityId01_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId01_returned, testComponent0001ptr);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId02);
+    testComponentStores.CreateEntity(entityId02);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId02, 2, 22, 222);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId02, testComponent0002ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0002ptr, entityId02_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId02_returned, testComponent0002ptr);
 
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId03);
+    testComponentStores.CreateEntity(entityId03);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId03, 3, 33, 333);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId03, testComponent0003ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0003ptr, entityId03_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0003ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId03_returned, testComponent0003ptr);
 
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId02, testComponent0002ptr);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId04);
+    testComponentStores.CreateEntity(entityId04);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId04, 4, 44, 444);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId04, testComponent0004ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0004ptr, entityId04_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0004ptr, entityId04);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId04_returned, testComponent0004ptr);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId05);
+    testComponentStores.CreateEntity(entityId05);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId05, 5, 55, 555);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId05, testComponent0005ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0005ptr, entityId05_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0005ptr, entityId05);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId05_returned, testComponent0005ptr);
 
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId02, testComponent0002ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId03, testComponent0003ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId04, testComponent0004ptr);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0003ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0004ptr, entityId04);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId06);
+    testComponentStores.CreateEntity(entityId06);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId06, 6, 66, 666);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId06, testComponent0006ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0006ptr, entityId06_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0006ptr, entityId06);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId06_returned, testComponent0006ptr);
 
     functionSuccess = testComponentStores.GetAllComponents(allTestComponent00s, testComponent00Count);
     functionSuccess = testComponentStores.GetAllComponentEntityIds<TestComponent00>(allTestComponent00EntityIds, testComponent00EntityIdCount);
 
     functionSuccess = testComponentStores.InitializeComponentContainer<TestComponent01>(2, 2, 5);
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId06, 6.0f, 66.0f, 666.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId06, testComponent0106ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0106ptr, entityId06_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0106ptr, entityId06);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId06_returned, testComponent0106ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId05, 5.0f, 55.0f, 555.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId05, testComponent0105ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0105ptr, entityId05_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0105ptr, entityId05);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId05_returned, testComponent0105ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId04, 4.0f, 44.0f, 444.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId04, testComponent0104ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0104ptr, entityId04_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0104ptr, entityId04);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId04_returned, testComponent0104ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId03, 3.0f, 33.0f, 333.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId03, testComponent0103ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0103ptr, entityId03_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0103ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId03_returned, testComponent0103ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId02, 2.0f, 22.0f, 222.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId02, testComponent0102ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0102ptr, entityId02_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0102ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId02_returned, testComponent0102ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent01>(entityId01, 1.0f, 11.0f, 111.0f);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId01, testComponent0101ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(testComponent0101ptr, entityId01_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0101ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent01>(entityId01_returned, testComponent0101ptr);
 
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId06, testComponent0106ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId05, testComponent0105ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId04, testComponent0104ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent01>(entityId03, testComponent0103ptr);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0106ptr, entityId06);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0105ptr, entityId05);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0104ptr, entityId04);
+    functionSuccess = testComponentStores.GetComponent<TestComponent01>(testComponent0103ptr, entityId03);
 
     functionSuccess = testComponentStores.DeleteComponent<TestComponent00>(entityId01);
     functionSuccess = testComponentStores.DeleteComponent<TestComponent00>(entityId02);
@@ -1671,61 +1674,312 @@ void TestScene002::ComponentStoresTest() const
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId01, 1, 1, 1);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId02, 2, 2, 2);
 
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId02, testComponent0002ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId05, testComponent0005ptr);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId06, testComponent0006ptr);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0005ptr, entityId05);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0006ptr, entityId06);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId01, 1, 11, 111);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId01, testComponent0201ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0201ptr, entityId01_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0201ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId01_returned, testComponent0201ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId02, 2, 22, 222);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId02, testComponent0202ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0202ptr, entityId02_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0202ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId02_returned, testComponent0202ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId03, 3, 33, 333);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId03, testComponent0203ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0203ptr, entityId03_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0203ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId03_returned, testComponent0203ptr);
 
     functionSuccess = testComponentStores.DeleteAllComponents<TestComponent02>();
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId03, 3, 3, 3);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId03, testComponent0203ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0203ptr, entityId03_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0203ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId03_returned, testComponent0203ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId02, 2, 2, 2);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId02, testComponent0202ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0202ptr, entityId02_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0202ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId02_returned, testComponent0202ptr);
 
     functionSuccess = testComponentStores.CreateComponent<TestComponent02>(entityId01, 1, 1, 1);
-    functionSuccess = testComponentStores.GetComponent<TestComponent02>(entityId01, testComponent0201ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(testComponent0201ptr, entityId01_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent02>(testComponent0201ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent02>(entityId01_returned, testComponent0201ptr);
 
     functionSuccess = testComponentStores.DeleteEntity(entityId04);
     functionSuccess = testComponentStores.DeleteEntity(entityId01);
 
     testComponentStores.DeleteAllEntities();
 
-    functionSuccess = testComponentStores.CreateEntity(entityId01);
+    testComponentStores.CreateEntity(entityId01);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId01, -1, -1, -1);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId01, testComponent0001ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0001ptr, entityId01_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId01_returned, testComponent0001ptr);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId02);
+    testComponentStores.CreateEntity(entityId02);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId02, -2, -2, -2);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId02, testComponent0002ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0002ptr, entityId02_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId02_returned, testComponent0002ptr);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId03);
+    testComponentStores.CreateEntity(entityId03);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId03, -3, -3, -3);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId03, testComponent0003ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0003ptr, entityId03_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0003ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId03_returned, testComponent0003ptr);
 
-    functionSuccess = testComponentStores.CreateEntity(entityId04);
+    testComponentStores.CreateEntity(entityId04);
     functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId04, -4, -4, -4);
-    functionSuccess = testComponentStores.GetComponent<TestComponent00>(entityId04, testComponent0004ptr);
-    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(testComponent0004ptr, entityId04_returned);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0004ptr, entityId04);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId04_returned, testComponent0004ptr);
+
+    testComponentStores.DeleteAllEntitiesAndResetCapacities();
+
+    functionSuccess = testComponentStores.InitializeComponentContainer<TestComponent00>(2, 2, 5);
+
+    testComponentStores.CreateEntity(entityId01);
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId01, -1, -1, -1);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0001ptr, entityId01);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId01_returned, testComponent0001ptr);
+
+    testComponentStores.CreateEntity(entityId02);
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId02, -2, -2, -2);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0002ptr, entityId02);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId02_returned, testComponent0002ptr);
+
+    testComponentStores.CreateEntity(entityId03);
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId03, -3, -3, -3);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0003ptr, entityId03);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId03_returned, testComponent0003ptr);
+
+    testComponentStores.CreateEntity(entityId04);
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId04, -4, -4, -4);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0004ptr, entityId04);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId04_returned, testComponent0004ptr);
+
+    testComponentStores.CreateEntity(entityId05);
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId05, -5, -5, -5);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0005ptr, entityId05);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId05_returned, testComponent0005ptr);
+
+    testComponentStores.CreateEntity(entityId06); // entity created, but not components
+    functionSuccess = testComponentStores.CreateComponent<TestComponent00>(entityId06, -6, -6, -6);
+    functionSuccess = testComponentStores.GetComponent<TestComponent00>(testComponent0006ptr, entityId06);
+    functionSuccess = testComponentStores.GetComponentEntityId<TestComponent00>(entityId06_returned, testComponent0006ptr);
+
+    functionSuccess = testComponentStores.DeleteEntity(entityId06);
+}
+
+void TestScene002::ResourceStoresTest() const
+{
+    Project001::ResourceStores testResourceStores;
+
+    // TestComponent00
+
+    unsigned int testComponent00_Id01 = (unsigned int)-1;
+    unsigned int testComponent00_Id02 = (unsigned int)-1;
+    unsigned int testComponent00_Id03 = (unsigned int)-1;
+    unsigned int testComponent00_Id04 = (unsigned int)-1;
+    unsigned int testComponent00_Id05 = (unsigned int)-1;
+    unsigned int testComponent00_Id06 = (unsigned int)-1;
+    unsigned int testComponent00_Id07 = (unsigned int)-1;
+    unsigned int testComponent00_Id08 = (unsigned int)-1;
+
+    unsigned int returned_testComponent00_Id01 = (unsigned int)-1;
+    unsigned int returned_testComponent00_Id02 = (unsigned int)-1;
+    unsigned int returned_testComponent00_Id03 = (unsigned int)-1;
+
+    const unsigned int* returned_testComponent00_Ids = nullptr;
+    size_t returned_testComponent00_Id_count = 0;
+
+    TestComponent00* testComponent00_ptr01 = nullptr;
+    TestComponent00* testComponent00_ptr02 = nullptr;
+    TestComponent00* testComponent00_ptr03 = nullptr;
+
+    TestComponent00* testComponent00_ptrs = nullptr;
+    size_t testComponent00_count = 0;
+
+    // TestComponent01
+
+    unsigned int testComponent01_Id01 = (unsigned int)-1;
+    unsigned int testComponent01_Id02 = (unsigned int)-1;
+    unsigned int testComponent01_Id03 = (unsigned int)-1;
+
+    unsigned int returned_testComponent01_Id01 = (unsigned int)-1;
+    unsigned int returned_testComponent01_Id02 = (unsigned int)-1;
+    unsigned int returned_testComponent01_Id03 = (unsigned int)-1;
+
+    const unsigned int* returned_testComponent01_Ids = nullptr;
+    size_t returned_testComponent01_Id_count = 0;
+
+    TestComponent01* testComponent01_ptr01 = nullptr;
+    TestComponent01* testComponent01_ptr02 = nullptr;
+    TestComponent01* testComponent01_ptr03 = nullptr;
+
+    TestComponent01* testComponent01_ptrs = nullptr;
+    size_t testComponent01_count = 0;
+
+    // TestComponent02
+
+    unsigned int testComponent02_Id01 = (unsigned int)-1;
+    unsigned int testComponent02_Id02 = (unsigned int)-1;
+    unsigned int testComponent02_Id03 = (unsigned int)-1;
+
+    unsigned int returned_testComponent02_Id01 = (unsigned int)-1;
+    unsigned int returned_testComponent02_Id02 = (unsigned int)-1;
+    unsigned int returned_testComponent02_Id03 = (unsigned int)-1;
+
+    const unsigned int* returned_testComponent02_Ids = nullptr;
+    size_t returned_testComponent02_Id_count = 0;
+
+    TestComponent02* testComponent02_ptr01 = nullptr;
+    TestComponent02* testComponent02_ptr02 = nullptr;
+    TestComponent02* testComponent02_ptr03 = nullptr;
+
+    TestComponent02* testComponent02_ptrs = nullptr;
+    size_t testComponent02_count = 0;
+
+    // --------
+
+    bool functionSuccess = true;
+
+    functionSuccess = testResourceStores.DeleteResource<TestComponent00>(testComponent00_Id01);
+    functionSuccess = testResourceStores.DeleteAllResources<TestComponent00>();
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr01, testComponent00_Id01);
+    functionSuccess = testResourceStores.GetAllResources<TestComponent00>(testComponent00_ptrs, testComponent00_count);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id01, testComponent00_ptr01);
+
+    functionSuccess = testResourceStores.Initialize<TestComponent00>(2, 2, 7);
+
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id01, 1, 10, 100);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id02, 2, 20, 200);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id03, 3, 30, 300);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id04, 4, 40, 400);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id05, 5, 50, 500);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id06, 6, 60, 600);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id07, 7, 70, 700);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id08, 8, 80, 800); // fails
+
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr01, testComponent00_Id01);
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr02, testComponent00_Id02);
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr03, testComponent00_Id03);
+
+    functionSuccess = testResourceStores.GetAllResources<TestComponent00>(testComponent00_ptrs, testComponent00_count);
+
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id01, testComponent00_ptr01);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id02, testComponent00_ptr02);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id03, testComponent00_ptr03);
+
+    functionSuccess = testResourceStores.GetAllResourceIds<TestComponent00>(returned_testComponent00_Ids, returned_testComponent00_Id_count);
+
+    functionSuccess = testResourceStores.DeleteResource<TestComponent00>(testComponent00_Id02);
+    functionSuccess = testResourceStores.DeleteResource<TestComponent00>(testComponent00_Id04);
+    functionSuccess = testResourceStores.DeleteResource<TestComponent00>(testComponent00_Id06);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id06, 6, 66, 666);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id02, 4, 44, 444);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id02, 2, 22, 222);
+
+    functionSuccess = testResourceStores.DeleteResource<TestComponent00>(testComponent00_Id01);
+
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr01, testComponent00_Id01);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id01, testComponent00_ptr01); // success, because old pointer points to other component
+
+    functionSuccess = testResourceStores.DeleteAllResources<TestComponent00>();
+
+    // ----
+
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id01, -1, -10, -100);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id02, -2, -20, -200);
+    functionSuccess = testResourceStores.CreateResource<TestComponent00>(testComponent00_Id03, -3, -30, -300);
+
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr01, testComponent00_Id01);
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr02, testComponent00_Id02);
+    functionSuccess = testResourceStores.GetResource<TestComponent00>(testComponent00_ptr03, testComponent00_Id03);
+
+    functionSuccess = testResourceStores.GetAllResources<TestComponent00>(testComponent00_ptrs, testComponent00_count);
+
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id01, testComponent00_ptr01);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id02, testComponent00_ptr02);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent00>(returned_testComponent00_Id03, testComponent00_ptr03);
+
+    functionSuccess = testResourceStores.GetAllResourceIds<TestComponent00>(returned_testComponent00_Ids, returned_testComponent00_Id_count);
+
+    // ----
+
+    functionSuccess = testResourceStores.CreateResource<TestComponent01>(testComponent01_Id01, -1.0f, -0.1f, -0.01f);
+    functionSuccess = testResourceStores.CreateResource<TestComponent01>(testComponent01_Id02, -2.0f, -0.2f, -0.02f);
+    functionSuccess = testResourceStores.CreateResource<TestComponent01>(testComponent01_Id03, -3.0f, -0.3f, -0.03f);
+
+    functionSuccess = testResourceStores.GetResource<TestComponent01>(testComponent01_ptr01, testComponent01_Id01);
+    functionSuccess = testResourceStores.GetResource<TestComponent01>(testComponent01_ptr02, testComponent01_Id02);
+    functionSuccess = testResourceStores.GetResource<TestComponent01>(testComponent01_ptr03, testComponent01_Id03);
+
+    functionSuccess = testResourceStores.GetAllResources<TestComponent01>(testComponent01_ptrs, testComponent01_count);
+
+    functionSuccess = testResourceStores.GetResourceId<TestComponent01>(returned_testComponent01_Id01, testComponent01_ptr01);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent01>(returned_testComponent01_Id02, testComponent01_ptr02);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent01>(returned_testComponent01_Id03, testComponent01_ptr03);
+
+    functionSuccess = testResourceStores.GetAllResourceIds<TestComponent01>(returned_testComponent01_Ids, returned_testComponent01_Id_count);
+
+    // ----
+
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id01, 1, 11, 111);
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id02, 2, 22, 222);
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id03, 3, 33, 333);
+
+    functionSuccess = testResourceStores.GetResource<TestComponent02>(testComponent02_ptr01, testComponent02_Id01);
+    functionSuccess = testResourceStores.GetResource<TestComponent02>(testComponent02_ptr02, testComponent02_Id02);
+    functionSuccess = testResourceStores.GetResource<TestComponent02>(testComponent02_ptr03, testComponent02_Id03);
+
+    functionSuccess = testResourceStores.GetAllResources<TestComponent02>(testComponent02_ptrs, testComponent02_count);
+
+    functionSuccess = testResourceStores.GetResourceId<TestComponent02>(returned_testComponent02_Id01, testComponent02_ptr01);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent02>(returned_testComponent02_Id02, testComponent02_ptr02);
+    functionSuccess = testResourceStores.GetResourceId<TestComponent02>(returned_testComponent02_Id03, testComponent02_ptr03);
+
+    functionSuccess = testResourceStores.GetAllResourceIds<TestComponent02>(returned_testComponent02_Ids, returned_testComponent02_Id_count);
+
+    testResourceStores.DeleteAllResources();
+    testResourceStores.DeleteAllResourcesAndResetCapacities();
+
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id01, 1, 11, 111);
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id02, 2, 22, 222);
+    functionSuccess = testResourceStores.CreateResource<TestComponent02>(testComponent02_Id03, 3, 33, 333);
+}
+
+void TestScene002::ResourceStoresTest2() const
+{
+    Project001::ResourceStores* testResourceStoresPtr = new Project001::ResourceStores;
+
+    // Font Data
+    {
+        unsigned int font01_FontDataId = (unsigned int)-1;
+        unsigned int font02_FontDataId = (unsigned int)-1;
+        unsigned int font03_FontDataId = (unsigned int)-1;
+        unsigned int font04_FontDataId = (unsigned int)-1;
+
+        Project001::FontData* font01_FontDataPtr = nullptr;
+        Project001::FontData* font02_FontDataPtr = nullptr;
+        Project001::FontData* font03_FontDataPtr = nullptr;
+        Project001::FontData* font04_FontDataPtr = nullptr;
+
+        bool success = false;
+
+        success = testResourceStoresPtr->CreateResource<Project001::FontData>(font01_FontDataId); // true
+        success = testResourceStoresPtr->CreateResource<Project001::FontData>(font02_FontDataId); // true
+        success = testResourceStoresPtr->CreateResource<Project001::FontData>(font03_FontDataId); // true
+
+        success = testResourceStoresPtr->GetResource<Project001::FontData>(font02_FontDataPtr, font02_FontDataId); // true
+        success = testResourceStoresPtr->GetResource<Project001::FontData>(font04_FontDataPtr, font04_FontDataId); // false
+
+        success = testResourceStoresPtr->DeleteResource<Project001::FontData>(font02_FontDataId); // true
+        success = testResourceStoresPtr->DeleteResource<Project001::FontData>(font04_FontDataId); // false
+
+        success = testResourceStoresPtr->DeleteAllResources<Project001::FontData>(); // true
+        success = testResourceStoresPtr->DeleteAllResources<Project001::FontData>(); // true
+        testResourceStoresPtr->DeleteAllResourcesAndResetCapacities();
+        success = testResourceStoresPtr->DeleteAllResources<Project001::FontData>(); // false
+    }
+
+    delete testResourceStoresPtr;
 }
 
 void TestScene002::MeshLoaderTest() const

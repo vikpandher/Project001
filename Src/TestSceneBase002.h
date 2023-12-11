@@ -25,7 +25,7 @@ namespace Project001
 class TestSceneBase002 : public Project001::Scene
 {
 public:
-    TestSceneBase002(Project001::Application* applicationPtr, const std::string& name);
+    TestSceneBase002(Project001::Application* applicationPtr);
     ~TestSceneBase002();
 
     TestSceneBase002(TestSceneBase002& other) = delete;

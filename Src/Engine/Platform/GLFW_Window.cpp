@@ -113,6 +113,12 @@ namespace Project001
         glfwPollEvents();
     }
 
+    void GLFW_Window::SetWindowTitle(const char*& title)
+    {
+        windowTitle_ = title;
+        glfwSetWindowTitle(glfwWindowPtr_, title);
+    }
+
     void GLFW_Window::SetAspectRatio(int numerator, int denominator)
     {
         aspectRatioNumerator_ = numerator;

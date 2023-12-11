@@ -203,11 +203,16 @@ namespace Project001
         }
         if (inputFileStream.fail())
         {
-            //ERROR: fail state set on the file
+            // ERROR: fail state set on the file
             return false;
         }
 
         soundData.data = malloc((size_t)soundData.sizeInBytes);
+        if (soundData.data == nullptr)
+        {
+            // ERROR: failed to allocate memory
+            return false;
+        }
 
         // Data
         inputFileStream.read((char*)soundData.data, (size_t)soundData.sizeInBytes);

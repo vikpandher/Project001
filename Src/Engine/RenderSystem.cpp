@@ -190,7 +190,7 @@ namespace Project001
                     }
 
                     unsigned int currentCameraId = (unsigned int)-1;
-                    if (componentStoresPtr->GetComponentEntityId<Camera>(&currentCamera, currentCameraId))
+                    if (componentStoresPtr->GetComponentEntityId<Camera>(currentCameraId, &currentCamera))
                     {
                         s_cameraEntityIdToRenderedMeshCount_[currentCameraId] = s_renderedMeshPtrs_.size();
                     }

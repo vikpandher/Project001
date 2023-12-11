@@ -93,6 +93,11 @@ namespace Project001
 
         free(textureData.data);
         textureData.data = (unsigned char*)malloc(sizeof(unsigned char*) * textureData.height * textureData.width * 4);
+        if (textureData.data == nullptr)
+        {
+            _LOG_ERROR("Memory allocation failed.");
+            return false;
+        }
 
         // top side spacing
         for (unsigned int j = 0; j < verticalSpacing; ++j)
@@ -377,7 +382,7 @@ namespace Project001
                 }
                 else
                 {
-                    _LOG_MESSAGE("FreetypeTextLoader: Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
+                    // _LOG_MESSAGE("FreetypeTextLoader: Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
                     // return false;
                 }
             }
@@ -487,7 +492,7 @@ namespace Project001
         glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
         if (glyphMetrics.height_px == 0)
         {
-            _LOG_MESSAGE("FreetypeTextLoader: Warning, character not printable: %c (ASCII: %i)", character, character);
+            // _LOG_MESSAGE("FreetypeTextLoader: Warning, character not printable: %c (ASCII: %i)", character, character);
             return;
         }
 

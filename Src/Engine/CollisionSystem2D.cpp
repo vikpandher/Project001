@@ -63,12 +63,12 @@ namespace Project001
         {
             Project001::CollisionBody2D*& collisionBodyA = s_tangibleCollisionBodyPtrs_[i];
             unsigned int entityIdA;
-            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(collisionBodyA, entityIdA);
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdA, collisionBodyA);
             for (unsigned int j = i + 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
             {
                 Project001::CollisionBody2D*& collisionBodyB = s_tangibleCollisionBodyPtrs_[j];
                 unsigned int entityIdB;
-                componentStoresPtr->GetComponentEntityId<CollisionBody2D>(collisionBodyB, entityIdB);
+                componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB);
 
                 if ((collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()) &&
                     Check2D_Circle_Circle_Overlap(
@@ -89,7 +89,7 @@ namespace Project001
     {
         // Get primary Entity's Collision Bodies
         CollisionBody2D* primaryCollisionBodyPtr = nullptr;
-        bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(entityId, primaryCollisionBodyPtr);
+        bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(primaryCollisionBodyPtr, entityId);
 
         if (!primaryComponentFound || !primaryCollisionBodyPtr->GetTangible())
         {
@@ -150,7 +150,7 @@ namespace Project001
         {
             Project001::CollisionBody2D*& currentCollisionBody = s_tangibleCollisionBodyPtrs_[j];
             unsigned int currentEntityId;
-            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentCollisionBody, currentEntityId);
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentEntityId, currentCollisionBody);
 
             if (entityId != currentEntityId &&
                 (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBody->GetCollisionGroupMask()) &&

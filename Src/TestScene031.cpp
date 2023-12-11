@@ -16,8 +16,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene031::TestScene031(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene031")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_031")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
@@ -48,6 +48,8 @@ void TestScene031::HandleEvent(Project001::Event& event)
 
 void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene031:            %u", GetId());
+
     // Texture Data ------------------------------------------------------------
 
     font01_FontDataPtr_ = new Project001::FontData();
@@ -127,14 +129,14 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         glm::vec3 currentPosition = meshEntityPositions[i];
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(currentPosition);
         renderedMeshPtr->SetColor(
             0.5f + currentPosition.x * 0.1f,
@@ -148,16 +150,16 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraEntityId_, cameraPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
     float uiCameraHalfHeight = cameraPtr->GetTopCutoff();
     float uiCameraHalfWidth = cameraPtr->GetRightCutoff();
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_fps_EntityId_));
+        componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_fps_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
         renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
@@ -168,11 +170,11 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_));
+        componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
         renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_renderedMeshCount_MeshDataPtr_);
@@ -209,11 +211,9 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene031::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene031:            %u", GetId());
 
     // Texture Data ------------------------------------------------------------
 

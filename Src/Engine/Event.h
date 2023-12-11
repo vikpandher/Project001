@@ -1050,14 +1050,14 @@ namespace Project001
 
     struct SwitchSceneEvent : Event
     {
-        SwitchSceneEvent(std::string sceneName)
+        SwitchSceneEvent(unsigned int sceneId)
             : Event()
-            , sceneName(sceneName)
+            , sceneId(sceneId)
         {}
 
         EVENT_TYPE_FUNCTIONS(EventType::EVENT_TYPE_SWITCH_SCENE)
 
-        std::string sceneName;
+        unsigned int sceneId;
     };
 
     struct UpdateEvent : Event

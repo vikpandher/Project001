@@ -1,9 +1,7 @@
 #pragma once
 
-#include "ComponentContainer.h"
-
-#include <deque>
-#include <vector>
+#include "Engine/ComponentContainer.h"
+#include "Engine/UniqueIdGenerator.h"
 
 
 
@@ -20,11 +18,13 @@ namespace Project001
 
         // Entity Functions: ---------------------------------------------------
 
-        bool CreateEntity(unsigned int& entityId);
+        void CreateEntity(unsigned int& entityId);
 
         bool DeleteEntity(unsigned int entityId);
 
         void DeleteAllEntities();
+
+        void DeleteAllEntitiesAndResetCapacities();
 
         // Component Functions: ------------------------------------------------
 
@@ -41,30 +41,26 @@ namespace Project001
         bool DeleteAllComponents();
 
         template <typename Component>
-        bool GetComponent(unsigned int entityId, Component*& componentPtr);
+        bool GetComponent(Component*& componentPtr, unsigned int entityId);
 
         template <typename Component>
         bool GetAllComponents(Component*& componentPtrs, size_t& componentCount);
 
         template <typename Component>
-        bool GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId);
+        bool GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr);
 
         template <typename Component>
         bool GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const;
 
     protected:
-        bool EntityExists(unsigned int entityId) const;
-
         bool ComponentTypeExists(unsigned int componentTypeId) const;
 
         template <typename Component>
-        bool RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap);
+        void RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap);
 
-        bool queueSorted_;
-        std::deque<unsigned int> recycledIds_;
-        std::vector<bool> entityDeletedFlags_;
+        UniqueIdGenerator entityIdGenerator_;
 
-        std::unordered_map<unsigned int, unsigned int> componentTypeIdToComponentContainersIndexMap_;
+        std::unordered_map<unsigned int, unsigned int> componentTypeIdToComponentContainerIndexMap_;
 
         std::vector<ComponentContainer*> componentContainerPtrs_;
     };
@@ -80,33 +76,34 @@ namespace Project001
             return false;
         }
 
-        return RegisterNewComponent<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
+        RegisterNewComponent<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
+        return true;
     }
 
     template <typename Component, typename... Args>
     inline bool ComponentStores::CreateComponent(unsigned int entityId, Args... args)
     {
-        if (!EntityExists(entityId))
+        if (!entityIdGenerator_.IdIsTaken(entityId))
         {
-            return false;
+            return false; // Entity doesn't exist
         }
 
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
-        if (!ComponentTypeExists(componentTypeId) && !RegisterNewComponent<Component>(1, 2, 0))
+        if (!ComponentTypeExists(componentTypeId))
         {
-            return false;
+            RegisterNewComponent<Component>(1, 2, 0);
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
         return componentContainerPtrs_[componentContainerIndex]->CreateComponent<Component>(entityId, args...);
     }
 
     template <typename Component>
     inline bool ComponentStores::DeleteComponent(unsigned int entityId)
     {
-        if (!EntityExists(entityId))
+        if (!entityIdGenerator_.IdIsTaken(entityId))
         {
-            return false;
+            return false; // Entity doesn't exist
         }
 
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
@@ -115,7 +112,7 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
         return componentContainerPtrs_[componentContainerIndex]->DeleteComponent(entityId);
     }
 
@@ -128,18 +125,18 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
         componentContainerPtrs_[componentContainerIndex]->DeleteAllComponents();
 
         return true;
     }
 
     template <typename Component>
-    inline bool ComponentStores::GetComponent(unsigned int entityId, Component*& componentPtr)
+    inline bool ComponentStores::GetComponent(Component*& componentPtr, unsigned int entityId)
     {
-        if (!EntityExists(entityId))
+        if (!entityIdGenerator_.IdIsTaken(entityId))
         {
-            return false;
+            return false; // Entity doesn't exist
         }
 
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
@@ -148,8 +145,8 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainerPtrs_[componentContainerIndex]->GetComponent<Component>(entityId, componentPtr);
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        return componentContainerPtrs_[componentContainerIndex]->GetComponent<Component>(componentPtr, entityId);
     }
 
     template <typename Component>
@@ -161,12 +158,12 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
         return componentContainerPtrs_[componentContainerIndex]->GetAllComponents<Component>(componentPtrs, componentCount);
     }
 
     template <typename Component>
-    inline bool ComponentStores::GetComponentEntityId(const Component* const componentPtr, unsigned int& entityId)
+    inline bool ComponentStores::GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr)
     {
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
         if (!ComponentTypeExists(componentTypeId))
@@ -174,8 +171,8 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_[componentTypeId];
-        return componentContainerPtrs_[componentContainerIndex]->GetComponentEntityId<Component>(componentPtr, entityId);
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        return componentContainerPtrs_[componentContainerIndex]->GetComponentEntityId<Component>(entityId, componentPtr);
     }
 
     template <typename Component>
@@ -187,33 +184,26 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainersIndexMap_.at(componentTypeId);
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->GetAllComponentEntityIds<Component>(componentEntityIdPtr, componentCount);
     }
 
     // protected ---------------------------------------------------------------
 
-    inline bool ComponentStores::EntityExists(unsigned int entityId) const
-    {
-        return entityId < entityDeletedFlags_.size() && !entityDeletedFlags_[entityId];
-    }
-
     inline bool ComponentStores::ComponentTypeExists(unsigned int componentTypeId) const
     {
-        return componentTypeIdToComponentContainersIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainersIndexMap_.end();
+        return componentTypeIdToComponentContainerIndexMap_.find(componentTypeId) != componentTypeIdToComponentContainerIndexMap_.end();
     }
 
     template <typename Component>
-    inline bool ComponentStores::RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
+    inline void ComponentStores::RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
     {
         unsigned int nextComponentContainerIndex = (unsigned int)componentContainerPtrs_.size();
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
-        componentTypeIdToComponentContainersIndexMap_[componentTypeId] = nextComponentContainerIndex;
+        componentTypeIdToComponentContainerIndexMap_[componentTypeId] = nextComponentContainerIndex;
 
         ComponentContainer* newComponentContainerPtr = new ComponentContainer();
         newComponentContainerPtr->Initialize<Component>(initialComponentCapacity, componentMemoryGrowthRate, componentMemoryCapacityCap);
         componentContainerPtrs_.push_back(newComponentContainerPtr);
-
-        return true;
     }
 }

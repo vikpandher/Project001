@@ -16,8 +16,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene006::TestScene006(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene006")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_006")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , zzzEntityId_((unsigned int)-1)
     , printableEntityId_((unsigned int)-1)
     , sphinxEntityId_((unsigned int)-1)
@@ -43,11 +43,13 @@ void TestScene006::HandleEvent(Project001::Event& event)
 
 void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene006:            %u", GetId());
+
     // Main Camera Entity
     // -------------------------------------------------------------------------
     {
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         cameraPtr->SetDepthTestEnabled(false);
     }
 
@@ -114,12 +116,12 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         ));
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -148,12 +150,12 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         ));
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -174,12 +176,12 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -201,12 +203,12 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -227,12 +229,12 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -255,13 +257,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         );
 
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
         zzzEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         renderedModelPtr->SetPosition(-3.2f, -1.6f, 0.0f);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         renderedMeshes.reserve(5);
@@ -321,13 +323,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
         printableEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         float currentOffsetX = 0.0f;
         float colorFade = 0.0f;
@@ -363,13 +365,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
         sphinxEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         renderedModelPtr->SetPosition(0.0f, -1.6f, 0.0f);
         float currentOffsetX = 0.0f;
@@ -428,17 +430,15 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene006::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+    instructionScene_.Deinitialize();
 
-    // -------------------------------------------------------------------------
+    _LOG_MESSAGE("DEINITIALIZING: TestScene006:            %u", GetId());
 
     zzzEntityId_ = (unsigned int)-1;
     printableEntityId_ = (unsigned int)-1;
     sphinxEntityId_ = (unsigned int)-1;
 
     timestamp_ns_ = 0ull;
-
-    instructionScene_.Deinitialize();
 }
 
 void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -447,7 +447,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(zzzEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, zzzEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         for (size_t i = 0; i < renderedMeshes.size(); ++i)
@@ -460,7 +460,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(printableEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, printableEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         for (size_t i = 0; i < renderedMeshes.size(); ++i)
@@ -473,7 +473,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(sphinxEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, sphinxEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         for (size_t i = 0; i < renderedMeshes.size(); ++i)

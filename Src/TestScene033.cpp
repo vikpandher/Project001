@@ -17,8 +17,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene033::TestScene033(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene033")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_033")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , _32x32_TextureIds_()
     , _48x48_TextureIds_()
     , font01_FontDataPtr_(nullptr)
@@ -60,6 +60,8 @@ void TestScene033::HandleEvent(Project001::Event& event)
 
 void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene033:            %u", GetId());
+
     // Secindary camera
     // -------------------------------------------------------------------------
 
@@ -67,11 +69,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float secondaryCameraHalfHeight = 0.0f;
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(secondaryCameraEntityId_));
+        componentStoresPtr_->CreateEntity(secondaryCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(secondaryCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(secondaryCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, secondaryCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -99,11 +101,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Tertiary camera
     // -------------------------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tertiaryCameraEntityId_));
+        componentStoresPtr_->CreateEntity(tertiaryCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(tertiaryCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(tertiaryCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, tertiaryCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -241,14 +243,14 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         square_EntityIds_.push_back(tempEntityId);
 
         glm::vec3 currentPosition = meshEntityPositions[i];
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(currentPosition);
         renderedMeshPtr->SetMeshId(square_MeshId_);
         renderedMeshPtr->SetMaxBoundingRadius(square_MaxBoundingRadius_);
@@ -264,11 +266,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_fps_EntityId_));
+        componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_fps_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
         renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
@@ -279,11 +281,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_counter_EntityId_));
+        componentStoresPtr_->CreateEntity(ui_counter_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_counter_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_counter_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_counter_EntityId_));
         renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
@@ -294,11 +296,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(ui_largeText_EntityId_));
+        componentStoresPtr_->CreateEntity(ui_largeText_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_largeText_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(ui_largeText_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_largeText_EntityId_));
         renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
         renderedMeshPtr->SetLit(false);
         renderedMeshPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
@@ -333,11 +335,9 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene033::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene033:            %u", GetId());
 
     // Texture Data: -----------------------------------------------------------
 

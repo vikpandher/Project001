@@ -14,10 +14,10 @@ namespace Project001
         if (applicationPtr_)
         {
             // Remove this from its Application's sceneMap.
-            std::unordered_map<std::string, Scene*>::iterator iter = applicationPtr_->sceneMap_.find(name_);
-            if (iter != applicationPtr_->sceneMap_.end())
+            AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(id_);
+            if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
             {
-                applicationPtr_->sceneMap_.erase(iter);
+                applicationPtr_->scenePtrMap_.Erase(iter);
             }
             if (applicationPtr_->activeScenePtr_ == this)
             {
@@ -28,25 +28,17 @@ namespace Project001
 
     // protected ---------------------------------------------------------------
 
-    Scene::Scene(Application* applicationPtr, const std::string& name)
+    Scene::Scene(Application* applicationPtr)
         : applicationPtr_(applicationPtr)
-        , name_(name)
+        , id_((unsigned int)-1)
     {
         if (applicationPtr_)
         {
-            if (applicationPtr_->sceneMap_.find(name_) == applicationPtr_->sceneMap_.end())
-            {
-                applicationPtr_->sceneMap_[name_] = this;
+            applicationPtr_->scenePtrMap_.Add(id_, this);
 
-                if (applicationPtr_->sceneMap_.size() == 1)
-                {
-                    applicationPtr_->activeScenePtr_ = this;
-                }
-            }
-            else
+            if (applicationPtr_->scenePtrMap_.Size() == 1)
             {
-                _LOG_ERROR("Application already has a Scene with the name: %s", name_.c_str());
-                applicationPtr_ = nullptr;
+                applicationPtr_->activeScenePtr_ = this;
             }
         }
         else
@@ -81,6 +73,19 @@ namespace Project001
         return nullptr;
     }
 
+    ResourceStores* Scene::GetApplicationResourceStoresPtr()
+    {
+        if (applicationPtr_)
+        {
+            return applicationPtr_->resourceStoresPtr_;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+        return nullptr;
+    }
+
     SoundPlayer* Scene::GetApplicationSoundPlayerPtr()
     {
         if (applicationPtr_)
@@ -107,17 +112,18 @@ namespace Project001
         return nullptr;
     }
 
-    Scene* Scene::GetScene(const std::string& name)
+    Scene* Scene::GetScene(unsigned int sceneId)
     {
         if (applicationPtr_)
         {
-            if (applicationPtr_->sceneMap_.find(name) != applicationPtr_->sceneMap_.end())
+            AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
+            if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
             {
-                return applicationPtr_->sceneMap_[name];
+                return iter->second;
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the name: %s", name.c_str());
+                _LOG_ERROR("Application doesn't have a Scene with the name: %u", sceneId);
             }
         }
         else
@@ -152,17 +158,18 @@ namespace Project001
         }
     }
 
-    void Scene::SendEventToScene(const std::string& name, Event& event)
+    void Scene::SendEventToScene(unsigned int sceneId, Event& event)
     {
         if (applicationPtr_)
         {
-            if (applicationPtr_->sceneMap_.find(name) != applicationPtr_->sceneMap_.end())
+            AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
+            if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
             {
-                applicationPtr_->sceneMap_[name]->HandleEvent(event);
+                iter->second->HandleEvent(event);
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the name: %s", name.c_str());
+                _LOG_ERROR("Application doesn't have a Scene with the name: %u", sceneId);
             }
         }
         else

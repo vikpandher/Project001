@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <string>
 
 
 
@@ -9,6 +8,7 @@ namespace Project001
 {
     class ComponentStores;
     class Renderer;
+    class ResourceStores;
     class SoundPlayer;
     class Window;
 
@@ -24,37 +24,39 @@ namespace Project001
         Scene(Scene& other) = delete;
         void operator=(const Scene&) = delete;
 
-        const std::string& GetName();
+        const unsigned int& GetId();
 
         virtual void HandleEvent(Event& event) = 0;
 
     protected:
-        Scene(Application* applicationPtr, const std::string& name);
+        Scene(Application* applicationPtr);
 
         ComponentStores* GetApplicaitonComponentStoresPtr();
 
         Renderer* GetApplicationRendererPtr();
 
+        ResourceStores* GetApplicationResourceStoresPtr();
+
         SoundPlayer* GetApplicationSoundPlayerPtr();
 
         Window* GetApplicationWindowPtr();
 
-        Scene* GetScene(const std::string& name);
+        Scene* GetScene(unsigned int sceneId);
 
         Scene* GetActiveScene();
 
         void SendEventToApplication(Event& event);
 
-        void SendEventToScene(const std::string& name, Event& event);
+        void SendEventToScene(unsigned int sceneId, Event& event);
 
     private:
         Application* applicationPtr_;
 
-        std::string name_;
+        unsigned int id_;
     };
 
-    inline const std::string& Scene::GetName()
+    inline const unsigned int& Scene::GetId()
     {
-        return name_;
+        return id_;
     }
 }

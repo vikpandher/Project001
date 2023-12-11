@@ -15,8 +15,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene004::TestScene004(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene004")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_004")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
 {}
 
 TestScene004::~TestScene004()
@@ -37,6 +37,8 @@ void TestScene004::HandleEvent(Project001::Event& event)
 
 void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene004:            %u", GetId());
+
     // Mesh Data ---------------------------------------------------------------
 
     {
@@ -439,13 +441,13 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < 70; ++i)
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[i]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
         renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
@@ -502,9 +504,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene004::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene004:            %u", GetId());
 }

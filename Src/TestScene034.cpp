@@ -17,8 +17,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene034::TestScene034(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene034")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_034")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , thonk001_TextureId_((unsigned int)-1)
     , thonkSpecular001_TextureId_((unsigned int)-1)
     , _32x32_TextureIds_()
@@ -51,6 +51,8 @@ void TestScene034::HandleEvent(Project001::Event& event)
 
 void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene034:            %u", GetId());
+
     // Load Textures
     // -------------------------------------------------------------------------
 
@@ -184,12 +186,12 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < 15; ++i)
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        componentStoresPtr_->GetComponent<Project001::RenderedModel>(tempEntityId, renderedModelPtr);
+        componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId);
         renderedModelPtr->SetPosition(positions[i]);
         renderedModelPtr->SetOrientation(orientations[i]);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -307,11 +309,9 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene034::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene034:            %u", GetId());
 
     // Texture Data ------------------------------------------------------------
 

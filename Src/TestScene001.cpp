@@ -1,5 +1,8 @@
 #include "TestScene001.h"
 
+#include "TestButtonData001.h"
+#include "TestSceneIds.h"
+
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/CollisionBody2D.h"
 #include "Engine/Components/RenderedModel.h"
@@ -13,15 +16,13 @@
 #include "Engine/SoundPlayer.h"
 #include "Engine/Window.h"
 
-#include "testButtonData001.h"
-
 
 
 // public ----------------------------------------------------------------------
 
 TestScene001::TestScene001(Project001::Application* applicationPtr)
-    : Scene(applicationPtr, "TestScene001")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_001")
+    : Scene(applicationPtr)
+    , instructionScene_(applicationPtr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , soundPlayerPtr_(nullptr)
@@ -73,7 +74,7 @@ void TestScene001::HandleEvent(Project001::Event& event)
 
 void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING: %s", GetName().c_str());
+    _LOG_MESSAGE("INITIALIZING:   TestScene001:            %u", GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
 
@@ -184,21 +185,37 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 12));
 
     std::vector<std::string> buttonStrings;
+    std::vector<unsigned int> buttonDestinationSceneIds;
     buttonStrings.emplace_back("TestScene002");
+    buttonDestinationSceneIds.push_back(g_testScene002Id);
     buttonStrings.emplace_back("TestScene003");
+    buttonDestinationSceneIds.push_back(g_testScene003Id);
     buttonStrings.emplace_back("TestScene004");
+    buttonDestinationSceneIds.push_back(g_testScene004Id);
     buttonStrings.emplace_back("TestScene006");
+    buttonDestinationSceneIds.push_back(g_testScene006Id);
     buttonStrings.emplace_back("TestScene010");
+    buttonDestinationSceneIds.push_back(g_testScene010Id);
     buttonStrings.emplace_back("TestScene011");
+    buttonDestinationSceneIds.push_back(g_testScene011Id);
     buttonStrings.emplace_back("TestScene012");
+    buttonDestinationSceneIds.push_back(g_testScene012Id);
     buttonStrings.emplace_back("TestScene013");
+    buttonDestinationSceneIds.push_back(g_testScene013Id);
     buttonStrings.emplace_back("TestScene030");
+    buttonDestinationSceneIds.push_back(g_testScene030Id);
     buttonStrings.emplace_back("TestScene031");
+    buttonDestinationSceneIds.push_back(g_testScene031Id);
     buttonStrings.emplace_back("TestScene032");
+    buttonDestinationSceneIds.push_back(g_testScene032Id);
     buttonStrings.emplace_back("TestScene033");
+    buttonDestinationSceneIds.push_back(g_testScene033Id);
     buttonStrings.emplace_back("TestScene034");
+    buttonDestinationSceneIds.push_back(g_testScene034Id);
     buttonStrings.emplace_back("TestScene050");
+    buttonDestinationSceneIds.push_back(g_testScene050Id);
     buttonStrings.emplace_back("TestScene051");
+    buttonDestinationSceneIds.push_back(g_testScene051Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
@@ -217,11 +234,11 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Main Camera Entity ------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(mainCameraEntityId_));
+        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -247,11 +264,11 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // UI Camera Entity --------------------------------------------------------
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(uiCameraEntityId_));
+        componentStoresPtr_->CreateEntity(uiCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -283,11 +300,11 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         windowPtr_->GetCursorPosition(cursorX_position, cursorY_position);
         UpdatePreviousWorldCursorPosition(cursorX_position, cursorY_position);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(cursorEntityId_));
+        componentStoresPtr_->CreateEntity(cursorEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cursorEntityId_));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         float xPosition;
@@ -325,7 +342,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
         Project001::CollisionBody2D* collisionBody2DPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
         cursorPositionCollisionPointIndex_ = collisionPoints.size();
         collisionPoints.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
@@ -371,7 +388,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
         unsigned int buttonEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(buttonEntityId));
+        componentStoresPtr_->CreateEntity(buttonEntityId);
 
         buttonEntityIds_.push_back(buttonEntityId);
 
@@ -379,7 +396,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(buttonEntityId));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(buttonEntityId, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, buttonEntityId));
         renderedModelPtr->SetPosition(buttonPositions[i]);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
@@ -401,7 +418,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(buttonEntityId));
         Project001::CollisionBody2D* collisionBody2DPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(buttonEntityId, collisionBody2DPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, buttonEntityId));
         collisionBody2DPtr->SetPosition(buttonPositions[i]);
         std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
         collisionRectangles.emplace_back(
@@ -416,8 +433,9 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<TestButtonData001>(buttonEntityId));
         TestButtonData001* testButtonData001Ptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(buttonEntityId, testButtonData001Ptr));
-        testButtonData001Ptr->textString_ = buttonStrings[i];
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(testButtonData001Ptr, buttonEntityId));
+        testButtonData001Ptr->textString = buttonStrings[i];
+        testButtonData001Ptr->destinationSceneId = buttonDestinationSceneIds[i];
 
         // columnIndex, rowIndex
         // [ 0,0 ] [ 1,0 ] [ 2,0 ] [ 3,0 ]
@@ -445,7 +463,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             aboveRowIndex = currentRowIndex - 1;
         }
         int aboveEntityIndex = aboveRowIndex * columns + currentColumnIndex;
-        testButtonData001Ptr->aboveEntityId_ = buttonEntityIds_[aboveEntityIndex];
+        testButtonData001Ptr->aboveEntityId = buttonEntityIds_[aboveEntityIndex];
 
         int bellowRowIndex;
         if (currentRowIndex == rows - 1)
@@ -466,7 +484,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
         }
         int bellowEntityIndex = bellowRowIndex * columns + currentColumnIndex;
-        testButtonData001Ptr->bellowEntityId_ = buttonEntityIds_[bellowEntityIndex];
+        testButtonData001Ptr->bellowEntityId = buttonEntityIds_[bellowEntityIndex];
 
         int leftColumnIndex;
         if (currentColumnIndex == 0)
@@ -487,7 +505,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             leftColumnIndex = currentColumnIndex - 1;
         }
         int leftEntityIndex = currentRowIndex * columns + leftColumnIndex;
-        testButtonData001Ptr->leftEntityId_ = buttonEntityIds_[leftEntityIndex];
+        testButtonData001Ptr->leftEntityId = buttonEntityIds_[leftEntityIndex];
 
         int rightColumnIndex;
         if (currentColumnIndex == columns - 1)
@@ -507,16 +525,16 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
         }
         int rightEntityIndex = currentRowIndex * columns + rightColumnIndex;
-        testButtonData001Ptr->rightEntityId_ = buttonEntityIds_[rightEntityIndex];
+        testButtonData001Ptr->rightEntityId = buttonEntityIds_[rightEntityIndex];
     }
 
     // Selector Entity ---------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(selectorEntityId_));
+        componentStoresPtr_->CreateEntity(selectorEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(selectorEntityId_));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(selectorEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, selectorEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
@@ -550,9 +568,9 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+    instructionScene_.Deinitialize();
 
-    // -------------------------------------------------------------------------
+    _LOG_MESSAGE("DEINITIALIZING: TestScene001:            %u", GetId());
 
     rendererPtr_->DeleteAllTextures();
     rendererPtr_->DeleteAllMeshes();
@@ -564,8 +582,6 @@ void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     rendererPtr_ = nullptr;
     soundPlayerPtr_ = nullptr;
     componentStoresPtr_ = nullptr;
-
-    instructionScene_.Deinitialize();
 
     // Font Data ---------------------------------------------------------------
 
@@ -625,11 +641,11 @@ void TestScene001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     UpdatePreviousWorldCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
     Project001::RenderedModel* renderedModelPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
     renderedModelPtr->SetVisible(true);
 
     Project001::CollisionBody2D* collisionBody2DPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
     collisionBody2DPtr->SetTangible(true);
 }
 
@@ -649,14 +665,14 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             keyCode == s_keyCode_select_)
         {
             Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
             renderedModelPtr->SetVisible(false);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(false);
             renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
 
             Project001::CollisionBody2D* collisionBody2DPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
             collisionBody2DPtr->SetTangible(false);
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
             collisionPoints[cursorPressCollisionPointIndex_].tangible_ = false;
@@ -666,40 +682,41 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         if (selectedEntityId_ != (unsigned int)-1)
         {
             TestButtonData001* testButtonData001Ptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(selectedEntityId_, testButtonData001Ptr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(testButtonData001Ptr, selectedEntityId_));
 
             if (keyCode == s_keyCode_moveUp_)
             {
-                selectedEntityId_ = testButtonData001Ptr->aboveEntityId_;
+                selectedEntityId_ = testButtonData001Ptr->aboveEntityId;
 
             }
             else if (keyCode == s_keyCode_moveLeft_)
             {
-                selectedEntityId_ = testButtonData001Ptr->leftEntityId_;
+                selectedEntityId_ = testButtonData001Ptr->leftEntityId;
             }
             else if (keyCode == s_keyCode_moveDown_)
             {
-                selectedEntityId_ = testButtonData001Ptr->bellowEntityId_;
+                selectedEntityId_ = testButtonData001Ptr->bellowEntityId;
             }
             else if (keyCode == s_keyCode_moveRight_)
             {
-                selectedEntityId_ = testButtonData001Ptr->rightEntityId_;
+                selectedEntityId_ = testButtonData001Ptr->rightEntityId;
             }
             else if (keyCode == s_keyCode_select_)
             {
                 TestButtonData001* testButtonData001Ptr;
-                _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(selectedEntityId_, testButtonData001Ptr));
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(testButtonData001Ptr, selectedEntityId_));
 
-                // I need to make a stack copy of the string since i deinitialze
+                // I need to make a stack copy of the unsigned int since i deinitialze
                 // the scene before I'm done using it.
-                std::string destinationSceneName = testButtonData001Ptr->textString_;
+                unsigned int destinationSceneId = testButtonData001Ptr->destinationSceneId;
 
-                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneName));
-                if (GetActiveScene()->GetName() == destinationSceneName)
+                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneId));
+                if (GetActiveScene()->GetId() == destinationSceneId)
                 {
-                    SendEventToScene(GetName(), Project001::DeinitializeEvent());
+                    SendEventToScene(GetId(), Project001::DeinitializeEvent());
                     SendEventToApplication(Project001::InitializeEvent());
                 }
+                return;
             }
         }
         else
@@ -726,14 +743,14 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
         {
             Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
             renderedModelPtr->SetVisible(true);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(true);
             renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
 
             Project001::CollisionBody2D* collisionBody2DPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
             collisionBody2DPtr->SetTangible(true);
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
             collisionPoints[cursorPressCollisionPointIndex_].tangible_ = true;
@@ -744,13 +761,13 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
             Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
             renderedModelPtr->SetVisible(true);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(true);
 
             Project001::CollisionBody2D* collisionBody2DPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
             collisionBody2DPtr->SetTangible(true);
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
             collisionPoints[cursorReleaseCollisionPointIndex_].tangible_ = true;
@@ -771,7 +788,7 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // -------------------------------------------------------------------------
     {
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
@@ -787,7 +804,7 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         circleMesh03.SetPositionY(previousWorldCursorRelease_.y);
 
         Project001::CollisionBody2D* collisionBody2DPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
 
         collisionPoints[cursorPositionCollisionPointIndex_].position.x = previousWorldCursorPosition_.x;
@@ -815,9 +832,9 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             bool collidingWithCursorPress = false;
             bool collidingWithCursorRelease = false;
 
-            Project001::CollisionBody2D* collisionBody2DPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(buttonEntityId, collisionBody2DPtr));
-            const std::vector<Project001::CollisionData> collisions = collisionBody2DPtr->GetCollisions();
+            Project001::CollisionBody2D* buttonCollisionBody2DPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(buttonCollisionBody2DPtr, buttonEntityId));
+            const std::vector<Project001::CollisionData> collisions = buttonCollisionBody2DPtr->GetCollisions();
             for (size_t i = 0; i < collisions.size(); ++i)
             {
                 const Project001::CollisionData& collisionData = collisions[i];
@@ -839,9 +856,9 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
                 }
             }
 
-            Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(buttonEntityId, renderedModelPtr));
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            Project001::RenderedModel* buttonRenderedModelPtr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(buttonRenderedModelPtr, buttonEntityId));
+            std::vector<Project001::RenderedMesh>& renderedMeshes = buttonRenderedModelPtr->GetRenderedMeshes();
             Project001::RenderedMesh& buttonMesh = renderedMeshes[0];
 
             if (collidingWithCursorPosition)
@@ -857,20 +874,34 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
             if (collidingWithCursorPress && collidingWithCursorRelease)
             {
+                Project001::RenderedModel* cursorRenderedModelPtr;
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorRenderedModelPtr, cursorEntityId_));
+                cursorRenderedModelPtr->SetVisible(false);
+                std::vector<Project001::RenderedMesh>& renderedMeshes = cursorRenderedModelPtr->GetRenderedMeshes();
+                renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(false);
+                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
+
+                Project001::CollisionBody2D* cursorCollisionBody2DPtr;
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+                cursorCollisionBody2DPtr->SetTangible(false);
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[cursorPressCollisionPointIndex_].tangible_ = false;
+                collisionPoints[cursorReleaseCollisionPointIndex_].tangible_ = false;
+
                 TestButtonData001* testButtonData001Ptr;
-                _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(buttonEntityId, testButtonData001Ptr));
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<TestButtonData001>(testButtonData001Ptr, buttonEntityId));
 
-                // I need to make a stack copy of the string since i deinitialze
+                // I need to make a stack copy of the unsigned int since i deinitialze
                 // the scene before I'm done using it.
-                std::string destinationSceneName = testButtonData001Ptr->textString_;
+                unsigned int destinationSceneId = testButtonData001Ptr->destinationSceneId;
 
-                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneName));
-                if (GetActiveScene()->GetName() == destinationSceneName)
+                SendEventToApplication(Project001::SwitchSceneEvent(destinationSceneId));
+                if (GetActiveScene()->GetId() == destinationSceneId)
                 {
-                    SendEventToScene(GetName(), Project001::DeinitializeEvent());
+                    SendEventToScene(GetId(), Project001::DeinitializeEvent());
                     SendEventToApplication(Project001::InitializeEvent());
-                    return;
                 }
+                return;
             }
         }
     }
@@ -879,10 +910,10 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // -------------------------------------------------------------------------
     {
         Project001::RenderedModel* renderedModelPtr01;
-        if (componentStoresPtr_->GetComponent<Project001::RenderedModel>(selectedEntityId_, renderedModelPtr01))
+        if (componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr01, selectedEntityId_))
         {
             Project001::RenderedModel* renderedModelPtr02;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(selectorEntityId_, renderedModelPtr02));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr02, selectorEntityId_));
             renderedModelPtr02->SetPosition(renderedModelPtr01->GetPosition());
             std::vector<Project001::RenderedMesh>& renderedMeshes02 = renderedModelPtr02->GetRenderedMeshes();
             renderedMeshes02[0].SetVisible(true);
@@ -907,7 +938,7 @@ void TestScene001::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
     if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
     {
         Project001::Camera* cameraPtr;
-        if (componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr))
+        if (componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
         {
             // Convert coordinates from viewport to world
             glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(

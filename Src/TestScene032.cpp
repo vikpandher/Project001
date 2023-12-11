@@ -17,8 +17,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene032::TestScene032(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene032")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_032")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , earth001_TextureId_((unsigned int)-1)
     , specular001_TextureId_((unsigned int)-1)
     , _32x32_TextureIds_()
@@ -62,6 +62,8 @@ void TestScene032::HandleEvent(Project001::Event& event)
 
 void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene032:            %u", GetId());
+
     // Load Textures
     // -------------------------------------------------------------------------
 
@@ -187,11 +189,11 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
 
     { // icosphere at the center (GPU side mesh)
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerIcosphereEntityId_));
+        componentStoresPtr_->CreateEntity(centerIcosphereEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerIcosphereEntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
         renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
         renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MeshDataPtr_->maxBoundingRadius);
         renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
@@ -199,11 +201,11 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     { // star at the center top (CPU side mesh)
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerStar001_EntityId_));
+        componentStoresPtr_->CreateEntity(centerStar001_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerStar001_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar001_EntityId_));
         renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
         renderedMeshPtr->SetPosition(0.0f, 1.0f, 1.0f);
         renderedMeshPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
@@ -211,22 +213,22 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     { // star at the center bottom (CPU side mesh)
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(centerStar002_EntityId_));
+        componentStoresPtr_->CreateEntity(centerStar002_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar002_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(centerStar002_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar002_EntityId_));
         renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
         renderedMeshPtr->SetPosition(0.0f, -1.0f, -1.0f);
         renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
     }
 
     { // stencils out stuff positioned behind it, that is rendered after it (CPU side mesh)
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(psudoStencil001_EntityId_));
+        componentStoresPtr_->CreateEntity(psudoStencil001_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, psudoStencil001_EntityId_));
         renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
         renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
         renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
@@ -258,12 +260,12 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         for (size_t i = 0; i < positions.size(); ++i)
         {
             unsigned int newEntityId;
-            _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
+            componentStoresPtr_->CreateEntity(newEntityId);
             icosphereEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
             renderedMeshPtr->SetTextureId(earth001_TextureId_);
             renderedMeshPtr->SetSpecularId(specular001_TextureId_);
@@ -297,12 +299,12 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         for (size_t i = 0; i < positions.size(); ++i)
         {
             unsigned int newEntityId;
-            _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
+            componentStoresPtr_->CreateEntity(newEntityId);
             arcEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
             renderedMeshPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
             renderedMeshPtr->SetPosition(positions[i]);
@@ -332,12 +334,12 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         for (size_t i = 0; i < positions.size(); ++i)
         {
             unsigned int newEntityId;
-            _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
+            componentStoresPtr_->CreateEntity(newEntityId);
             arcEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             renderedMeshPtr->SetMeshId(arc001_MeshId_);
             renderedMeshPtr->SetMaxBoundingRadius(arc001_MaxBoundingRadius_);
             renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
@@ -369,12 +371,12 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         for (size_t i = 0; i < positions.size(); ++i)
         {
             unsigned int newEntityId;
-            _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
+            componentStoresPtr_->CreateEntity(newEntityId);
             coneEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             renderedMeshPtr->SetMeshId(cone001_MeshId_);
             renderedMeshPtr->SetMaxBoundingRadius(cone001_MaxBoundingRadius_);
             renderedMeshPtr->SetPosition(positions[i]);
@@ -398,12 +400,12 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         for (size_t i = 0; i < positions.size(); ++i)
         {
             unsigned int newEntityId;
-            _FAIL_CHECK(componentStoresPtr_->CreateEntity(newEntityId));
+            componentStoresPtr_->CreateEntity(newEntityId);
             starEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(newEntityId, renderedMeshPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             renderedMeshPtr->SetMeshId(line001_MeshId_);
             renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
             renderedMeshPtr->SetMaxBoundingRadius(line001_MaxBoundingRadius_);
@@ -464,11 +466,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene032::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene032:            %u", GetId());
 
     // Texture Data ------------------------------------------------------------
 

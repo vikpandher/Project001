@@ -20,24 +20,24 @@ namespace Project001
         using const_iterator = typename std::unordered_map<unsigned int, Value>::const_iterator;
 
         AutoIdMap()
-            : queueSorted_(true)
+            : erasedIdQueueSorted_(true)
         {}
 
         iterator Add(unsigned int& id, const Value& value)
         {
-            if (recycledIds_.empty())
+            if (erasedIds_.empty())
             {
                 id = (unsigned int)idToValueMap_.size();
             }
             else
             {
-                if (!queueSorted_)
+                if (!erasedIdQueueSorted_)
                 {
-                    std::sort(recycledIds_.begin(), recycledIds_.end());
-                    queueSorted_ = true;
+                    std::sort(erasedIds_.begin(), erasedIds_.end());
+                    erasedIdQueueSorted_ = true;
                 }
-                id = recycledIds_.front();
-                recycledIds_.pop_front();
+                id = erasedIds_.front();
+                erasedIds_.pop_front();
             }
             return idToValueMap_.insert({ id, value }).first;
         }
@@ -56,8 +56,8 @@ namespace Project001
         {
             if (iter != idToValueMap_.end())
             {
-                queueSorted_ = false;
-                recycledIds_.push_back(iter->first);
+                erasedIdQueueSorted_ = false;
+                erasedIds_.push_back(iter->first);
                 return idToValueMap_.erase(iter);
             }
             return idToValueMap_.end();
@@ -68,8 +68,8 @@ namespace Project001
             iterator iter = idToValueMap_.find(id);
             if (iter != idToValueMap_.end())
             {
-                queueSorted_ = false;
-                recycledIds_.push_back(id);
+                erasedIdQueueSorted_ = false;
+                erasedIds_.push_back(id);
                 return idToValueMap_.erase(iter);
             }
             return idToValueMap_.end();
@@ -77,8 +77,8 @@ namespace Project001
 
         void Clear()
         {
-            queueSorted_ = true;
-            recycledIds_.clear();
+            erasedIdQueueSorted_ = true;
+            erasedIds_.clear();
             idToValueMap_.clear();
         }
 
@@ -108,8 +108,8 @@ namespace Project001
         }
 
     protected:
-        bool queueSorted_;
-        std::deque<unsigned int> recycledIds_;
+        bool erasedIdQueueSorted_;
+        std::deque<unsigned int> erasedIds_;
         std::unordered_map<unsigned int, Value> idToValueMap_;
     };
 }

@@ -4,6 +4,7 @@
 #include "Engine/Event.h"
 #include "Engine/Logger.h"
 #include "Engine/Renderer.h"
+#include "Engine/ResourceStores.h"
 #include "Engine/SoundPlayer.h"
 #include "Engine/Scene.h"
 #include "Engine/Window.h"
@@ -19,10 +20,7 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     Application::Application(const ApplicationInfo& applicationInfo)
-        : windowTitle_(applicationInfo.windowTitle)
-        , windowWidth_(applicationInfo.windowWidth)
-        , windowHeight_(applicationInfo.windowHeight)
-        , desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
+        : desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
         , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
         , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer_)
         , running_(false)
@@ -33,18 +31,18 @@ namespace Project001
         , activeScenePtr_(nullptr)
         , creationSuccessful_(false)
     {
-        windowPtr_ = Window::Create(windowTitle_.c_str(), windowWidth_, windowHeight_);
+        windowPtr_ = Window::Create(applicationInfo.windowTitle, applicationInfo.windowWidth, applicationInfo.windowHeight);
         if (windowPtr_)
         {
             windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
-            windowPtr_->SetAspectRatio(windowWidth_, windowHeight_);
+            windowPtr_->SetAspectRatio(applicationInfo.windowWidth, applicationInfo.windowHeight);
 
             int screenWidth;
             int screenHeight;
             windowPtr_->GetScreenSize(screenWidth, screenHeight);
-            if (screenWidth > (int)windowWidth_ && screenHeight > (int)windowHeight_)
+            if (screenWidth > (int)applicationInfo.windowWidth && screenHeight > (int)applicationInfo.windowHeight)
             {
-                windowPtr_->SetWindowPosition((screenWidth - windowWidth_) / 2, (screenHeight - windowHeight_) / 2);
+                windowPtr_->SetWindowPosition((screenWidth - applicationInfo.windowWidth) / 2, (screenHeight - applicationInfo.windowHeight) / 2);
             }
 
             Project001::RendererInfo rendererInfo = {};
@@ -68,7 +66,16 @@ namespace Project001
 
                     if (componentStoresPtr_)
                     {
-                        creationSuccessful_ = true;
+                        resourceStoresPtr_ = new ResourceStores();
+
+                        if (resourceStoresPtr_)
+                        {
+                            creationSuccessful_ = true;
+                        }
+                        else
+                        {
+                            _LOG_ERROR("Application failed to create the ResourceStores");
+                        }
                     }
                     else
                     {
@@ -93,6 +100,7 @@ namespace Project001
 
     Application::~Application()
     {
+        delete resourceStoresPtr_;
         delete componentStoresPtr_;
         delete soundPlayerPtr_;
         delete rendererPtr_;
@@ -100,9 +108,10 @@ namespace Project001
 
         activeScenePtr_ = nullptr;
 
-        std::unordered_map<std::string, Scene*>::iterator iter;
-        for (iter = sceneMap_.begin(); iter != sceneMap_.end(); ++iter)
+        for (AutoIdMap<Scene*>::iterator iter = scenePtrMap_.IteratorAtBeginning();
+            iter != scenePtrMap_.IteratorPastTheEnd(); ++iter)
         {
+            // So Scenes don't attempt to use a nonexisting Application
             iter->second->applicationPtr_ = nullptr;
         }
 
@@ -244,14 +253,15 @@ namespace Project001
 
     void Application::ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent)
     {
-        std::string& name = switchSceneEvent.sceneName;
-        if (sceneMap_.find(name) != sceneMap_.end())
+        unsigned int& sceneId = switchSceneEvent.sceneId;
+        AutoIdMap<Scene*>::iterator iter = scenePtrMap_.Find(sceneId);
+        if (iter != scenePtrMap_.IteratorPastTheEnd())
         {
-            activeScenePtr_ = sceneMap_[name];
+            activeScenePtr_ = iter->second;
         }
         else
         {
-            _LOG_MESSAGE("Application: Failed to set active scene: %s", name.c_str());
+            _LOG_MESSAGE("Application: Failed to set active scene: %u", sceneId);
         }
         switchSceneEvent.handled = true;
     }

@@ -1,5 +1,7 @@
 #include "TestSceneBase001.h"
 
+#include "TestSceneIds.h"
+
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/LightSource.h"
 #include "Engine/Components/RenderedMesh.h"
@@ -15,8 +17,8 @@
 
 // public ----------------------------------------------------------------------
 
-TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr, const std::string& name)
-    : Scene(applicationPtr, name)
+TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr)
+    : Scene(applicationPtr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , soundPlayerPtr_(nullptr)
@@ -49,7 +51,7 @@ void TestSceneBase001::HandleEvent(Project001::Event& event)
 
 void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING: %s", GetName().c_str());
+    _LOG_MESSAGE("INITIALIZING:   TestSceneBase001:        %u", GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
 
@@ -62,11 +64,11 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // Main Camera Entity
     // -------------------------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(mainCameraEntityId_));
+        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -87,11 +89,11 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
     float uiCameraHalfWidth = 0.0f;
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(uiCameraEntityId_));
+        componentStoresPtr_->CreateEntity(uiCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         int aspectRatioNumerator;
         int aspectRatioDenominator;
         windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -119,11 +121,11 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // Light Source Entity
     // -------------------------------------------------------------------------
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(lightSourceEntityId_));
+        componentStoresPtr_->CreateEntity(lightSourceEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::LightSource>(lightSourceEntityId_));
 
         Project001::LightSource* lightSourcePtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourcePtr, lightSourceEntityId_));
         lightSourcePtr->SetPosition(0.0f, 0.0f, 5.0f);
         lightSourcePtr->SetDirection(0.0f, 0.0f, -1.0f);
         lightSourcePtr->SetAmbientColor(0.1f, 0.1f, 0.1f);
@@ -136,7 +138,7 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
 void TestSceneBase001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
+    _LOG_MESSAGE("DEINITIALIZING: TestSceneBase001:        %u", GetId());
 
     rendererPtr_->DeleteAllTextures();
     rendererPtr_->DeleteAllMeshes();
@@ -181,7 +183,7 @@ void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEven
         float& currentYPosition = cursorButtonEvent.yPosition;
 
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
 
         float speedConstant = 0.005f;
 
@@ -213,12 +215,13 @@ void TestSceneBase001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent("TestScene001"));
-            if (GetActiveScene()->GetName() == "TestScene001")
+            SendEventToApplication(Project001::SwitchSceneEvent(g_testScene001Id));
+            if (GetActiveScene()->GetId() == g_testScene001Id)
             {
-                SendEventToScene(GetName(), Project001::DeinitializeEvent());
+                SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());
             }
+            return;
         }
     }
 }
@@ -250,7 +253,7 @@ void TestSceneBase001::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
     float cameraTranslation = speedConstant * yOffset;
 
     Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     cameraPtr->MoveBack(cameraTranslation);
 }
 
@@ -280,7 +283,7 @@ void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long long 
     bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
     Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
 
     if (movingLeft)
     {
@@ -320,10 +323,10 @@ void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long long 
 void TestSceneBase001::SyncLightSourcePosition()
 {
     Project001::LightSource* lightSourcePtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourceEntityId_, lightSourcePtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::LightSource>(lightSourcePtr, lightSourceEntityId_));
 
     Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
 
     lightSourcePtr->SetPosition(cameraPtr->GetPosition());
 }

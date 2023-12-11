@@ -29,6 +29,8 @@ private:
     void UniqueBiMapTest() const;
     void ComponentContainerTest() const;
     void ComponentStoresTest() const;
+    void ResourceStoresTest() const;
+    void ResourceStoresTest2() const;
     void MeshLoaderTest() const;
     void TextureLoaderTest() const;
 };

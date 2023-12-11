@@ -30,7 +30,7 @@ public:
         const Project001::KeyCode* keyCode_toggleInstructionsPtr = nullptr;
     };
 
-    TestInstructionScene001(Project001::Application* applicationPtr, const std::string& name);
+    TestInstructionScene001(Project001::Application* applicationPtr);
     ~TestInstructionScene001();
 
     TestInstructionScene001(TestInstructionScene001& other) = delete;
@@ -42,9 +42,6 @@ public:
     void Deinitialize();
 
 protected:
-    void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
-    void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
-
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
 
     // -------------------------------------------------------------------------

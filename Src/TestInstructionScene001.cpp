@@ -11,8 +11,8 @@
 
 // public ----------------------------------------------------------------------
 
-TestInstructionScene001::TestInstructionScene001(Project001::Application* applicationPtr, const std::string& name)
-    : Scene(applicationPtr, name)
+TestInstructionScene001::TestInstructionScene001(Project001::Application* applicationPtr)
+    : Scene(applicationPtr)
     , componentStoresPtr_(nullptr)
     , hiddenInstructionMeshDataPtr_(nullptr)
     , instructionMeshDataPtr_(nullptr)
@@ -36,7 +36,7 @@ void TestInstructionScene001::HandleEvent(Project001::Event& event)
 
 void TestInstructionScene001::Initialize(const InitializationInfo& initializationInfo)
 {
-    _LOG_MESSAGE("INITIALIZING: %s", GetName().c_str());
+    _LOG_MESSAGE("INITIALIZING:   TestInstructionScene001: %u", GetId());
 
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
@@ -82,17 +82,17 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     float uiCameraHalfHeight = 0;
     {
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(*initializationInfo.cameraEntityIdPtr, cameraPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
         uiCameraHalfWidth = cameraPtr->GetRightCutoff();
         uiCameraHalfHeight = cameraPtr->GetTopCutoff();
     }
 
     {
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(instructionsEntityId_));
+        componentStoresPtr_->CreateEntity(instructionsEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
         Project001::RenderedModel* renderedModelPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(instructionsEntityId_, renderedModelPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         glm::vec2 hiddenInstructionMeshPosition(
@@ -151,9 +151,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 
 void TestInstructionScene001::Deinitialize()
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
+    _LOG_MESSAGE("DEINITIALIZING: TestInstructionScene001: %u", GetId());
 
     componentStoresPtr_ = nullptr;
 
@@ -184,12 +182,6 @@ void TestInstructionScene001::Deinitialize()
 
 // protected -------------------------------------------------------------------
 
-void TestInstructionScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
-{}
-
-void TestInstructionScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
-{}
-
 void TestInstructionScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     Project001::KeyCode& keyCode = keyEvent.keyCode;
@@ -201,7 +193,7 @@ void TestInstructionScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         if (keyCode == keyCode_toggleInstructions_)
         {
             Project001::RenderedModel* renderedModelPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(instructionsEntityId_, renderedModelPtr));
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes[hiddenInstructionMeshIndex_];

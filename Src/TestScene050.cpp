@@ -20,8 +20,8 @@
 // public ----------------------------------------------------------------------
 
 TestScene050::TestScene050(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr, "TestScene050")
-    , instructionScene_(applicationPtr, "TestInstructionScene001_050")
+    : TestSceneBase001(applicationPtr)
+    , instructionScene_(applicationPtr)
     , sound01_SoundDataPtr_(nullptr)
     , soundBufferId01_((unsigned int)-1)
     , soundSourceId01_((unsigned int)-1)
@@ -51,6 +51,8 @@ void TestScene050::HandleEvent(Project001::Event& event)
 
 void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
+    _LOG_MESSAGE("INITIALIZING:   TestScene050:            %u", GetId());
+
     // Load Meshes
     // -------------------------------------------------------------------------
 
@@ -105,12 +107,12 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        _FAIL_CHECK(componentStoresPtr_->CreateEntity(tempEntityId));
+        componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(tempEntityId, renderedMeshPtr));
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
     }
@@ -166,11 +168,9 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
 void TestScene050::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    // _LOG_MESSAGE("DEINITIALIZING: %s", GetName().c_str());
-
-    // -------------------------------------------------------------------------
-
     instructionScene_.Deinitialize();
+
+    _LOG_MESSAGE("DEINITIALIZING: TestScene050:            %u", GetId());
 
     // SoundData ---------------------------------------------------------------
 
@@ -206,7 +206,7 @@ void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 void TestScene050::UpdateCameraListenerPosition()
 {
     Project001::Camera* cameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(mainCameraEntityId_, cameraPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     glm::vec3 currentPosition = cameraPtr->GetPosition();
     glm::vec3 currentForward = cameraPtr->GetForwardVector();
     glm::vec3 currentUp = cameraPtr->GetUpVector();
@@ -221,7 +221,7 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
     Project001::RenderedMesh* renderedMeshPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(entityIds_[0], renderedMeshPtr));
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIds_[0]));
     glm::vec3 currentPosition = renderedMeshPtr->GetPosition();
 
     if (currentPosition == glm::vec3(0.0f, 0.0f, 0.0f))

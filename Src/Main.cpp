@@ -23,7 +23,6 @@
 #include "TestScene003.h"
 #include "TestScene004.h"
 #include "TestScene006.h"
-// #include "TestScene007.h"
 #include "TestScene010.h"
 #include "TestScene011.h"
 #include "TestScene012.h"
@@ -35,7 +34,24 @@
 #include "TestScene034.h"
 #include "TestScene050.h"
 #include "TestScene051.h"
+#include "TestSceneIds.h"
 
+unsigned int g_testScene001Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene002Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene003Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene004Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene006Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene010Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene011Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene012Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene013Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene030Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene031Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene032Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene033Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene034Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene050Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene051Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 
 
 int main(int argc, char** argv)
@@ -64,75 +80,86 @@ int main(int argc, char** argv)
 
     // main menu
     TestScene001* testScene001Ptr = new TestScene001(applicationPtr);
+    g_testScene001Id = testScene001Ptr->GetId();
 
     // tests shape generation
     // * inherits 001
     // * has "unit" tests
     TestScene002* testScene002Ptr = new TestScene002(applicationPtr);
+    g_testScene002Id = testScene002Ptr->GetId();
 
     // tests 3d shape generation
     // * inherits 001
     TestScene003* testScene003Ptr = new TestScene003(applicationPtr);
+    g_testScene003Id = testScene003Ptr->GetId();
 
     // tests additional shape generation and rendering 35 textures
     // * inherits 001
     TestScene004* testScene004Ptr = new TestScene004(applicationPtr);
+    g_testScene004Id = testScene004Ptr->GetId();
 
     // testing text generation
     // * inherits 001
     TestScene006* testScene006Ptr = new TestScene006(applicationPtr);
-
-    // (TODO)
-    // tests 2d MeshStores::Generate2DLine_v2
-    // * inherits 001
-    // TestScene007* testScene007Ptr = new TestScene007(applicationPtr);
+    g_testScene006Id = testScene006Ptr->GetId();
 
     // tests 2d shape overlap
     // * inherits 002
     // * has "unit" tests
     TestScene010* testScene010Ptr = new TestScene010(applicationPtr);
+    g_testScene010Id = testScene010Ptr->GetId();
 
     // tests 2d shape overlap
     // * inherits 002
     TestScene011* testScene011Ptr = new TestScene011(applicationPtr);
+    g_testScene011Id = testScene011Ptr->GetId();
 
     // tests 2d shape overlap
     // * inherits 002
     TestScene012* testScene012Ptr = new TestScene012(applicationPtr);
+    g_testScene012Id = testScene012Ptr->GetId();
 
     // (TODO)
     // tests 3d shape overlap tests
     // * inherits 001
     // * has "unit" tests
     TestScene013* testScene013Ptr = new TestScene013(applicationPtr);
+    g_testScene013Id = testScene013Ptr->GetId();
 
     // tests framerate with many verticies batched rendering
     // * inherits 001
     TestScene030* testScene030Ptr = new TestScene030(applicationPtr);
+    g_testScene030Id = testScene030Ptr->GetId();
 
     // tests framerate with many verticies instanced rendering
     // * inherits 001
     TestScene031* testScene031Ptr = new TestScene031(applicationPtr);
+    g_testScene031Id = testScene031Ptr->GetId();
 
     // tests rendering batched and instanced together
     // * inherits 001
     TestScene032* testScene032Ptr = new TestScene032(applicationPtr);
+    g_testScene032Id = testScene032Ptr->GetId();
 
     // tests multiple cameras
     // * inherits 001
     TestScene033* testScene033Ptr = new TestScene033(applicationPtr);
+    g_testScene033Id = testScene033Ptr->GetId();
 
     // tests manipulating models
     // * inherits 001
     TestScene034* testScene034Ptr = new TestScene034(applicationPtr);
+    g_testScene034Id = testScene034Ptr->GetId();
 
     // tests sound
     // * inherits 001
     // * has "unit" tests
     TestScene050* testScene050Ptr = new TestScene050(applicationPtr);
+    g_testScene050Id = testScene050Ptr->GetId();
 
     // tests multiple sound sources
     TestScene051* testScene051Ptr = new TestScene051(applicationPtr);
+    g_testScene051Id = testScene051Ptr->GetId();
 
     applicationPtr->Run();
 
@@ -141,7 +168,6 @@ int main(int argc, char** argv)
     delete testScene003Ptr;
     delete testScene004Ptr;
     delete testScene006Ptr;
-    // delete testScene007Ptr;
     delete testScene010Ptr;
     delete testScene011Ptr;
     delete testScene012Ptr;

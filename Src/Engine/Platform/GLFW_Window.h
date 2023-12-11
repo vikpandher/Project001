@@ -25,6 +25,7 @@ namespace Project001
 
         unsigned int GetWindowId() const override;
 
+        void SetWindowTitle(const char*& title) override;
         void GetWindowTitle(const char*& title) const override;
 
         // Setting numerator and denominator to -1 unlocks the aspect ratio.

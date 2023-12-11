@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
+#include "Engine/AutoIdMap.h"
 
 
 
@@ -9,6 +8,7 @@ namespace Project001
 {
     class ComponentStores;
     class Renderer;
+    class ResourceStores;
     class SoundPlayer;
     class Window;
 
@@ -52,10 +52,6 @@ namespace Project001
         void ProcessSwitchSceneEvent(SwitchSceneEvent& switchSceneEvent);
         void ProcessWindowCloseEvent(WindowCloseEvent& windowCloseEvent);
 
-        std::string windowTitle_;
-        unsigned int windowWidth_;
-        unsigned int windowHeight_;
-
         unsigned long long desiredFrameDuration_ns_;
         bool sleepyRunLoop_;
         bool fixedSizeFramebuffer_;
@@ -66,8 +62,9 @@ namespace Project001
         Renderer* rendererPtr_;
         SoundPlayer* soundPlayerPtr_;
         ComponentStores* componentStoresPtr_;
+        ResourceStores* resourceStoresPtr_;
 
-        std::unordered_map<std::string, Scene*> sceneMap_;
+        AutoIdMap<Scene*> scenePtrMap_;
         Scene* activeScenePtr_;
 
     private:

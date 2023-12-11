@@ -97,8 +97,6 @@ set(SOURCE_FILES
     "Src/TestScene004.h"
     "Src/TestScene006.cpp"
     "Src/TestScene006.h"
-    "Src/TestScene007.cpp"
-    "Src/TestScene007.h"
     "Src/TestScene010.cpp"
     "Src/TestScene010.h"
     "Src/TestScene011.cpp"
@@ -125,6 +123,7 @@ set(SOURCE_FILES
     "Src/TestSceneBase001.h"
     "Src/TestSceneBase002.cpp"
     "Src/TestSceneBase002.h"
+    "Src/TestSceneIds.h"
 )
 
 source_group("Src" FILES ${SOURCE_FILES})
@@ -135,6 +134,7 @@ set(ENGINE_FILES
     "Src/Engine/AutoIdMap.h"
     "Src/Engine/CollisionSystem2D.cpp"
     "Src/Engine/CollisionSystem2D.h"
+    "Src/Engine/ComponentContainer.cpp"
     "Src/Engine/ComponentContainer.h"
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
@@ -154,6 +154,8 @@ set(ENGINE_FILES
     "Src/Engine/Renderer.h"
     "Src/Engine/RenderSystem.cpp"
     "Src/Engine/RenderSystem.h"
+    "Src/Engine/ResourceStores.cpp"
+    "Src/Engine/ResourceStores.h"
     "Src/Engine/Scene.cpp"
     "Src/Engine/Scene.h"
     "Src/Engine/SoundData.h"
@@ -165,6 +167,8 @@ set(ENGINE_FILES
     "Src/Engine/TextureLoader.cpp"
     "Src/Engine/TextureLoader.h"
     "Src/Engine/UniqueBiMap.h"
+    "Src/Engine/UniqueIdGenerator.cpp"
+    "Src/Engine/UniqueIdGenerator.h"
     "Src/Engine/Window.cpp"
     "Src/Engine/Window.h"
 )
