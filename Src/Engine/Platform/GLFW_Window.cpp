@@ -274,11 +274,6 @@ namespace Project001
 #endif
     }
 
-    void GLFW_Window::SleepAndWaitForEvents()
-    {
-        glfwWaitEvents();
-    }
-
     // protected ---------------------------------------------------------------
 
     void GLFW_Window::InitializeCallbacks()

@@ -63,8 +63,6 @@ namespace Project001
         void CreateWindowSurface(VkInstance& instance, VkSurfaceKHR& surface) override;
         const char** GetRequiredInstanceExtensions(uint32_t* count) override;
 
-        void SleepAndWaitForEvents() override;
-
         // NOTE:
         // GLFW threading, timer, and joystick input are not window dependent.
 

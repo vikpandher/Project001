@@ -139,6 +139,8 @@ set(ENGINE_FILES
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
+    "Src/Engine/FileConverter.cpp"
+    "Src/Engine/FileConverter.h"
     "Src/Engine/FontData.h"
     "Src/Engine/FontMeshData.h"
     "Src/Engine/FreetypeTextLoader.cpp"
@@ -314,8 +316,8 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
 
-if(TRUE)
-    file(WRITE "Shaders/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
+if(EXISTS "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
+    file(WRITE "Scripts/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
 
     # NOTE: Adding commands will require me to run Visual Studio as Admin
 

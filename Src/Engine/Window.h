@@ -65,7 +65,5 @@ namespace Project001
         // Appicable to Vulkan
         virtual void CreateWindowSurface(VkInstance& instance, VkSurfaceKHR& surface) = 0;
         virtual const char** GetRequiredInstanceExtensions(uint32_t* count) = 0;
-
-        virtual void SleepAndWaitForEvents() = 0;
     };
 }
