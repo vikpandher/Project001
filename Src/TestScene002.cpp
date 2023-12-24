@@ -1,6 +1,8 @@
 #include "TestScene002.h"
 
 #include "TestComponents.h"
+#include "TestResource_CounterclockwiseDie_png.h"
+#include "TestResource_Cube_obj.h"
 
 #include "Engine/Components/RenderedMesh.h"
 #include "Engine/Application.h"
@@ -66,6 +68,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // 1
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
+    }
+
+    { // 2
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.24f, 0.24f);
@@ -84,7 +92,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 2
+    { // 3
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -113,7 +121,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 3
+    { // 4
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -138,7 +146,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 4
+    { // 5
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -172,7 +180,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 5
+    { // 6
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -202,7 +210,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 6
+    { // 7
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -219,7 +227,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 7
+    { // 8
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> positions;
@@ -246,7 +254,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
     }
 
-    { // 8
+    { // 9
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 3));
@@ -254,7 +262,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 9
+    { // 10
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 4));
@@ -262,7 +270,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 10
+    { // 11
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 5));
@@ -270,7 +278,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 11
+    { // 12
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 6));
@@ -278,7 +286,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 12
+    { // 13
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 7));
@@ -286,7 +294,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 13
+    { // 14
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 8));
@@ -294,7 +302,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 14
+    { // 15
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
@@ -307,7 +315,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.16f, 0.0f, 0.0f));
     }
 
-    { // 15
+    { // 16
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>()));
@@ -315,7 +323,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 16
+    { // 17
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>()));
@@ -323,7 +331,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 17
+    { // 18
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>()));
@@ -331,7 +339,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 18
+    { // 19
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 0.0f, 2.0f * glm::pi<float>()));
@@ -339,7 +347,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 19
+    { // 20
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>()));
@@ -347,7 +355,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 20
+    { // 21
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
@@ -355,7 +363,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 21
+    { // 22
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
@@ -363,7 +371,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 22
+    { // 23
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 2));
@@ -371,7 +379,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 23
+    { // 24
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 4));
@@ -379,7 +387,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 24
+    { // 25
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 8));
@@ -387,7 +395,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 25
+    { // 26
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 1));
@@ -395,7 +403,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 26
+    { // 27
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 2));
@@ -403,7 +411,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 27
+    { // 28
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 3));
@@ -411,7 +419,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 28
+    { // 29
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.48f, 0.16f, 4));
@@ -419,7 +427,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 29
+    { // 30
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 1, 0.16f));
@@ -427,7 +435,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 30
+    { // 31
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 2, 0.16f));
@@ -435,7 +443,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 31
+    { // 32
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 3, 0.16f));
@@ -443,7 +451,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
-    { // 32
+    { // 33
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 6, 0.16f));
@@ -455,6 +463,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     unsigned int dice01TextureId = (unsigned int)-1;
     unsigned int dice02TextureId = (unsigned int)-1;
+    unsigned int dice03TextureId = (unsigned int)-1;
     unsigned int thonkTextureId = (unsigned int)-1;
     unsigned int _100x100TextureId = (unsigned int)-1;
     unsigned int patternSpecular01TextureId = (unsigned int)-1;
@@ -469,8 +478,14 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(textureData, g_CounterclockwiseDie_png, sizeof(g_CounterclockwiseDie_png) / sizeof(unsigned char)));
+        rendererPtr_->CreateTexture(dice02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, true, true);
+    }
+
+    {
+        Project001::TextureData textureData;
         _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/HallowDie.png"));
-        rendererPtr_->CreateTexture(dice02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(dice03TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
@@ -509,6 +524,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
+    meshEntityPositions.emplace_back(-4.0f, 2.0f, 0.0f);
     for (int i = 2; i >= -3; --i)
     {
         for (int j = -3; j <= 3; ++j)
@@ -565,9 +581,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
         renderedMeshPtr->SetTextureId(dice02TextureId);
-        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
         renderedMeshPtr->SetShininess(32.0f);
     }
 
@@ -584,7 +599,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
-        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+        renderedMeshPtr->SetTextureId(dice03TextureId);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+        renderedMeshPtr->SetShininess(32.0f);
         renderedMeshPtr->SetTranslucent(true);
     }
 
@@ -618,13 +635,30 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
         renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+        renderedMeshPtr->SetTranslucent(true);
+    }
+
+    // Cube Entity 07
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
         renderedMeshPtr->SetSpecularId(patternSpecular01TextureId);
         renderedMeshPtr->SetScale(0.5f, 0.75f, 1.0f);
         renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
         renderedMeshPtr->SetShininess(24.0f);
     }
 
-    // Cube Entity 07
+    // Cube Entity 08
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -644,6 +678,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetShininess(4.0f);
     }
 
+    size_t meshDataPtrArrayIndex = 2;
+
     // Generated Shape Entity 01
     // -------------------------------------------------------------------------
     {
@@ -656,7 +692,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[1]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
         renderedMeshPtr->SetTranslucent(true);
@@ -674,7 +710,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[2]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
         renderedMeshPtr->SetTranslucent(true);
@@ -691,7 +727,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[3]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
         renderedMeshPtr->SetTranslucent(true);
@@ -708,7 +744,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[4]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
         renderedMeshPtr->SetTranslucent(true);
@@ -725,7 +761,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[5]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
         renderedMeshPtr->SetTranslucent(true);
@@ -742,7 +778,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[6]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
         renderedMeshPtr->SetTranslucent(true);
@@ -759,7 +795,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[7]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -776,7 +812,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[8]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -793,7 +829,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[9]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -810,7 +846,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[10]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -827,7 +863,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[11]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -844,7 +880,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[12]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -861,7 +897,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[13]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
         renderedMeshPtr->SetTranslucent(true);
@@ -878,7 +914,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[14]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -894,7 +930,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[15]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -910,7 +946,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[16]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -926,7 +962,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[17]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -942,7 +978,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[18]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -958,7 +994,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[19]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -974,7 +1010,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[20]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -990,7 +1026,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[21]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1006,7 +1042,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[22]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1022,7 +1058,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[23]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1038,7 +1074,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[24]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1054,7 +1090,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[25]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1070,7 +1106,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[26]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1086,7 +1122,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[27]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1102,7 +1138,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[28]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1118,7 +1154,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[29]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1134,7 +1170,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[30]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1150,7 +1186,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[31]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }
@@ -1166,7 +1202,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[32]);
+        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
         renderedMeshPtr->SetTextureId(_100x100TextureId);
         renderedMeshPtr->SetTranslucent(true);
     }

@@ -15,7 +15,12 @@ namespace Project001
     public:
         static bool LoadMeshOBJ(
             MeshData& meshData,
-            const std::string& path,
+            const std::string& filePath,
+            bool triangulate = s_triangulate);
+
+        static bool LoadMeshOBJFromMemory(
+            MeshData& meshData,
+            const char* dataPtr, // must be null terminated
             bool triangulate = s_triangulate);
 
         static bool LoadTriangleMesh(
@@ -243,7 +248,21 @@ namespace Project001
             glm::vec2 translation);
 
     protected:
-        // used by LoadMeshOBJ
+        // Used in LoadMeshOBJFromMemory
+        static bool GetLineFromConstChar(
+            const char*& incrementingPtr, // must be null terminated
+            std::string& currentLine);
+
+        // Used in LoadMeshOBJ and LoadMeshOBJFromMemory
+        static bool ProcessMeshOBJLine(
+            std::string& line,
+            MeshData& meshData,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<glm::vec3>& normals,
+            bool triangulate = s_triangulate);
+
+        // Used in ProcessLineMeshOBJ
         static bool GetMeshVertexFromFaceVertex(
             MeshVertex& meshVertex,
             const glm::ivec3& faceVertex,
@@ -251,7 +270,7 @@ namespace Project001
             const std::vector<glm::vec2>& textureCoordinates,
             const std::vector<glm::vec3>& normals);
 
-        // used by Generate2DLine
+        // Used in Generate2DLine
         static glm::vec2 GetLineLineIntersection2D(
             const glm::vec2& point1,
             const float& slope1,

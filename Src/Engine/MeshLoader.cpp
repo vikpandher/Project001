@@ -13,263 +13,68 @@ namespace Project001
 
     bool MeshLoader::LoadMeshOBJ(
         MeshData& meshData,
-        const std::string& path,
+        const std::string& filePath,
         bool triangulate)
     {
-        std::ifstream file(path);
+        std::ifstream inputFileStream(filePath);
 
-        if (!file.is_open())
+        if (!inputFileStream.is_open())
         {
             return false;
         }
-
-        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
-        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
-        float& maxBoundingRadius = meshData.maxBoundingRadius;
-        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
-        glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> textureCoordinates;
         std::vector<glm::vec3> normals;
 
         std::string currentLine;
-        while (std::getline(file, currentLine))
+        while (std::getline(inputFileStream, currentLine))
         {
-            if (currentLine.empty())
+            if (!ProcessMeshOBJLine(
+                currentLine,
+                meshData,
+                positions,
+                textureCoordinates,
+                normals,
+                triangulate))
             {
-                continue;
-            }
-
-            std::string tag;
-            std::string values;
-
-            size_t tagStart = currentLine.find_first_not_of(" \t");
-            size_t tagEnd = currentLine.find_first_of(" \t", tagStart);
-
-            size_t valuesStart = currentLine.find_first_not_of(" \t", tagEnd);
-
-            if (tagStart != std::string::npos && tagEnd != std::string::npos)
-            {
-                tag = currentLine.substr(tagStart, tagEnd - tagStart);
-            }
-            else
-            {
-                continue;
-            }
-
-            if (valuesStart != std::string::npos)
-            {
-                values = currentLine.substr(valuesStart);
-            }
-            else
-            {
-                continue;
-            }
-
-            std::vector<std::string> splitValues;
-
-            size_t previousValueEnd = 0;
-            while (previousValueEnd != std::string::npos)
-            {
-                size_t valueStart = values.find_first_not_of(" \t", previousValueEnd);
-                size_t valueEnd = values.find_first_of(" \t", valueStart);
-
-                if (valueStart != std::string::npos)
-                {
-                    if (valueEnd != std::string::npos)
-                    {
-                        splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
-                    }
-                    else
-                    {
-                        splitValues.push_back(values.substr(valueStart));
-                    }
-                }
-
-                previousValueEnd = valueEnd;
-            }
-
-            if (tag == "v")
-            {
-                if (splitValues.size() >= 3)
-                {
-                    glm::vec3 newPosition(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
-
-                    float vertexRadius = glm::length(newPosition);
-                    if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
-
-                    if (maxVertexPosition.x < newPosition.x) maxVertexPosition.x = newPosition.x;
-                    if (maxVertexPosition.y < newPosition.y) maxVertexPosition.y = newPosition.y;
-                    if (maxVertexPosition.z < newPosition.z) maxVertexPosition.z = newPosition.z;
-
-                    if (minVertexPosition.x > newPosition.x) minVertexPosition.x = newPosition.x;
-                    if (minVertexPosition.y > newPosition.y) minVertexPosition.y = newPosition.y;
-                    if (minVertexPosition.z > newPosition.z) minVertexPosition.z = newPosition.z;
-
-                    positions.push_back(newPosition);
-                }
-            }
-            else if (tag == "vt")
-            {
-                if (splitValues.size() >= 2)
-                {
-                    glm::vec2 newTextureCoordinate(std::stof(splitValues[0]), std::stof(splitValues[1]));
-
-                    textureCoordinates.push_back(newTextureCoordinate);
-                }
-            }
-            else if (tag == "vn")
-            {
-                if (splitValues.size() >= 3)
-                {
-                    glm::vec3 newNormal(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
-
-                    normals.push_back(newNormal);
-                }
-            }
-            else if (tag == "f")
-            {
-                if (splitValues.size() >= 3)
-                {
-                    // x/y/z
-                    // positionIndex/textureCoordinateIndex/normalIndex
-                    std::vector<glm::ivec3> face;
-
-                    for (size_t i = 0; i < splitValues.size(); ++i)
-                    {
-                        std::string& indexGroup = splitValues[i];
-
-                        std::vector<size_t> slashIndicies;
-                        for (size_t j = 0; j < indexGroup.size(); ++j)
-                        {
-                            if (indexGroup[j] == '/')
-                            {
-                                slashIndicies.push_back(j);
-                            }
-                        }
-
-                        if (slashIndicies.size() == 0)
-                        {
-                            int positionIndex = std::stoi(indexGroup);
-
-                            face.emplace_back(positionIndex, 0, 0);
-                        }
-                        else if (slashIndicies.size() == 1)
-                        {
-                            const size_t& slashIndex = slashIndicies[0];
-
-                            int positionIndex = 0;
-                            int textureCoordinateIndex = 0;
-
-                            if (slashIndex > 0)
-                            {
-                                std::string positionIndexString = indexGroup.substr(0, slashIndex);
-                                positionIndex = std::stoi(positionIndexString);
-                            }
-
-                            if (indexGroup.size() > slashIndex + 1)
-                            {
-                                std::string textureCoordinateIndexString = indexGroup.substr(slashIndex + 1);
-                                textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
-                            }
-
-                            face.emplace_back(positionIndex, textureCoordinateIndex, 0);
-                        }
-                        else if (slashIndicies.size() == 2)
-                        {
-                            const size_t& firstSlashIndex = slashIndicies[0];
-                            const size_t& secondSlashIndex = slashIndicies[1];
-
-                            int positionIndex = 0;
-                            int textureCoordinateIndex = 0;
-                            int normalIndex = 0;
-
-                            if (firstSlashIndex > 0)
-                            {
-                                std::string positionIndexString = indexGroup.substr(0, firstSlashIndex);
-                                positionIndex = std::stoi(positionIndexString);
-                            }
-
-                            if (secondSlashIndex > firstSlashIndex + 1)
-                            {
-                                std::string textureCoordinateIndexString = indexGroup.substr(firstSlashIndex + 1, secondSlashIndex - firstSlashIndex - 1);
-                                textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
-                            }
-
-                            if (indexGroup.size() > secondSlashIndex + 1)
-                            {
-                                std::string normalIndexString = indexGroup.substr(secondSlashIndex + 1);
-                                normalIndex = std::stoi(normalIndexString);
-                            }
-
-                            face.emplace_back(positionIndex, textureCoordinateIndex, normalIndex);
-                        }
-                    }
-
-                    if (face.size() >= 3)
-                    {
-                        if (!triangulate)
-                        {
-                            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-
-                            for (size_t i = 0; i < face.size(); ++i)
-                            {
-                                const glm::ivec3& faceVertex = face[i];
-                                MeshVertex meshVertex;
-                                if (!GetMeshVertexFromFaceVertex(meshVertex, faceVertex, positions, textureCoordinates, normals))
-                                {
-                                    return false;
-                                }
-                                meshVertexArray.push_back(meshVertex);
-                            }
-
-                            for (size_t i = 1; i < face.size() - 1; ++i)
-                            {
-                                meshIndexArray.push_back(currentVertexCount);
-                                meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
-                                meshIndexArray.push_back(currentVertexCount + (unsigned int)i + 1);
-                            }
-                        }
-                        else
-                        {
-                            for (size_t i = 1; i < face.size() - 1; ++i)
-                            {
-                                const glm::ivec3& face0 = face[0];
-                                const glm::ivec3& face1 = face[i];
-                                const glm::ivec3& face2 = face[i + 1];
-
-                                MeshVertex meshVertex0;
-                                if (!GetMeshVertexFromFaceVertex(meshVertex0, face0, positions, textureCoordinates, normals))
-                                {
-                                    return false;
-                                }
-                                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
-                                meshVertexArray.push_back(meshVertex0);
-
-                                MeshVertex meshVertex1;
-                                if (!GetMeshVertexFromFaceVertex(meshVertex1, face1, positions, textureCoordinates, normals))
-                                {
-                                    return false;
-                                }
-                                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
-                                meshVertexArray.push_back(meshVertex1);
-
-                                MeshVertex meshVertex2;
-                                if (!GetMeshVertexFromFaceVertex(meshVertex2, face2, positions, textureCoordinates, normals))
-                                {
-                                    return false;
-                                }
-                                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
-                                meshVertexArray.push_back(meshVertex2);
-                            }
-                        }
-                    }
-                }
+                return false;
             }
         }
 
-        if (meshVertexArray.size() == 0 || meshIndexArray.size() == 0)
+        if (positions.size() == 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool MeshLoader::LoadMeshOBJFromMemory(
+        MeshData& meshData,
+        const char* dataPtr,
+        bool triangulate)
+    {
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        std::string currentLine;
+        while (GetLineFromConstChar(dataPtr, currentLine))
+        {
+            if (!ProcessMeshOBJLine(
+                currentLine,
+                meshData,
+                positions,
+                textureCoordinates,
+                normals,
+                triangulate))
+            {
+                return false;
+            }
+        }
+
+        if (positions.size() == 0)
         {
             return false;
         }
@@ -5070,6 +4875,287 @@ namespace Project001
     }
 
     // protected ---------------------------------------------------------------
+
+    bool MeshLoader::GetLineFromConstChar(
+        const char*& incrementingPtr,
+        std::string& currentLine)
+    {
+        if (incrementingPtr == nullptr || *incrementingPtr == '\0')
+        {
+            currentLine = "";
+            return false; // null ptr or end of line
+        }
+
+        const char* startPtr = incrementingPtr;
+        const char* endPtr = incrementingPtr;
+
+        while (*endPtr != '\n' && *endPtr != '\0')
+        {
+            endPtr++;
+        }
+
+        size_t lineLength = (size_t)(endPtr - startPtr);
+
+        currentLine = std::string(startPtr, lineLength);
+
+        if (*endPtr == '\n')
+        {
+            incrementingPtr = endPtr + 1; // Move past newline
+            return true;
+        }
+
+        incrementingPtr = endPtr; // Move to null terminator
+        return false;
+    }
+
+    bool MeshLoader::ProcessMeshOBJLine(
+        std::string& line,
+        MeshData& meshData,
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec2>& textureCoordinates,
+        std::vector<glm::vec3>& normals,
+        bool triangulate)
+    {
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (line.empty())
+        {
+            return true; // continue
+        }
+
+        std::string tag;
+        std::string values;
+
+        size_t tagStart = line.find_first_not_of(" \t");
+        size_t tagEnd = line.find_first_of(" \t", tagStart);
+
+        size_t valuesStart = line.find_first_not_of(" \t", tagEnd);
+
+        if (tagStart != std::string::npos && tagEnd != std::string::npos)
+        {
+            tag = line.substr(tagStart, tagEnd - tagStart);
+        }
+        else
+        {
+            return true; // continue
+        }
+
+        if (valuesStart != std::string::npos)
+        {
+            values = line.substr(valuesStart);
+        }
+        else
+        {
+            return true; // continue
+        }
+
+        std::vector<std::string> splitValues;
+
+        size_t previousValueEnd = 0;
+        while (previousValueEnd != std::string::npos)
+        {
+            size_t valueStart = values.find_first_not_of(" \t", previousValueEnd);
+            size_t valueEnd = values.find_first_of(" \t", valueStart);
+
+            if (valueStart != std::string::npos)
+            {
+                if (valueEnd != std::string::npos)
+                {
+                    splitValues.push_back(values.substr(valueStart, valueEnd - valueStart));
+                }
+                else
+                {
+                    splitValues.push_back(values.substr(valueStart));
+                }
+            }
+
+            previousValueEnd = valueEnd;
+        }
+
+        if (tag == "v")
+        {
+            if (splitValues.size() >= 3)
+            {
+                glm::vec3 newPosition(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
+
+                float vertexRadius = glm::length(newPosition);
+                if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+                if (maxVertexPosition.x < newPosition.x) maxVertexPosition.x = newPosition.x;
+                if (maxVertexPosition.y < newPosition.y) maxVertexPosition.y = newPosition.y;
+                if (maxVertexPosition.z < newPosition.z) maxVertexPosition.z = newPosition.z;
+
+                if (minVertexPosition.x > newPosition.x) minVertexPosition.x = newPosition.x;
+                if (minVertexPosition.y > newPosition.y) minVertexPosition.y = newPosition.y;
+                if (minVertexPosition.z > newPosition.z) minVertexPosition.z = newPosition.z;
+
+                positions.push_back(newPosition);
+            }
+        }
+        else if (tag == "vt")
+        {
+            if (splitValues.size() >= 2)
+            {
+                glm::vec2 newTextureCoordinate(std::stof(splitValues[0]), std::stof(splitValues[1]));
+
+                textureCoordinates.push_back(newTextureCoordinate);
+            }
+        }
+        else if (tag == "vn")
+        {
+            if (splitValues.size() >= 3)
+            {
+                glm::vec3 newNormal(std::stof(splitValues[0]), std::stof(splitValues[1]), std::stof(splitValues[2]));
+
+                normals.push_back(newNormal);
+            }
+        }
+        else if (tag == "f")
+        {
+            if (splitValues.size() >= 3)
+            {
+                // x/y/z
+                // positionIndex/textureCoordinateIndex/normalIndex
+                std::vector<glm::ivec3> face;
+
+                for (size_t i = 0; i < splitValues.size(); ++i)
+                {
+                    std::string& indexGroup = splitValues[i];
+
+                    std::vector<size_t> slashIndicies;
+                    for (size_t j = 0; j < indexGroup.size(); ++j)
+                    {
+                        if (indexGroup[j] == '/')
+                        {
+                            slashIndicies.push_back(j);
+                        }
+                    }
+
+                    if (slashIndicies.size() == 0)
+                    {
+                        int positionIndex = std::stoi(indexGroup);
+
+                        face.emplace_back(positionIndex, 0, 0);
+                    }
+                    else if (slashIndicies.size() == 1)
+                    {
+                        const size_t& slashIndex = slashIndicies[0];
+
+                        int positionIndex = 0;
+                        int textureCoordinateIndex = 0;
+
+                        if (slashIndex > 0)
+                        {
+                            std::string positionIndexString = indexGroup.substr(0, slashIndex);
+                            positionIndex = std::stoi(positionIndexString);
+                        }
+
+                        if (indexGroup.size() > slashIndex + 1)
+                        {
+                            std::string textureCoordinateIndexString = indexGroup.substr(slashIndex + 1);
+                            textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
+                        }
+
+                        face.emplace_back(positionIndex, textureCoordinateIndex, 0);
+                    }
+                    else if (slashIndicies.size() == 2)
+                    {
+                        const size_t& firstSlashIndex = slashIndicies[0];
+                        const size_t& secondSlashIndex = slashIndicies[1];
+
+                        int positionIndex = 0;
+                        int textureCoordinateIndex = 0;
+                        int normalIndex = 0;
+
+                        if (firstSlashIndex > 0)
+                        {
+                            std::string positionIndexString = indexGroup.substr(0, firstSlashIndex);
+                            positionIndex = std::stoi(positionIndexString);
+                        }
+
+                        if (secondSlashIndex > firstSlashIndex + 1)
+                        {
+                            std::string textureCoordinateIndexString = indexGroup.substr(firstSlashIndex + 1, secondSlashIndex - firstSlashIndex - 1);
+                            textureCoordinateIndex = std::stoi(textureCoordinateIndexString);
+                        }
+
+                        if (indexGroup.size() > secondSlashIndex + 1)
+                        {
+                            std::string normalIndexString = indexGroup.substr(secondSlashIndex + 1);
+                            normalIndex = std::stoi(normalIndexString);
+                        }
+
+                        face.emplace_back(positionIndex, textureCoordinateIndex, normalIndex);
+                    }
+                }
+
+                if (face.size() >= 3)
+                {
+                    if (!triangulate)
+                    {
+                        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+
+                        for (size_t i = 0; i < face.size(); ++i)
+                        {
+                            const glm::ivec3& faceVertex = face[i];
+                            MeshVertex meshVertex;
+                            if (!GetMeshVertexFromFaceVertex(meshVertex, faceVertex, positions, textureCoordinates, normals))
+                            {
+                                return false;
+                            }
+                            meshVertexArray.push_back(meshVertex);
+                        }
+
+                        for (size_t i = 1; i < face.size() - 1; ++i)
+                        {
+                            meshIndexArray.push_back(currentVertexCount);
+                            meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                            meshIndexArray.push_back(currentVertexCount + (unsigned int)i + 1);
+                        }
+                    }
+                    else
+                    {
+                        for (size_t i = 1; i < face.size() - 1; ++i)
+                        {
+                            const glm::ivec3& face0 = face[0];
+                            const glm::ivec3& face1 = face[i];
+                            const glm::ivec3& face2 = face[i + 1];
+
+                            MeshVertex meshVertex0;
+                            if (!GetMeshVertexFromFaceVertex(meshVertex0, face0, positions, textureCoordinates, normals))
+                            {
+                                return false;
+                            }
+                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshVertexArray.push_back(meshVertex0);
+
+                            MeshVertex meshVertex1;
+                            if (!GetMeshVertexFromFaceVertex(meshVertex1, face1, positions, textureCoordinates, normals))
+                            {
+                                return false;
+                            }
+                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshVertexArray.push_back(meshVertex1);
+
+                            MeshVertex meshVertex2;
+                            if (!GetMeshVertexFromFaceVertex(meshVertex2, face2, positions, textureCoordinates, normals))
+                            {
+                                return false;
+                            }
+                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshVertexArray.push_back(meshVertex2);
+                        }
+                    }
+                }
+            }
+        }
+
+        return true; // continue
+    }
 
     bool MeshLoader::GetMeshVertexFromFaceVertex(
         MeshVertex& meshVertex,

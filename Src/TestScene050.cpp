@@ -1,5 +1,8 @@
 #include "TestScene050.h"
 
+#include "TestResource_Bounce_wav.h"
+#include "TestResource_Congratulations_ogg.h"
+
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/RenderedMesh.h"
 #include "Engine/Math/CoordinateSystems.h"
@@ -29,7 +32,11 @@ TestScene050::TestScene050(Project001::Application* applicationPtr)
     , soundBufferId02_((unsigned int)-1)
     , soundSourceId02_((unsigned int)-1)
     , playingSound_(false)
-{}
+{
+    // TestSoundPlayer();
+    // TestSoundPlayer2();
+    // TestSoundPlayer3();
+}
 
 TestScene050::~TestScene050()
 {}
@@ -66,7 +73,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
 
     sound01_SoundDataPtr_ = new Project001::SoundData();
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/f_congratulations.ogg"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
         soundBufferId01_,
@@ -84,7 +91,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     ));
 
     sound02_SoundDataPtr_ = new Project001::SoundData();
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/bounce.wav"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/Bounce.wav"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
         soundBufferId02_,
@@ -248,7 +255,7 @@ void TestScene050::TestSoundPlayer()
     Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
 
     Project001::SoundData soundData01;
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01, "../Sounds/f_congratulations.ogg"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01, "../Sounds/Congratulations.ogg"));
 
     unsigned int soundBufferId01;
     _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -268,7 +275,7 @@ void TestScene050::TestSoundPlayer()
     ));
 
     Project001::SoundData soundData02;
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02, "../Sounds/bounce.wav"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02, "../Sounds/Bounce.wav"));
 
     unsigned int soundBufferId02;
     _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -434,7 +441,7 @@ void TestScene050::TestSoundPlayer2()
     Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
 
     Project001::SoundData sound01_SoundData;
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound01_SoundData, "../Sounds/f_congratulations.ogg"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound01_SoundData, "../Sounds/Congratulations.ogg"));
 
     unsigned int sound01_SoundBufferId;
     _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -510,6 +517,73 @@ void TestScene050::TestSoundPlayer2()
     //         std::chrono::duration<float>(sound02_SoundData.duration_s)
     //     )
     // );
+
+    delete soundPlayerPtr;
+}
+
+void TestScene050::TestSoundPlayer3()
+{
+    Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
+
+    Project001::SoundData sound01_SoundData;
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundWAVFromMemory(sound01_SoundData, g_Bounce_wav, sizeof(g_Bounce_wav)/sizeof(unsigned char)));
+
+    unsigned int sound01_SoundBufferId;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
+        sound01_SoundBufferId,
+        sound01_SoundData.data,
+        sound01_SoundData.sizeInBytes,
+        sound01_SoundData.numberOfChannels,
+        sound01_SoundData.sampleRate_Hz,
+        sound01_SoundData.bitsPerSample,
+        sound01_SoundData.sizeInFrames
+    ));
+
+    unsigned int sound01_SoundSourceId01;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundSource(
+        sound01_SoundSourceId01,
+        sound01_SoundBufferId
+    ));
+
+    Project001::SoundData sound02_SoundData;
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGGFromMemory(sound02_SoundData, g_Congratulations_ogg, sizeof(g_Congratulations_ogg)/sizeof(unsigned char)));
+
+    unsigned int sound02_SoundBufferId;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
+        sound02_SoundBufferId,
+        sound02_SoundData.data,
+        sound02_SoundData.sizeInBytes,
+        sound02_SoundData.numberOfChannels,
+        sound02_SoundData.sampleRate_Hz,
+        sound02_SoundData.bitsPerSample,
+        sound02_SoundData.sizeInFrames
+    ));
+
+    unsigned int sound02_SoundSourceId01;
+    _FAIL_CHECK(soundPlayerPtr->CreateSoundSource(
+        sound02_SoundSourceId01,
+        sound02_SoundBufferId
+    ));
+
+    // Playing sound01
+
+    _FAIL_CHECK(soundPlayerPtr->PlaySoundSource(sound01_SoundSourceId01));
+
+    std::this_thread::sleep_for(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::duration<float>(sound01_SoundData.duration_s)
+        )
+    );
+
+    // Playing sound02
+
+    _FAIL_CHECK(soundPlayerPtr->PlaySoundSource(sound02_SoundSourceId01));
+
+    std::this_thread::sleep_for(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::duration<float>(sound02_SoundData.duration_s)
+        )
+    );
 
     delete soundPlayerPtr;
 }

@@ -80,6 +80,8 @@ protected:
     unsigned int cursorReleaseCollisionPointIndex_;
 
     std::vector<unsigned int> buttonEntityIds_;
+    static const glm::vec4 s_buttonColor_;
+    static const glm::vec4 s_buttonColor2_;
 
     unsigned int selectorEntityId_;
 

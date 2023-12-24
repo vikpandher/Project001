@@ -1,5 +1,7 @@
 #include "TestScene006.h"
 
+#include "TestResource_AntonioRegular_ttf.h"
+
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/RenderedModel.h"
 #include "Engine/Application.h"
@@ -55,16 +57,16 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Load Font ---------------------------------------------------------------
 
-    float font01_pixelSize = 0.005f;
-
-    Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
     std::vector<unsigned char> characterList;
     for (unsigned char c = 32; c < 127; ++c) // ASCII characters
     {
         characterList.push_back(c);
     }
+
+    float font01_pixelSize = 0.005f;
+    Project001::FontData font01_FontData;
+    Project001::TextureData font01_TextureData;
+    unsigned int font01_TextureId = (unsigned int)-1;
     _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
         font01_TextureData,
         font01_FontData,
@@ -80,6 +82,28 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         font01_TextureData.bytesPerPixel,
         false,
         false
+    );
+
+    float font02_pixelSize = 0.005f;
+    Project001::FontData font02_FontData;
+    Project001::TextureData font02_TextureData;
+    unsigned int font02_TextureId = (unsigned int)-1;
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontDataFromMemory(
+        font02_TextureData,
+        font02_FontData,
+        characterList,
+        g_AntonioRegular_ttf,
+        sizeof(g_AntonioRegular_ttf) / sizeof(unsigned char),
+        48
+    ));
+    rendererPtr_->CreateTexture(
+        font02_TextureId,
+        font02_TextureData.data,
+        font02_TextureData.width,
+        font02_TextureData.height,
+        font02_TextureData.bytesPerPixel,
+        true,
+        true
     );
 
     Project001::GlyphMeshData font01_Z_glyphMeshData;
@@ -122,12 +146,43 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
+        renderedMeshPtr->SetPosition(0.0f, 2.5f, 0.0f);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetTextureId(font01_TextureId);
     }
 
     // Generated Shape Entity 01
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> positions;
+        float width = font02_pixelSize * font02_TextureData.width;
+        float height = font02_pixelSize * font02_TextureData.height;
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            *newMeshDataPtr,
+            width,
+            height,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f
+        ));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetTextureId(font02_TextureId);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
+    }
+
+    // Generated Shape Entity 02
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -162,7 +217,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
     }
 
-    // Generated Shape Entity 02
+    // Generated Shape Entity 03
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -188,7 +243,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetColorRGB(0.6f, 1.0f, 0.6f);
     }
 
-    // Generated Shape Entity 03
+    // Generated Shape Entity 04
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -215,7 +270,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
     }
 
-    // Generated Shape Entity 04
+    // Generated Shape Entity 05
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -240,7 +295,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetTextureId(font01_TextureId);
     }
 
-    // Generated Shape Entity 05 (zzzEntityId_)
+    // Generated Shape Entity 06 (zzzEntityId_)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -319,7 +374,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         );
     }
 
-    // Generated Shape Entity 06 (printableEntityId_)
+    // Generated Shape Entity 07 (printableEntityId_)
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -361,7 +416,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedModelPtr->SetPosition(-0.5f * currentOffsetX * scale, -2.4f, 0.0f);
     }
 
-    // Generated Shape Entity 07 (sphinxEntityId_)
+    // Generated Shape Entity 08 (sphinxEntityId_)
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;

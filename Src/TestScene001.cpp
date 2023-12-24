@@ -185,36 +185,37 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 12));
 
     std::vector<std::string> buttonStrings;
-    std::vector<unsigned int> buttonDestinationSceneIds;
     buttonStrings.emplace_back("TestScene002");
-    buttonDestinationSceneIds.push_back(g_testScene002Id);
     buttonStrings.emplace_back("TestScene003");
-    buttonDestinationSceneIds.push_back(g_testScene003Id);
     buttonStrings.emplace_back("TestScene004");
-    buttonDestinationSceneIds.push_back(g_testScene004Id);
     buttonStrings.emplace_back("TestScene006");
-    buttonDestinationSceneIds.push_back(g_testScene006Id);
     buttonStrings.emplace_back("TestScene010");
-    buttonDestinationSceneIds.push_back(g_testScene010Id);
     buttonStrings.emplace_back("TestScene011");
-    buttonDestinationSceneIds.push_back(g_testScene011Id);
     buttonStrings.emplace_back("TestScene012");
-    buttonDestinationSceneIds.push_back(g_testScene012Id);
     buttonStrings.emplace_back("TestScene013");
-    buttonDestinationSceneIds.push_back(g_testScene013Id);
     buttonStrings.emplace_back("TestScene030");
-    buttonDestinationSceneIds.push_back(g_testScene030Id);
     buttonStrings.emplace_back("TestScene031");
-    buttonDestinationSceneIds.push_back(g_testScene031Id);
     buttonStrings.emplace_back("TestScene032");
-    buttonDestinationSceneIds.push_back(g_testScene032Id);
     buttonStrings.emplace_back("TestScene033");
-    buttonDestinationSceneIds.push_back(g_testScene033Id);
     buttonStrings.emplace_back("TestScene034");
-    buttonDestinationSceneIds.push_back(g_testScene034Id);
     buttonStrings.emplace_back("TestScene050");
-    buttonDestinationSceneIds.push_back(g_testScene050Id);
     buttonStrings.emplace_back("TestScene051");
+
+    std::vector<unsigned int> buttonDestinationSceneIds;
+    buttonDestinationSceneIds.push_back(g_testScene002Id);
+    buttonDestinationSceneIds.push_back(g_testScene003Id);
+    buttonDestinationSceneIds.push_back(g_testScene004Id);
+    buttonDestinationSceneIds.push_back(g_testScene006Id);
+    buttonDestinationSceneIds.push_back(g_testScene010Id);
+    buttonDestinationSceneIds.push_back(g_testScene011Id);
+    buttonDestinationSceneIds.push_back(g_testScene012Id);
+    buttonDestinationSceneIds.push_back(g_testScene013Id);
+    buttonDestinationSceneIds.push_back(g_testScene030Id);
+    buttonDestinationSceneIds.push_back(g_testScene031Id);
+    buttonDestinationSceneIds.push_back(g_testScene032Id);
+    buttonDestinationSceneIds.push_back(g_testScene033Id);
+    buttonDestinationSceneIds.push_back(g_testScene034Id);
+    buttonDestinationSceneIds.push_back(g_testScene050Id);
     buttonDestinationSceneIds.push_back(g_testScene051Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
@@ -404,7 +405,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
         buttonMesh.SetMeshId(rectangularMeshId_);
         buttonMesh.SetMaxBoundingRadius(rectangleMeshDataPtr_->maxBoundingRadius);
-        buttonMesh.SetColor(0.2f, 0.2f, 0.8f, 1.0f);
+        buttonMesh.SetColor(s_buttonColor_);
         buttonMesh.SetLit(false);
 
         renderedMeshes.emplace_back();
@@ -863,27 +864,25 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
             if (collidingWithCursorPosition)
             {
-                buttonMesh.SetColor(0.2f, 0.6f, 0.8f, 1.0f);
+                buttonMesh.SetColor(s_buttonColor2_);
 
                 selectedEntityId_ = buttonEntityId;
             }
             else
             {
-                buttonMesh.SetColor(0.2f, 0.2f, 0.8f, 1.0f);
+                buttonMesh.SetColor(s_buttonColor_);
             }
 
             if (collidingWithCursorPress && collidingWithCursorRelease)
             {
                 Project001::RenderedModel* cursorRenderedModelPtr;
                 _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(cursorRenderedModelPtr, cursorEntityId_));
-                cursorRenderedModelPtr->SetVisible(false);
                 std::vector<Project001::RenderedMesh>& renderedMeshes = cursorRenderedModelPtr->GetRenderedMeshes();
                 renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(false);
                 renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
 
                 Project001::CollisionBody2D* cursorCollisionBody2DPtr;
                 _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
-                cursorCollisionBody2DPtr->SetTangible(false);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorPressCollisionPointIndex_].tangible_ = false;
                 collisionPoints[cursorReleaseCollisionPointIndex_].tangible_ = false;
@@ -951,3 +950,6 @@ void TestScene001::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
         }
     }
 }
+
+const glm::vec4 TestScene001::s_buttonColor_ = glm::vec4(0.2f, 0.2f, 0.8f, 1.0f);
+const glm::vec4 TestScene001::s_buttonColor2_ = glm::vec4(0.2f, 0.6f, 0.8f, 1.0f);

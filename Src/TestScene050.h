@@ -54,4 +54,7 @@ private:
 
     // Tests playing the same sound from two sources at the same time
     void TestSoundPlayer2();
+
+    // Tests loading sounds that are embedded in headers
+    void TestSoundPlayer3();
 };

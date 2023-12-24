@@ -97,7 +97,7 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 #ifdef NDEBUG
     int columns = 50;
     int rows = 40;
-    int depthRows = 50;
+    int depthRows = 40;
 #else
     int columns = 50;
     int rows = 40;

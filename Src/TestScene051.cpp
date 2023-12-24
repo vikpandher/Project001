@@ -85,7 +85,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // SoundData ---------------------------------------------------------------
 
     sound01_SoundDataPtr_ = new Project001::SoundData();
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/f_congratulations.ogg"));
+    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
 
     _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
         sound01_SoundBufferId_,

@@ -4,8 +4,6 @@ endif()
 
 cmake_minimum_required(VERSION 3.22.0)
 
-option(PRINT_DEBUG_OUTPUT "" TRUE)
-
 # https://github.com/freetype/freetype.git
 set(CMAKE_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include")
 set(CMAKE_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib")
@@ -25,6 +23,10 @@ set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
 set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.261.1")
 set(CMAKE_VULKAN_INCLUDE "${CMAKE_VULKAN_REPO}/Include")
 set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
+
+set(CMAKE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
+
+option(CMAKE_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
@@ -87,6 +89,11 @@ set(SOURCE_FILES
     "Src/TestComponents.h"
     "Src/TestInstructionScene001.cpp"
     "Src/TestInstructionScene001.h"
+    "Src/TestResource_AntonioRegular_ttf.h"
+    "Src/TestResource_Bounce_wav.h"
+    "Src/TestResource_Congratulations_ogg.h"
+    "Src/TestResource_CounterclockwiseDie_png.h"
+    "Src/TestResource_Cube_obj.h"
     "Src/TestScene001.cpp"
     "Src/TestScene001.h"
     "Src/TestScene002.cpp"
@@ -139,8 +146,6 @@ set(ENGINE_FILES
     "Src/Engine/ComponentStores.cpp"
     "Src/Engine/ComponentStores.h"
     "Src/Engine/Event.h"
-    "Src/Engine/FileConverter.cpp"
-    "Src/Engine/FileConverter.h"
     "Src/Engine/FontData.h"
     "Src/Engine/FontMeshData.h"
     "Src/Engine/FreetypeTextLoader.cpp"
@@ -306,12 +311,10 @@ target_link_libraries("${PROJECT_NAME}"
     "${CMAKE_VULKAN_LIBRARY}"
 )
 
-set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
-
 set_target_properties("${PROJECT_NAME}" PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${OUTPUT_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}"
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_OUTPUT_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_OUTPUT_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_OUTPUT_DIR}"
     OUTPUT_NAME_DEBUG "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d"
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
@@ -326,7 +329,7 @@ if(EXISTS "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
     #                    COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/test.bat ${CMAKE_VULKAN_REPO}/Bin/glslc.exe ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/")
 endif()
 
-if(${PRINT_DEBUG_OUTPUT})
+if(${CMAKE_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
     message("CMAKE_FREETYPE_INCLUDE: ${CMAKE_FREETYPE_INCLUDE}")
@@ -341,6 +344,8 @@ if(${PRINT_DEBUG_OUTPUT})
     message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
     message("CMAKE_VULKAN_INCLUDE: ${CMAKE_VULKAN_INCLUDE}")
     message("CMAKE_VULKAN_LIBRARY: ${CMAKE_VULKAN_LIBRARY}")
+
+    message("CMAKE_OUTPUT_DIR: ${CMAKE_OUTPUT_DIR}")
 
     message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
     message("CMAKE_WINDOWS_NO_CONSOLE: ${CMAKE_WINDOWS_NO_CONSOLE}")
@@ -403,8 +408,6 @@ if(${PRINT_DEBUG_OUTPUT})
         message("    ${VARIABLE}")
     endforeach()
 
-    message("OUTPUT_DIR: ${OUTPUT_DIR}")
-
     get_property(_VS_DEBUGGER_WORKING_DIRECTORY TARGET "${PROJECT_NAME}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY)
     message("VS_DEBUGGER_WORKING_DIRECTORY: ${_VS_DEBUGGER_WORKING_DIRECTORY}")
 
@@ -419,5 +422,6 @@ if(${PRINT_DEBUG_OUTPUT})
 
     get_property(_OUTPUT_NAME_RELEASE TARGET "${PROJECT_NAME}" PROPERTY OUTPUT_NAME_RELEASE)
     message("OUTPUT_NAME_RELEASE: ${_OUTPUT_NAME_RELEASE}")
+
     message("--------------------------------------------------------------------------------")
 endif()

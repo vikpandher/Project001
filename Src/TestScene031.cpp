@@ -105,9 +105,9 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     std::vector<glm::vec3> meshEntityPositions;
 #ifdef NDEBUG
-    int columns = 50;
-    int rows = 40;
-    int depthRows = 50;
+    int columns = 80;
+    int rows = 50;
+    int depthRows = 80;
 #else
     int columns = 50;
     int rows = 40;

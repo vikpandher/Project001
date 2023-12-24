@@ -307,7 +307,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         renderedMeshPtr->SetTextureId(font01_TextureId_);
         renderedMeshPtr->SetTranslucent(true);
         renderedMeshPtr->SetScale(5.0f, 5.0f, 5.0f);
-        renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 0.0f);
+        renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
     }
 
     // Member Scenes -----------------------------------------------------------
