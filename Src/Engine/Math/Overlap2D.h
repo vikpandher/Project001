@@ -1,7 +1,5 @@
 #pragma once
 
-#include "glm/glm.hpp"
-
 #include "Engine/Math/FloatComparators.h"
 #include "Engine/Math/VectorUtilities.h"
 
