@@ -664,9 +664,9 @@ namespace Project001
         VkCommandBuffer BeginSingleTimeCommands();
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-        std::vector<char> ReadFile(const char* const filePath);
-
-        VkShaderModule CreateShaderModule(const std::vector<char>& code);
+        VkShaderModule CreateShaderModule(
+            const unsigned char* data,
+            size_t size);
 
         VkRenderPass CreatePrimaryRenderPass(
             bool msaa,

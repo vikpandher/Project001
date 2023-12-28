@@ -4,6 +4,8 @@ endif()
 
 cmake_minimum_required(VERSION 3.22.0)
 
+# https://github.com/vikpandher/FileToHeaderConverter.git
+set(CMAKE_FILE_TO_HEADER_CONVERTER_BINARY "C:/Users/vikpa/Documents/Dev/FileToHeaderConverter/Bin/FileToHeaderConverter.exe")
 # https://github.com/freetype/freetype.git
 set(CMAKE_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include")
 set(CMAKE_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib")
@@ -254,15 +256,57 @@ source_group("Src/Engine/Platform" FILES
     ${PLATFORM_VULKAN_FILES}
 )
 
-set(PLATFORM_SHADER_SOURCE_FILES
-    "Src/Engine/Platform/ShaderSource/GridShaderSource.h"
-    "Src/Engine/Platform/ShaderSource/NormalShaderSource.h"
-    "Src/Engine/Platform/ShaderSource/PrimaryShaderSource.h"
-    "Src/Engine/Platform/ShaderSource/ScreenShaderSource.h"
-    "Src/Engine/Platform/ShaderSource/WireFrameShaderSource.h"
+set(PLATFORM_OPENGL_SHADER_FILES
+    "Src/Engine/Platform/OpenGL_Shaders/o_grid.frag"
+    "Src/Engine/Platform/OpenGL_Shaders/o_grid.vert"
+    "Src/Engine/Platform/OpenGL_Shaders/o_normal.frag"
+    "Src/Engine/Platform/OpenGL_Shaders/o_normal.geom"
+    "Src/Engine/Platform/OpenGL_Shaders/o_normal.vert"
+    "Src/Engine/Platform/OpenGL_Shaders/o_primary.frag"
+    "Src/Engine/Platform/OpenGL_Shaders/o_primary.vert"
+    "Src/Engine/Platform/OpenGL_Shaders/o_screen.frag"
+    "Src/Engine/Platform/OpenGL_Shaders/o_screen.vert"
+    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.frag"
+    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.geom"
+    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.vert"
 )
 
-source_group("Src/Engine/Platform/ShaderSource" FILES ${PLATFORM_SHADER_SOURCE_FILES})
+source_group("Src/Engine/Platform/OpenGL_Shaders" FILES ${PLATFORM_OPENGL_SHADER_FILES})
+
+set(PLATFORM_OPENGL_GENERATED_SHADER_FILES
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_grid_frag.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_grid_vert.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_frag.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_geom.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_vert.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_primary_frag.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_primary_vert.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_screen_frag.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_screen_vert.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_frag.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_geom.h"
+    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_vert.h"
+)
+
+source_group("Src/Engine/Platform/OpenGL_Shaders/Generated" FILES ${PLATFORM_OPENGL_GENERATED_SHADER_FILES})
+
+set(PLATFORM_VULKAN_SHADER_FILES
+    "Src/Engine/Platform/Vulkan_Shaders/v_primary.frag"
+    "Src/Engine/Platform/Vulkan_Shaders/v_primary.vert"
+    "Src/Engine/Platform/Vulkan_Shaders/v_screen.frag"
+    "Src/Engine/Platform/Vulkan_Shaders/v_screen.vert"
+)
+
+source_group("Src/Engine/Platform/Vulkan_Shaders" FILES ${PLATFORM_VULKAN_SHADER_FILES})
+
+set(PLATFORM_VULKAN_GENERATED_SHADER_FILES
+    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_primary_frag_spv.h"
+    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_primary_vert_spv.h"
+    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_screen_frag_spv.h"
+    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_screen_vert_spv.h"
+)
+
+source_group("Src/Engine/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VULKAN_GENERATED_SHADER_FILES})
 
 # The following makes it so the unused graphics platform files doesn't get
 # compiled, but the files are still listed in the visual studio project
@@ -280,8 +324,11 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${PLATFORM_GLFW_FILES}
     ${PLATFORM_MINIAUDIO_FILES}
     ${PLATFORM_OPENGL_FILES}
+    ${PLATFORM_OPENGL_SHADER_FILES}
+    ${PLATFORM_OPENGL_GENERATED_SHADER_FILES}
     ${PLATFORM_VULKAN_FILES}
-    ${PLATFORM_SHADER_SOURCE_FILES}
+    ${PLATFORM_VULKAN_SHADER_FILES}
+    ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
 )
 
 target_include_directories("${PROJECT_NAME}"
@@ -321,17 +368,16 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 
 if(EXISTS "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
     file(WRITE "Scripts/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
+endif()
 
-    # NOTE: Adding commands will require me to run Visual Studio as Admin
-
-    # add_custom_command(TARGET "${PROJECT_NAME}"
-    #                    POST_BUILD
-    #                    COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/test.bat ${CMAKE_VULKAN_REPO}/Bin/glslc.exe ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/")
+if(EXISTS "${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
+    file(WRITE "Scripts/FileToHeaderConverter_path.txt" "${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
 endif()
 
 if(${CMAKE_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
+    message("CMAKE_FILE_TO_HEADER_CONVERTER_BINARY: ${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
     message("CMAKE_FREETYPE_INCLUDE: ${CMAKE_FREETYPE_INCLUDE}")
     message("CMAKE_FREETYPE_LIBRARY: ${CMAKE_FREETYPE_LIBRARY}")
     message("CMAKE_GLAD_INCLUDE: ${CMAKE_GLAD_INCLUDE}")
@@ -361,8 +407,8 @@ if(${CMAKE_SANITY_CHECK_DEBUG_OUTPUT})
         message("    ${VARIABLE}")
     endforeach()
 
-    message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-    message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+    message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}") # ROOT DIR, top level CMakeLists.txt location
+    message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}") # this CMakeLists.txt location
     message("CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 
     message("CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")

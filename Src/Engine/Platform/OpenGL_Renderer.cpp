@@ -7,11 +7,19 @@
 #include "Engine/Platform/OpenGL_Mesh.h"
 #include "Engine/Platform/OpenGL_Shader.h"
 #include "Engine/Platform/OpenGL_Texture.h"
-#include "Engine/Platform/ShaderSource/GridShaderSource.h"
-#include "Engine/Platform/ShaderSource/NormalShaderSource.h"
-#include "Engine/Platform/ShaderSource/PrimaryShaderSource.h"
-#include "Engine/Platform/ShaderSource/ScreenShaderSource.h"
-#include "Engine/Platform/ShaderSource/WireFrameShaderSource.h"
+
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_grid_frag.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_grid_vert.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_normal_frag.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_normal_geom.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_normal_vert.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_primary_frag.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_primary_vert.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_screen_frag.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_screen_vert.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_frag.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_geom.h"
+#include "Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_vert.h"
 
 #include "Engine/Logger.h"
 #include "Engine/Window.h"
@@ -84,8 +92,8 @@ namespace Project001
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         primaryShaderPtr_ = new OpenGL_Shader(
-            PrimaryShader::g_vertexShaderSource,
-            PrimaryShader::g_fragmentShaderSource
+            g_o_primary_vert,
+            g_o_primary_frag
         );
         primaryShaderPtr_->Use();
 
@@ -99,23 +107,23 @@ namespace Project001
         }
 
         gridShaderPtr_ = new OpenGL_Shader(
-            GridShader::g_vertexShaderSource,
-            GridShader::g_fragmentShaderSource
+            g_o_grid_vert,
+            g_o_grid_frag
         );
 
         wireframeShaderPtr_ = new OpenGL_Shader(
-            WireFrameShader::g_vertexShaderSource,
-            WireFrameShader::g_geometryShaderSource,
-            WireFrameShader::g_fragmentShaderSource
+            g_o_wireframe_vert,
+            g_o_wireframe_geom,
+            g_o_wireframe_frag
         );
         wireframeShaderPtr_->Use();
 
         wireframeShaderPtr_->SetVec4("u_Color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
         normalShaderPtr_ = new OpenGL_Shader(
-            NormalShader::g_vertexShaderSource,
-            NormalShader::g_geometryShaderSource,
-            NormalShader::g_fragmentShaderSource
+            g_o_normal_vert,
+            g_o_normal_geom,
+            g_o_normal_frag
         );
         normalShaderPtr_->Use();
 
@@ -124,8 +132,8 @@ namespace Project001
         normalShaderPtr_->SetVec4("u_EndColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
         screenShaderPtr_ = new OpenGL_Shader(
-            ScreenShader::g_vertexShaderSource,
-            ScreenShader::g_fragmentShaderSource
+            g_o_screen_vert,
+            g_o_screen_frag
         );
         screenShaderPtr_->Use();
 

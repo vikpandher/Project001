@@ -1,10 +1,15 @@
 #include "Vulkan_Renderer.h"
 
 #include "Engine/Platform/Vulkan_Error.h"
+
+#include "Engine/Platform/Vulkan_Shaders/Generated/v_primary_frag_spv.h"
+#include "Engine/Platform/Vulkan_Shaders/Generated/v_primary_vert_spv.h"
+#include "Engine/Platform/Vulkan_Shaders/Generated/v_screen_frag_spv.h"
+#include "Engine/Platform/Vulkan_Shaders/Generated/v_screen_vert_spv.h"
+
 #include "Engine/Window.h"
 
 #include <array>
-#include <fstream>
 #include <set>
 
 #define NUMBER_OF_TEXTURE_UNITS 16
@@ -2432,11 +2437,15 @@ namespace Project001
         }
         else
         {
-            std::vector<char> vertShaderCode = ReadFile("../Shaders/primaryShader_vert.spv");
-            std::vector<char> fragShaderCode = ReadFile("../Shaders/primaryShader_frag.spv");
+            vertexBatchShaderModule_ = CreateShaderModule(
+                g_v_primary_vert_spv,
+                sizeof(g_v_primary_vert_spv) / sizeof(const unsigned char)
+            );
 
-            vertexBatchShaderModule_ = CreateShaderModule(vertShaderCode);
-            fragmentBatchShaderModule_ = CreateShaderModule(fragShaderCode);
+            fragmentBatchShaderModule_ = CreateShaderModule(
+                g_v_primary_frag_spv,
+                sizeof(g_v_primary_frag_spv) / sizeof(const unsigned char)
+            );
         }
     }
 
@@ -3022,11 +3031,15 @@ namespace Project001
         }
         else
         {
-            std::vector<char> vertShaderCode = ReadFile("../Shaders/screenShader_vert.spv");
-            std::vector<char> fragShaderCode = ReadFile("../Shaders/screenShader_frag.spv");
+            vertexScreenShaderModule_ = CreateShaderModule(
+                g_v_screen_vert_spv,
+                sizeof(g_v_screen_vert_spv) / sizeof(const unsigned char)
+            );
 
-            vertexScreenShaderModule_ = CreateShaderModule(vertShaderCode);
-            fragmentScreenShaderModule_ = CreateShaderModule(fragShaderCode);
+            fragmentScreenShaderModule_ = CreateShaderModule(
+                g_v_screen_frag_spv,
+                sizeof(g_v_screen_frag_spv) / sizeof(const unsigned char)
+            );
         }
     }
 
@@ -4347,33 +4360,14 @@ namespace Project001
         vkFreeCommandBuffers(logicalDevice_, commandPool_, 1, &commandBuffer);
     }
 
-    std::vector<char> Vulkan_Renderer::ReadFile(const char* const filePath)
-    {
-        std::ifstream file(filePath, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open())
-        {
-            _LOG_ERROR("Vulkan Error: Failed to open file!");
-            return std::vector<char>();
-        }
-
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
-    }
-
-    VkShaderModule Vulkan_Renderer::CreateShaderModule(const std::vector<char>& code)
+    VkShaderModule Vulkan_Renderer::CreateShaderModule(
+        const unsigned char* data,
+        size_t size)
     {
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+        createInfo.codeSize = size;
+        createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
 
         VkShaderModule shaderModule;
         _VK_CHECK(vkCreateShaderModule(logicalDevice_, &createInfo, nullptr, &shaderModule));
