@@ -74,7 +74,7 @@ namespace Project001
 
     // protected ---------------------------------------------------------------
 
-#ifdef VULKAN_MODE
+#ifdef VULKAN_BUILD
     const bool TextureLoader::s_convertToRGBA = true;
 #else
     const bool TextureLoader::s_convertToRGBA = false;

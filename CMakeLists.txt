@@ -5,42 +5,42 @@ endif()
 cmake_minimum_required(VERSION 3.22.0)
 
 # https://github.com/vikpandher/FileToHeaderConverter.git
-set(CMAKE_FILE_TO_HEADER_CONVERTER_BINARY "C:/Users/vikpa/Documents/Dev/FileToHeaderConverter/Bin/FileToHeaderConverter.exe")
+set(PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY "C:/Users/vikpa/Documents/Dev/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
 # https://github.com/freetype/freetype.git
-set(CMAKE_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include")
-set(CMAKE_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib")
+set(PROJECT001_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include" CACHE PATH "")
+set(PROJECT001_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib" CACHE PATH "")
 # https://glad.dav1d.de/
-set(CMAKE_GLAD_INCLUDE "C:/Users/vikpa/Documents/Dev/glad/include")
-set(CMAKE_GLAD_FILE "C:/Users/vikpa/Documents/Dev/glad/src/glad.c")
+set(PROJECT001_GLAD_INCLUDE "C:/Users/vikpa/Documents/Dev/glad/include" CACHE PATH "")
+set(PROJECT001_GLAD_FILE "C:/Users/vikpa/Documents/Dev/glad/src/glad.c" CACHE PATH "")
 # https://github.com/glfw/glfw.git
-set(CMAKE_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include")
-set(CMAKE_GLFW_LIBRARY "C:/Users/vikpa/Documents/Dev/glfw/build/src/Release/glfw3.lib")
+set(PROJECT001_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include" CACHE PATH "")
+set(PROJECT001_GLFW_LIBRARY "C:/Users/vikpa/Documents/Dev/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
 # https://github.com/g-truc/glm.git
-set(CMAKE_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm")
+set(PROJECT001_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm" CACHE PATH "")
 # https://github.com/mackron/miniaudio.git
-set(CMAKE_MINIAUDIO_INCLUDE "C:/Users/vikpa/Documents/Dev/miniaudio")
+set(PROJECT001_MINIAUDIO_INCLUDE "C:/Users/vikpa/Documents/Dev/miniaudio" CACHE PATH "")
 # https://github.com/nothings/stb.git
-set(CMAKE_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb")
+set(PROJECT001_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb" CACHE PATH "")
 # https://vulkan.lunarg.com/
-set(CMAKE_VULKAN_REPO "C:/VulkanSDK/1.3.261.1")
-set(CMAKE_VULKAN_INCLUDE "${CMAKE_VULKAN_REPO}/Include")
-set(CMAKE_VULKAN_LIBRARY "${CMAKE_VULKAN_REPO}/Lib/vulkan-1.lib")
+set(PROJECT001_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
+set(PROJECT001_VULKAN_INCLUDE "${PROJECT001_VULKAN_DIRECTORY}/Include")
+set(PROJECT001_VULKAN_LIBRARY "${PROJECT001_VULKAN_DIRECTORY}/Lib/vulkan-1.lib")
 
-set(CMAKE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
+set(PROJECT001_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Bin")
 
-option(CMAKE_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
+option(PROJECT001_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
-set(CMAKE_VULKAN_MODE FALSE)
+option(PROJECT001_VULKAN_BUILD "If TRUE, sets renderer to Vulkan. If FALSE, renderer is set to OpenGL" FALSE)
 
-# If TRUE, removes the console on a windows build
-# If FALSE, windows build has a console
-set(CMAKE_WINDOWS_NO_CONSOLE FALSE)
+# If TRUE, removes the console on Windows builds
+# If FALSE, Windows builds have a console
+option(PROJECT001_WINDOWS_NO_CONSOLE "If TRUE, removes the console on Windows builds. If FALSE, Windows builds have a console." FALSE)
 
-# If TRUE, adds memory leak check to windows build
+# If TRUE, adds memory leak check to Windows builds
 # If FALSE, doesn't
-set(CMAKE_WINDOWS_MEMORY_LEAK_CHECK TRUE)
+option(PROJECT001_WINDOWS_MEMORY_LEAK_CHECK "If TRUE, adds memory leak check to Windows builds. If False, doesn't." TRUE)
 
 # ##############################################################################
 # ##############################################################################
@@ -51,7 +51,7 @@ project("Project001" # ${PROJECT_NAME}
     LANGUAGES C CXX
 )
 
-# at least C++11
+# C++11
 set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -59,30 +59,6 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
-
-# add_compile_definitions("GLM_ENABLE_EXPERIMENTAL")
-
-if (${CMAKE_VULKAN_MODE})
-    add_definitions(-DVULKAN_MODE)
-    add_definitions(-DGLFW_INCLUDE_VULKAN)
-    add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
-    # add_definitions(-DGLM_FORCE_LEFT_HANDED)
-
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
-else()
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
-endif()
-
-if (${CMAKE_WINDOWS_NO_CONSOLE})
-    add_definitions(-DWINDOWS_NO_CONSOLE)
-
-    # adding WIN32 makes WinMain() the entry point and so no conole appears
-    set(CMAKE_WIN32 WIN32)
-endif()
-
-if (${CMAKE_WINDOWS_MEMORY_LEAK_CHECK})
-    add_definitions(-DWINDOWS_MEMORY_LEAK_CHECK)
-endif()
 
 set(SOURCE_FILES
     "Src/Main.cpp"
@@ -231,7 +207,7 @@ set(PLATFORM_MINIAUDIO_FILES
 )
 
 set(PLATFORM_OPENGL_FILES
-    "${CMAKE_GLAD_FILE}"
+    "${PROJECT001_GLAD_FILE}"
     "Src/Engine/Platform/OpenGL_Error.h"
     "Src/Engine/Platform/OpenGL_Mesh.cpp"
     "Src/Engine/Platform/OpenGL_Mesh.h"
@@ -310,7 +286,7 @@ source_group("Src/Engine/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VUL
 
 # The following makes it so the unused graphics platform files doesn't get
 # compiled, but the files are still listed in the visual studio project
-if(${CMAKE_VULKAN_MODE})
+if(${PROJECT001_VULKAN_BUILD})
     set_source_files_properties(${PLATFORM_OPENGL_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 else()
     set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -331,15 +307,39 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
 )
 
+# target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")
+
+if (${PROJECT001_VULKAN_BUILD})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "VULKAN_BUILD")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "GLFW_INCLUDE_VULKAN")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_FORCE_DEPTH_ZERO_TO_ONE")
+    # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_FORCE_LEFT_HANDED"")
+
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
+else()
+    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
+endif()
+
+if (${PROJECT001_WINDOWS_NO_CONSOLE})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_NO_CONSOLE")
+
+    # adding WIN32 makes WinMain() the entry point and so no conole appears
+    set(CMAKE_WIN32 WIN32)
+endif()
+
+if (${PROJECT001_WINDOWS_MEMORY_LEAK_CHECK})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_MEMORY_LEAK_CHECK")
+endif()
+
 target_include_directories("${PROJECT_NAME}"
     PRIVATE 
-    "${CMAKE_FREETYPE_INCLUDE}"
-    "${CMAKE_GLAD_INCLUDE}"
-    "${CMAKE_GLFW_INCLUDE}"
-    "${CMAKE_GLM_INCLUDE}"
-    "${CMAKE_MINIAUDIO_INCLUDE}"
-    "${CMAKE_STB_INCLUDE}"
-    "${CMAKE_VULKAN_INCLUDE}"
+    "${PROJECT001_FREETYPE_INCLUDE}"
+    "${PROJECT001_GLAD_INCLUDE}"
+    "${PROJECT001_GLFW_INCLUDE}"
+    "${PROJECT001_GLM_INCLUDE}"
+    "${PROJECT001_MINIAUDIO_INCLUDE}"
+    "${PROJECT001_STB_INCLUDE}"
+    "${PROJECT001_VULKAN_INCLUDE}"
     "Src"
 )
 
@@ -347,55 +347,54 @@ target_link_directories("${PROJECT_NAME}"
     PRIVATE
 )
 
-# Getting a linker warning when building debug only:
-    # LNK4098 defaultlib 'MSVCRT' confilics with use of other libs; use
-    # /NODEFAULTLIB:library
-
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE
-    "${CMAKE_FREETYPE_LIBRARY}"
-    "${CMAKE_GLFW_LIBRARY}"
-    "${CMAKE_VULKAN_LIBRARY}"
+    "${PROJECT001_FREETYPE_LIBRARY}"
+    "${PROJECT001_GLFW_LIBRARY}"
+    "${PROJECT001_VULKAN_LIBRARY}"
 )
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_OUTPUT_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_OUTPUT_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_OUTPUT_DIR}"
+    VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT001_OUTPUT_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT001_OUTPUT_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT001_OUTPUT_DIR}"
     OUTPUT_NAME_DEBUG "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d"
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
 
-if(EXISTS "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
-    file(WRITE "Scripts/glslc_path.txt" "${CMAKE_VULKAN_REPO}/Bin/glslc.exe")
+# ##############################################################################
+# ##############################################################################
+
+if(EXISTS "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
+    file(WRITE "Scripts/glslc_path.txt" "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
 endif()
 
-if(EXISTS "${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
-    file(WRITE "Scripts/FileToHeaderConverter_path.txt" "${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
+if(EXISTS "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
+    file(WRITE "Scripts/FileToHeaderConverter_path.txt" "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
 endif()
 
-if(${CMAKE_SANITY_CHECK_DEBUG_OUTPUT})
+if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
-    message("CMAKE_FILE_TO_HEADER_CONVERTER_BINARY: ${CMAKE_FILE_TO_HEADER_CONVERTER_BINARY}")
-    message("CMAKE_FREETYPE_INCLUDE: ${CMAKE_FREETYPE_INCLUDE}")
-    message("CMAKE_FREETYPE_LIBRARY: ${CMAKE_FREETYPE_LIBRARY}")
-    message("CMAKE_GLAD_INCLUDE: ${CMAKE_GLAD_INCLUDE}")
-    message("CMAKE_GLAD_FILE: ${CMAKE_GLAD_FILE}")
-    message("CMAKE_GLFW_INCLUDE: ${CMAKE_GLFW_INCLUDE}")
-    message("CMAKE_GLFW_LIBRARY: ${CMAKE_GLFW_LIBRARY}")
-    message("CMAKE_GLM_INCLUDE: ${CMAKE_GLM_INCLUDE}")
-    message("CMAKE_MINIAUDIO_INCLUDE: ${CMAKE_MINIAUDIO_INCLUDE}")
-    message("CMAKE_STB_INCLUDE: ${CMAKE_STB_INCLUDE}")
-    message("CMAKE_VULKAN_REPO: ${CMAKE_VULKAN_REPO}")
-    message("CMAKE_VULKAN_INCLUDE: ${CMAKE_VULKAN_INCLUDE}")
-    message("CMAKE_VULKAN_LIBRARY: ${CMAKE_VULKAN_LIBRARY}")
+    message("PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY: ${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
+    message("PROJECT001_FREETYPE_INCLUDE: ${PROJECT001_FREETYPE_INCLUDE}")
+    message("PROJECT001_FREETYPE_LIBRARY: ${PROJECT001_FREETYPE_LIBRARY}")
+    message("PROJECT001_GLAD_INCLUDE: ${PROJECT001_GLAD_INCLUDE}")
+    message("PROJECT001_GLAD_FILE: ${PROJECT001_GLAD_FILE}")
+    message("PROJECT001_GLFW_INCLUDE: ${PROJECT001_GLFW_INCLUDE}")
+    message("PROJECT001_GLFW_LIBRARY: ${PROJECT001_GLFW_LIBRARY}")
+    message("PROJECT001_GLM_INCLUDE: ${PROJECT001_GLM_INCLUDE}")
+    message("PROJECT001_MINIAUDIO_INCLUDE: ${PROJECT001_MINIAUDIO_INCLUDE}")
+    message("PROJECT001_STB_INCLUDE: ${PROJECT001_STB_INCLUDE}")
+    message("PROJECT001_VULKAN_DIRECTORY: ${PROJECT001_VULKAN_DIRECTORY}")
+    message("PROJECT001_VULKAN_INCLUDE: ${PROJECT001_VULKAN_INCLUDE}")
+    message("PROJECT001_VULKAN_LIBRARY: ${PROJECT001_VULKAN_LIBRARY}")
 
-    message("CMAKE_OUTPUT_DIR: ${CMAKE_OUTPUT_DIR}")
+    message("PROJECT001_OUTPUT_DIR: ${PROJECT001_OUTPUT_DIR}")
 
-    message("CMAKE_VULKAN_MODE: ${CMAKE_VULKAN_MODE}")
-    message("CMAKE_WINDOWS_NO_CONSOLE: ${CMAKE_WINDOWS_NO_CONSOLE}")
-    message("CMAKE_WINDOWS_MEMORY_LEAK_CHECK: ${CMAKE_WINDOWS_MEMORY_LEAK_CHECK}")
+    message("PROJECT001_VULKAN_BUILD: ${PROJECT001_VULKAN_BUILD}")
+    message("PROJECT001_WINDOWS_NO_CONSOLE: ${PROJECT001_WINDOWS_NO_CONSOLE}")
+    message("PROJECT001_WINDOWS_MEMORY_LEAK_CHECK: ${PROJECT001_WINDOWS_MEMORY_LEAK_CHECK}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
@@ -424,15 +423,15 @@ if(${CMAKE_SANITY_CHECK_DEBUG_OUTPUT})
     get_property(_VS_STARTUP_PROJECT DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT)
     message("VS_STARTUP_PROJECT: ${_VS_STARTUP_PROJECT}")
 
-    get_property(_COMPILE_DEFINITIONS DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY COMPILE_DEFINITIONS)
-    message("COMPILE_DEFINITIONS:")
-    foreach(VARIABLE ${_COMPILE_DEFINITIONS})
-        message("    ${VARIABLE}")
-    endforeach()
-
     get_property(_SOURCES TARGET "${PROJECT_NAME}" PROPERTY SOURCES)
     message("SOURCES:")
     foreach(VARIABLE ${_SOURCES})
+        message("    ${VARIABLE}")
+    endforeach()
+
+    get_property(_COMPILE_DEFINITIONS TARGET "${PROJECT_NAME}" PROPERTY COMPILE_DEFINITIONS)
+    message("COMPILE_DEFINITIONS:")
+    foreach(VARIABLE ${_COMPILE_DEFINITIONS})
         message("    ${VARIABLE}")
     endforeach()
 

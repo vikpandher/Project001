@@ -1,6 +1,6 @@
 #include "Engine/Renderer.h"
 
-#ifdef VULKAN_MODE
+#ifdef VULKAN_BUILD
 #include "Engine/Platform/Vulkan_Renderer.h"
 #else
 #include "Engine/Platform/OpenGL_Renderer.h"
@@ -14,7 +14,7 @@ namespace Project001
 
     Renderer* Renderer::Create(const RendererInfo& rendererInfo)
     {
-#ifdef VULKAN_MODE
+#ifdef VULKAN_BUILD
         return new Vulkan_Renderer(rendererInfo);
 #else
         return new OpenGL_Renderer(rendererInfo);
