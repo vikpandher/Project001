@@ -4610,6 +4610,8 @@ namespace Project001
         if (destinationMeshData.minVertexPosition.y > sourceMeshData.minVertexPosition.y) destinationMeshData.minVertexPosition.y = sourceMeshData.minVertexPosition.y;
         if (destinationMeshData.minVertexPosition.z > sourceMeshData.minVertexPosition.z) destinationMeshData.minVertexPosition.z = sourceMeshData.minVertexPosition.z;
 
+        unsigned int indexOffset = destinationMeshData.meshVertexArray.size();
+
         for (size_t i = 0; i < sourceMeshData.meshVertexArray.size(); ++i)
         {
             destinationMeshData.meshVertexArray.push_back(sourceMeshData.meshVertexArray[i]);
@@ -4617,7 +4619,7 @@ namespace Project001
 
         for (size_t i = 0; i < sourceMeshData.meshIndexArray.size(); ++i)
         {
-            destinationMeshData.meshIndexArray.push_back(sourceMeshData.meshIndexArray[i]);
+            destinationMeshData.meshIndexArray.push_back(indexOffset + sourceMeshData.meshIndexArray[i]);
         }
     }
 
