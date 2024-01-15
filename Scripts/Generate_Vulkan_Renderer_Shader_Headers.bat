@@ -7,7 +7,7 @@
 
 SETLOCAL
 
-SET input_directory=../Src/Engine/Platform/Vulkan_Shaders
+SET input_directory=../Source/Platform/Vulkan_Shaders
 SET temp_directory=%input_directory%/Temp
 SET output_directory=%input_directory%/Generated
 

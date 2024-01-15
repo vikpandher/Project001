@@ -26,7 +26,7 @@ set(PROJECT001_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
 set(PROJECT001_VULKAN_INCLUDE "${PROJECT001_VULKAN_DIRECTORY}/Include")
 set(PROJECT001_VULKAN_LIBRARY "${PROJECT001_VULKAN_DIRECTORY}/Lib/vulkan-1.lib")
 
-set(PROJECT001_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Bin")
+set(PROJECT001_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/TestApplication/Binary")
 
 option(PROJECT001_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
 
@@ -60,172 +60,119 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
-set(SOURCE_FILES
-    "Src/Main.cpp"
-    "Src/TestButtonData001.h"
-    "Src/TestComponents.cpp"
-    "Src/TestComponents.h"
-    "Src/TestInstructionScene001.cpp"
-    "Src/TestInstructionScene001.h"
-    "Src/TestResource_AntonioRegular_ttf.h"
-    "Src/TestResource_Bounce_wav.h"
-    "Src/TestResource_Congratulations_ogg.h"
-    "Src/TestResource_CounterclockwiseDie_png.h"
-    "Src/TestResource_Cube_obj.h"
-    "Src/TestScene001.cpp"
-    "Src/TestScene001.h"
-    "Src/TestScene002.cpp"
-    "Src/TestScene002.h"
-    "Src/TestScene003.cpp"
-    "Src/TestScene003.h"
-    "Src/TestScene004.cpp"
-    "Src/TestScene004.h"
-    "Src/TestScene006.cpp"
-    "Src/TestScene006.h"
-    "Src/TestScene010.cpp"
-    "Src/TestScene010.h"
-    "Src/TestScene011.cpp"
-    "Src/TestScene011.h"
-    "Src/TestScene012.cpp"
-    "Src/TestScene012.h"
-    "Src/TestScene013.cpp"
-    "Src/TestScene013.h"
-    "Src/TestScene030.cpp"
-    "Src/TestScene030.h"
-    "Src/TestScene031.cpp"
-    "Src/TestScene031.h"
-    "Src/TestScene032.cpp"
-    "Src/TestScene032.h"
-    "Src/TestScene033.cpp"
-    "Src/TestScene033.h"
-    "Src/TestScene034.cpp"
-    "Src/TestScene034.h"
-    "Src/TestScene050.cpp"
-    "Src/TestScene050.h"
-    "Src/TestScene051.cpp"
-    "Src/TestScene051.h"
-    "Src/TestSceneBase001.cpp"
-    "Src/TestSceneBase001.h"
-    "Src/TestSceneBase002.cpp"
-    "Src/TestSceneBase002.h"
-    "Src/TestSceneIds.h"
+set(GENERAL_FILES
+    "Source/Application.cpp"
+    "Source/Application.h"
+    "Source/AutoIdMap.h"
+    "Source/CollisionSystem2D.cpp"
+    "Source/CollisionSystem2D.h"
+    "Source/ComponentContainer.cpp"
+    "Source/ComponentContainer.h"
+    "Source/ComponentStores.cpp"
+    "Source/ComponentStores.h"
+    "Source/Event.h"
+    "Source/FontData.h"
+    "Source/FontMeshData.h"
+    "Source/FreetypeTextLoader.cpp"
+    "Source/FreetypeTextLoader.h"
+    "Source/Logger.cpp"
+    "Source/Logger.h"
+    "Source/MeshData.h"
+    "Source/MeshLoader.cpp"
+    "Source/MeshLoader.h"
+    "Source/MeshVertex.h"
+    "Source/RenderData.h"
+    "Source/Renderer.cpp"
+    "Source/Renderer.h"
+    "Source/RenderSystem.cpp"
+    "Source/RenderSystem.h"
+    "Source/ResourceStores.cpp"
+    "Source/ResourceStores.h"
+    "Source/Scene.cpp"
+    "Source/Scene.h"
+    "Source/SoundData.h"
+    "Source/SoundLoader.cpp"
+    "Source/SoundLoader.h"
+    "Source/SoundPlayer.cpp"
+    "Source/SoundPlayer.h"
+    "Source/TextureData.h"
+    "Source/TextureLoader.cpp"
+    "Source/TextureLoader.h"
+    "Source/UniqueBiMap.h"
+    "Source/UniqueIdGenerator.cpp"
+    "Source/UniqueIdGenerator.h"
+    "Source/Window.cpp"
+    "Source/Window.h"
 )
 
-source_group("Src" FILES ${SOURCE_FILES})
-
-set(ENGINE_FILES
-    "Src/Engine/Application.cpp"
-    "Src/Engine/Application.h"
-    "Src/Engine/AutoIdMap.h"
-    "Src/Engine/CollisionSystem2D.cpp"
-    "Src/Engine/CollisionSystem2D.h"
-    "Src/Engine/ComponentContainer.cpp"
-    "Src/Engine/ComponentContainer.h"
-    "Src/Engine/ComponentStores.cpp"
-    "Src/Engine/ComponentStores.h"
-    "Src/Engine/Event.h"
-    "Src/Engine/FontData.h"
-    "Src/Engine/FontMeshData.h"
-    "Src/Engine/FreetypeTextLoader.cpp"
-    "Src/Engine/FreetypeTextLoader.h"
-    "Src/Engine/Logger.cpp"
-    "Src/Engine/Logger.h"
-    "Src/Engine/MeshData.h"
-    "Src/Engine/MeshLoader.cpp"
-    "Src/Engine/MeshLoader.h"
-    "Src/Engine/MeshVertex.h"
-    "Src/Engine/RenderData.h"
-    "Src/Engine/Renderer.cpp"
-    "Src/Engine/Renderer.h"
-    "Src/Engine/RenderSystem.cpp"
-    "Src/Engine/RenderSystem.h"
-    "Src/Engine/ResourceStores.cpp"
-    "Src/Engine/ResourceStores.h"
-    "Src/Engine/Scene.cpp"
-    "Src/Engine/Scene.h"
-    "Src/Engine/SoundData.h"
-    "Src/Engine/SoundLoader.cpp"
-    "Src/Engine/SoundLoader.h"
-    "Src/Engine/SoundPlayer.cpp"
-    "Src/Engine/SoundPlayer.h"
-    "Src/Engine/TextureData.h"
-    "Src/Engine/TextureLoader.cpp"
-    "Src/Engine/TextureLoader.h"
-    "Src/Engine/UniqueBiMap.h"
-    "Src/Engine/UniqueIdGenerator.cpp"
-    "Src/Engine/UniqueIdGenerator.h"
-    "Src/Engine/Window.cpp"
-    "Src/Engine/Window.h"
-)
-
-source_group("Src/Engine" FILES ${ENGINE_FILES})
+source_group("Source" FILES ${GENERAL_FILES})
 
 set (COMPONENTS_FILES
-    "Src/Engine/Components/Camera.cpp"
-    "Src/Engine/Components/Camera.h"
-    "Src/Engine/Components/CollisionBody2D.cpp"
-    "Src/Engine/Components/CollisionBody2D.h"
-    "Src/Engine/Components/CollisionShape2D.h"
-    "Src/Engine/Components/CollisionData.h"
-    "Src/Engine/Components/LightSource.h"
-    "Src/Engine/Components/Placement.h"
-    "Src/Engine/Components/Placement2D.h"
-    "Src/Engine/Components/Position.h"
-    "Src/Engine/Components/Position2D.h"
-    "Src/Engine/Components/RenderedMesh.h"
-    "Src/Engine/Components/RenderedModel.cpp"
-    "Src/Engine/Components/RenderedModel.h"
+    "Source/Components/Camera.cpp"
+    "Source/Components/Camera.h"
+    "Source/Components/CollisionBody2D.cpp"
+    "Source/Components/CollisionBody2D.h"
+    "Source/Components/CollisionShape2D.h"
+    "Source/Components/CollisionData.h"
+    "Source/Components/LightSource.h"
+    "Source/Components/Placement.h"
+    "Source/Components/Placement2D.h"
+    "Source/Components/Position.h"
+    "Source/Components/Position2D.h"
+    "Source/Components/RenderedMesh.h"
+    "Source/Components/RenderedModel.cpp"
+    "Source/Components/RenderedModel.h"
 )
 
-source_group("Src/Engine/Components" FILES ${COMPONENTS_FILES})
+source_group("Source/Components" FILES ${COMPONENTS_FILES})
 
 set (MATH_FILES
-    "Src/Engine/Math/CoordinateSystems.h"
-    "Src/Engine/Math/CoordinateSystems.inl"
-    "Src/Engine/Math/FloatComparators.h"
-    "Src/Engine/Math/FloatComparators.inl"
-    "Src/Engine/Math/Overlap2D.h"
-    "Src/Engine/Math/Overlap2D.inl"
-    "Src/Engine/Math/Overlap3D.h"
-    "Src/Engine/Math/Overlap3D.inl"
-    "Src/Engine/Math/Overlap3D_UnitTests.h"
-    "Src/Engine/Math/Overlap3D_UnitTests.inl"
-    "Src/Engine/Math/VectorUtilities.h"
-    "Src/Engine/Math/VectorUtilities.inl"
+    "Source/Math/CoordinateSystems.h"
+    "Source/Math/CoordinateSystems.inl"
+    "Source/Math/FloatComparators.h"
+    "Source/Math/FloatComparators.inl"
+    "Source/Math/Overlap2D.h"
+    "Source/Math/Overlap2D.inl"
+    "Source/Math/Overlap3D.h"
+    "Source/Math/Overlap3D.inl"
+    "Source/Math/Overlap3D_UnitTests.h"
+    "Source/Math/Overlap3D_UnitTests.inl"
+    "Source/Math/VectorUtilities.h"
+    "Source/Math/VectorUtilities.inl"
 )
 
-source_group("Src/Engine/Math" FILES ${MATH_FILES})
+source_group("Source/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_GLFW_FILES
-    "Src/Engine/Platform/GLFW_Window.cpp"
-    "Src/Engine/Platform/GLFW_Window.h"
+    "Source/Platform/GLFW_Window.cpp"
+    "Source/Platform/GLFW_Window.h"
 )
 
 set(PLATFORM_MINIAUDIO_FILES
-    "Src/Engine/Platform/MiniAudio_SoundPlayer.cpp"
-    "Src/Engine/Platform/MiniAudio_SoundPlayer.h"
+    "Source/Platform/MiniAudio_SoundPlayer.cpp"
+    "Source/Platform/MiniAudio_SoundPlayer.h"
 )
 
 set(PLATFORM_OPENGL_FILES
     "${PROJECT001_GLAD_FILE}"
-    "Src/Engine/Platform/OpenGL_Error.h"
-    "Src/Engine/Platform/OpenGL_Mesh.cpp"
-    "Src/Engine/Platform/OpenGL_Mesh.h"
-    "Src/Engine/Platform/OpenGL_Renderer.cpp"
-    "Src/Engine/Platform/OpenGL_Renderer.h"
-    "Src/Engine/Platform/OpenGL_Shader.cpp"
-    "Src/Engine/Platform/OpenGL_Shader.h"
-    "Src/Engine/Platform/OpenGL_Texture.cpp"
-    "Src/Engine/Platform/OpenGL_Texture.h"
+    "Source/Platform/OpenGL_Error.h"
+    "Source/Platform/OpenGL_Mesh.cpp"
+    "Source/Platform/OpenGL_Mesh.h"
+    "Source/Platform/OpenGL_Renderer.cpp"
+    "Source/Platform/OpenGL_Renderer.h"
+    "Source/Platform/OpenGL_Shader.cpp"
+    "Source/Platform/OpenGL_Shader.h"
+    "Source/Platform/OpenGL_Texture.cpp"
+    "Source/Platform/OpenGL_Texture.h"
 )
 
 set(PLATFORM_VULKAN_FILES
-    "Src/Engine/Platform/Vulkan_Error.h"
-    "Src/Engine/Platform/Vulkan_Renderer.cpp"
-    "Src/Engine/Platform/Vulkan_Renderer.h"
+    "Source/Platform/Vulkan_Error.h"
+    "Source/Platform/Vulkan_Renderer.cpp"
+    "Source/Platform/Vulkan_Renderer.h"
 )
 
-source_group("Src/Engine/Platform" FILES
+source_group("Source/Platform" FILES
     ${PLATFORM_GLFW_FILES}
     ${PLATFORM_MINIAUDIO_FILES}
     ${PLATFORM_OPENGL_FILES}
@@ -233,56 +180,56 @@ source_group("Src/Engine/Platform" FILES
 )
 
 set(PLATFORM_OPENGL_SHADER_FILES
-    "Src/Engine/Platform/OpenGL_Shaders/o_grid.frag"
-    "Src/Engine/Platform/OpenGL_Shaders/o_grid.vert"
-    "Src/Engine/Platform/OpenGL_Shaders/o_normal.frag"
-    "Src/Engine/Platform/OpenGL_Shaders/o_normal.geom"
-    "Src/Engine/Platform/OpenGL_Shaders/o_normal.vert"
-    "Src/Engine/Platform/OpenGL_Shaders/o_primary.frag"
-    "Src/Engine/Platform/OpenGL_Shaders/o_primary.vert"
-    "Src/Engine/Platform/OpenGL_Shaders/o_screen.frag"
-    "Src/Engine/Platform/OpenGL_Shaders/o_screen.vert"
-    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.frag"
-    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.geom"
-    "Src/Engine/Platform/OpenGL_Shaders/o_wireframe.vert"
+    "Source/Platform/OpenGL_Shaders/o_grid.frag"
+    "Source/Platform/OpenGL_Shaders/o_grid.vert"
+    "Source/Platform/OpenGL_Shaders/o_normal.frag"
+    "Source/Platform/OpenGL_Shaders/o_normal.geom"
+    "Source/Platform/OpenGL_Shaders/o_normal.vert"
+    "Source/Platform/OpenGL_Shaders/o_primary.frag"
+    "Source/Platform/OpenGL_Shaders/o_primary.vert"
+    "Source/Platform/OpenGL_Shaders/o_screen.frag"
+    "Source/Platform/OpenGL_Shaders/o_screen.vert"
+    "Source/Platform/OpenGL_Shaders/o_wireframe.frag"
+    "Source/Platform/OpenGL_Shaders/o_wireframe.geom"
+    "Source/Platform/OpenGL_Shaders/o_wireframe.vert"
 )
 
-source_group("Src/Engine/Platform/OpenGL_Shaders" FILES ${PLATFORM_OPENGL_SHADER_FILES})
+source_group("Source/Platform/OpenGL_Shaders" FILES ${PLATFORM_OPENGL_SHADER_FILES})
 
 set(PLATFORM_OPENGL_GENERATED_SHADER_FILES
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_grid_frag.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_grid_vert.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_frag.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_geom.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_normal_vert.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_primary_frag.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_primary_vert.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_screen_frag.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_screen_vert.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_frag.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_geom.h"
-    "Src/Engine/Platform/OpenGL_Shaders/Generated/o_wireframe_vert.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_grid_frag.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_grid_vert.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_normal_frag.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_normal_geom.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_normal_vert.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_primary_frag.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_primary_vert.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_screen_frag.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_screen_vert.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_wireframe_frag.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_wireframe_geom.h"
+    "Source/Platform/OpenGL_Shaders/Generated/o_wireframe_vert.h"
 )
 
-source_group("Src/Engine/Platform/OpenGL_Shaders/Generated" FILES ${PLATFORM_OPENGL_GENERATED_SHADER_FILES})
+source_group("Source/Platform/OpenGL_Shaders/Generated" FILES ${PLATFORM_OPENGL_GENERATED_SHADER_FILES})
 
 set(PLATFORM_VULKAN_SHADER_FILES
-    "Src/Engine/Platform/Vulkan_Shaders/v_primary.frag"
-    "Src/Engine/Platform/Vulkan_Shaders/v_primary.vert"
-    "Src/Engine/Platform/Vulkan_Shaders/v_screen.frag"
-    "Src/Engine/Platform/Vulkan_Shaders/v_screen.vert"
+    "Source/Platform/Vulkan_Shaders/v_primary.frag"
+    "Source/Platform/Vulkan_Shaders/v_primary.vert"
+    "Source/Platform/Vulkan_Shaders/v_screen.frag"
+    "Source/Platform/Vulkan_Shaders/v_screen.vert"
 )
 
-source_group("Src/Engine/Platform/Vulkan_Shaders" FILES ${PLATFORM_VULKAN_SHADER_FILES})
+source_group("Source/Platform/Vulkan_Shaders" FILES ${PLATFORM_VULKAN_SHADER_FILES})
 
 set(PLATFORM_VULKAN_GENERATED_SHADER_FILES
-    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_primary_frag_spv.h"
-    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_primary_vert_spv.h"
-    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_screen_frag_spv.h"
-    "Src/Engine/Platform/Vulkan_Shaders/Generated/v_screen_vert_spv.h"
+    "Source/Platform/Vulkan_Shaders/Generated/v_primary_frag_spv.h"
+    "Source/Platform/Vulkan_Shaders/Generated/v_primary_vert_spv.h"
+    "Source/Platform/Vulkan_Shaders/Generated/v_screen_frag_spv.h"
+    "Source/Platform/Vulkan_Shaders/Generated/v_screen_vert_spv.h"
 )
 
-source_group("Src/Engine/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VULKAN_GENERATED_SHADER_FILES})
+source_group("Source/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VULKAN_GENERATED_SHADER_FILES})
 
 # The following makes it so the unused graphics platform files doesn't get
 # compiled, but the files are still listed in the visual studio project
@@ -292,9 +239,61 @@ else()
     set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
 
+set(TEST_APPLICATION_FILES
+    "TestApplication/Source/Main.cpp"
+    "TestApplication/Source/TestButtonData001.h"
+    "TestApplication/Source/TestComponents.cpp"
+    "TestApplication/Source/TestComponents.h"
+    "TestApplication/Source/TestInstructionScene001.cpp"
+    "TestApplication/Source/TestInstructionScene001.h"
+    "TestApplication/Source/TestResource_AntonioRegular_ttf.h"
+    "TestApplication/Source/TestResource_Bounce_wav.h"
+    "TestApplication/Source/TestResource_Congratulations_ogg.h"
+    "TestApplication/Source/TestResource_CounterclockwiseDie_png.h"
+    "TestApplication/Source/TestResource_Cube_obj.h"
+    "TestApplication/Source/TestScene001.cpp"
+    "TestApplication/Source/TestScene001.h"
+    "TestApplication/Source/TestScene002.cpp"
+    "TestApplication/Source/TestScene002.h"
+    "TestApplication/Source/TestScene003.cpp"
+    "TestApplication/Source/TestScene003.h"
+    "TestApplication/Source/TestScene004.cpp"
+    "TestApplication/Source/TestScene004.h"
+    "TestApplication/Source/TestScene006.cpp"
+    "TestApplication/Source/TestScene006.h"
+    "TestApplication/Source/TestScene010.cpp"
+    "TestApplication/Source/TestScene010.h"
+    "TestApplication/Source/TestScene011.cpp"
+    "TestApplication/Source/TestScene011.h"
+    "TestApplication/Source/TestScene012.cpp"
+    "TestApplication/Source/TestScene012.h"
+    "TestApplication/Source/TestScene013.cpp"
+    "TestApplication/Source/TestScene013.h"
+    "TestApplication/Source/TestScene030.cpp"
+    "TestApplication/Source/TestScene030.h"
+    "TestApplication/Source/TestScene031.cpp"
+    "TestApplication/Source/TestScene031.h"
+    "TestApplication/Source/TestScene032.cpp"
+    "TestApplication/Source/TestScene032.h"
+    "TestApplication/Source/TestScene033.cpp"
+    "TestApplication/Source/TestScene033.h"
+    "TestApplication/Source/TestScene034.cpp"
+    "TestApplication/Source/TestScene034.h"
+    "TestApplication/Source/TestScene050.cpp"
+    "TestApplication/Source/TestScene050.h"
+    "TestApplication/Source/TestScene051.cpp"
+    "TestApplication/Source/TestScene051.h"
+    "TestApplication/Source/TestSceneBase001.cpp"
+    "TestApplication/Source/TestSceneBase001.h"
+    "TestApplication/Source/TestSceneBase002.cpp"
+    "TestApplication/Source/TestSceneBase002.h"
+    "TestApplication/Source/TestSceneIds.h"
+)
+
+source_group("TestApplication/Source" FILES ${TEST_APPLICATION_FILES})
+
 add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
-    ${SOURCE_FILES}
-    ${ENGINE_FILES}
+    ${GENERAL_FILES}
     ${COMPONENTS_FILES}
     ${MATH_FILES}
     ${PLATFORM_GLFW_FILES}
@@ -305,6 +304,7 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${PLATFORM_VULKAN_FILES}
     ${PLATFORM_VULKAN_SHADER_FILES}
     ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
+    ${TEST_APPLICATION_FILES}
 )
 
 # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")
@@ -340,12 +340,13 @@ target_include_directories("${PROJECT_NAME}"
     "${PROJECT001_MINIAUDIO_INCLUDE}"
     "${PROJECT001_STB_INCLUDE}"
     "${PROJECT001_VULKAN_INCLUDE}"
-    "Src"
+    "Source"
+    "TestApplication"
 )
 
-target_link_directories("${PROJECT_NAME}"
-    PRIVATE
-)
+# target_link_directories("${PROJECT_NAME}"
+#     PRIVATE
+# )
 
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE

@@ -3,7 +3,7 @@
 
 @ECHO OFF
 
-SET input_directory=../Src/Engine/Platform/OpenGL_Shaders
+SET input_directory=../Source/Platform/OpenGL_Shaders
 SET output_directory=%input_directory%/Generated
 
 SET input_directory=%input_directory:/=\%
