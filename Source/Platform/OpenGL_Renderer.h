@@ -275,8 +275,8 @@ namespace Project001
 
         std::vector<InstanceData> instanceBuffer_;
 
-        std::vector<BatchedVertexData> batchedVertexBuffer_;
-        std::vector<unsigned int> batchedIndexBuffer_;
+        std::vector<BatchedVertexData> batchedVertexStagingBuffer_;
+        std::vector<unsigned int> batchedIndexStagingBuffer_;
     };
 
     inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)

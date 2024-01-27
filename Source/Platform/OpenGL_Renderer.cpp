@@ -508,7 +508,7 @@ namespace Project001
 
         OpenGL_Mesh* meshPtr = iter->second;
 
-        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
+        if (!batchedVertexStagingBuffer_.empty() && !batchedIndexStagingBuffer_.empty())
         {
             RenderBatch();
         }
@@ -599,8 +599,8 @@ namespace Project001
         float shininess,
         bool lit)
     {
-        if ((batchedVertexBuffer_.size() + meshVertexCount) > batchedVertexBufferCapacity_ ||
-            (batchedIndexBuffer_.size() + meshIndexCount) > batchedIndexBufferCapacity_)
+        if ((batchedVertexStagingBuffer_.size() + meshVertexCount) > batchedVertexBufferCapacity_ ||
+            (batchedIndexStagingBuffer_.size() + meshIndexCount) > batchedIndexBufferCapacity_)
         {
             if (meshVertexCount > batchedVertexBufferCapacity_ ||
                 meshIndexCount > batchedIndexBufferCapacity_)
@@ -651,7 +651,7 @@ namespace Project001
             GetTextureUnit(specularId, specularUnit);
         }
 
-        unsigned int vertexBufferOffset = (unsigned int)batchedVertexBuffer_.size();
+        unsigned int vertexBufferOffset = (unsigned int)batchedVertexStagingBuffer_.size();
 
         for (size_t j = 0; j < meshVertexCount; ++j)
         {
@@ -673,12 +673,12 @@ namespace Project001
             newVertex.orientation.w = orientation.w;
             newVertex.lit = lit;
 
-            batchedVertexBuffer_.push_back(newVertex);
+            batchedVertexStagingBuffer_.push_back(newVertex);
         }
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            batchedIndexBuffer_.push_back(vertexBufferOffset + meshIndexPtr[j]);
+            batchedIndexStagingBuffer_.push_back(vertexBufferOffset + meshIndexPtr[j]);
         }
 
         return true;
@@ -695,7 +695,7 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
-        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
+        if (!batchedVertexStagingBuffer_.empty() && !batchedIndexStagingBuffer_.empty())
         {
             RenderBatchToTexture();
         }
@@ -1283,10 +1283,10 @@ namespace Project001
         glBindBuffer(GL_ARRAY_BUFFER, batchedVertexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batchedIndexBufferId_);
 
-        if (!batchedVertexBuffer_.empty() && !batchedIndexBuffer_.empty())
+        if (!batchedVertexStagingBuffer_.empty() && !batchedIndexStagingBuffer_.empty())
         {
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BatchedVertexData) * batchedVertexBuffer_.size(), &batchedVertexBuffer_[0]);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * batchedIndexBuffer_.size(), &batchedIndexBuffer_[0]);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BatchedVertexData) * batchedVertexStagingBuffer_.size(), &batchedVertexStagingBuffer_[0]);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * batchedIndexStagingBuffer_.size(), &batchedIndexStagingBuffer_[0]);
         }
 
         // The VBO doesn't need to be bound to draw with it
@@ -1295,10 +1295,10 @@ namespace Project001
         if (!s_cullBackface)
         {
             glCullFace(GL_FRONT);
-            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexStagingBuffer_.size(), GL_UNSIGNED_INT, 0);
         }
         glCullFace(GL_BACK);
-        glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexStagingBuffer_.size(), GL_UNSIGNED_INT, 0);
 
 
         if (s_drawWireframe)
@@ -1309,7 +1309,7 @@ namespace Project001
             wireframeShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
             wireframeShaderPtr_->SetVec3("u_ViewPosition", viewPosition_);
 
-            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexStagingBuffer_.size(), GL_UNSIGNED_INT, 0);
         }
 
         if (s_drawNormals)
@@ -1319,7 +1319,7 @@ namespace Project001
             normalShaderPtr_->SetMat4("u_View", viewMatrix_);
             normalShaderPtr_->SetMat4("u_Projection", projectionMatrix_);
 
-            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexBuffer_.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, (GLsizei)batchedIndexStagingBuffer_.size(), GL_UNSIGNED_INT, 0);
         }
 
         glBindVertexArray(0);
@@ -1330,8 +1330,8 @@ namespace Project001
 
         IncreaseTectureUnitStaleness();
 
-        batchedVertexBuffer_.clear();
-        batchedIndexBuffer_.clear();
+        batchedVertexStagingBuffer_.clear();
+        batchedIndexStagingBuffer_.clear();
     }
 
     void OpenGL_Renderer::DrawGrid()

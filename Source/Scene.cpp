@@ -177,4 +177,79 @@ namespace Project001
             _LOG_ERROR("Application pointer is nullptr");
         }
     }
+
+    void Scene::SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns)
+    {
+        if (applicationPtr_)
+        {
+            applicationPtr_->desiredFrameDuration_ns_ = frameDuration_ns;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+    }
+
+    unsigned long long Scene::GetDesiredFrameDuration_ns() const
+    {
+        if (applicationPtr_)
+        {
+            return applicationPtr_->desiredFrameDuration_ns_;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+        return 0ull;
+    }
+
+    void Scene::SetSleepyRunLoop(bool sleepyRunLoop)
+    {
+        if (applicationPtr_)
+        {
+            applicationPtr_->sleepyRunLoop_ = sleepyRunLoop;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+    }
+
+    bool Scene::GetSleepyRunLoop() const
+    {
+        if (applicationPtr_)
+        {
+            return applicationPtr_->sleepyRunLoop_;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+        return false;
+    }
+
+    void Scene::SetFixedSizeFramebuffer(bool fixedSizeFramebuffer)
+    {
+        if (applicationPtr_)
+        {
+            applicationPtr_->fixedSizeFramebuffer_ = fixedSizeFramebuffer;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+    }
+
+    bool Scene::GetFixedSizeFramebuffer() const
+    {
+        if (applicationPtr_)
+        {
+            return applicationPtr_->fixedSizeFramebuffer_;
+        }
+        else
+        {
+            _LOG_ERROR("Application pointer is nullptr");
+        }
+        return false;
+    }
 }

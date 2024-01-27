@@ -49,6 +49,17 @@ namespace Project001
 
         void SendEventToScene(unsigned int sceneId, Event& event);
 
+        // ---------------------------------------------------------------------
+
+        void SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns);
+        unsigned long long GetDesiredFrameDuration_ns() const;
+
+        void SetSleepyRunLoop(bool sleepyRunLoop);
+        bool GetSleepyRunLoop() const;
+
+        void SetFixedSizeFramebuffer(bool fixedSizeFramebuffer);
+        bool GetFixedSizeFramebuffer() const;
+
     private:
         Application* applicationPtr_;
 

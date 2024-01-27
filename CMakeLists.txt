@@ -8,13 +8,11 @@ cmake_minimum_required(VERSION 3.22.0)
 set(PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY "C:/Users/vikpa/Documents/Dev/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
 # https://github.com/freetype/freetype.git
 set(PROJECT001_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include" CACHE PATH "")
-set(PROJECT001_FREETYPE_LIBRARY "C:/Users/vikpa/Documents/Dev/freetype/build/Release/freetype.lib" CACHE PATH "")
 # https://glad.dav1d.de/
 set(PROJECT001_GLAD_INCLUDE "C:/Users/vikpa/Documents/Dev/glad/include" CACHE PATH "")
 set(PROJECT001_GLAD_FILE "C:/Users/vikpa/Documents/Dev/glad/src/glad.c" CACHE PATH "")
 # https://github.com/glfw/glfw.git
 set(PROJECT001_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include" CACHE PATH "")
-set(PROJECT001_GLFW_LIBRARY "C:/Users/vikpa/Documents/Dev/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
 # https://github.com/g-truc/glm.git
 set(PROJECT001_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm" CACHE PATH "")
 # https://github.com/mackron/miniaudio.git
@@ -24,23 +22,14 @@ set(PROJECT001_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb" CACHE PATH "")
 # https://vulkan.lunarg.com/
 set(PROJECT001_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
 set(PROJECT001_VULKAN_INCLUDE "${PROJECT001_VULKAN_DIRECTORY}/Include")
-set(PROJECT001_VULKAN_LIBRARY "${PROJECT001_VULKAN_DIRECTORY}/Lib/vulkan-1.lib")
 
-set(PROJECT001_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/TestApplication/Binary")
+set(PROJECT001_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Library")
 
 option(PROJECT001_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
 
 # If TRUE, sets renderer to Vulkan
 # If FALSE, renderer is set to OpenGL
 option(PROJECT001_VULKAN_BUILD "If TRUE, sets renderer to Vulkan. If FALSE, renderer is set to OpenGL" FALSE)
-
-# If TRUE, removes the console on Windows builds
-# If FALSE, Windows builds have a console
-option(PROJECT001_WINDOWS_NO_CONSOLE "If TRUE, removes the console on Windows builds. If FALSE, Windows builds have a console." FALSE)
-
-# If TRUE, adds memory leak check to Windows builds
-# If FALSE, doesn't
-option(PROJECT001_WINDOWS_MEMORY_LEAK_CHECK "If TRUE, adds memory leak check to Windows builds. If False, doesn't." TRUE)
 
 # ##############################################################################
 # ##############################################################################
@@ -57,8 +46,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 set(GENERAL_FILES
     "Source/Application.cpp"
@@ -239,60 +226,7 @@ else()
     set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
 
-set(TEST_APPLICATION_FILES
-    "TestApplication/Source/Main.cpp"
-    "TestApplication/Source/TestButtonData001.h"
-    "TestApplication/Source/TestComponents.cpp"
-    "TestApplication/Source/TestComponents.h"
-    "TestApplication/Source/TestInstructionScene001.cpp"
-    "TestApplication/Source/TestInstructionScene001.h"
-    "TestApplication/Source/TestResource_AntonioRegular_ttf.h"
-    "TestApplication/Source/TestResource_Bounce_wav.h"
-    "TestApplication/Source/TestResource_Congratulations_ogg.h"
-    "TestApplication/Source/TestResource_CounterclockwiseDie_png.h"
-    "TestApplication/Source/TestResource_Cube_obj.h"
-    "TestApplication/Source/TestScene001.cpp"
-    "TestApplication/Source/TestScene001.h"
-    "TestApplication/Source/TestScene002.cpp"
-    "TestApplication/Source/TestScene002.h"
-    "TestApplication/Source/TestScene003.cpp"
-    "TestApplication/Source/TestScene003.h"
-    "TestApplication/Source/TestScene004.cpp"
-    "TestApplication/Source/TestScene004.h"
-    "TestApplication/Source/TestScene006.cpp"
-    "TestApplication/Source/TestScene006.h"
-    "TestApplication/Source/TestScene010.cpp"
-    "TestApplication/Source/TestScene010.h"
-    "TestApplication/Source/TestScene011.cpp"
-    "TestApplication/Source/TestScene011.h"
-    "TestApplication/Source/TestScene012.cpp"
-    "TestApplication/Source/TestScene012.h"
-    "TestApplication/Source/TestScene013.cpp"
-    "TestApplication/Source/TestScene013.h"
-    "TestApplication/Source/TestScene030.cpp"
-    "TestApplication/Source/TestScene030.h"
-    "TestApplication/Source/TestScene031.cpp"
-    "TestApplication/Source/TestScene031.h"
-    "TestApplication/Source/TestScene032.cpp"
-    "TestApplication/Source/TestScene032.h"
-    "TestApplication/Source/TestScene033.cpp"
-    "TestApplication/Source/TestScene033.h"
-    "TestApplication/Source/TestScene034.cpp"
-    "TestApplication/Source/TestScene034.h"
-    "TestApplication/Source/TestScene050.cpp"
-    "TestApplication/Source/TestScene050.h"
-    "TestApplication/Source/TestScene051.cpp"
-    "TestApplication/Source/TestScene051.h"
-    "TestApplication/Source/TestSceneBase001.cpp"
-    "TestApplication/Source/TestSceneBase001.h"
-    "TestApplication/Source/TestSceneBase002.cpp"
-    "TestApplication/Source/TestSceneBase002.h"
-    "TestApplication/Source/TestSceneIds.h"
-)
-
-source_group("TestApplication/Source" FILES ${TEST_APPLICATION_FILES})
-
-add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
+add_library("${PROJECT_NAME}" STATIC
     ${GENERAL_FILES}
     ${COMPONENTS_FILES}
     ${MATH_FILES}
@@ -304,7 +238,6 @@ add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
     ${PLATFORM_VULKAN_FILES}
     ${PLATFORM_VULKAN_SHADER_FILES}
     ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
-    ${TEST_APPLICATION_FILES}
 )
 
 # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")
@@ -320,17 +253,6 @@ else()
     set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
 endif()
 
-if (${PROJECT001_WINDOWS_NO_CONSOLE})
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_NO_CONSOLE")
-
-    # adding WIN32 makes WinMain() the entry point and so no conole appears
-    set(CMAKE_WIN32 WIN32)
-endif()
-
-if (${PROJECT001_WINDOWS_MEMORY_LEAK_CHECK})
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_MEMORY_LEAK_CHECK")
-endif()
-
 target_include_directories("${PROJECT_NAME}"
     PRIVATE 
     "${PROJECT001_FREETYPE_INCLUDE}"
@@ -341,7 +263,6 @@ target_include_directories("${PROJECT_NAME}"
     "${PROJECT001_STB_INCLUDE}"
     "${PROJECT001_VULKAN_INCLUDE}"
     "Source"
-    "TestApplication"
 )
 
 # target_link_directories("${PROJECT_NAME}"
@@ -350,21 +271,17 @@ target_include_directories("${PROJECT_NAME}"
 
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE
-    "${PROJECT001_FREETYPE_LIBRARY}"
-    "${PROJECT001_GLFW_LIBRARY}"
-    "${PROJECT001_VULKAN_LIBRARY}"
 )
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT001_OUTPUT_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT001_OUTPUT_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT001_OUTPUT_DIRECTORY}"
+    # ARCHIVE_OUTPUT_DIRECTORY "${PROJECT001_OUTPUT_DIRECTORY}" # Creates a Debug and Release folder in given directory
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECT001_OUTPUT_DIRECTORY}"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT001_OUTPUT_DIRECTORY}"
+    # OUTPUT_NAME "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}" # Alternative way to name the output
+    # DEBUG_POSTFIX "_d"
     OUTPUT_NAME_DEBUG "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d"
     OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
 )
-
-# ##############################################################################
-# ##############################################################################
 
 if(EXISTS "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
     file(WRITE "Scripts/glslc_path.txt" "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
@@ -374,28 +291,26 @@ if(EXISTS "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
     file(WRITE "Scripts/FileToHeaderConverter_path.txt" "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
 endif()
 
+# ##############################################################################
+# ##############################################################################
+
 if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
     message("PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY: ${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
     message("PROJECT001_FREETYPE_INCLUDE: ${PROJECT001_FREETYPE_INCLUDE}")
-    message("PROJECT001_FREETYPE_LIBRARY: ${PROJECT001_FREETYPE_LIBRARY}")
     message("PROJECT001_GLAD_INCLUDE: ${PROJECT001_GLAD_INCLUDE}")
     message("PROJECT001_GLAD_FILE: ${PROJECT001_GLAD_FILE}")
     message("PROJECT001_GLFW_INCLUDE: ${PROJECT001_GLFW_INCLUDE}")
-    message("PROJECT001_GLFW_LIBRARY: ${PROJECT001_GLFW_LIBRARY}")
     message("PROJECT001_GLM_INCLUDE: ${PROJECT001_GLM_INCLUDE}")
     message("PROJECT001_MINIAUDIO_INCLUDE: ${PROJECT001_MINIAUDIO_INCLUDE}")
     message("PROJECT001_STB_INCLUDE: ${PROJECT001_STB_INCLUDE}")
     message("PROJECT001_VULKAN_DIRECTORY: ${PROJECT001_VULKAN_DIRECTORY}")
     message("PROJECT001_VULKAN_INCLUDE: ${PROJECT001_VULKAN_INCLUDE}")
-    message("PROJECT001_VULKAN_LIBRARY: ${PROJECT001_VULKAN_LIBRARY}")
 
     message("PROJECT001_OUTPUT_DIRECTORY: ${PROJECT001_OUTPUT_DIRECTORY}")
 
     message("PROJECT001_VULKAN_BUILD: ${PROJECT001_VULKAN_BUILD}")
-    message("PROJECT001_WINDOWS_NO_CONSOLE: ${PROJECT001_WINDOWS_NO_CONSOLE}")
-    message("PROJECT001_WINDOWS_MEMORY_LEAK_CHECK: ${PROJECT001_WINDOWS_MEMORY_LEAK_CHECK}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
@@ -420,9 +335,6 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
 
     get_property(_USE_FOLDERS GLOBAL PROPERTY USE_FOLDERS)
     message("USE_FOLDERS: ${_USE_FOLDERS}")
-
-    get_property(_VS_STARTUP_PROJECT DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT)
-    message("VS_STARTUP_PROJECT: ${_VS_STARTUP_PROJECT}")
 
     get_property(_SOURCES TARGET "${PROJECT_NAME}" PROPERTY SOURCES)
     message("SOURCES:")
@@ -454,14 +366,11 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
         message("    ${VARIABLE}")
     endforeach()
 
-    get_property(_VS_DEBUGGER_WORKING_DIRECTORY TARGET "${PROJECT_NAME}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY)
-    message("VS_DEBUGGER_WORKING_DIRECTORY: ${_VS_DEBUGGER_WORKING_DIRECTORY}")
-
     get_property(_RUNTIME_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG)
-    message("RUNTIME_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
+    message("ARCHIVE_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
 
     get_property(_RUNTIME_OUTPUT_DIRECTORY_RELEASE TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE)
-    message("RUNTIME_OUTPUT_DIRECTORY_RELEASE: ${_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
+    message("ARCHIVE_OUTPUT_DIRECTORY_RELEASE: ${_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
 
     get_property(_OUTPUT_NAME_DEBUG TARGET "${PROJECT_NAME}" PROPERTY OUTPUT_NAME_DEBUG)
     message("OUTPUT_NAME_DEBUG: ${_OUTPUT_NAME_DEBUG}")
@@ -471,3 +380,9 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
 
     message("--------------------------------------------------------------------------------")
 endif()
+
+# ##############################################################################
+# ##############################################################################
+
+add_subdirectory(TestApplication)
+set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "TestApplication")
