@@ -1,6 +1,9 @@
 # Build Folder
-Bin/*
+Binary/*
 Build/*
+Library/*
+TestApplication/Binary/*
+TestApplication/Build/*
 
 # Prerequisites
 *.d

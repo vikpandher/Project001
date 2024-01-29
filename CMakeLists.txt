@@ -5,20 +5,20 @@ endif()
 cmake_minimum_required(VERSION 3.22.0)
 
 # https://github.com/vikpandher/FileToHeaderConverter.git
-set(PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY "C:/Users/vikpa/Documents/Dev/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
+set(PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
 # https://github.com/freetype/freetype.git
-set(PROJECT001_FREETYPE_INCLUDE "C:/Users/vikpa/Documents/Dev/freetype/include" CACHE PATH "")
+set(PROJECT001_FREETYPE_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/freetype/include" CACHE PATH "")
 # https://glad.dav1d.de/
-set(PROJECT001_GLAD_INCLUDE "C:/Users/vikpa/Documents/Dev/glad/include" CACHE PATH "")
-set(PROJECT001_GLAD_FILE "C:/Users/vikpa/Documents/Dev/glad/src/glad.c" CACHE PATH "")
+set(PROJECT001_GLAD_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glad/include" CACHE PATH "")
+set(PROJECT001_GLAD_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glad/src" CACHE PATH "")
 # https://github.com/glfw/glfw.git
-set(PROJECT001_GLFW_INCLUDE "C:/Users/vikpa/Documents/Dev/glfw/include" CACHE PATH "")
+set(PROJECT001_GLFW_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glfw/include" CACHE PATH "")
 # https://github.com/g-truc/glm.git
-set(PROJECT001_GLM_INCLUDE "C:/Users/vikpa/Documents/Dev/glm" CACHE PATH "")
+set(PROJECT001_GLM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glm" CACHE PATH "")
 # https://github.com/mackron/miniaudio.git
-set(PROJECT001_MINIAUDIO_INCLUDE "C:/Users/vikpa/Documents/Dev/miniaudio" CACHE PATH "")
+set(PROJECT001_MINIAUDIO_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/miniaudio" CACHE PATH "")
 # https://github.com/nothings/stb.git
-set(PROJECT001_STB_INCLUDE "C:/Users/vikpa/Documents/Dev/stb" CACHE PATH "")
+set(PROJECT001_STB_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/stb" CACHE PATH "")
 # https://vulkan.lunarg.com/
 set(PROJECT001_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
 set(PROJECT001_VULKAN_INCLUDE "${PROJECT001_VULKAN_DIRECTORY}/Include")
@@ -141,7 +141,7 @@ set(PLATFORM_MINIAUDIO_FILES
 )
 
 set(PLATFORM_OPENGL_FILES
-    "${PROJECT001_GLAD_FILE}"
+    "${PROJECT001_GLAD_SOURCE}/glad.c"
     "Source/Platform/OpenGL_Error.h"
     "Source/Platform/OpenGL_Mesh.cpp"
     "Source/Platform/OpenGL_Mesh.h"
@@ -285,10 +285,14 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 
 if(EXISTS "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
     file(WRITE "Scripts/glslc_path.txt" "${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe")
+else()
+    message("${PROJECT001_VULKAN_DIRECTORY}/Bin/glslc.exe NOT FOUND")
 endif()
 
 if(EXISTS "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
     file(WRITE "Scripts/FileToHeaderConverter_path.txt" "${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
+else()
+    message("${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY} NOT FOUND")
 endif()
 
 # ##############################################################################
@@ -300,7 +304,7 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
     message("PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY: ${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
     message("PROJECT001_FREETYPE_INCLUDE: ${PROJECT001_FREETYPE_INCLUDE}")
     message("PROJECT001_GLAD_INCLUDE: ${PROJECT001_GLAD_INCLUDE}")
-    message("PROJECT001_GLAD_FILE: ${PROJECT001_GLAD_FILE}")
+    message("PROJECT001_GLAD_SOURCE: ${PROJECT001_GLAD_SOURCE}")
     message("PROJECT001_GLFW_INCLUDE: ${PROJECT001_GLFW_INCLUDE}")
     message("PROJECT001_GLM_INCLUDE: ${PROJECT001_GLM_INCLUDE}")
     message("PROJECT001_MINIAUDIO_INCLUDE: ${PROJECT001_MINIAUDIO_INCLUDE}")
@@ -366,11 +370,11 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
         message("    ${VARIABLE}")
     endforeach()
 
-    get_property(_RUNTIME_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG)
-    message("ARCHIVE_OUTPUT_DIRECTORY_DEBUG: ${_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
+    get_property(_ARCHIVE_OUTPUT_DIRECTORY_DEBUG TARGET "${PROJECT_NAME}" PROPERTY ARCHIVE_OUTPUT_DIRECTORY_DEBUG)
+    message("ARCHIVE_OUTPUT_DIRECTORY_DEBUG: ${_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}")
 
-    get_property(_RUNTIME_OUTPUT_DIRECTORY_RELEASE TARGET "${PROJECT_NAME}" PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE)
-    message("ARCHIVE_OUTPUT_DIRECTORY_RELEASE: ${_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
+    get_property(_ARCHIVE_OUTPUT_DIRECTORY_RELEASE TARGET "${PROJECT_NAME}" PROPERTY ARCHIVE_OUTPUT_DIRECTORY_RELEASE)
+    message("ARCHIVE_OUTPUT_DIRECTORY_RELEASE: ${_ARCHIVE_OUTPUT_DIRECTORY_RELEASE}")
 
     get_property(_OUTPUT_NAME_DEBUG TARGET "${PROJECT_NAME}" PROPERTY OUTPUT_NAME_DEBUG)
     message("OUTPUT_NAME_DEBUG: ${_OUTPUT_NAME_DEBUG}")

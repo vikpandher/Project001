@@ -1,0 +1,18 @@
+[submodule "Vendor/FileToHeaderConverter"]
+	path = Vendor/FileToHeaderConverter
+	url = https://github.com/vikpandher/FileToHeaderConverter.git
+[submodule "Vendor/freetype"]
+	path = Vendor/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "Vendor/glfw"]
+	path = Vendor/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "Vendor/glm"]
+	path = Vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Vendor/miniaudio"]
+	path = Vendor/miniaudio
+	url = https://github.com/mackron/miniaudio.git
+[submodule "Vendor/stb"]
+	path = Vendor/stb
+	url = https://github.com/nothings/stb.git
