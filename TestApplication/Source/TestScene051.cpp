@@ -10,7 +10,6 @@
 #include "FreetypeTextLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
-#include "Renderer.h"
 #include "RenderSystem.h"
 #include "SoundLoader.h"
 #include "SoundPlayer.h"

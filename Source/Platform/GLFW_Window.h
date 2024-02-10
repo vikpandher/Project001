@@ -53,8 +53,8 @@ namespace Project001
         bool GetMouseButtonPressed(MouseButton mouseButton) const override;
         void GetCursorPosition(float& xPosition, float& yPosition) const override;
         bool GetJoystickPresent(unsigned int index) const override;
-        void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const override;
-        void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const override;
+        void GetJoystickAxis(unsigned int index, std::vector<float>& values) const override;
+        void GetJoystickButtons(unsigned int index, std::vector<bool>& values) const override;
 
         void MakeContextCurrent() override;
         void MakeContextNotCurrent() override;

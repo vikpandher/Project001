@@ -92,7 +92,7 @@ namespace Project001
         RenderedMeshType renderedMeshType_;
         const MeshData* meshDataPtr_; // Used when RENDERED_MESH_TYPE_LOADED_CPU_SIDE
         unsigned int meshId_;         // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
-        float maxBoundingRadius_;     // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE
+        float maxBoundingRadius_;     // Used when RENDERED_MESH_TYPE_LOADED_GPU_SIDE (for frustum culling)
         int renderPriorityOverride_;
         unsigned int textureId_;
         unsigned int specularId_;

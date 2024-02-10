@@ -12,7 +12,7 @@ namespace Project001
 
     void CollisionSystem2D::CalculateCollisions(ComponentStores* componentStoresPtr)
     {
-        // Get Collision Bodies
+        // Get collision bodies
         CollisionBody2D* collisionBodyPtrs = nullptr;
         size_t collisionBodyCount = 0;
         bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
@@ -22,12 +22,18 @@ namespace Project001
             return;
         }
 
-        // Apply Collision Body Transformations
+        // Clear old collisions
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
             currentCollisionBody.ClearCollisions();
+        }
+
+        // Calculate bounding radii and transformed collision shapes
+        for (size_t i = 0; i < collisionBodyCount; ++i)
+        {
+            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
             if (!currentCollisionBody.BoundingRadiusUpToDate())
             {
@@ -40,7 +46,7 @@ namespace Project001
             }
         }
 
-        // Sort out all tangible collision bodies
+        // Gather together all tangible collision bodies
         s_tangibleCollisionBodyPtrs_.clear();
 
         for (size_t i = 0; i < collisionBodyCount; ++i)
@@ -70,6 +76,8 @@ namespace Project001
                 unsigned int entityIdB;
                 componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB);
 
+                // Only collision bodies in the same collision group can collide. Also do a premptive
+                // bounding radius collision check.
                 if ((collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()) &&
                     Check2D_Circle_Circle_Overlap(
                     collisionBodyA->GetPosition(),
@@ -87,7 +95,7 @@ namespace Project001
         unsigned int entityId,
         ComponentStores* componentStoresPtr)
     {
-        // Get primary Entity's Collision Bodies
+        // Get primary entity's collision bodies
         CollisionBody2D* primaryCollisionBodyPtr = nullptr;
         bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(primaryCollisionBodyPtr, entityId);
 
@@ -96,7 +104,7 @@ namespace Project001
             return;
         }
 
-        // Get Collision Bodies
+        // Get other collision bodies (will include the primary entity's collision body)
         CollisionBody2D* collisionBodyPtrs = nullptr;
         size_t collisionBodyCount = 0;
         bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
@@ -106,12 +114,18 @@ namespace Project001
             return;
         }
 
-        // Apply Collision Body Transformations
+        // Clear old collisions
+        // for (size_t i = 0; i < collisionBodyCount; ++i)
+        // {
+        //     CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+        // 
+        //     currentCollisionBody.ClearCollisions();
+        // }
+
+        // Calculate bounding radii and transformed collision shapes
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-
-            currentCollisionBody.ClearCollisions();
 
             if (!currentCollisionBody.BoundingRadiusUpToDate())
             {
@@ -142,16 +156,18 @@ namespace Project001
             return;
         }
 
-        // Clear primary Entity's Collisions
+        // Clear primary entity's collisions
         primaryCollisionBodyPtr->ClearCollisions();
 
-        // Calculate collisions
+        // Calculate collisions (only for primary entity)
         for (unsigned int j = 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
         {
             Project001::CollisionBody2D*& currentCollisionBody = s_tangibleCollisionBodyPtrs_[j];
             unsigned int currentEntityId;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentEntityId, currentCollisionBody);
 
+            // Only collision bodies in the same collision group can collide. Also do a premptive
+            // bounding radius collision check.
             if (entityId != currentEntityId &&
                 (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBody->GetCollisionGroupMask()) &&
                 Check2D_Circle_Circle_Overlap(

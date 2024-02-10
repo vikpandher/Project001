@@ -123,7 +123,7 @@ namespace Project001
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the name: %u", sceneId);
+                _LOG_ERROR("Application doesn't have a Scene with the id: %u", sceneId);
             }
         }
         else
@@ -169,7 +169,7 @@ namespace Project001
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the name: %u", sceneId);
+                _LOG_ERROR("Application doesn't have a Scene with the id: %u", sceneId);
             }
         }
         else

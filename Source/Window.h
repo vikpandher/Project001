@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 
 struct VkInstance_T;
@@ -54,8 +55,8 @@ namespace Project001
         virtual bool GetMouseButtonPressed(MouseButton mouseButton) const = 0;
         virtual void GetCursorPosition(float& xPosition, float& yPosition) const = 0;
         virtual bool GetJoystickPresent(unsigned int index) const = 0;
-        virtual void GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const = 0;
-        virtual void GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const = 0;
+        virtual void GetJoystickAxis(unsigned int index, std::vector<float>& values) const = 0;
+        virtual void GetJoystickButtons(unsigned int index, std::vector<bool>& values) const = 0;
 
         // Appicalbe to OpenGL
         virtual void MakeContextCurrent() = 0;

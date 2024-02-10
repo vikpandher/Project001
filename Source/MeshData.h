@@ -18,7 +18,7 @@ namespace Project001
 
         std::vector<MeshVertex> meshVertexArray;
         std::vector<unsigned int> meshIndexArray;
-        float maxBoundingRadius;
+        float maxBoundingRadius; // (for frustum culling)
         glm::vec3 maxVertexPosition;
         glm::vec3 minVertexPosition;
     };

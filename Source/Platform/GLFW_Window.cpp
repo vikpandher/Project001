@@ -214,25 +214,27 @@ namespace Project001
         return result == GLFW_TRUE;
     }
 
-    void GLFW_Window::GetJoystickAxis(unsigned int index, float*& values, unsigned int& count) const
+    void GLFW_Window::GetJoystickAxis(unsigned int index, std::vector<float>& values) const
     {
-        int countInt;
-        const float* axes = glfwGetJoystickAxes(index, &countInt);
-        count = (unsigned int)countInt;
-        for (unsigned int i = 0; i < count; ++i)
+        int count;
+        const float* axes = glfwGetJoystickAxes(index, &count);
+
+        values.clear();
+        for (int i = 0; i < count; ++i)
         {
-            values[i] = axes[i];
+            values.push_back(axes[i]);
         }
     }
 
-    void GLFW_Window::GetJoystickButtonsPressed(unsigned int index, bool*& values, unsigned int& count) const
+    void GLFW_Window::GetJoystickButtons(unsigned int index, std::vector<bool>& values) const
     {
-        int countInt;
-        const unsigned char* buttons = glfwGetJoystickButtons(index, &countInt);
-        count = (unsigned int)countInt;
-        for (unsigned int i = 0; i < count; ++i)
+        int count;
+        const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
+
+        values.clear();
+        for (int i = 0; i < count; ++i)
         {
-            values[i] = buttons[i] == GLFW_PRESS;
+            values.push_back(buttons[i] == GLFW_PRESS);
         }
     }
 

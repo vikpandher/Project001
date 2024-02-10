@@ -34,6 +34,7 @@
 #include "TestScene034.h"
 #include "TestScene050.h"
 #include "TestScene051.h"
+#include "TestScene060.h"
 #include "TestSceneIds.h"
 
 unsigned int g_testScene001Id = (unsigned int)-1; // declared extern in TestSceneIds.h
@@ -52,6 +53,8 @@ unsigned int g_testScene033Id = (unsigned int)-1; // declared extern in TestScen
 unsigned int g_testScene034Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene050Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene051Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene060Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+
 
 
 int main(int argc, char** argv)
@@ -161,6 +164,10 @@ int main(int argc, char** argv)
     TestScene051* testScene051Ptr = new TestScene051(applicationPtr);
     g_testScene051Id = testScene051Ptr->GetId();
 
+    // tests first joystick input
+    TestScene060* testScene060Ptr = new TestScene060(applicationPtr);
+    g_testScene060Id = testScene060Ptr->GetId();
+
     applicationPtr->Run();
 
     delete testScene001Ptr;
@@ -179,6 +186,7 @@ int main(int argc, char** argv)
     delete testScene034Ptr;
     delete testScene050Ptr;
     delete testScene051Ptr;
+    delete testScene060Ptr;
     delete applicationPtr;
 
     return 0;

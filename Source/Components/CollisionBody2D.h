@@ -68,7 +68,7 @@ namespace Project001
         bool BoundingRadiusUpToDate() const;
         bool TransformedCollisionShapesUpToDate() const;
 
-        // Only tangible_ meshes will be included in the bounding radius
+        // Only tangible_ shapes will be included in the bounding radius
         // calucation and in the transformed collision shape vectors
 
         void CalculateBoundingRadius();

@@ -287,8 +287,9 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
-            // added.
+            // added to select the one rendered behind.
             for (int i = (int)cursorCollisions.size() - 1; i >= 0; --i)
+            // for (size_t i = 0; i < cursorCollisions.size(); ++i)
             {
                 const Project001::CollisionData& currentCollision = cursorCollisions[i];
 
