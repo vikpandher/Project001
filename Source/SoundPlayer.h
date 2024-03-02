@@ -136,6 +136,10 @@ namespace Project001
 
         // ---------------------------------------------------------------------
 
+        // By default the listener's forward vector is (0.0f, 0.0f, 1.0f).
+
+        virtual void ResetListener() = 0;
+
         virtual void SetListenerPosition(const glm::vec3& position) = 0;
         virtual void GetListenerPosition(glm::vec3& position) const = 0;
 

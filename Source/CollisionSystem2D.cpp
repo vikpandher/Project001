@@ -12,6 +12,11 @@ namespace Project001
 
     void CollisionSystem2D::CalculateCollisions(ComponentStores* componentStoresPtr)
     {
+        if (componentStoresPtr == nullptr)
+        {
+            return;
+        }
+
         // Get collision bodies
         CollisionBody2D* collisionBodyPtrs = nullptr;
         size_t collisionBodyCount = 0;
@@ -95,6 +100,11 @@ namespace Project001
         unsigned int entityId,
         ComponentStores* componentStoresPtr)
     {
+        if (componentStoresPtr == nullptr)
+        {
+            return;
+        }
+
         // Get primary entity's collision bodies
         CollisionBody2D* primaryCollisionBodyPtr = nullptr;
         bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(primaryCollisionBodyPtr, entityId);
@@ -224,7 +234,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -232,7 +242,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
             {
                 const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-                if (!pointB.tangible_)
+                if (!pointB.tangible)
                 {
                     continue;
                 }
@@ -243,15 +253,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -263,7 +273,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -271,7 +281,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
             {
                 const CollisionLine2D& lineB = transformedCollisionLinesB[j];
-                if (!lineB.tangible_)
+                if (!lineB.tangible)
                 {
                     continue;
                 }
@@ -283,15 +293,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -303,7 +313,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -311,7 +321,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
-                if (!rayB.tangible_)
+                if (!rayB.tangible)
                 {
                     continue;
                 }
@@ -323,15 +333,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -343,7 +353,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -351,7 +361,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
             {
                 const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
-                if (!lineSegmentB.tangible_)
+                if (!lineSegmentB.tangible)
                 {
                     continue;
                 }
@@ -363,15 +373,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -383,7 +393,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -391,7 +401,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
                 const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
-                if (!rectangleB.tangible_)
+                if (!rectangleB.tangible)
                 {
                     continue;
                 }
@@ -403,15 +413,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -423,7 +433,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -431,7 +441,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
                 const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
-                if (!orientedRectangleB.tangible_)
+                if (!orientedRectangleB.tangible)
                 {
                     continue;
                 }
@@ -444,15 +454,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -464,7 +474,7 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible_)
+            if (!pointA.tangible)
             {
                 continue;
             }
@@ -472,7 +482,7 @@ namespace Project001
             for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
                 const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-                if (!circleB.tangible_)
+                if (!circleB.tangible)
                 {
                     continue;
                 }
@@ -484,15 +494,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -516,15 +526,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -548,15 +558,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -579,15 +589,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -610,15 +620,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = pointA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = pointA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -641,15 +651,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -673,15 +683,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -705,15 +715,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -737,15 +747,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -769,15 +779,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -802,15 +812,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -834,15 +844,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -867,15 +877,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -900,15 +910,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -932,15 +942,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -964,15 +974,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = lineA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -995,15 +1005,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1027,15 +1037,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1059,15 +1069,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1091,15 +1101,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1123,15 +1133,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1156,15 +1166,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1188,15 +1198,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1221,15 +1231,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1254,15 +1264,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1286,15 +1296,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1318,15 +1328,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rayA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = rayA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1349,15 +1359,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1381,15 +1391,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1413,15 +1423,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1445,15 +1455,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1477,15 +1487,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1510,15 +1520,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1542,15 +1552,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1575,15 +1585,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1608,15 +1618,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1640,15 +1650,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1672,15 +1682,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = lineSegmentA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = lineSegmentA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1703,15 +1713,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1735,15 +1745,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1767,15 +1777,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1799,15 +1809,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1831,15 +1841,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1864,15 +1874,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1896,15 +1906,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1929,15 +1939,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1962,15 +1972,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1994,15 +2004,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2026,15 +2036,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = rectangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = rectangleA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2058,15 +2068,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2091,15 +2101,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2124,15 +2134,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2157,15 +2167,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2190,15 +2200,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2224,15 +2234,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2257,15 +2267,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2291,15 +2301,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2325,15 +2335,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2358,15 +2368,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2391,15 +2401,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = orientedRectangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = orientedRectangleA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2422,15 +2432,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2454,15 +2464,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2486,15 +2496,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2518,15 +2528,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2550,15 +2560,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2583,15 +2593,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2615,15 +2625,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2648,15 +2658,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2681,15 +2691,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2713,15 +2723,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2745,15 +2755,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = circleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = circleA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2777,15 +2787,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2810,15 +2820,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2843,15 +2853,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2876,15 +2886,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2909,15 +2919,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2943,15 +2953,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2976,15 +2986,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3010,15 +3020,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3044,15 +3054,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3077,15 +3087,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3110,15 +3120,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = capsuleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = capsuleA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3142,15 +3152,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3175,15 +3185,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3208,15 +3218,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3241,15 +3251,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3274,15 +3284,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3308,15 +3318,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3341,15 +3351,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3375,15 +3385,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3409,15 +3419,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3442,15 +3452,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3475,15 +3485,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = triangleA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = triangleA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3506,15 +3516,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3538,15 +3548,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3570,15 +3580,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3602,15 +3612,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3634,15 +3644,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3667,15 +3677,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3699,15 +3709,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3732,15 +3742,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3765,15 +3775,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3797,15 +3807,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3829,15 +3839,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = polygonA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = polygonA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3860,15 +3870,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = pointB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = pointB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3892,15 +3902,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = lineB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = lineB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3924,15 +3934,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = rayB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = rayB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3956,15 +3966,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = lineSegmentB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = lineSegmentB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3988,15 +3998,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = rectangleB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = rectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4021,15 +4031,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = orientedRectangleB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = orientedRectangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4053,15 +4063,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = circleB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = circleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4086,15 +4096,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = capsuleB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = capsuleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4119,15 +4129,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = triangleB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = triangleB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4151,15 +4161,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = polygonB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = polygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4183,15 +4193,15 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeId = convexPolygonA.id_;
-                    collisionA.otherShapeId = convexPolygonB.id_;
+                    collisionA.myShapeTag = convexPolygonA.tag;
+                    collisionA.otherShapeTag = convexPolygonB.tag;
 
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
-                        collisionB.myShapeId = collisionA.otherShapeId;
-                        collisionB.otherShapeId = collisionA.myShapeId;
+                        collisionB.myShapeTag = collisionA.otherShapeTag;
+                        collisionB.otherShapeTag = collisionA.myShapeTag;
 
                         collisionBodyB.AddCollision(collisionB);
                     }

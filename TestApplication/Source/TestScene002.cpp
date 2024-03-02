@@ -595,14 +595,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(thonkTextureId);
-        renderedMeshPtr->SetSpecularId(thonkSpecularTextureId);
-        renderedMeshPtr->SetShininess(32.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(thonkTextureId);
+            renderedMeshPtr->SetSpecularId(thonkSpecularTextureId);
+            renderedMeshPtr->SetShininess(32.0f);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -612,13 +614,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(dice01TextureId);
-        renderedMeshPtr->SetShininess(32.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(dice01TextureId);
+            renderedMeshPtr->SetShininess(32.0f);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -628,13 +632,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(dice02TextureId);
-        renderedMeshPtr->SetShininess(32.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(dice02TextureId);
+            renderedMeshPtr->SetShininess(32.0f);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -644,15 +650,17 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(dice03TextureId);
-        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
-        renderedMeshPtr->SetShininess(32.0f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(dice03TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+            renderedMeshPtr->SetShininess(32.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -662,13 +670,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -678,13 +688,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -694,15 +706,17 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetSpecularId(patternSpecular01TextureId);
-        renderedMeshPtr->SetScale(0.5f, 0.75f, 1.0f);
-        renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
-        renderedMeshPtr->SetShininess(24.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetSpecularId(patternSpecular01TextureId);
+            renderedMeshPtr->SetScale(0.5f, 0.75f, 1.0f);
+            renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.2f);
+            renderedMeshPtr->SetShininess(24.0f);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -712,16 +726,18 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetSpecularId(patternSpecular02TextureId);
-        renderedMeshPtr->AddPitch(glm::pi<float>() / 4.0f);
-        renderedMeshPtr->AddYaw(glm::pi<float>() / 4.0f);
-        renderedMeshPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
-        renderedMeshPtr->SetShininess(4.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetSpecularId(patternSpecular02TextureId);
+            renderedMeshPtr->AddPitch(glm::pi<float>() / 4.0f);
+            renderedMeshPtr->AddYaw(glm::pi<float>() / 4.0f);
+            renderedMeshPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
+            renderedMeshPtr->SetShininess(4.0f);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -736,14 +752,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.6f, 0.2f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -753,14 +771,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.6f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -770,13 +790,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.6f, 0.2f, 0.8f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -786,13 +809,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.2f, 0.6f, 0.8f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -802,13 +828,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -818,13 +847,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.6f, 0.8f, 0.2f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -834,134 +866,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        positionIndex++;
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        positionIndex++;
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
-        renderedMeshPtr->SetTranslucent(true);
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -981,12 +895,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 0.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -996,12 +914,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1011,12 +933,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.0f, 0.0f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1026,12 +952,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(0.0f, 1.0f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1041,12 +971,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 0.0f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1056,12 +990,16 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1071,12 +1009,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1096,12 +1037,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1111,12 +1055,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1126,12 +1073,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1141,12 +1091,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1156,12 +1109,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1171,12 +1127,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1186,12 +1145,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1211,12 +1173,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1226,12 +1191,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1241,12 +1209,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1256,12 +1227,74 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
@@ -1276,12 +1309,92 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
-        renderedMeshPtr->SetTextureId(_100x100TextureId);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[meshDataPtrArrayIndex++]);
+            renderedMeshPtr->SetTextureId(_100x100TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------

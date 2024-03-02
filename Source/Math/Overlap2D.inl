@@ -109,10 +109,9 @@ namespace Project001
         const glm::vec2& circle_position,
         const float& circle_radius)
     {
-        glm::vec2 pointToCircle = point_position - circle_position;
-        float pointToCircleDistanceSquared = glm::dot(pointToCircle, pointToCircle);
+        float pointToCircleCenterDistanceSquared = Get2D_Point_Point_DistanceSquared(point_position, circle_position);
         float circleRadiusSquared = circle_radius * circle_radius;
-        return FloatLessThanOrEqualToFloat(pointToCircleDistanceSquared, circleRadiusSquared);
+        return FloatLessThanOrEqualToFloat(pointToCircleCenterDistanceSquared, circleRadiusSquared);
     }
 
     inline bool Check2D_Point_Capsule_Overlap(
@@ -168,10 +167,10 @@ namespace Project001
         glm::vec2 AB = triangle_corner2 - triangle_corner1;
         glm::vec2 AC = triangle_corner3 - triangle_corner1;
 
-        float dot00 = glm::dot(AC, AC);
+        float dot00 = glm::dot(AC, AC); // corner1_to_corner3 distance squared
         float dot01 = glm::dot(AC, AB);
         float dot02 = glm::dot(AC, AP);
-        float dot11 = glm::dot(AB, AB);
+        float dot11 = glm::dot(AB, AB); // corner2_to_corner3 distance squared
         float dot12 = glm::dot(AB, AP);
 
         float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
@@ -190,6 +189,8 @@ namespace Project001
     {
         if (polygon_cornerCount > 2)
         {
+            // I'm going to check how many times a ray from the point intersects
+            // the polygon's line segments.
             unsigned int intersectionCount = 0;
 
             // I don't use axis alinged rays. If they are aligned to
@@ -2189,7 +2190,15 @@ namespace Project001
         }
     }
 
-    // Helper Functions --------------------------------------------------------
+    // Distance Squared Functions ----------------------------------------------
+
+    inline float Get2D_Point_Point_DistanceSquared(
+        const glm::vec2& pointA_position,
+        const glm::vec2& pointB_position)
+    {
+        glm::vec2 pointA_to_pointB = pointB_position - pointA_position;
+        return glm::dot(pointA_to_pointB, pointA_to_pointB);
+    }
 
     inline float Get2D_Point_Line_DistanceSquared(
         const glm::vec2& point_position,
@@ -2209,6 +2218,67 @@ namespace Project001
         return temp * temp / (1.0f + y1 * y1);
     }
 
+    inline float Get2D_Point_Ray_DistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction)
+    {
+        glm::vec2 rayToPoint = point_position - ray_position;
+        float dotProduct = glm::dot(ray_direction, rayToPoint);
+        if (dotProduct < 0.0f)
+        {
+            // Nearest point is the ray's start position
+            return glm::dot(rayToPoint, rayToPoint);
+        }
+        else
+        {
+            // Nearest point on the ray is perpendicular
+            // const float& x1 = ray_direction.x;
+            // const float& y1 = ray_direction.y;
+            // const float& x2 = rayToPoint.x;
+            // const float& y2 = rayToPoint.y;
+            // float temp = x1 * y2 - y1 * x2;
+            // return temp * temp / (x1 * x1 + y1 * y1);
+            glm::vec2 perpendicularPoint = ray_position + dotProduct * ray_direction;
+            glm::vec2 vectorBetween = point_position - perpendicularPoint;
+            return glm::dot(vectorBetween, vectorBetween);
+        }
+    }
+
+    inline float Get2D_Point_LineSegment_DistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end)
+    {
+        glm::vec2 lineSegment = lineSegment_end - lineSegment_start;
+        glm::vec2 endToPoint = point_position - lineSegment_end;
+        glm::vec2 startToPoint = point_position - lineSegment_start;
+
+        float dotProduct1 = glm::dot(lineSegment, endToPoint);
+        if (dotProduct1 > 0.0f)
+        {
+            // Nearest Point on the LineSegment is the end
+            return glm::dot(endToPoint, endToPoint);
+        }
+
+        float dotProduct2 = glm::dot(lineSegment, startToPoint);
+        if (dotProduct2 < 0.0f)
+        {
+            // Nearest Point on the LineSegment is the start
+            return glm::dot(startToPoint, startToPoint);
+        }
+
+        // Nearest Point on the LineSegment is perpendicular
+        const float& x1 = lineSegment.x;
+        const float& y1 = lineSegment.y;
+        const float& x2 = startToPoint.x;
+        const float& y2 = startToPoint.y;
+        float temp = x1 * y2 - y1 * x2;
+        return temp * temp / (x1 * x1 + y1 * y1);
+    }
+
+    // Helper Functions --------------------------------------------------------
+
     inline float Get2D_Point_Line_DistanceSquared_Alt(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
@@ -2225,71 +2295,7 @@ namespace Project001
         glm::vec2 perpendicularPoint;
         Get2D_Line_Line_Intersection_H(line_position, line_slope, point_position, invertedSlope, perpendicularPoint);
 
-        glm::vec2 pointToPerpendicularPoint = perpendicularPoint - point_position;
-
-        return glm::dot(pointToPerpendicularPoint, pointToPerpendicularPoint);
-    }
-
-    inline float Get2D_Point_Ray_DistanceSquared(
-        const glm::vec2& point_position,
-        const glm::vec2& ray_position,
-        const glm::vec2& ray_direction)
-    {
-        glm::vec2 rayToPoint = point_position - ray_position;
-        float dotProduct = glm::dot(ray_direction, rayToPoint);
-        if (dotProduct < 0.0f)
-        {
-            // Nearest point is the ray's start position
-            return glm::dot(rayToPoint, rayToPoint);
-        }
-        else
-        {
-            // Nearest point on the ray is perpendicular
-            const float& x1 = ray_direction.x;
-            const float& y1 = ray_direction.y;
-            const float& x2 = rayToPoint.x;
-            const float& y2 = rayToPoint.y;
-            float temp = x1 * y2 - y1 * x2;
-            return temp * temp / (x1 * x1 + y1 * y1);
-        }
-    }
-
-    inline float Get2D_Point_LineSegment_DistanceSquared(
-        const glm::vec2& point_position,
-        const glm::vec2& lineSegment_start,
-        const glm::vec2& lineSegment_end)
-    {
-        glm::vec2 lineSegment = lineSegment_end - lineSegment_start;
-        glm::vec2 endToPoint = point_position - lineSegment_end;
-        glm::vec2 startToPoint = point_position - lineSegment_start;
-
-        float dotProduct1 = glm::dot(lineSegment, endToPoint);
-        float dotProduct2 = glm::dot(lineSegment, startToPoint);
-
-        float minimumDistanceSquared = 0.0f;
-
-        if (dotProduct1 > 0.0f)
-        {
-            // Nearest Point on the LineSegment is the end
-            minimumDistanceSquared = glm::dot(endToPoint, endToPoint);
-        }
-        else if (dotProduct2 < 0.0f)
-        {
-            // Nearest Point on the LineSegment is the start
-            minimumDistanceSquared = glm::dot(startToPoint, startToPoint);
-        }
-        else
-        {
-            // Nearest Point on the LineSegment is perpendicular
-            const float& x1 = lineSegment.x;
-            const float& y1 = lineSegment.y;
-            const float& x2 = startToPoint.x;
-            const float& y2 = startToPoint.y;
-            float temp = x1 * y2 - y1 * x2;
-            minimumDistanceSquared = temp * temp / (x1 * x1 + y1 * y1);
-        }
-
-        return minimumDistanceSquared;
+        return Get2D_Point_Point_DistanceSquared(point_position, perpendicularPoint);
     }
 
     inline bool Check2D_Point_Rectangle_NoOverlap_H(

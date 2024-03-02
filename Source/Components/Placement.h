@@ -33,6 +33,8 @@ namespace Project001
         // The world is a Right-Handed Coordinate system.
         // If x is positive to the right and y is positive to the top,
         // z is positive sticking out of the screen.
+        // 
+        // By default the camera's forward vector is (0.0f, 0.0f, 1.0f).
 
         void ResetOrientation();
 

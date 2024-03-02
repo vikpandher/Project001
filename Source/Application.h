@@ -66,8 +66,5 @@ namespace Project001
 
         AutoIdMap<Scene*> scenePtrMap_;
         Scene* activeScenePtr_;
-
-    private:
-        bool creationSuccessful_;
     };
 }

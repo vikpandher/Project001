@@ -146,6 +146,8 @@ namespace Project001
 
         // ---------------------------------------------------------------------
 
+        void ResetListener() override;
+
         void SetListenerPosition(const glm::vec3& position) override;
         void GetListenerPosition(glm::vec3& position) const override;
 

@@ -36,11 +36,8 @@ protected:
     TestInstructionScene001 instructionScene_;
 
     Project001::Window* windowPtr_;
-
     Project001::Renderer* rendererPtr_;
-
     Project001::SoundPlayer* soundPlayerPtr_;
-
     Project001::ComponentStores* componentStoresPtr_;
 
     // Font Data ---------------------------------------------------------------

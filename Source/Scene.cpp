@@ -11,7 +11,7 @@ namespace Project001
 
     Scene::~Scene()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             // Remove this from its Application's sceneMap.
             AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(id_);
@@ -32,7 +32,7 @@ namespace Project001
         : applicationPtr_(applicationPtr)
         , id_((unsigned int)-1)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             applicationPtr_->scenePtrMap_.Add(id_, this);
 
@@ -49,7 +49,7 @@ namespace Project001
 
     ComponentStores* Scene::GetApplicaitonComponentStoresPtr()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->componentStoresPtr_;
         }
@@ -62,7 +62,7 @@ namespace Project001
 
     Renderer* Scene::GetApplicationRendererPtr()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->rendererPtr_;
         }
@@ -75,7 +75,7 @@ namespace Project001
 
     ResourceStores* Scene::GetApplicationResourceStoresPtr()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->resourceStoresPtr_;
         }
@@ -88,7 +88,7 @@ namespace Project001
 
     SoundPlayer* Scene::GetApplicationSoundPlayerPtr()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->soundPlayerPtr_;
         }
@@ -101,7 +101,7 @@ namespace Project001
 
     Window* Scene::GetApplicationWindowPtr()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->windowPtr_;
         }
@@ -114,7 +114,7 @@ namespace Project001
 
     Scene* Scene::GetScene(unsigned int sceneId)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
             if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
@@ -135,7 +135,7 @@ namespace Project001
 
     Scene* Scene::GetActiveScene()
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->activeScenePtr_;
         }
@@ -148,7 +148,7 @@ namespace Project001
 
     void Scene::SendEventToApplication(Event& event)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             applicationPtr_->HandleEvent(event);
         }
@@ -160,7 +160,7 @@ namespace Project001
 
     void Scene::SendEventToScene(unsigned int sceneId, Event& event)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
             if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
@@ -180,7 +180,7 @@ namespace Project001
 
     void Scene::SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             applicationPtr_->desiredFrameDuration_ns_ = frameDuration_ns;
         }
@@ -192,7 +192,7 @@ namespace Project001
 
     unsigned long long Scene::GetDesiredFrameDuration_ns() const
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->desiredFrameDuration_ns_;
         }
@@ -205,7 +205,7 @@ namespace Project001
 
     void Scene::SetSleepyRunLoop(bool sleepyRunLoop)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             applicationPtr_->sleepyRunLoop_ = sleepyRunLoop;
         }
@@ -217,7 +217,7 @@ namespace Project001
 
     bool Scene::GetSleepyRunLoop() const
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->sleepyRunLoop_;
         }
@@ -230,7 +230,7 @@ namespace Project001
 
     void Scene::SetFixedSizeFramebuffer(bool fixedSizeFramebuffer)
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             applicationPtr_->fixedSizeFramebuffer_ = fixedSizeFramebuffer;
         }
@@ -242,7 +242,7 @@ namespace Project001
 
     bool Scene::GetFixedSizeFramebuffer() const
     {
-        if (applicationPtr_)
+        if (applicationPtr_ != nullptr)
         {
             return applicationPtr_->fixedSizeFramebuffer_;
         }

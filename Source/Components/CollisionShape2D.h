@@ -10,22 +10,22 @@ namespace Project001
 {
     struct CollisionShape2D
     {
-        unsigned int id_;
-        bool tangible_;
+        unsigned int tag;
+        bool tangible;
 
     protected:
         CollisionShape2D();
-        CollisionShape2D(unsigned int id, bool tangible);
+        CollisionShape2D(unsigned int tag, bool tangible);
     };
 
     inline CollisionShape2D::CollisionShape2D()
-        : id_(0)
-        , tangible_(true)
+        : tag(0)
+        , tangible(true)
     {}
 
-    inline CollisionShape2D::CollisionShape2D(unsigned int id, bool tangible)
-        : id_(id)
-        , tangible_(tangible)
+    inline CollisionShape2D::CollisionShape2D(unsigned int tag, bool tangible)
+        : tag(tag)
+        , tangible(tangible)
     {}
 
     // -------------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace Project001
     {
         CollisionPoint2D();
         CollisionPoint2D(const glm::vec2& position);
-        CollisionPoint2D(const glm::vec2& position, unsigned int id, bool tangible);
+        CollisionPoint2D(const glm::vec2& position, unsigned int tag, bool tangible);
 
         glm::vec2 position;
     };
@@ -47,8 +47,8 @@ namespace Project001
         : position(position)
     {}
 
-    inline CollisionPoint2D::CollisionPoint2D(const glm::vec2& position, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionPoint2D::CollisionPoint2D(const glm::vec2& position, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , position(position)
     {}
 
@@ -58,7 +58,7 @@ namespace Project001
     {
         CollisionLine2D();
         CollisionLine2D(const glm::vec2& position, const float& slope);
-        CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int id, bool tangible);
+        CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int tag, bool tangible);
 
         glm::vec2 position;
         float slope;
@@ -74,8 +74,8 @@ namespace Project001
         , slope(slope)
     {}
 
-    inline CollisionLine2D::CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionLine2D::CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , position(position)
         , slope(slope)
     {}
@@ -86,7 +86,7 @@ namespace Project001
     {
         CollisionRay2D();
         CollisionRay2D(const glm::vec2& position, const glm::vec2& direction);
-        CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int id, bool tangible);
+        CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool tangible);
 
         glm::vec2 position;
         glm::vec2 direction; // keep this normalized (a unit vector)
@@ -102,8 +102,8 @@ namespace Project001
         , direction(direction)
     {}
 
-    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , position(position)
         , direction(direction)
     {}
@@ -114,7 +114,7 @@ namespace Project001
     {
         CollisionLineSegment2D();
         CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end);
-        CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int id, bool tangible);
+        CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int tag, bool tangible);
 
         glm::vec2 start;
         glm::vec2 end;
@@ -130,8 +130,8 @@ namespace Project001
         , end(end)
     {}
 
-    inline CollisionLineSegment2D::CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionLineSegment2D::CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , start(start)
         , end(end)
     {}
@@ -142,7 +142,7 @@ namespace Project001
     {
         CollisionRectangle2D();
         CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight);
-        CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int id, bool tangible);
+        CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int tag, bool tangible);
 
         glm::vec2 bottomLeft;
         glm::vec2 topRight;
@@ -158,8 +158,8 @@ namespace Project001
         , topRight(topRight)
     {}
 
-    inline CollisionRectangle2D::CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionRectangle2D::CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , bottomLeft(bottomLeft)
         , topRight(topRight)
     {}
@@ -170,7 +170,7 @@ namespace Project001
     {
         CollisionOrientedRectangle2D();
         CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation);
-        CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int id, bool tangible);
+        CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int tag, bool tangible);
 
         glm::vec2 halfSize;
         glm::vec2 position;
@@ -189,8 +189,8 @@ namespace Project001
         , rotation(rotation)
     {}
 
-    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , halfSize(halfSize)
         , position(position)
         , rotation(rotation)
@@ -202,7 +202,7 @@ namespace Project001
     {
         CollisionCircle2D();
         CollisionCircle2D(const glm::vec2& position, const float& radius);
-        CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int id, bool tangible);
+        CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int tag, bool tangible);
 
         glm::vec2 position;
         float radius;
@@ -218,8 +218,8 @@ namespace Project001
         , radius(radius)
     {}
 
-    inline CollisionCircle2D::CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionCircle2D::CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , position(position)
         , radius(radius)
     {}
@@ -230,7 +230,7 @@ namespace Project001
     {
         CollisionCapsule2D();
         CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius);
-        CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int id, bool tangible);
+        CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int tag, bool tangible);
 
         glm::vec2 start;
         glm::vec2 end;
@@ -249,8 +249,8 @@ namespace Project001
         , radius(radius)
     {}
 
-    inline CollisionCapsule2D::CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionCapsule2D::CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , start(start)
         , end(end)
         , radius(radius)
@@ -262,7 +262,7 @@ namespace Project001
     {
         CollisionTriangle2D();
         CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3);
-        CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int id, bool tangible);
+        CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int tag, bool tangible);
 
         glm::vec2 corner1;
         glm::vec2 corner2;
@@ -281,8 +281,8 @@ namespace Project001
         , corner3(corner3)
     {}
 
-    inline CollisionTriangle2D::CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionTriangle2D::CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , corner1(corner1)
         , corner2(corner2)
         , corner3(corner3)
@@ -294,7 +294,7 @@ namespace Project001
     {
         CollisionPolygon2D();
         CollisionPolygon2D(const std::vector<glm::vec2>& positions);
-        CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int id, bool tangible);
+        CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible);
 
         std::vector<glm::vec2> positions;
     };
@@ -306,8 +306,8 @@ namespace Project001
         : positions(positions)
     {}
 
-    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , positions(positions)
     {}
 
@@ -317,7 +317,7 @@ namespace Project001
     {
         CollisionConvexPolygon2D();
         CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions);
-        CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int id, bool tangible);
+        CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible);
 
         std::vector<glm::vec2> positions;
     };
@@ -329,8 +329,8 @@ namespace Project001
         : positions(positions)
     {}
 
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int id, bool tangible)
-        : CollisionShape2D(id, tangible)
+    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible)
+        : CollisionShape2D(tag, tangible)
         , positions(positions)
     {}
 }

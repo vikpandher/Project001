@@ -44,108 +44,126 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 
     // Create Meshes -----------------------------------------------------------
 
-    {
-        hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
-            *hiddenInstructionMeshDataPtr_,
-            *initializationInfo.fontDataPtr,
-            initializationInfo.hiddenInstructionString,
-            instructionFontPixelSize_
-        ));
-        Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
+    const float instructionFontPixelSize = 0.0048f;
 
-        instructionMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
-            *instructionMeshDataPtr_,
-            *initializationInfo.fontDataPtr,
-            initializationInfo.instructionString,
-            instructionFontPixelSize_
-        ));
-        Project001::MeshLoader::RecenterMesh(*instructionMeshDataPtr_);
+    hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        *hiddenInstructionMeshDataPtr_,
+        *initializationInfo.fontDataPtr,
+        initializationInfo.hiddenInstructionString,
+        instructionFontPixelSize
+    ));
+    Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
 
-        float bezelSize = 0.08f;
+    instructionMeshDataPtr_ = new Project001::MeshData();
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        *instructionMeshDataPtr_,
+        *initializationInfo.fontDataPtr,
+        initializationInfo.instructionString,
+        instructionFontPixelSize
+    ));
+    Project001::MeshLoader::RecenterMesh(*instructionMeshDataPtr_);
 
-        glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionMeshDataPtr_->GetSize();
+    float bezelSize = 0.08f;
 
-        hiddenInstructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-        Project001::MeshLoader::Generate2DBezeledRectangle(*hiddenInstructionBackgroundMeshDataPtr_, hiddenInstructionMeshDataSize.x + bezelSize, hiddenInstructionMeshDataSize.y + bezelSize, bezelSize, 4);
+    glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionMeshDataPtr_->GetSize();
 
-        glm::vec3 instructionMeshDataSize = instructionMeshDataPtr_->GetSize();
+    hiddenInstructionBackgroundMeshDataPtr_ = new Project001::MeshData();
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+        *hiddenInstructionBackgroundMeshDataPtr_,
+        hiddenInstructionMeshDataSize.x + bezelSize,
+        hiddenInstructionMeshDataSize.y + bezelSize,
+        bezelSize,
+        4
+    ));
 
-        instructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-        Project001::MeshLoader::Generate2DBezeledRectangle(*instructionBackgroundMeshDataPtr_, instructionMeshDataSize.x + bezelSize, instructionMeshDataSize.y + bezelSize, bezelSize, 4);
-    }
+    glm::vec3 instructionMeshDataSize = instructionMeshDataPtr_->GetSize();
+
+    instructionBackgroundMeshDataPtr_ = new Project001::MeshData();
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+        *instructionBackgroundMeshDataPtr_,
+        instructionMeshDataSize.x + bezelSize,
+        instructionMeshDataSize.y + bezelSize,
+        bezelSize,
+        4
+    ));
 
     // Create Entitys ----------------------------------------------------------
 
     float uiCameraHalfWidth = 0;
     float uiCameraHalfHeight = 0;
     {
-        Project001::Camera* cameraPtr;
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
-        uiCameraHalfWidth = cameraPtr->GetRightCutoff();
-        uiCameraHalfHeight = cameraPtr->GetTopCutoff();
+        if(cameraPtr != nullptr)
+        {
+            uiCameraHalfWidth = cameraPtr->GetRightCutoff();
+            uiCameraHalfHeight = cameraPtr->GetTopCutoff();
+        }
     }
 
     {
         componentStoresPtr_->CreateEntity(instructionsEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        glm::vec2 hiddenInstructionMeshPosition(
-            -uiCameraHalfWidth + hiddenInstructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
-            uiCameraHalfHeight - hiddenInstructionMeshDataPtr_->maxVertexPosition.y - 0.2f
-        );
+            glm::vec2 hiddenInstructionMeshPosition(
+                -uiCameraHalfWidth + hiddenInstructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                uiCameraHalfHeight - hiddenInstructionMeshDataPtr_->maxVertexPosition.y - 0.2f
+            );
 
-        glm::vec2 instructionMeshPosition(
-            -uiCameraHalfWidth + instructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
-            uiCameraHalfHeight - instructionMeshDataPtr_->maxVertexPosition.y - 0.2f
-        );
+            glm::vec2 instructionMeshPosition(
+                -uiCameraHalfWidth + instructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                uiCameraHalfHeight - instructionMeshDataPtr_->maxVertexPosition.y - 0.2f
+            );
 
-        hiddenInstructionMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes.back();
-        hiddenInstructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-        hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionMeshDataPtr_);
-        hiddenInstructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
-        hiddenInstructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
-        hiddenInstructionMesh.SetLit(false);
-        hiddenInstructionMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
+            hiddenInstructionMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes.back();
+            hiddenInstructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionMeshDataPtr_);
+            hiddenInstructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
+            hiddenInstructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+            hiddenInstructionMesh.SetLit(false);
+            hiddenInstructionMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
 
-        instructionMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& instructionMesh = renderedMeshes.back();
-        instructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-        instructionMesh.SetMeshDataPtr(instructionMeshDataPtr_);
-        instructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
-        instructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
-        instructionMesh.SetLit(false);
-        instructionMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
-        instructionMesh.SetVisible(false);
+            instructionMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& instructionMesh = renderedMeshes.back();
+            instructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            instructionMesh.SetMeshDataPtr(instructionMeshDataPtr_);
+            instructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
+            instructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+            instructionMesh.SetLit(false);
+            instructionMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
+            instructionMesh.SetVisible(false);
 
-        hiddenInstructionBackgroundMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& hiddenInstructionBackgroundMesh = renderedMeshes.back();
-        hiddenInstructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-        hiddenInstructionBackgroundMesh.SetMeshDataPtr(hiddenInstructionBackgroundMeshDataPtr_);
-        hiddenInstructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
-        hiddenInstructionBackgroundMesh.SetLit(false);
-        hiddenInstructionBackgroundMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
-        hiddenInstructionBackgroundMesh.SetRenderPriorityOverride(-100);
+            hiddenInstructionBackgroundMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& hiddenInstructionBackgroundMesh = renderedMeshes.back();
+            hiddenInstructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            hiddenInstructionBackgroundMesh.SetMeshDataPtr(hiddenInstructionBackgroundMeshDataPtr_);
+            hiddenInstructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
+            hiddenInstructionBackgroundMesh.SetLit(false);
+            hiddenInstructionBackgroundMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
+            hiddenInstructionBackgroundMesh.SetRenderPriorityOverride(-100);
 
-        instructionBackgroundMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& instructionBackgroundMesh = renderedMeshes.back();
-        instructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-        instructionBackgroundMesh.SetMeshDataPtr(instructionBackgroundMeshDataPtr_);
-        instructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
-        instructionBackgroundMesh.SetLit(false);
-        instructionBackgroundMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
-        instructionBackgroundMesh.SetRenderPriorityOverride(-100);
-        instructionBackgroundMesh.SetVisible(false);
+            instructionBackgroundMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& instructionBackgroundMesh = renderedMeshes.back();
+            instructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            instructionBackgroundMesh.SetMeshDataPtr(instructionBackgroundMeshDataPtr_);
+            instructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
+            instructionBackgroundMesh.SetLit(false);
+            instructionBackgroundMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
+            instructionBackgroundMesh.SetRenderPriorityOverride(-100);
+            instructionBackgroundMesh.SetVisible(false);
+        }
     }
 }
 
@@ -192,21 +210,24 @@ void TestInstructionScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     {
         if (keyCode == keyCode_toggleInstructions_)
         {
-            Project001::RenderedModel* renderedModelPtr;
+            Project001::RenderedModel* renderedModelPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            if (renderedModelPtr != nullptr)
+            {
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes[hiddenInstructionMeshIndex_];
-            hiddenInstructionMesh.SetVisible(!hiddenInstructionMesh.GetVisible());
+                Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes[hiddenInstructionMeshIndex_];
+                hiddenInstructionMesh.SetVisible(!hiddenInstructionMesh.GetVisible());
 
-            Project001::RenderedMesh& instructionMesh = renderedMeshes[instructionMeshIndex_];
-            instructionMesh.SetVisible(!instructionMesh.GetVisible());
+                Project001::RenderedMesh& instructionMesh = renderedMeshes[instructionMeshIndex_];
+                instructionMesh.SetVisible(!instructionMesh.GetVisible());
 
-            Project001::RenderedMesh& hiddenInstructionBackgroundMesh = renderedMeshes[hiddenInstructionBackgroundMeshIndex_];
-            hiddenInstructionBackgroundMesh.SetVisible(!hiddenInstructionBackgroundMesh.GetVisible());
+                Project001::RenderedMesh& hiddenInstructionBackgroundMesh = renderedMeshes[hiddenInstructionBackgroundMeshIndex_];
+                hiddenInstructionBackgroundMesh.SetVisible(!hiddenInstructionBackgroundMesh.GetVisible());
 
-            Project001::RenderedMesh& instructionBackgroundMesh = renderedMeshes[instructionBackgroundMeshIndex_];
-            instructionBackgroundMesh.SetVisible(!instructionBackgroundMesh.GetVisible());
+                Project001::RenderedMesh& instructionBackgroundMesh = renderedMeshes[instructionBackgroundMeshIndex_];
+                instructionBackgroundMesh.SetVisible(!instructionBackgroundMesh.GetVisible());
+            }
         }
     }
 }

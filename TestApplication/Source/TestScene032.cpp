@@ -192,49 +192,61 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(centerIcosphereEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
-        renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
-        renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MeshDataPtr_->maxBoundingRadius);
-        renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
+            renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MeshDataPtr_->maxBoundingRadius);
+            renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     { // star at the center top (CPU side mesh)
         componentStoresPtr_->CreateEntity(centerStar001_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar001_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar001_EntityId_));
-        renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
-        renderedMeshPtr->SetPosition(0.0f, 1.0f, 1.0f);
-        renderedMeshPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
+            renderedMeshPtr->SetPosition(0.0f, 1.0f, 1.0f);
+            renderedMeshPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     { // star at the center bottom (CPU side mesh)
         componentStoresPtr_->CreateEntity(centerStar002_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar002_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar002_EntityId_));
-        renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
-        renderedMeshPtr->SetPosition(0.0f, -1.0f, -1.0f);
-        renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
+            renderedMeshPtr->SetPosition(0.0f, -1.0f, -1.0f);
+            renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
+        }
     }
 
     { // stencils out stuff positioned behind it, that is rendered after it (CPU side mesh)
         componentStoresPtr_->CreateEntity(psudoStencil001_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, psudoStencil001_EntityId_));
-        renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
-        renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
-        renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
-        renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.2f);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetRenderPriorityOverride(-100);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
+            renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
+            renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.2f);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetRenderPriorityOverride(-100);
+        }
     }
 
     { // icosphere group (GPU side mesh)
@@ -264,15 +276,18 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             icosphereEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
-            renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
-            renderedMeshPtr->SetTextureId(earth001_TextureId_);
-            renderedMeshPtr->SetSpecularId(specular001_TextureId_);
-            renderedMeshPtr->SetShininess(32.0f);
-            renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MaxBoundingRadius_);
-            renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
-            renderedMeshPtr->SetPosition(positions[i]);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetMeshId(icosphere001_MeshId_);
+                renderedMeshPtr->SetTextureId(earth001_TextureId_);
+                renderedMeshPtr->SetSpecularId(specular001_TextureId_);
+                renderedMeshPtr->SetShininess(32.0f);
+                renderedMeshPtr->SetMaxBoundingRadius(icosphere001_MaxBoundingRadius_);
+                renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
+                renderedMeshPtr->SetPosition(positions[i]);
+            }
         }
     }
 
@@ -303,11 +318,14 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             arcEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
-            renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
-            renderedMeshPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
-            renderedMeshPtr->SetPosition(positions[i]);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
+                renderedMeshPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
+                renderedMeshPtr->SetPosition(positions[i]);
+            }
         }
     }
 
@@ -338,13 +356,16 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             arcEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
-            renderedMeshPtr->SetMeshId(arc001_MeshId_);
-            renderedMeshPtr->SetMaxBoundingRadius(arc001_MaxBoundingRadius_);
-            renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
-            renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetPosition(positions[i]);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetMeshId(arc001_MeshId_);
+                renderedMeshPtr->SetMaxBoundingRadius(arc001_MaxBoundingRadius_);
+                renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
+                renderedMeshPtr->SetTranslucent(true);
+                renderedMeshPtr->SetPosition(positions[i]);
+            }
         }
     }
 
@@ -375,11 +396,14 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             coneEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
-            renderedMeshPtr->SetMeshId(cone001_MeshId_);
-            renderedMeshPtr->SetMaxBoundingRadius(cone001_MaxBoundingRadius_);
-            renderedMeshPtr->SetPosition(positions[i]);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetMeshId(cone001_MeshId_);
+                renderedMeshPtr->SetMaxBoundingRadius(cone001_MaxBoundingRadius_);
+                renderedMeshPtr->SetPosition(positions[i]);
+            }
         }
     }
 
@@ -404,14 +428,17 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             starEntityIds_.push_back(newEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
-            renderedMeshPtr->SetMeshId(line001_MeshId_);
-            renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
-            renderedMeshPtr->SetMaxBoundingRadius(line001_MaxBoundingRadius_);
-            renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
-            renderedMeshPtr->SetPosition(positions[i]);
-            renderedMeshPtr->SetRenderPriorityOverride(-100);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetMeshId(line001_MeshId_);
+                renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
+                renderedMeshPtr->SetMaxBoundingRadius(line001_MaxBoundingRadius_);
+                renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);
+                renderedMeshPtr->SetPosition(positions[i]);
+                renderedMeshPtr->SetRenderPriorityOverride(-100);
+            }
         }
     }
 

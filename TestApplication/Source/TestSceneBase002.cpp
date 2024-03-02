@@ -11,7 +11,6 @@
 #include "Math/VectorUtilities.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "Event.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "RenderSystem.h"
@@ -59,39 +58,40 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     _LOG_MESSAGE("INITIALIZING:   TestSceneBase002:        %u", GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
-
     rendererPtr_ = GetApplicationRendererPtr();
-
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(mainCameraEntityId_);
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float secondaryCameraHalfHeight = 3.5f;
-            float secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(secondaryCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-secondaryCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-secondaryCameraHalfWidth);
-            cameraPtr->SetRightCutoff(secondaryCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float secondaryCameraHalfHeight = 3.5f;
+                float secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(secondaryCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-secondaryCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-secondaryCameraHalfWidth);
+                cameraPtr->SetRightCutoff(secondaryCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->SetDepthTestEnabled(false);
+            cameraPtr->TurnOn();
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
     }
 
     // UI Camera Entity
@@ -102,44 +102,50 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     {
         componentStoresPtr_->CreateEntity(uiCameraEntityId_);
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            uiCameraHalfHeight = 3.5f;
-            uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
-            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                uiCameraHalfHeight = 3.5f;
+                uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(uiCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
+                cameraPtr->SetRightCutoff(uiCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->SetDepthTestEnabled(false);
+            cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_uiCameraMask_);
+            cameraPtr->SetPriorityValue(1000000);
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(s_uiCameraMask_);
-        cameraPtr->SetPriorityValue(1000000);
     }
 
     // Cursor Entity
     // -------------------------------------------------------------------------
     {
         componentStoresPtr_->CreateEntity(cursorEntityId_);
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
 
-        Project001::CollisionBody2D* collisionBody2DPtr;
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        collisionPoints.emplace_back(glm::vec3(), 1, true);
+        if (collisionBody2DPtr != nullptr)
+        {
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+            collisionPoints.emplace_back(glm::vec3(), 1, true);
+        }
     }
 }
 
@@ -195,30 +201,35 @@ void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEven
 
     if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
     {
-        Project001::Camera* cameraPtr;
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-
-        // Convert coordinates from viewport to world
-        glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
-            viewportWidth,
-            viewportHeight,
-            viewportCursorPosition
-        );
-
-        Project001::CollisionBody2D* cursorCollisionBody2DPtr;
+        Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
-        cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
-
-        if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
+        if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
         {
-            unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+            // Convert coordinates from viewport to world
+            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
+                viewportWidth,
+                viewportHeight,
+                viewportCursorPosition
+            );
 
-            Project001::CollisionBody2D* selectedCollisionBody2DPtr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
-            selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
+            cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
+
+            if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
+            {
+                unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+
+                Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
+                if (selectedCollisionBody2DPtr != nullptr)
+                {
+                    selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
+                }
+            }
+
+            previousWorldCursorPosition_ = worldCursorPosition;
         }
-
-        previousWorldCursorPosition_ = worldCursorPosition;
     }
 }
 
@@ -280,8 +291,9 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
         Project001::CollisionSystem2D::CalculateCollisionsForGivenEntity(cursorEntityId_, componentStoresPtr_);
 
-        Project001::CollisionBody2D* cursorCollisionBody2DPtr;
-        if (componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_))
+        Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+        if(cursorCollisionBody2DPtr != nullptr)
         {
             const std::vector<Project001::CollisionData>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
 
@@ -320,19 +332,22 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
     float speedConstant = 0.1f;
     float cameraResize = 1.0f + speedConstant * yOffset;
 
-    Project001::Camera* cameraPtr;
+    Project001::Camera* cameraPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-    float newTopCutoff = cameraPtr->GetTopCutoff() * cameraResize;
-    float newBottomCutoff = cameraPtr->GetBottomCutoff() * cameraResize;
-    float newLeftCutoff = cameraPtr->GetLeftCutoff() * cameraResize;
-    float newRightCutoff = cameraPtr->GetRightCutoff() * cameraResize;
-
-    if (newTopCutoff > 0.1f && newTopCutoff < 10.0f)
+    if (cameraPtr != nullptr)
     {
-        cameraPtr->SetTopCutoff(newTopCutoff);
-        cameraPtr->SetBottomCutoff(newBottomCutoff);
-        cameraPtr->SetLeftCutoff(newLeftCutoff);
-        cameraPtr->SetRightCutoff(newRightCutoff);
+        float newTopCutoff = cameraPtr->GetTopCutoff() * cameraResize;
+        float newBottomCutoff = cameraPtr->GetBottomCutoff() * cameraResize;
+        float newLeftCutoff = cameraPtr->GetLeftCutoff() * cameraResize;
+        float newRightCutoff = cameraPtr->GetRightCutoff() * cameraResize;
+
+        if (newTopCutoff > 0.1f && newTopCutoff < 10.0f)
+        {
+            cameraPtr->SetTopCutoff(newTopCutoff);
+            cameraPtr->SetBottomCutoff(newBottomCutoff);
+            cameraPtr->SetLeftCutoff(newLeftCutoff);
+            cameraPtr->SetRightCutoff(newRightCutoff);
+        }
     }
 }
 
@@ -350,98 +365,100 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
 void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep_ns)
 {
-    float timestep_s = (float)(timestep_ns / 1000000) / 1000;
-
-    Project001::Camera* cameraPtr;
+    Project001::Camera* cameraPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-    float speedConstant = cameraPtr->GetTopCutoff();
-    glm::vec2 cameraUp = cameraPtr->GetUpVector();
-    glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
-
-    float translationSpeed = speedConstant * 0.8f * timestep_s;
-    float rotationSpeed = speedConstant * 1.2f * timestep_s;
-
-    bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
-    bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
-    bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
-    bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
-    bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
-    bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
-
-    if (selectedEntityIdIndex_ < entityIds_.size())
+    if (cameraPtr != nullptr)
     {
-        unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
-        Project001::CollisionBody2D* collisionBodyPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+        float speedConstant = cameraPtr->GetTopCutoff();
+        glm::vec2 cameraUp = cameraPtr->GetUpVector();
+        glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
 
-        if (movingLeft)
+        float translationSpeed = speedConstant * 0.8f * timestep_s;
+        float rotationSpeed = speedConstant * 1.2f * timestep_s;
+
+        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+
+        if (selectedEntityIdIndex_ < entityIds_.size())
         {
-            // collisionBodyPtr->TranslateRight(-1.0f * translationSpeed);
-            collisionBodyPtr->AddTranslation(cameraLeft * translationSpeed);
+            unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+
+            Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+            if (collisionBodyPtr != nullptr)
+            {
+                if (movingLeft)
+                {
+                    // collisionBodyPtr->TranslateRight(-1.0f * translationSpeed);
+                    collisionBodyPtr->AddTranslation(cameraLeft * translationSpeed);
+                }
+
+                if (movingRight)
+                {
+                    // collisionBodyPtr->TranslateRight(translationSpeed);
+                    collisionBodyPtr->AddTranslation(cameraLeft * -1.0f * translationSpeed);
+                }
+
+                if (movingUp)
+                {
+                    // collisionBodyPtr->TranslateUp(translationSpeed);
+                    collisionBodyPtr->AddTranslation(cameraUp * translationSpeed);
+                }
+
+                if (movingDown)
+                {
+                    // collisionBodyPtr->TranslateUp(-1.0f * translationSpeed);
+                    collisionBodyPtr->AddTranslation(cameraUp * -1.0f * translationSpeed);
+                }
+
+                if (rollingLeft)
+                {
+                    collisionBodyPtr->AddRotation(rotationSpeed);
+                }
+
+                if (rollingRight)
+                {
+                    collisionBodyPtr->AddRotation(-1.0f * rotationSpeed);
+                }
+            }
         }
-
-        if (movingRight)
+        else
         {
-            // collisionBodyPtr->TranslateRight(translationSpeed);
-            collisionBodyPtr->AddTranslation(cameraLeft * -1.0f * translationSpeed);
-        }
+            if (movingLeft)
+            {
+                cameraPtr->MoveLeft(translationSpeed);
+            }
 
-        if (movingUp)
-        {
-            // collisionBodyPtr->TranslateUp(translationSpeed);
-            collisionBodyPtr->AddTranslation(cameraUp * translationSpeed);
-        }
+            if (movingRight)
+            {
+                cameraPtr->MoveRight(translationSpeed);
+            }
 
-        if (movingDown)
-        {
-            // collisionBodyPtr->TranslateUp(-1.0f * translationSpeed);
-            collisionBodyPtr->AddTranslation(cameraUp * -1.0f * translationSpeed);
-        }
+            if (movingUp)
+            {
+                cameraPtr->MoveUp(translationSpeed);
+            }
 
-        if (rollingLeft)
-        {
-            collisionBodyPtr->AddRotation(rotationSpeed);
-        }
+            if (movingDown)
+            {
+                cameraPtr->MoveDown(translationSpeed);
+            }
 
-        if (rollingRight)
-        {
-            collisionBodyPtr->AddRotation(-1.0f * rotationSpeed);
-        }
-    }
-    else
-    {
-        Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+            if (rollingLeft)
+            {
+                cameraPtr->AddRoll(-1.0f * rotationSpeed);
+            }
 
-        if (movingLeft)
-        {
-            cameraPtr->MoveLeft(translationSpeed);
-        }
-
-        if (movingRight)
-        {
-            cameraPtr->MoveRight(translationSpeed);
-        }
-
-        if (movingUp)
-        {
-            cameraPtr->MoveUp(translationSpeed);
-        }
-
-        if (movingDown)
-        {
-            cameraPtr->MoveDown(translationSpeed);
-        }
-
-        if (rollingLeft)
-        {
-            cameraPtr->AddRoll(-1.0f * rotationSpeed);
-        }
-
-        if (rollingRight)
-        {
-            cameraPtr->AddRoll(rotationSpeed);
+            if (rollingRight)
+            {
+                cameraPtr->AddRoll(rotationSpeed);
+            }
         }
     }
 }
@@ -487,7 +504,7 @@ void TestSceneBase002::ColorCollisions()
         for (size_t j = 0; j < currentCollisions.size(); ++j)
         {
             const Project001::CollisionData& currentCollision = currentCollisions[j];
-            if (currentCollision.otherShapeId == 0)
+            if (currentCollision.otherShapeTag == 0)
             {
                 collisionBodyColliding = true;
                 break;

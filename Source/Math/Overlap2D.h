@@ -31,6 +31,14 @@
 // Triangle       | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |
 // Polygon        | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |
 // Convex Polygon | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |
+// 
+// Distance Squared Functions:
+//                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol |
+// Point          |  \  |  \  |  \  |  \  |     |     |     |     |     |     |
+// 
+// Closest Point Functions:
+//                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol |
+// Point                |     |     |     |     |     |     |     |     |     |
 
 namespace Project001
 {
@@ -847,15 +855,13 @@ namespace Project001
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount);
 
-    // Helper Functions --------------------------------------------------------
+    // Distance Squared Functions ----------------------------------------------
+
+    float Get2D_Point_Point_DistanceSquared(
+        const glm::vec2& pointA_position,
+        const glm::vec2& pointB_position);
 
     float Get2D_Point_Line_DistanceSquared(
-        const glm::vec2& point_position,
-        const glm::vec2& line_position,
-        const float& line_slope);
-
-    // Unused
-    float Get2D_Point_Line_DistanceSquared_Alt(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope);
@@ -870,6 +876,14 @@ namespace Project001
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
+
+    // Helper Functions --------------------------------------------------------
+
+    // Unused
+    float Get2D_Point_Line_DistanceSquared_Alt(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope);
 
     // This version doesn't care which 2 cornors AS LONG AS they are opposite
     bool Check2D_Point_Rectangle_NoOverlap_H(

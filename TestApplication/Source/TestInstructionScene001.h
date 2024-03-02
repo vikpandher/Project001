@@ -2,8 +2,6 @@
 
 #include "Scene.h"
 
-#include "Event.h"
-
 
 
 namespace Project001
@@ -50,7 +48,6 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    const float instructionFontPixelSize_ = 0.0048f;
     Project001::MeshData* hiddenInstructionMeshDataPtr_;
     Project001::MeshData* instructionMeshDataPtr_;
 

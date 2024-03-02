@@ -118,10 +118,13 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[0]);
+        }
     }
 
     // Member Scenes -----------------------------------------------------------
@@ -212,40 +215,46 @@ void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
 void TestScene050::UpdateCameraListenerPosition()
 {
-    Project001::Camera* cameraPtr;
+    Project001::Camera* cameraPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-    glm::vec3 currentPosition = cameraPtr->GetPosition();
-    glm::vec3 currentForward = cameraPtr->GetForwardVector();
-    glm::vec3 currentUp = cameraPtr->GetUpVector();
+    if (cameraPtr != nullptr)
+    {
+        glm::vec3 currentPosition = cameraPtr->GetPosition();
+        glm::vec3 currentForward = cameraPtr->GetForwardVector();
+        glm::vec3 currentUp = cameraPtr->GetUpVector();
 
-    soundPlayerPtr_->SetListenerPosition(currentPosition);
-    soundPlayerPtr_->SetListenerForwardDirection(currentForward);
-    soundPlayerPtr_->SetListenerUpDirection(currentUp);
+        soundPlayerPtr_->SetListenerPosition(currentPosition);
+        soundPlayerPtr_->SetListenerForwardDirection(currentForward);
+        soundPlayerPtr_->SetListenerUpDirection(currentUp);
+    }
 }
 
 void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
 {
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
-    Project001::RenderedMesh* renderedMeshPtr;
+    Project001::RenderedMesh* renderedMeshPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIds_[0]));
-    glm::vec3 currentPosition = renderedMeshPtr->GetPosition();
-
-    if (currentPosition == glm::vec3(0.0f, 0.0f, 0.0f))
+    if (renderedMeshPtr != nullptr)
     {
-        currentPosition.x = 1.28f;
+        glm::vec3 currentPosition = renderedMeshPtr->GetPosition();
+
+        if (currentPosition == glm::vec3(0.0f, 0.0f, 0.0f))
+        {
+            currentPosition.x = 1.28f;
+        }
+
+        glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);
+        currentPositionPolar.y += timestep_s;
+        glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
+
+        renderedMeshPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
+
+        glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
+
+        _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02_, renderedMeshPtr->GetPosition()));
+        _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02_, velocity));
     }
-
-    glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);
-    currentPositionPolar.y += timestep_s;
-    glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
-
-    renderedMeshPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
-
-    glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
-
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02_, renderedMeshPtr->GetPosition()));
-    _FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02_, velocity));
 }
 
 // private ---------------------------------------------------------------------

@@ -19,6 +19,8 @@ namespace Project001
         const bool GetTangible() const;
         void SetTangible(bool tangible);
 
+        // Note: Use std::swap to swap vectors of CollisionShape2D
+
         std::vector<CollisionPoint2D>& GetCollisionPoints();
         const std::vector<CollisionPoint2D>& GetCollisionPoints() const;
         const std::vector<CollisionPoint2D>& GetTransformedCollisionPoints() const;
@@ -116,7 +118,7 @@ namespace Project001
         std::vector<CollisionConvexPolygon2D> collisionConvexPolygons_;
 
         // When being transformed a shape can become a different shape.
-        // For example, with a rotation, an axis aligned rectangle becomes an
+        // With a rotation, an axis aligned rectangle becomes an
         // oriented rectangle.
         std::vector<CollisionPoint2D> transformedCollisionPoints_;
         std::vector<CollisionLine2D> transformedCollisionLines_;

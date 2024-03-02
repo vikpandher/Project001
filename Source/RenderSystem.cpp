@@ -496,7 +496,7 @@ namespace Project001
         float maxBoundingRadius = 0;
         if (renderedMeshPtr->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
         {
-            if (!renderedMeshPtr->GetMeshDataPtr())
+            if (renderedMeshPtr->GetMeshDataPtr() == nullptr)
             {
                 _LOG_ERROR("Renderend Mesh expected a MeshDataPtr, but it was Null.");
                 return;

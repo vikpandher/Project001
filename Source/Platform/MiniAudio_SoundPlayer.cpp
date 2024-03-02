@@ -6,6 +6,8 @@
 #define MA_NO_RESOURCE_MANAGER
 #include "miniaudio.h"
 
+#include "glm/gtc/constants.hpp"
+
 
 
 namespace Project001
@@ -13,8 +15,9 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     MiniAudio_SoundPlayer::MiniAudio_SoundPlayer()
+        : enginePtr_(NULL)
     {
-        enginePtr_ = new ma_engine;
+        enginePtr_ = new (std::nothrow) ma_engine;
 
         ma_result result = ma_engine_init(NULL, enginePtr_);
         if (result != MA_SUCCESS)
@@ -23,6 +26,10 @@ namespace Project001
 
             delete enginePtr_;
             enginePtr_ = NULL;
+        }
+        else
+        {
+            ResetListener();
         }
     }
 
@@ -80,7 +87,7 @@ namespace Project001
             NULL
         );
 
-        ma_audio_buffer* audioBufferPtr = new ma_audio_buffer;
+        ma_audio_buffer* audioBufferPtr = new (std::nothrow) ma_audio_buffer;
         ma_result result = ma_audio_buffer_init(&bufferConfig, audioBufferPtr);
         if (result != MA_SUCCESS)
         {
@@ -92,7 +99,7 @@ namespace Project001
 
         // ---------------------------------------------------------------------
 
-        // ma_sound* soundPtr = new ma_sound;
+        // ma_sound* soundPtr = new (std::nothrow) ma_sound;
         // result = ma_sound_init_from_data_source(enginePtr_, &audioBufferPtr->ref.ds, 0, NULL, soundPtr);
         // 
         // ma_sound_set_looping(soundPtr, true);
@@ -149,8 +156,8 @@ namespace Project001
         audioBufferPtr = (ma_audio_buffer*)iter->second;
 
         MiniAudio_SoundSource newSoundSource;
-        newSoundSource.audioBufferPtr = new ma_audio_buffer;
-        newSoundSource.soundPtr = new ma_sound;
+        newSoundSource.audioBufferPtr = new (std::nothrow) ma_audio_buffer;
+        newSoundSource.soundPtr = new (std::nothrow) ma_sound;
 
         ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(
             audioBufferPtr->ref.format,
@@ -586,7 +593,16 @@ namespace Project001
         }
         return false;
     }
-    
+
+    void MiniAudio_SoundPlayer::ResetListener()
+    {
+        ma_engine_listener_set_position(enginePtr_, 0, 0.0f, 0.0f, 0.0f);
+        ma_engine_listener_set_direction(enginePtr_, 0, 0.0f, 0.0f, 1.0f);
+        ma_engine_listener_set_world_up(enginePtr_, 0, 0.0f, 1.0f, 0.0f);
+        ma_engine_listener_set_velocity(enginePtr_, 0, 0.0f, 0.0f, 0.0f);
+        ma_engine_listener_set_cone(enginePtr_, 0, 2.0f * glm::pi<float>(), 2.0f * glm::pi<float>(), 0.0f);
+    }
+
     void MiniAudio_SoundPlayer::SetListenerPosition(const glm::vec3& position)
     {
         ma_engine_listener_set_position(enginePtr_, 0, position.x, position.y, position.z);

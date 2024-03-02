@@ -11,15 +11,6 @@
 namespace Project001
 {
     struct MeshData;
-
-    struct CursorPositionEvent;
-    struct DeinitializeEvent;
-    struct InitializeEvent;
-    struct KeyEvent;
-    struct MouseButtonEvent;
-    struct RenderEvent;
-    struct ScrollEvent;
-    struct UpdateEvent;
 }
 
 class TestSceneBase001 : public Project001::Scene
@@ -51,11 +42,8 @@ protected:
     // -------------------------------------------------------------------------
 
     Project001::Window* windowPtr_;
-
     Project001::Renderer* rendererPtr_;
-
     Project001::SoundPlayer* soundPlayerPtr_;
-
     Project001::ComponentStores* componentStoresPtr_;
 
     // Mesh Data ---------------------------------------------------------------

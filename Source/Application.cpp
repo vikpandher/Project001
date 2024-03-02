@@ -1,7 +1,6 @@
 #include "Application.h"
 
 #include "ComponentStores.h"
-#include "Event.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "ResourceStores.h"
@@ -28,74 +27,37 @@ namespace Project001
         , rendererPtr_(nullptr)
         , soundPlayerPtr_(nullptr)
         , componentStoresPtr_(nullptr)
+        , resourceStoresPtr_(nullptr)
         , activeScenePtr_(nullptr)
-        , creationSuccessful_(false)
     {
         windowPtr_ = Window::Create(applicationInfo.windowTitle, applicationInfo.windowWidth, applicationInfo.windowHeight);
-        if (windowPtr_)
+        windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
+        windowPtr_->SetAspectRatio(applicationInfo.windowWidth, applicationInfo.windowHeight);
+
+        int screenWidth;
+        int screenHeight;
+        windowPtr_->GetScreenSize(screenWidth, screenHeight);
+        if (screenWidth > (int)applicationInfo.windowWidth && screenHeight > (int)applicationInfo.windowHeight)
         {
-            windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
-            windowPtr_->SetAspectRatio(applicationInfo.windowWidth, applicationInfo.windowHeight);
-
-            int screenWidth;
-            int screenHeight;
-            windowPtr_->GetScreenSize(screenWidth, screenHeight);
-            if (screenWidth > (int)applicationInfo.windowWidth && screenHeight > (int)applicationInfo.windowHeight)
-            {
-                windowPtr_->SetWindowPosition((screenWidth - applicationInfo.windowWidth) / 2, (screenHeight - applicationInfo.windowHeight) / 2);
-            }
-
-            Project001::RendererInfo rendererInfo = {};
-            rendererInfo.windowPtr = windowPtr_;
-            rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
-            rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
-            rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
-            rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
-            rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
-            rendererInfo.multisampleAntiAliasing = false;
-            rendererInfo.depthTesting = true;
-            rendererPtr_ = Renderer::Create(rendererInfo);
-
-            if (rendererPtr_)
-            {
-                soundPlayerPtr_ = SoundPlayer::Create();
-
-                if (soundPlayerPtr_)
-                {
-                    componentStoresPtr_ = new ComponentStores();
-
-                    if (componentStoresPtr_)
-                    {
-                        resourceStoresPtr_ = new ResourceStores();
-
-                        if (resourceStoresPtr_)
-                        {
-                            creationSuccessful_ = true;
-                        }
-                        else
-                        {
-                            _LOG_ERROR("Application failed to create the ResourceStores");
-                        }
-                    }
-                    else
-                    {
-                        _LOG_ERROR("Application failed to create the ComponentStores");
-                    }
-                }
-                else
-                {
-                    _LOG_ERROR("Application failed to create the SoundPlayer");
-                }
-            }
-            else
-            {
-                _LOG_ERROR("Application failed to create the Renderer");
-            }
+            windowPtr_->SetWindowPosition((screenWidth - applicationInfo.windowWidth) / 2, (screenHeight - applicationInfo.windowHeight) / 2);
         }
-        else
-        {
-            _LOG_ERROR("Application failed to create the Window");
-        }
+
+        Project001::RendererInfo rendererInfo = {};
+        rendererInfo.windowPtr = windowPtr_;
+        rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
+        rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
+        rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
+        rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
+        rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
+        rendererInfo.multisampleAntiAliasing = false;
+        rendererInfo.depthTesting = true;
+        rendererPtr_ = Renderer::Create(rendererInfo);
+
+        soundPlayerPtr_ = SoundPlayer::Create();
+
+        componentStoresPtr_ = new ComponentStores();
+
+        resourceStoresPtr_ = new ResourceStores();
     }
 
     Application::~Application()
@@ -120,13 +82,7 @@ namespace Project001
 
     void Application::Run()
     {
-        if (!creationSuccessful_)
-        {
-            _LOG_ERROR("Failed to create Application");
-            return;
-        }
-
-        if (!activeScenePtr_)
+        if (activeScenePtr_ == nullptr)
         {
             _LOG_ERROR("No Active Scene");
             return;
@@ -196,7 +152,7 @@ namespace Project001
 
     void Application::HandleEvent(Event& event)
     {
-        if (activeScenePtr_)
+        if (activeScenePtr_ != nullptr)
         {
             activeScenePtr_->HandleEvent(event);
         }

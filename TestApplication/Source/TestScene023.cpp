@@ -1,4 +1,4 @@
-#include "TestScene013.h"
+#include "TestScene023.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
@@ -17,32 +17,32 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene013::TestScene013(Project001::Application* applicationPtr)
+TestScene023::TestScene023(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
 {
     Run_UnitTests();
 }
 
-TestScene013::~TestScene013()
+TestScene023::~TestScene023()
 {}
 
-void TestScene013::HandleEvent(Project001::Event& event)
+void TestScene023::HandleEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene013::ProcessDeinitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene023::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
     TestSceneBase001::HandleEvent(event);
 
-    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene013::ProcessInitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene023::ProcessInitializeEvent, this, std::placeholders::_1));
 
     instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
+void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene013:            %u", GetId());
+    _LOG_MESSAGE("INITIALIZING:   TestScene023:            %u", GetId());
 
     // Creating Entities
     // -------------------------------------------------------------------------
@@ -62,12 +62,15 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // Line
@@ -104,11 +107,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             entityIds_.push_back(tempEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-            renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
+                renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+                renderedMeshPtr->SetLit(false);
+            }
         }
 
         // shape 2
@@ -122,11 +128,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             entityIds_.push_back(tempEntityId);
 
             _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-            Project001::RenderedMesh* renderedMeshPtr;
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-            renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+                renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+                renderedMeshPtr->SetLit(false);
+            }
         }
     }
 
@@ -160,11 +169,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Box 2
@@ -179,12 +191,15 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // Triangle
@@ -206,11 +221,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Triangle 2
@@ -229,11 +247,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Point
@@ -254,11 +275,14 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Member Scenes -----------------------------------------------------------
@@ -309,16 +333,16 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     instructionScene_.Initialize(instructionSceneInfo);
 }
 
-void TestScene013::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+void TestScene023::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene013:            %u", GetId());
+    _LOG_MESSAGE("DEINITIALIZING: TestScene023:            %u", GetId());
 }
 
 // private ---------------------------------------------------------------------
 
-void TestScene013::Run_UnitTests() const
+void TestScene023::Run_UnitTests() const
 {
     int result;
 

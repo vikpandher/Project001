@@ -445,12 +445,14 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(meshEntityPositions[i]);
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
-        renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[i]);
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtrArray_[i]);
+            renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
+        }
     }
 
     // Member Scenes -----------------------------------------------------------

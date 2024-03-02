@@ -5,14 +5,14 @@
 
 
 
-class TestScene013 : public TestSceneBase001
+class TestScene023 : public TestSceneBase001
 {
 public:
-    TestScene013(Project001::Application* applicationPtr);
-    ~TestScene013();
+    TestScene023(Project001::Application* applicationPtr);
+    ~TestScene023();
 
-    TestScene013(TestScene013& other) = delete;
-    void operator=(const TestScene013&) = delete;
+    TestScene023(TestScene023& other) = delete;
+    void operator=(const TestScene023&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 

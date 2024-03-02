@@ -74,11 +74,8 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     _LOG_MESSAGE("INITIALIZING:   TestScene051:            %u", GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
-
     rendererPtr_ = GetApplicationRendererPtr();
-
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
-
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // SoundData ---------------------------------------------------------------
@@ -158,28 +155,35 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(mainCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            mainCameraHalfHeight = 2.75f;
-            mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(mainCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
-            cameraPtr->SetRightCutoff(mainCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                mainCameraHalfHeight = 2.75f;
+                mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(mainCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
+                cameraPtr->SetRightCutoff(mainCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->SetDepthTestEnabled(false);
+            cameraPtr->TurnOn();
+
+            soundPlayerPtr_->SetListenerPosition(cameraPtr->GetPosition());
+            soundPlayerPtr_->SetListenerForwardDirection(cameraPtr->GetForwardVector());
+            soundPlayerPtr_->SetListenerUpDirection(cameraPtr->GetUpVector());
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
     }
 
     // UI Camera Entity --------------------------------------------------------
@@ -188,30 +192,33 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(uiCameraEntityId_);
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float uiCameraHalfHeight = 3.5f;
-            float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
-            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float uiCameraHalfHeight = 3.5f;
+                float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(uiCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
+                cameraPtr->SetRightCutoff(uiCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->SetDepthTestEnabled(false);
+            cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_uiCameraMask_);
+            cameraPtr->SetPriorityValue(1000000);
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(s_uiCameraMask_);
-        cameraPtr->SetPriorityValue(1000000);
     }
 
     // Cursor Entity -----------------------------------------------------------
@@ -224,53 +231,59 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(cursorEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cursorEntityId_));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        float xPosition;
-        float yPosition;
-        windowPtr_->GetCursorPosition(xPosition, yPosition);
+            float xPosition;
+            float yPosition;
+            windowPtr_->GetCursorPosition(xPosition, yPosition);
 
-        cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh01 = renderedMeshes.back();
-        circleMesh01.SetMeshDataPtr(circleMeshDataPtr_);
-        circleMesh01.SetPositionZ(0.53f);
-        circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
-        circleMesh01.SetTranslucent(true);
-        circleMesh01.SetLit(false);
+            cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& circleMesh01 = renderedMeshes.back();
+            circleMesh01.SetMeshDataPtr(circleMeshDataPtr_);
+            circleMesh01.SetPositionZ(0.53f);
+            circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
+            circleMesh01.SetTranslucent(true);
+            circleMesh01.SetLit(false);
 
-        cursorPressRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh02 = renderedMeshes.back();
-        circleMesh02.SetMeshDataPtr(circleMeshDataPtr_);
-        circleMesh02.SetPositionZ(0.52f);
-        circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
-        circleMesh02.SetTranslucent(true);
-        circleMesh02.SetLit(false);
-        circleMesh02.SetVisible(false);
+            cursorPressRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& circleMesh02 = renderedMeshes.back();
+            circleMesh02.SetMeshDataPtr(circleMeshDataPtr_);
+            circleMesh02.SetPositionZ(0.52f);
+            circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
+            circleMesh02.SetTranslucent(true);
+            circleMesh02.SetLit(false);
+            circleMesh02.SetVisible(false);
 
-        cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh03 = renderedMeshes.back();
-        circleMesh03.SetMeshDataPtr(circleMeshDataPtr_);
-        circleMesh03.SetPositionZ(0.51f);
-        circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
-        circleMesh03.SetTranslucent(true);
-        circleMesh03.SetLit(false);
-        circleMesh03.SetVisible(false);
+            cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& circleMesh03 = renderedMeshes.back();
+            circleMesh03.SetMeshDataPtr(circleMeshDataPtr_);
+            circleMesh03.SetPositionZ(0.51f);
+            circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
+            circleMesh03.SetTranslucent(true);
+            circleMesh03.SetLit(false);
+            circleMesh03.SetVisible(false);
+        }
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
-        Project001::CollisionBody2D* collisionBody2DPtr;
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        cursorPositionCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
-        cursorPressCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPressCollisionShapeId_, false);
-        cursorReleaseCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorReleaseCollisionShapeId_, false);
+        if (collisionBody2DPtr != nullptr)
+        {
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+            cursorPositionCollisionPointIndex_ = collisionPoints.size();
+            collisionPoints.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
+            cursorPressCollisionPointIndex_ = collisionPoints.size();
+            collisionPoints.emplace_back(glm::vec2(), s_cursorPressCollisionShapeId_, false);
+            cursorReleaseCollisionPointIndex_ = collisionPoints.size();
+            collisionPoints.emplace_back(glm::vec2(), s_cursorReleaseCollisionShapeId_, false);
+        }
     }
 
     // Button Positions --------------------------------------------------------
@@ -354,40 +367,46 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         // ---------------------------------------------------------------------
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(buttonEntityId));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, buttonEntityId));
-        renderedModelPtr->SetPosition(
-            buttonPositions[i].x,
-            buttonPositions[i].y,
-            0.0f
-        );
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(
+                buttonPositions[i].x,
+                buttonPositions[i].y,
+                0.0f
+            );
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
-        buttonMesh.SetMeshId(rectangularMeshId_);
-        buttonMesh.SetMaxBoundingRadius(rectangleMeshDataPtr_->maxBoundingRadius);
-        buttonMesh.SetColor(s_buttonColor_);
-        buttonMesh.SetLit(false);
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
+            buttonMesh.SetMeshId(rectangularMeshId_);
+            buttonMesh.SetMaxBoundingRadius(rectangleMeshDataPtr_->maxBoundingRadius);
+            buttonMesh.SetColor(s_buttonColor_);
+            buttonMesh.SetLit(false);
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& textMesh = renderedMeshes.back();
-        textMesh.SetMeshDataPtr(buttonTextMeshDataPtrs_[i]);
-        textMesh.SetTextureId(font01_TextureId_);
-        textMesh.SetPositionZ(0.01f);
-        textMesh.SetLit(false);
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& textMesh = renderedMeshes.back();
+            textMesh.SetMeshDataPtr(buttonTextMeshDataPtrs_[i]);
+            textMesh.SetTextureId(font01_TextureId_);
+            textMesh.SetPositionZ(0.01f);
+            textMesh.SetLit(false);
+        }
 
         // ---------------------------------------------------------------------
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(buttonEntityId));
-        Project001::CollisionBody2D* collisionBody2DPtr;
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, buttonEntityId));
-        collisionBody2DPtr->SetPosition(buttonPositions[i]);
-        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
-        collisionRectangles.emplace_back(
-            glm::vec2(-0.5f * buttonWidth, -0.5f * buttonHeight),
-            glm::vec2(0.5f * buttonWidth, 0.5f * buttonHeight)
-        );
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(buttonPositions[i]);
+            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+            collisionRectangles.emplace_back(
+                glm::vec2(-0.5f * buttonWidth, -0.5f * buttonHeight),
+                glm::vec2(0.5f * buttonWidth, 0.5f * buttonHeight)
+            );
+        }
     }
 
     // Member Scenes -----------------------------------------------------------
@@ -484,13 +503,19 @@ void TestScene051::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
 {
     UpdatePreviousWorldCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
-    Project001::RenderedModel* renderedModelPtr;
+    Project001::RenderedModel* renderedModelPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
-    renderedModelPtr->SetVisible(true);
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetVisible(true);
+    }
 
-    Project001::CollisionBody2D* collisionBody2DPtr;
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-    collisionBody2DPtr->SetTangible(true);
+    if (collisionBody2DPtr != nullptr)
+    {
+        collisionBody2DPtr->SetTangible(true);
+    }
 }
 
 void TestScene051::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -523,35 +548,47 @@ void TestScene051::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
         {
-            Project001::RenderedModel* renderedModelPtr;
+            Project001::RenderedModel* renderedModelPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
-            renderedModelPtr->SetVisible(true);
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-            renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(true);
-            renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
+            if (renderedModelPtr != nullptr)
+            {
+                renderedModelPtr->SetVisible(true);
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+                renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(true);
+                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
+            }
 
-            Project001::CollisionBody2D* collisionBody2DPtr;
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-            collisionBody2DPtr->SetTangible(true);
-            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-            collisionPoints[cursorPressCollisionPointIndex_].tangible_ = true;
-            collisionPoints[cursorReleaseCollisionPointIndex_].tangible_ = false;
+            if (collisionBody2DPtr != nullptr)
+            {
+                collisionBody2DPtr->SetTangible(true);
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
+                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = false;
+            }
 
             previousWorldCursorPress_ = previousWorldCursorPosition_;
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
-            Project001::RenderedModel* renderedModelPtr;
+            Project001::RenderedModel* renderedModelPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
-            renderedModelPtr->SetVisible(true);
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-            renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(true);
+            if (renderedModelPtr != nullptr)
+            {
+                renderedModelPtr->SetVisible(true);
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(true);
+            }
 
-            Project001::CollisionBody2D* collisionBody2DPtr;
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-            collisionBody2DPtr->SetTangible(true);
-            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-            collisionPoints[cursorReleaseCollisionPointIndex_].tangible_ = true;
+            if (collisionBody2DPtr != nullptr)
+            {
+                collisionBody2DPtr->SetTangible(true);
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
+            }
 
             previousWorldCursorRelease_ = previousWorldCursorPosition_;
         }
@@ -568,34 +605,40 @@ void TestScene051::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // sync cursor rendered model and collision body
     // -------------------------------------------------------------------------
     {
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
-        circleMesh01.SetPositionX(previousWorldCursorPosition_.x);
-        circleMesh01.SetPositionY(previousWorldCursorPosition_.y);
+            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
+            circleMesh01.SetPositionX(previousWorldCursorPosition_.x);
+            circleMesh01.SetPositionY(previousWorldCursorPosition_.y);
 
-        Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
-        circleMesh02.SetPositionX(previousWorldCursorPress_.x);
-        circleMesh02.SetPositionY(previousWorldCursorPress_.y);
+            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
+            circleMesh02.SetPositionX(previousWorldCursorPress_.x);
+            circleMesh02.SetPositionY(previousWorldCursorPress_.y);
 
-        Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
-        circleMesh03.SetPositionX(previousWorldCursorRelease_.x);
-        circleMesh03.SetPositionY(previousWorldCursorRelease_.y);
+            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
+            circleMesh03.SetPositionX(previousWorldCursorRelease_.x);
+            circleMesh03.SetPositionY(previousWorldCursorRelease_.y);
+        }
 
-        Project001::CollisionBody2D* collisionBody2DPtr;
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
-        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+        if (collisionBody2DPtr != nullptr)
+        {
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
 
-        collisionPoints[cursorPositionCollisionPointIndex_].position.x = previousWorldCursorPosition_.x;
-        collisionPoints[cursorPositionCollisionPointIndex_].position.y = previousWorldCursorPosition_.y;
+            collisionPoints[cursorPositionCollisionPointIndex_].position.x = previousWorldCursorPosition_.x;
+            collisionPoints[cursorPositionCollisionPointIndex_].position.y = previousWorldCursorPosition_.y;
 
-        collisionPoints[cursorPressCollisionPointIndex_].position.x = previousWorldCursorPress_.x;
-        collisionPoints[cursorPressCollisionPointIndex_].position.y = previousWorldCursorPress_.y;
+            collisionPoints[cursorPressCollisionPointIndex_].position.x = previousWorldCursorPress_.x;
+            collisionPoints[cursorPressCollisionPointIndex_].position.y = previousWorldCursorPress_.y;
 
-        collisionPoints[cursorReleaseCollisionPointIndex_].position.x = previousWorldCursorRelease_.x;
-        collisionPoints[cursorReleaseCollisionPointIndex_].position.y = previousWorldCursorRelease_.y;
+            collisionPoints[cursorReleaseCollisionPointIndex_].position.x = previousWorldCursorRelease_.x;
+            collisionPoints[cursorReleaseCollisionPointIndex_].position.y = previousWorldCursorRelease_.y;
+        }
     }
 
     // calculate collisions
@@ -613,52 +656,58 @@ void TestScene051::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             bool collidingWithCursorPress = false;
             bool collidingWithCursorRelease = false;
 
-            Project001::CollisionBody2D* collisionBody2DPtr;
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, buttonEntityId));
-            const std::vector<Project001::CollisionData> collisions = collisionBody2DPtr->GetCollisions();
-            for (size_t i = 0; i < collisions.size(); ++i)
+            if (collisionBody2DPtr != nullptr)
             {
-                const Project001::CollisionData& collisionData = collisions[i];
-
-                if (collisionData.otherEntityId == cursorEntityId_)
+                const std::vector<Project001::CollisionData> collisions = collisionBody2DPtr->GetCollisions();
+                for (size_t i = 0; i < collisions.size(); ++i)
                 {
-                    if (collisionData.otherShapeId == s_cursorPositionCollisionShapeId_)
+                    const Project001::CollisionData& collisionData = collisions[i];
+
+                    if (collisionData.otherEntityId == cursorEntityId_)
                     {
-                        collidingWithCursorPosition = true;
-                    }
-                    if (collisionData.otherShapeId == s_cursorPressCollisionShapeId_)
-                    {
-                        collidingWithCursorPress = true;
-                    }
-                    if (collisionData.otherShapeId == s_cursorReleaseCollisionShapeId_)
-                    {
-                        collidingWithCursorRelease = true;
+                        if (collisionData.otherShapeTag == s_cursorPositionCollisionShapeId_)
+                        {
+                            collidingWithCursorPosition = true;
+                        }
+                        if (collisionData.otherShapeTag == s_cursorPressCollisionShapeId_)
+                        {
+                            collidingWithCursorPress = true;
+                        }
+                        if (collisionData.otherShapeTag == s_cursorReleaseCollisionShapeId_)
+                        {
+                            collidingWithCursorRelease = true;
+                        }
                     }
                 }
             }
 
-            Project001::RenderedModel* renderedModelPtr;
+            Project001::RenderedModel* renderedModelPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, buttonEntityId));
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-            Project001::RenderedMesh& buttonMesh = renderedMeshes[0];
+            if (renderedModelPtr != nullptr)
+            {
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+                Project001::RenderedMesh& buttonMesh = renderedMeshes[0];
 
-            if (collidingWithCursorPosition)
-            {
-                soundPlayerPtr_->PlaySoundSource(buttonSoundSourceIds_[i]);
-            }
+                if (collidingWithCursorPosition)
+                {
+                    soundPlayerPtr_->PlaySoundSource(buttonSoundSourceIds_[i]);
+                }
 
-            if (soundPlayerPtr_->GetIsPlayingSoundSource(buttonSoundSourceIds_[i]))
-            {
-                buttonMesh.SetColor(s_buttonColor2_);
-            }
-            else
-            {
-                buttonMesh.SetColor(s_buttonColor_);
-            }
+                if (soundPlayerPtr_->GetIsPlayingSoundSource(buttonSoundSourceIds_[i]))
+                {
+                    buttonMesh.SetColor(s_buttonColor2_);
+                }
+                else
+                {
+                    buttonMesh.SetColor(s_buttonColor_);
+                }
 
-            if (collidingWithCursorPress && collidingWithCursorRelease)
-            {
-                // Do Nothing
+                if (collidingWithCursorPress && collidingWithCursorRelease)
+                {
+                    // Do Nothing
+                }
             }
         }
     }

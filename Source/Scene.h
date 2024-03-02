@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Event.h"
+
 #include <functional>
 
 
@@ -11,8 +13,6 @@ namespace Project001
     class ResourceStores;
     class SoundPlayer;
     class Window;
-
-    struct Event;
 
     class Scene
     {

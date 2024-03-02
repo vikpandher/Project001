@@ -52,7 +52,10 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::Camera* cameraPtr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        cameraPtr->SetDepthTestEnabled(false);
+        if (cameraPtr != nullptr)
+        {
+            cameraPtr->SetDepthTestEnabled(false);
+        }
     }
 
     // Load Font ---------------------------------------------------------------
@@ -144,11 +147,14 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 2.5f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font01_TextureId);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(0.0f, 2.5f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+        }
     }
 
     // Generated Shape Entity 01
@@ -174,12 +180,15 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font02_TextureId);
-        renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
+        }
     }
 
     // Generated Shape Entity 02
@@ -209,12 +218,15 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font01_TextureId);
-        renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+        }
     }
 
     // Generated Shape Entity 03
@@ -235,12 +247,15 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font01_TextureId);
-        renderedMeshPtr->SetColorRGB(0.6f, 1.0f, 0.6f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetColorRGB(0.6f, 1.0f, 0.6f);
+        }
     }
 
     // Generated Shape Entity 04
@@ -262,12 +277,15 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font01_TextureId);
-        renderedMeshPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
+        }
     }
 
     // Generated Shape Entity 05
@@ -288,11 +306,14 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetTextureId(font01_TextureId);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+        }
     }
 
     // Generated Shape Entity 06 (zzzEntityId_)
@@ -317,61 +338,64 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         zzzEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
-        renderedModelPtr->SetPosition(-3.2f, -1.6f, 0.0f);
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.reserve(5);
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(-3.2f, -1.6f, 0.0f);
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            renderedMeshes.reserve(5);
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& character_Z_Mesh1 = renderedMeshes.back();
-        character_Z_Mesh1.SetMeshDataPtr(newMeshDataPtr);
-        character_Z_Mesh1.SetTextureId(font01_TextureId);
-        character_Z_Mesh1.SetColorRGB(1.0f, 0.8f, 0.8f);
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& character_Z_Mesh1 = renderedMeshes.back();
+            character_Z_Mesh1.SetMeshDataPtr(newMeshDataPtr);
+            character_Z_Mesh1.SetTextureId(font01_TextureId);
+            character_Z_Mesh1.SetColorRGB(1.0f, 0.8f, 0.8f);
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& character_Z_Mesh2 = renderedMeshes.back();
-        character_Z_Mesh2.SetMeshDataPtr(newMeshDataPtr);
-        character_Z_Mesh2.SetTextureId(font01_TextureId);
-        character_Z_Mesh2.SetColorRGB(1.0f, 0.6f, 0.6f);
-        character_Z_Mesh2.SetPosition(
-            character_Z_Mesh1.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
-            character_Z_Mesh1.GetPosition().y,
-            character_Z_Mesh1.GetPosition().z
-        );
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& character_Z_Mesh2 = renderedMeshes.back();
+            character_Z_Mesh2.SetMeshDataPtr(newMeshDataPtr);
+            character_Z_Mesh2.SetTextureId(font01_TextureId);
+            character_Z_Mesh2.SetColorRGB(1.0f, 0.6f, 0.6f);
+            character_Z_Mesh2.SetPosition(
+                character_Z_Mesh1.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh1.GetPosition().y,
+                character_Z_Mesh1.GetPosition().z
+            );
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& character_Z_Mesh3 = renderedMeshes.back();
-        character_Z_Mesh3.SetMeshDataPtr(newMeshDataPtr);
-        character_Z_Mesh3.SetTextureId(font01_TextureId);
-        character_Z_Mesh3.SetColorRGB(1.0f, 0.4f, 0.4f);
-        character_Z_Mesh3.SetPosition(
-            character_Z_Mesh2.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
-            character_Z_Mesh2.GetPosition().y,
-            character_Z_Mesh2.GetPosition().z
-        );
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& character_Z_Mesh3 = renderedMeshes.back();
+            character_Z_Mesh3.SetMeshDataPtr(newMeshDataPtr);
+            character_Z_Mesh3.SetTextureId(font01_TextureId);
+            character_Z_Mesh3.SetColorRGB(1.0f, 0.4f, 0.4f);
+            character_Z_Mesh3.SetPosition(
+                character_Z_Mesh2.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh2.GetPosition().y,
+                character_Z_Mesh2.GetPosition().z
+            );
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& character_Z_Mesh4 = renderedMeshes.back();
-        character_Z_Mesh4.SetMeshDataPtr(newMeshDataPtr);
-        character_Z_Mesh4.SetTextureId(font01_TextureId);
-        character_Z_Mesh4.SetColorRGB(1.0f, 0.2f, 0.2f);
-        character_Z_Mesh4.SetPosition(
-            character_Z_Mesh3.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
-            character_Z_Mesh3.GetPosition().y,
-            character_Z_Mesh3.GetPosition().z
-        );
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& character_Z_Mesh4 = renderedMeshes.back();
+            character_Z_Mesh4.SetMeshDataPtr(newMeshDataPtr);
+            character_Z_Mesh4.SetTextureId(font01_TextureId);
+            character_Z_Mesh4.SetColorRGB(1.0f, 0.2f, 0.2f);
+            character_Z_Mesh4.SetPosition(
+                character_Z_Mesh3.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh3.GetPosition().y,
+                character_Z_Mesh3.GetPosition().z
+            );
 
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& character_Z_Mesh5 = renderedMeshes.back();
-        character_Z_Mesh5.SetMeshDataPtr(newMeshDataPtr);
-        character_Z_Mesh5.SetTextureId(font01_TextureId);
-        character_Z_Mesh5.SetColorRGB(1.0f, 0.0f, 0.0f);
-        character_Z_Mesh5.SetPosition(
-            character_Z_Mesh4.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
-            character_Z_Mesh4.GetPosition().y,
-            character_Z_Mesh4.GetPosition().z
-        );
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& character_Z_Mesh5 = renderedMeshes.back();
+            character_Z_Mesh5.SetMeshDataPtr(newMeshDataPtr);
+            character_Z_Mesh5.SetTextureId(font01_TextureId);
+            character_Z_Mesh5.SetColorRGB(1.0f, 0.0f, 0.0f);
+            character_Z_Mesh5.SetPosition(
+                character_Z_Mesh4.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh4.GetPosition().y,
+                character_Z_Mesh4.GetPosition().z
+            );
+        }
     }
 
     // Generated Shape Entity 07 (printableEntityId_)
@@ -383,37 +407,40 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         printableEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        float currentOffsetX = 0.0f;
-        float colorFade = 0.0f;
-        float scale = 0.8f;
-        std::unordered_map<unsigned char, Project001::GlyphMeshData>::const_iterator iter =
-            font01_fontMeshData.glyphMeshDataMap.begin();
-        for (; iter != font01_fontMeshData.glyphMeshDataMap.end(); ++iter)
+        if (renderedModelPtr != nullptr)
         {
-            const Project001::MeshData currentMeshData = iter->second.meshData;
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            float currentOffsetX = 0.0f;
+            float colorFade = 0.0f;
+            float scale = 0.8f;
+            std::unordered_map<unsigned char, Project001::GlyphMeshData>::const_iterator iter =
+                font01_fontMeshData.glyphMeshDataMap.begin();
+            for (; iter != font01_fontMeshData.glyphMeshDataMap.end(); ++iter)
+            {
+                const Project001::MeshData currentMeshData = iter->second.meshData;
 
-            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-            meshDataPtrArray_.push_back(newMeshDataPtr);
-            Project001::MeshLoader::CopyMesh(
-                *newMeshDataPtr,
-                currentMeshData
-            );
+                Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+                meshDataPtrArray_.push_back(newMeshDataPtr);
+                Project001::MeshLoader::CopyMesh(
+                    *newMeshDataPtr,
+                    currentMeshData
+                );
 
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
-            currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-            currentRenderedMesh.SetTextureId(font01_TextureId);
-            currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f, 1.0f - colorFade);
-            currentRenderedMesh.SetScale(glm::vec3(scale));
-            currentRenderedMesh.SetPositionX(currentOffsetX * scale);
+                renderedMeshes.emplace_back();
+                Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
+                currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
+                currentRenderedMesh.SetTextureId(font01_TextureId);
+                currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f, 1.0f - colorFade);
+                currentRenderedMesh.SetScale(glm::vec3(scale));
+                currentRenderedMesh.SetPositionX(currentOffsetX * scale);
 
-            currentOffsetX += iter->second.horiAdvance;
-            colorFade += 0.01f;
+                currentOffsetX += iter->second.horiAdvance;
+                colorFade += 0.01f;
+            }
+            renderedModelPtr->SetPosition(-0.5f * currentOffsetX * scale, -2.4f, 0.0f);
         }
-        renderedModelPtr->SetPosition(-0.5f * currentOffsetX * scale, -2.4f, 0.0f);
     }
 
     // Generated Shape Entity 08 (sphinxEntityId_)
@@ -425,38 +452,41 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sphinxEntityId_ = tempEntityId;
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedModelPtr->SetPosition(0.0f, -1.6f, 0.0f);
-        float currentOffsetX = 0.0f;
-        float colorFade = 0.0f;
-        glm::vec3 scale(1.2f, 3.6f, 1.0f);
-
-        std::string text = "Sphinx of black quartz, judge my vow!";
-        for (size_t i = 0; i < text.length(); ++i)
+        if (renderedModelPtr != nullptr)
         {
-            const char& c = text[i];
-            const Project001::GlyphMeshData& currentGlyphMeshData = font01_fontMeshData.glyphMeshDataMap[c];
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            renderedModelPtr->SetPosition(0.0f, -1.6f, 0.0f);
+            float currentOffsetX = 0.0f;
+            float colorFade = 0.0f;
+            glm::vec3 scale(1.2f, 3.6f, 1.0f);
 
-            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-            meshDataPtrArray_.push_back(newMeshDataPtr);
-            Project001::MeshLoader::CopyMesh(
-                *newMeshDataPtr,
-                currentGlyphMeshData.meshData
-            );
+            std::string text = "Sphinx of black quartz, judge my vow!";
+            for (size_t i = 0; i < text.length(); ++i)
+            {
+                const char& c = text[i];
+                const Project001::GlyphMeshData& currentGlyphMeshData = font01_fontMeshData.glyphMeshDataMap[c];
 
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
-            currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-            currentRenderedMesh.SetTextureId(font01_TextureId);
-            currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f - colorFade, 1.0f);
-            currentRenderedMesh.SetScale(scale);
-            currentRenderedMesh.SetPositionX(currentOffsetX* scale.x);
-            currentRenderedMesh.SetTranslucent(true);
+                Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+                meshDataPtrArray_.push_back(newMeshDataPtr);
+                Project001::MeshLoader::CopyMesh(
+                    *newMeshDataPtr,
+                    currentGlyphMeshData.meshData
+                );
 
-            currentOffsetX += currentGlyphMeshData.horiAdvance;
-            colorFade += 0.02f;
+                renderedMeshes.emplace_back();
+                Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
+                currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
+                currentRenderedMesh.SetTextureId(font01_TextureId);
+                currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f - colorFade, 1.0f);
+                currentRenderedMesh.SetScale(scale);
+                currentRenderedMesh.SetPositionX(currentOffsetX * scale.x);
+                currentRenderedMesh.SetTranslucent(true);
+
+                currentOffsetX += currentGlyphMeshData.horiAdvance;
+                colorFade += 0.02f;
+            }
         }
     }
 
@@ -501,43 +531,52 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     timestamp_ns_ += updateEvent.timestep_ns;
 
     {
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, zzzEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-        for (size_t i = 0; i < renderedMeshes.size(); ++i)
+        if (renderedModelPtr != nullptr)
         {
-            Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-            float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i) + 8.0f * float(timestamp_ns_) * 0.0000000001f));
-            renderedMesh.SetPositionY(yShift);
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            for (size_t i = 0; i < renderedMeshes.size(); ++i)
+            {
+                Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
+                float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                renderedMesh.SetPositionY(yShift);
+            }
         }
     }
 
     {
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, printableEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-        for (size_t i = 0; i < renderedMeshes.size(); ++i)
+        if (renderedModelPtr != nullptr)
         {
-            Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-            float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i) + 8.0f * float(timestamp_ns_) * 0.0000000001f));
-            renderedMesh.SetPositionY(yShift);
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            for (size_t i = 0; i < renderedMeshes.size(); ++i)
+            {
+                Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
+                float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                renderedMesh.SetPositionY(yShift);
+            }
         }
     }
 
     {
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, sphinxEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-        for (size_t i = 0; i < renderedMeshes.size(); ++i)
+        if (renderedModelPtr != nullptr)
         {
-            Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-            float yShift = 0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i) + 2.0f * float(timestamp_ns_) * 0.0000000001f));
-            renderedMesh.SetPositionY(yShift);
-            float zRotate = -0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i) + 32.0f * float(timestamp_ns_) * 0.0000000001f));
-            renderedMesh.AddRelativeRotationZ(zRotate);
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            for (size_t i = 0; i < renderedMeshes.size(); ++i)
+            {
+                Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
+                float yShift = 0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+2.0f * float(timestamp_ns_) * 0.0000000001f));
+                renderedMesh.SetPositionY(yShift);
+                float zRotate = -0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+32.0f * float(timestamp_ns_) * 0.0000000001f));
+                renderedMesh.AddRelativeRotationZ(zRotate);
+            }
         }
     }
 }

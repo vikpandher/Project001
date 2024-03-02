@@ -26,7 +26,7 @@
 #include "TestScene010.h"
 #include "TestScene011.h"
 #include "TestScene012.h"
-#include "TestScene013.h"
+#include "TestScene023.h"
 #include "TestScene030.h"
 #include "TestScene031.h"
 #include "TestScene032.h"
@@ -45,7 +45,7 @@ unsigned int g_testScene006Id = (unsigned int)-1; // declared extern in TestScen
 unsigned int g_testScene010Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene011Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene012Id = (unsigned int)-1; // declared extern in TestSceneIds.h
-unsigned int g_testScene013Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene023Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene030Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene031Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene032Id = (unsigned int)-1; // declared extern in TestSceneIds.h
@@ -126,8 +126,8 @@ int main(int argc, char** argv)
     // tests 3d shape overlap tests
     // * inherits 001
     // * has "unit" tests
-    TestScene013* testScene013Ptr = new TestScene013(applicationPtr);
-    g_testScene013Id = testScene013Ptr->GetId();
+    TestScene023* testScene023Ptr = new TestScene023(applicationPtr);
+    g_testScene023Id = testScene023Ptr->GetId();
 
     // tests framerate with many verticies batched rendering
     // * inherits 001
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     delete testScene010Ptr;
     delete testScene011Ptr;
     delete testScene012Ptr;
-    delete testScene013Ptr;
+    delete testScene023Ptr;
     delete testScene030Ptr;
     delete testScene031Ptr;
     delete testScene032Ptr;

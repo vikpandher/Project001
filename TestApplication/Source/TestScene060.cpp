@@ -75,11 +75,8 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     _LOG_MESSAGE("INITIALIZING:   TestScene060:            %u", GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
-
     rendererPtr_ = GetApplicationRendererPtr();
-
     soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
-
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     // SoundData ---------------------------------------------------------------
@@ -210,119 +207,141 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float mainCameraHalfWidth = 0.0f;
     {
         componentStoresPtr_->CreateEntity(mainCameraEntityId_);
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            mainCameraHalfHeight = 2.75f;
-            mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(mainCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
-            cameraPtr->SetRightCutoff(mainCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                mainCameraHalfHeight = 2.75f;
+                mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(mainCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
+                cameraPtr->SetRightCutoff(mainCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->TurnOn();
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->TurnOn();
     }
 
     // UI Camera Entity
 
     {
         componentStoresPtr_->CreateEntity(uiCameraEntityId_);
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
-        Project001::Camera* cameraPtr;
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        Project001::Camera* cameraPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        if (cameraPtr != nullptr)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float uiCameraHalfHeight = 3.5f;
-            float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
-            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-1.0f);
-            cameraPtr->SetFarCutoff(1.0f);
+            int aspectRatioNumerator;
+            int aspectRatioDenominator;
+            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+            {
+                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float uiCameraHalfHeight = 3.5f;
+                float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
+                cameraPtr->SetAspectRatio(aspectRatio);
+                cameraPtr->SetTopCutoff(uiCameraHalfHeight);
+                cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
+                cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
+                cameraPtr->SetRightCutoff(uiCameraHalfWidth);
+                cameraPtr->SetNearCutoff(-1.0f);
+                cameraPtr->SetFarCutoff(1.0f);
+            }
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            cameraPtr->SetDepthTestEnabled(false);
+            cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_uiCameraMask_);
+            cameraPtr->SetPriorityValue(1000000);
         }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(s_uiCameraMask_);
-        cameraPtr->SetPriorityValue(1000000);
     }
 
     // Background Entity
 
     {
         componentStoresPtr_->CreateEntity(backgroundEntityId_);
+
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(backgroundEntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
-        renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
-        renderedMeshPtr->SetPositionZ(-0.2f);
-        renderedMeshPtr->SetColor(0.1f, 0.1f, 0.2f, 1.0f);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
+            renderedMeshPtr->SetPositionZ(-0.2f);
+            renderedMeshPtr->SetColor(0.1f, 0.1f, 0.2f, 1.0f);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Joystick Axis Text Entity
 
     {
         componentStoresPtr_->CreateEntity(joystickAxisTextEntityId_);
+
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickAxisTextEntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
-        renderedMeshPtr->SetMeshDataPtr(joystickAxisTextMeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 0.5f, 0.0f, 0.0f);
-        renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(joystickAxisTextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 0.5f, 0.0f, 0.0f);
+            renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Joystick Button Text 01 Entity
 
     {
         componentStoresPtr_->CreateEntity(joystickButton_01_TextEntityId_);
+
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_01_TextEntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
-        renderedMeshPtr->SetMeshDataPtr(joystickButton_01_TextMeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 2.5f, 0.0f, 0.0f);
-        renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(joystickButton_01_TextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 2.5f, 0.0f, 0.0f);
+            renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Joystick Button Text 02 Entity
 
     {
         componentStoresPtr_->CreateEntity(joystickButton_02_TextEntityId_);
+
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_02_TextEntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
-        renderedMeshPtr->SetMeshDataPtr(joystickButton_02_TextMeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 4.5f, 0.0f, 0.0f);
-        renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetLit(false);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetMeshDataPtr(joystickButton_02_TextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 4.5f, 0.0f, 0.0f);
+            renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetLit(false);
+        }
     }
 
     // Left Stick Entity
@@ -331,26 +350,29 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(leftStickEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(leftStickEntityId_));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        leftStickTriangleMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
-        polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
-        polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
-        polygonShadowMesh.SetLit(false);
+            leftStickTriangleMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
+            polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
+            polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
+            polygonShadowMesh.SetLit(false);
 
-        leftStickCircleMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh = renderedMeshes.back();
-        circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
-        circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
-        circleMesh.SetLit(false);
-        circleMesh.SetPositionZ(0.02f);
+            leftStickCircleMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& circleMesh = renderedMeshes.back();
+            circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
+            circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
+            circleMesh.SetLit(false);
+            circleMesh.SetPositionZ(0.02f);
 
-        renderedModelPtr->SetPosition(-1.0f, 1.5f, 0.0f);
+            renderedModelPtr->SetPosition(-1.0f, 1.5f, 0.0f);
+        }
     }
 
     // Right Stick Entity
@@ -359,26 +381,29 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(rightStickEntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(rightStickEntityId_));
-        Project001::RenderedModel* renderedModelPtr;
+        Project001::RenderedModel* renderedModelPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
-        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        rightStickTriangleMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
-        polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
-        polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
-        polygonShadowMesh.SetLit(false);
+            rightStickTriangleMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
+            polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
+            polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
+            polygonShadowMesh.SetLit(false);
 
-        rightStickCircleMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh = renderedMeshes.back();
-        circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
-        circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
-        circleMesh.SetLit(false);
-        circleMesh.SetPositionZ(0.02f);
+            rightStickCircleMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& circleMesh = renderedMeshes.back();
+            circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
+            circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
+            circleMesh.SetLit(false);
+            circleMesh.SetPositionZ(0.02f);
 
-        renderedModelPtr->SetPosition(1.0f, 1.5f, 0.0f);
+            renderedModelPtr->SetPosition(1.0f, 1.5f, 0.0f);
+        }
     }
 
     // Member Scenes -----------------------------------------------------------
@@ -412,6 +437,7 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     rendererPtr_->DeleteAllMeshes();
     soundPlayerPtr_->DeleteAllSoundSources();
     soundPlayerPtr_->DeleteAllSoundBuffers();
+    soundPlayerPtr_->ResetListener();
     componentStoresPtr_->DeleteAllEntities();
 
     windowPtr_ = nullptr;
@@ -609,5 +635,21 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             joystickButtonText02.c_str(),
             s_joystickAxisAndButtonText_pixelSize
         ));
+    }
+    else
+    {
+        const char* noJoyStickTestPtr = "NO JOYSTICK DETECTED";
+
+        joystickAxisTextMeshDataPtr_->Clear();
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+            *joystickAxisTextMeshDataPtr_,
+            *font01_FontDataPtr_,
+            noJoyStickTestPtr,
+            s_joystickAxisAndButtonText_pixelSize
+        ));
+
+        joystickButton_01_TextMeshDataPtr_->Clear();
+
+        joystickButton_02_TextMeshDataPtr_->Clear();
     }
 }

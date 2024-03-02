@@ -13,7 +13,7 @@ namespace Project001
         for (size_t i = 0; i < collisionLines_.size(); ++i)
         {
             const CollisionLine2D& currentLine = collisionLines_[i];
-            if (currentLine.tangible_)
+            if (currentLine.tangible)
             {
                 boundingRadius_ = std::numeric_limits<float>::infinity();
                 return;
@@ -23,7 +23,7 @@ namespace Project001
         for (size_t i = 0; i < collisionRays_.size(); ++i)
         {
             const CollisionRay2D& current = collisionRays_[i];
-            if (current.tangible_)
+            if (current.tangible)
             {
                 boundingRadius_ = std::numeric_limits<float>::infinity();
                 return;
@@ -35,7 +35,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {
             const CollisionPoint2D& currentPoint = collisionPoints_[i];
-            if (!currentPoint.tangible_)
+            if (!currentPoint.tangible)
             {
                 continue;
             }
@@ -51,7 +51,7 @@ namespace Project001
         for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
         {
             const CollisionLineSegment2D& currentLineSegment = collisionLineSegments_[i];
-            if (!currentLineSegment.tangible_)
+            if (!currentLineSegment.tangible)
             {
                 continue;
             }
@@ -73,7 +73,7 @@ namespace Project001
         for (size_t i = 0; i < collisionRectangles_.size(); ++i)
         {
             const CollisionRectangle2D& currentRectangle = collisionRectangles_[i];
-            if (!currentRectangle.tangible_)
+            if (!currentRectangle.tangible)
             {
                 continue;
             }
@@ -105,7 +105,7 @@ namespace Project001
         for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
         {
             const CollisionOrientedRectangle2D& currentOrientedRectangle = collisionOrientedRectangles_[i];
-            if (!currentOrientedRectangle.tangible_)
+            if (!currentOrientedRectangle.tangible)
             {
                 continue;
             }
@@ -150,7 +150,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCircles_.size(); ++i)
         {
             const CollisionCircle2D& currentCircle = collisionCircles_[i];
-            if (!currentCircle.tangible_)
+            if (!currentCircle.tangible)
             {
                 continue;
             }
@@ -167,7 +167,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCapsules_.size(); ++i)
         {
             const CollisionCapsule2D& currentCapsule = collisionCapsules_[i];
-            if (!currentCapsule.tangible_)
+            if (!currentCapsule.tangible)
             {
                 continue;
             }
@@ -191,7 +191,7 @@ namespace Project001
         for (size_t i = 0; i < collisionTriangles_.size(); ++i)
         {
             const CollisionTriangle2D& currentTriangle = collisionTriangles_[i];
-            if (!currentTriangle.tangible_)
+            if (!currentTriangle.tangible)
             {
                 continue;
             }
@@ -219,7 +219,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPolygons_.size(); ++i)
         {
             const CollisionPolygon2D& currentPolygon = collisionPolygons_[i];
-            if (!currentPolygon.tangible_)
+            if (!currentPolygon.tangible)
             {
                 continue;
             }
@@ -238,7 +238,7 @@ namespace Project001
         for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
         {
             const CollisionConvexPolygon2D& currentConvexPolygon = collisionConvexPolygons_[i];
-            if (!currentConvexPolygon.tangible_)
+            if (!currentConvexPolygon.tangible)
             {
                 continue;
             }
@@ -275,7 +275,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {
             const CollisionPoint2D& currentCollisionPoint = collisionPoints_[i];
-            if (!currentCollisionPoint.tangible_)
+            if (!currentCollisionPoint.tangible)
             {
                 continue;
             }
@@ -283,15 +283,15 @@ namespace Project001
             glm::vec2 newPosition = Rotate2DVector(currentCollisionPoint.position, rotation_) + position_;
             transformedCollisionPoints_.emplace_back(
                 newPosition,
-                currentCollisionPoint.id_,
-                currentCollisionPoint.tangible_
+                currentCollisionPoint.tag,
+                currentCollisionPoint.tangible
             );
         }
 
         for (size_t i = 0; i < collisionLines_.size(); ++i)
         {
             const CollisionLine2D& currentCollisionLine = collisionLines_[i];
-            if (!currentCollisionLine.tangible_)
+            if (!currentCollisionLine.tangible)
             {
                 continue;
             }
@@ -301,15 +301,15 @@ namespace Project001
             transformedCollisionLines_.emplace_back(
                 newPosition,
                 newSlope,
-                currentCollisionLine.id_,
-                currentCollisionLine.tangible_
+                currentCollisionLine.tag,
+                currentCollisionLine.tangible
             );
         }
 
         for (size_t i = 0; i < collisionRays_.size(); ++i)
         {
             const CollisionRay2D& currentCollisionRay = collisionRays_[i];
-            if (!currentCollisionRay.tangible_)
+            if (!currentCollisionRay.tangible)
             {
                 continue;
             }
@@ -319,15 +319,15 @@ namespace Project001
             transformedCollisionRays_.emplace_back(
                 newPosition,
                 newDirectoin,
-                currentCollisionRay.id_,
-                currentCollisionRay.tangible_
+                currentCollisionRay.tag,
+                currentCollisionRay.tangible
             );
         }
 
         for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
         {
             const CollisionLineSegment2D& currentCollisionLineSegment = collisionLineSegments_[i];
-            if (!currentCollisionLineSegment.tangible_)
+            if (!currentCollisionLineSegment.tangible)
             {
                 continue;
             }
@@ -337,15 +337,15 @@ namespace Project001
             transformedCollisionLineSegments_.emplace_back(
                 newStart,
                 newEnd,
-                currentCollisionLineSegment.id_,
-                currentCollisionLineSegment.tangible_
+                currentCollisionLineSegment.tag,
+                currentCollisionLineSegment.tangible
             );
         }
 
         for (size_t i = 0; i < collisionRectangles_.size(); ++i)
         {
             const CollisionRectangle2D& currentCollisionRectangle = collisionRectangles_[i];
-            if (!currentCollisionRectangle.tangible_)
+            if (!currentCollisionRectangle.tangible)
             {
                 continue;
             }
@@ -357,8 +357,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
-                    currentCollisionRectangle.id_,
-                    currentCollisionRectangle.tangible_
+                    currentCollisionRectangle.tag,
+                    currentCollisionRectangle.tangible
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::half_pi<float>()))
@@ -369,8 +369,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
-                    currentCollisionRectangle.id_,
-                    currentCollisionRectangle.tangible_
+                    currentCollisionRectangle.tag,
+                    currentCollisionRectangle.tangible
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::pi<float>()))
@@ -380,8 +380,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newTopRight,
                     newBottomLeft,
-                    currentCollisionRectangle.id_,
-                    currentCollisionRectangle.tangible_
+                    currentCollisionRectangle.tag,
+                    currentCollisionRectangle.tangible
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
@@ -392,8 +392,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
-                    currentCollisionRectangle.id_,
-                    currentCollisionRectangle.tangible_
+                    currentCollisionRectangle.tag,
+                    currentCollisionRectangle.tangible
                 );
             }
             else
@@ -405,8 +405,8 @@ namespace Project001
                     newHalfSize,
                     newPosition,
                     rotation_,
-                    currentCollisionRectangle.id_,
-                    currentCollisionRectangle.tangible_
+                    currentCollisionRectangle.tag,
+                    currentCollisionRectangle.tangible
                 );
             }
         }
@@ -414,7 +414,7 @@ namespace Project001
         for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
         {
             const CollisionOrientedRectangle2D& currentCollisionOrientedRectangle = collisionOrientedRectangles_[i];
-            if (!currentCollisionOrientedRectangle.tangible_)
+            if (!currentCollisionOrientedRectangle.tangible)
             {
                 continue;
             }
@@ -428,8 +428,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
-                    currentCollisionOrientedRectangle.id_,
-                    currentCollisionOrientedRectangle.tangible_
+                    currentCollisionOrientedRectangle.tag,
+                    currentCollisionOrientedRectangle.tangible
                 );
             }
             else if (FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
@@ -442,8 +442,8 @@ namespace Project001
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
-                    currentCollisionOrientedRectangle.id_,
-                    currentCollisionOrientedRectangle.tangible_
+                    currentCollisionOrientedRectangle.tag,
+                    currentCollisionOrientedRectangle.tangible
                 );
             }
             else
@@ -452,8 +452,8 @@ namespace Project001
                     currentCollisionOrientedRectangle.halfSize,
                     newPosition,
                     newRotation,
-                    currentCollisionOrientedRectangle.id_,
-                    currentCollisionOrientedRectangle.tangible_
+                    currentCollisionOrientedRectangle.tag,
+                    currentCollisionOrientedRectangle.tangible
                 );
             }
         }
@@ -461,7 +461,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCircles_.size(); ++i)
         {
             const CollisionCircle2D& currentCollisionCircle = collisionCircles_[i];
-            if (!currentCollisionCircle.tangible_)
+            if (!currentCollisionCircle.tangible)
             {
                 continue;
             }
@@ -470,15 +470,15 @@ namespace Project001
             transformedCollisionCircles_.emplace_back(
                 newPosition,
                 currentCollisionCircle.radius,
-                currentCollisionCircle.id_,
-                currentCollisionCircle.tangible_
+                currentCollisionCircle.tag,
+                currentCollisionCircle.tangible
             );
         }
 
         for (size_t i = 0; i < collisionCapsules_.size(); ++i)
         {
             const CollisionCapsule2D& currentCollisionCapsule = collisionCapsules_[i];
-            if (!currentCollisionCapsule.tangible_)
+            if (!currentCollisionCapsule.tangible)
             {
                 continue;
             }
@@ -489,15 +489,15 @@ namespace Project001
                 newStart,
                 newEnd,
                 currentCollisionCapsule.radius,
-                currentCollisionCapsule.id_,
-                currentCollisionCapsule.tangible_
+                currentCollisionCapsule.tag,
+                currentCollisionCapsule.tangible
             );
         }
 
         for (size_t i = 0; i < collisionTriangles_.size(); ++i)
         {
             const CollisionTriangle2D& currentCollisionTriangle = collisionTriangles_[i];
-            if (!currentCollisionTriangle.tangible_)
+            if (!currentCollisionTriangle.tangible)
             {
                 continue;
             }
@@ -509,15 +509,15 @@ namespace Project001
                 newCorner1,
                 newCorner2,
                 newCorner3,
-                currentCollisionTriangle.id_,
-                currentCollisionTriangle.tangible_
+                currentCollisionTriangle.tag,
+                currentCollisionTriangle.tangible
             );
         }
 
         for (size_t i = 0; i < collisionPolygons_.size(); ++i)
         {
             const CollisionPolygon2D& currentCollisionPolygon = collisionPolygons_[i];
-            if (!currentCollisionPolygon.tangible_)
+            if (!currentCollisionPolygon.tangible)
             {
                 continue;
             }
@@ -531,14 +531,14 @@ namespace Project001
                 glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
                 transformedCollisionPolygon.positions.push_back(newCorner);
             }
-            transformedCollisionPolygon.id_ = currentCollisionPolygon.id_;
-            transformedCollisionPolygon.tangible_ = currentCollisionPolygon.tangible_;
+            transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
+            transformedCollisionPolygon.tangible = currentCollisionPolygon.tangible;
         }
 
         for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
         {
             const CollisionConvexPolygon2D& currentCollisionConvexPolygon = collisionConvexPolygons_[i];
-            if (!currentCollisionConvexPolygon.tangible_)
+            if (!currentCollisionConvexPolygon.tangible)
             {
                 continue;
             }
@@ -552,8 +552,8 @@ namespace Project001
                 glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
                 transformedCollisionConvexPolygon.positions.push_back(newCorner);
             }
-            transformedCollisionConvexPolygon.id_ = currentCollisionConvexPolygon.id_;
-            transformedCollisionConvexPolygon.tangible_ = currentCollisionConvexPolygon.tangible_;
+            transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
+            transformedCollisionConvexPolygon.tangible = currentCollisionConvexPolygon.tangible;
         }
 
         transformedCollisionShapesUpToDate_ = true;

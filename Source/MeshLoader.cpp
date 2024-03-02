@@ -3083,21 +3083,21 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces + 1);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             MeshVertex topVertex;
             topVertex.position = glm::vec3(0.0f, 0.5f * height, 0.0f);
             topVertex.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-            destMeshVertexArrayPtr->push_back(topVertex);
+            destMeshVertexPtrArray->push_back(topVertex);
 
             for (size_t i = 0; i < faces; ++i)
             {
@@ -3117,7 +3117,7 @@ namespace Project001
                 MeshVertex bottomVertex;
                 bottomVertex.position = glm::vec3(x, -0.5f * height, z);
                 bottomVertex.normal = glm::normalize(bottomVertex.position);
-                destMeshVertexArrayPtr->push_back(bottomVertex);
+                destMeshVertexPtrArray->push_back(bottomVertex);
             }
 
             if (triangulate)
@@ -3172,15 +3172,15 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces * 6 - 6);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             float y = 1.0f / std::sqrtf(2.0f);
@@ -3209,17 +3209,17 @@ namespace Project001
                 MeshVertex topVertex;
                 topVertex.position = glm::vec3(0.0f, 0.5f * height, 0.0f);
                 topVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(topVertex);
+                destMeshVertexPtrArray->push_back(topVertex);
 
                 MeshVertex previousVertex;
                 previousVertex.position = glm::vec3(previousX, -0.5f * height, previousZ);
                 previousVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(previousVertex);
+                destMeshVertexPtrArray->push_back(previousVertex);
 
                 MeshVertex newVertex;
                 newVertex.position = glm::vec3(newX, -0.5f * height, newZ);
                 newVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(newVertex);
+                destMeshVertexPtrArray->push_back(newVertex);
 
                 previousX = newX;
                 previousZ = newZ;
@@ -3234,7 +3234,7 @@ namespace Project001
                 MeshVertex vertex;
                 vertex.position = glm::vec3(x, -0.5f * height, z);
                 vertex.normal = glm::vec3(0.0f, -1.0f, 0.0f);
-                destMeshVertexArrayPtr->push_back(vertex);
+                destMeshVertexPtrArray->push_back(vertex);
             }
 
             if (triangulate)
@@ -3317,15 +3317,15 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces * 2);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             float y = 1.0f / std::sqrtf(2.0f);
@@ -3348,12 +3348,12 @@ namespace Project001
                 MeshVertex topVertex;
                 topVertex.position = glm::vec3(x, 0.5f * height, z);
                 topVertex.normal = glm::vec3(x * y / radius, y, z * y / radius);
-                destMeshVertexArrayPtr->push_back(topVertex);
+                destMeshVertexPtrArray->push_back(topVertex);
 
                 MeshVertex bottomVertex;
                 bottomVertex.position = glm::vec3(x, -0.5f * height, z);
                 bottomVertex.normal = glm::vec3(x * y / radius, -1.0f * y, z * y / radius);
-                destMeshVertexArrayPtr->push_back(bottomVertex);
+                destMeshVertexPtrArray->push_back(bottomVertex);
             }
 
             if (triangulate)
@@ -3442,15 +3442,15 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces * 6);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             float y = 1.0f / std::sqrtf(2.0f);
@@ -3478,32 +3478,32 @@ namespace Project001
                 MeshVertex topVertex;
                 topVertex.position = glm::vec3(previousX, 0.5f * height, previousZ);
                 topVertex.normal = glm::vec3(0.0f, y, 0.0f);
-                destMeshVertexArrayPtr->push_back(topVertex);
+                destMeshVertexPtrArray->push_back(topVertex);
 
                 MeshVertex bottomVertex;
                 bottomVertex.position = glm::vec3(previousX, -0.5f * height, previousZ);
                 bottomVertex.normal = glm::vec3(0.0f, -1.0f * y, 0.0f);
-                destMeshVertexArrayPtr->push_back(bottomVertex);
+                destMeshVertexPtrArray->push_back(bottomVertex);
 
                 MeshVertex topLeftBodyVertex;
                 topLeftBodyVertex.position = glm::vec3(previousX, 0.5f * height, previousZ);
                 topLeftBodyVertex.normal = bodyNormal;
-                destMeshVertexArrayPtr->push_back(topLeftBodyVertex);
+                destMeshVertexPtrArray->push_back(topLeftBodyVertex);
 
                 MeshVertex bottomLeftBodyVertex;
                 bottomLeftBodyVertex.position = glm::vec3(previousX, -0.5f * height, previousZ);
                 bottomLeftBodyVertex.normal = bodyNormal;
-                destMeshVertexArrayPtr->push_back(bottomLeftBodyVertex);
+                destMeshVertexPtrArray->push_back(bottomLeftBodyVertex);
 
                 MeshVertex topRightBodyVertex;
                 topRightBodyVertex.position = glm::vec3(newX, 0.5f * height, newZ);
                 topRightBodyVertex.normal = bodyNormal;
-                destMeshVertexArrayPtr->push_back(topRightBodyVertex);
+                destMeshVertexPtrArray->push_back(topRightBodyVertex);
 
                 MeshVertex bottomRightBodyVertex;
                 bottomRightBodyVertex.position = glm::vec3(newX, -0.5f * height, newZ);
                 bottomRightBodyVertex.normal = bodyNormal;
-                destMeshVertexArrayPtr->push_back(bottomRightBodyVertex);
+                destMeshVertexPtrArray->push_back(bottomRightBodyVertex);
 
                 previousX = newX;
                 previousZ = newZ;
@@ -4394,15 +4394,15 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces * 2);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             for (size_t i = 0; i < faces; ++i)
@@ -4412,12 +4412,12 @@ namespace Project001
                 MeshVertex topVertex;
                 topVertex.position = start + perpendicular;
                 topVertex.normal = unitPerpendicular;
-                destMeshVertexArrayPtr->push_back(topVertex);
+                destMeshVertexPtrArray->push_back(topVertex);
 
                 MeshVertex bottomVertex;
                 bottomVertex.position = end + perpendicular;
                 bottomVertex.normal = unitPerpendicular;
-                destMeshVertexArrayPtr->push_back(bottomVertex);
+                destMeshVertexPtrArray->push_back(bottomVertex);
 
                 float vertexRadius = glm::length(topVertex.position);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
@@ -4496,15 +4496,15 @@ namespace Project001
         {
             std::vector<MeshVertex> tempMeshVertexArray;
 
-            std::vector<MeshVertex>* destMeshVertexArrayPtr;
+            std::vector<MeshVertex>* destMeshVertexPtrArray;
             if (triangulate)
             {
                 tempMeshVertexArray.reserve(faces * 4);
-                destMeshVertexArrayPtr = &tempMeshVertexArray;
+                destMeshVertexPtrArray = &tempMeshVertexArray;
             }
             else
             {
-                destMeshVertexArrayPtr = &meshVertexArray;
+                destMeshVertexPtrArray = &meshVertexArray;
             }
 
             const glm::quat halfRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), faceStep * 0.5f, direction);
@@ -4517,12 +4517,12 @@ namespace Project001
                 MeshVertex topLeftBodyVertex;
                 topLeftBodyVertex.position = start + perpendicular;
                 topLeftBodyVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(topLeftBodyVertex);
+                destMeshVertexPtrArray->push_back(topLeftBodyVertex);
 
                 MeshVertex bottomLeftBodyVertex;
                 bottomLeftBodyVertex.position = end + perpendicular;
                 bottomLeftBodyVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(bottomLeftBodyVertex);
+                destMeshVertexPtrArray->push_back(bottomLeftBodyVertex);
 
                 unitPerpendicular = rotation * unitPerpendicular;
                 perpendicular = unitPerpendicular * radius;
@@ -4530,12 +4530,12 @@ namespace Project001
                 MeshVertex topRightBodyVertex;
                 topRightBodyVertex.position = start + perpendicular;
                 topRightBodyVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(topRightBodyVertex);
+                destMeshVertexPtrArray->push_back(topRightBodyVertex);
 
                 MeshVertex bottomRightBodyVertex;
                 bottomRightBodyVertex.position = end + perpendicular;
                 bottomRightBodyVertex.normal = normal;
-                destMeshVertexArrayPtr->push_back(bottomRightBodyVertex);
+                destMeshVertexPtrArray->push_back(bottomRightBodyVertex);
 
                 float vertexRadius = glm::length(topLeftBodyVertex.position);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;

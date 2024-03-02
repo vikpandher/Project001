@@ -126,52 +126,69 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         glm::vec3 currentPosition = meshEntityPositions[i];
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        renderedMeshPtr->SetPosition(currentPosition);
-        renderedMeshPtr->SetColor(
-            0.5f + currentPosition.x * 0.1f,
-            0.5f + currentPosition.y * 0.1f,
-            0.5f + currentPosition.z * 0.1f,
-            0.5f
-        );
-        renderedMeshPtr->SetMeshDataPtr(meshDataPtr00_);
-        renderedMeshPtr->SetTranslucent(true);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetColor(
+                0.5f + currentPosition.x * 0.1f,
+                0.5f + currentPosition.y * 0.1f,
+                0.5f + currentPosition.z * 0.1f,
+                0.5f
+            );
+            renderedMeshPtr->SetMeshDataPtr(meshDataPtr00_);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
-    Project001::Camera* uiCameraPtr;
-    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(uiCameraPtr, uiCameraEntityId_));
-    float uiCameraHalfHeight = uiCameraPtr->GetTopCutoff();
-    float uiCameraHalfWidth = uiCameraPtr->GetRightCutoff();
+    float uiCameraHalfHeight = 0.0f;
+    float uiCameraHalfWidth = 0.0f;
+
+    {
+        Project001::Camera* cameraPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        if (cameraPtr != nullptr)
+        {
+            uiCameraHalfHeight = cameraPtr->GetTopCutoff();
+            uiCameraHalfWidth = cameraPtr->GetRightCutoff();
+        }
+    }
 
     {
         componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
-        renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-        renderedMeshPtr->SetLit(false);
-        renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.2f);
-        renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.2f);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
+        }
     }
 
     {
         componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr;
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
-        renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-        renderedMeshPtr->SetLit(false);
-        renderedMeshPtr->SetMeshDataPtr(ui_renderedMeshCount_MeshDataPtr_);
-        renderedMeshPtr->SetTextureId(font01_TextureId_);
-        renderedMeshPtr->SetTranslucent(true);
-        renderedMeshPtr->SetPositionX(0.2f - uiCameraHalfWidth);
-        renderedMeshPtr->SetPositionY(0.2f - uiCameraHalfHeight);
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(ui_renderedMeshCount_MeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(0.2f - uiCameraHalfWidth);
+            renderedMeshPtr->SetPositionY(0.2f - uiCameraHalfHeight);
+        }
     }
 
     // Member Scenes -----------------------------------------------------------
