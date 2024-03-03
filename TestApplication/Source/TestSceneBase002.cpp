@@ -12,7 +12,6 @@
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "Renderer.h"
 #include "RenderSystem.h"
 #include "Window.h"
 

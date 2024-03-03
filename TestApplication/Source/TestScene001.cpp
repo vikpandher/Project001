@@ -11,7 +11,6 @@
 #include "FreetypeTextLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
-#include "Renderer.h"
 #include "RenderSystem.h"
 #include "SoundPlayer.h"
 #include "Window.h"

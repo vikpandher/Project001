@@ -7,7 +7,6 @@
 #include "Components/RenderedMesh.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "Renderer.h"
 #include "RenderSystem.h"
 #include "SoundPlayer.h"
 #include "Window.h"

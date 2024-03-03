@@ -4,8 +4,8 @@
 #include "Logger.h"
 #include "Renderer.h"
 #include "ResourceStores.h"
-#include "SoundPlayer.h"
 #include "Scene.h"
+#include "SoundPlayer.h"
 #include "Window.h"
 
 

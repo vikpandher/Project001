@@ -1,9 +1,5 @@
 #include "OpenGL_Renderer.h"
 
-#include <string>
-
-#include "glad/glad.h"
-
 #include "Platform/OpenGL_Mesh.h"
 #include "Platform/OpenGL_Shader.h"
 #include "Platform/OpenGL_Texture.h"
@@ -23,6 +19,10 @@
 
 #include "Logger.h"
 #include "Window.h"
+
+#include "glad/glad.h"
+
+#include <string>
 
 
 
