@@ -147,7 +147,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
     }
 
@@ -157,7 +157,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
     }
 
@@ -167,7 +167,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
     }
 
@@ -547,7 +547,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickAxisText.c_str(),
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
 
         const float deadZone = 0.2f;
@@ -619,7 +619,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText01.c_str(),
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
 
         std::string joystickButtonText02;
@@ -633,7 +633,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText02.c_str(),
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
     }
     else
@@ -645,7 +645,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             noJoyStickTestPtr,
-            s_joystickAxisAndButtonText_pixelSize
+            joystickAxisAndButtonText_pixelSize
         ));
 
         joystickButton_01_TextMeshDataPtr_->Clear();

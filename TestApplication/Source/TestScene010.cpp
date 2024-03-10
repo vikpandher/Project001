@@ -8,7 +8,6 @@
 #include "Math/VectorUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
@@ -996,31 +995,6 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Member Scenes -----------------------------------------------------------
 
-    Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
-    std::vector<unsigned char> characterList;
-    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-    {
-        characterList.push_back(c);
-    }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        font01_TextureData,
-        font01_FontData,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
-    ));
-    rendererPtr_->CreateTexture(
-        font01_TextureId,
-        font01_TextureData.data,
-        font01_TextureData.width,
-        font01_TextureData.height,
-        font01_TextureData.bytesPerPixel,
-        true,
-        false
-    );
-
     const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
 
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
@@ -1041,8 +1015,8 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
-    instructionSceneInfo.fontDataPtr = &font01_FontData;
-    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
     instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
     instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
     instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;

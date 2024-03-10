@@ -224,10 +224,10 @@ namespace Project001
         const std::vector<CollisionPolygon2D>& transformedCollisionPolygonsB = collisionBodyB.GetTransformedCollisionPolygons();
         const std::vector<CollisionConvexPolygon2D>& transformedCollisionConvexPolygonsB = collisionBodyB.GetTransformedCollisionConvexPolygons();
 
-        CollisionData collisionA;
+        CollisionData2D collisionA;
         collisionA.otherEntityId = entityIdB;
 
-        CollisionData collisionB;
+        CollisionData2D collisionB;
         collisionB.otherEntityId = entityIdA;
 
         // point A & point B ---------------------------------------------------

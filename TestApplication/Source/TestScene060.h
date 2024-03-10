@@ -58,7 +58,7 @@ protected:
     Project001::MeshData* backgroundRectangleMeshDataPtr_;
     unsigned int backgroundRectangleMeshId_;
 
-    const float s_joystickAxisAndButtonText_pixelSize = 0.005f;
+    const float joystickAxisAndButtonText_pixelSize = 0.005f;
     Project001::MeshData* joystickAxisTextMeshDataPtr_;
     Project001::MeshData* joystickButton_01_TextMeshDataPtr_;
     Project001::MeshData* joystickButton_02_TextMeshDataPtr_;

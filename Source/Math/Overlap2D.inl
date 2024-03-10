@@ -167,15 +167,15 @@ namespace Project001
         glm::vec2 AB = triangle_corner2 - triangle_corner1;
         glm::vec2 AC = triangle_corner3 - triangle_corner1;
 
-        float dot00 = glm::dot(AC, AC); // corner1_to_corner3 distance squared
-        float dot01 = glm::dot(AC, AB);
-        float dot02 = glm::dot(AC, AP);
-        float dot11 = glm::dot(AB, AB); // corner2_to_corner3 distance squared
-        float dot12 = glm::dot(AB, AP);
+        float dot_AC_AC = glm::dot(AC, AC); // corner1_to_corner3 distance squared
+        float dot_AB_AC = glm::dot(AC, AB);
+        float dot_AC_AP = glm::dot(AC, AP);
+        float dot_AB_AB = glm::dot(AB, AB); // corner2_to_corner3 distance squared
+        float dot_AB_AP = glm::dot(AB, AP);
 
-        float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-        float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-        float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+        float denominator = (dot_AC_AC * dot_AB_AB - dot_AB_AC * dot_AB_AC);
+        float u = (dot_AB_AB * dot_AC_AP - dot_AB_AC * dot_AB_AP) / denominator;
+        float v = (dot_AC_AC * dot_AB_AP - dot_AB_AC * dot_AC_AP) / denominator;
 
         return FloatGreaterThanOrEqualToFloat(u, 0.0f) &&
             FloatGreaterThanOrEqualToFloat(v, 0.0f) &&
@@ -217,13 +217,7 @@ namespace Project001
 
                 glm::vec2 currentIntersect_position;
 
-                float denominator = glm::dot(startToEnd, ray_perpendicular);
-                if (denominator == 0.0f)
-                {
-                    // add a bit to avoid divide-by-zero
-                    denominator += FLT_MIN;
-                }
-
+                float denominator = glm::dot(startToEnd, ray_perpendicular); // can be zero
                 float t1 = (startToEnd.x * startToRay.y - startToRay.x * startToEnd.y) / denominator;
                 float t2 = glm::dot(startToRay, ray_perpendicular) / denominator;
 
@@ -2190,6 +2184,153 @@ namespace Project001
         }
     }
 
+    // Closest Point Functions -------------------------------------------------
+
+    inline void Get2D_Point_Line_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& closestPoint_position)
+    {
+        if (line_slope == std::numeric_limits<float>::infinity())
+        {
+            // Nearest point on the Ray is the start
+            closestPoint_position = glm::vec2(line_position.x, point_position.y);
+            return;
+        }
+
+        float dx = line_position.x - point_position.x;
+        float dy = line_position.y - point_position.y;
+        float projection = dy - line_slope * dx;
+        float directionLengthSquared = (1.0f + line_slope * line_slope);
+        float normalizedProjection = projection / directionLengthSquared;
+        closestPoint_position = glm::vec2(point_position.x - normalizedProjection * line_slope, point_position.y + normalizedProjection);
+    }
+
+    inline void Get2D_Point_Ray_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& closestPoint_position)
+    {
+        glm::vec2 rayToPoint = point_position - ray_position;
+        float dotProduct = glm::dot(ray_direction, rayToPoint);
+        if (dotProduct < 0.0f)
+        {
+            // Nearest point on the Ray is the start
+            closestPoint_position = ray_position;
+            return;
+        }
+
+        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+        closestPoint_position = ray_position + projection * ray_direction;
+    }
+
+    inline void Get2D_Point_LineSegment_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& closestPoint_position)
+    {
+        glm::vec2 lineSegment = lineSegment_end - lineSegment_start;
+        glm::vec2 startToPoint = point_position - lineSegment_start;
+        float dotProduct1 = glm::dot(lineSegment, startToPoint);
+        if (dotProduct1 < 0.0f)
+        {
+            // Nearest point on the line segment is the start point
+            closestPoint_position = lineSegment_start;
+            return;
+        }
+
+        glm::vec2 endToPoint = point_position - lineSegment_end;
+        float dotProduct2 = glm::dot(lineSegment, endToPoint);
+        if (dotProduct2 > 0.0f)
+        {
+            // Nearest point on the line segment is the end point
+            closestPoint_position = lineSegment_end;
+            return;
+        }
+
+        float projection = dotProduct1 / glm::dot(lineSegment, lineSegment);
+        closestPoint_position = lineSegment_start + projection * lineSegment;
+    }
+
+    inline void Get2D_Point_Rectangle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& closestPoint_position)
+    {
+        // Calculate the closest point on the rectangle to the point
+        float closestX = std::max(rectangle_bottomLeft.x, std::min(point_position.x, rectangle_topRight.x));
+        float closestY = std::max(rectangle_bottomLeft.y, std::min(point_position.y, rectangle_topRight.y));
+
+        // Set the closest point
+        closestPoint_position = glm::vec2(closestX, closestY);
+    }
+
+    inline void Get2D_Point_OrientedRectangle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& closestPoint_position)
+    {
+        // rotate and translate the point rather then the orientedRectangle
+        glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
+        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
+
+        Get2D_Point_Rectangle_ClosestPoint(
+            rotatedPointPosition,
+            -1.0f * orientedRectangle_halfSize,
+            orientedRectangle_halfSize,
+            closestPoint_position);
+
+        // rotate and translate back
+        closestPoint_position = Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
+        closestPoint_position += orientedRectangle_position;
+    }
+
+    inline void Get2D_Point_Circle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& closestPoint_position)
+    {
+        glm::vec2 circleCenterToPoint = point_position - circle_position;
+        float circleCenterToPointDistanceSquared = glm::dot(circleCenterToPoint, circleCenterToPoint);
+
+        if (circleCenterToPointDistanceSquared <= circle_radius * circle_radius)
+        {
+            closestPoint_position = point_position;
+        }
+        else
+        {
+
+            float inverseCircleCenterToPointDistance = FastInverseSquareRoot(circleCenterToPointDistanceSquared); // can be zero
+            closestPoint_position = circle_position + circleCenterToPoint * circle_radius * inverseCircleCenterToPointDistance;
+        }
+    }
+
+    inline void Get2D_Point_Capsule_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& closestPoint_position)
+    {
+        Get2D_Point_LineSegment_ClosestPoint(
+            point_position,
+            capsule_start,
+            capsule_end,
+            closestPoint_position);
+        Get2D_Point_Circle_ClosestPoint(
+            point_position,
+            closestPoint_position,
+            capsule_radius,
+            closestPoint_position);
+    }
+
     // Distance Squared Functions ----------------------------------------------
 
     inline float Get2D_Point_Point_DistanceSquared(
@@ -2207,15 +2348,15 @@ namespace Project001
     {
         if (line_slope == std::numeric_limits<float>::infinity())
         {
-            float distance = std::abs(point_position.x - line_position.x);
+            float distance = point_position.x - line_position.x;
             return distance * distance;
         }
 
-        const float& y1 = line_slope;
-        float x2 = point_position.x - line_position.x;
-        float y2 = point_position.y - line_position.y;
-        float temp = y2 - y1 * x2;
-        return temp * temp / (1.0f + y1 * y1);
+        float dx = point_position.x - line_position.x;
+        float dy = point_position.y - line_position.y;
+        float projection = dy - line_slope * dx;
+        float directionLengthSquared = (1.0f + line_slope * line_slope);
+        return projection * projection / directionLengthSquared;
     }
 
     inline float Get2D_Point_Ray_DistanceSquared(
@@ -2227,22 +2368,12 @@ namespace Project001
         float dotProduct = glm::dot(ray_direction, rayToPoint);
         if (dotProduct < 0.0f)
         {
-            // Nearest point is the ray's start position
+            // Nearest point on the Ray is the start
             return glm::dot(rayToPoint, rayToPoint);
         }
-        else
-        {
-            // Nearest point on the ray is perpendicular
-            // const float& x1 = ray_direction.x;
-            // const float& y1 = ray_direction.y;
-            // const float& x2 = rayToPoint.x;
-            // const float& y2 = rayToPoint.y;
-            // float temp = x1 * y2 - y1 * x2;
-            // return temp * temp / (x1 * x1 + y1 * y1);
-            glm::vec2 perpendicularPoint = ray_position + dotProduct * ray_direction;
-            glm::vec2 vectorBetween = point_position - perpendicularPoint;
-            return glm::dot(vectorBetween, vectorBetween);
-        }
+
+        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+        return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
     }
 
     inline float Get2D_Point_LineSegment_DistanceSquared(
@@ -2251,30 +2382,367 @@ namespace Project001
         const glm::vec2& lineSegment_end)
     {
         glm::vec2 lineSegment = lineSegment_end - lineSegment_start;
-        glm::vec2 endToPoint = point_position - lineSegment_end;
         glm::vec2 startToPoint = point_position - lineSegment_start;
-
-        float dotProduct1 = glm::dot(lineSegment, endToPoint);
-        if (dotProduct1 > 0.0f)
-        {
-            // Nearest Point on the LineSegment is the end
-            return glm::dot(endToPoint, endToPoint);
-        }
-
-        float dotProduct2 = glm::dot(lineSegment, startToPoint);
-        if (dotProduct2 < 0.0f)
+        float dotProduct1 = glm::dot(lineSegment, startToPoint);
+        if (dotProduct1 < 0.0f)
         {
             // Nearest Point on the LineSegment is the start
             return glm::dot(startToPoint, startToPoint);
         }
 
-        // Nearest Point on the LineSegment is perpendicular
-        const float& x1 = lineSegment.x;
-        const float& y1 = lineSegment.y;
-        const float& x2 = startToPoint.x;
-        const float& y2 = startToPoint.y;
-        float temp = x1 * y2 - y1 * x2;
-        return temp * temp / (x1 * x1 + y1 * y1);
+        glm::vec2 endToPoint = point_position - lineSegment_end;
+        float dotProduct2 = glm::dot(lineSegment, endToPoint);
+        if (dotProduct2 > 0.0f)
+        {
+            // Nearest Point on the LineSegment is the end
+            return glm::dot(endToPoint, endToPoint);
+        }
+
+        float projection = dotProduct1 / glm::dot(lineSegment, lineSegment);
+        return glm::dot(startToPoint, startToPoint) - dotProduct1 * projection;
+    }
+
+    // Distance Functions ------------------------------------------------------
+
+    inline float Get2D_Point_Circle_Distance(
+        const glm::vec2& point_position,
+        const glm::vec2& circle_position,
+        const float& circle_radius)
+    {
+        float centerDistanceSquared = Get2D_Point_Point_DistanceSquared(point_position, circle_position);
+
+        float denominator = FastInverseSquareRoot(centerDistanceSquared); // can be zero
+        float centerDistance = 1.0f / denominator;
+        if (centerDistance > circle_radius)
+        {
+            return centerDistance - circle_radius;
+        }
+        return 0.0f;
+    }
+
+    inline float Get2D_Point_Capsule_Distance(
+        const glm::vec2& point_position,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius)
+    {
+        float centerDistanceSquared = Get2D_Point_LineSegment_DistanceSquared(point_position, capsule_start, capsule_end);
+
+        float denominator = FastInverseSquareRoot(centerDistanceSquared); // can be zero
+        float centerDistance = 1.0f / denominator;
+        if (centerDistance > capsule_radius)
+        {
+            return centerDistance - capsule_radius;
+        }
+        return 0.0f;
+    }
+
+    // Closest Point And Distance Squared Functions ----------------------------
+
+    inline float Get2D_Point_Line_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& closestPoint_position)
+    {
+        if (line_slope == std::numeric_limits<float>::infinity())
+        {
+            closestPoint_position = glm::vec2(line_position.x, point_position.y);
+            float distance = point_position.x - line_position.x;
+            return distance * distance;
+        }
+
+        float dx = line_position.x - point_position.x;
+        float dy = line_position.y - point_position.y;
+        float projection = dy - line_slope * dx;
+        float directionLengthSquared = (1.0f + line_slope * line_slope);
+        float normalizedProjection = projection / directionLengthSquared;
+        closestPoint_position = glm::vec2(point_position.x - normalizedProjection * line_slope, point_position.y + normalizedProjection);
+        return projection * projection / directionLengthSquared;
+    }
+
+    inline float Get2D_Point_Ray_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& closestPoint_position)
+    {
+        glm::vec2 rayToPoint = point_position - ray_position;
+        float dotProduct = glm::dot(ray_direction, rayToPoint);
+        if (dotProduct < 0.0f)
+        {
+            // Nearest point on the Ray is the start
+            closestPoint_position = ray_position;
+            return glm::dot(rayToPoint, rayToPoint);
+        }
+
+        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+        closestPoint_position = ray_position + projection * ray_direction;
+        return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
+    }
+
+    inline float Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& closestPoint_position)
+    {
+        glm::vec2 lineSegment = lineSegment_end - lineSegment_start;
+        glm::vec2 startToPoint = point_position - lineSegment_start;
+        float dotProduct1 = glm::dot(lineSegment, startToPoint);
+        if (dotProduct1 < 0.0f)
+        {
+            // Nearest Point on the LineSegment is the start
+            closestPoint_position = lineSegment_start;
+            return glm::dot(startToPoint, startToPoint);
+        }
+
+        glm::vec2 endToPoint = point_position - lineSegment_end;
+        float dotProduct2 = glm::dot(lineSegment, endToPoint);
+        if (dotProduct2 > 0.0f)
+        {
+            // Nearest Point on the LineSegment is the end
+            closestPoint_position = lineSegment_end;
+            return glm::dot(endToPoint, endToPoint);
+        }
+
+        float projection = dotProduct1 / glm::dot(lineSegment, lineSegment);
+        closestPoint_position = lineSegment_start + projection * lineSegment;
+        return glm::dot(startToPoint, startToPoint) - dotProduct1 * projection;
+    }
+
+    inline float Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& closestPoint_position)
+    {
+        Get2D_Point_Rectangle_ClosestPoint(
+            point_position,
+            rectangle_bottomLeft,
+            rectangle_topRight,
+            closestPoint_position);
+
+        glm::vec2 pointToClosestPoint = closestPoint_position - point_position;
+        return glm::dot(pointToClosestPoint, pointToClosestPoint);
+    }
+
+    inline float Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& closestPoint_position)
+    {
+        // rotate and translate the point rather then the orientedRectangle
+        glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
+        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
+
+        float distanceSquared = Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+            rotatedPointPosition,
+            -1.0f * orientedRectangle_halfSize,
+            orientedRectangle_halfSize,
+            closestPoint_position);
+
+        // rotate and translate back
+        closestPoint_position = Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
+        closestPoint_position += orientedRectangle_position;
+
+        return distanceSquared;
+    }
+
+    inline float Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& closestPoint_position)
+    {
+        // Barycentric Technique
+
+        glm::vec2 AB = triangle_corner2 - triangle_corner1;
+        glm::vec2 AC = triangle_corner3 - triangle_corner1;
+        glm::vec2 AP = point_position - triangle_corner1;
+
+        float dot_AC_AC = glm::dot(AC, AC); // corner1 to corner3 distance squared
+        float dot_AB_AC = glm::dot(AB, AC);
+        float dot_AC_AP = glm::dot(AC, AP);
+        float dot_AB_AB = glm::dot(AB, AB); // corner1 to corner2 distance squared
+        float dot_AB_AP = glm::dot(AB, AP);
+
+        float denominator = (dot_AC_AC * dot_AB_AB - dot_AB_AC * dot_AB_AC);
+        float u = (dot_AB_AB * dot_AC_AP - dot_AB_AC * dot_AB_AP) / denominator;
+        float v = (dot_AC_AC * dot_AB_AP - dot_AB_AC * dot_AC_AP) / denominator;
+
+        if (FloatGreaterThanOrEqualToFloat(u, 0.0f) &&
+            FloatGreaterThanOrEqualToFloat(v, 0.0f) &&
+            !FloatGreaterThanOrEqualToFloat(u + v, 1.0f))
+        {
+            // Point is inside the triangle, return 0 distance
+            closestPoint_position = point_position;
+            return 0.0f;
+        }
+
+        glm::vec2 BC = triangle_corner3 - triangle_corner2;
+        glm::vec2 BP = point_position - triangle_corner2;
+
+        float dot_BC_BC = glm::dot(BC, BC); // corner2 to corner3 distance squared
+        float dot_BC_BP = glm::dot(BC, BP);
+
+        // Calculate distance to each edge of the triangle
+        // Edge 1 (from corner1 to corner2)
+        float t1 = glm::clamp(dot_AB_AP / dot_AB_AB, 0.0f, 1.0f);
+        glm::vec2 closest_point_on_edge1 = triangle_corner1 + t1 * AB;
+        glm::vec2 edge1_to_point = point_position - closest_point_on_edge1;
+        float distanceSquared_to_edge1 = glm::dot(edge1_to_point, edge1_to_point);
+
+        closestPoint_position = closest_point_on_edge1;
+        float distanceSquared = distanceSquared_to_edge1;
+
+        // Edge 2 (from corner2 to corner3)
+        float t2 = glm::clamp(dot_BC_BP / dot_BC_BC, 0.0f, 1.0f);
+        glm::vec2 closest_point_on_edge2 = triangle_corner2 + t2 * BC;
+        glm::vec2 edge2_to_point = point_position - closest_point_on_edge2;
+        float distanceSquared_to_edge2 = glm::dot(edge2_to_point, edge2_to_point);
+
+        if (distanceSquared_to_edge2 < distanceSquared)
+        {
+            closestPoint_position = closest_point_on_edge2;
+            distanceSquared = distanceSquared_to_edge2;
+        }
+
+        // Edge 3 (from corner1 to corner3)
+        float t3 = glm::clamp(dot_AC_AP / dot_AC_AC, 0.0f, 1.0f);
+        glm::vec2 closest_point_on_edge3 = triangle_corner1 + t3 * AC;
+        glm::vec2 edge3_to_point = point_position - closest_point_on_edge3;
+        float distanceSquared_to_edge3 = glm::dot(edge3_to_point, edge3_to_point);
+
+        if (distanceSquared_to_edge3 < distanceSquared)
+        {
+            closestPoint_position = closest_point_on_edge3;
+            distanceSquared = distanceSquared_to_edge3;
+        }
+
+        return distanceSquared;
+    }
+
+    inline float Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        glm::vec2& closestPoint_position)
+    {
+        if (polygon_cornerCount > 2)
+        {
+            // I'm going to check how many times a ray from the point intersects
+            // the polygon's line segments.
+            unsigned int intersectionCount = 0;
+
+            // I don't use axis alinged rays. If they are aligned to
+            // the x or y axis, they tend to collide with corners. I tend to
+            // place things along the same horizontal axis or verticle axis.
+            glm::vec2 ray_direction(0.78965f, 0.613558);
+            glm::vec2 ray_perpendicular(-0.613558, 0.78965f);
+            const glm::vec2& ray_position = point_position;
+
+            // Remebering the previous intersection point so ray collisions with
+            // corners only count as one intersction. This can cause a false
+            // overlap to be detected if the point is outide and it's ray only
+            // collides with an odd number of corners. Oh well... :(
+            glm::vec2 previousIntersect_position(NAN, NAN);
+
+            size_t start_index = polygon_cornerCount - 1;
+            for (size_t end_index = 0; end_index < polygon_cornerCount; ++end_index)
+            {
+                const glm::vec2& lineSegment_start = polygon_corners[start_index];
+                const glm::vec2& lineSegment_end = polygon_corners[end_index];
+
+                glm::vec2 startToRay = ray_position - lineSegment_start;
+                glm::vec2 startToEnd = lineSegment_end - lineSegment_start;
+
+                glm::vec2 currentIntersect_position;
+
+                float denominator = glm::dot(startToEnd, ray_perpendicular); // can be zero
+                float t1 = (startToEnd.x * startToRay.y - startToRay.x * startToEnd.y) / denominator;
+                float t2 = glm::dot(startToRay, ray_perpendicular) / denominator;
+
+                // the current intersection position to compared with the
+                // previous to prevent double counting corners
+                currentIntersect_position = ray_direction * t2;
+                if (!Check2D_Point_Point_Overlap(previousIntersect_position, currentIntersect_position) &&
+                    t2 >= 0.0f && t2 < 1.0f && t1 >= 0.0f)
+                {
+                    intersectionCount++;
+                    previousIntersect_position = currentIntersect_position;
+                }
+                else
+                {
+                    previousIntersect_position = ray_position;
+                }
+
+                start_index = end_index;
+            }
+
+            if (intersectionCount % 2 == 1)
+            {
+                closestPoint_position = point_position;
+                return 0.0f;
+            }
+            else
+            {
+                float minDistanceSquared = std::numeric_limits<float>::infinity();
+
+                size_t start_index = polygon_cornerCount - 1;
+                for (size_t end_index = 0; end_index < polygon_cornerCount; ++end_index)
+                {
+                    const glm::vec2& lineSegment_start = polygon_corners[start_index];
+                    const glm::vec2& lineSegment_end = polygon_corners[end_index];
+
+                    glm::vec2 AB = lineSegment_end - lineSegment_start;
+                    glm::vec2 AP = point_position - lineSegment_start;
+
+                    float dot_AB_AB = glm::dot(AB, AB); // length squared
+                    float dot_AB_AP = glm::dot(AB, AP);
+
+                    float t1 = glm::clamp(dot_AB_AP / dot_AB_AB, 0.0f, 1.0f);
+                    glm::vec2 closest_point_on_edge = lineSegment_start + t1 * AB;
+                    glm::vec2 edge_to_point = point_position - closest_point_on_edge;
+                    float distanceSquared_to_edge = glm::dot(edge_to_point, edge_to_point);
+
+                    if (distanceSquared_to_edge < minDistanceSquared)
+                    {
+                        closestPoint_position = closest_point_on_edge;
+                        minDistanceSquared = distanceSquared_to_edge;
+                    }
+
+                    start_index = end_index;
+                }
+
+                return minDistanceSquared;
+            }
+        }
+        else if (polygon_cornerCount == 2)
+        {
+            const glm::vec2& corner1_position = polygon_corners[0];
+            const glm::vec2& corner2_position = polygon_corners[1];
+            return Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
+                point_position,
+                corner1_position,
+                corner2_position,
+                closestPoint_position);
+        }
+        else if (polygon_cornerCount == 1)
+        {
+            const glm::vec2& corner1_position = polygon_corners[0];
+            closestPoint_position = corner1_position;
+            return Get2D_Point_Point_DistanceSquared(
+                point_position,
+                corner1_position);
+        }
+        else
+        {
+            return std::numeric_limits<float>::infinity();
+        }
     }
 
     // Helper Functions --------------------------------------------------------
@@ -2667,5 +3135,23 @@ namespace Project001
         {
             return direction.y / direction.x;
         }
+    }
+
+    // From Quake III Arena
+    inline float FastInverseSquareRoot(float number)
+    {
+        long i;
+        float x2, y;
+        const float threehalfs = 1.5F;
+
+        x2 = number * 0.5F;
+        y = number;
+        i = *(long*)&y; // evil floating point bit level hacking
+        i = 0x5f3759df - (i >> 1); // what?
+        y = *(float*)&i;
+        y = y * (threehalfs - (x2 * y * y)); // 1st iteration
+        // y  = y * ( threehalfs - ( x2 * y * y ) ); // 2nd iteration
+
+        return y;
     }
 }

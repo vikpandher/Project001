@@ -32,13 +32,23 @@
 // Polygon        | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |
 // Convex Polygon | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |
 // 
-// Distance Squared Functions:
-//                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol |
-// Point          |  \  |  \  |  \  |  \  |     |     |     |     |     |     |
-// 
 // Closest Point Functions:
-//                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol |
-// Point                |     |     |     |     |     |     |     |     |     |
+//                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap |
+// Point                |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// 
+// Distance Squared Functions:
+//                | Poi | Lin | Ray | LiS |
+// Point          |  \  |  \  |  \  |  \  |
+// 
+// Distance Functions:
+//                                                    | Cir | Cap |
+// Point                                              |  \  |  \  |
+// 
+// Closest Point And Distance Squared Functions:
+//                      | Lin | Ray | LiS | Rec | OrR |           | Tri | Pol |
+// Point                |  \  |  \  |  \  |  \  |  \  |           |  \  |  \  |
+// 
+// NOTE: Positive rotations are counter-clockwise
 
 namespace Project001
 {
@@ -855,6 +865,52 @@ namespace Project001
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount);
 
+    // Closest Point Functions -------------------------------------------------
+
+    void Get2D_Point_Line_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_Ray_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_LineSegment_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_Rectangle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_OrientedRectangle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_Circle_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& closestPoint_position);
+
+    void Get2D_Point_Capsule_ClosestPoint(
+        const glm::vec2& point_position,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& closestPoint_position);
+
     // Distance Squared Functions ----------------------------------------------
 
     float Get2D_Point_Point_DistanceSquared(
@@ -866,7 +922,6 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
-    // ray_direction needs to be a unit vector
     float Get2D_Point_Ray_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& ray_position,
@@ -876,6 +931,65 @@ namespace Project001
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
+
+    // Distance Functions ------------------------------------------------------
+
+    float Get2D_Point_Circle_Distance(
+        const glm::vec2& point_position,
+        const glm::vec2& circle_position,
+        const float& circle_radius);
+
+    float Get2D_Point_Capsule_Distance(
+        const glm::vec2& point_position,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius);
+
+    // Closest Point And Distance Squared Functions ----------------------------
+
+    float Get2D_Point_Line_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_Ray_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& closestPoint_position);
+
+    float Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        glm::vec2& closestPoint_position);
 
     // Helper Functions --------------------------------------------------------
 
@@ -981,6 +1095,8 @@ namespace Project001
     glm::vec2 Get2D_DirectionFromSlope(float slope);
 
     float Get2D_SlopeFromDirection(const glm::vec2& direction);
+
+    float FastInverseSquareRoot(float number);
 }
 
 #include "Overlap2D.inl"

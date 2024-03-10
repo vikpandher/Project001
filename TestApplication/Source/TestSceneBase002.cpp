@@ -11,7 +11,9 @@
 #include "Math/VectorUtilities.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
+#include "FreetypeTextLoader.h"
 #include "Logger.h"
+#include "MeshLoader.h"
 #include "RenderSystem.h"
 #include "Window.h"
 
@@ -24,10 +26,17 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , componentStoresPtr_(nullptr)
+    , font01_FontDataPtr_(nullptr)
+    , font01_TextureDataPtr_(nullptr)
+    , font01_TextureId_((unsigned int)-1)
+    , cursorLinePositions_()
+    , cursorLineMeshDataPtr_(nullptr)
+    , distanceMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
     , mainCameraEntityId_((unsigned int)-1)
     , uiCameraEntityId_((unsigned int)-1)
     , cursorEntityId_((unsigned int)-1)
+    , distanceEntityId_((unsigned int)-1)
     , entityIds_()
     , cursorGrabbingEntity_(false)
     , previousWorldCursorPosition_()
@@ -60,8 +69,45 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     rendererPtr_ = GetApplicationRendererPtr();
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
+    // Load textures
+    // -------------------------------------------------------------------------
+
+    {
+        font01_FontDataPtr_ = new Project001::FontData();
+        font01_TextureDataPtr_ = new Project001::TextureData();
+        std::vector<unsigned char> characterList;
+        for (unsigned char c = 32; c < 127; ++c) // ASCII characters
+        {
+            characterList.push_back(c);
+        }
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
+            *font01_TextureDataPtr_,
+            *font01_FontDataPtr_,
+            characterList,
+            "../Fonts/Antonio-Regular.ttf",
+            48
+        ));
+        rendererPtr_->CreateTexture(
+            font01_TextureId_,
+            font01_TextureDataPtr_->data,
+            font01_TextureDataPtr_->width,
+            font01_TextureDataPtr_->height,
+            font01_TextureDataPtr_->bytesPerPixel,
+            false,
+            false
+        );
+    }
+
+    // Generate meshes
+    // -------------------------------------------------------------------------
+
+    cursorLineMeshDataPtr_ = new Project001::MeshData();
+
+    distanceMeshDataPtr_ = new Project001::MeshData();
+
     // Main Camera Entity
     // -------------------------------------------------------------------------
+
     {
         componentStoresPtr_->CreateEntity(mainCameraEntityId_);
 
@@ -134,8 +180,20 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     // Cursor Entity
     // -------------------------------------------------------------------------
+
     {
         componentStoresPtr_->CreateEntity(cursorEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(cursorEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, cursorEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(cursorLineMeshDataPtr_);
+            renderedMeshPtr->SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            renderedMeshPtr->SetRenderPriorityOverride(1);
+        }
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -144,6 +202,27 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         {
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
             collisionPoints.emplace_back(glm::vec3(), 1, true);
+        }
+    }
+
+    // Distance Test Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(distanceEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(distanceEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, distanceEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(distanceMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.4f);
         }
     }
 }
@@ -160,7 +239,23 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     rendererPtr_ = nullptr;
     componentStoresPtr_ = nullptr;
 
+    // Texture Data: -----------------------------------------------------------
+
+    delete font01_FontDataPtr_;
+    font01_FontDataPtr_ = nullptr;
+
+    delete font01_TextureDataPtr_;
+    font01_TextureDataPtr_ = nullptr;
+
+    font01_TextureId_ = (unsigned int)-1;
+
     // Mesh Data ---------------------------------------------------------------
+
+    delete cursorLineMeshDataPtr_;
+    cursorLineMeshDataPtr_ = nullptr;
+
+    delete distanceMeshDataPtr_;
+    distanceMeshDataPtr_ = nullptr;
 
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
@@ -175,6 +270,8 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     cursorEntityId_ = (unsigned int)-1;
 
+    distanceEntityId_ = (unsigned int)-1;
+
     entityIds_.clear();
 
     // -------------------------------------------------------------------------
@@ -186,50 +283,10 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
 void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
 {
-    int windowWidth, windowHeight;
-    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+    const float& xPosition = cursorPositionEvent.xPosition;
+    const float& yPosition = cursorPositionEvent.yPosition;
 
-    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
-
-    // Convert coordinates from window to viewport
-    glm::vec2 viewportCursorPosition(
-        cursorPositionEvent.xPosition - xOffset,
-        windowHeight - yOffset - cursorPositionEvent.yPosition
-    );
-
-    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
-    {
-        Project001::Camera* cameraPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
-        if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
-        {
-            // Convert coordinates from viewport to world
-            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
-                viewportWidth,
-                viewportHeight,
-                viewportCursorPosition
-            );
-
-            cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
-
-            if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
-            {
-                unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
-
-                Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
-                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
-                if (selectedCollisionBody2DPtr != nullptr)
-                {
-                    selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
-                }
-            }
-
-            previousWorldCursorPosition_ = worldCursorPosition;
-        }
-    }
+    UpdateWorldCursor(xPosition, yPosition);
 }
 
 void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -294,7 +351,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
         if(cursorCollisionBody2DPtr != nullptr)
         {
-            const std::vector<Project001::CollisionData>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
+            const std::vector<Project001::CollisionData2D>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
 
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
@@ -302,7 +359,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
             for (int i = (int)cursorCollisions.size() - 1; i >= 0; --i)
             // for (size_t i = 0; i < cursorCollisions.size(); ++i)
             {
-                const Project001::CollisionData& currentCollision = cursorCollisions[i];
+                const Project001::CollisionData2D& currentCollision = cursorCollisions[i];
 
                 for (unsigned int j = 0; j < entityIds_.size(); ++j)
                 {
@@ -348,6 +405,11 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
             cameraPtr->SetRightCutoff(newRightCutoff);
         }
     }
+
+    float xPosition = 0.0f;
+    float yPosition = 0.0f;
+    windowPtr_->GetCursorPosition(xPosition, yPosition);
+    UpdateWorldCursor(xPosition, yPosition);
 }
 
 void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -360,6 +422,55 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
 
     ColorCollisions();
+    UpdateCursorLineAndDistanceText();
+}
+
+void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
+{
+    int windowWidth, windowHeight;
+    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+
+    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
+    rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+
+    // Convert coordinates from window to viewport
+    glm::vec2 viewportCursorPosition(
+        xPosition - xOffset,
+        windowHeight - yOffset - yPosition
+    );
+
+    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
+    {
+        Project001::Camera* cameraPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+        if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
+        {
+            // Convert coordinates from viewport to world
+            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
+                viewportWidth,
+                viewportHeight,
+                viewportCursorPosition
+            );
+
+            cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
+
+            if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
+            {
+                unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+
+                Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
+                _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
+                if (selectedCollisionBody2DPtr != nullptr)
+                {
+                    selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
+                }
+            }
+
+            previousWorldCursorPosition_ = worldCursorPosition;
+        }
+    }
 }
 
 void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep_ns)
@@ -458,6 +569,11 @@ void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep
             {
                 cameraPtr->AddRoll(rotationSpeed);
             }
+
+            float xPosition = 0.0f;
+            float yPosition = 0.0f;
+            windowPtr_->GetCursorPosition(xPosition, yPosition);
+            UpdateWorldCursor(xPosition, yPosition);
         }
     }
 }
@@ -475,7 +591,7 @@ void TestSceneBase002::Sync_RenderedMesh_CollisionBody_Components()
 
         unsigned int entityId;
         _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(entityId, &collisionBody2D));
-        
+
         Project001::RenderedMesh* renderedMeshPtr;
         if (componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityId))
         {
@@ -499,10 +615,10 @@ void TestSceneBase002::ColorCollisions()
         bool collisionBodyColliding = false;
 
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-        const std::vector<Project001::CollisionData>& currentCollisions = currentCollisionBody.GetCollisions();
+        const std::vector<Project001::CollisionData2D>& currentCollisions = currentCollisionBody.GetCollisions();
         for (size_t j = 0; j < currentCollisions.size(); ++j)
         {
-            const Project001::CollisionData& currentCollision = currentCollisions[j];
+            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
             if (currentCollision.otherShapeTag == 0)
             {
                 collisionBodyColliding = true;
@@ -512,6 +628,13 @@ void TestSceneBase002::ColorCollisions()
 
         unsigned int collidingEntityId;
         _FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(collidingEntityId , &currentCollisionBody));
+
+        // Don't recolor the cursor
+        if (collidingEntityId == cursorEntityId_)
+        {
+            continue;
+        }
+
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
         bool renderedMeshFound = componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collidingEntityId);
 
@@ -540,5 +663,50 @@ void TestSceneBase002::ColorCollisions()
                 }
             }
         }
+    }
+}
+
+void TestSceneBase002::UpdateCursorLineAndDistanceText()
+{
+    if (selectedEntityIdIndex_ < entityIds_.size())
+    {
+        const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        if (collisionBodyFound)
+        {
+            float distanceSquared = collisionBodyPtr->GetDistanceSquaredToPoint(previousWorldCursorPosition_);
+            if (distanceSquared != std::numeric_limits<float>::infinity())
+            {
+                glm::vec2 closestPoint_position;
+                float distanceSquared_unused = collisionBodyPtr->GetDistanceSquaredToPointAndClosestPointToPoint(previousWorldCursorPosition_, closestPoint_position);
+                cursorLinePositions_.clear();
+                cursorLinePositions_.emplace_back();
+                cursorLinePositions_.emplace_back(closestPoint_position - previousWorldCursorPosition_);
+
+                cursorLineMeshDataPtr_->Clear();
+                Project001::MeshLoader::Generate2DLine(*cursorLineMeshDataPtr_, cursorLinePositions_, 0.01f); // No Fail Check
+
+                distanceMeshDataPtr_->Clear();
+                _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+                    *distanceMeshDataPtr_,
+                    *font01_FontDataPtr_,
+                    std::to_string(std::sqrtf(distanceSquared)),
+                    fontPixelSize_
+                ));
+            }
+            else
+            {
+                cursorLineMeshDataPtr_->Clear();
+
+                distanceMeshDataPtr_->Clear();
+            }
+        }
+    }
+    else
+    {
+        cursorLineMeshDataPtr_->Clear();
+
+        distanceMeshDataPtr_->Clear();
     }
 }

@@ -558,4 +558,508 @@ namespace Project001
 
         transformedCollisionShapesUpToDate_ = true;
     }
+
+    float CollisionBody2D::GetDistanceSquaredToPoint(const glm::vec2& point_position) const
+    {
+        float minDistanceSquared = std::numeric_limits<float>::infinity();
+
+        glm::vec2 translatedPointPosition = point_position - position_;
+        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
+
+        for (size_t i = 0; i < collisionPoints_.size(); ++i)
+        {
+            const CollisionPoint2D& collisionPoint = collisionPoints_[i];
+
+            float distanceSquared = Get2D_Point_Point_DistanceSquared(
+                rotatedPointPosition,
+                collisionPoint.position);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionLines_.size(); ++i)
+        {
+            const CollisionLine2D& collisionLine = collisionLines_[i];
+
+            float distanceSquared = Get2D_Point_Line_DistanceSquared(
+                rotatedPointPosition,
+                collisionLine.position,
+                collisionLine.slope);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionRays_.size(); ++i)
+        {
+            const CollisionRay2D& collisionRay = collisionRays_[i];
+
+            float distanceSquared = Get2D_Point_Ray_DistanceSquared(
+                rotatedPointPosition,
+                collisionRay.position,
+                collisionRay.direction);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
+        {
+            const CollisionLineSegment2D& collisionLineSegment = collisionLineSegments_[i];
+
+            float distanceSquared = Get2D_Point_LineSegment_DistanceSquared(
+                rotatedPointPosition,
+                collisionLineSegment.start,
+                collisionLineSegment.end);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionRectangles_.size(); ++i)
+        {
+            const CollisionRectangle2D& collisionRectangle = collisionRectangles_[i];
+
+            float distanceSquared = Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionRectangle.bottomLeft,
+                collisionRectangle.topRight,
+                glm::vec2());
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
+        {
+            const CollisionOrientedRectangle2D& collisionOrientedRectangle = collisionOrientedRectangles_[i];
+
+            float distanceSquared = Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionOrientedRectangle.halfSize,
+                collisionOrientedRectangle.position,
+                collisionOrientedRectangle.rotation,
+                glm::vec2());
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionCircles_.size(); ++i)
+        {
+            const CollisionCircle2D& collisionCircle = collisionCircles_[i];
+
+            float distance = Get2D_Point_Circle_Distance(
+                rotatedPointPosition,
+                collisionCircle.position,
+                collisionCircle.radius);
+
+            float distanceSquared = distance * distance;
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionCapsules_.size(); ++i)
+        {
+            const CollisionCapsule2D& collisionCapsule = collisionCapsules_[i];
+
+            float distance = Get2D_Point_Capsule_Distance(
+                rotatedPointPosition,
+                collisionCapsule.start,
+                collisionCapsule.end,
+                collisionCapsule.radius);
+
+            float distanceSquared = distance * distance;
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionTriangles_.size(); ++i)
+        {
+            const CollisionTriangle2D& collisionTriangle = collisionTriangles_[i];
+
+            float distanceSquared = Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionTriangle.corner1,
+                collisionTriangle.corner2,
+                collisionTriangle.corner3,
+                glm::vec2());
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionPolygons_.size(); ++i)
+        {
+            const CollisionPolygon2D& collisionPolygon = collisionPolygons_[i];
+
+            float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionPolygon.positions.data(),
+                collisionPolygon.positions.size(),
+                glm::vec2());
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
+        {
+            const CollisionConvexPolygon2D& collisionConvexPolygon = collisionConvexPolygons_[i];
+
+            float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionConvexPolygon.positions.data(),
+                collisionConvexPolygon.positions.size(),
+                glm::vec2());
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        return minDistanceSquared;
+    }
+
+    float CollisionBody2D::GetDistanceSquaredToPointAndClosestPointToPoint(
+        const glm::vec2& point_position,
+        glm::vec2& closestPoint_position) const
+    {
+        CollisionShape2D_Type collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_NONE;
+        size_t collisionShapeIndex = -1;
+        float minDistanceSquared = std::numeric_limits<float>::infinity();
+
+        glm::vec2 translatedPointPosition = point_position - position_;
+        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
+
+        // For some shapes the closest point is calculated while the distance squared is calculated
+        // These are: Rectangles, OrientedReactangles, Triangles, Polygons, ConvexPolygons
+
+        for (size_t i = 0; i < collisionPoints_.size(); ++i)
+        {
+            const CollisionPoint2D& collisionPoint = collisionPoints_[i];
+
+            float distanceSquared = Get2D_Point_Point_DistanceSquared(
+                rotatedPointPosition,
+                collisionPoint.position);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POINT;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionLines_.size(); ++i)
+        {
+            const CollisionLine2D& collisionLine = collisionLines_[i];
+
+            float distanceSquared = Get2D_Point_Line_DistanceSquared(
+                rotatedPointPosition,
+                collisionLine.position,
+                collisionLine.slope);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionRays_.size(); ++i)
+        {
+            const CollisionRay2D& collisionRay = collisionRays_[i];
+
+            float distanceSquared = Get2D_Point_Ray_DistanceSquared(
+                rotatedPointPosition,
+                collisionRay.position,
+                collisionRay.direction);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RAY;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
+        {
+            const CollisionLineSegment2D& collisionLineSegment = collisionLineSegments_[i];
+
+            float distanceSquared = Get2D_Point_LineSegment_DistanceSquared(
+                rotatedPointPosition,
+                collisionLineSegment.start,
+                collisionLineSegment.end);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE_SEGMENT;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionRectangles_.size(); ++i)
+        {
+            const CollisionRectangle2D& collisionRectangle = collisionRectangles_[i];
+
+            glm::vec2 currentClosestPointPosition;
+            float distanceSquared = Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionRectangle.bottomLeft,
+                collisionRectangle.topRight,
+                currentClosestPointPosition);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RECTANGLE;
+                collisionShapeIndex = i;
+                closestPoint_position = currentClosestPointPosition;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
+        {
+            const CollisionOrientedRectangle2D& collisionOrientedRectangle = collisionOrientedRectangles_[i];
+
+            glm::vec2 currentClosestPointPosition;
+            float distanceSquared = Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionOrientedRectangle.halfSize,
+                collisionOrientedRectangle.position,
+                collisionOrientedRectangle.rotation,
+                currentClosestPointPosition);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_ORIENTED_RECTANGLE;
+                collisionShapeIndex = i;
+                closestPoint_position = currentClosestPointPosition;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionCircles_.size(); ++i)
+        {
+            const CollisionCircle2D& collisionCircle = collisionCircles_[i];
+
+            float distance = Get2D_Point_Circle_Distance(
+                rotatedPointPosition,
+                collisionCircle.position,
+                collisionCircle.radius);
+
+            float distanceSquared = distance * distance;
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CIRCLE;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionCapsules_.size(); ++i)
+        {
+            const CollisionCapsule2D& collisionCapsule = collisionCapsules_[i];
+
+            float distance = Get2D_Point_Capsule_Distance(
+                rotatedPointPosition,
+                collisionCapsule.start,
+                collisionCapsule.end,
+                collisionCapsule.radius);
+
+            float distanceSquared = distance * distance;
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CAPSULE;
+                collisionShapeIndex = i;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionTriangles_.size(); ++i)
+        {
+            const CollisionTriangle2D& collisionTriangle = collisionTriangles_[i];
+
+            glm::vec2 currentClosestPointPosition;
+            float distanceSquared = Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionTriangle.corner1,
+                collisionTriangle.corner2,
+                collisionTriangle.corner3,
+                currentClosestPointPosition);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_TRIANGLE;
+                collisionShapeIndex = i;
+                closestPoint_position = currentClosestPointPosition;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionPolygons_.size(); ++i)
+        {
+            const CollisionPolygon2D& collisionPolygon = collisionPolygons_[i];
+
+            glm::vec2 currentClosestPointPosition;
+            float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionPolygon.positions.data(),
+                collisionPolygon.positions.size(),
+                currentClosestPointPosition);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POLYGON;
+                collisionShapeIndex = i;
+                closestPoint_position = currentClosestPointPosition;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
+        {
+            const CollisionConvexPolygon2D& collisionConvexPolygon = collisionConvexPolygons_[i];
+
+            glm::vec2 currentClosestPointPosition;
+            float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+                rotatedPointPosition,
+                collisionConvexPolygon.positions.data(),
+                collisionConvexPolygon.positions.size(),
+                currentClosestPointPosition);
+
+            if (distanceSquared < minDistanceSquared)
+            {
+                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CONVEX_POLYGON;
+                collisionShapeIndex = i;
+                closestPoint_position = currentClosestPointPosition;
+                minDistanceSquared = distanceSquared;
+            }
+        }
+
+        switch (collisionShape2D_Type)
+        {
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POINT:
+        {
+            const CollisionPoint2D& collisionPoint = collisionPoints_[collisionShapeIndex];
+            closestPoint_position = collisionPoint.position;
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE:
+        {
+            const CollisionLine2D& collisionLine = collisionLines_[collisionShapeIndex];
+            Get2D_Point_Line_ClosestPoint(
+                rotatedPointPosition,
+                collisionLine.position,
+                collisionLine.slope,
+                closestPoint_position);
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RAY:
+        {
+            const CollisionRay2D& collisionRay = collisionRays_[collisionShapeIndex];
+            Get2D_Point_Ray_ClosestPoint(
+                rotatedPointPosition,
+                collisionRay.position,
+                collisionRay.direction,
+                closestPoint_position);
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE_SEGMENT:
+        {
+            const CollisionLineSegment2D& collisionLineSegment = collisionLineSegments_[collisionShapeIndex];
+            Get2D_Point_LineSegment_ClosestPoint(
+                rotatedPointPosition,
+                collisionLineSegment.start,
+                collisionLineSegment.end,
+                closestPoint_position);
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RECTANGLE:
+        {
+            // Already calculated
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_ORIENTED_RECTANGLE:
+        {
+            // Already calculated
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CIRCLE:
+        {
+            const CollisionCircle2D& collisionCircle = collisionCircles_[collisionShapeIndex];
+            Get2D_Point_Circle_ClosestPoint(
+                rotatedPointPosition,
+                collisionCircle.position,
+                collisionCircle.radius,
+                closestPoint_position);
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CAPSULE:
+        {
+            closestPoint_position = rotatedPointPosition;
+            const CollisionCapsule2D& collisionCapsule = collisionCapsules_[collisionShapeIndex];
+            Get2D_Point_Capsule_ClosestPoint(
+                rotatedPointPosition,
+                collisionCapsule.start,
+                collisionCapsule.end,
+                collisionCapsule.radius,
+                closestPoint_position);
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_TRIANGLE:
+        {
+            // Already calculated
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POLYGON:
+        {
+            // Already calculated
+            break;
+        }
+        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CONVEX_POLYGON:
+        {
+            // Already calculated
+            break;
+        }
+        default:
+        {
+            closestPoint_position = rotatedPointPosition;
+            break;
+        }
+        }
+
+        // Move point to world space
+
+        closestPoint_position = Rotate2DVector(closestPoint_position, rotation_);
+        closestPoint_position += position_;
+
+        return minDistanceSquared;
+    }
 }

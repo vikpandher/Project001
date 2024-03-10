@@ -10,7 +10,9 @@
 
 namespace Project001
 {
+    struct FontData;
     struct MeshData;
+    struct TextureData;
 }
 
 class TestSceneBase002 : public Project001::Scene
@@ -35,11 +37,15 @@ protected:
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
+    void UpdateWorldCursor(float xPosition, float yPosition);
+
     void UpdatedSelectedEntityPosition(unsigned long long timestep_ns);
 
     void Sync_RenderedMesh_CollisionBody_Components();
 
     void ColorCollisions();
+
+    void UpdateCursorLineAndDistanceText();
 
     // -------------------------------------------------------------------------
 
@@ -47,7 +53,19 @@ protected:
     Project001::Renderer* rendererPtr_;
     Project001::ComponentStores* componentStoresPtr_;
 
+    // Texture Data ------------------------------------------------------------
+
+    Project001::FontData* font01_FontDataPtr_;
+    Project001::TextureData* font01_TextureDataPtr_;
+    unsigned int font01_TextureId_;
+
     // Mesh Data ---------------------------------------------------------------
+
+    std::vector<glm::vec2> cursorLinePositions_;
+    Project001::MeshData* cursorLineMeshDataPtr_;
+
+    const float fontPixelSize_ = 0.005f;
+    Project001::MeshData* distanceMeshDataPtr_;
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
@@ -58,6 +76,8 @@ protected:
     unsigned int uiCameraEntityId_;
 
     unsigned int cursorEntityId_;
+
+    unsigned int distanceEntityId_;
 
     std::vector<unsigned int> entityIds_;
 

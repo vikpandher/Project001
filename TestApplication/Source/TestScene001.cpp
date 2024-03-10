@@ -889,10 +889,10 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(buttonCollisionBody2DPtr, buttonEntityId));
             if (buttonCollisionBody2DPtr != nullptr)
             {
-                const std::vector<Project001::CollisionData> collisions = buttonCollisionBody2DPtr->GetCollisions();
+                const std::vector<Project001::CollisionData2D> collisions = buttonCollisionBody2DPtr->GetCollisions();
                 for (size_t i = 0; i < collisions.size(); ++i)
                 {
-                    const Project001::CollisionData& collisionData = collisions[i];
+                    const Project001::CollisionData2D& collisionData = collisions[i];
 
                     if (collisionData.otherEntityId == cursorEntityId_)
                     {

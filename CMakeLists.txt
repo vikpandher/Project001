@@ -99,7 +99,6 @@ set (COMPONENTS_FILES
     "Source/Components/Camera.h"
     "Source/Components/CollisionBody2D.cpp"
     "Source/Components/CollisionBody2D.h"
-    "Source/Components/CollisionData.h"
     "Source/Components/CollisionShape2D.h"
     "Source/Components/LightSource.h"
     "Source/Components/Placement.h"

@@ -2,12 +2,19 @@
 
 #include "Components/Placement2D.h"
 #include "Components/CollisionShape2D.h"
-#include "Components/CollisionData.h"
 
 
 
 namespace Project001
 {
+    struct CollisionData2D
+    {
+        unsigned int myShapeTag;
+
+        unsigned int otherEntityId;
+        unsigned int otherShapeTag;
+    };
+
     class CollisionBody2D : public Placement2D
     {
     public:
@@ -76,9 +83,16 @@ namespace Project001
         void CalculateBoundingRadius();
         void CalculateTransformedCollisionShapes();
 
-        void AddCollision(const CollisionData& collision);
+        void AddCollision(const CollisionData2D& collision);
         void ClearCollisions();
-        const std::vector<CollisionData>& GetCollisions() const;
+        const std::vector<CollisionData2D>& GetCollisions() const;
+
+        float GetDistanceSquaredToPoint(const glm::vec2& point_position) const;
+
+        // TODO
+        float GetDistanceSquaredToPointAndClosestPointToPoint(
+            const glm::vec2& point_position,
+            glm::vec2& closestPoint_position) const;
 
         // Overwriten:
 
@@ -141,7 +155,7 @@ namespace Project001
         bool boundingRadiusUpToDate_;
         bool transformedCollisionShapesUpToDate_;
 
-        std::vector<CollisionData> collisions_;
+        std::vector<CollisionData2D> collisions_;
     };
 
     inline CollisionBody2D::CollisionBody2D()
@@ -374,7 +388,7 @@ namespace Project001
         return transformedCollisionShapesUpToDate_;
     }
 
-    inline void CollisionBody2D::AddCollision(const CollisionData& collision)
+    inline void CollisionBody2D::AddCollision(const CollisionData2D& collision)
     {
         collisions_.push_back(collision);
     }
@@ -384,7 +398,7 @@ namespace Project001
         collisions_.clear();
     }
 
-    inline const std::vector<CollisionData>& CollisionBody2D::GetCollisions() const
+    inline const std::vector<CollisionData2D>& CollisionBody2D::GetCollisions() const
     {
         return collisions_;
     }
