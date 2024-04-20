@@ -41,59 +41,58 @@ namespace Project001
 
         Camera();
 
-        bool IsTurnedOn() const;
+        const bool& IsTurnedOn() const;
         void TurnOn();
         void TurnOff();
 
         // only meshes and lights with matching camera masks will be drawn by
         // this camera
+        const uint32_t& GetCameraMask() const;
         void SetCameraMask(uint32_t cameraMask);
-        uint32_t GetCameraMask() const;
 
         // lower priority value camera will be rendered with first, so higher
         // priorty camera's are drawn on-top
+        const int& GetPriorityValue() const;
         void SetPriorityValue(int priorityValue);
-        int GetPriorityValue() const;
 
         // Other View Controls
         // ---------------------------------------------------------------------
 
+        const CameraProjection& GetProjection() const;
         void SetProjection(CameraProjection cameraProjection);
-        CameraProjection GetProjection() const;
 
-        bool GetDepthTestEnabled() const;
+        const bool& GetDepthTestEnabled() const;
         void SetDepthTestEnabled(bool depthTestEnabled);
 
-        float GetFieldOfVision() const;
+        const float& GetFieldOfVision() const;
         void SetFieldOfVision(float angleInRadians);
 
-        float GetAspectRatio() const;
+        const float& GetAspectRatio() const;
         void SetAspectRatio(float aspectRatio);
 
-        float GetLeftCutoff() const;
+        const float& GetLeftCutoff() const;
         void SetLeftCutoff(float leftCutoff);
 
-        float GetRightCutoff() const;
+        const float& GetRightCutoff() const;
         void SetRightCutoff(float rightCutoff);
 
-        float GetBottomCutoff() const;
+        const float& GetBottomCutoff() const;
         void SetBottomCutoff(float bottomCutoff);
 
-        float GetTopCutoff() const;
+        const float& GetTopCutoff() const;
         void SetTopCutoff(float topCutoff);
 
-        float GetNearCutoff() const;
+        const float& GetNearCutoff() const;
         void SetNearCutoff(float nearCutoff);
 
-        float GetFarCutoff() const;
+        const float& GetFarCutoff() const;
         void SetFarCutoff(float farCutoff);
 
         void GetCameraViewport(
             float& x,
             float& y,
             float& width,
-            float& height);
-
+            float& height) const;
         void SetCameraViewport(
             float x,
             float y,
@@ -141,7 +140,7 @@ namespace Project001
         float cameraViewportHeight_;
     };
 
-    inline bool Camera::IsTurnedOn() const
+    inline const bool& Camera::IsTurnedOn() const
     {
         return turnedOn_;
     }
@@ -156,14 +155,19 @@ namespace Project001
         turnedOn_ = false;
     }
 
+    inline const uint32_t& Camera::GetCameraMask() const
+    {
+        return cameraMask_;
+    }
+
     inline void Camera::SetCameraMask(uint32_t cameraMask)
     {
         cameraMask_ = cameraMask;
     }
 
-    inline uint32_t Camera::GetCameraMask() const
+    inline const int& Camera::GetPriorityValue() const
     {
-        return cameraMask_;
+        return priorityValue_;
     }
 
     inline void Camera::SetPriorityValue(int priorityValue)
@@ -171,9 +175,9 @@ namespace Project001
         priorityValue_ = priorityValue;
     }
 
-    inline int Camera::GetPriorityValue() const
+    inline const Camera::CameraProjection& Camera::GetProjection() const
     {
-        return priorityValue_;
+        return cameraProjection_;
     }
 
     inline void Camera::SetProjection(CameraProjection cameraProjection)
@@ -181,12 +185,7 @@ namespace Project001
         cameraProjection_ = cameraProjection;
     }
 
-    inline Camera::CameraProjection Camera::GetProjection() const
-    {
-        return cameraProjection_;
-    }
-
-    inline bool Camera::GetDepthTestEnabled() const
+    inline const bool& Camera::GetDepthTestEnabled() const
     {
         return depthTestEnabled_;
     }
@@ -196,7 +195,7 @@ namespace Project001
         depthTestEnabled_ = depthTestEnabled;
     }
 
-    inline float Camera::GetFieldOfVision() const
+    inline const float& Camera::GetFieldOfVision() const
     {
         return fieldOfVision_;
     }
@@ -206,7 +205,7 @@ namespace Project001
         fieldOfVision_ = angleInRadians;
     }
 
-    inline float Camera::GetAspectRatio() const
+    inline const float& Camera::GetAspectRatio() const
     {
         return aspectRatio_;
     }
@@ -216,7 +215,7 @@ namespace Project001
         aspectRatio_ = aspectRatio;
     }
 
-    inline float Camera::GetLeftCutoff() const
+    inline const float& Camera::GetLeftCutoff() const
     {
         return leftCutoff_;
     }
@@ -226,7 +225,7 @@ namespace Project001
         leftCutoff_ = leftCutoff;
     }
 
-    inline float Camera::GetRightCutoff() const
+    inline const float& Camera::GetRightCutoff() const
     {
         return rightCutoff_;
     }
@@ -236,7 +235,7 @@ namespace Project001
         rightCutoff_ = rightCutoff;
     }
 
-    inline float Camera::GetBottomCutoff() const
+    inline const float& Camera::GetBottomCutoff() const
     {
         return bottomCutoff_;
     }
@@ -246,7 +245,7 @@ namespace Project001
         bottomCutoff_ = bottomCutoff;
     }
 
-    inline float Camera::GetTopCutoff() const
+    inline const float& Camera::GetTopCutoff() const
     {
         return topCutoff_;
     }
@@ -256,7 +255,7 @@ namespace Project001
         topCutoff_ = topCutoff;
     }
 
-    inline float Camera::GetNearCutoff() const
+    inline const float& Camera::GetNearCutoff() const
     {
         return nearCutoff_;
     }
@@ -266,7 +265,7 @@ namespace Project001
         nearCutoff_ = nearCutoff;
     }
 
-    inline float Camera::GetFarCutoff() const
+    inline const float& Camera::GetFarCutoff() const
     {
         return farCutoff_;
     }
@@ -280,7 +279,7 @@ namespace Project001
         float& x,
         float& y,
         float& width,
-        float& height)
+        float& height) const
     {
         x = cameraViewportX_;
         y = cameraViewportY_;

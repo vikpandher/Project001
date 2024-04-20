@@ -188,7 +188,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene010");
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
-    buttonStrings.emplace_back("TestScene023");
+    buttonStrings.emplace_back("TestScene013");
     buttonStrings.emplace_back("TestScene030");
     buttonStrings.emplace_back("TestScene031");
     buttonStrings.emplace_back("TestScene032");
@@ -206,7 +206,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene010Id);
     buttonDestinationSceneIds.push_back(g_testScene011Id);
     buttonDestinationSceneIds.push_back(g_testScene012Id);
-    buttonDestinationSceneIds.push_back(g_testScene023Id);
+    buttonDestinationSceneIds.push_back(g_testScene013Id);
     buttonDestinationSceneIds.push_back(g_testScene030Id);
     buttonDestinationSceneIds.push_back(g_testScene031Id);
     buttonDestinationSceneIds.push_back(g_testScene032Id);
@@ -368,32 +368,32 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Button Indicies:
     // 
-    // [ 000 ] [ 001 ] [ 002 ] [ 003 ]
-    // [ 004 ] [ 005 ] [ 006 ] [ 007 ]
-    // [ 008 ] [ 009 ] [ 010 ] [ 011 ]
-    // [ 012 ] [ 013 ] [ 014 ]
+    // [ 000 ] [ 001 ] [ 002 ] [ 003 ] [ 004 ]
+    // [ 005 ] [ 006 ] [ 007 ] [ 008 ] [ 009 ]
+    // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 014 ]
+    // [ 015 ]
     // 
     // Test Scenes:
     // 
-    // [ 002 ] [ 003 ] [ 004 ] [ 006 ]
-    // [ 010 ] [ 011 ] [ 012 ] [ 013 ] 
-    // [ 030 ] [ 031 ] [ 032 ] [ 033 ]
-    // [ 034 ] [ 050 ] [ 051 ]
+    // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 010 ]
+    // [ 011 ] [ 012 ] [ 013 ] [ 030 ] [ 031 ]
+    // [ 032 ] [ 033 ] [ 034 ] [ 050 ] [ 051 ]
+    // [ 060 ]
 
-    size_t columns = 4;
+    size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
     std::vector<glm::vec3> buttonPositions;
-    float xPos = -2.615f;
+    float xPos = -3.0f;
     float yPos = 2.0f;
     for (size_t y = 0; y < rows; ++y)
     {
         for (size_t x = 0; x < columns; ++x)
         {
             buttonPositions.emplace_back(xPos, yPos, 0.0f);
-            xPos += 1.75f;
+            xPos += 1.5f;
         }
-        xPos = -2.615f;
-        yPos -= 1.0f;
+        xPos = -3.0;
+        yPos -= 0.75f;
     }
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
@@ -415,8 +415,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
-            buttonMesh.SetMeshId(rectangularMeshId_);
-            buttonMesh.SetMaxBoundingRadius(rectangleMeshDataPtr_->maxBoundingRadius);
+            buttonMesh.SetMeshIdAndMaxBoundingRadius(rectangularMeshId_, rectangleMeshDataPtr_->maxBoundingRadius);
             buttonMesh.SetColor(s_buttonColor_);
             buttonMesh.SetLit(false);
 
@@ -457,10 +456,10 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             testButtonData001Ptr->destinationSceneId = buttonDestinationSceneIds[i];
 
             // columnIndex, rowIndex
-            // [ 0,0 ] [ 1,0 ] [ 2,0 ] [ 3,0 ]
-            // [ 0,1 ] [ 1,1 ] [ 2,1 ] [ 3,1 ]
-            // [ 0,2 ] [ 1,2 ] [ 2,2 ] [ 3,2 ]
-            // [ 0,3 ] [ 1,3 ] [ 2,3 ]
+            // [ 0,0 ] [ 1,0 ] [ 2,0 ] [ 3,0 ] [ 4,0 ]
+            // [ 0,1 ] [ 1,1 ] [ 2,1 ] [ 3,1 ] [ 4,1 ]
+            // [ 0,2 ] [ 1,2 ] [ 2,2 ] [ 3,2 ] [ 4,2 ]
+            // [ 0,3 ]
 
             int currentColumnIndex = i % columns;
             int currentRowIndex = i / columns;

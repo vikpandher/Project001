@@ -380,8 +380,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
-            buttonMesh.SetMeshId(rectangularMeshId_);
-            buttonMesh.SetMaxBoundingRadius(rectangleMeshDataPtr_->maxBoundingRadius);
+            buttonMesh.SetMeshIdAndMaxBoundingRadius(rectangularMeshId_, rectangleMeshDataPtr_->maxBoundingRadius);
             buttonMesh.SetColor(s_buttonColor_);
             buttonMesh.SetLit(false);
 

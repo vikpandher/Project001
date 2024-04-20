@@ -17,7 +17,7 @@ namespace Project001
         void TranslateRight(float d);
 
         void AddRotation(float angleInRadians);
-        float GetRotation() const;
+        const float& GetRotation() const;
         void SetRotation(float angleInRadians);
 
     protected:
@@ -55,7 +55,7 @@ namespace Project001
         }
     }
 
-    inline float Placement2D::GetRotation() const
+    inline const float& Placement2D::GetRotation() const
     {
         return rotation_;
     }

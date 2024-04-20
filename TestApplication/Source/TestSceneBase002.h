@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "TimeProfiler.h"
 
 #include "glm/glm.hpp"
 
@@ -47,6 +48,8 @@ protected:
 
     void UpdateCursorLineAndDistanceText();
 
+    void UpdateCollisionBodyQuadTreeMesh();
+
     // -------------------------------------------------------------------------
 
     Project001::Window* windowPtr_;
@@ -67,6 +70,8 @@ protected:
     const float fontPixelSize_ = 0.005f;
     Project001::MeshData* distanceMeshDataPtr_;
 
+    Project001::MeshData* collisionBodyQuadTreeMeshDataPtr_;
+
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
     // Entity Ids --------------------------------------------------------------
@@ -79,6 +84,8 @@ protected:
 
     unsigned int distanceEntityId_;
 
+    unsigned int collisionBodyQuadTreeEntityId_;
+
     std::vector<unsigned int> entityIds_;
 
     // -------------------------------------------------------------------------
@@ -86,4 +93,7 @@ protected:
     bool cursorGrabbingEntity_;
     glm::vec2 previousWorldCursorPosition_;
     unsigned int selectedEntityIdIndex_;
+
+    Project001::Timer timer01_;
+    unsigned long long remainingTimeRecordingDuration_ns_;
 };

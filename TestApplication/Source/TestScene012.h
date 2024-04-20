@@ -20,6 +20,8 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
+    void GenerateCombinationShape();
+
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;

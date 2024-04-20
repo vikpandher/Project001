@@ -17,6 +17,8 @@
 #include "RenderSystem.h"
 #include "Window.h"
 
+#include <stack>
+
 
 
 // public ----------------------------------------------------------------------
@@ -32,15 +34,18 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , cursorLinePositions_()
     , cursorLineMeshDataPtr_(nullptr)
     , distanceMeshDataPtr_(nullptr)
+    , collisionBodyQuadTreeMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
     , mainCameraEntityId_((unsigned int)-1)
     , uiCameraEntityId_((unsigned int)-1)
     , cursorEntityId_((unsigned int)-1)
     , distanceEntityId_((unsigned int)-1)
+    , collisionBodyQuadTreeEntityId_((unsigned int)-1)
     , entityIds_()
     , cursorGrabbingEntity_(false)
     , previousWorldCursorPosition_()
     , selectedEntityIdIndex_((unsigned int)-1)
+    , remainingTimeRecordingDuration_ns_(0)
 {}
 
 TestSceneBase002::~TestSceneBase002()
@@ -104,6 +109,8 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     cursorLineMeshDataPtr_ = new Project001::MeshData();
 
     distanceMeshDataPtr_ = new Project001::MeshData();
+
+    collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
@@ -205,7 +212,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         }
     }
 
-    // Distance Test Entity
+    // Distance Text Entity
     // -------------------------------------------------------------------------
 
     {
@@ -221,8 +228,25 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetMeshDataPtr(distanceMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
+            // renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
             renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.4f);
+        }
+    }
+
+    // Collision Body Quad-Tree Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(collisionBodyQuadTreeEntityId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionBodyQuadTreeEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyQuadTreeEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(collisionBodyQuadTreeMeshDataPtr_);
+            renderedMeshPtr->SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            renderedMeshPtr->SetRenderPriorityOverride(-100);
         }
     }
 }
@@ -257,6 +281,9 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     delete distanceMeshDataPtr_;
     distanceMeshDataPtr_ = nullptr;
 
+    delete collisionBodyQuadTreeMeshDataPtr_;
+    collisionBodyQuadTreeMeshDataPtr_ = nullptr;
+
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
         delete meshDataPtrArray_[i];
@@ -272,6 +299,8 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     distanceEntityId_ = (unsigned int)-1;
 
+    collisionBodyQuadTreeEntityId_ = (unsigned int)-1;
+
     entityIds_.clear();
 
     // -------------------------------------------------------------------------
@@ -279,6 +308,16 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     cursorGrabbingEntity_ = false;
     previousWorldCursorPosition_ = glm::vec2(0.0f, 0.0f);
     selectedEntityIdIndex_ = (unsigned int)-1;
+
+    if (remainingTimeRecordingDuration_ns_ > 0)
+    {
+        remainingTimeRecordingDuration_ns_ = 0;
+
+        if (Project001::TimeProfiler::EndSession())
+        {
+            _LOG_MESSAGE("RECORDING END");
+        }
+    }
 }
 
 void TestSceneBase002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -330,6 +369,30 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
                 selectedEntityIdIndex_--;
             }
         }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_T)
+        {
+            std::string timeProfileOutFileName = "TestSceneBase002_";
+#ifndef NDEBUG
+            timeProfileOutFileName += "D_";
+#else
+            timeProfileOutFileName += "R_";
+#endif
+            if (GetSleepyRunLoop())
+            {
+                timeProfileOutFileName += "Sleepy_";
+            }
+            else
+            {
+                timeProfileOutFileName += "Fast_";
+            }
+            timeProfileOutFileName += std::to_string(Project001::TimeProfiler::GetTimeStamp());
+            timeProfileOutFileName += ".json";
+            if (Project001::TimeProfiler::BeginSession(timeProfileOutFileName.c_str()))
+            {
+                _LOG_MESSAGE("RECORDING START");
+            }
+            remainingTimeRecordingDuration_ns_ = 1000000000;
+        }
     }
 }
 
@@ -378,6 +441,8 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
 void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
+    Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessRenderEvent");
+
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 }
 
@@ -414,15 +479,46 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
 void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
+    Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessUpdateEvent");
+
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     UpdatedSelectedEntityPosition(timestep_ns);
     Sync_RenderedMesh_CollisionBody_Components();
 
-    Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+    if (remainingTimeRecordingDuration_ns_ > 0)
+    {
+        timer01_.Start("CollisionSystem2D::CalculateCollisions");
+    }
+
+    // Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+    Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+
+    if (remainingTimeRecordingDuration_ns_ > 0)
+    {
+        timer01_.Stop();
+
+        if (remainingTimeRecordingDuration_ns_ < timestep_ns)
+        {
+            remainingTimeRecordingDuration_ns_ = 0;
+        }
+        else
+        {
+            remainingTimeRecordingDuration_ns_ -= timestep_ns;
+        }
+
+        if (remainingTimeRecordingDuration_ns_ == 0)
+        {
+            if (Project001::TimeProfiler::EndSession())
+            {
+                _LOG_MESSAGE("RECORDING END");
+            }
+        }
+    }
 
     ColorCollisions();
     UpdateCursorLineAndDistanceText();
+    UpdateCollisionBodyQuadTreeMesh();
 }
 
 void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
@@ -708,5 +804,46 @@ void TestSceneBase002::UpdateCursorLineAndDistanceText()
         cursorLineMeshDataPtr_->Clear();
 
         distanceMeshDataPtr_->Clear();
+    }
+}
+
+void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
+{
+    Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
+
+    const float lineWidth = 0.04f;
+
+    collisionBodyQuadTreeMeshDataPtr_->Clear();
+    Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
+
+    std::stack<Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
+    nodePtrStack.push(rootNodePtr);
+
+    while (!nodePtrStack.empty())
+    {
+        Project001::CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+        nodePtrStack.pop();
+
+        if (!nodePtr->leafNode)
+        {
+            const glm::vec2& min = nodePtr->min;
+            const glm::vec2& max = nodePtr->max;
+            glm::vec2 mid((nodePtr->max + nodePtr->min) * 0.5f);
+            glm::vec2 top(mid.x, max.y);
+            glm::vec2 bottom(mid.x, min.y);
+            glm::vec2 left(min.x, mid.y);
+            glm::vec2 right(max.x, mid.y);
+
+            Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, top, bottom, lineWidth);
+            Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, left, right, lineWidth);
+
+            for (size_t i = 0; i < 4; ++i)
+            {
+                if (nodePtr->childrenPtrs[i])
+                {
+                    nodePtrStack.push(nodePtr->childrenPtrs[i]);
+                }
+            }
+        }
     }
 }

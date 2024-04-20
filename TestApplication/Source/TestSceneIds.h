@@ -8,6 +8,7 @@ extern unsigned int g_testScene006Id;
 extern unsigned int g_testScene010Id;
 extern unsigned int g_testScene011Id;
 extern unsigned int g_testScene012Id;
+extern unsigned int g_testScene013Id;
 extern unsigned int g_testScene023Id;
 extern unsigned int g_testScene030Id;
 extern unsigned int g_testScene031Id;

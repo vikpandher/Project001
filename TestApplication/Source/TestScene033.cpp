@@ -260,8 +260,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshId(square_MeshId_);
-            renderedMeshPtr->SetMaxBoundingRadius(square_MaxBoundingRadius_);
+            renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(square_MeshId_, square_MaxBoundingRadius_);
 
             if (i < _32x32_TextureIds_.size())
             {

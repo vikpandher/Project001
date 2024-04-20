@@ -20,10 +20,16 @@ namespace Project001
     public:
         CollisionBody2D();
 
-        uint32_t GetCollisionGroupMask() const;
+        // For the collision system to count a collision, at least one group in the
+        // collisionGroupMask of each body needs to be in the other body's allowedCollisionFilterMask
+
+        const uint32_t& GetCollisionGroupMask() const;
         void SetCollisionGroupMask(uint32_t collisionGroupMask);
 
-        const bool GetTangible() const;
+        const uint32_t& GetAllowedCollisionFilterMask() const;
+        void SetAllowedCollisionFilterMask(uint32_t allowedCollisionFilterMask);
+
+        const bool& GetTangible() const;
         void SetTangible(bool tangible);
 
         // Note: Use std::swap to swap vectors of CollisionShape2D
@@ -72,7 +78,7 @@ namespace Project001
         const std::vector<CollisionConvexPolygon2D>& GetCollisionConvexPolygons() const;
         const std::vector<CollisionConvexPolygon2D>& GetTransformedCollisionConvexPolygons() const;
 
-        float GetBoundingRadius() const;
+        const float& GetBoundingRadius() const;
 
         bool BoundingRadiusUpToDate() const;
         bool TransformedCollisionShapesUpToDate() const;
@@ -89,7 +95,6 @@ namespace Project001
 
         float GetDistanceSquaredToPoint(const glm::vec2& point_position) const;
 
-        // TODO
         float GetDistanceSquaredToPointAndClosestPointToPoint(
             const glm::vec2& point_position,
             glm::vec2& closestPoint_position) const;
@@ -147,6 +152,7 @@ namespace Project001
         std::vector<CollisionConvexPolygon2D> transformedCollisionConvexPolygons_;
 
         uint32_t collisionGroupMask_;
+        uint32_t allowedCollisionFilterMask_;
 
         bool tangible_;
 
@@ -160,13 +166,14 @@ namespace Project001
 
     inline CollisionBody2D::CollisionBody2D()
         : collisionGroupMask_(0b00000000000000000000000000000001)
+        , allowedCollisionFilterMask_(0b11111111111111111111111111111111)
         , tangible_(true)
         , boundingRadius_(0.0f)
         , boundingRadiusUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
     {}
 
-    inline uint32_t CollisionBody2D::GetCollisionGroupMask() const
+    inline const uint32_t& CollisionBody2D::GetCollisionGroupMask() const
     {
         return collisionGroupMask_;
     }
@@ -176,7 +183,17 @@ namespace Project001
         collisionGroupMask_ = collisionGroupMask;
     }
 
-    inline const bool CollisionBody2D::GetTangible() const
+    inline const uint32_t& CollisionBody2D::GetAllowedCollisionFilterMask() const
+    {
+        return allowedCollisionFilterMask_;
+    }
+
+    inline void CollisionBody2D::SetAllowedCollisionFilterMask(uint32_t allowedCollisionFilterMask)
+    {
+        allowedCollisionFilterMask_ = allowedCollisionFilterMask;
+    }
+
+    inline const bool& CollisionBody2D::GetTangible() const
     {
         return tangible_;
     }
@@ -373,7 +390,7 @@ namespace Project001
         return transformedCollisionConvexPolygons_;
     }
 
-    inline float CollisionBody2D::GetBoundingRadius() const
+    inline const float& CollisionBody2D::GetBoundingRadius() const
     {
         return boundingRadius_;
     }

@@ -2,6 +2,8 @@
 
 #include "Math/Overlap2D.h"
 
+#include <limits>
+
 
 
 namespace Project001
@@ -31,6 +33,11 @@ namespace Project001
         }
 
         float largestRadius = 0.0f;
+
+        if (!collisionPoints_.empty())
+        {
+            largestRadius = std::numeric_limits<float>::lowest();
+        }
 
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {

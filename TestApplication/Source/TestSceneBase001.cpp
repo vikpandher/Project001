@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "RenderSystem.h"
 #include "SoundPlayer.h"
+#include "TimeProfiler.h"
 #include "Window.h"
 
 
@@ -27,6 +28,7 @@ TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr)
     , lightSourceEntityId_((unsigned int)-1)
     , entityIds_()
     , previousCursorDownPosition_()
+    , remainingTimeRecordingDuration_ns_(0)
 {}
 
 TestSceneBase001::~TestSceneBase001()
@@ -176,6 +178,16 @@ void TestSceneBase001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     // -------------------------------------------------------------------------
 
     previousCursorDownPosition_ = glm::vec2(0.0f, 0.0f);
+
+    if (remainingTimeRecordingDuration_ns_ > 0)
+    {
+        remainingTimeRecordingDuration_ns_ = 0;
+
+        if (Project001::TimeProfiler::EndSession())
+        {
+            _LOG_MESSAGE("RECORDING END");
+        }
+    }
 }
 
 void TestSceneBase001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorButtonEvent)
@@ -231,6 +243,30 @@ void TestSceneBase001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             return;
         }
     }
+    else if (keyCode == Project001::KeyCode::KEY_CODE_T)
+    {
+        std::string timeProfileOutFileName = "TestSceneBase002_";
+#ifndef NDEBUG
+        timeProfileOutFileName += "D_";
+#else
+        timeProfileOutFileName += "R_";
+#endif
+        if (GetSleepyRunLoop())
+        {
+            timeProfileOutFileName += "Sleepy_";
+        }
+        else
+        {
+            timeProfileOutFileName += "Fast_";
+        }
+        timeProfileOutFileName += std::to_string(Project001::TimeProfiler::GetTimeStamp());
+        timeProfileOutFileName += ".json";
+        if (Project001::TimeProfiler::BeginSession(timeProfileOutFileName.c_str()))
+        {
+            _LOG_MESSAGE("RECORDING START");
+        }
+        remainingTimeRecordingDuration_ns_ = 1000000000;
+    }
 }
 
 void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
@@ -247,6 +283,8 @@ void TestSceneBase001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
 
 void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
+    Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessRenderEvent");
+
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 
     // _LOG_MESSAGE("timestep_ns: %llu", renderEvent.timestep_ns);
@@ -269,12 +307,34 @@ void TestSceneBase001::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
 void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
+    Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessUpdateEvent");
+
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     // Update Entities
     UpdateMainCameraEntityPositionAndRoll(timestep_ns);
 
     SyncLightSourcePosition();
+
+    if (remainingTimeRecordingDuration_ns_ > 0)
+    {
+        if (remainingTimeRecordingDuration_ns_ < timestep_ns)
+        {
+            remainingTimeRecordingDuration_ns_ = 0;
+        }
+        else
+        {
+            remainingTimeRecordingDuration_ns_ -= timestep_ns;
+        }
+
+        if (remainingTimeRecordingDuration_ns_ == 0)
+        {
+            if (Project001::TimeProfiler::EndSession())
+            {
+                _LOG_MESSAGE("RECORDING END");
+            }
+        }
+    }
 }
 
 void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns)

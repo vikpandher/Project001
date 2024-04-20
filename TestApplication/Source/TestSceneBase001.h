@@ -63,4 +63,6 @@ protected:
     // -------------------------------------------------------------------------
 
     glm::vec2 previousCursorDownPosition_;
+
+    unsigned long long remainingTimeRecordingDuration_ns_;
 };

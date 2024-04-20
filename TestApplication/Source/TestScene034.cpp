@@ -200,16 +200,14 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& cubeMesh = renderedMeshes.back();
-            cubeMesh.SetMeshId(cube001_MeshId_);
-            cubeMesh.SetMaxBoundingRadius(cube001_MeshDataPtr_->maxBoundingRadius);
+            cubeMesh.SetMeshIdAndMaxBoundingRadius(cube001_MeshId_, cube001_MeshDataPtr_->maxBoundingRadius);
             cubeMesh.SetTextureId(thonk001_TextureId_);
             cubeMesh.SetSpecularId(thonkSpecular001_TextureId_);
             cubeMesh.SetShininess(32.0f);
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& redConeMesh = renderedMeshes.back();
-            redConeMesh.SetMeshId(cone001_MeshId_);
-            redConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
+            redConeMesh.SetMeshIdAndMaxBoundingRadius(cone001_MeshId_, cone001_MeshDataPtr_->maxBoundingRadius);
             redConeMesh.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
             redConeMesh.SetTranslucent(true);
             redConeMesh.SetPositionX(0.64f);
@@ -217,8 +215,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& redStarMesh = renderedMeshes.back();
-            redStarMesh.SetMeshId(line001_MeshId_);
-            redStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
+            redStarMesh.SetMeshIdAndMaxBoundingRadius(line001_MeshId_, line001_MeshDataPtr_->maxBoundingRadius);
             redStarMesh.SetColor(0.8f, 0.2f, 0.2f, 1.0f);
             redStarMesh.SetTextureId(_32x32_TextureIds_[0]);
             redStarMesh.SetPositionX(-0.36f);
@@ -226,16 +223,14 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& greenConeMesh = renderedMeshes.back();
-            greenConeMesh.SetMeshId(cone001_MeshId_);
-            greenConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
+            greenConeMesh.SetMeshIdAndMaxBoundingRadius(cone001_MeshId_, cone001_MeshDataPtr_->maxBoundingRadius);
             greenConeMesh.SetColor(0.2f, 0.8f, 0.2f, 0.4f);
             greenConeMesh.SetTranslucent(true);
             greenConeMesh.SetPositionY(0.64f);
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& greenStarMesh = renderedMeshes.back();
-            greenStarMesh.SetMeshId(line001_MeshId_);
-            greenStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
+            greenStarMesh.SetMeshIdAndMaxBoundingRadius(line001_MeshId_, line001_MeshDataPtr_->maxBoundingRadius);
             greenStarMesh.SetColor(0.2f, 0.8f, 0.2f, 1.0f);
             greenStarMesh.SetTextureId(_32x32_TextureIds_[1]);
             greenStarMesh.SetPositionY(-0.36f);
@@ -243,8 +238,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& blueConeMesh = renderedMeshes.back();
-            blueConeMesh.SetMeshId(cone001_MeshId_);
-            blueConeMesh.SetMaxBoundingRadius(cone001_MeshDataPtr_->maxBoundingRadius);
+            blueConeMesh.SetMeshIdAndMaxBoundingRadius(cone001_MeshId_, cone001_MeshDataPtr_->maxBoundingRadius);
             blueConeMesh.SetColor(0.2f, 0.2f, 0.8f, 0.4f);
             blueConeMesh.SetTranslucent(true);
             blueConeMesh.SetPositionZ(0.64f);
@@ -252,8 +246,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& blueStarMesh = renderedMeshes.back();
-            blueStarMesh.SetMeshId(line001_MeshId_);
-            blueStarMesh.SetMaxBoundingRadius(line001_MeshDataPtr_->maxBoundingRadius);
+            blueStarMesh.SetMeshIdAndMaxBoundingRadius(line001_MeshId_, line001_MeshDataPtr_->maxBoundingRadius);
             blueStarMesh.SetColor(0.2f, 0.2f, 0.8f, 1.0f);
             blueStarMesh.SetTextureId(_32x32_TextureIds_[2]);
             blueStarMesh.SetPositionZ(-0.36f);

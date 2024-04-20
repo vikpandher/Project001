@@ -19,11 +19,11 @@ namespace Project001
 
         RenderedMesh();
 
-        bool GetVisible() const;
+        const bool& GetVisible() const;
         void SetVisible(bool visible);
 
         void SetCameraMask(uint32_t cameraMask);
-        uint32_t GetCameraMask() const;
+        const uint32_t& GetCameraMask() const;
 
         // RenderedMeshType is set by the following functions:
         // SetMeshDataPtr
@@ -31,13 +31,10 @@ namespace Project001
         // SetMeshId
         //     * Sets it to RENDERED_MESH_TYPE_LOADED_GPU_SIDE
 
-        RenderedMeshType GetRenderedMeshType() const;
+        const RenderedMeshType& GetRenderedMeshType() const;
 
-        const MeshData* GetMeshDataPtr() const;
+        const MeshData* const& GetMeshDataPtr() const;
         void SetMeshDataPtr(const MeshData* meshData);
-
-        unsigned int GetMeshId() const;
-        void SetMeshId(unsigned int meshId);
 
         // If the mesh is of type RENDERED_MESH_TYPE_LOADED_CPU_SIDE,
         // meshDataPtr_->maxBoundingRadius is used for frustum culling.
@@ -47,18 +44,19 @@ namespace Project001
         // 
         // Frustum culling is done in RenderSystem.
 
-        float GetMaxBoundingRadius() const;
-        void SetMaxBoundingRadius(float maxBoundingRadius);
+        const unsigned int& GetMeshId() const;
+        const float& GetMaxBoundingRadius() const;
+        void SetMeshIdAndMaxBoundingRadius(unsigned int meshId, float maxBoundingRadius);
 
         // lower priority mesh will be rendered by a camera first, so higher
         // priorty meshes are drawn on-top
-        int GetRenderPriorityOverride() const;
+        const int& GetRenderPriorityOverride() const;
         void SetRenderPriorityOverride(int renderPriorityOverride);
 
-        unsigned int GetTextureId() const;
+        const unsigned int& GetTextureId() const;
         void SetTextureId(unsigned int textureId);
 
-        unsigned int GetSpecularId() const;
+        const unsigned int& GetSpecularId() const;
         void SetSpecularId(unsigned int specularId);
 
         const glm::vec3& GetScale() const;
@@ -73,13 +71,13 @@ namespace Project001
         void SetColor(float r, float g, float b, float a);
         void SetColorRGB(float r, float g, float b);
 
-        float GetShininess() const;
+        const float& GetShininess() const;
         void SetShininess(float shininess);
 
-        bool GetTranslucent() const;
+        const bool& GetTranslucent() const;
         void SetTranslucent(bool translucent);
 
-        bool GetLit() const;
+        const bool& GetLit() const;
         void SetLit(bool lit);
 
     protected:
@@ -120,7 +118,7 @@ namespace Project001
         , lit_(true)
     {}
 
-    inline bool RenderedMesh::GetVisible() const
+    inline const bool& RenderedMesh::GetVisible() const
     {
         return visible_;
     }
@@ -135,17 +133,17 @@ namespace Project001
         cameraMask_ = cameraMask;
     }
 
-    inline uint32_t RenderedMesh::GetCameraMask() const
+    inline const uint32_t& RenderedMesh::GetCameraMask() const
     {
         return cameraMask_;
     }
 
-    inline RenderedMesh::RenderedMeshType RenderedMesh::GetRenderedMeshType() const
+    inline const RenderedMesh::RenderedMeshType& RenderedMesh::GetRenderedMeshType() const
     {
         return renderedMeshType_;
     }
 
-    inline const MeshData* RenderedMesh::GetMeshDataPtr() const
+    inline const MeshData* const& RenderedMesh::GetMeshDataPtr() const
     {
         return meshDataPtr_;
     }
@@ -156,28 +154,24 @@ namespace Project001
         meshDataPtr_ = meshDataPtr;
     }
 
-    inline unsigned int RenderedMesh::GetMeshId() const
+    inline const unsigned int& RenderedMesh::GetMeshId() const
     {
         return meshId_;
     }
 
-    inline void RenderedMesh::SetMeshId(unsigned int meshId)
-    {
-        renderedMeshType_ = RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE;
-        meshId_ = meshId;
-    }
-
-    inline float RenderedMesh::GetMaxBoundingRadius() const
+    inline const float& RenderedMesh::GetMaxBoundingRadius() const
     {
         return maxBoundingRadius_;
     }
 
-    inline void RenderedMesh::SetMaxBoundingRadius(float maxBoundingRadius)
+    inline void RenderedMesh::SetMeshIdAndMaxBoundingRadius(unsigned int meshId, float maxBoundingRadius)
     {
+        renderedMeshType_ = RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE;
+        meshId_ = meshId;
         maxBoundingRadius_ = maxBoundingRadius;
     }
 
-    inline int RenderedMesh::GetRenderPriorityOverride() const
+    inline const int& RenderedMesh::GetRenderPriorityOverride() const
     {
         return renderPriorityOverride_;
     }
@@ -187,7 +181,7 @@ namespace Project001
         renderPriorityOverride_ = renderPriorityOverride;
     }
 
-    inline unsigned int RenderedMesh::GetTextureId() const
+    inline const unsigned int& RenderedMesh::GetTextureId() const
     {
         return textureId_;
     }
@@ -197,7 +191,7 @@ namespace Project001
         textureId_ = textureId;
     }
 
-    inline unsigned int RenderedMesh::GetSpecularId() const
+    inline const unsigned int& RenderedMesh::GetSpecularId() const
     {
         return specularId_;
     }
@@ -264,7 +258,7 @@ namespace Project001
         color_.b = b;
     }
 
-    inline float RenderedMesh::GetShininess() const
+    inline const float& RenderedMesh::GetShininess() const
     {
         return shininess_;
     }
@@ -274,7 +268,7 @@ namespace Project001
         shininess_ = shininess;
     }
 
-    inline bool RenderedMesh::GetTranslucent() const
+    inline const bool& RenderedMesh::GetTranslucent() const
     {
         return translucent_;
     }
@@ -284,7 +278,7 @@ namespace Project001
         translucent_ = translucent;
     }
 
-    inline bool RenderedMesh::GetLit() const
+    inline const bool& RenderedMesh::GetLit() const
     {
         return lit_;
     }

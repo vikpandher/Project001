@@ -69,6 +69,21 @@ namespace Project001
             size_t radialSections,
             bool triangulate = s_triangulate);
 
+        static bool Generate2DCapsule(
+            MeshData& meshData,
+            const glm::vec2& start,
+            const glm::vec2& end,
+            float radius,
+            size_t radialSections,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DLine(
+            MeshData& meshData,
+            const glm::vec2& start,
+            const glm::vec2& end,
+            float width,
+            bool triangulate = s_triangulate);
+
         static bool Generate2DLine(
             MeshData& meshData,
             const std::vector<glm::vec2>& positions,
@@ -105,6 +120,13 @@ namespace Project001
             float height,
             float bezelSize,
             size_t bezelSections,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DRectangleFrame(
+            MeshData& meshData,
+            const glm::vec2& bottomLeft,
+            const glm::vec2& topRight,
+            float frameThickness,
             bool triangulate = s_triangulate);
 
         // texture origin is bottom left
@@ -279,6 +301,8 @@ namespace Project001
 
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
 
+        // This makes it so verticies aren't reused by multiple indicies.
+        // One vertex has one associated index.
         static const bool s_triangulate;
     };
 }

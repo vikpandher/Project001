@@ -26,28 +26,28 @@ namespace Project001
         uint32_t GetCameraMask() const;
 
         const glm::vec3& GetDirection() const;
-        float GetDirectionX() const;
-        float GetDirectionY() const;
-        float GetDirectionZ() const;
+        const float& GetDirectionX() const;
+        const float& GetDirectionY() const;
+        const float& GetDirectionZ() const;
         void SetDirection(const glm::vec3& direction);
         void SetDirection(float x, float y, float z);
         void SetDirectionX(float x);
         void SetDirectionY(float y);
         void SetDirectionZ(float z);
 
-        float GetCutoff() const;
+        const float& GetCutoff() const;
         void SetCutoff(float cutoff);
 
-        float GetOuterCutoff() const;
+        const float& GetOuterCutoff() const;
         void SetOuterCutoff(float outerCutoff);
 
-        float GetAttenuationConstant() const;
+        const float& GetAttenuationConstant() const;
         void SetAttenuationConstant(float constant);
 
-        float GetLinearAttenuation() const;
+        const float& GetLinearAttenuation() const;
         void SetLinearAttenuation(float linear);
 
-        float GetQuadraticAttenuation() const;
+        const float& GetQuadraticAttenuation() const;
         void SetQuadraticAttenuation(float quadratic);
 
         const glm::vec3& GetAmbientColor() const;
@@ -215,17 +215,17 @@ namespace Project001
         return direction_;
     }
 
-    inline float LightSource::GetDirectionX() const
+    inline const float& LightSource::GetDirectionX() const
     {
         return direction_.x;
     }
 
-    inline float LightSource::GetDirectionY() const
+    inline const float& LightSource::GetDirectionY() const
     {
         return direction_.y;
     }
 
-    inline float LightSource::GetDirectionZ() const
+    inline const float& LightSource::GetDirectionZ() const
     {
         return direction_.z;
     }
@@ -256,7 +256,7 @@ namespace Project001
         direction_.z = z;
     }
 
-    inline float LightSource::GetCutoff() const
+    inline const float& LightSource::GetCutoff() const
     {
         return cutoff_;
     }
@@ -266,7 +266,7 @@ namespace Project001
         cutoff_ = cutoff;
     }
 
-    inline float LightSource::GetOuterCutoff() const
+    inline const float& LightSource::GetOuterCutoff() const
     {
         return outerCutoff_;
     }
@@ -276,7 +276,7 @@ namespace Project001
         outerCutoff_ = outerCutoff;
     }
 
-    inline float LightSource::GetAttenuationConstant() const
+    inline const float& LightSource::GetAttenuationConstant() const
     {
         return constant_;
     }
@@ -286,7 +286,7 @@ namespace Project001
         constant_ = constant;
     }
 
-    inline float LightSource::GetLinearAttenuation() const
+    inline const float& LightSource::GetLinearAttenuation() const
     {
         return linear_;
     }
@@ -296,7 +296,7 @@ namespace Project001
         linear_ = linear;
     }
 
-    inline float LightSource::GetQuadraticAttenuation() const
+    inline const float& LightSource::GetQuadraticAttenuation() const
     {
         return quadratic_;
     }

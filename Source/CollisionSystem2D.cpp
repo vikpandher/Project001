@@ -4,6 +4,8 @@
 #include "Components/CollisionBody2D.h"
 #include "Math/Overlap2D.h"
 
+#include <stack>
+
 
 
 namespace Project001
@@ -72,25 +74,24 @@ namespace Project001
         // Calculate collisions
         for (unsigned int i = 0; i < s_tangibleCollisionBodyPtrs_.size() - 1; ++i)
         {
-            Project001::CollisionBody2D*& collisionBodyA = s_tangibleCollisionBodyPtrs_[i];
+            Project001::CollisionBody2D*& collisionBodyA_ptr = s_tangibleCollisionBodyPtrs_[i];
             unsigned int entityIdA;
-            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdA, collisionBodyA);
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdA, collisionBodyA_ptr);
             for (unsigned int j = i + 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
             {
-                Project001::CollisionBody2D*& collisionBodyB = s_tangibleCollisionBodyPtrs_[j];
+                Project001::CollisionBody2D*& collisionBodyB_ptr = s_tangibleCollisionBodyPtrs_[j];
                 unsigned int entityIdB;
-                componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB);
+                componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
 
-                // Only collision bodies in the same collision group can collide. Also do a premptive
-                // bounding radius collision check.
-                if ((collisionBodyA->GetCollisionGroupMask() & collisionBodyB->GetCollisionGroupMask()) &&
+                if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
+                    (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
                     Check2D_Circle_Circle_Overlap(
-                    collisionBodyA->GetPosition(),
-                    collisionBodyA->GetBoundingRadius(),
-                    collisionBodyB->GetPosition(),
-                    collisionBodyB->GetBoundingRadius()))
+                    collisionBodyA_ptr->GetPosition(),
+                    collisionBodyA_ptr->GetBoundingRadius(),
+                    collisionBodyB_ptr->GetPosition(),
+                    collisionBodyB_ptr->GetBoundingRadius()))
                 {
-                    CalculateCollisions(entityIdA, *collisionBodyA, entityIdB, *collisionBodyB, true);
+                    CalculateCollisions(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
                 }
             }
         }
@@ -105,7 +106,7 @@ namespace Project001
             return;
         }
 
-        // Get primary entity's collision bodies
+        // Get primary entity's collision body
         CollisionBody2D* primaryCollisionBodyPtr = nullptr;
         bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(primaryCollisionBodyPtr, entityId);
 
@@ -124,13 +125,8 @@ namespace Project001
             return;
         }
 
-        // Clear old collisions
-        // for (size_t i = 0; i < collisionBodyCount; ++i)
-        // {
-        //     CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-        // 
-        //     currentCollisionBody.ClearCollisions();
-        // }
+        // Clear primary entity's collisions
+        primaryCollisionBodyPtr->ClearCollisions();
 
         // Calculate bounding radii and transformed collision shapes
         for (size_t i = 0; i < collisionBodyCount; ++i)
@@ -166,28 +162,203 @@ namespace Project001
             return;
         }
 
-        // Clear primary entity's collisions
-        primaryCollisionBodyPtr->ClearCollisions();
-
         // Calculate collisions (only for primary entity)
         for (unsigned int j = 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
         {
-            Project001::CollisionBody2D*& currentCollisionBody = s_tangibleCollisionBodyPtrs_[j];
+            Project001::CollisionBody2D*& currentCollisionBodyPtr = s_tangibleCollisionBodyPtrs_[j];
             unsigned int currentEntityId;
-            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentEntityId, currentCollisionBody);
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentEntityId, currentCollisionBodyPtr);
 
-            // Only collision bodies in the same collision group can collide. Also do a premptive
-            // bounding radius collision check.
             if (entityId != currentEntityId &&
-                (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBody->GetCollisionGroupMask()) &&
+                (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBodyPtr->GetAllowedCollisionFilterMask()) &&
+                (currentCollisionBodyPtr->GetCollisionGroupMask() & primaryCollisionBodyPtr->GetAllowedCollisionFilterMask()) &&
                 Check2D_Circle_Circle_Overlap(
                 primaryCollisionBodyPtr->GetPosition(),
                 primaryCollisionBodyPtr->GetBoundingRadius(),
-                currentCollisionBody->GetPosition(),
-                currentCollisionBody->GetBoundingRadius()))
+                currentCollisionBodyPtr->GetPosition(),
+                currentCollisionBodyPtr->GetBoundingRadius()))
             {
-                CalculateCollisions(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBody, false);
+                CalculateCollisions(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
             }
+        }
+    }
+
+    void CollisionSystem2D::CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr)
+    {
+        if (componentStoresPtr == nullptr)
+        {
+            return;
+        }
+
+        // Get collision bodies
+        CollisionBody2D* collisionBodyPtrs = nullptr;
+        size_t collisionBodyCount = 0;
+        bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+
+        if (!componentFound)
+        {
+            return;
+        }
+
+        // Clear old collisions
+        for (size_t i = 0; i < collisionBodyCount; ++i)
+        {
+            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+
+            currentCollisionBody.ClearCollisions();
+        }
+
+        // Calculate bounding radii and transformed collision shapes
+        for (size_t i = 0; i < collisionBodyCount; ++i)
+        {
+            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+
+            if (!currentCollisionBody.BoundingRadiusUpToDate())
+            {
+                currentCollisionBody.CalculateBoundingRadius();
+            }
+
+            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
+            {
+                currentCollisionBody.CalculateTransformedCollisionShapes();
+            }
+        }
+
+        // Gather together all tangible collision bodies
+        s_tangibleCollisionBodyPtrs_.clear();
+        s_outOfBoundsTangibleCollisionBodyPtrs_.clear();
+        s_tangibleCollisionBodyQuadTree2D_.Clear();
+        s_collisionBodyPairs_.clear();
+
+        for (size_t i = 0; i < collisionBodyCount; ++i)
+        {
+            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+
+            if (currentCollisionBody.GetTangible())
+            {
+                if (s_tangibleCollisionBodyQuadTree2D_.Insert(&currentCollisionBody))
+                {
+                    s_tangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                }
+                else
+                {
+                    s_outOfBoundsTangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                }
+            }
+        }
+
+        // Calculate out-of-bounds body collisions
+
+        if (!s_outOfBoundsTangibleCollisionBodyPtrs_.empty())
+        {
+            for (unsigned int i = 0; i < s_outOfBoundsTangibleCollisionBodyPtrs_.size() - 1; ++i)
+            {
+                Project001::CollisionBody2D*& collisionBodyA_ptr = s_outOfBoundsTangibleCollisionBodyPtrs_[i];
+
+                for (unsigned int j = i + 1; j < s_outOfBoundsTangibleCollisionBodyPtrs_.size(); ++j)
+                {
+                    Project001::CollisionBody2D*& collisionBodyB_ptr = s_outOfBoundsTangibleCollisionBodyPtrs_[j];
+
+                    if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
+                        (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
+                        Check2D_Circle_Circle_Overlap(
+                            collisionBodyA_ptr->GetPosition(),
+                            collisionBodyA_ptr->GetBoundingRadius(),
+                            collisionBodyB_ptr->GetPosition(),
+                            collisionBodyB_ptr->GetBoundingRadius()))
+                    {
+                        s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                    }
+                }
+            }
+        }
+
+        // Calculate out-of-bounds body with in-tree body collisions
+
+        for (unsigned int i = 0; i < s_outOfBoundsTangibleCollisionBodyPtrs_.size(); ++i)
+        {
+            Project001::CollisionBody2D*& collisionBodyA_ptr = s_outOfBoundsTangibleCollisionBodyPtrs_[i];
+
+            for (unsigned int j = 0; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
+            {
+                Project001::CollisionBody2D*& collisionBodyB_ptr = s_tangibleCollisionBodyPtrs_[j];
+
+                if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
+                    (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
+                    Check2D_Circle_Circle_Overlap(
+                        collisionBodyA_ptr->GetPosition(),
+                        collisionBodyA_ptr->GetBoundingRadius(),
+                        collisionBodyB_ptr->GetPosition(),
+                        collisionBodyB_ptr->GetBoundingRadius()))
+                {
+                    s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                }
+            }
+        }
+
+        // Calculate in-tree body collisions
+
+        CollisionBodyQuadTreeNode2D* rootNodePtr = s_tangibleCollisionBodyQuadTree2D_.GetRootNode();
+        if (!(rootNodePtr->leafNode && rootNodePtr->bodyPtrs.empty()))
+        {
+            std::stack<CollisionBodyQuadTreeNode2D*> nodePtrStack;
+            nodePtrStack.push(rootNodePtr);
+
+            while (!nodePtrStack.empty())
+            {
+                CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+                nodePtrStack.pop();
+
+                if (nodePtr->leafNode)
+                {
+                    // Calculate collisions
+                    for (unsigned int i = 0; i < nodePtr->bodyPtrs.size() - 1; ++i)
+                    {
+                        Project001::CollisionBody2D*& collisionBodyA_ptr = nodePtr->bodyPtrs[i];
+
+                        for (unsigned int j = i + 1; j < nodePtr->bodyPtrs.size(); ++j)
+                        {
+                            Project001::CollisionBody2D*& collisionBodyB_ptr = nodePtr->bodyPtrs[j];
+
+                            if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
+                                (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
+                                Check2D_Circle_Circle_Overlap(
+                                    collisionBodyA_ptr->GetPosition(),
+                                    collisionBodyA_ptr->GetBoundingRadius(),
+                                    collisionBodyB_ptr->GetPosition(),
+                                    collisionBodyB_ptr->GetBoundingRadius()))
+                            {
+                                s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (size_t i = 0; i < 4; ++i)
+                    {
+                        if (nodePtr->childrenPtrs[i])
+                        {
+                            nodePtrStack.push(nodePtr->childrenPtrs[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor>::iterator iter = s_collisionBodyPairs_.begin();
+            iter != s_collisionBodyPairs_.end();
+            ++iter)
+        {
+            CollisionBody2D* const& collisionBodyA_ptr = iter->first;
+            unsigned int entityIdA;
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdA, collisionBodyA_ptr);
+
+            CollisionBody2D* const& collisionBodyB_ptr = iter->second;
+            unsigned int entityIdB;
+            componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
+
+            CalculateCollisions(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
         }
     }
 
@@ -4211,4 +4382,10 @@ namespace Project001
     }
 
     std::vector<CollisionBody2D*> CollisionSystem2D::s_tangibleCollisionBodyPtrs_;
+
+    std::vector<CollisionBody2D*> CollisionSystem2D::s_outOfBoundsTangibleCollisionBodyPtrs_;
+
+    CollisionBodyQuadTree2D CollisionSystem2D::s_tangibleCollisionBodyQuadTree2D_(glm::vec2(-8.0f, -6.0f), glm::vec2(8.0f, 6.0f), 4, 16);
+
+    std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, CollisionSystem2D::PointerPairHashFunctor> CollisionSystem2D::s_collisionBodyPairs_;
 }

@@ -9,73 +9,94 @@
 
 
 namespace Project001
-{	
-	struct TimeRecord
-	{
-		std::string label;
-		std::thread::id threadID; // maybe replace this with a "cost char * name"
-		long long start_ns;
-		long long stop_ns;
+{
+    struct TimeRecord
+    {
+        TimeRecord()
+            : start_ns(0)
+            , stop_ns(0)
+        {}
 
-		inline long long getDuration_ns() const
-		{
-			return stop_ns - stop_ns;
-		}
+        std::string label;
+        std::thread::id threadID; // maybe replace this with a "cost char * name"
+        long long start_ns;
+        long long stop_ns;
 
-		inline long long getDuration_us() const
-		{
-			return getDuration_ns() / 1000;
-		}
+        long long getDuration_ns() const
+        {
+            return stop_ns - start_ns;
+        }
 
-		inline long long getDuration_ms() const
-		{
-			return getDuration_ns() / 1000000;
-		}
-	};
+        long long getDuration_us() const
+        {
+            return getDuration_ns() / 1000;
+        }
 
-	class TimeProfiler
-	{
-	public:
-		~TimeProfiler();
+        long long getDuration_ms() const
+        {
+            return getDuration_ns() / 1000000;
+        }
+    };
 
-		TimeProfiler(const TimeProfiler&) = delete;
-		void operator=(const TimeProfiler&) = delete;
+    // Output can be viewed in chrome://tracing/
+    class TimeProfiler
+    {
+    public:
+        ~TimeProfiler()
+        {
+            EndSession();
+        }
 
-		static void BeginSession(const char* outputFilePath = "Result.json");
+        TimeProfiler(const TimeProfiler&) = delete;
+        void operator=(const TimeProfiler&) = delete;
 
-		static void EndSession();
+        static bool BeginSession(const char* outputFilePath = "Result.json");
 
-		static void WriteTimeRecord(const TimeRecord& timeRecord);
+        static bool EndSession();
 
-	protected:
+        static bool WriteTimeRecord(const TimeRecord& timeRecord);
 
-	private:
-		static TimeProfiler& GetInstance();
+        static long long GetTimeStamp();
 
-		TimeProfiler();
-		//TimeProfiler(const TimeProfiler&);
-		//void operator=(const TimeProfiler&);
+    protected:
+        static TimeProfiler& GetInstance();
 
-		int entryCount_;
-		bool inSession_;
-		std::mutex lock_;
-		std::ofstream outputStream_;
-	};
-	
-	class ScopeTimer
-	{
-	public:
-		ScopeTimer(const char* label);
-		~ScopeTimer();
+        TimeProfiler();
+        //TimeProfiler(const TimeProfiler&);
+        //void operator=(const TimeProfiler&);
 
-		ScopeTimer(const ScopeTimer& rhs) = delete;
-		ScopeTimer& operator=(const ScopeTimer& rhs) = delete;
+        int entryCount_;
+        bool inSession_;
+        std::mutex lock_;
+        std::ofstream outputStream_;
+    };
 
-		const TimeRecord& getTimeRecord();
+    class ScopeTimer
+    {
+    public:
+        ScopeTimer(const char* label);
+        ~ScopeTimer();
 
-	protected:
+        ScopeTimer(const ScopeTimer& rhs) = delete;
+        ScopeTimer& operator=(const ScopeTimer& rhs) = delete;
 
-	private:
-		TimeRecord timeRecord_;
-	};
+    protected:
+        TimeRecord timeRecord_;
+    };
+
+    class Timer
+    {
+    public:
+        Timer();
+
+        Timer(const Timer& rhs) = delete;
+        Timer& operator=(const Timer& rhs) = delete;
+
+        bool Start(const char* label);
+        bool Stop();
+
+    protected:
+        bool running_;
+        TimeRecord timeRecord_;
+    };
 }

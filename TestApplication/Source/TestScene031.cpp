@@ -146,9 +146,8 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 0.5f + currentPosition.z * 0.1f,
                 0.5f
             );
-            renderedMeshPtr->SetMeshId(meshId00);
+            renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(meshId00, maxBoundingRadius00);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetMaxBoundingRadius(maxBoundingRadius00);
         }
     }
 

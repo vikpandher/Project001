@@ -12,7 +12,7 @@ namespace Project001
         RenderedModel();
 
         // Gets applied to RenderedMeshes
-        bool GetVisible() const;
+        const bool& GetVisible() const;
         void SetVisible(bool visible);
 
         // Gets applied to the RenderedMeshes
@@ -98,7 +98,7 @@ namespace Project001
         , transformedMeshesUpToDate_(false)
     {}
 
-    inline bool RenderedModel::GetVisible() const
+    inline const bool& RenderedModel::GetVisible() const
     {
         return visible_;
     }

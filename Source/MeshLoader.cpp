@@ -517,6 +517,150 @@ namespace Project001
         return Generate2DTriangleFan(meshData, positions, triangulate);
     }
 
+    bool MeshLoader::Generate2DCapsule(
+        MeshData& meshData,
+        const glm::vec2& start,
+        const glm::vec2& end,
+        float radius,
+        size_t radialSections,
+        bool triangulate)
+    {
+        if (radius < 0.0f || radialSections < 2)
+        {
+            return false;
+        }
+
+        std::vector<glm::vec2> positions;
+
+        float radialStep = glm::pi<float>() / (float)radialSections;
+
+        glm::vec2 direction = end - start;
+
+        if (direction.x == 0.0f && direction.y == 0.0f)
+        {
+            // circle
+            direction.x = 1.0f;
+        }
+
+        glm::vec2 offset(-1.0f * direction.y, direction.x);
+        float magnitude = std::sqrtf(offset.x * offset.x + offset.y * offset.y);
+        glm::vec2 scaledOffset = offset / magnitude * radius;
+
+        positions.emplace_back(start + scaledOffset);
+
+        for (size_t i = 0; i < radialSections; ++i)
+        {
+            scaledOffset = Rotate2DVector(scaledOffset, radialStep);
+            positions.emplace_back(start + scaledOffset);
+        }
+
+        positions.emplace_back(end + scaledOffset);
+
+        for (size_t i = 0; i < radialSections; ++i)
+        {
+            scaledOffset = Rotate2DVector(scaledOffset, radialStep);
+            positions.emplace_back(end + scaledOffset);
+        }
+
+        return Generate2DTriangleFan(meshData, positions, triangulate);
+    }
+
+    bool MeshLoader::Generate2DLine(
+        MeshData& meshData,
+        const glm::vec2& start,
+        const glm::vec2& end,
+        float width,
+        bool triangulate)
+    {
+        glm::vec2 direction = end - start;
+        if (direction.x == 0.0f && direction.y == 0.0f)
+        {
+            return false;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        glm::vec2 offset(-1.0f * direction.y, direction.x);
+        float magnitude = std::sqrtf(offset.x * offset.x + offset.y * offset.y);
+        glm::vec2 scaled = offset / magnitude * width / 2.0f;
+
+        const size_t positionsSize = 4;
+        glm::vec2 positions[positionsSize] = {
+            start + scaled,
+            start - scaled,
+            end - scaled,
+            end + scaled
+        };
+
+        if (!triangulate)
+        {
+            size_t currentVertexCount = meshVertexArray.size();
+
+            for (size_t i = 0; i < positionsSize; ++i)
+            {
+                MeshVertex meshVertex;
+                meshVertex.position = glm::vec3(positions[i], 0.0f);
+                meshVertex.normal = normal;
+                meshVertexArray.push_back(meshVertex);
+            }
+
+            for (size_t i = 0; i < positionsSize - 2; ++i)
+            {
+                meshIndexArray.push_back((unsigned int)currentVertexCount);
+                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 1);
+                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 2);
+            }
+        }
+        else
+        {
+            for (size_t i = 1; i < positionsSize - 1; ++i)
+            {
+                MeshVertex centerMeshVertex;
+                centerMeshVertex.position = glm::vec3(positions[0], 0.0f);
+                centerMeshVertex.normal = normal;
+
+                MeshVertex meshVertexA;
+                meshVertexA.position = glm::vec3(positions[i], 0.0f);
+                meshVertexA.normal = normal;
+
+                MeshVertex meshVertexB;
+                meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
+                meshVertexB.normal = normal;
+
+                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshVertexArray.push_back(centerMeshVertex);
+                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshVertexArray.push_back(meshVertexA);
+                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshVertexArray.push_back(meshVertexB);
+            }
+        }
+
+        for (size_t i = 0; i < positionsSize; ++i)
+        {
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+        }
+
+        return true;
+    }
+
     bool MeshLoader::Generate2DLine(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
@@ -1599,6 +1743,31 @@ namespace Project001
         }
 
         return Generate2DTriangleFan(meshData, positions, triangulate);
+    }
+
+    bool MeshLoader::Generate2DRectangleFrame(
+        MeshData& meshData,
+        const glm::vec2& bottomLeft,
+        const glm::vec2& topRight,
+        float frameThickness,
+        bool triangulate)
+    {
+        float halfThickness = frameThickness * 0.5f;
+
+        std::vector<glm::vec2> positions;
+        positions.reserve(10);
+        positions.emplace_back(bottomLeft.x - halfThickness, topRight.y + halfThickness);
+        positions.emplace_back(bottomLeft.x + halfThickness, topRight.y - halfThickness);
+        positions.emplace_back(topRight.x + halfThickness, topRight.y + halfThickness);
+        positions.emplace_back(topRight.x - halfThickness, topRight.y - halfThickness);
+        positions.emplace_back(topRight.x + halfThickness, bottomLeft.y - halfThickness);
+        positions.emplace_back(topRight.x - halfThickness, bottomLeft.y + halfThickness);
+        positions.emplace_back(bottomLeft.x - halfThickness, bottomLeft.y - halfThickness);
+        positions.emplace_back(bottomLeft.x + halfThickness, bottomLeft.y + halfThickness);
+        positions.emplace_back(positions[0]);
+        positions.emplace_back(positions[1]);
+
+        return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
     bool MeshLoader::Generate2DSprite(

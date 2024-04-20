@@ -140,7 +140,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++] + glm::vec3(0.0f, -0.2f, 0.0f);
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -240,6 +240,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             );
         }
     }
+
+    GenerateCombinationShape();
 
     // Rectangle 1
     {
@@ -828,4 +830,152 @@ void TestScene012::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     instructionScene_.Deinitialize();
 
     _LOG_MESSAGE("DEINITIALIZING: TestScene012:            %u", GetId());
+}
+
+void TestScene012::GenerateCombinationShape()
+{
+    Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+    meshDataPtrArray_.push_back(newMeshDataPtr);
+
+    Project001::MeshData tempMeshData;
+
+    // Center Triangle
+    const glm::vec2 centerTriangleCorner1(0.0f, 0.96f);
+    const glm::vec2 centerTriangleCorner2(-0.32f, 0.32f);
+    const glm::vec2 centerTriangleCorner3(0.32f, 0.32f);
+
+    tempMeshData.Clear();
+    std::vector<glm::vec2> centerTriangleCorners;
+    centerTriangleCorners.push_back(centerTriangleCorner1);
+    centerTriangleCorners.push_back(centerTriangleCorner2);
+    centerTriangleCorners.push_back(centerTriangleCorner3);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerTriangleCorners));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Center Circle
+    const float centerCircleRadius = 0.32f;
+    const glm::vec2 centerCirclePosition(0.0f, 0.0f);
+
+    tempMeshData.Clear();
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(tempMeshData, centerCircleRadius, 24));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Center Rectangle
+    const glm::vec2 centerRectangleBottomLeft(-0.32f, -0.64f);
+    const glm::vec2 centerRectangleTopRight(0.32f, -0.32f);
+
+    tempMeshData.Clear();
+    std::vector<glm::vec2> centerRectangleCorners;
+    centerRectangleCorners.emplace_back(centerRectangleBottomLeft.x, centerRectangleTopRight.y);
+    centerRectangleCorners.push_back(centerRectangleBottomLeft);
+    centerRectangleCorners.emplace_back(centerRectangleTopRight.x, centerRectangleBottomLeft.y);
+    centerRectangleCorners.push_back(centerRectangleTopRight);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerRectangleCorners));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Center Polygon
+    tempMeshData.Clear();
+    std::vector<glm::vec2> centerPolygonCorners;
+    centerPolygonCorners.emplace_back(0.0f, -0.64f);
+    centerPolygonCorners.emplace_back(-0.22f, -0.68f);
+    centerPolygonCorners.emplace_back(0.0f, -0.96f);
+    centerPolygonCorners.emplace_back(0.22f, -0.68f);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerPolygonCorners));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Left Capsule
+    const glm::vec2 leftCapsuleStart(-0.44f, 0.32f);
+    const glm::vec2 leftCapsuleEnd(-0.44f, -0.32f);
+    const float leftCapsuleRadius = 0.12f;
+
+    tempMeshData.Clear();
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
+        tempMeshData,
+        leftCapsuleStart,
+        leftCapsuleEnd,
+        leftCapsuleRadius,
+        8));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Right Capsule
+    const glm::vec2 rightCapsuleStart(0.44f, 0.32f);
+    const glm::vec2 rightCapsuleEnd(0.44f, -0.32f);
+    const float rightCapsuleRadius = 0.12f;
+
+    tempMeshData.Clear();
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
+        tempMeshData,
+        rightCapsuleStart,
+        rightCapsuleEnd,
+        rightCapsuleRadius,
+        8));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Left Triangle
+    const glm::vec2 leftTriangleCorner1(-0.56f, 0.32f);
+    const glm::vec2 leftTriangleCorner2(-0.88f, -0.32f);
+    const glm::vec2 leftTriangleCorner3(-0.56f, -0.32f);
+
+    tempMeshData.Clear();
+    std::vector<glm::vec2> leftTriangleCorners;
+    leftTriangleCorners.push_back(leftTriangleCorner1);
+    leftTriangleCorners.push_back(leftTriangleCorner2);
+    leftTriangleCorners.push_back(leftTriangleCorner3);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, leftTriangleCorners));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    // Right Triangle
+    const glm::vec2 rightTriangleCorner1(0.56f, 0.32f);
+    const glm::vec2 rightTriangleCorner2(0.56f, -0.32f);
+    const glm::vec2 rightTriangleCorner3(0.88f, -0.32f);
+
+    tempMeshData.Clear();
+    std::vector<glm::vec2> rightTriangleCorners;
+    rightTriangleCorners.push_back(rightTriangleCorner1);
+    rightTriangleCorners.push_back(rightTriangleCorner2);
+    rightTriangleCorners.push_back(rightTriangleCorner3);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, rightTriangleCorners));
+    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+
+    unsigned int tempEntityId;
+    componentStoresPtr_->CreateEntity(tempEntityId);
+    entityIds_.push_back(tempEntityId);
+
+    glm::vec3 currentPosition(-4.0f, 1.0f, 0.0f);
+
+    _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+    Project001::RenderedMesh* renderedMeshPtr = nullptr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+    if (renderedMeshPtr != nullptr)
+    {
+        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+        renderedMeshPtr->SetLit(false);
+    }
+
+    _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+    if (collisionBody2DPtr != nullptr)
+    {
+        collisionBody2DPtr->SetPosition(currentPosition);
+
+        std::vector<Project001::CollisionTriangle2D>& collisionTrangles = collisionBody2DPtr->GetCollisionTriangles();
+        collisionTrangles.emplace_back(centerTriangleCorner1, centerTriangleCorner2, centerTriangleCorner3);
+        collisionTrangles.emplace_back(leftTriangleCorner1, leftTriangleCorner2, leftTriangleCorner3);
+        collisionTrangles.emplace_back(rightTriangleCorner1, rightTriangleCorner2, rightTriangleCorner3);
+
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        collisionCircles.emplace_back(centerCirclePosition, centerCircleRadius);
+
+        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+        collisionRectangles.emplace_back(centerRectangleBottomLeft, centerRectangleTopRight);
+
+        std::vector<Project001::CollisionPolygon2D>& collisionPolygons = collisionBody2DPtr->GetCollisionPolygons();
+        collisionPolygons.emplace_back(centerPolygonCorners);
+
+        std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+        collisionCapsules.emplace_back(leftCapsuleStart, leftCapsuleEnd, leftCapsuleRadius);
+        collisionCapsules.emplace_back(rightCapsuleStart, rightCapsuleEnd, rightCapsuleRadius);
+    }
 }
