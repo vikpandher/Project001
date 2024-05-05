@@ -18,7 +18,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope)
     {
-        if (line_slope == std::numeric_limits<float>::infinity())
+        if (std::isinf(line_slope))
         {
             // vertical slope, so just compare x
             return FloatEqualToFloat(point_position.x, line_position.x);
@@ -288,7 +288,12 @@ namespace Project001
         const glm::vec2& lineB_position,
         const float& lineB_slope)
     {
-        return !FloatEqualToFloat(lineA_slope,lineB_slope) || Check2D_Point_Point_Overlap(lineA_position, lineB_position);
+        if ((std::isinf(lineA_slope) && std::isinf(lineB_slope)) || FloatEqualToFloat(lineA_slope, lineB_slope))
+        {
+            return Check2D_Point_Line_Overlap(lineA_position, lineB_position, lineB_slope);
+        }
+
+        return true;
     }
 
     inline bool Check2D_Line_Ray_Overlap(
@@ -297,6 +302,13 @@ namespace Project001
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction)
     {
+        if (std::isinf(line_slope))
+        {
+            return (ray_direction.x > 0.0f && line_position.x > ray_position.x) ||
+                (ray_direction.x < 0.0f && line_position.x < ray_position.x) ||
+                (ray_direction.x == 0.0f && Check2D_Point_Line_Overlap(ray_position, line_position, line_slope));
+        }
+
         glm::vec2 perpendicular(-ray_direction.y, ray_direction.x);
         glm::vec2 lineToRay = ray_position - line_position;
 
@@ -325,6 +337,12 @@ namespace Project001
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end)
     {
+        if (std::isinf(line_slope))
+        {
+            return (lineSegment_start.x < line_position.x && lineSegment_end.x > line_position.x) ||
+                (lineSegment_start.x >= line_position.x && lineSegment_end.x <= line_position.x);
+        }
+
         // y = mx + b
         // b = y - mx
         float line_yIntercept = line_position.y - line_slope * line_position.x;
@@ -356,6 +374,11 @@ namespace Project001
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight)
     {
+        if (std::isinf(line_slope))
+        {
+            return line_position.x > rectangle_bottomLeft.x && line_position.x < rectangle_topRight.x;
+        }
+
         // y = mx + b
         // b = y - mx
         float line_yIntercept = line_position.y - line_slope * line_position.x;
@@ -397,46 +420,12 @@ namespace Project001
         const float& orientedRectangle_rotation)
     {
         // rotate and translate the line rather then the orientedRectangle
-        glm::vec2 transformed_line_start = line_position;
-        transformed_line_start -= orientedRectangle_position;
-        transformed_line_start = Rotate2DVector(transformed_line_start, -1.0f * orientedRectangle_rotation);
-        glm::vec2 transformed_line_end(line_position.x + 1.0f, line_position.y + line_slope);
-        transformed_line_end -= orientedRectangle_position;
-        transformed_line_end = Rotate2DVector(transformed_line_end, -1.0f * orientedRectangle_rotation);
-        float transformed_line_slope = Get2D_Slope(transformed_line_start, transformed_line_end);
+        glm::vec2 transformed_line_position = line_position;
+        transformed_line_position -= orientedRectangle_position;
+        transformed_line_position = Rotate2DVector(transformed_line_position, -1.0f * orientedRectangle_rotation);
+        float transformed_line_slope = RotateSlope(line_slope, -1.0f * orientedRectangle_rotation);
 
-        // y = mx + b
-        // b = y - mx
-        float line_yIntercept =
-            transformed_line_start.y - transformed_line_slope * transformed_line_start.x;
-
-        // y = mx + b
-        // y - mx - b = 0 = yInterceptOffset
-        // If yInterceptOffset < 0.0, the point is below the line
-        // If yInterceptOffset > 0.0, the point is above the line
-        float rectangle_bottomLeft_yInterceptOffset =
-            -1.0f * orientedRectangle_halfSize.y - transformed_line_slope * -1.0f * orientedRectangle_halfSize.x - line_yIntercept;
-        float rectangle_bottomRight_yInterceptOffset =
-            -1.0f * orientedRectangle_halfSize.y - transformed_line_slope * orientedRectangle_halfSize.x - line_yIntercept;
-        float rectangle_topRight_yInterceptOffset =
-            orientedRectangle_halfSize.y - transformed_line_slope * orientedRectangle_halfSize.x - line_yIntercept;
-        float rectangle_topLeft_yInterceptOffset =
-            orientedRectangle_halfSize.y - transformed_line_slope * -1.0f * orientedRectangle_halfSize.x - line_yIntercept;
-
-        if (FloatEqualToFloat(rectangle_bottomLeft_yInterceptOffset, 0.0f) ||
-            FloatEqualToFloat(rectangle_bottomRight_yInterceptOffset, 0.0f) ||
-            FloatEqualToFloat(rectangle_topRight_yInterceptOffset, 0.0f) ||
-            FloatEqualToFloat(rectangle_topLeft_yInterceptOffset, 0.0f))
-        {
-            // a rectangle corner is on line
-            return true;
-        }
-
-        // at least one of the corners is on the opposite side of the line as
-        // another corner
-        return std::signbit(rectangle_bottomLeft_yInterceptOffset) != std::signbit(rectangle_bottomRight_yInterceptOffset) ||
-            std::signbit(rectangle_bottomLeft_yInterceptOffset) != std::signbit(rectangle_topRight_yInterceptOffset) ||
-            std::signbit(rectangle_bottomLeft_yInterceptOffset) != std::signbit(rectangle_topLeft_yInterceptOffset);
+        return Check2D_Line_Rectangle_Overlap(transformed_line_position, transformed_line_slope, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
     inline bool Check2D_Line_Circle_Overlap(
@@ -457,31 +446,42 @@ namespace Project001
         const glm::vec2& capsule_end,
         const float& capsule_radius)
     {
-        // y = mx + b
-        // b = y - m * x
-        float yIntercept1 = line_position.y - line_slope * line_position.x;
-
-        // y = mx + b
-        // y - mx - b = 0 = yInterceptOffset
-        // If yInterceptOffset < 0.0, the point is below the line
-        // If yInterceptOffset > 0.0, the point is above the line
-        float capsule_start_yInterceptOffset =
-            capsule_start.y - line_slope * capsule_start.x - yIntercept1;
-        float capsule_end_yInterceptOffset =
-            capsule_end.y - line_slope * capsule_end.x - yIntercept1;
-
-        if (FloatEqualToFloat(capsule_start_yInterceptOffset, 0.0f) ||
-            FloatEqualToFloat(capsule_end_yInterceptOffset, 0.0f))
+        if (std::isinf(line_slope))
         {
-            // start or end of capsule on line
-            return true;
+            if ((capsule_start.x < line_position.x && capsule_end.x > line_position.x) ||
+                (capsule_start.x >= line_position.x && capsule_end.x <= line_position.x))
+            {
+                return true;
+            }
         }
-
-        if (std::signbit(capsule_start_yInterceptOffset) !=
-            std::signbit(capsule_end_yInterceptOffset))
+        else
         {
-            // start and end of capsule are on opposite sides of the line
-            return true;
+            // y = mx + b
+            // b = y - m * x
+            float yIntercept1 = line_position.y - line_slope * line_position.x;
+
+            // y = mx + b
+            // y - mx - b = 0 = yInterceptOffset
+            // If yInterceptOffset < 0.0, the point is below the line
+            // If yInterceptOffset > 0.0, the point is above the line
+            float capsule_start_yInterceptOffset =
+                capsule_start.y - line_slope * capsule_start.x - yIntercept1;
+            float capsule_end_yInterceptOffset =
+                capsule_end.y - line_slope * capsule_end.x - yIntercept1;
+
+            if (FloatEqualToFloat(capsule_start_yInterceptOffset, 0.0f) ||
+                FloatEqualToFloat(capsule_end_yInterceptOffset, 0.0f))
+            {
+                // start or end of capsule on line
+                return true;
+            }
+
+            if (std::signbit(capsule_start_yInterceptOffset) !=
+                std::signbit(capsule_end_yInterceptOffset))
+            {
+                // start and end of capsule are on opposite sides of the line
+                return true;
+            }
         }
 
         float capsuleRadiusSquared = capsule_radius * capsule_radius;
@@ -505,6 +505,14 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3)
     {
+        if (std::isinf(line_slope))
+        {
+            return (triangle_corner1.x < line_position.x && triangle_corner2.x > line_position.x) ||
+                (triangle_corner1.x >= line_position.x && triangle_corner2.x <= line_position.x) ||
+                (triangle_corner1.x < line_position.x && triangle_corner3.x > line_position.x) ||
+                (triangle_corner1.x >= line_position.x && triangle_corner3.x <= line_position.x);
+        }
+
         // y = mx + b
         // b = y - mx
         float line_yIntercept = line_position.y - line_slope * line_position.x;
@@ -542,6 +550,24 @@ namespace Project001
     {
         if (polygon_cornerCount > 1)
         {
+            if (std::isinf(line_slope))
+            {
+                const glm::vec2& firstCorner = polygon_corners[0];
+
+                for (size_t index = 1; index < polygon_cornerCount; ++index)
+                {
+                    const glm::vec2& currentCorner = polygon_corners[index];
+
+                    if ((firstCorner.x < line_position.x && currentCorner.x > line_position.x) ||
+                        (firstCorner.x >= line_position.x && currentCorner.x <= line_position.x))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             // y = mx + b
             // b = y - mx
             float line_yIntercept = line_position.y - line_slope * line_position.x;
@@ -2192,7 +2218,7 @@ namespace Project001
         const float& line_slope,
         glm::vec2& closestPoint_position)
     {
-        if (line_slope == std::numeric_limits<float>::infinity())
+        if (std::isinf(line_slope))
         {
             // Nearest point on the Ray is the start
             closestPoint_position = glm::vec2(line_position.x, point_position.y);
@@ -2346,7 +2372,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope)
     {
-        if (line_slope == std::numeric_limits<float>::infinity())
+        if (std::isinf(line_slope))
         {
             float distance = point_position.x - line_position.x;
             return distance * distance;
@@ -2445,7 +2471,7 @@ namespace Project001
         const float& line_slope,
         glm::vec2& closestPoint_position)
     {
-        if (line_slope == std::numeric_limits<float>::infinity())
+        if (std::isinf(line_slope))
         {
             closestPoint_position = glm::vec2(line_position.x, point_position.y);
             float distance = point_position.x - line_position.x;
@@ -2745,6 +2771,781 @@ namespace Project001
         }
     }
 
+    // Get Line Collision Point And Normal Functions ---------------------------
+
+    inline void Get2D_Line_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 rectangle_center = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+
+        if (std::isinf(line_slope))
+        {
+            collisionPoint_position.x = line_position.x;
+            collisionPoint_position.y = rectangle_center.y;
+
+            if (line_position.x <= rectangle_center.x)
+            {
+                collisionNormal.x = 1.0f;
+                collisionNormal.y = 0.0f;
+            }
+            else
+            {
+                collisionNormal.x = -1.0f;
+                collisionNormal.y = 0.0f;
+            }
+        }
+        else if (FloatEqualToFloat(line_slope, 0.0f))
+        {
+            collisionPoint_position.x = rectangle_center.x;
+            collisionPoint_position.y = line_position.y;
+
+            if (line_position.y <= rectangle_center.y)
+            {
+                collisionNormal.x = 0.0f;
+                collisionNormal.y = 1.0f;
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+                collisionNormal.y = -1.0f;
+            }
+        }
+        else
+        {
+            // y = m * x + b
+            // b = y - m * x
+            float line_yIntercept = line_position.y - line_slope * line_position.x;
+
+            // y = m * x + b
+            float y_intersect_left = line_slope * rectangle_bottomLeft.x + line_yIntercept;
+
+            // y = m * x + b
+            float y_intersect_right = line_slope * rectangle_topRight.x + line_yIntercept;
+
+            // x = (y - b) / m
+            float x_intersect_bottom = (rectangle_bottomLeft.y - line_yIntercept) / line_slope;
+
+            // x = (y - b) / m
+            float x_intersect_top = (rectangle_topRight.y - line_yIntercept) / line_slope;
+
+            glm::vec2 intersections[2]; // must be 2 intersections
+            size_t currentIntersection = 0;
+
+            if (y_intersect_left > rectangle_bottomLeft.y && y_intersect_left < rectangle_topRight.y)
+            {
+                intersections[currentIntersection].x = rectangle_bottomLeft.x;
+                intersections[currentIntersection].y = y_intersect_left;
+                currentIntersection++;
+            }
+
+            if (y_intersect_right > rectangle_bottomLeft.y && y_intersect_right < rectangle_topRight.y)
+            {
+                intersections[currentIntersection].x = rectangle_topRight.x;
+                intersections[currentIntersection].y = y_intersect_right;
+                currentIntersection++;
+            }
+
+            if (x_intersect_bottom > rectangle_bottomLeft.x && x_intersect_bottom < rectangle_topRight.x)
+            {
+                intersections[currentIntersection].x = x_intersect_bottom;
+                intersections[currentIntersection].y = rectangle_bottomLeft.y;
+                currentIntersection++;
+            }
+
+            if (x_intersect_top > rectangle_bottomLeft.x && x_intersect_top < rectangle_topRight.x)
+            {
+                intersections[currentIntersection].x = x_intersect_top;
+                intersections[currentIntersection].y = rectangle_topRight.y;
+                currentIntersection++;
+            }
+
+            collisionPoint_position = (intersections[0] + intersections[1]) * 0.5f;
+
+            glm::vec2 line_direction = glm::normalize(glm::vec2(1, line_slope));
+            glm::vec2 line_perpendicular(-line_direction.y, line_direction.x);
+            glm::vec2 collision_to_center = rectangle_center - collisionPoint_position;
+            float scalar = glm::dot(collision_to_center, line_perpendicular);
+
+            if (scalar >= 0)
+            {
+                collisionNormal = line_perpendicular;
+            }
+            else
+            {
+                collisionNormal = -line_perpendicular;
+            }
+        }
+    }
+
+    inline void Get2D_Line_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // rotate and translate the line rather then the orientedRectangle
+        glm::vec2 transformed_line_position = line_position;
+        transformed_line_position -= orientedRectangle_position;
+        transformed_line_position = Rotate2DVector(transformed_line_position, -1.0f * orientedRectangle_rotation);
+        float transformed_line_slope = RotateSlope(line_slope, -1.0f * orientedRectangle_rotation);
+
+        Get2D_Line_Rectangle_CollisionPointAndNormal(transformed_line_position, transformed_line_slope, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, collisionPoint_position, collisionNormal);
+        collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangle_rotation);
+        collisionPoint_position += orientedRectangle_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+    }
+
+    inline void Get2D_Line_Circle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 line_direction = Get2D_DirectionFromSlope(line_slope);
+
+        float intersection_directionScalar1;
+        float intersection_directionScalar2;
+        unsigned int intersection_count = Get2D_Line_Circle_IntersectionDirectionScalars(
+            line_position,
+            line_direction,
+            circle_position,
+            circle_radius,
+            intersection_directionScalar1,
+            intersection_directionScalar2
+        );
+
+        if (intersection_count == 2)
+        {
+            glm::vec2 collisionPoint_position1 = line_position + intersection_directionScalar1 * line_direction;
+            glm::vec2 collisionPoint_position2 = line_position + intersection_directionScalar2 * line_direction;
+            collisionPoint_position = (collisionPoint_position1 + collisionPoint_position2) * 0.5f;
+        }
+        else if (intersection_count == 1)
+        {
+            collisionPoint_position = line_position + intersection_directionScalar1 * line_direction;
+        }
+
+        glm::vec2 line_perpendicular(-line_direction.y, line_direction.x);
+        glm::vec2 collision_to_center = circle_position - collisionPoint_position;
+        float scalar = glm::dot(collision_to_center, line_perpendicular);
+
+        if (scalar >= 0)
+        {
+            collisionNormal = line_perpendicular;
+        }
+        else
+        {
+            collisionNormal = -line_perpendicular;
+        }
+    }
+
+    // Get Ray Collision Point And Normal Functions ----------------------------
+
+    inline void Get2D_Ray_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        float ray_slope = ray_direction.y / ray_direction.x;
+        if (!Check2D_Point_Rectangle_Overlap(ray_position, rectangle_bottomLeft, rectangle_topRight))
+        {
+            Get2D_Line_Rectangle_CollisionPointAndNormal(ray_position, ray_slope, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        }
+        else
+        {
+            Get2D_Ray_Rectangle_CollisionPointAndNormal_H(ray_position, ray_direction, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        }
+    }
+
+    inline void Get2D_Ray_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // rotate and translate the ray rather then the orientedRectangle
+        glm::vec2 transformed_ray_position = ray_position;
+        transformed_ray_position -= orientedRectangle_position;
+        transformed_ray_position = Rotate2DVector(transformed_ray_position, -1.0f * orientedRectangle_rotation);
+        glm::vec2 transformed_ray_direction = Rotate2DVector(ray_direction, -1.0f * orientedRectangle_rotation);
+
+        Get2D_Ray_Rectangle_CollisionPointAndNormal(transformed_ray_position, transformed_ray_direction, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, collisionPoint_position, collisionNormal);
+        collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangle_rotation);
+        collisionPoint_position += orientedRectangle_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+    }
+
+    // Get LineSegment Collision Point And Normal Functions --------------------
+
+    inline void Get2D_LineSegment_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 lineSegment_direction = glm::normalize(lineSegment_end - lineSegment_start);
+        float lineSegment_slope = lineSegment_direction.y / lineSegment_direction.x;
+        if (Check2D_Point_Rectangle_Overlap(lineSegment_start, rectangle_bottomLeft, rectangle_topRight))
+        {
+            if (Check2D_Point_Rectangle_Overlap(lineSegment_end, rectangle_bottomLeft, rectangle_topRight))
+            {
+                glm::vec2 rectangle_center = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+
+                collisionPoint_position = (lineSegment_start + lineSegment_end) * 0.5f;
+
+                glm::vec2 lineSegment_perpendicular(-lineSegment_direction.y, lineSegment_direction.x);
+
+                glm::vec2 collision_to_center = rectangle_center - collisionPoint_position;
+                float scalar = glm::dot(collision_to_center, lineSegment_perpendicular);
+
+                if (scalar >= 0)
+                {
+                    collisionNormal = lineSegment_perpendicular;
+                }
+                else
+                {
+                    collisionNormal = -lineSegment_perpendicular;
+                }
+            }
+            else
+            {
+                Get2D_Ray_Rectangle_CollisionPointAndNormal_H(lineSegment_start, lineSegment_direction, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+            }
+        }
+        else if (Check2D_Point_Rectangle_Overlap(lineSegment_end, rectangle_bottomLeft, rectangle_topRight))
+        {
+            Get2D_Ray_Rectangle_CollisionPointAndNormal_H(lineSegment_end, -lineSegment_direction, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        }
+        else
+        {
+            Get2D_Line_Rectangle_CollisionPointAndNormal(lineSegment_start, lineSegment_slope, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        }
+    }
+
+    inline void Get2D_LineSegment_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // rotate and translate the lineSegment rather then the orientedRectangle
+        glm::vec2 transformed_lineSegment_start = lineSegment_start;
+        transformed_lineSegment_start -= orientedRectangle_position;
+        transformed_lineSegment_start = Rotate2DVector(transformed_lineSegment_start, -1.0f * orientedRectangle_rotation);
+        glm::vec2 transformed_lineSegment_end = lineSegment_end;
+        transformed_lineSegment_end -= orientedRectangle_position;
+        transformed_lineSegment_end = Rotate2DVector(transformed_lineSegment_end, -1.0f * orientedRectangle_rotation);
+
+        Get2D_LineSegment_Rectangle_CollisionPointAndNormal(transformed_lineSegment_start, transformed_lineSegment_end, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, collisionPoint_position, collisionNormal);
+        collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangle_rotation);
+        collisionPoint_position += orientedRectangle_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+    }
+
+    // Get Rectangle Collision Point And Normal Functions ----------------------
+
+    inline void Get2D_Rectangle_Line_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Line_Rectangle_CollisionPointAndNormal(line_position, line_slope, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Rectangle_Ray_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Ray_Rectangle_CollisionPointAndNormal(ray_position, ray_direction, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Rectangle_LineSegment_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_LineSegment_Rectangle_CollisionPointAndNormal(lineSegment_start, lineSegment_end, rectangle_bottomLeft, rectangle_topRight, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Rectangle_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& rectangleA_bottomLeft,
+        const glm::vec2& rectangleA_topRight,
+        const glm::vec2& rectangleB_bottomLeft,
+        const glm::vec2& rectangleB_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 overlapRectangle_bottomLeft;
+        glm::vec2 overlapRectangle_topRight;
+
+        overlapRectangle_bottomLeft.x = std::max(rectangleA_bottomLeft.x, rectangleB_bottomLeft.x);
+        overlapRectangle_bottomLeft .y= std::max(rectangleA_bottomLeft.y, rectangleB_bottomLeft.y);
+        overlapRectangle_topRight.x = std::min(rectangleA_topRight.x, rectangleB_topRight.x);
+        overlapRectangle_topRight.y = std::min(rectangleA_topRight.y, rectangleB_topRight.y);
+
+        collisionPoint_position = (overlapRectangle_bottomLeft + overlapRectangle_topRight) * 0.5f;
+
+        glm::vec2 overlapRectangle_dimensions = (overlapRectangle_topRight - overlapRectangle_bottomLeft);
+        glm::vec2 rectangleA_center = (rectangleA_bottomLeft + rectangleA_topRight) * 0.5f;
+        glm::vec2 rectangleB_center = (rectangleB_bottomLeft + rectangleB_topRight) * 0.5f;
+        glm::vec2 a_to_b = rectangleB_center - rectangleA_center;
+
+        if (std::abs(overlapRectangle_dimensions.y) <= std::abs(overlapRectangle_dimensions.x))
+        {
+            collisionNormal.x = 0.0f;
+
+            if (a_to_b.y >= 0)
+            {
+                collisionNormal.y = 1.0f;
+            }
+            else
+            {
+                collisionNormal.y = -1.0f;
+            }
+        }
+        else
+        {
+            collisionNormal.y = 0.0f;
+
+            if (a_to_b.x >= 0)
+            {
+                collisionNormal.x = 1.0f;
+            }
+            else
+            {
+                collisionNormal.x = -1.0f;
+            }
+        }
+    }
+
+    inline void Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // The number the second rectangle's corners colliding with the first rectangle.
+        glm::vec2 rectangleB_averageCornerCollisionPosition;
+        size_t rectangleB_cornerCollisionCount = 0;
+
+        { // rectangleB corner 1 check
+            glm::vec2 orientedRectangle_bottomLeft(-1.0f * orientedRectangle_halfSize.x, -1.0f * orientedRectangle_halfSize.y);
+            orientedRectangle_bottomLeft = Rotate2DVector(orientedRectangle_bottomLeft, orientedRectangle_rotation);
+            orientedRectangle_bottomLeft += orientedRectangle_position;
+
+            if (Check2D_Point_Rectangle_Overlap(orientedRectangle_bottomLeft, rectangle_bottomLeft, rectangle_topRight))
+            {
+                rectangleB_cornerCollisionCount++;
+                float rectangleB_cornerCollisionCount_float = (float)rectangleB_cornerCollisionCount;
+                rectangleB_averageCornerCollisionPosition = rectangleB_averageCornerCollisionPosition * (rectangleB_cornerCollisionCount_float - 1.0f) / rectangleB_cornerCollisionCount_float + orientedRectangle_bottomLeft / rectangleB_cornerCollisionCount_float;
+            }
+        }
+
+        { // rectangleB corner 2 check
+            glm::vec2 orientedRectangle_topRight(orientedRectangle_halfSize.x, orientedRectangle_halfSize.y);
+            orientedRectangle_topRight = Rotate2DVector(orientedRectangle_topRight, orientedRectangle_rotation);
+            orientedRectangle_topRight += orientedRectangle_position;
+
+            if (Check2D_Point_Rectangle_Overlap(orientedRectangle_topRight, rectangle_bottomLeft, rectangle_topRight))
+            {
+                rectangleB_cornerCollisionCount++;
+                float rectangleB_cornerCollisionCount_float = (float)rectangleB_cornerCollisionCount;
+                rectangleB_averageCornerCollisionPosition = rectangleB_averageCornerCollisionPosition * (rectangleB_cornerCollisionCount_float - 1.0f) / rectangleB_cornerCollisionCount_float + orientedRectangle_topRight / rectangleB_cornerCollisionCount_float;
+            }
+        }
+
+        { // rectangleB corner 3 check
+            glm::vec2 orientedRectangle_bottomRight(orientedRectangle_halfSize.x, -1.0f * orientedRectangle_halfSize.y);
+            orientedRectangle_bottomRight = Rotate2DVector(orientedRectangle_bottomRight, orientedRectangle_rotation);
+            orientedRectangle_bottomRight += orientedRectangle_position;
+
+            if (Check2D_Point_Rectangle_Overlap(orientedRectangle_bottomRight, rectangle_bottomLeft, rectangle_topRight))
+            {
+                rectangleB_cornerCollisionCount++;
+                float rectangleB_cornerCollisionCount_float = (float)rectangleB_cornerCollisionCount;
+                rectangleB_averageCornerCollisionPosition = rectangleB_averageCornerCollisionPosition * (rectangleB_cornerCollisionCount_float - 1.0f) / rectangleB_cornerCollisionCount_float + orientedRectangle_bottomRight / rectangleB_cornerCollisionCount_float;
+            }
+        }
+
+        { // rectangleB corner 4 check
+            glm::vec2 orientedRectangle_topLeft(-1.0f * orientedRectangle_halfSize.x, orientedRectangle_halfSize.y);
+            orientedRectangle_topLeft = Rotate2DVector(orientedRectangle_topLeft, orientedRectangle_rotation);
+            orientedRectangle_topLeft += orientedRectangle_position;
+
+            if (Check2D_Point_Rectangle_Overlap(orientedRectangle_topLeft, rectangle_bottomLeft, rectangle_topRight))
+            {
+                rectangleB_cornerCollisionCount++;
+                float rectangleB_cornerCollisionCount_float = (float)rectangleB_cornerCollisionCount;
+                rectangleB_averageCornerCollisionPosition = rectangleB_averageCornerCollisionPosition * (rectangleB_cornerCollisionCount_float - 1.0f) / rectangleB_cornerCollisionCount_float + orientedRectangle_topLeft / rectangleB_cornerCollisionCount_float;
+            }
+        }
+
+        bool foundMaxCollisionPoints = false;
+
+        if (rectangleB_cornerCollisionCount > 2)
+        {
+            // If at least 3 corners of rectangleB are in rectangleA, then
+            // there no corners of rectangleA in rectangleB.
+            foundMaxCollisionPoints = true;
+        }
+
+        // The number the first rectangle's corners colliding with the second rectangle.
+        glm::vec2 rectangleA_averageCornerCollisionPosition;
+        size_t rectangleA_cornerCollisionCount = 0;
+
+        if (!foundMaxCollisionPoints) // rectangleA corner 1 check
+        {
+            // rotate and translate the first rectangle so it's oriented rather then the orientedRectangle
+            glm::vec2 transformed_rectangle_bottomLeft(rectangle_bottomLeft.x, rectangle_bottomLeft.y);
+            transformed_rectangle_bottomLeft -= orientedRectangle_position;
+            transformed_rectangle_bottomLeft = Rotate2DVector(transformed_rectangle_bottomLeft, -1.0f * orientedRectangle_rotation);
+
+            if (Check2D_Point_Rectangle_Overlap(transformed_rectangle_bottomLeft, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize))
+            {
+                rectangleA_cornerCollisionCount++;
+                float rectangleA_cornerCollisionCount_float = (float)rectangleA_cornerCollisionCount;
+                rectangleA_averageCornerCollisionPosition = rectangleA_averageCornerCollisionPosition * (rectangleA_cornerCollisionCount_float - 1.0f) / rectangleA_cornerCollisionCount_float + transformed_rectangle_bottomLeft / rectangleA_cornerCollisionCount_float;
+            }
+
+            if (rectangleB_cornerCollisionCount > 1 && rectangleA_cornerCollisionCount > 0)
+            {
+                // If at least 2 corners of rectangleB are in rectangleA and
+                // 1 corner of rectangleA is in rectnalgeB, then there are no
+                // more intersecting corners.
+                foundMaxCollisionPoints = true;
+            }
+        }
+
+        if (!foundMaxCollisionPoints) // rectangleA corner 2 check
+        {
+            glm::vec2 transformed_rectangle_topRight(rectangle_topRight.x, rectangle_topRight.y);
+            transformed_rectangle_topRight -= orientedRectangle_position;
+            transformed_rectangle_topRight = Rotate2DVector(transformed_rectangle_topRight, -1.0f * orientedRectangle_rotation);
+
+            if (Check2D_Point_Rectangle_Overlap(transformed_rectangle_topRight, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize))
+            {
+                rectangleA_cornerCollisionCount++;
+                float rectangleA_cornerCollisionCount_float = (float)rectangleA_cornerCollisionCount;
+                rectangleA_averageCornerCollisionPosition = rectangleA_averageCornerCollisionPosition * (rectangleA_cornerCollisionCount_float - 1.0f) / rectangleA_cornerCollisionCount_float + transformed_rectangle_topRight / rectangleA_cornerCollisionCount_float;
+            }
+
+            if (rectangleB_cornerCollisionCount > 1 && rectangleA_cornerCollisionCount > 0)
+            {
+                // If at least 2 corners of rectangleB are in rectangleA and
+                // 1 corner of rectangleA is in rectnalgeB, then there are no
+                // more intersecting corners.
+                foundMaxCollisionPoints = true;
+            }
+        }
+
+        if (!foundMaxCollisionPoints) // rectangleA corner 3 check
+        {
+            glm::vec2 transformed_rectangle_bottomRight(rectangle_topRight.x, rectangle_bottomLeft.y);
+            transformed_rectangle_bottomRight -= orientedRectangle_position;
+            transformed_rectangle_bottomRight = Rotate2DVector(transformed_rectangle_bottomRight, -1.0f * orientedRectangle_rotation);
+
+            if (Check2D_Point_Rectangle_Overlap(transformed_rectangle_bottomRight, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize))
+            {
+                rectangleA_cornerCollisionCount++;
+                float rectangleA_cornerCollisionCount_float = (float)rectangleA_cornerCollisionCount;
+                rectangleA_averageCornerCollisionPosition = rectangleA_averageCornerCollisionPosition * (rectangleA_cornerCollisionCount_float - 1.0f) / rectangleA_cornerCollisionCount_float + transformed_rectangle_bottomRight / rectangleA_cornerCollisionCount_float;
+            }
+
+            if (rectangleB_cornerCollisionCount > 1 && rectangleA_cornerCollisionCount > 0)
+            {
+                // If at least 2 corners of rectangleB are in rectangleA and
+                // 1 corner of rectangleA is in rectnalgeB, then there are no
+                // more intersecting corners.
+                foundMaxCollisionPoints = true;
+            }
+        }
+
+        if (!foundMaxCollisionPoints) // rectangleA corner 4 check
+        {
+            glm::vec2 transformed_rectangle_topLeft(rectangle_bottomLeft.x, rectangle_topRight.y);
+            transformed_rectangle_topLeft -= orientedRectangle_position;
+            transformed_rectangle_topLeft = Rotate2DVector(transformed_rectangle_topLeft, -1.0f * orientedRectangle_rotation);
+
+            if (Check2D_Point_Rectangle_Overlap(transformed_rectangle_topLeft, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize))
+            {
+                rectangleA_cornerCollisionCount++;
+                float rectangleA_cornerCollisionCount_float = (float)rectangleA_cornerCollisionCount;
+                rectangleA_averageCornerCollisionPosition = rectangleA_averageCornerCollisionPosition * (rectangleA_cornerCollisionCount_float - 1.0f) / rectangleA_cornerCollisionCount_float + transformed_rectangle_topLeft / rectangleA_cornerCollisionCount_float;
+            }
+        }
+
+        glm::vec2 rectangleA_position = (rectangle_topRight + rectangle_bottomLeft) * 0.5f;
+
+        if (rectangleA_cornerCollisionCount != 0)
+        {
+            glm::vec2 transformedRectangleA_averageCornerCollisionPosition = Rotate2DVector(rectangleA_averageCornerCollisionPosition, orientedRectangle_rotation);
+            transformedRectangleA_averageCornerCollisionPosition += orientedRectangle_position;
+
+            if (rectangleB_cornerCollisionCount != 0) // Both rectangle corners are intersecting eachother
+            {
+                float rectangleB_cornerCollisionCount_float = (float)rectangleB_cornerCollisionCount;
+                float rectangleA_cornerCollisionCount_float = (float)rectangleA_cornerCollisionCount;
+                float combined_cornerCollisionCount_float = rectangleB_cornerCollisionCount_float + rectangleA_cornerCollisionCount_float;
+                collisionPoint_position = (rectangleB_averageCornerCollisionPosition * rectangleB_cornerCollisionCount_float + transformedRectangleA_averageCornerCollisionPosition * rectangleA_cornerCollisionCount_float) / combined_cornerCollisionCount_float;
+            }
+            else // Only rectangleA corners are intersecting
+            {
+                collisionPoint_position = transformedRectangleA_averageCornerCollisionPosition;
+            }
+        }
+        else if (rectangleB_cornerCollisionCount != 0) // Only rectangleA corners are intersecting
+        {
+            collisionPoint_position = rectangleB_averageCornerCollisionPosition;
+
+        }
+        else // No corners of either are intersecting the other
+        {
+            collisionPoint_position = (rectangleA_position + orientedRectangle_position) * 0.5f;
+        }
+
+        glm::vec2 a_to_b = orientedRectangle_position - rectangleA_position;
+
+        if (rectangleB_cornerCollisionCount >= rectangleA_cornerCollisionCount)
+        {
+            glm::vec2 rectangle_dimensions = rectangle_topRight - rectangle_bottomLeft;
+            glm::vec2 center_to_collision_ratio = (collisionPoint_position - rectangleA_position) / rectangle_dimensions;
+            if (std::abs(center_to_collision_ratio.y) < std::abs(center_to_collision_ratio.x))
+            {
+                if (a_to_b.x < 0.0f)
+                {
+                    collisionNormal.x = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.x = 1.0f;
+                }
+                collisionNormal.y = 0.0f;
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+                if (a_to_b.y < 0.0f)
+                {
+                    collisionNormal.y = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.y = 1.0f;
+                }
+            }
+        }
+        else
+        {
+            glm::vec2 transformed_a_to_b = Rotate2DVector(a_to_b, -1.0f * orientedRectangle_rotation);
+
+            glm::vec2 rectangle_dimensions = orientedRectangle_halfSize * 2.0f;
+            glm::vec2 transformed_collision_position = collisionPoint_position;
+            transformed_collision_position -= orientedRectangle_position;
+            transformed_collision_position = Rotate2DVector(transformed_collision_position, -1.0f * orientedRectangle_rotation);
+            glm::vec2 center_to_collision_ratio = transformed_collision_position / rectangle_dimensions;
+            if (std::abs(center_to_collision_ratio.y) < std::abs(center_to_collision_ratio.x))
+            {
+                if (transformed_a_to_b.x < 0.0f)
+                {
+                    collisionNormal.x = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.x = 1.0f;
+                }
+                collisionNormal.y = 0.0f;
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+                if (transformed_a_to_b.y < 0.0f)
+                {
+                    collisionNormal.y = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.y = 1.0f;
+                }
+            }
+            collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+        }
+    }
+
+    // Get OrientedRectangle Collision Point And Normal Functions --------------
+
+    inline void Get2D_OrientedRectangle_Line_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Line_OrientedRectangle_CollisionPointAndNormal(line_position, line_slope, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_OrientedRectangle_Ray_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Ray_OrientedRectangle_CollisionPointAndNormal(ray_position, ray_direction, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_OrientedRectangle_LineSegment_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_LineSegment_OrientedRectangle_CollisionPointAndNormal(lineSegment_start, lineSegment_end, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_OrientedRectangle_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(rectangle_bottomLeft, rectangle_topRight, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_OrientedRectangle_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangleA_halfSize,
+        const glm::vec2& orientedRectangleA_position,
+        const float& orientedRectangleA_rotation,
+        const glm::vec2& orientedRectangleB_halfSize,
+        const glm::vec2& orientedRectangleB_position,
+        const float& orientedRectangleB_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // Combine the transformations applying them to only orientedRectangleB,
+       // making orientedRectangleA nolonger orinented
+
+       // Cancel orientedRectangleA translation by applying the reverse to
+       // orientedRectangleB
+        glm::vec2 combinedRectangleB_position = orientedRectangleB_position - orientedRectangleA_position;
+
+        // Cancel orientedRectangleA rotation by applying the reverse to
+        // orientedRectangleB
+        combinedRectangleB_position = Rotate2DVector(combinedRectangleB_position, -1.0f * orientedRectangleA_rotation);
+        float combinedRectangleB_rotation = orientedRectangleB_rotation - orientedRectangleA_rotation;
+
+        Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(-1.0f * orientedRectangleA_halfSize, orientedRectangleA_halfSize, orientedRectangleB_halfSize, combinedRectangleB_position, combinedRectangleB_rotation, collisionPoint_position, collisionNormal);
+        collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangleA_rotation);
+        collisionPoint_position += orientedRectangleA_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangleA_rotation);
+    }
+
+    // Get Circle Collision Point And Normal Functions -------------------------
+
+    inline void Get2D_Circle_Line_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Line_Circle_CollisionPointAndNormal(line_position, line_slope, circle_position, circle_radius, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    // Intersection Functions --------------------------------------------------
+
+    inline bool Get2D_Line_Line_Intersection(
+        const glm::vec2& lineA_position,
+        const float& lineA_slope,
+        const glm::vec2& lineB_position,
+        const float& lineB_slope,
+        glm::vec2& intersection_position)
+    {
+        if (lineA_slope == lineB_slope)
+        {
+            return false;
+        }
+        else if (std::isinf(lineA_slope))
+        {
+            if (std::isinf(lineB_slope))
+            {
+                return false;
+            }
+            else
+            {
+                intersection_position.x = lineA_position.x;
+                intersection_position.y = lineB_slope * intersection_position.x +
+                    (lineB_position.y - lineB_slope * lineB_position.x);
+            }
+        }
+        else if (std::isinf(lineB_slope))
+        {
+            intersection_position.x = lineB_position.x;
+            intersection_position.y = lineA_slope * intersection_position.x +
+                (lineA_position.y - lineA_slope * lineA_position.x);
+        }
+        else
+        {
+            float yInterceptA = lineA_position.y - lineA_slope * lineA_position.x;
+            float yInterceptB = lineB_position.y - lineB_slope * lineB_position.x;
+            intersection_position.x = (yInterceptB - yInterceptA) / (lineA_slope - lineB_slope);
+            intersection_position.y = lineA_slope * intersection_position.x + yInterceptA;
+        }
+        return true;
+    }
+
     // Helper Functions --------------------------------------------------------
 
     inline float Get2D_Point_Line_DistanceSquared_Alt(
@@ -2832,7 +3633,41 @@ namespace Project001
         intersection_position.y = lineA_slope * intersection_position.x + yInterceptA;
     }
 
-    inline unsigned int Get2D_Line_Circle_Intersections(
+    inline unsigned int Get2D_Line_Circle_IntersectionDirectionScalars(
+        const glm::vec2& line_position,
+        const glm::vec2& line_direction,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        float& intersection_directionScalar1,
+        float& intersection_directionScalar2)
+    {
+        // Calculate coefficients for the quadratic equation of the line and circle intersection
+        // a * x^2 + b * x + c = 0
+        float a = glm::dot(line_direction, line_direction);
+        float b = 2 * glm::dot(line_direction, line_position - circle_position);
+        float c = glm::dot(line_position - circle_position, line_position - circle_position) - circle_radius * circle_radius;
+
+        // Calculate the discriminant to determine the number of intersections
+        float discriminant = b * b - 4 * a * c;
+
+        if (discriminant > 0) {
+            // Two distinct intersection points
+            intersection_directionScalar1 = (-b + std::sqrt(discriminant)) / (2 * a);
+            intersection_directionScalar2 = (-b - std::sqrt(discriminant)) / (2 * a);
+
+            return 2;
+        }
+        else if (discriminant == 0) {
+            // One intersection point (tangent)
+            intersection_directionScalar1 = -b / (2 * a);
+
+            return 1;
+        }
+
+        return 0;
+    }
+
+    inline unsigned int Get2D_Line_Circle_Intersections_Alt(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& circle_position,
@@ -2876,6 +3711,120 @@ namespace Project001
         }
 
         return 0;
+    }
+
+    inline void Get2D_Ray_Rectangle_CollisionPointAndNormal_H(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 rectangle_center = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+
+        if (FloatEqualToFloat(ray_direction.y, 0.0f))
+        {
+            if (ray_direction.x >= 0.0f)
+            {
+                collisionPoint_position.x = (ray_position.x + rectangle_topRight.x) * 0.5f;
+                collisionPoint_position.y = ray_position.y;
+            }
+            else
+            {
+                collisionPoint_position.x = (ray_position.x + rectangle_bottomLeft.x) * 0.5f;
+                collisionPoint_position.y = ray_position.y;
+            }
+
+            if (ray_position.y <= rectangle_center.y)
+            {
+                collisionNormal.x = 0.0f;
+                collisionNormal.y = 1.0f;
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+                collisionNormal.y = -1.0f;
+            }
+        }
+        else if (FloatEqualToFloat(ray_direction.x, 0.0f))
+        {
+            if (ray_direction.y >= 0.0f)
+            {
+                collisionPoint_position.x = ray_position.x;
+                collisionPoint_position.y = (ray_position.y + rectangle_topRight.y) * 0.5f;
+            }
+            else
+            {
+                collisionPoint_position.x = ray_position.x;
+                collisionPoint_position.y = (ray_position.y + rectangle_bottomLeft.y) * 0.5f;
+            }
+
+            if (ray_position.x <= rectangle_center.x)
+            {
+                collisionNormal.x = 1.0f;
+                collisionNormal.y = 0.0f;
+            }
+            else
+            {
+                collisionNormal.x = -1.0f;
+                collisionNormal.y = 0.0f;
+            }
+        }
+        else
+        {
+            // x = ray_position.x + t_x * ray_direction.x
+            // y = ray_position.y + t_y * ray_direction.y
+            //
+            // t_x = (x - ray_position.x) / ray_direction.x
+            // t_y = (y - ray_position.y) / ray_direction.y
+
+            float t_x;
+            if (ray_direction.x >= 0.0f)
+            {
+                t_x = (rectangle_topRight.x - ray_position.x) / ray_direction.x;
+            }
+            else
+            {
+                t_x = (rectangle_bottomLeft.x - ray_position.x) / ray_direction.x;
+            }
+
+            collisionPoint_position.x = ray_position.x + t_x * ray_direction.x;
+            collisionPoint_position.y = ray_position.y + t_x * ray_direction.y;
+
+            if (collisionPoint_position.y > rectangle_topRight.y ||
+                collisionPoint_position.y < rectangle_bottomLeft.y)
+            {
+                float t_y;
+                if (ray_direction.y >= 0.0f)
+                {
+                    t_y = (rectangle_topRight.y - ray_position.y) / ray_direction.y;
+                }
+                else
+                {
+                    t_y = (rectangle_bottomLeft.y - ray_position.y) / ray_direction.y;
+                }
+
+                collisionPoint_position.x = ray_position.x + t_y * ray_direction.x;
+                collisionPoint_position.y = ray_position.y + t_y * ray_direction.y;
+            }
+
+            collisionPoint_position = (collisionPoint_position + ray_position) * 0.5f;
+
+            glm::vec2 ray_perpendicular(-ray_direction.y, ray_direction.x);
+
+            glm::vec2 collision_to_center = rectangle_center - collisionPoint_position;
+            float scalar = glm::dot(collision_to_center, ray_perpendicular);
+
+            if (scalar >= 0)
+            {
+                collisionNormal = ray_perpendicular;
+            }
+            else
+            {
+                collisionNormal = -ray_perpendicular;
+            }
+        }
     }
 
     inline bool Check2D_Rectangle_Rectangle_Overlap_Alt(
@@ -3097,27 +4046,38 @@ namespace Project001
 
     inline float RotateSlope(float slope, float rotationInRadians)
     {
-        float cosAngle = std::cosf(rotationInRadians);
-        float sinAngle = std::sinf(rotationInRadians);
+        glm::vec2 normalVector;
+        if (std::isinf(slope))
+        {
+            normalVector = Rotate2DVector(glm::vec2(0.0f, 1.0f), rotationInRadians);
+        }
+        else
+        {
+            normalVector = Rotate2DVector(glm::normalize(glm::vec2(1.0f, slope)), rotationInRadians);
+        }
+        return normalVector.y / normalVector.x;
 
-        // slope = rise / run = y / x
-        // y = slope
-        // x = 1.0
-        // newY = sinAngle * x + cosAngle * y = sinAngle + cosAngle * slope
-        // newX = cosAngle * x - sinAngle * y = cosAngle - sinAngle * slope
-        // newSlope = newY / newX
-        return (sinAngle + cosAngle * slope) / (cosAngle - sinAngle * slope);
+        // float cosAngle = std::cosf(rotationInRadians);
+        // float sinAngle = std::sinf(rotationInRadians);
+        // 
+        // // slope = rise / run = y / x
+        // // y = slope
+        // // x = 1.0
+        // // newY = sinAngle * x + cosAngle * y = sinAngle + cosAngle * slope
+        // // newX = cosAngle * x - sinAngle * y = cosAngle - sinAngle * slope
+        // // newSlope = newY / newX
+        // return (sinAngle + cosAngle * slope) / (cosAngle - sinAngle * slope);
     }
 
     inline glm::vec2 Get2D_DirectionFromSlope(float slope)
     {
         if (slope == std::numeric_limits<float>::infinity())
         {
-            return glm::vec2(1.0f, 0.0f);
+            return glm::vec2(0.0f, 1.0f);
         }
         else if (slope == -std::numeric_limits<float>::infinity())
         {
-            return glm::vec2(-1.0f, 0.0f);
+            return glm::vec2(0.0f, -1.0f);
         }
         else
         {

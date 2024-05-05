@@ -96,8 +96,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
-        shapePoints.emplace_back(-100.0f, 0.0f);
-        shapePoints.emplace_back(100.0f, 0.0f);
+        shapePoints.emplace_back(0.0f, -100.0f);
+        shapePoints.emplace_back(0.0f, 100.0f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
@@ -123,7 +123,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             collisionBody2DPtr->SetPosition(currentPosition);
             std::vector<Project001::CollisionLine2D>& collisionLines = collisionBody2DPtr->GetCollisionLines();
-            collisionLines.emplace_back();
+            collisionLines.emplace_back(glm::vec2(0.0f, 0.0f), std::numeric_limits<float>::infinity());
         }
     }
 

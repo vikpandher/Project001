@@ -28,6 +28,8 @@ TestScene013::TestScene013(Project001::Application* applicationPtr)
     , ui_fps_EntityId_((unsigned int)-1)
     , instructionScene_(applicationPtr)
 {
+    generateCollisionMarkerCollectionMesh_ = false; // overwrite base class value
+
     TestCollisionBodyQuadTree2D();
 }
 
@@ -68,6 +70,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::uniform_real_distribution<float> distributionY(-6.0f, 6.0f);
 
     // Rectangles
+    // -------------------------------------------------------------------------
     if (false)
     {
         glm::vec2 rectangleMin(-0.32f, -0.24f);
@@ -132,6 +135,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     // Circles
+    // -------------------------------------------------------------------------
     if (true)
     {
         float circleRadius = 0.08f;

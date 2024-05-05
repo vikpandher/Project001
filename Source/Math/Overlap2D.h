@@ -48,6 +48,23 @@
 //                      | Lin | Ray | LiS | Rec | OrR |           | Tri | Pol |
 // Point                |  \  |  \  |  \  |  \  |  \  |           |  \  |  \  |
 // 
+// Collision Point And Normal Functions: (TODO)
+// * These assume the shapes are overlapping
+//                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol |
+// Line                                   |  \  |  \  |  \  |     |     |     |
+// Ray                                    |  \  |  \  |     |     |     |     |
+// LineSegment                            |  \  |  \  |     |     |     |     |
+// Rectangle            | --- | --- | --- |  \  |  \  |     |     |     |     |
+// O. Rectangle         | --- | --- | --- | --- |  \  |     |     |     |     |
+// Circle               | --- |     |     |     |     |     |     |     |     |
+// Capsule              |     |     |     |     |     |     |     |     |     |
+// Triangle             |     |     |     |     |     |     |     |     |     |
+// Polygon              |     |     |     |     |     |     |     |     |     | 54
+// 
+// Intersection Functions:
+//                      | Lin |
+// Line                 |  \  |
+// 
 // NOTE: Positive rotations are counter-clockwise
 
 namespace Project001
@@ -119,6 +136,8 @@ namespace Project001
         const float& line_slope,
         const glm::vec2& point_position);
 
+    // one slope of negative infinity and the other of infinity will falsely
+    // indicate a overlap
     bool Check2D_Line_Line_Overlap(
         const glm::vec2& lineA_position,
         const float& lineA_slope,
@@ -991,6 +1010,184 @@ namespace Project001
         const size_t& polygon_cornerCount,
         glm::vec2& closestPoint_position);
 
+    // Get Line Collision Point And Normal Functions ---------------------------
+
+    void Get2D_Line_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_Line_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_Line_Circle_CollisionPointAndNormal(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Get Ray Collision Point And Normal Functions ----------------------------
+
+    // ray_direction needs to be a unit vector
+    void Get2D_Ray_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // ray_direction needs to be a unit vector
+    void Get2D_Ray_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Get LineSegment Collision Point And Normal Functions --------------------
+
+    void Get2D_LineSegment_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_LineSegment_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Get Rectangle Collision Point And Normal Functions ----------------------
+
+    void Get2D_Rectangle_Line_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // ray_direction needs to be a unit vector
+    void Get2D_Rectangle_Ray_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_Rectangle_LineSegment_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_Rectangle_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& rectangleA_bottomLeft,
+        const glm::vec2& rectangleA_topRight,
+        const glm::vec2& rectangleB_bottomLeft,
+        const glm::vec2& rectangleB_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Get OrientedRectangle Collision Point And Normal Functions --------------
+
+    void Get2D_OrientedRectangle_Line_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_OrientedRectangle_Ray_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_OrientedRectangle_LineSegment_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_OrientedRectangle_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    void Get2D_OrientedRectangle_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangleA_halfSize,
+        const glm::vec2& orientedRectangleA_position,
+        const float& orientedRectangleA_rotation,
+        const glm::vec2& orientedRectangleB_halfSize,
+        const glm::vec2& orientedRectangleB_position,
+        const float& orientedRectangleB_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Get Circle Collision Point And Normal Functions -------------------------
+
+    void Get2D_Circle_Line_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Intersection Functions --------------------------------------------------
+
+    bool Get2D_Line_Line_Intersection(
+        const glm::vec2& lineA_position,
+        const float& lineA_slope,
+        const glm::vec2& lineB_position,
+        const float& lineB_slope,
+        glm::vec2& intersection_position);
+
     // Helper Functions --------------------------------------------------------
 
     // Unused
@@ -1026,14 +1223,32 @@ namespace Project001
         const float& lineB_slope,
         glm::vec2& intersection_position);
 
+    unsigned int Get2D_Line_Circle_IntersectionDirectionScalars(
+        const glm::vec2& line_position,
+        const glm::vec2& line_direction,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        float& intersection_directionScalar1,
+        float& intersection_directionScalar2);
+
     // Unused
-    unsigned int Get2D_Line_Circle_Intersections(
+    // Doesn't handle a slope of infinity
+    unsigned int Get2D_Line_Circle_Intersections_Alt(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& circle_position,
         const float& circle_radius,
         glm::vec2& intersection_position1,
         glm::vec2& intersection_position2);
+
+    // This version assumes that the ray_position is inside the rectangle
+    void Get2D_Ray_Rectangle_CollisionPointAndNormal_H(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
 
     // Unused
     bool Check2D_Rectangle_Rectangle_Overlap_Alt(

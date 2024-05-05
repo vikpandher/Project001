@@ -13,6 +13,9 @@ namespace Project001
 
         unsigned int otherEntityId;
         unsigned int otherShapeTag;
+
+        glm::vec2 collisionPoint;
+        glm::vec2 collisionNormal;
     };
 
     class CollisionBody2D : public Placement2D

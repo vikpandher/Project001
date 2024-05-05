@@ -1,8 +1,8 @@
 #pragma once
 
-#include "glm/glm.hpp"
-
 #include "Math/VectorUtilities.h"
+
+#include "glm/glm.hpp"
 
 
 

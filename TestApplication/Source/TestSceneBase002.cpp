@@ -33,19 +33,27 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , font01_TextureId_((unsigned int)-1)
     , cursorLinePositions_()
     , cursorLineMeshDataPtr_(nullptr)
-    , distanceMeshDataPtr_(nullptr)
+    , distanceTextMeshDataPtr_(nullptr)
+    , entityIdTextMeshDataPtr_(nullptr)
     , collisionBodyQuadTreeMeshDataPtr_(nullptr)
+    , collisionMarkerCollectionMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
     , mainCameraEntityId_((unsigned int)-1)
     , uiCameraEntityId_((unsigned int)-1)
     , cursorEntityId_((unsigned int)-1)
     , distanceEntityId_((unsigned int)-1)
+    , entityIdTextEntityId_((unsigned int)-1)
     , collisionBodyQuadTreeEntityId_((unsigned int)-1)
+    , collisionMarkerCollectionEntityId_((unsigned int)-1)
     , entityIds_()
     , cursorGrabbingEntity_(false)
     , previousWorldCursorPosition_()
     , selectedEntityIdIndex_((unsigned int)-1)
     , remainingTimeRecordingDuration_ns_(0)
+    , generateCursorLineAndDistanceTextMesh_(true)
+    , generateEntityIdTextMesh_(true)
+    , generateCollisionBodyQuadTreeMesh_(true)
+    , generateCollisionMarkerCollectionMesh_(true)
 {}
 
 TestSceneBase002::~TestSceneBase002()
@@ -108,9 +116,13 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     cursorLineMeshDataPtr_ = new Project001::MeshData();
 
-    distanceMeshDataPtr_ = new Project001::MeshData();
+    distanceTextMeshDataPtr_ = new Project001::MeshData();
+
+    entityIdTextMeshDataPtr_ = new Project001::MeshData();
 
     collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
+
+    collisionMarkerCollectionMeshDataPtr_ = new Project001::MeshData();
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
@@ -199,7 +211,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetLit(false);
             renderedMeshPtr->SetMeshDataPtr(cursorLineMeshDataPtr_);
             renderedMeshPtr->SetColor(0.4f, 0.4f, 0.4f, 1.0f);
-            renderedMeshPtr->SetRenderPriorityOverride(1);
+            renderedMeshPtr->SetRenderPriorityOverride(10);
         }
 
         _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
@@ -225,11 +237,32 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
             renderedMeshPtr->SetLit(false);
-            renderedMeshPtr->SetMeshDataPtr(distanceMeshDataPtr_);
+            renderedMeshPtr->SetMeshDataPtr(distanceTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
             // renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
             renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.4f);
+        }
+    }
+
+    // Entity Id  Text Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(entityIdTextEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(entityIdTextEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIdTextEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(entityIdTextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(-uiCameraHalfWidth + 0.2f);
+            renderedMeshPtr->SetPositionY(-uiCameraHalfHeight + 0.2f);
         }
     }
 
@@ -247,6 +280,22 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetMeshDataPtr(collisionBodyQuadTreeMeshDataPtr_);
             renderedMeshPtr->SetColor(0.2f, 0.2f, 0.2f, 1.0f);
             renderedMeshPtr->SetRenderPriorityOverride(-100);
+        }
+    }
+
+    // Collision Marker Collection Entity
+    // -------------------------------------------------------------------------
+    {
+        componentStoresPtr_->CreateEntity(collisionMarkerCollectionEntityId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionMarkerCollectionEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionMarkerCollectionEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(collisionMarkerCollectionMeshDataPtr_);
+            renderedMeshPtr->SetColor(0.2f, 0.8f, 0.6f, 0.4f);
+            renderedMeshPtr->SetRenderPriorityOverride(2);
         }
     }
 }
@@ -278,11 +327,17 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     delete cursorLineMeshDataPtr_;
     cursorLineMeshDataPtr_ = nullptr;
 
-    delete distanceMeshDataPtr_;
-    distanceMeshDataPtr_ = nullptr;
+    delete distanceTextMeshDataPtr_;
+    distanceTextMeshDataPtr_ = nullptr;
+
+    delete entityIdTextMeshDataPtr_;
+    entityIdTextMeshDataPtr_ = nullptr;
 
     delete collisionBodyQuadTreeMeshDataPtr_;
     collisionBodyQuadTreeMeshDataPtr_ = nullptr;
+
+    delete collisionMarkerCollectionMeshDataPtr_;
+    collisionMarkerCollectionMeshDataPtr_ = nullptr;
 
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
@@ -299,7 +354,11 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     distanceEntityId_ = (unsigned int)-1;
 
+    entityIdTextEntityId_ = (unsigned int)-1;
+
     collisionBodyQuadTreeEntityId_ = (unsigned int)-1;
+
+    collisionMarkerCollectionEntityId_ = (unsigned int)-1;
 
     entityIds_.clear();
 
@@ -516,9 +575,27 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
     }
 
-    ColorCollisions();
-    UpdateCursorLineAndDistanceText();
-    UpdateCollisionBodyQuadTreeMesh();
+    UpdateCollisionBodyColors();
+
+    if (generateCursorLineAndDistanceTextMesh_)
+    {
+        UpdateCursorLineAndDistanceTextMesh();
+    }
+
+    if (generateEntityIdTextMesh_)
+    {
+        UpdateEntityIdTextMesh();
+    }
+
+    if (generateCollisionBodyQuadTreeMesh_)
+    {
+        UpdateCollisionBodyQuadTreeMesh();
+    }
+
+    if (generateCollisionMarkerCollectionMesh_)
+    {
+        UpdateCollisionMarkerCollectionMesh();
+    }
 }
 
 void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
@@ -701,7 +778,7 @@ void TestSceneBase002::Sync_RenderedMesh_CollisionBody_Components()
     }
 }
 
-void TestSceneBase002::ColorCollisions()
+void TestSceneBase002::UpdateCollisionBodyColors()
 {
     Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
     size_t collisionBodyCount = 0;
@@ -740,11 +817,11 @@ void TestSceneBase002::ColorCollisions()
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
-                    renderedMeshPtr->SetColorRGB(1.0f, 0.75f, 0.25f);
+                    renderedMeshPtr->SetColorRGB(0.75f, 0.50f, 0.25f);
                 }
                 else
                 {
-                    renderedMeshPtr->SetColorRGB(1.0f, 0.25f, 0.25f);
+                    renderedMeshPtr->SetColorRGB(0.75f, 0.25f, 0.25f);
                 }
             }
             else
@@ -762,8 +839,11 @@ void TestSceneBase002::ColorCollisions()
     }
 }
 
-void TestSceneBase002::UpdateCursorLineAndDistanceText()
+void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
 {
+    cursorLineMeshDataPtr_->Clear();
+    distanceTextMeshDataPtr_->Clear();
+
     if (selectedEntityIdIndex_ < entityIds_.size())
     {
         const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
@@ -780,30 +860,45 @@ void TestSceneBase002::UpdateCursorLineAndDistanceText()
                 cursorLinePositions_.emplace_back();
                 cursorLinePositions_.emplace_back(closestPoint_position - previousWorldCursorPosition_);
 
-                cursorLineMeshDataPtr_->Clear();
                 Project001::MeshLoader::Generate2DLine(*cursorLineMeshDataPtr_, cursorLinePositions_, 0.01f); // No Fail Check
 
-                distanceMeshDataPtr_->Clear();
                 _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
-                    *distanceMeshDataPtr_,
+                    *distanceTextMeshDataPtr_,
                     *font01_FontDataPtr_,
                     std::to_string(std::sqrtf(distanceSquared)),
                     fontPixelSize_
                 ));
             }
-            else
-            {
-                cursorLineMeshDataPtr_->Clear();
-
-                distanceMeshDataPtr_->Clear();
-            }
         }
     }
-    else
-    {
-        cursorLineMeshDataPtr_->Clear();
+}
 
-        distanceMeshDataPtr_->Clear();
+void TestSceneBase002::UpdateEntityIdTextMesh()
+{
+    entityIdTextMeshDataPtr_->Clear();
+
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+    if (collisionBody2DPtr != nullptr)
+    {
+        std::string entityIdTextString;
+
+        const std::vector<Project001::CollisionData2D>& currentCollisions = collisionBody2DPtr->GetCollisions();
+        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        {
+            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
+            if (currentCollision.otherShapeTag == 0)
+            {
+                entityIdTextString += ' ' + std::to_string(currentCollision.otherEntityId);
+            }
+        }
+
+        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+            *entityIdTextMeshDataPtr_,
+            *font01_FontDataPtr_,
+            entityIdTextString,
+            fontPixelSize_
+        ));
     }
 }
 
@@ -814,35 +909,72 @@ void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
     const float lineWidth = 0.04f;
 
     collisionBodyQuadTreeMeshDataPtr_->Clear();
-    Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
 
-    std::stack<Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
-    nodePtrStack.push(rootNodePtr);
-
-    while (!nodePtrStack.empty())
+    if (!rootNodePtr->leafNode || !rootNodePtr->bodyPtrs.empty())
     {
-        Project001::CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
-        nodePtrStack.pop();
+        Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
 
-        if (!nodePtr->leafNode)
+        std::stack<Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
+        nodePtrStack.push(rootNodePtr);
+
+        while (!nodePtrStack.empty())
         {
-            const glm::vec2& min = nodePtr->min;
-            const glm::vec2& max = nodePtr->max;
-            glm::vec2 mid((nodePtr->max + nodePtr->min) * 0.5f);
-            glm::vec2 top(mid.x, max.y);
-            glm::vec2 bottom(mid.x, min.y);
-            glm::vec2 left(min.x, mid.y);
-            glm::vec2 right(max.x, mid.y);
+            Project001::CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+            nodePtrStack.pop();
 
-            Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, top, bottom, lineWidth);
-            Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, left, right, lineWidth);
-
-            for (size_t i = 0; i < 4; ++i)
+            if (!nodePtr->leafNode)
             {
-                if (nodePtr->childrenPtrs[i])
+                const glm::vec2& min = nodePtr->min;
+                const glm::vec2& max = nodePtr->max;
+                glm::vec2 mid((nodePtr->max + nodePtr->min) * 0.5f);
+                glm::vec2 top(mid.x, max.y);
+                glm::vec2 bottom(mid.x, min.y);
+                glm::vec2 left(min.x, mid.y);
+                glm::vec2 right(max.x, mid.y);
+
+                Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, top, bottom, lineWidth);
+                Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, left, right, lineWidth);
+
+                for (size_t i = 0; i < 4; ++i)
                 {
-                    nodePtrStack.push(nodePtr->childrenPtrs[i]);
+                    if (nodePtr->childrenPtrs[i])
+                    {
+                        nodePtrStack.push(nodePtr->childrenPtrs[i]);
+                    }
                 }
+            }
+        }
+    }
+}
+
+void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
+{
+    collisionMarkerCollectionMeshDataPtr_->Clear();
+
+    std::vector<glm::vec2> positions;
+
+    Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
+    size_t collisionBodyCount = 0;
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    for (size_t i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+        unsigned int currentEntityId;
+        componentStoresPtr_->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
+        const std::vector<Project001::CollisionData2D>& currentCollisions = currentCollisionBody.GetCollisions();
+        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        {
+            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
+            if (currentEntityId < currentCollision.otherEntityId &&
+                (currentCollision.collisionNormal.x != 0.0f || currentCollision.collisionNormal.y != 0.0f))
+            {
+                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(-0.02f, 0.0f));
+                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.0f, -0.02f));
+                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.02f, 0.0f));
+                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.0f, 0.02f));
+                Project001::MeshLoader::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
+                Project001::MeshLoader::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.collisionPoint, currentCollision.collisionPoint + currentCollision.collisionNormal * 0.1f, 0.01f);
+                positions.clear();
             }
         }
     }

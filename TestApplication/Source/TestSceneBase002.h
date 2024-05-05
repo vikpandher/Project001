@@ -44,11 +44,15 @@ protected:
 
     void Sync_RenderedMesh_CollisionBody_Components();
 
-    void ColorCollisions();
+    void UpdateCollisionBodyColors();
 
-    void UpdateCursorLineAndDistanceText();
+    void UpdateCursorLineAndDistanceTextMesh();
+
+    void UpdateEntityIdTextMesh();
 
     void UpdateCollisionBodyQuadTreeMesh();
+
+    void UpdateCollisionMarkerCollectionMesh();
 
     // -------------------------------------------------------------------------
 
@@ -68,9 +72,12 @@ protected:
     Project001::MeshData* cursorLineMeshDataPtr_;
 
     const float fontPixelSize_ = 0.005f;
-    Project001::MeshData* distanceMeshDataPtr_;
+    Project001::MeshData* distanceTextMeshDataPtr_;
+    Project001::MeshData* entityIdTextMeshDataPtr_;
 
     Project001::MeshData* collisionBodyQuadTreeMeshDataPtr_;
+
+    Project001::MeshData* collisionMarkerCollectionMeshDataPtr_;
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
@@ -84,7 +91,11 @@ protected:
 
     unsigned int distanceEntityId_;
 
+    unsigned int entityIdTextEntityId_;
+
     unsigned int collisionBodyQuadTreeEntityId_;
+
+    unsigned int collisionMarkerCollectionEntityId_;
 
     std::vector<unsigned int> entityIds_;
 
@@ -96,4 +107,9 @@ protected:
 
     Project001::Timer timer01_;
     unsigned long long remainingTimeRecordingDuration_ns_;
+
+    bool generateCursorLineAndDistanceTextMesh_;
+    bool generateEntityIdTextMesh_;
+    bool generateCollisionBodyQuadTreeMesh_;
+    bool generateCollisionMarkerCollectionMesh_;
 };

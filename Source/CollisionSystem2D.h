@@ -43,7 +43,7 @@ namespace Project001
             }
         };
 
-        static void CalculateCollisions(
+        static void CalculateCollisionsBetweenTwoBodies(
             unsigned int entityIdA,
             CollisionBody2D& collisionBodyA,
             unsigned int entityIdB,
@@ -56,7 +56,7 @@ namespace Project001
 
         static CollisionBodyQuadTree2D s_tangibleCollisionBodyQuadTree2D_;
 
-        static std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> s_collisionBodyPairs_;
+        static std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> s_collisionBodyPairPtrs_;
     };
 
     inline CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()

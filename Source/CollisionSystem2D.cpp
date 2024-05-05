@@ -91,7 +91,7 @@ namespace Project001
                     collisionBodyB_ptr->GetPosition(),
                     collisionBodyB_ptr->GetBoundingRadius()))
                 {
-                    CalculateCollisions(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
+                    CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
                 }
             }
         }
@@ -178,7 +178,7 @@ namespace Project001
                 currentCollisionBodyPtr->GetPosition(),
                 currentCollisionBodyPtr->GetBoundingRadius()))
             {
-                CalculateCollisions(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
+                CalculateCollisionsBetweenTwoBodies(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
             }
         }
     }
@@ -228,7 +228,7 @@ namespace Project001
         s_tangibleCollisionBodyPtrs_.clear();
         s_outOfBoundsTangibleCollisionBodyPtrs_.clear();
         s_tangibleCollisionBodyQuadTree2D_.Clear();
-        s_collisionBodyPairs_.clear();
+        s_collisionBodyPairPtrs_.clear();
 
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
@@ -267,7 +267,7 @@ namespace Project001
                             collisionBodyB_ptr->GetPosition(),
                             collisionBodyB_ptr->GetBoundingRadius()))
                     {
-                        s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                        s_collisionBodyPairPtrs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
                     }
                 }
             }
@@ -291,7 +291,7 @@ namespace Project001
                         collisionBodyB_ptr->GetPosition(),
                         collisionBodyB_ptr->GetBoundingRadius()))
                 {
-                    s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                    s_collisionBodyPairPtrs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
                 }
             }
         }
@@ -328,7 +328,7 @@ namespace Project001
                                     collisionBodyB_ptr->GetPosition(),
                                     collisionBodyB_ptr->GetBoundingRadius()))
                             {
-                                s_collisionBodyPairs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
+                                s_collisionBodyPairPtrs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
                             }
                         }
                     }
@@ -346,8 +346,8 @@ namespace Project001
             }
         }
 
-        for (std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor>::iterator iter = s_collisionBodyPairs_.begin();
-            iter != s_collisionBodyPairs_.end();
+        for (std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor>::iterator iter = s_collisionBodyPairPtrs_.begin();
+            iter != s_collisionBodyPairPtrs_.end();
             ++iter)
         {
             CollisionBody2D* const& collisionBodyA_ptr = iter->first;
@@ -358,13 +358,13 @@ namespace Project001
             unsigned int entityIdB;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
 
-            CalculateCollisions(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
+            CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
         }
     }
 
     // protected ---------------------------------------------------------------
 
-    void CollisionSystem2D::CalculateCollisions(
+    void CollisionSystem2D::CalculateCollisionsBetweenTwoBodies(
         unsigned int entityIdA,
         CollisionBody2D& collisionBodyA,
         unsigned int entityIdB,
@@ -401,6 +401,27 @@ namespace Project001
         CollisionData2D collisionB;
         collisionB.otherEntityId = entityIdA;
 
+        // TODO: update collision points:
+        // A              | B
+        //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
+        // Point          |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |
+        // Line           |  N  |  N  |  N  |  N  |  \  |  \  |  \  |     |     |     |     |
+        // Ray            |  N  |  N  |  N  |  N  |  \  |  \  |     |     |     |     |     |
+        // LineSegment    |  N  |  N  |  N  |  N  |  \  |  \  |     |     |     |     |     |
+        // Rectangle      |  N  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |     |
+        // O. Rectangle   |  N  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |     |
+        // Circle         |  N  |  \  |     |     |     |     |     |     |     |     |     |
+        // Capsule        |  N  |     |     |     |     |     |     |     |     |     |     |
+        // Triangle       |  N  |     |     |     |     |     |     |     |     |     |     |
+        // Polygon        |  N  |     |     |     |     |     |     |     |     |     |     |
+        // Convex Polygon |  N  |     |     |     |     |     |     |     |     |     |     | 73
+        // 
+        // for now set the collision point to NAN, NAN
+        collisionA.collisionPoint = glm::vec2(NAN, NAN);
+        collisionA.collisionNormal = glm::vec2();
+        collisionB.collisionPoint = glm::vec2(NAN, NAN);
+        collisionB.collisionNormal = glm::vec2();
+
         // point A & point B ---------------------------------------------------
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
@@ -427,12 +448,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = pointB.position;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -467,12 +492,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -507,12 +536,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -547,12 +580,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -587,12 +624,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -628,12 +669,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -668,12 +713,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -700,12 +749,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = capsuleB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -732,12 +785,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = triangleB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -763,12 +820,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = polygonB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -794,12 +855,16 @@ namespace Project001
                     collisionA.myShapeTag = pointA.tag;
                     collisionA.otherShapeTag = convexPolygonB.tag;
 
+                    collisionA.collisionPoint = pointA.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -825,12 +890,16 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -857,12 +926,21 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    Get2D_Line_Line_Intersection(
+                        lineA.position,
+                        lineA.slope,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -889,12 +967,22 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    float rayB_slope = rayB.direction.y / rayB.direction.x;
+                    Get2D_Line_Line_Intersection(
+                        lineA.position,
+                        lineA.slope,
+                        rayB.position,
+                        rayB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -921,12 +1009,23 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
+                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
+                    Get2D_Line_Line_Intersection(
+                        lineA.position,
+                        lineA.slope,
+                        lineSegmentB.start,
+                        lineSegmentB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -953,12 +1052,23 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_Line_Rectangle_CollisionPointAndNormal(
+                        lineA.position,
+                        lineA.slope,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -986,12 +1096,24 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_Line_OrientedRectangle_CollisionPointAndNormal(
+                        lineA.position,
+                        lineA.slope,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1018,12 +1140,23 @@ namespace Project001
                     collisionA.myShapeTag = lineA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_Line_Circle_CollisionPointAndNormal(
+                        lineA.position,
+                        lineA.slope,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1179,12 +1312,16 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1211,12 +1348,22 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    float rayA_slope = rayA.direction.y / rayA.direction.x;
+                    Get2D_Line_Line_Intersection(
+                        rayA.position,
+                        rayA_slope,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1243,12 +1390,23 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    float rayA_slope = rayA.direction.y / rayA.direction.x;
+                    float rayB_slope = rayB.direction.y / rayB.direction.x;
+                    Get2D_Line_Line_Intersection(
+                        rayA.position,
+                        rayA_slope,
+                        rayB.position,
+                        rayB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1275,12 +1433,24 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    float rayA_slope = rayA.direction.y / rayA.direction.x;
+                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
+                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
+                    Get2D_Line_Line_Intersection(
+                        rayA.position,
+                        rayA_slope,
+                        lineSegmentB.start,
+                        lineSegmentB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1307,12 +1477,23 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_Ray_Rectangle_CollisionPointAndNormal(
+                        rayA.position,
+                        rayA.direction,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1340,12 +1521,24 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_Ray_OrientedRectangle_CollisionPointAndNormal(
+                        rayA.position,
+                        rayA.direction,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1533,12 +1726,16 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1565,12 +1762,23 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
+                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
+                    Get2D_Line_Line_Intersection(
+                        lineSegmentA.start,
+                        lineSegmentA_slope,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1597,12 +1805,24 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
+                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
+                    float rayB_slope = rayB.direction.y / rayB.direction.x;
+                    Get2D_Line_Line_Intersection(
+                        lineSegmentA.start,
+                        lineSegmentA_slope,
+                        rayB.position,
+                        rayB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1629,12 +1849,25 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
+                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
+                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
+                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
+                    Get2D_Line_Line_Intersection(
+                        lineSegmentA.start,
+                        lineSegmentA_slope,
+                        lineSegmentB.start,
+                        lineSegmentB_slope,
+                        collisionA.collisionPoint);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1661,12 +1894,23 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_LineSegment_Rectangle_CollisionPointAndNormal(
+                        lineSegmentA.start,
+                        lineSegmentA.end,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1694,12 +1938,24 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_LineSegment_OrientedRectangle_CollisionPointAndNormal(
+                        lineSegmentA.start,
+                        lineSegmentA.end,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1887,12 +2143,16 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1919,12 +2179,23 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    Get2D_Rectangle_Line_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1951,12 +2222,23 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    Get2D_Rectangle_Ray_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        rayB.position,
+                        rayB.direction,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -1968,9 +2250,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
             const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsA.size(); ++j)
+            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
             {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsA[j];
+                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Rectangle_LineSegment_Overlap(
                     rectangleA.bottomLeft,
@@ -1983,12 +2265,23 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    Get2D_Rectangle_LineSegment_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        lineSegmentB.start,
+                        lineSegmentB.end,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2015,12 +2308,23 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_Rectangle_Rectangle_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2048,12 +2352,24 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2242,12 +2558,16 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2275,12 +2595,24 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    Get2D_OrientedRectangle_Line_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2308,12 +2640,24 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    Get2D_OrientedRectangle_Ray_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        rayB.position,
+                        rayB.direction,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2341,12 +2685,24 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    Get2D_OrientedRectangle_LineSegment_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        lineSegmentB.start,
+                        lineSegmentB.end,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2374,12 +2730,24 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_OrientedRectangle_Rectangle_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2408,12 +2776,25 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_OrientedRectangle_OrientedRectangle_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2606,12 +2987,16 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2638,12 +3023,23 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = lineB.tag;
 
+                    Get2D_Circle_Line_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        lineB.position,
+                        lineB.slope,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -2961,12 +3357,16 @@ namespace Project001
                     collisionA.myShapeTag = capsuleA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3326,12 +3726,16 @@ namespace Project001
                     collisionA.myShapeTag = triangleA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -3690,12 +4094,16 @@ namespace Project001
                     collisionA.myShapeTag = polygonA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4044,12 +4452,16 @@ namespace Project001
                     collisionA.myShapeTag = convexPolygonA.tag;
                     collisionA.otherShapeTag = pointB.tag;
 
+                    collisionA.collisionPoint = pointB.position;
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
                     {
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                        collisionB.collisionPoint = collisionA.collisionPoint;
 
                         collisionBodyB.AddCollision(collisionB);
                     }
@@ -4387,5 +4799,5 @@ namespace Project001
 
     CollisionBodyQuadTree2D CollisionSystem2D::s_tangibleCollisionBodyQuadTree2D_(glm::vec2(-8.0f, -6.0f), glm::vec2(8.0f, 6.0f), 4, 16);
 
-    std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, CollisionSystem2D::PointerPairHashFunctor> CollisionSystem2D::s_collisionBodyPairs_;
+    std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, CollisionSystem2D::PointerPairHashFunctor> CollisionSystem2D::s_collisionBodyPairPtrs_;
 }
