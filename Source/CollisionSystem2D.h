@@ -16,6 +16,8 @@ namespace Project001
     class CollisionSystem2D
     {
     public:
+        static void ApplyMovement(ComponentStores* componentStoresPtr, float timestep_s);
+
         static void CalculateCollisions(ComponentStores* componentStoresPtr);
 
         static void CalculateCollisionsForGivenEntity(
@@ -48,7 +50,8 @@ namespace Project001
             CollisionBody2D& collisionBodyA,
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
-            bool recordInBodyB);
+            bool recordInBodyB,
+            bool resolvePhysics);
 
         static std::vector<CollisionBody2D*> s_tangibleCollisionBodyPtrs_;
 

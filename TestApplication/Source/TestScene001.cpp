@@ -189,6 +189,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
     buttonStrings.emplace_back("TestScene013");
+    buttonStrings.emplace_back("TestScene015");
     buttonStrings.emplace_back("TestScene030");
     buttonStrings.emplace_back("TestScene031");
     buttonStrings.emplace_back("TestScene032");
@@ -207,6 +208,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene011Id);
     buttonDestinationSceneIds.push_back(g_testScene012Id);
     buttonDestinationSceneIds.push_back(g_testScene013Id);
+    buttonDestinationSceneIds.push_back(g_testScene015Id);
     buttonDestinationSceneIds.push_back(g_testScene030Id);
     buttonDestinationSceneIds.push_back(g_testScene031Id);
     buttonDestinationSceneIds.push_back(g_testScene032Id);
@@ -371,14 +373,14 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 000 ] [ 001 ] [ 002 ] [ 003 ] [ 004 ]
     // [ 005 ] [ 006 ] [ 007 ] [ 008 ] [ 009 ]
     // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 014 ]
-    // [ 015 ]
+    // [ 015 ] [ 016 ]
     // 
     // Test Scenes:
     // 
     // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 010 ]
-    // [ 011 ] [ 012 ] [ 013 ] [ 030 ] [ 031 ]
-    // [ 032 ] [ 033 ] [ 034 ] [ 050 ] [ 051 ]
-    // [ 060 ]
+    // [ 011 ] [ 012 ] [ 013 ] [ 015 ] [ 030 ]
+    // [ 031 ] [ 032 ] [ 033 ] [ 034 ] [ 050 ]
+    // [ 051 ] [ 060 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -459,7 +461,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             // [ 0,0 ] [ 1,0 ] [ 2,0 ] [ 3,0 ] [ 4,0 ]
             // [ 0,1 ] [ 1,1 ] [ 2,1 ] [ 3,1 ] [ 4,1 ]
             // [ 0,2 ] [ 1,2 ] [ 2,2 ] [ 3,2 ] [ 4,2 ]
-            // [ 0,3 ]
+            // [ 0,3 ] [ 1,3 ]
 
             int currentColumnIndex = i % columns;
             int currentRowIndex = i / columns;

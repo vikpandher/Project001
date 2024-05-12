@@ -102,6 +102,18 @@ namespace Project001
             const glm::vec2& point_position,
             glm::vec2& closestPoint_position) const;
 
+        const glm::vec2& GetVelocity() const;
+        void SetVelocity(const glm::vec2& velocity);
+
+        const float& GetAngularVelocity() const;
+        void SetAngularVelocity(float angularVelocity);
+
+        const glm::vec2& GetAcceleration() const;
+        void SetAcceleration(const glm::vec2& acceleration);
+
+        const float& GetAngularAcceleration() const;
+        void SetAngularAcceleration(float angularAcceleration);
+
         // Overwriten:
 
         void SetPosition(const glm::vec2& position);
@@ -165,6 +177,15 @@ namespace Project001
         bool transformedCollisionShapesUpToDate_;
 
         std::vector<CollisionData2D> collisions_;
+
+        // float mass_;
+
+        glm::vec2 velocity_;
+        float angularVelocity_;
+
+        glm::vec2 acceleration_;
+        float angularAcceleration_;
+
     };
 
     inline CollisionBody2D::CollisionBody2D()
@@ -174,6 +195,10 @@ namespace Project001
         , boundingRadius_(0.0f)
         , boundingRadiusUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
+        , velocity_(0.0f, 0.0f)
+        , angularVelocity_(0.0f)
+        , acceleration_(0.0f, 0.0f)
+        , angularAcceleration_(0.0f)
     {}
 
     inline const uint32_t& CollisionBody2D::GetCollisionGroupMask() const
@@ -421,6 +446,46 @@ namespace Project001
     inline const std::vector<CollisionData2D>& CollisionBody2D::GetCollisions() const
     {
         return collisions_;
+    }
+
+    inline const glm::vec2& CollisionBody2D::GetVelocity() const
+    {
+        return velocity_;
+    }
+
+    inline void CollisionBody2D::SetVelocity(const glm::vec2& velocity)
+    {
+        velocity_ = velocity;
+    }
+
+    inline const float& CollisionBody2D::GetAngularVelocity() const
+    {
+        return angularVelocity_;
+    }
+
+    inline void CollisionBody2D::SetAngularVelocity(float angularVelocity)
+    {
+        angularVelocity_ = angularVelocity;
+    }
+
+    inline const glm::vec2& CollisionBody2D::GetAcceleration() const
+    {
+        return acceleration_;
+    }
+
+    inline void CollisionBody2D::SetAcceleration(const glm::vec2& acceleration)
+    {
+        acceleration_ = acceleration;
+    }
+
+    inline const float& CollisionBody2D::GetAngularAcceleration() const
+    {
+        return angularAcceleration_;
+    }
+
+    inline void CollisionBody2D::SetAngularAcceleration(float angularAcceleration)
+    {
+        angularAcceleration_ = angularAcceleration;
     }
 
     inline void CollisionBody2D::SetPosition(const glm::vec2& position)

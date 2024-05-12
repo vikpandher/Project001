@@ -12,6 +12,34 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
+    void CollisionSystem2D::ApplyMovement(ComponentStores* componentStoresPtr, float timestep_s)
+    {
+        if (componentStoresPtr == nullptr)
+        {
+            return;
+        }
+
+        // Get collision bodies
+        CollisionBody2D* collisionBodyPtrs = nullptr;
+        size_t collisionBodyCount = 0;
+        bool componentFound = componentStoresPtr->GetAllComponents<CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+
+        if (!componentFound)
+        {
+            return;
+        }
+
+        for (size_t i = 0; i < collisionBodyCount; ++i)
+        {
+            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+
+            currentCollisionBody.SetVelocity(currentCollisionBody.GetVelocity() + currentCollisionBody.GetAcceleration() * timestep_s);
+            currentCollisionBody.SetPosition(currentCollisionBody.GetPosition() + currentCollisionBody.GetVelocity() * timestep_s);
+            currentCollisionBody.SetAngularVelocity(currentCollisionBody.GetAngularVelocity() + currentCollisionBody.GetAngularAcceleration() * timestep_s);
+            currentCollisionBody.SetRotation(currentCollisionBody.GetRotation() + currentCollisionBody.GetAngularVelocity() * timestep_s);
+        }
+    }
+
     void CollisionSystem2D::CalculateCollisions(ComponentStores* componentStoresPtr)
     {
         if (componentStoresPtr == nullptr)
@@ -91,7 +119,7 @@ namespace Project001
                     collisionBodyB_ptr->GetPosition(),
                     collisionBodyB_ptr->GetBoundingRadius()))
                 {
-                    CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
+                    CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true, true);
                 }
             }
         }
@@ -178,7 +206,7 @@ namespace Project001
                 currentCollisionBodyPtr->GetPosition(),
                 currentCollisionBodyPtr->GetBoundingRadius()))
             {
-                CalculateCollisionsBetweenTwoBodies(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
+                CalculateCollisionsBetweenTwoBodies(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false, false);
             }
         }
     }
@@ -328,6 +356,20 @@ namespace Project001
                                     collisionBodyB_ptr->GetPosition(),
                                     collisionBodyB_ptr->GetBoundingRadius()))
                             {
+                                // Note that the order of the collision bodies
+                                // should stay consistent because they are
+                                // inserted into the quad tree in the order they
+                                // are in the component container.
+                                // 
+                                // If we got the pair (A, B) one time through.
+                                // We should again get the pair (A, B), not
+                                // (B, A).
+                                // 
+                                // So if the (A, B) pair occurs twice (because
+                                // both A and B are in multiple leaf nodes) then
+                                // the pair will be (A, B) in all leaf nodes,
+                                // never (B, A), because A will always be
+                                // inserted first.
                                 s_collisionBodyPairPtrs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
                             }
                         }
@@ -358,7 +400,7 @@ namespace Project001
             unsigned int entityIdB;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
 
-            CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
+            CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true, true);
         }
     }
 
@@ -369,7 +411,8 @@ namespace Project001
         CollisionBody2D& collisionBodyA,
         unsigned int entityIdB,
         CollisionBody2D& collisionBodyB,
-        bool recordInBodyB)
+        bool recordInBodyB,
+        bool resolvePhysics)
     {
         const std::vector<CollisionPoint2D>& transformedCollisionPointsA = collisionBodyA.GetTransformedCollisionPoints();
         const std::vector<CollisionLine2D>& transformedCollisionLinesA = collisionBodyA.GetTransformedCollisionLines();
@@ -401,26 +444,33 @@ namespace Project001
         CollisionData2D collisionB;
         collisionB.otherEntityId = entityIdA;
 
-        // TODO: update collision points:
+        // TODO: add collision points and collision normals:
         // A              | B
         //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
-        // Point          |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |  N  |
-        // Line           |  N  |  N  |  N  |  N  |  \  |  \  |  \  |     |     |     |     |
-        // Ray            |  N  |  N  |  N  |  N  |  \  |  \  |     |     |     |     |     |
-        // LineSegment    |  N  |  N  |  N  |  N  |  \  |  \  |     |     |     |     |     |
-        // Rectangle      |  N  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |     |
-        // O. Rectangle   |  N  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |     |
-        // Circle         |  N  |  \  |     |     |     |     |     |     |     |     |     |
-        // Capsule        |  N  |     |     |     |     |     |     |     |     |     |     |
-        // Triangle       |  N  |     |     |     |     |     |     |     |     |     |     |
-        // Polygon        |  N  |     |     |     |     |     |     |     |     |     |     |
-        // Convex Polygon |  N  |     |     |     |     |     |     |     |     |     |     | 73
+        // Point          |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |
+        // Line           |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
+        // Ray            |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
+        // LineSegment    |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
+        // Rectangle      |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
+        // O. Rectangle   |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
+        // Circle         |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
+        // Capsule        |  P  |     |     |     |     |     |     |     |     |     |     |
+        // Triangle       |  P  |     |     |     |     |     |     |     |     |     |     |
+        // Polygon        |  P  |     |     |     |     |     |     |     |     |     |     |
+        // Convex Polygon |  P  |     |     |     |     |     |     |     |     |     |     | 64
         // 
-        // for now set the collision point to NAN, NAN
+        // as a default set the collision point to NAN, NAN
         collisionA.collisionPoint = glm::vec2(NAN, NAN);
         collisionA.collisionNormal = glm::vec2();
         collisionB.collisionPoint = glm::vec2(NAN, NAN);
         collisionB.collisionNormal = glm::vec2();
+
+        // Only counting combinations where both the collision point and normal
+        // are found as part of the averages for physics resolution.
+
+        size_t collisionPointCount = 0;
+        glm::vec2 averageCollisionPoint(0.0f, 0.0f);
+        glm::vec2 averageCollisionNormal(0.0f, 0.0f);
 
         // point A & point B ---------------------------------------------------
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
@@ -1072,6 +1122,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1117,6 +1174,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1159,6 +1223,13 @@ namespace Project001
                         collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -1497,6 +1568,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1542,6 +1620,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1565,6 +1650,14 @@ namespace Project001
                     collisionA.myShapeTag = rayA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_Ray_Circle_CollisionPointAndNormal(
+                        rayA.position,
+                        rayA.direction,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -1572,7 +1665,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -1914,6 +2017,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1959,6 +2069,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -1982,6 +2099,14 @@ namespace Project001
                     collisionA.myShapeTag = lineSegmentA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_LineSegment_Circle_CollisionPointAndNormal(
+                        lineSegmentA.start,
+                        lineSegmentA.end,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -1989,7 +2114,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2199,6 +2334,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2241,6 +2383,13 @@ namespace Project001
                         collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2285,6 +2434,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2327,6 +2483,13 @@ namespace Project001
                         collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2373,6 +2536,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2396,6 +2566,14 @@ namespace Project001
                     collisionA.myShapeTag = rectangleA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_Rectangle_Circle_CollisionPointAndNormal(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -2403,7 +2581,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2616,6 +2804,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2660,6 +2855,13 @@ namespace Project001
                         collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2706,6 +2908,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2750,6 +2959,13 @@ namespace Project001
                         collisionB.collisionNormal = -collisionA.collisionNormal;
 
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -2798,6 +3014,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -2822,6 +3045,15 @@ namespace Project001
                     collisionA.myShapeTag = orientedRectangleA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_OrientedRectangle_Circle_CollisionPointAndNormal(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -2829,7 +3061,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -3043,6 +3285,13 @@ namespace Project001
 
                         collisionBodyB.AddCollision(collisionB);
                     }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
+                    }
                 }
             }
         }
@@ -3066,6 +3315,14 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = rayB.tag;
 
+                    Get2D_Circle_Ray_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        rayB.position,
+                        rayB.direction,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -3073,7 +3330,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -3098,6 +3365,14 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = lineSegmentB.tag;
 
+                    Get2D_Circle_LineSegment_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        lineSegmentB.start,
+                        lineSegmentB.end,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -3105,7 +3380,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -3130,6 +3415,14 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = rectangleB.tag;
 
+                    Get2D_Circle_Rectangle_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -3137,7 +3430,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -3163,6 +3466,15 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = orientedRectangleB.tag;
 
+                    Get2D_Circle_OrientedRectangle_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -3170,7 +3482,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -3195,6 +3517,14 @@ namespace Project001
                     collisionA.myShapeTag = circleA.tag;
                     collisionA.otherShapeTag = circleB.tag;
 
+                    Get2D_Circle_Circle_CollisionPointAndNormal(
+                        circleA.position,
+                        circleA.radius,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.collisionPoint,
+                        collisionA.collisionNormal);
+
                     collisionBodyA.AddCollision(collisionA);
 
                     if (recordInBodyB)
@@ -3202,7 +3532,17 @@ namespace Project001
                         collisionB.myShapeTag = collisionA.otherShapeTag;
                         collisionB.otherShapeTag = collisionA.myShapeTag;
 
+                        collisionB.collisionPoint = collisionA.collisionPoint;
+                        collisionB.collisionNormal = -collisionA.collisionNormal;
+
                         collisionBodyB.AddCollision(collisionB);
+                    }
+
+                    if (resolvePhysics)
+                    {
+                        collisionPointCount++;
+                        averageCollisionPoint += collisionA.collisionPoint;
+                        averageCollisionNormal += collisionA.collisionNormal;
                     }
                 }
             }
@@ -4790,6 +5130,19 @@ namespace Project001
                     }
                 }
             }
+        }
+
+        if (resolvePhysics && collisionPointCount > 0)
+        {
+            averageCollisionPoint /= collisionPointCount;
+            averageCollisionNormal /= collisionPointCount;
+
+            if (averageCollisionNormal.x == 0.0f && averageCollisionNormal.y == 0.0f)
+            {
+                averageCollisionNormal.y = 1.0f;
+            }
+
+            // TODO: resolve physics
         }
     }
 

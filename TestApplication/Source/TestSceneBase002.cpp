@@ -550,6 +550,9 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         timer01_.Start("CollisionSystem2D::CalculateCollisions");
     }
 
+    float timestep_s = (float)timestep_ns / 1e9f;
+    Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, timestep_s);
+
     // Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
     Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
 

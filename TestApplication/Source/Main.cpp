@@ -27,6 +27,7 @@
 #include "TestScene011.h"
 #include "TestScene012.h"
 #include "TestScene013.h"
+#include "TestScene015.h"
 #include "TestScene023.h"
 #include "TestScene030.h"
 #include "TestScene031.h"
@@ -47,6 +48,7 @@ unsigned int g_testScene010Id = (unsigned int)-1; // declared extern in TestScen
 unsigned int g_testScene011Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene012Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene013Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene015Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene023Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene030Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene031Id = (unsigned int)-1; // declared extern in TestSceneIds.h
@@ -130,6 +132,12 @@ int main(int argc, char** argv)
     g_testScene013Id = testScene013Ptr->GetId();
 
     // (TODO)
+    // tests 2d physics interactions
+    // * inherits 002
+    TestScene015* testScene015Ptr = new TestScene015(applicationPtr);
+    g_testScene015Id = testScene015Ptr->GetId();
+
+    // (TODO)
     // tests 3d shape overlap tests
     // * inherits 001
     // * has "unit" tests
@@ -186,6 +194,7 @@ int main(int argc, char** argv)
     delete testScene011Ptr;
     delete testScene012Ptr;
     delete testScene013Ptr;
+    delete testScene015Ptr;
     delete testScene023Ptr;
     delete testScene030Ptr;
     delete testScene031Ptr;

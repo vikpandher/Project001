@@ -2332,7 +2332,6 @@ namespace Project001
         }
         else
         {
-
             float inverseCircleCenterToPointDistance = FastInverseSquareRoot(circleCenterToPointDistanceSquared); // can be zero
             closestPoint_position = circle_position + circleCenterToPoint * circle_radius * inverseCircleCenterToPointDistance;
         }
@@ -2991,6 +2990,68 @@ namespace Project001
         collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
     }
 
+    inline void Get2D_Ray_Circle_CollisionPointAndNormal(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        size_t collisionPointCount = 0;
+
+        if (Check2D_Point_Circle_Overlap(ray_position, circle_position, circle_radius))
+        {
+            collisionPoint_position = ray_position;
+            collisionPointCount++;
+        }
+        else
+        {
+            collisionPoint_position = glm::vec2(0.0f, 0.0f);
+        }
+
+        float intersection_directionScalar1;
+        float intersection_directionScalar2;
+        unsigned int intersection_count = Get2D_Line_Circle_IntersectionDirectionScalars(
+            ray_position,
+            ray_direction,
+            circle_position,
+            circle_radius,
+            intersection_directionScalar1,
+            intersection_directionScalar2
+        );
+
+        if (intersection_count > 0 && intersection_directionScalar1 > 0.0f)
+        {
+            glm::vec2 currentIntersection_position = ray_position + intersection_directionScalar1 * ray_direction;
+            collisionPointCount++;
+            float collisionPointCount_float = (float)collisionPointCount;
+            collisionPoint_position = collisionPoint_position * (collisionPointCount_float - 1.0f) / collisionPointCount_float + currentIntersection_position / collisionPointCount_float;
+
+        }
+
+        if (intersection_count > 1 && intersection_directionScalar2 > 0.0f && collisionPointCount < 2)
+        {
+            glm::vec2 currentIntersection_position = ray_position + intersection_directionScalar2 * ray_direction;
+            collisionPointCount++;
+            float collisionPointCount_float = (float)collisionPointCount;
+            collisionPoint_position = collisionPoint_position * (collisionPointCount_float - 1.0f) / collisionPointCount_float + currentIntersection_position / collisionPointCount_float;
+        }
+
+        glm::vec2 ray_perpendicular(-ray_direction.y, ray_direction.x);
+        glm::vec2 collision_to_center = circle_position - collisionPoint_position;
+        float scalar = glm::dot(collision_to_center, ray_perpendicular);
+
+        if (scalar >= 0.0f)
+        {
+            collisionNormal = ray_perpendicular;
+        }
+        else
+        {
+            collisionNormal = -ray_perpendicular;
+        }
+    }
+
     // Get LineSegment Collision Point And Normal Functions --------------------
 
     inline void Get2D_LineSegment_Rectangle_CollisionPointAndNormal(
@@ -3061,6 +3122,80 @@ namespace Project001
         collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangle_rotation);
         collisionPoint_position += orientedRectangle_position;
         collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+    }
+
+    inline void Get2D_LineSegment_Circle_CollisionPointAndNormal(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 lineSegment_startToEnd = lineSegment_end - lineSegment_start;
+        size_t collisionPointCount = 0;
+
+        if (Check2D_Point_Circle_Overlap(lineSegment_start, circle_position, circle_radius))
+        {
+            collisionPointCount++;
+            collisionPoint_position = lineSegment_start;
+        }
+        else
+        {
+            collisionPoint_position = glm::vec2(0.0f, 0.0f);
+        }
+
+        if (Check2D_Point_Circle_Overlap(lineSegment_end, circle_position, circle_radius))
+        {
+            collisionPointCount++;
+            float collisionPointCount_float = (float)collisionPointCount;
+            collisionPoint_position = collisionPoint_position * (collisionPointCount_float - 1.0f) / collisionPointCount_float + lineSegment_end / collisionPointCount_float;
+        }
+
+        if (collisionPointCount < 2)
+        {
+            float intersection_directionScalar1;
+            float intersection_directionScalar2;
+            unsigned int intersection_count = Get2D_Line_Circle_IntersectionDirectionScalars(
+                lineSegment_start,
+                lineSegment_startToEnd,
+                circle_position,
+                circle_radius,
+                intersection_directionScalar1,
+                intersection_directionScalar2
+            );
+
+            if (intersection_count > 0 && intersection_directionScalar1 > 0.0f && intersection_directionScalar1 < 1.0f)
+            {
+                glm::vec2 currentIntersection_position = lineSegment_start + intersection_directionScalar1 * lineSegment_startToEnd;
+                collisionPointCount++;
+                float collisionPointCount_float = (float)collisionPointCount;
+                collisionPoint_position = collisionPoint_position * (collisionPointCount_float - 1.0f) / collisionPointCount_float + currentIntersection_position / collisionPointCount_float;
+
+            }
+
+            if (intersection_count > 1 && intersection_directionScalar2 > 0.0f && intersection_directionScalar2 < 1.0f && collisionPointCount < 2)
+            {
+                glm::vec2 currentIntersection_position = lineSegment_start + intersection_directionScalar2 * lineSegment_startToEnd;
+                collisionPointCount++;
+                float collisionPointCount_float = (float)collisionPointCount;
+                collisionPoint_position = collisionPoint_position * (collisionPointCount_float - 1.0f) / collisionPointCount_float + currentIntersection_position / collisionPointCount_float;
+            }
+        }
+
+        glm::vec2 lineSegment_perpendicular(-lineSegment_startToEnd.y, lineSegment_startToEnd.x);
+        lineSegment_perpendicular = glm::normalize(lineSegment_perpendicular);
+        glm::vec2 collision_to_center = circle_position - collisionPoint_position;
+        float scalar = glm::dot(collision_to_center, lineSegment_perpendicular);
+
+        if (scalar >= 0)
+        {
+            collisionNormal = lineSegment_perpendicular;
+        }
+        else
+        {
+            collisionNormal = -lineSegment_perpendicular;
+        }
     }
 
     // Get Rectangle Collision Point And Normal Functions ----------------------
@@ -3408,6 +3543,92 @@ namespace Project001
         }
     }
 
+    inline void Get2D_Rectangle_Circle_CollisionPointAndNormal(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        bool circleInCornerZone = false;
+        glm::vec2 collisionCorner;
+        if (circle_position.y < rectangle_bottomLeft.y)
+        {
+            if (circle_position.x < rectangle_bottomLeft.x)
+            {
+                collisionCorner.x = rectangle_bottomLeft.x;
+                collisionCorner.y = rectangle_bottomLeft.y;
+                circleInCornerZone = true;
+            }
+            else if (circle_position.x > rectangle_topRight.x)
+            {
+                collisionCorner.x = rectangle_topRight.x;
+                collisionCorner.y = rectangle_bottomLeft.y;
+                circleInCornerZone = true;
+            }
+        }
+        else if (circle_position.y > rectangle_topRight.y)
+        {
+            if (circle_position.x < rectangle_bottomLeft.x)
+            {
+                collisionCorner.x = rectangle_bottomLeft.x;
+                collisionCorner.y = rectangle_topRight.y;
+                circleInCornerZone = true;
+            }
+            else if (circle_position.x > rectangle_topRight.x)
+            {
+                collisionCorner.x = rectangle_topRight.x;
+                collisionCorner.y = rectangle_topRight.y;
+                circleInCornerZone = true;
+            }
+        }
+        if (circleInCornerZone)
+        {
+            collisionPoint_position = collisionCorner;
+            collisionNormal = glm::normalize(circle_position - collisionPoint_position);
+        }
+        else
+        {
+            glm::vec2 rectangle_position = (rectangle_topRight + rectangle_bottomLeft) * 0.5f;
+
+            glm::vec2 rectangleCenter_circle_closestPoint;
+            Get2D_Point_Circle_ClosestPoint(rectangle_position, circle_position, circle_radius, rectangleCenter_circle_closestPoint);
+
+            glm::vec2 circleCenter_rectangle_closestPoint;
+            Get2D_Point_Rectangle_ClosestPoint(circle_position, rectangle_bottomLeft, rectangle_topRight, circleCenter_rectangle_closestPoint);
+
+            collisionPoint_position = (rectangleCenter_circle_closestPoint + circleCenter_rectangle_closestPoint) * 0.5f;
+
+            glm::vec2 rectangle_dimensions = rectangle_topRight - rectangle_bottomLeft;
+            glm::vec2 rectangleCenterToCircleCenter_ratio = (circle_position - rectangle_position) / rectangle_dimensions;
+            if (std::abs(rectangleCenterToCircleCenter_ratio.y) < std::abs(rectangleCenterToCircleCenter_ratio.x))
+            {
+                if (rectangleCenterToCircleCenter_ratio.x < 0.0f)
+                {
+                    collisionNormal.x = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.x = 1.0f;
+                }
+                collisionNormal.y = 0.0f;
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+                if (rectangleCenterToCircleCenter_ratio.y < 0.0f)
+                {
+                    collisionNormal.y = -1.0f;
+                }
+                else
+                {
+                    collisionNormal.y = 1.0f;
+                }
+            }
+        }
+    }
+
     // Get OrientedRectangle Collision Point And Normal Functions --------------
 
     inline void Get2D_OrientedRectangle_Line_CollisionPointAndNormal(
@@ -3490,6 +3711,25 @@ namespace Project001
         collisionNormal = Rotate2DVector(collisionNormal, orientedRectangleA_rotation);
     }
 
+    inline void Get2D_OrientedRectangle_Circle_CollisionPointAndNormal(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        // rotate and translate the circle rather then the orientedRectangle
+        glm::vec2 translatedCirclePosition = circle_position - orientedRectangle_position;
+        glm::vec2 rotatedCirclePosition = Rotate2DVector(translatedCirclePosition, -1.0f * orientedRectangle_rotation);
+
+        Get2D_Rectangle_Circle_CollisionPointAndNormal(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedCirclePosition, circle_radius, collisionPoint_position, collisionNormal);
+        collisionPoint_position = Rotate2DVector(collisionPoint_position, orientedRectangle_rotation);
+        collisionPoint_position += orientedRectangle_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+    }
+
     // Get Circle Collision Point And Normal Functions -------------------------
 
     inline void Get2D_Circle_Line_CollisionPointAndNormal(
@@ -3502,6 +3742,76 @@ namespace Project001
     {
         Get2D_Line_Circle_CollisionPointAndNormal(line_position, line_slope, circle_position, circle_radius, collisionPoint_position, collisionNormal);
         collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Circle_Ray_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Ray_Circle_CollisionPointAndNormal(ray_position, ray_direction, circle_position, circle_radius, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Circle_LineSegment_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_LineSegment_Circle_CollisionPointAndNormal(lineSegment_start, lineSegment_end, circle_position, circle_radius, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Circle_Rectangle_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_Rectangle_Circle_CollisionPointAndNormal(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Circle_OrientedRectangle_CollisionPointAndNormal(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        Get2D_OrientedRectangle_Circle_CollisionPointAndNormal(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, circle_position, circle_radius, collisionPoint_position, collisionNormal);
+        collisionNormal *= -1.0f;
+    }
+
+    inline void Get2D_Circle_Circle_CollisionPointAndNormal(
+        const glm::vec2& circleA_position,
+        const float& circleA_radius,
+        const glm::vec2& circleB_position,
+        const float& circleB_radius,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 centerA_circleB_closestPoint;
+        Get2D_Point_Circle_ClosestPoint(circleA_position, circleB_position, circleB_radius, centerA_circleB_closestPoint);
+        glm::vec2 centerB_circleA_closestPoint;
+        Get2D_Point_Circle_ClosestPoint(circleB_position, circleA_position, circleA_radius, centerB_circleA_closestPoint);
+        collisionPoint_position = (centerA_circleB_closestPoint + centerB_circleA_closestPoint) * 0.5f;
+
+        glm::vec2 a_to_b = circleB_position - circleA_position;
+        collisionNormal = glm::normalize(a_to_b);
+
+        // alternative aproximation:
+        // collisionPoint_position = circleA_position + a_to_b * circleA_radius / (circleA_radius + circleB_radius);
     }
 
     // Intersection Functions --------------------------------------------------

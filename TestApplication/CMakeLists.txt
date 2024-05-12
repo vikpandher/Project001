@@ -82,6 +82,8 @@ set(TESTAPPLICATION_FILES
     "Source/TestScene012.h"
     "Source/TestScene013.cpp"
     "Source/TestScene013.h"
+    "Source/TestScene015.cpp"
+    "Source/TestScene015.h"
     "Source/TestScene023.cpp"
     "Source/TestScene023.h"
     "Source/TestScene030.cpp"

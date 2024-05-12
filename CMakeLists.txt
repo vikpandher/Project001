@@ -229,6 +229,9 @@ else()
     set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
 
+# Statically linking the Visual C++ runtime libraries?
+# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 add_library("${PROJECT_NAME}" STATIC
     ${GENERAL_FILES}
     ${COMPONENTS_FILES}
