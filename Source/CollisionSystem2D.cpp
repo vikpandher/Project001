@@ -4,6 +4,7 @@
 #include "Components/CollisionBody2D.h"
 #include "Math/Overlap2D.h"
 
+#include <functional>
 #include <stack>
 
 
@@ -438,56 +439,35 @@ namespace Project001
         const std::vector<CollisionPolygon2D>& transformedCollisionPolygonsB = collisionBodyB.GetTransformedCollisionPolygons();
         const std::vector<CollisionConvexPolygon2D>& transformedCollisionConvexPolygonsB = collisionBodyB.GetTransformedCollisionConvexPolygons();
 
-        CollisionData2D collisionA;
-        collisionA.otherEntityId = entityIdB;
+        std::function<void(unsigned int tagA, unsigned int tagB)> AddCollisionData =
+            [&](unsigned int tagA, unsigned int tagB) {
 
-        CollisionData2D collisionB;
-        collisionB.otherEntityId = entityIdA;
+            CollisionData2D collisionA;
+            collisionA.otherEntityId = entityIdB;
+            collisionA.myShapeTag = tagA;
+            collisionA.otherShapeTag = tagB;
 
-        // TODO: add collision points and collision normals:
-        // A              | B
-        //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
-        // Point          |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |  P  |
-        // Line           |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
-        // Ray            |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
-        // LineSegment    |  P  |  P  |  P  |  P  |  \  |  \  |  \  |     |     |     |     |
-        // Rectangle      |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
-        // O. Rectangle   |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
-        // Circle         |  P  |  \  |  \  |  \  |  \  |  \  |  \  |     |     |     |     |
-        // Capsule        |  P  |     |     |     |     |     |     |     |     |     |     |
-        // Triangle       |  P  |     |     |     |     |     |     |     |     |     |     |
-        // Polygon        |  P  |     |     |     |     |     |     |     |     |     |     |
-        // Convex Polygon |  P  |     |     |     |     |     |     |     |     |     |     | 64
-        // 
-        // as a default set the collision point to NAN, NAN
-        collisionA.collisionPoint = glm::vec2(NAN, NAN);
-        collisionA.collisionNormal = glm::vec2();
-        collisionB.collisionPoint = glm::vec2(NAN, NAN);
-        collisionB.collisionNormal = glm::vec2();
+            collisionBodyA.AddCollision(collisionA);
 
-        // Only counting combinations where both the collision point and normal
-        // are found as part of the averages for physics resolution.
+            if (recordInBodyB)
+            {
+                CollisionData2D collisionB;
+                collisionB.otherEntityId = entityIdA;
+                collisionB.myShapeTag = collisionA.otherShapeTag;
+                collisionB.otherShapeTag = collisionA.myShapeTag;
 
-        size_t collisionPointCount = 0;
-        glm::vec2 averageCollisionPoint(0.0f, 0.0f);
-        glm::vec2 averageCollisionNormal(0.0f, 0.0f);
+                collisionBodyB.AddCollision(collisionB);
+            }
+        };
 
-        // point A & point B ---------------------------------------------------
+        // ---------------------------------------------------------------------
+        // point A & point B
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
             {
                 const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-                if (!pointB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_Point_Overlap(
                     pointA.position,
@@ -495,22 +475,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = pointB.position;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, pointB.tag);
                 }
             }
         }
@@ -519,18 +484,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
             {
                 const CollisionLine2D& lineB = transformedCollisionLinesB[j];
-                if (!lineB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_Line_Overlap(
                     pointA.position,
@@ -539,22 +495,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, lineB.tag);
                 }
             }
         }
@@ -563,18 +504,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
-                if (!rayB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_Ray_Overlap(
                     pointA.position,
@@ -583,22 +515,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, rayB.tag);
                 }
             }
         }
@@ -607,18 +524,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
             {
                 const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
-                if (!lineSegmentB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_LineSegment_Overlap(
                     pointA.position,
@@ -627,22 +535,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -651,18 +544,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
                 const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
-                if (!rectangleB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_Rectangle_Overlap(
                     pointA.position,
@@ -671,22 +555,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, rectangleB.tag);
                 }
             }
         }
@@ -695,18 +564,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
                 const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
-                if (!orientedRectangleB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_OrientedRectangle_Overlap(
                     pointA.position,
@@ -716,22 +576,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -740,18 +585,9 @@ namespace Project001
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
             const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            if (!pointA.tangible)
-            {
-                continue;
-            }
-
             for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
                 const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-                if (!circleB.tangible)
-                {
-                    continue;
-                }
 
                 bool collisionFound = Check2D_Point_Circle_Overlap(
                     pointA.position,
@@ -760,22 +596,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, circleB.tag);
                 }
             }
         }
@@ -796,22 +617,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, capsuleB.tag);
                 }
             }
         }
@@ -832,22 +638,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, triangleB.tag);
                 }
             }
         }
@@ -867,22 +658,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, polygonB.tag);
                 }
             }
         }
@@ -902,27 +678,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = pointA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionA.collisionPoint = pointA.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(pointA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // line A & point B ----------------------------------------------------
+        // ---------------------------------------------------------------------
+        // line A & point B
         for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
         {
             const CollisionLine2D& lineA = transformedCollisionLinesA[i];
@@ -937,22 +699,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, pointB.tag);
                 }
             }
         }
@@ -973,27 +720,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    Get2D_Line_Line_Intersection(
-                        lineA.position,
-                        lineA.slope,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, lineB.tag);
                 }
             }
         }
@@ -1014,28 +741,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    float rayB_slope = rayB.direction.y / rayB.direction.x;
-                    Get2D_Line_Line_Intersection(
-                        lineA.position,
-                        lineA.slope,
-                        rayB.position,
-                        rayB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, rayB.tag);
                 }
             }
         }
@@ -1056,29 +762,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
-                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
-                    Get2D_Line_Line_Intersection(
-                        lineA.position,
-                        lineA.slope,
-                        lineSegmentB.start,
-                        lineSegmentB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -1099,36 +783,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    Get2D_Line_Rectangle_CollisionPointAndNormal(
-                        lineA.position,
-                        lineA.slope,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineA.tag, rectangleB.tag);
                 }
             }
         }
@@ -1150,37 +805,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_Line_OrientedRectangle_CollisionPointAndNormal(
-                        lineA.position,
-                        lineA.slope,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -1201,36 +826,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    Get2D_Line_Circle_CollisionPointAndNormal(
-                        lineA.position,
-                        lineA.slope,
-                        circleB.position,
-                        circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineA.tag, circleB.tag);
                 }
             }
         }
@@ -1252,18 +848,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, capsuleB.tag);
                 }
             }
         }
@@ -1285,18 +870,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, triangleB.tag);
                 }
             }
         }
@@ -1317,18 +891,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, polygonB.tag);
                 }
             }
         }
@@ -1349,23 +912,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // ray A & point B -----------------------------------------------------
+        // ---------------------------------------------------------------------
+        // ray A & point B
         for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
         {
             const CollisionRay2D& rayA = transformedCollisionRaysA[i];
@@ -1380,22 +933,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, pointB.tag);
                 }
             }
         }
@@ -1416,28 +954,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    float rayA_slope = rayA.direction.y / rayA.direction.x;
-                    Get2D_Line_Line_Intersection(
-                        rayA.position,
-                        rayA_slope,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, lineB.tag);
                 }
             }
         }
@@ -1458,29 +975,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    float rayA_slope = rayA.direction.y / rayA.direction.x;
-                    float rayB_slope = rayB.direction.y / rayB.direction.x;
-                    Get2D_Line_Line_Intersection(
-                        rayA.position,
-                        rayA_slope,
-                        rayB.position,
-                        rayB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, rayB.tag);
                 }
             }
         }
@@ -1501,30 +996,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    float rayA_slope = rayA.direction.y / rayA.direction.x;
-                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
-                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
-                    Get2D_Line_Line_Intersection(
-                        rayA.position,
-                        rayA_slope,
-                        lineSegmentB.start,
-                        lineSegmentB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -1545,36 +1017,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    Get2D_Ray_Rectangle_CollisionPointAndNormal(
-                        rayA.position,
-                        rayA.direction,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rayA.tag, rectangleB.tag);
                 }
             }
         }
@@ -1596,37 +1039,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_Ray_OrientedRectangle_CollisionPointAndNormal(
-                        rayA.position,
-                        rayA.direction,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rayA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -1647,36 +1060,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    Get2D_Ray_Circle_CollisionPointAndNormal(
-                        rayA.position,
-                        rayA.direction,
-                        circleB.position,
-                        circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rayA.tag, circleB.tag);
                 }
             }
         }
@@ -1698,18 +1082,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, capsuleB.tag);
                 }
             }
         }
@@ -1731,18 +1104,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, triangleB.tag);
                 }
             }
         }
@@ -1763,18 +1125,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, polygonB.tag);
                 }
             }
         }
@@ -1795,23 +1146,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rayA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rayA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // lineSegment A & point B ---------------------------------------------
+        // ---------------------------------------------------------------------
+        // lineSegment A & point B
         for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
         {
             const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
@@ -1826,22 +1167,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, pointB.tag);
                 }
             }
         }
@@ -1862,29 +1188,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
-                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
-                    Get2D_Line_Line_Intersection(
-                        lineSegmentA.start,
-                        lineSegmentA_slope,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, lineB.tag);
                 }
             }
         }
@@ -1905,30 +1209,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
-                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
-                    float rayB_slope = rayB.direction.y / rayB.direction.x;
-                    Get2D_Line_Line_Intersection(
-                        lineSegmentA.start,
-                        lineSegmentA_slope,
-                        rayB.position,
-                        rayB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, rayB.tag);
                 }
             }
         }
@@ -1949,31 +1230,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    glm::vec2 lineSegmentA_direction = lineSegmentA.end - lineSegmentA.start;
-                    float lineSegmentA_slope = lineSegmentA_direction.y / lineSegmentA_direction.x;
-                    glm::vec2 lineSegmentB_direction = lineSegmentB.end - lineSegmentB.start;
-                    float lineSegmentB_slope = lineSegmentB_direction.y / lineSegmentB_direction.x;
-                    Get2D_Line_Line_Intersection(
-                        lineSegmentA.start,
-                        lineSegmentA_slope,
-                        lineSegmentB.start,
-                        lineSegmentB_slope,
-                        collisionA.collisionPoint);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -1994,36 +1251,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    Get2D_LineSegment_Rectangle_CollisionPointAndNormal(
-                        lineSegmentA.start,
-                        lineSegmentA.end,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineSegmentA.tag, rectangleB.tag);
                 }
             }
         }
@@ -2045,37 +1273,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_LineSegment_OrientedRectangle_CollisionPointAndNormal(
-                        lineSegmentA.start,
-                        lineSegmentA.end,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineSegmentA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -2096,36 +1294,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    Get2D_LineSegment_Circle_CollisionPointAndNormal(
-                        lineSegmentA.start,
-                        lineSegmentA.end,
-                        circleB.position,
-                        circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(lineSegmentA.tag, circleB.tag);
                 }
             }
         }
@@ -2147,18 +1316,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, capsuleB.tag);
                 }
             }
         }
@@ -2180,18 +1338,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, triangleB.tag);
                 }
             }
         }
@@ -2212,18 +1359,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, polygonB.tag);
                 }
             }
         }
@@ -2244,23 +1380,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = lineSegmentA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(lineSegmentA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // rectangle A & point B -----------------------------------------------
+        // ---------------------------------------------------------------------
+        // rectangle A & point B
         for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
             const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
@@ -2275,22 +1401,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rectangleA.tag, pointB.tag);
                 }
             }
         }
@@ -2311,36 +1422,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    Get2D_Rectangle_Line_CollisionPointAndNormal(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rectangleA.tag, lineB.tag);
                 }
             }
         }
@@ -2361,36 +1443,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    Get2D_Rectangle_Ray_CollisionPointAndNormal(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        rayB.position,
-                        rayB.direction,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rectangleA.tag, rayB.tag);
                 }
             }
         }
@@ -2411,85 +1464,73 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    Get2D_Rectangle_LineSegment_CollisionPointAndNormal(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        lineSegmentB.start,
-                        lineSegmentB.end,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rectangleA.tag, lineSegmentB.tag);
                 }
             }
         }
 
         // rectangle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
-
-                bool collisionFound = Check2D_Rectangle_Rectangle_Overlap(
-                    rectangleA.bottomLeft,
-                    rectangleA.topRight,
-                    rectangleB.bottomLeft,
-                    rectangleB.topRight);
-
-                if (collisionFound)
+                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
+                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    Get2D_Rectangle_Rectangle_CollisionPointAndNormal(
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Rectangle_Rectangle_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
                         rectangleA.topRight,
                         rectangleB.bottomLeft,
                         rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
 
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
+                    if (collisionFound)
                     {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = rectangleA.tag;
+                        collisionA.otherShapeTag = rectangleB.tag;
 
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
+                        collisionBodyA.AddCollision(collisionA);
 
-                        collisionBodyB.AddCollision(collisionB);
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
                     }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            {
+                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+                {
+                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    if (resolvePhysics)
+                    bool collisionFound = Check2D_Rectangle_Rectangle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
                     {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
+                        AddCollisionData(rectangleA.tag, rectangleB.tag);
                     }
                 }
             }
@@ -2512,37 +1553,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_Rectangle_OrientedRectangle_CollisionPointAndNormal(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rectangleA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -2563,36 +1574,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    Get2D_Rectangle_Circle_CollisionPointAndNormal(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        circleB.position,
-                        circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(rectangleA.tag, circleB.tag);
                 }
             }
         }
@@ -2614,18 +1596,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rectangleA.tag, capsuleB.tag);
                 }
             }
         }
@@ -2647,18 +1618,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rectangleA.tag, triangleB.tag);
                 }
             }
         }
@@ -2679,18 +1639,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rectangleA.tag, polygonB.tag);
                 }
             }
         }
@@ -2711,23 +1660,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = rectangleA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(rectangleA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // orientedRectangle A & point B ---------------------------------------
+        // ---------------------------------------------------------------------
+        // orientedRectangle A & point B
         for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
             const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
@@ -2743,22 +1682,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(orientedRectangleA.tag, pointB.tag);
                 }
             }
         }
@@ -2780,37 +1704,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    Get2D_OrientedRectangle_Line_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, lineB.tag);
                 }
             }
         }
@@ -2832,37 +1726,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    Get2D_OrientedRectangle_Ray_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        rayB.position,
-                        rayB.direction,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, rayB.tag);
                 }
             }
         }
@@ -2884,37 +1748,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    Get2D_OrientedRectangle_LineSegment_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        lineSegmentB.start,
-                        lineSegmentB.end,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -2936,37 +1770,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    Get2D_OrientedRectangle_Rectangle_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, rectangleB.tag);
                 }
             }
         }
@@ -2989,38 +1793,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_OrientedRectangle_OrientedRectangle_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -3042,37 +1815,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    Get2D_OrientedRectangle_Circle_CollisionPointAndNormal(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        circleB.position,
-                        circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(orientedRectangleA.tag, circleB.tag);
                 }
             }
         }
@@ -3095,18 +1838,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(orientedRectangleA.tag, capsuleB.tag);
                 }
             }
         }
@@ -3129,18 +1861,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(orientedRectangleA.tag, triangleB.tag);
                 }
             }
         }
@@ -3162,18 +1883,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(orientedRectangleA.tag, polygonB.tag);
                 }
             }
         }
@@ -3195,23 +1905,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = orientedRectangleA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(orientedRectangleA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // circle A & point B --------------------------------------------------
+        // ---------------------------------------------------------------------
+        // circle A & point B
         for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
             const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
@@ -3226,22 +1926,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(circleA.tag, pointB.tag);
                 }
             }
         }
@@ -3262,36 +1947,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    Get2D_Circle_Line_CollisionPointAndNormal(
-                        circleA.position,
-                        circleA.radius,
-                        lineB.position,
-                        lineB.slope,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(circleA.tag, lineB.tag);
                 }
             }
         }
@@ -3312,36 +1968,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    Get2D_Circle_Ray_CollisionPointAndNormal(
-                        circleA.position,
-                        circleA.radius,
-                        rayB.position,
-                        rayB.direction,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(circleA.tag, rayB.tag);
                 }
             }
         }
@@ -3362,36 +1989,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    Get2D_Circle_LineSegment_CollisionPointAndNormal(
-                        circleA.position,
-                        circleA.radius,
-                        lineSegmentB.start,
-                        lineSegmentB.end,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(circleA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -3412,36 +2010,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    Get2D_Circle_Rectangle_CollisionPointAndNormal(
-                        circleA.position,
-                        circleA.radius,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(circleA.tag, rectangleB.tag);
                 }
             }
         }
@@ -3463,86 +2032,73 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    Get2D_Circle_OrientedRectangle_CollisionPointAndNormal(
-                        circleA.position,
-                        circleA.radius,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
-
-                    if (resolvePhysics)
-                    {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
-                    }
+                    AddCollisionData(circleA.tag, orientedRectangleB.tag);
                 }
             }
         }
 
         // circle A & circle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-
-                bool collisionFound = Check2D_Circle_Circle_Overlap(
-                    circleA.position,
-                    circleA.radius,
-                    circleB.position,
-                    circleB.radius);
-
-                if (collisionFound)
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    Get2D_Circle_Circle_CollisionPointAndNormal(
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Circle_Circle_CollisionPointNormalDepth(
                         circleA.position,
                         circleA.radius,
                         circleB.position,
                         circleB.radius,
-                        collisionA.collisionPoint,
-                        collisionA.collisionNormal);
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
 
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
+                    if (collisionFound)
                     {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = circleA.tag;
+                        collisionA.otherShapeTag = circleB.tag;
 
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-                        collisionB.collisionNormal = -collisionA.collisionNormal;
+                        collisionBodyA.AddCollision(collisionA);
 
-                        collisionBodyB.AddCollision(collisionB);
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
                     }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            {
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+                {
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    if (resolvePhysics)
+                    bool collisionFound = Check2D_Circle_Circle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
                     {
-                        collisionPointCount++;
-                        averageCollisionPoint += collisionA.collisionPoint;
-                        averageCollisionNormal += collisionA.collisionNormal;
+                        AddCollisionData(circleA.tag, circleB.tag);
                     }
                 }
             }
@@ -3565,18 +2121,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(circleA.tag, capsuleB.tag);
                 }
             }
         }
@@ -3598,18 +2143,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(circleA.tag, triangleB.tag);
                 }
             }
         }
@@ -3630,18 +2164,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(circleA.tag, polygonB.tag);
                 }
             }
         }
@@ -3662,23 +2185,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = circleA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(circleA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // capsule A & point B -------------------------------------------------
+        // ---------------------------------------------------------------------
+        // capsule A & point B
         for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
             const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
@@ -3694,22 +2207,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, pointB.tag);
                 }
             }
         }
@@ -3731,18 +2229,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, lineB.tag);
                 }
             }
         }
@@ -3764,18 +2251,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, rayB.tag);
                 }
             }
         }
@@ -3797,18 +2273,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -3830,18 +2295,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, rectangleB.tag);
                 }
             }
         }
@@ -3864,18 +2318,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -3897,18 +2340,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, circleB.tag);
                 }
             }
         }
@@ -3931,18 +2363,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, capsuleB.tag);
                 }
             }
         }
@@ -3965,23 +2386,12 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, triangleB.tag);
                 }
             }
         }
 
-        // capsule & other polygon
+        // capsule A & polygon B
         for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
             const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
@@ -3998,18 +2408,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, polygonB.tag);
                 }
             }
         }
@@ -4031,23 +2430,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = capsuleA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(capsuleA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // triangle A & point B ------------------------------------------------
+        // ---------------------------------------------------------------------
+        // triangle A & point B
         for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
             const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
@@ -4063,22 +2452,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, pointB.tag);
                 }
             }
         }
@@ -4100,18 +2474,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, lineB.tag);
                 }
             }
         }
@@ -4133,18 +2496,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, rayB.tag);
                 }
             }
         }
@@ -4166,18 +2518,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -4199,18 +2540,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, rectangleB.tag);
                 }
             }
         }
@@ -4233,18 +2563,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -4266,18 +2585,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, circleB.tag);
                 }
             }
         }
@@ -4300,18 +2608,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, capsuleB.tag);
                 }
             }
         }
@@ -4334,18 +2631,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, triangleB.tag);
                 }
             }
         }
@@ -4367,18 +2653,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, polygonB.tag);
                 }
             }
         }
@@ -4400,23 +2675,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = triangleA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(triangleA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // polygon A & point B -------------------------------------------------
+        // ---------------------------------------------------------------------
+        // polygon A & point B
         for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
         {
             const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
@@ -4431,22 +2696,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, pointB.tag);
                 }
             }
         }
@@ -4467,18 +2717,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, lineB.tag);
                 }
             }
         }
@@ -4499,18 +2738,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, rayB.tag);
                 }
             }
         }
@@ -4531,18 +2759,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -4563,18 +2780,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, rectangleB.tag);
                 }
             }
         }
@@ -4596,18 +2802,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -4628,18 +2823,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, circleB.tag);
                 }
             }
         }
@@ -4661,18 +2845,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, capsuleB.tag);
                 }
             }
         }
@@ -4694,18 +2867,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, triangleB.tag);
                 }
             }
         }
@@ -4726,18 +2888,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, polygonB.tag);
                 }
             }
         }
@@ -4758,23 +2909,13 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = polygonA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(polygonA.tag, convexPolygonB.tag);
                 }
             }
         }
 
-        // convexPolygon A & point B -------------------------------------------
+        // ---------------------------------------------------------------------
+        // convexPolygon A & point B
         for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
             const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
@@ -4789,22 +2930,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = pointB.tag;
-
-                    collisionA.collisionPoint = pointB.position;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionB.collisionPoint = collisionA.collisionPoint;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, pointB.tag);
                 }
             }
         }
@@ -4825,18 +2951,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = lineB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, lineB.tag);
                 }
             }
         }
@@ -4857,18 +2972,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = rayB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, rayB.tag);
                 }
             }
         }
@@ -4889,18 +2993,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = lineSegmentB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, lineSegmentB.tag);
                 }
             }
         }
@@ -4921,18 +3014,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = rectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, rectangleB.tag);
                 }
             }
         }
@@ -4954,18 +3036,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = orientedRectangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, orientedRectangleB.tag);
                 }
             }
         }
@@ -4986,18 +3057,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = circleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, circleB.tag);
                 }
             }
         }
@@ -5019,18 +3079,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = capsuleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, capsuleB.tag);
                 }
             }
         }
@@ -5052,18 +3101,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = triangleB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, triangleB.tag);
                 }
             }
         }
@@ -5084,18 +3122,7 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = polygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, polygonB.tag);
                 }
             }
         }
@@ -5116,33 +3143,9 @@ namespace Project001
 
                 if (collisionFound)
                 {
-                    collisionA.myShapeTag = convexPolygonA.tag;
-                    collisionA.otherShapeTag = convexPolygonB.tag;
-
-                    collisionBodyA.AddCollision(collisionA);
-
-                    if (recordInBodyB)
-                    {
-                        collisionB.myShapeTag = collisionA.otherShapeTag;
-                        collisionB.otherShapeTag = collisionA.myShapeTag;
-
-                        collisionBodyB.AddCollision(collisionB);
-                    }
+                    AddCollisionData(convexPolygonA.tag, convexPolygonB.tag);
                 }
             }
-        }
-
-        if (resolvePhysics && collisionPointCount > 0)
-        {
-            averageCollisionPoint /= collisionPointCount;
-            averageCollisionNormal /= collisionPointCount;
-
-            if (averageCollisionNormal.x == 0.0f && averageCollisionNormal.y == 0.0f)
-            {
-                averageCollisionNormal.y = 1.0f;
-            }
-
-            // TODO: resolve physics
         }
     }
 

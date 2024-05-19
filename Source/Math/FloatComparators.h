@@ -22,6 +22,7 @@ namespace Project001
 
     void GetMinMax(float a, float b, float& min, float& max);
 
+    // Unused
     void Swap(float& a, float& b);
 }
 

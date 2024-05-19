@@ -820,22 +820,22 @@ void TestSceneBase002::UpdateCollisionBodyColors()
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
-                    renderedMeshPtr->SetColorRGB(0.75f, 0.50f, 0.25f);
+                    renderedMeshPtr->SetColor(0.75f, 0.5f, 0.25f, 0.5f);
                 }
                 else
                 {
-                    renderedMeshPtr->SetColorRGB(0.75f, 0.25f, 0.25f);
+                    renderedMeshPtr->SetColor(0.75f, 0.25f, 0.25f, 0.5f);
                 }
             }
             else
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
-                    renderedMeshPtr->SetColorRGB(0.25f, 0.25f, 1.0f);
+                    renderedMeshPtr->SetColor(0.25f, 0.25f, 1.0f, 1.0f);
                 }
                 else
                 {
-                    renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 1.0f);
+                    renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
                 }
             }
         }
@@ -968,16 +968,23 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
         for (size_t j = 0; j < currentCollisions.size(); ++j)
         {
             const Project001::CollisionData2D& currentCollision = currentCollisions[j];
-            if (currentEntityId < currentCollision.otherEntityId &&
-                (currentCollision.collisionNormal.x != 0.0f || currentCollision.collisionNormal.y != 0.0f))
+
+            if (currentEntityId < currentCollision.otherEntityId)
             {
-                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(-0.02f, 0.0f));
-                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.0f, -0.02f));
-                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.02f, 0.0f));
-                positions.emplace_back(currentCollision.collisionPoint + glm::vec2(0.0f, 0.02f));
-                Project001::MeshLoader::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
-                Project001::MeshLoader::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.collisionPoint, currentCollision.collisionPoint + currentCollision.collisionNormal * 0.1f, 0.01f);
-                positions.clear();
+                if (!std::isnan(currentCollision.point.x) && !std::isnan(currentCollision.point.y))
+                {
+                    positions.emplace_back(currentCollision.point + glm::vec2(-0.02f, 0.0f));
+                    positions.emplace_back(currentCollision.point + glm::vec2(0.0f, -0.02f));
+                    positions.emplace_back(currentCollision.point + glm::vec2(0.02f, 0.0f));
+                    positions.emplace_back(currentCollision.point + glm::vec2(0.0f, 0.02f));
+                    Project001::MeshLoader::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
+                    positions.clear();
+
+                    if (!std::isnan(currentCollision.normal.x) && !std::isnan(currentCollision.normal.y) && !std::isnan(currentCollision.depth))
+                    {
+                        Project001::MeshLoader::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.point, currentCollision.point + currentCollision.normal * currentCollision.depth, 0.01f);
+                    }
+                }
             }
         }
     }

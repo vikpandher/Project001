@@ -62,6 +62,8 @@ namespace Project001
         static std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> s_collisionBodyPairPtrs_;
     };
 
+    // public ------------------------------------------------------------------
+
     inline CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
     {
         return s_tangibleCollisionBodyQuadTree2D_;

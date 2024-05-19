@@ -1393,6 +1393,8 @@ namespace Project001
         const glm::vec3& aabbB_min,
         const glm::vec3& aabbB_max)
     {
+        // Note:
+        // Can't decide whether to use FloatLessThanOrEqualToFloat or just '<'
         return FloatLessThanOrEqualToFloat(aabbA_min.x, aabbB_max.x) &&
             FloatGreaterThanOrEqualToFloat(aabbA_max.x, aabbB_min.x) &&
             FloatLessThanOrEqualToFloat(aabbA_min.y, aabbB_max.y) &&

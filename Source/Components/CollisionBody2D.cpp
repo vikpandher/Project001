@@ -372,7 +372,7 @@ namespace Project001
             {
                 glm::vec2 newBottomLeft = Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::half_pi<float>()) + position_;
                 glm::vec2 newTopRight = Rotate2DVector(currentCollisionRectangle.topRight, glm::half_pi<float>()) + position_;
-                Swap(newBottomLeft.x, newTopRight.x);
+                std::swap(newBottomLeft.x, newTopRight.x);
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,
@@ -395,7 +395,7 @@ namespace Project001
             {
                 glm::vec2 newBottomLeft = Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::three_over_two_pi<float>()) + position_;
                 glm::vec2 newTopRight = Rotate2DVector(currentCollisionRectangle.topRight, glm::three_over_two_pi<float>()) + position_;
-                Swap(newBottomLeft.y, newTopRight.y);
+                std::swap(newBottomLeft.y, newTopRight.y);
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
                     newTopRight,

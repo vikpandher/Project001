@@ -9,13 +9,23 @@ namespace Project001
 {
     struct CollisionData2D
     {
+        CollisionData2D()
+            : myShapeTag((unsigned int)-1)
+            , otherEntityId((unsigned int)-1)
+            , otherShapeTag((unsigned int)-1)
+            , point(NAN, NAN)
+            , normal(NAN, NAN)
+            , depth(NAN)
+        {}
+
         unsigned int myShapeTag;
 
         unsigned int otherEntityId;
         unsigned int otherShapeTag;
 
-        glm::vec2 collisionPoint;
-        glm::vec2 collisionNormal;
+        glm::vec2 point;
+        glm::vec2 normal;
+        float depth;
     };
 
     class CollisionBody2D : public Placement2D
