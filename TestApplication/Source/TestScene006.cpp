@@ -540,7 +540,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
             }
         }
@@ -556,7 +556,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.2f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
             }
         }
@@ -572,9 +572,9 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+2.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.02f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+2.0f * float(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
-                float zRotate = -0.02f * std::sinf(glm::pi<float>() * (0.2f * (float)(i)+32.0f * float(timestamp_ns_) * 0.0000000001f));
+                float zRotate = -0.02f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+32.0f * float(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.AddRelativeRotationZ(zRotate);
             }
         }

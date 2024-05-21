@@ -3,8 +3,8 @@
 #include "TestSceneIds.h"
 
 #include "Components/Camera.h"
-#include "Math/VectorUtilities.h"
 #include "Components/RenderedModel.h"
+#include "Math/MathUtilities.h"
 #include "ComponentStores.h"
 #include "FreetypeTextLoader.h"
 #include "Logger.h"

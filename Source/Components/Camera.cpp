@@ -1,6 +1,6 @@
 #include "Components/Camera.h"
 
-#include "Math/VectorUtilities.h"
+#include "Math/MathUtilities.h"
 
 
 
@@ -69,7 +69,7 @@ namespace Project001
     {
         if (cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
         {
-            float tanHalfFov = std::tanf(fieldOfVision_ / 2.0f);
+            float tanHalfFov = glm::tan(fieldOfVision_ / 2.0f);
             float nearHalfHeight = tanHalfFov * nearCutoff_;
             float nearHalfWidth = nearHalfHeight * aspectRatio_;
             float farHalfHeight = tanHalfFov * farCutoff_;

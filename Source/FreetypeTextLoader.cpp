@@ -1,5 +1,6 @@
 #include "FreetypeTextLoader.h"
 
+#include "Math/MathUtilities.h"
 #include "Logger.h"
 
 // http://freetype.sourceforge.net/freetype2/docs/reference/ft2-index.html

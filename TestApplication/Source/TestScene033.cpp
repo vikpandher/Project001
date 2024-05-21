@@ -2,7 +2,6 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
-#include "Math/VectorUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "FreetypeTextLoader.h"

@@ -1209,7 +1209,7 @@ namespace Project001
 
         glm::vec2 capsuleLine = capsule_end - capsule_start;
         glm::vec2 perpenduclarLine(-1.0f * capsuleLine.y, capsuleLine.x);
-        perpenduclarLine /= glm::length(perpenduclarLine);
+        perpenduclarLine *= 1.0f / glm::sqrt(glm::dot(perpenduclarLine, perpenduclarLine));
         perpenduclarLine *= capsule_radius;
 
         glm::vec2 rightCapsuleLine_start = capsule_start + perpenduclarLine;
@@ -2332,7 +2332,7 @@ namespace Project001
         }
         else
         {
-            float inverseCircleCenterToPointDistance = FastInverseSquareRoot(circleCenterToPointDistanceSquared); // can be zero
+            float inverseCircleCenterToPointDistance = 1.0f / glm::sqrt(circleCenterToPointDistanceSquared); // can be zero
             closestPoint_position = circle_position + circleCenterToPoint * circle_radius * inverseCircleCenterToPointDistance;
         }
     }
@@ -2436,8 +2436,7 @@ namespace Project001
     {
         float centerDistanceSquared = Get2D_Point_Point_DistanceSquared(point_position, circle_position);
 
-        float denominator = FastInverseSquareRoot(centerDistanceSquared); // can be zero
-        float centerDistance = 1.0f / denominator;
+        float centerDistance = glm::sqrt(centerDistanceSquared);
         if (centerDistance > circle_radius)
         {
             return centerDistance - circle_radius;
@@ -2453,8 +2452,7 @@ namespace Project001
     {
         float centerDistanceSquared = Get2D_Point_LineSegment_DistanceSquared(point_position, capsule_start, capsule_end);
 
-        float denominator = FastInverseSquareRoot(centerDistanceSquared); // can be zero
-        float centerDistance = 1.0f / denominator;
+        float centerDistance = glm::sqrt(centerDistanceSquared);
         if (centerDistance > capsule_radius)
         {
             return centerDistance - capsule_radius;
@@ -2868,7 +2866,7 @@ namespace Project001
         //     return false;
         // }
 
-        float a_to_b_distance = 1.0f / FastInverseSquareRoot(a_to_b_distanceSquared);
+        float a_to_b_distance = glm::sqrt(a_to_b_distanceSquared);
 
         if (a_to_b_distance >= (circleA_radius + circleB_radius))
         {
@@ -3034,8 +3032,8 @@ namespace Project001
 
         if (discriminant > 0) {
             // Two distinct intersection points
-            intersection_directionScalar1 = (-b + std::sqrt(discriminant)) / (2 * a);
-            intersection_directionScalar2 = (-b - std::sqrt(discriminant)) / (2 * a);
+            intersection_directionScalar1 = (-b + glm::sqrt(discriminant)) / (2 * a);
+            intersection_directionScalar2 = (-b - glm::sqrt(discriminant)) / (2 * a);
 
             return 2;
         }
@@ -3070,8 +3068,8 @@ namespace Project001
 
         if (discriminant > 0) {
             // Two distinct intersection points
-            float t1 = (-b + std::sqrt(discriminant)) / (2 * a);
-            float t2 = (-b - std::sqrt(discriminant)) / (2 * a);
+            float t1 = (-b + glm::sqrt(discriminant)) / (2 * a);
+            float t2 = (-b - glm::sqrt(discriminant)) / (2 * a);
 
             // Calculate the intersection points using t
             intersection_position1.x = line_position.x + t1;
@@ -3439,8 +3437,8 @@ namespace Project001
         }
         return normalVector.y / normalVector.x;
 
-        // float cosAngle = std::cosf(rotationInRadians);
-        // float sinAngle = std::sinf(rotationInRadians);
+        // float cosAngle = glm::cos(rotationInRadians);
+        // float sinAngle = glm::sin(rotationInRadians);
         // 
         // // slope = rise / run = y / x
         // // y = slope
@@ -3477,23 +3475,5 @@ namespace Project001
         {
             return direction.y / direction.x;
         }
-    }
-
-    // From Quake III Arena
-    inline float FastInverseSquareRoot(float number)
-    {
-        long i;
-        float x2, y;
-        const float threehalfs = 1.5F;
-
-        x2 = number * 0.5F;
-        y = number;
-        i = *(long*)&y; // evil floating point bit level hacking
-        i = 0x5f3759df - (i >> 1); // what?
-        y = *(float*)&i;
-        y = y * (threehalfs - (x2 * y * y)); // 1st iteration
-        // y  = y * ( threehalfs - ( x2 * y * y ) ); // 2nd iteration
-
-        return y;
     }
 }

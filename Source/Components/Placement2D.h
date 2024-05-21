@@ -2,8 +2,6 @@
 
 #include "Components/Position2D.h"
 
-#include "glm/gtc/constants.hpp"
-
 
 
 namespace Project001
@@ -33,13 +31,13 @@ namespace Project001
 
     inline void Placement2D::TranslateUp(float d)
     {
-        position_.x += d * std::sin(-1.0f * rotation_);
-        position_.y += d * std::cos(-1.0f * rotation_);
+        position_.x += d * glm::sin(-1.0f * rotation_);
+        position_.y += d * glm::cos(-1.0f * rotation_);
     }
     inline void Placement2D::TranslateRight(float d)
     {
-        position_.x += d * std::cos(rotation_);
-        position_.y += d * std::sin(rotation_);
+        position_.x += d * glm::cos(rotation_);
+        position_.y += d * glm::sin(rotation_);
     }
 
     inline void Placement2D::AddRotation(float angleInRadians)

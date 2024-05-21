@@ -7,8 +7,6 @@
 #include "CollisionSystem2D.h"
 #include "Components/RenderedMesh.h"
 #include "Math/Overlap2D.h"
-#include "Math/CoordinateSystems.h"
-#include "Math/VectorUtilities.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "FreetypeTextLoader.h"
@@ -868,7 +866,7 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
                 _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
                     *distanceTextMeshDataPtr_,
                     *font01_FontDataPtr_,
-                    std::to_string(std::sqrtf(distanceSquared)),
+                    std::to_string(glm::sqrt(distanceSquared)),
                     fontPixelSize_
                 ));
             }

@@ -1,7 +1,6 @@
 #include "MeshLoader.h"
 
-#include "Math/CoordinateSystems.h"
-#include "Math/VectorUtilities.h"
+#include "Math/MathUtilities.h"
 
 #include <fstream>
 
@@ -459,7 +458,7 @@ namespace Project001
         }
 
         glm::vec2 centerToArc = arcCenterPoint - focalPoint;
-        float arcRadius = std::sqrtf(centerToArc.x * centerToArc.x + centerToArc.y * centerToArc.y);
+        float arcRadius = glm::sqrt(centerToArc.x * centerToArc.x + centerToArc.y * centerToArc.y);
 
         float theta = arcLength / arcRadius;
 
@@ -499,8 +498,8 @@ namespace Project001
         for (size_t i = 0; i < radialSections + 1; ++i)
         {
             float stackAngle = radialStep * (float)i;
-            float x = radius * std::cosf(stackAngle);
-            float y = radius * std::sinf(stackAngle);
+            float x = radius * glm::cos(stackAngle);
+            float y = radius * glm::sin(stackAngle);
 
             positions.emplace_back(x, y + halfHeight);
         }
@@ -508,8 +507,8 @@ namespace Project001
         for (size_t i = 0; i < radialSections + 1; ++i)
         {
             float stackAngle = glm::pi<float>() + radialStep * (float)i;
-            float x = radius * std::cosf(stackAngle);
-            float y = radius * std::sinf(stackAngle);
+            float x = radius * glm::cos(stackAngle);
+            float y = radius * glm::sin(stackAngle);
 
             positions.emplace_back(x, y - halfHeight);
         }
@@ -543,7 +542,7 @@ namespace Project001
         }
 
         glm::vec2 offset(-1.0f * direction.y, direction.x);
-        float magnitude = std::sqrtf(offset.x * offset.x + offset.y * offset.y);
+        float magnitude = glm::sqrt(offset.x * offset.x + offset.y * offset.y);
         glm::vec2 scaledOffset = offset / magnitude * radius;
 
         positions.emplace_back(start + scaledOffset);
@@ -590,7 +589,7 @@ namespace Project001
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
         glm::vec2 offset(-1.0f * direction.y, direction.x);
-        float magnitude = std::sqrtf(offset.x * offset.x + offset.y * offset.y);
+        float magnitude = glm::sqrt(offset.x * offset.x + offset.y * offset.y);
         glm::vec2 scaled = offset / magnitude * width / 2.0f;
 
         const size_t positionsSize = 4;
@@ -710,7 +709,7 @@ namespace Project001
         glm::vec2 direction1 = position2 - position1;
 
         glm::vec2 offset01(-1.0f * direction1.y, direction1.x);
-        float magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+        float magnitude01 = glm::sqrt(offset01.x * offset01.x + offset01.y * offset01.y);
         glm::vec2 scaled1 = offset01 / magnitude01 * width / 2.0f;
 
         glm::vec2 scaled2 = scaled1;
@@ -747,7 +746,7 @@ namespace Project001
             if (glm::normalize(direction1) != glm::normalize(direction2))
             {
                 glm::vec2 offset02 = glm::vec2(-1.0f * direction2.y, direction2.x);
-                float magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+                float magnitude02 = glm::sqrt(offset02.x * offset02.x + offset02.y * offset02.y);
                 scaled2 = offset02 / magnitude02 * width / 2.0f;
 
                 glm::vec2 positionE = position2 + scaled2;
@@ -767,7 +766,7 @@ namespace Project001
                 if (sharpCorner)
                 {
                     offset01 = glm::vec2(-1.0f * direction1.y, direction1.x);
-                    magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+                    magnitude01 = glm::sqrt(offset01.x * offset01.x + offset01.y * offset01.y);
                     scaled1 = offset01 / magnitude01 * width / 2.0f;
 
                     if (angle > 0.0f) // turn to the left
@@ -1348,7 +1347,7 @@ namespace Project001
         float slope1 = direction1.y / direction1.x;
 
         glm::vec2 offset01(-1.0f * direction1.y, direction1.x);
-        float magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+        float magnitude01 = glm::sqrt(offset01.x * offset01.x + offset01.y * offset01.y);
         glm::vec2 scaled1 = offset01 / magnitude01 * width / 2.0f;
 
         glm::vec2 scaled2 = scaled1;
@@ -1364,7 +1363,7 @@ namespace Project001
         float slope2 = direction2.y / direction2.x;
 
         glm::vec2 offset02(-1.0f * direction2.y, direction2.x);
-        float magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+        float magnitude02 = glm::sqrt(offset02.x * offset02.x + offset02.y * offset02.y);
         scaled2 = offset02 / magnitude02 * width / 2.0f;
 
         glm::vec2 positionE = position2 + scaled2;
@@ -1436,7 +1435,7 @@ namespace Project001
             if (glm::normalize(direction1) != glm::normalize(direction2))
             {
                 offset02 = glm::vec2(-1.0f * direction2.y, direction2.x);
-                magnitude02 = std::sqrtf(offset02.x * offset02.x + offset02.y * offset02.y);
+                magnitude02 = glm::sqrt(offset02.x * offset02.x + offset02.y * offset02.y);
                 scaled2 = offset02 / magnitude02 * width / 2.0f;
 
                 positionE = position2 + scaled2;
@@ -1456,7 +1455,7 @@ namespace Project001
                 if (sharpCorner)
                 {
                     offset01 = glm::vec2(-1.0f * direction1.y, direction1.x);
-                    magnitude01 = std::sqrtf(offset01.x * offset01.x + offset01.y * offset01.y);
+                    magnitude01 = glm::sqrt(offset01.x * offset01.x + offset01.y * offset01.y);
                     scaled1 = offset01 / magnitude01 * width / 2.0f;
 
                     if (angle > 0.0f) // turn to the left
@@ -1706,8 +1705,8 @@ namespace Project001
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
             float stackAngle = radialStep * (float)i;
-            float x = bezelSize * std::cosf(stackAngle);
-            float y = bezelSize * std::sinf(stackAngle);
+            float x = bezelSize * glm::cos(stackAngle);
+            float y = bezelSize * glm::sin(stackAngle);
 
             positions.emplace_back(x + halfWidth, y + halfHeight);
         }
@@ -1716,8 +1715,8 @@ namespace Project001
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
             float stackAngle = 0.5f * glm::pi<float>() + radialStep * (float)i;
-            float x = bezelSize * std::cosf(stackAngle);
-            float y = bezelSize * std::sinf(stackAngle);
+            float x = bezelSize * glm::cos(stackAngle);
+            float y = bezelSize * glm::sin(stackAngle);
 
             positions.emplace_back(x - halfWidth, y + halfHeight);
         }
@@ -1726,8 +1725,8 @@ namespace Project001
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
             float stackAngle = glm::pi<float>() + radialStep * (float)i;
-            float x = bezelSize * std::cosf(stackAngle);
-            float y = bezelSize * std::sinf(stackAngle);
+            float x = bezelSize * glm::cos(stackAngle);
+            float y = bezelSize * glm::sin(stackAngle);
 
             positions.emplace_back(x - halfWidth, y - halfHeight);
         }
@@ -1736,8 +1735,8 @@ namespace Project001
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
             float stackAngle = 1.5f * glm::pi<float>() + radialStep * (float)i;
-            float x = bezelSize * std::cosf(stackAngle);
-            float y = bezelSize * std::sinf(stackAngle);
+            float x = bezelSize * glm::cos(stackAngle);
+            float y = bezelSize * glm::sin(stackAngle);
 
             positions.emplace_back(x + halfWidth, y - halfHeight);
         }
@@ -1911,7 +1910,7 @@ namespace Project001
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
         if (smoothNormals)
         {
-            const float& dimensionLength = 1.0f / std::sqrtf(3.0f);
+            const float& dimensionLength = 1.0f / glm::sqrt(3.0f);
 
             glm::vec3 normal_posX_posY_posZ(dimensionLength, dimensionLength, dimensionLength);
             glm::vec3 normal_posX_posY_negZ(dimensionLength, dimensionLength, -dimensionLength);
@@ -2327,7 +2326,7 @@ namespace Project001
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
         if (smoothNormals)
         {
-            const float& dimensionLength = 1.0f / std::sqrtf(3.0f);
+            const float& dimensionLength = 1.0f / glm::sqrt(3.0f);
 
             glm::vec3 normal_posX_posY_posZ(dimensionLength, dimensionLength, dimensionLength);
             glm::vec3 normal_posX_posY_negZ(dimensionLength, dimensionLength, -dimensionLength);
@@ -2750,14 +2749,14 @@ namespace Project001
         for (size_t i = 1; i < stacks + 1; ++i)
         {
             float stackAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
-            float xz = radius * std::cosf(stackAngle);
-            float y = radius * std::sinf(stackAngle);
+            float xz = radius * glm::cos(stackAngle);
+            float y = radius * glm::sin(stackAngle);
 
             for (size_t j = 0; j < faces; ++j)
             {
                 float faceAngle = faceStep * (float)j;
-                float x = xz * std::cosf(faceAngle);
-                float z = xz * std::sinf(faceAngle);
+                float x = xz * glm::cos(faceAngle);
+                float z = xz * glm::sin(faceAngle);
 
                 positions.emplace_back(x, y + halfCylindricalHeight, z);
                 if (smoothNormals)
@@ -2771,14 +2770,14 @@ namespace Project001
         for (size_t i = 0; i < stacks; ++i)
         {
             float stackAngle = -1.0f * stackStep * (float)i;
-            float xz = radius * std::cosf(stackAngle);
-            float y = radius * std::sinf(stackAngle);
+            float xz = radius * glm::cos(stackAngle);
+            float y = radius * glm::sin(stackAngle);
 
             for (size_t j = 0; j < faces; ++j)
             {
                 float faceAngle = faceStep * (float)j;
-                float x = xz * std::cosf(faceAngle);
-                float z = xz * std::sinf(faceAngle);
+                float x = xz * glm::cos(faceAngle);
+                float z = xz * glm::sin(faceAngle);
 
                 positions.emplace_back(x, y - halfCylindricalHeight, z);
                 if (smoothNormals)
@@ -3271,10 +3270,10 @@ namespace Project001
             for (size_t i = 0; i < faces; ++i)
             {
                 float faceAngle = faceStep * (float)i;
-                float x = radius * std::sinf(faceAngle);
-                float z = radius * std::cosf(faceAngle);
+                float x = radius * glm::sin(faceAngle);
+                float z = radius * glm::cos(faceAngle);
 
-                float vertexRadius = std::sqrt(x * x + (0.5f * height) * (0.5f * height) + z * z);
+                float vertexRadius = glm::sqrt(x * x + (0.5f * height) * (0.5f * height) + z * z);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
 
                 if (maxVertexPosition.x < x) maxVertexPosition.x = x;
@@ -3352,17 +3351,15 @@ namespace Project001
                 destMeshVertexPtrArray = &meshVertexArray;
             }
 
-            float y = 1.0f / std::sqrtf(2.0f);
-
             float previousX = 0.0f;
             float previousZ = radius;
             for (size_t i = 1; i < faces + 1; ++i)
             {
                 float faceAngle = faceStep * (float)i;
-                float newX = radius * std::sinf(faceAngle);
-                float newZ = radius * std::cosf(faceAngle);
+                float newX = radius * glm::sin(faceAngle);
+                float newZ = radius * glm::cos(faceAngle);
 
-                float vertexRadius = std::sqrtf(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
+                float vertexRadius = glm::sqrt(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
 
                 if (maxVertexPosition.x < previousX) maxVertexPosition.x = previousX;
@@ -3397,8 +3394,8 @@ namespace Project001
             for (size_t i = 0; i < faces; ++i)
             {
                 float faceAngle = faceStep * (float)i;
-                float x = radius * std::sinf(faceAngle);
-                float z = radius * std::cosf(faceAngle);
+                float x = radius * glm::sin(faceAngle);
+                float z = radius * glm::cos(faceAngle);
 
                 MeshVertex vertex;
                 vertex.position = glm::vec3(x, -0.5f * height, z);
@@ -3497,15 +3494,15 @@ namespace Project001
                 destMeshVertexPtrArray = &meshVertexArray;
             }
 
-            float y = 1.0f / std::sqrtf(2.0f);
+            float y = 1.0f / glm::sqrt(2.0f);
 
             for (size_t i = 0; i < faces; ++i)
             {
                 float faceAngle = faceStep * (float)i;
-                float x = radius * std::sinf(faceAngle);
-                float z = radius * std::cosf(faceAngle);
+                float x = radius * glm::sin(faceAngle);
+                float z = radius * glm::cos(faceAngle);
 
-                float vertexRadius = std::sqrtf(x * x + (0.5f * height) * (0.5f * height) + z * z);
+                float vertexRadius = glm::sqrt(x * x + (0.5f * height) * (0.5f * height) + z * z);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
 
                 if (maxVertexPosition.x < x) maxVertexPosition.x = x;
@@ -3622,17 +3619,17 @@ namespace Project001
                 destMeshVertexPtrArray = &meshVertexArray;
             }
 
-            float y = 1.0f / std::sqrtf(2.0f);
+            float y = 1.0f / glm::sqrt(2.0f);
 
             float previousX = 0.0f;
             float previousZ = radius;
             for (size_t i = 1; i < faces + 1; ++i)
             {
                 float faceAngle = faceStep * (float)i;
-                float newX = radius * std::sinf(faceAngle);
-                float newZ = radius * std::cosf(faceAngle);
+                float newX = radius * glm::sin(faceAngle);
+                float newZ = radius * glm::cos(faceAngle);
 
-                float vertexRadius = std::sqrtf(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
+                float vertexRadius = glm::sqrt(previousX * previousX + (0.5f * height) * (0.5f * height) + previousZ * previousZ);
                 if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
 
                 if (maxVertexPosition.x < previousX) maxVertexPosition.x = previousX;
@@ -3795,7 +3792,7 @@ namespace Project001
         //       17    18     19   20    21    <- bottom
 
         constexpr const float hAngle = 0.4f * glm::pi<float>();
-        const float vAngle = 0.5f * glm::pi<float>() - std::atan(0.5f);
+        const float vAngle = 0.5f * glm::pi<float>() - glm::atan(0.5f);
 
         // top
         for (size_t i = 0; i < 5; ++i)
@@ -3831,9 +3828,9 @@ namespace Project001
             float x = positions[i].x;
             float y = positions[i].y;
             float z = positions[i].z;
-            positions[i].z = x * std::sinf(y) * std::cosf(z);
-            positions[i].x = x * std::sinf(y) * std::sinf(z);
-            positions[i].y = x * std::cosf(y);
+            positions[i].z = x * glm::sin(y) * glm::cos(z);
+            positions[i].x = x * glm::sin(y) * glm::sin(z);
+            positions[i].y = x * glm::cos(y);
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -3912,21 +3909,21 @@ namespace Project001
                 const glm::vec2& textureCoordinate2 = textureCoordinates[index2];
 
                 glm::vec3 positionA(position0.x + position1.x, position0.y + position1.y, position0.z + position1.z);
-                float scaleA = radius / sqrtf(positionA.x * positionA.x + positionA.y * positionA.y + positionA.z * positionA.z);
+                float scaleA = radius / glm::sqrt(positionA.x * positionA.x + positionA.y * positionA.y + positionA.z * positionA.z);
                 positionA.x *= scaleA;
                 positionA.y *= scaleA;
                 positionA.z *= scaleA;
                 glm::vec2 textureCoordinateA((textureCoordinate0.x + textureCoordinate1.x) / 2.0f, (textureCoordinate0.y + textureCoordinate1.y) / 2.0f);
 
                 glm::vec3 positionB(position1.x + position2.x, position1.y + position2.y, position1.z + position2.z);
-                float scaleB = radius / sqrtf(positionB.x * positionB.x + positionB.y * positionB.y + positionB.z * positionB.z);
+                float scaleB = radius / glm::sqrt(positionB.x * positionB.x + positionB.y * positionB.y + positionB.z * positionB.z);
                 positionB.x *= scaleB;
                 positionB.y *= scaleB;
                 positionB.z *= scaleB;
                 glm::vec2 textureCoordinateB((textureCoordinate1.x + textureCoordinate2.x) / 2.0f, (textureCoordinate1.y + textureCoordinate2.y) / 2.0f);
 
                 glm::vec3 positionC(position2.x + position0.x, position2.y + position0.y, position2.z + position0.z);
-                float scaleC = radius / sqrtf(positionC.x * positionC.x + positionC.y * positionC.y + positionC.z * positionC.z);
+                float scaleC = radius / glm::sqrt(positionC.x * positionC.x + positionC.y * positionC.y + positionC.z * positionC.z);
                 positionC.x *= scaleC;
                 positionC.y *= scaleC;
                 positionC.z *= scaleC;
@@ -4108,14 +4105,14 @@ namespace Project001
         for (size_t i = 1; i < latitudinalSections; ++i)
         {
             float latiAngle = glm::pi<float>() / 2.0f - latiStep * (float)i;
-            float xz = radius * std::cosf(latiAngle);
-            float y = radius * std::sinf(latiAngle);
+            float xz = radius * glm::cos(latiAngle);
+            float y = radius * glm::sin(latiAngle);
 
             for (size_t j = 0; j < longitudinalSections + 1; ++j) // +1 for wrap around
             {
                 float longAngle = longStep * (float)j;
-                float x = xz * std::cosf(longAngle);
-                float z = xz * std::sinf(longAngle);
+                float x = xz * glm::cos(longAngle);
+                float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back((float)j / (float)longitudinalSections, (float)(latitudinalSections - i) / (float)latitudinalSections);

@@ -4,8 +4,6 @@
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
 #include "Math/Overlap2D.h"
-#include "Math/CoordinateSystems.h"
-#include "Math/VectorUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "Logger.h"
@@ -1267,7 +1265,7 @@ void TestScene010::Test_Get2D_Point_Line_Distance() const
     _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance08, 2.0f));
 
     float distance09 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p0_p0, 2.0f);
-    float correctDistance09 = std::sinf(std::atanf(2.0f));
+    float correctDistance09 = glm::sin(glm::atan(2.0f));
     correctDistance09 *= correctDistance09;
     _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance09, correctDistance09));
 }

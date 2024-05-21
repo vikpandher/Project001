@@ -4,8 +4,6 @@
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
 #include "Math/Overlap2D.h"
-#include "Math/CoordinateSystems.h"
-#include "Math/VectorUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "Logger.h"

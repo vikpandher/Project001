@@ -255,7 +255,7 @@ namespace Project001
         // 04: point collliding with a plane
         {
             bool result = Check3D_Point_Plane_Overlap(
-                glm::vec3(0.0f, std::sqrtf(2.0f), 0.0f),
+                glm::vec3(0.0f, glm::sqrt(2.0f), 0.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)),
                 1.0f);
 
@@ -2724,7 +2724,7 @@ namespace Project001
                 glm::vec3(0.0f, 0.0f, -2.0f),
                 glm::vec3(-1.0f, 0.0f, 0.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != false) return 1;
         }
@@ -2735,7 +2735,7 @@ namespace Project001
                 glm::vec3(1.0f, 0.0f, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 2;
         }
@@ -2746,7 +2746,7 @@ namespace Project001
                 glm::vec3(1.0f, 0.0f, 0.0f),
                 glm::vec3(0.0f, 0.5f, 0.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 3;
         }
@@ -2757,7 +2757,7 @@ namespace Project001
                 glm::vec3(1.5f, 0.0f, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 4;
         }
@@ -2768,7 +2768,7 @@ namespace Project001
                 glm::vec3(0.0f, 0.0f, 0.0f),
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 5;
         }
@@ -3341,7 +3341,7 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
                 0.0f,
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != false) return 1;
         }
@@ -3350,9 +3350,9 @@ namespace Project001
         {
             bool result = Check3D_Plane_Plane_Overlap(
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f),
+                1.0f / glm::sqrt(3.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 2;
         }
@@ -3363,7 +3363,7 @@ namespace Project001
                 glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)),
                 -1.0f,
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                1.0f / std::sqrtf(3.0f));
+                1.0f / glm::sqrt(3.0f));
 
             if (result != true) return 3;
         }
@@ -5377,7 +5377,7 @@ namespace Project001
                 glm::vec3(4.0f, 1.0f, 0.0f),
                 glm::vec3(4.0f, 4.0f, 0.0f),
                 rotation,
-                glm::vec3(4.0f * std::sqrtf(2.0f) - 4.0f, 4.0f * std::sqrtf(2.0f) - 4.0f, 0.0f),
+                glm::vec3(4.0f * glm::sqrt(2.0f) - 4.0f, 4.0f * glm::sqrt(2.0f) - 4.0f, 0.0f),
                 0.0f);
 
             if (result != true) return 3;
@@ -5410,7 +5410,7 @@ namespace Project001
                 glm::vec3(4.0f, 4.0f, 0.0f),
                 rotation,
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                4.0f * std::sqrtf(2.0f) - 4.0f);
+                4.0f * glm::sqrt(2.0f) - 4.0f);
 
             if (result != true) return 5;
         }
@@ -5830,7 +5830,7 @@ namespace Project001
             Get3D_Point_Plane_ClosestPoint(
                 glm::vec3(2.0f, 2.0f, 2.0f),
                 glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)),
-                std::sqrtf(3.0f),
+                glm::sqrt(3.0f),
                 closestPoint);
 
             if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
@@ -6083,14 +6083,14 @@ namespace Project001
 
             glm::vec3 closestPoint;
             Get3D_Point_OBB_ClosestPoint(
-                glm::vec3(2.0f - 3.0f / std::sqrtf(2.0f), 3.0f / std::sqrtf(2.0f), 1.0f),
+                glm::vec3(2.0f - 3.0f / glm::sqrt(2.0f), 3.0f / glm::sqrt(2.0f), 1.0f),
                 glm::vec3(1.0f, 3.0f, 1.0f),
                 glm::vec3(2.0f, 0.0f, 0.0f),
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 3.0f / std::sqrtf(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 3.0f / std::sqrtf(2.0f)) &&
+            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 3.0f / glm::sqrt(2.0f)) &&
+                FloatEqualToFloat(closestPoint.y, 3.0f / glm::sqrt(2.0f)) &&
                 FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 3;
@@ -6106,14 +6106,14 @@ namespace Project001
 
             glm::vec3 closestPoint;
             Get3D_Point_OBB_ClosestPoint(
-                glm::vec3(2.0f - 2.0f / std::sqrtf(2.0f), 4.0f / std::sqrtf(2.0f), 1.0f),
+                glm::vec3(2.0f - 2.0f / glm::sqrt(2.0f), 4.0f / glm::sqrt(2.0f), 1.0f),
                 glm::vec3(1.0f, 3.0f, 1.0f),
                 glm::vec3(2.0f, 0.0f, 0.0f),
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / std::sqrtf(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 4.0f / std::sqrtf(2.0f)) &&
+            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
+                FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
                 FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 4;
@@ -6135,8 +6135,8 @@ namespace Project001
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / std::sqrtf(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 4.0f / std::sqrtf(2.0f)) &&
+            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
+                FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
                 FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 5;

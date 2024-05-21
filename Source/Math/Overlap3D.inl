@@ -2814,8 +2814,8 @@ interval_max = interval_min;
 for (size_t i = 1; i < 8; ++i)
 {
     float scalarProjection = glm::dot(axis, verticies[i]);
-    interval_min = GetMin(interval_min, scalarProjection);
-    interval_max = GetMax(interval_max, scalarProjection);
+    interval_min = std::min(interval_min, scalarProjection);
+    interval_max = std::max(interval_max, scalarProjection);
 }
     }
 
@@ -2849,8 +2849,8 @@ for (size_t i = 1; i < 8; ++i)
         for (size_t i = 1; i < 8; ++i)
         {
             float scalarProjection = glm::dot(axis, verticies[i]);
-            interval_min = GetMin(interval_min, scalarProjection);
-            interval_max = GetMax(interval_max, scalarProjection);
+            interval_min = std::min(interval_min, scalarProjection);
+            interval_max = std::max(interval_max, scalarProjection);
         }
     }
 

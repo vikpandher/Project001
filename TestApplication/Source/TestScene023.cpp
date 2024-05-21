@@ -3,8 +3,6 @@
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
 #include "Math/Overlap3D_UnitTests.h"
-#include "Math/CoordinateSystems.h"
-#include "Math/VectorUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "FreetypeTextLoader.h"

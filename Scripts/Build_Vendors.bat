@@ -16,7 +16,7 @@ ECHO Building FileToHeaderConverter
 ECHO ^
 --------------------------------------------------------------------------------
 
-CD ../Vendor/FileToHeaderConverter
+CD /D %~dp0/../Vendor/FileToHeaderConverter
 
 cmake ^
     -B Build ^
@@ -32,7 +32,7 @@ ECHO Building freetype
 ECHO ^
 --------------------------------------------------------------------------------
 
-CD ../../freetype
+CD %~dp0/../Vendor/freetype
 
 cmake ^
     -DFT_DISABLE_BROTLI=ON ^
@@ -53,7 +53,7 @@ ECHO Building glfw
 ECHO ^
 --------------------------------------------------------------------------------
 
-CD ../../glfw
+CD %~dp0/../Vendor/glfw
 
 cmake ^
     -DGLFW_BUILD_DOCS=OFF ^

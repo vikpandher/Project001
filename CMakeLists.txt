@@ -117,18 +117,14 @@ set (COMPONENTS_FILES
 source_group("Source/Components" FILES ${COMPONENTS_FILES})
 
 set (MATH_FILES
-    "Source/Math/CoordinateSystems.h"
-    "Source/Math/CoordinateSystems.inl"
-    "Source/Math/FloatComparators.h"
-    "Source/Math/FloatComparators.inl"
+    "Source/Math/MathUtilities.h"
+    "Source/Math/MathUtilities.inl"
     "Source/Math/Overlap2D.h"
     "Source/Math/Overlap2D.inl"
     "Source/Math/Overlap3D.h"
     "Source/Math/Overlap3D.inl"
     "Source/Math/Overlap3D_UnitTests.h"
     "Source/Math/Overlap3D_UnitTests.inl"
-    "Source/Math/VectorUtilities.h"
-    "Source/Math/VectorUtilities.inl"
 )
 
 source_group("Source/Math" FILES ${MATH_FILES})

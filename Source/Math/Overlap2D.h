@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Math/FloatComparators.h"
-#include "Math/VectorUtilities.h"
+#include "Math/MathUtilities.h"
 
 
 
@@ -1160,8 +1159,6 @@ namespace Project001
     glm::vec2 Get2D_DirectionFromSlope(float slope);
 
     float Get2D_SlopeFromDirection(const glm::vec2& direction);
-
-    float FastInverseSquareRoot(float number);
 }
 
 #include "Overlap2D.inl"

@@ -48,7 +48,7 @@ namespace Project001
             }
 
             const glm::vec2& position = currentPoint.position;
-            float radius = std::sqrtf(position.x * position.x + position.y * position.y);
+            float radius = glm::sqrt(position.x * position.x + position.y * position.y);
             if (radius > largestRadius)
             {
                 largestRadius = radius;
@@ -65,8 +65,8 @@ namespace Project001
 
             const glm::vec2& start = currentLineSegment.start;
             const glm::vec2& end = currentLineSegment.end;
-            float radius1 = std::sqrtf(start.x * start.x + start.y * start.y);
-            float radius2 = std::sqrtf(end.x * end.x + end.y * end.y);
+            float radius1 = glm::sqrt(start.x * start.x + start.y * start.y);
+            float radius2 = glm::sqrt(end.x * end.x + end.y * end.y);
             if (radius1 > largestRadius)
             {
                 largestRadius = radius1;
@@ -87,10 +87,10 @@ namespace Project001
 
             const glm::vec2& bottomLeft = currentRectangle.bottomLeft;
             const glm::vec2& topRight = currentRectangle.topRight;
-            float radiusBottomLeft = std::sqrtf(bottomLeft.x * bottomLeft.x + bottomLeft.y * bottomLeft.y);
-            float radiusBottomRight = std::sqrtf(topRight.x * topRight.x + bottomLeft.y * bottomLeft.y);
-            float radiusTopRight = std::sqrtf(topRight.x * topRight.x + topRight.y * topRight.y);
-            float radiusTopLeft = std::sqrtf(bottomLeft.x * bottomLeft.x + topRight.y * topRight.y);
+            float radiusBottomLeft = glm::sqrt(bottomLeft.x * bottomLeft.x + bottomLeft.y * bottomLeft.y);
+            float radiusBottomRight = glm::sqrt(topRight.x * topRight.x + bottomLeft.y * bottomLeft.y);
+            float radiusTopRight = glm::sqrt(topRight.x * topRight.x + topRight.y * topRight.y);
+            float radiusTopLeft = glm::sqrt(bottomLeft.x * bottomLeft.x + topRight.y * topRight.y);
             if (radiusBottomLeft > largestRadius)
             {
                 largestRadius = radiusBottomLeft;
@@ -132,10 +132,10 @@ namespace Project001
             corner2 += position;
             corner3 += position;
             corner4 += position;
-            float radius1 = std::sqrtf(corner1.x * corner1.x + corner1.y * corner1.y);
-            float radius2 = std::sqrtf(corner2.x * corner2.x + corner2.y * corner2.y);
-            float radius3 = std::sqrtf(corner3.x * corner3.x + corner3.y * corner3.y);
-            float radius4 = std::sqrtf(corner4.x * corner4.x + corner4.y * corner4.y);
+            float radius1 = glm::sqrt(corner1.x * corner1.x + corner1.y * corner1.y);
+            float radius2 = glm::sqrt(corner2.x * corner2.x + corner2.y * corner2.y);
+            float radius3 = glm::sqrt(corner3.x * corner3.x + corner3.y * corner3.y);
+            float radius4 = glm::sqrt(corner4.x * corner4.x + corner4.y * corner4.y);
             if (radius1 > largestRadius)
             {
                 largestRadius = radius1;
@@ -163,7 +163,7 @@ namespace Project001
             }
 
             const glm::vec2& position = currentCircle.position;
-            float radius = std::sqrtf(position.x * position.x + position.y * position.y);
+            float radius = glm::sqrt(position.x * position.x + position.y * position.y);
             radius += currentCircle.radius;
             if (radius > largestRadius)
             {
@@ -181,9 +181,9 @@ namespace Project001
 
             const glm::vec2& start = currentCapsule.start;
             const glm::vec2& end = currentCapsule.end;
-            float radius1 = std::sqrtf(start.x * start.x + start.y * start.y);
+            float radius1 = glm::sqrt(start.x * start.x + start.y * start.y);
             radius1 += currentCapsule.radius;
-            float radius2 = std::sqrtf(end.x * end.x + end.y * end.y);
+            float radius2 = glm::sqrt(end.x * end.x + end.y * end.y);
             radius2 += currentCapsule.radius;
             if (radius1 > largestRadius)
             {
@@ -206,9 +206,9 @@ namespace Project001
             const glm::vec2& corner1 = currentTriangle.corner1;
             const glm::vec2& corner2 = currentTriangle.corner2;
             const glm::vec2& corner3 = currentTriangle.corner3;
-            float radius1 = std::sqrtf(corner1.x * corner1.x + corner1.y * corner1.y);
-            float radius2 = std::sqrtf(corner2.x * corner2.x + corner2.y * corner2.y);
-            float radius3 = std::sqrtf(corner3.x * corner3.x + corner3.y * corner3.y);
+            float radius1 = glm::sqrt(corner1.x * corner1.x + corner1.y * corner1.y);
+            float radius2 = glm::sqrt(corner2.x * corner2.x + corner2.y * corner2.y);
+            float radius3 = glm::sqrt(corner3.x * corner3.x + corner3.y * corner3.y);
             if (radius1 > largestRadius)
             {
                 largestRadius = radius1;
@@ -234,7 +234,7 @@ namespace Project001
             for (size_t j = 0; j < currentPolygon.positions.size(); ++j)
             {
                 const glm::vec2& corner = currentPolygon.positions[j];
-                float radius = std::sqrtf(corner.x * corner.x + corner.y * corner.y);
+                float radius = glm::sqrt(corner.x * corner.x + corner.y * corner.y);
                 if (radius > largestRadius)
                 {
                     largestRadius = radius;
@@ -253,7 +253,7 @@ namespace Project001
             for (size_t j = 0; j < currentConvexPolygon.positions.size(); ++j)
             {
                 const glm::vec2& corner = currentConvexPolygon.positions[j];
-                float radius = std::sqrtf(corner.x * corner.x + corner.y * corner.y);
+                float radius = glm::sqrt(corner.x * corner.x + corner.y * corner.y);
                 if (radius > largestRadius)
                 {
                     largestRadius = radius;
