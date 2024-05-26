@@ -130,7 +130,16 @@ namespace Project001
         // vectorProjection = scalarProjection * unitVector
         // vectorProjection = b * dot(a, b) / (|b|)^2
         // vectorProjection = b * dot(a, b) / dot(b, b)
-        return vector2 * glm::dot(vector1, vector2) / glm::dot(vector2, vector2);
+
+        float dotProduct = glm::dot(vector1, vector2);
+        float magnitudeSquared = glm::dot(vector2, vector2);
+
+        // Prevent division by zero
+        // if (magnitudeSquared == 0.0f) {
+        //     return glm::vec2(0.0f, 0.0f);
+        // }
+
+        return vector2 * dotProduct / magnitudeSquared;
     }
 
     inline float Get3DVectorAngle(const glm::vec3& vector1, const glm::vec3& vector2)

@@ -529,17 +529,41 @@ namespace Project001
                 continue;
             }
 
-            transformedCollisionPolygons_.emplace_back();
-            CollisionPolygon2D& transformedCollisionPolygon = transformedCollisionPolygons_.back();
-            transformedCollisionPolygon.positions.reserve(currentCollisionPolygon.positions.size());
-            for (size_t j = 0; j < currentCollisionPolygon.positions.size(); ++j)
+            if (currentCollisionPolygon.positions.size() > 2)
             {
-                const glm::vec2& currentCorner = currentCollisionPolygon.positions[j];
-                glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
-                transformedCollisionPolygon.positions.push_back(newCorner);
+                transformedCollisionPolygons_.emplace_back();
+                CollisionPolygon2D& transformedCollisionPolygon = transformedCollisionPolygons_.back();
+                transformedCollisionPolygon.positions.reserve(currentCollisionPolygon.positions.size());
+                for (size_t j = 0; j < currentCollisionPolygon.positions.size(); ++j)
+                {
+                    const glm::vec2& currentCorner = currentCollisionPolygon.positions[j];
+                    glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
+                    transformedCollisionPolygon.positions.push_back(newCorner);
+                }
+                transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
+                transformedCollisionPolygon.tangible = currentCollisionPolygon.tangible;
             }
-            transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
-            transformedCollisionPolygon.tangible = currentCollisionPolygon.tangible;
+            else if (currentCollisionPolygon.positions.size() == 2)
+            {
+
+                glm::vec2 newStart = Rotate2DVector(currentCollisionPolygon.positions[0], rotation_) + position_;
+                glm::vec2 newEnd = Rotate2DVector(currentCollisionPolygon.positions[1], rotation_) + position_;
+                transformedCollisionLineSegments_.emplace_back(
+                    newStart,
+                    newEnd,
+                    currentCollisionPolygon.tag,
+                    currentCollisionPolygon.tangible
+                );
+            }
+            else if (currentCollisionPolygon.positions.size() == 1)
+            {
+                glm::vec2 newPosition = Rotate2DVector(currentCollisionPolygon.positions[0], rotation_) + position_;
+                transformedCollisionPoints_.emplace_back(
+                    newPosition,
+                    currentCollisionPolygon.tag,
+                    currentCollisionPolygon.tangible
+                );
+            }
         }
 
         for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
@@ -550,17 +574,41 @@ namespace Project001
                 continue;
             }
 
-            transformedCollisionConvexPolygons_.emplace_back();
-            CollisionConvexPolygon2D& transformedCollisionConvexPolygon = transformedCollisionConvexPolygons_.back();
-            transformedCollisionConvexPolygon.positions.reserve(currentCollisionConvexPolygon.positions.size());
-            for (size_t j = 0; j < currentCollisionConvexPolygon.positions.size(); ++j)
+            if (currentCollisionConvexPolygon.positions.size() > 2)
             {
-                const glm::vec2& currentCorner = currentCollisionConvexPolygon.positions[j];
-                glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
-                transformedCollisionConvexPolygon.positions.push_back(newCorner);
+                transformedCollisionConvexPolygons_.emplace_back();
+                CollisionConvexPolygon2D& transformedCollisionConvexPolygon = transformedCollisionConvexPolygons_.back();
+                transformedCollisionConvexPolygon.positions.reserve(currentCollisionConvexPolygon.positions.size());
+                for (size_t j = 0; j < currentCollisionConvexPolygon.positions.size(); ++j)
+                {
+                    const glm::vec2& currentCorner = currentCollisionConvexPolygon.positions[j];
+                    glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
+                    transformedCollisionConvexPolygon.positions.push_back(newCorner);
+                }
+                transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
+                transformedCollisionConvexPolygon.tangible = currentCollisionConvexPolygon.tangible;
             }
-            transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
-            transformedCollisionConvexPolygon.tangible = currentCollisionConvexPolygon.tangible;
+            else if (currentCollisionConvexPolygon.positions.size() == 2)
+            {
+
+                glm::vec2 newStart = Rotate2DVector(currentCollisionConvexPolygon.positions[0], rotation_) + position_;
+                glm::vec2 newEnd = Rotate2DVector(currentCollisionConvexPolygon.positions[1], rotation_) + position_;
+                transformedCollisionLineSegments_.emplace_back(
+                    newStart,
+                    newEnd,
+                    currentCollisionConvexPolygon.tag,
+                    currentCollisionConvexPolygon.tangible
+                );
+            }
+            else if (currentCollisionConvexPolygon.positions.size() == 1)
+            {
+                glm::vec2 newPosition = Rotate2DVector(currentCollisionConvexPolygon.positions[0], rotation_) + position_;
+                transformedCollisionPoints_.emplace_back(
+                    newPosition,
+                    currentCollisionConvexPolygon.tag,
+                    currentCollisionConvexPolygon.tangible
+                );
+            }
         }
 
         transformedCollisionShapesUpToDate_ = true;

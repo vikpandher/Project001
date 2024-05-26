@@ -17,12 +17,12 @@
 // * Polygon
 // * Convex Polygon
 // 
-// Overlap Functions: (TODO)
+// Overlap Functions:
 //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
-// Point                                  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
-// Line                 |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
-// Ray                  | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
-// LineSegment          | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Point          |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Line           | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// Ray            | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
+// LineSegment    | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
 // Rectangle      | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
 // O. Rectangle   | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |  \  |
 // Circle         | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |  \  |  \  |
@@ -30,13 +30,6 @@
 // Triangle       | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |  \  |
 // Polygon        | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |  \  |
 // Convex Polygon | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |  \  |
-// 
-// Overlap Function Notes:
-// * touching edges or corners don't count as an overlap
-// * ray_direction needs to be a unit vector
-// * it may be possible for a ray to pass from one corner to another corner of
-//   some shapes without colliding, (thread the needle) but it's unlikely
-// * polygon shapes without at least 3 corners will not overlap with anything
 // 
 // Closest Point Functions:
 //                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap |
@@ -56,11 +49,11 @@
 // 
 // Collision Point And Normal And Depth Functions: (TODO)
 //                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |     |     |     |     |
-// O. Rectangle   |  -  |     |     |     |     |
-// Circle         |  -  |  -  |  \  |     |  :  |
-// Triangle       |  -  |  -  |  -  |  :  |     |
-// Convex Polygon |  -  |  -  |  -  |  -  |  :  | 13
+// Rectangle      |  ?  |     |     |     |     |
+// O. Rectangle   |     |     |     |     |     |
+// Circle         |     |     |  \  |     |     |
+// Triangle       |     |     |     |     |     |
+// Convex Polygon |     |     |     |     |     |
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -70,7 +63,27 @@
 
 namespace Project001
 {
-    // Overlap Functions (Point) -----------------------------------------------
+    // Checking Point overlap --------------------------------------------------
+
+    bool Check2D_Point_Point_Overlap(
+        const glm::vec2& pointA_position,
+        const glm::vec2& pointB_position);
+
+    bool Check2D_Point_Line_Overlap(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope);
+
+    // ray_direction needs to be a unit vector
+    bool Check2D_Point_Ray_Overlap(
+        const glm::vec2& point_position,
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction);
+
+    bool Check2D_Point_LineSegment_Overlap(
+        const glm::vec2& point_position,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end);
 
     bool Check2D_Point_Rectangle_Overlap(
         const glm::vec2& point_position,
@@ -110,14 +123,22 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Line) ------------------------------------------------
+    // Checking Line overlap ---------------------------------------------------
 
+    bool Check2D_Line_Point_Overlap(
+        const glm::vec2& line_position,
+        const float& line_slope,
+        const glm::vec2& point_position);
+
+    // one slope of negative infinity and the other of infinity will falsely
+    // indicate a overlap
     bool Check2D_Line_Line_Overlap(
         const glm::vec2& lineA_position,
         const float& lineA_slope,
         const glm::vec2& lineB_position,
         const float& lineB_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Line_Ray_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
@@ -175,32 +196,43 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Ray) -------------------------------------------------
+    // Checking Ray overlap ----------------------------------------------------
 
+    // ray_direction needs to be a unit vector
+    bool Check2D_Ray_Point_Overlap(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& point_position);
+
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Line_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // rayA_direction and rayB_direction need to be a unit vectors
     bool Check2D_Ray_Ray_Overlap(
         const glm::vec2& rayA_position,
         const glm::vec2& rayA_direction,
         const glm::vec2& rayB_position,
         const glm::vec2& rayB_direction);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_LineSegment_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Rectangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_OrientedRectangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
@@ -208,12 +240,14 @@ namespace Project001
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Circle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& circle_position,
         const float& circle_radius);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Capsule_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
@@ -221,6 +255,7 @@ namespace Project001
         const glm::vec2& capsule_end,
         const float& capsule_radius);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Triangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
@@ -228,19 +263,26 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_Polygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Ray_ConvexPolygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (LineSegment) -----------------------------------------
+    // Checking LineSegment overlap --------------------------------------------
+
+    bool Check2D_LineSegment_Point_Overlap(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& point_position);
 
     bool Check2D_LineSegment_Line_Overlap(
         const glm::vec2& lineSegment_start,
@@ -248,6 +290,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_LineSegment_Ray_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
@@ -305,7 +348,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Rectangle) -------------------------------------------
+    // Checking Rectangle overlap ----------------------------------------------
 
     bool Check2D_Rectangle_Point_Overlap(
         const glm::vec2& rectangle_bottomLeft,
@@ -318,6 +361,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Rectangle_Ray_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -375,7 +419,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (OrientedRectangle) -----------------------------------
+    // Checking OrientedRectangle overlap --------------------------------------
 
     bool Check2D_OrientedRectangle_Point_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
@@ -390,6 +434,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_OrientedRectangle_Ray_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
@@ -456,7 +501,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Circle) ----------------------------------------------
+    // Checking Circle overlap -------------------------------------------------
 
     bool Check2D_Circle_Point_Overlap(
         const glm::vec2& circle_position,
@@ -469,6 +514,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Circle_Ray_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
@@ -526,7 +572,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Capsule) ---------------------------------------------
+    // Checking Capsule overlap ------------------------------------------------
 
     bool Check2D_Capsule_Point_Overlap(
         const glm::vec2& capsule_start,
@@ -541,6 +587,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Capsule_Ray_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -607,7 +654,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Triangle) --------------------------------------------
+    // Checking Triangle overlap -----------------------------------------------
 
     bool Check2D_Triangle_Point_Overlap(
         const glm::vec2& triangle_corner1,
@@ -622,6 +669,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Triangle_Ray_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -688,7 +736,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (Polygon) ---------------------------------------------
+    // Checking Polygon overlap ------------------------------------------------
 
     bool Check2D_Polygon_Point_Overlap(
         const glm::vec2* const& polygon_corners,
@@ -701,6 +749,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_Polygon_Ray_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
@@ -758,7 +807,7 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount);
 
-    // Overlap Functions (ConvexPolygon) ---------------------------------------
+    // Checking Convex Polygon overlap -----------------------------------------
 
     bool Check2D_ConvexPolygon_Point_Overlap(
         const glm::vec2* const& convexPolygon_corners,
@@ -771,6 +820,7 @@ namespace Project001
         const glm::vec2& line_position,
         const float& line_slope);
 
+    // ray_direction needs to be a unit vector
     bool Check2D_ConvexPolygon_Ray_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
@@ -956,6 +1006,8 @@ namespace Project001
 
     // Rectangle Collision Point And Normal And Depth Functions ---------------
 
+    // WORK IN PROGRSS
+    // Doesn't provide correct depth went one rectangle fully encloses another
     bool Get2D_Rectangle_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& rectangleA_bottomLeft,
         const glm::vec2& rectangleA_topRight,
@@ -976,18 +1028,6 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
-    // ConvexPolygon Collision Point And Normal And Depth Functions ------------
-
-    // Work In Progress
-    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
-        const glm::vec2* const& convexPolygonA_corners,
-        const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolygonB_corners,
-        const size_t& convexPolygonB_cornerCount,
-        glm::vec2& collisionPoint,
-        glm::vec2& collisionNormal,
-        float& collisionDepth);
-
     // Intersection Functions --------------------------------------------------
 
     bool Get2D_Line_Line_Intersection(
@@ -998,6 +1038,18 @@ namespace Project001
         glm::vec2& intersection_position);
 
     // Helper Functions --------------------------------------------------------
+
+    // Unused
+    float Get2D_Point_Line_DistanceSquared_Alt(
+        const glm::vec2& point_position,
+        const glm::vec2& line_position,
+        const float& line_slope);
+
+    // This version doesn't care which 2 cornors AS LONG AS they are opposite
+    bool Check2D_Point_Rectangle_NoOverlap_H(
+        const glm::vec2& point_position,
+        const glm::vec2& rectangle_oppositeCorner1,
+        const glm::vec2& rectangle_oppositeCorner2);
 
     // This version doesn't care which 2 cornors AS LONG AS they are opposite
     bool Check2D_Point_Rectangle_Overlap_H(
@@ -1012,40 +1064,14 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Unused
-    bool Check2D_Rectangle_OrientedRectangle_Overlap_Alt(
-        const glm::vec2& rectangle_bottomLeft,
-        const glm::vec2& rectangle_topRight,
-        const glm::vec2& orientedRectangle_halfSize,
-        const glm::vec2& orientedRectangle_position,
-        const float& orientedRectangle_rotation);
+    // If lineA_slope == lineB_slope, intersection_position == (nan, nan)
+    void Get2D_Line_Line_Intersection_H(
+        const glm::vec2& lineA_position,
+        const float& lineA_slope,
+        const glm::vec2& lineB_position,
+        const float& lineB_slope,
+        glm::vec2& intersection_position);
 
-    // Unused
-    bool Check2D_Rectangle_Triangle_Overlap_Alt(
-        const glm::vec2& rectangle_bottomLeft,
-        const glm::vec2& rectangle_topRight,
-        const glm::vec2& triangle_corner1,
-        const glm::vec2& triangle_corner2,
-        const glm::vec2& triangle_corner3);
-
-    // Unused
-    bool Check2D_Circle_Triangle_Overlap_Alt(
-        const glm::vec2& circle_position,
-        const float& circle_radius,
-        const glm::vec2& triangle_corner1,
-        const glm::vec2& triangle_corner2,
-        const glm::vec2& triangle_corner3);
-
-    // Unused
-    bool Check2D_Triangle_Triangle_Overlap_Alt(
-        const glm::vec2& triangleA_corner1,
-        const glm::vec2& triangleA_corner2,
-        const glm::vec2& triangleA_corner3,
-        const glm::vec2& triangleB_corner1,
-        const glm::vec2& triangleB_corner2,
-        const glm::vec2& triangleB_corner3);
-
-    // Unused
     // line_direction doesn't need to be a unit vector
     unsigned int Get2D_Line_Circle_IntersectionDirectionScalars(
         const glm::vec2& line_position,
@@ -1065,6 +1091,29 @@ namespace Project001
         glm::vec2& intersection_position1,
         glm::vec2& intersection_position2);
 
+    // This version assumes that the ray_position is inside the rectangle
+    void Get2D_Ray_Rectangle_CollisionPointAndNormal_H(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint_position,
+        glm::vec2& collisionNormal);
+
+    // Unused
+    bool Check2D_Rectangle_Rectangle_Overlap_Alt(
+        const glm::vec2& rectangleA_bottomLeft,
+        const glm::vec2& rectangleA_topRight,
+        const glm::vec2& rectangleB_bottomLeft,
+        const glm::vec2& rectangleB_topRight);
+
+    // Unused
+    bool Check2D_Rectangle_Circle_Overlap_Alt(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius);
+
     // This version doesn't check if the line segment is inside the rectangle
     // it only cares it if collides with the sides constructing it
     bool Check2D_RectangleFrame_LineSegment_Overlap(
@@ -1072,6 +1121,16 @@ namespace Project001
         const glm::vec2& rectangle_topRight,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end);
+
+    // This version doesn't check if the circle is inside the rectangle
+    // it only cares it if collides with the sides constructing it
+    bool Check2D_RectangleFrame_Circle_Overlap(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius);
+
+    float Get2D_Slope(const glm::vec2& start, const glm::vec2& end);
 
     // returns 0 if colinear
     // returns 1 if clockwise
@@ -1086,48 +1145,14 @@ namespace Project001
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);
 
-    // Preforms half of the seperate axis theorm check.
-    // Projects the corners of both convexPolygonA and convexPolygonB onto
-    // the perpendiculars from convexPolygonA to check for a seperating axis.
-    // Returns false if an axis of seperation has been found.
+    // Preforms have of the seperate axis theorm check, using perpendiculars
+    // from only convexPolygonA to generate and check seperation axis. Returns
+    // false if a axis of seperation has been found.
     bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount);
-
-    void ProjectPolygonOntoAxis(
-        const glm::vec2& axis,
-        const glm::vec2* const& polygon_corners,
-        const size_t& polygon_cornerCount,
-        float& max,
-        float& min);
-
-    void ProjectPolygonOntoAxis_2(
-        const glm::vec2& axis,
-        const glm::vec2* const& polygon_corners,
-        const size_t& polygon_cornerCount,
-        float& max,
-        float& min,
-        size_t& maxIndex,
-        size_t& minIndex);
-
-    // axis vector needs to be a unit vector
-    void ProjectCircleOntoAxis(
-        const glm::vec2& axis,
-        const glm::vec2& circle_position,
-        const float& circle_radius,
-        float& max,
-        float& min);
-
-    // axis vector needs to be a unit vector
-    void ProjectCapsuleOntoAxis(
-        const glm::vec2& axis,
-        const glm::vec2& capsule_start,
-        const glm::vec2& capsule_end,
-        const float& capsule_radius,
-        float& max,
-        float& min);
 
     float RotateSlope(float slope, float rotationInRadians);
 

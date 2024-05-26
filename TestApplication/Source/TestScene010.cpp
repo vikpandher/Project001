@@ -1329,9 +1329,6 @@ void TestScene010::Test_Misc() const
     glm::mat3 mat000(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f);
     float det000 = glm::determinant(mat000);
 
-    glm::vec2 test01;
-    Project001::Get2D_Line_Line_Intersection_H(glm::vec2(0.0f, 0.0f), 1.0f, glm::vec2(1.0f, 1.0f), 1.0f, test01);
-
     glm::vec3 test02(0.0f, 0.0f, 0.0f);
     test02 = glm::normalize(test02);
 }

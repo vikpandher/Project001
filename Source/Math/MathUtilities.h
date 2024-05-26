@@ -48,6 +48,7 @@ namespace Project001
 
     float Get2DVectorAngle(const glm::vec2& vector1, const glm::vec2& vector2);
 
+    // projects vector1 onto vector2
     glm::vec2 Get2DVectorProjection(const glm::vec2& vector1, const glm::vec2& vector2);
 
     float Get3DVectorAngle(const glm::vec3& vector1, const glm::vec3& vector2);

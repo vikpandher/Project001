@@ -461,85 +461,6 @@ namespace Project001
         };
 
         // ---------------------------------------------------------------------
-        // point A & point B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
-        {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Point_Point_Overlap(
-                    pointA.position,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(pointA.tag, pointB.tag);
-                }
-            }
-        }
-
-        // point A & line B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
-        {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionLinesB.size(); ++j)
-            {
-                const CollisionLine2D& lineB = transformedCollisionLinesB[j];
-
-                bool collisionFound = Check2D_Point_Line_Overlap(
-                    pointA.position,
-                    lineB.position,
-                    lineB.slope);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(pointA.tag, lineB.tag);
-                }
-            }
-        }
-
-        // point A & ray B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
-        {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionRaysB.size(); ++j)
-            {
-                const CollisionRay2D& rayB = transformedCollisionRaysB[j];
-
-                bool collisionFound = Check2D_Point_Ray_Overlap(
-                    pointA.position,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(pointA.tag, rayB.tag);
-                }
-            }
-        }
-
-        // point A & lineSegment B
-        for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
-        {
-            const CollisionPoint2D& pointA = transformedCollisionPointsA[i];
-            for (size_t j = 0; j < transformedCollisionLineSegmentsB.size(); ++j)
-            {
-                const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
-
-                bool collisionFound = Check2D_Point_LineSegment_Overlap(
-                    pointA.position,
-                    lineSegmentB.start,
-                    lineSegmentB.end);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(pointA.tag, lineSegmentB.tag);
-                }
-            }
-        }
-
         // point A & rectangle B
         for (size_t i = 0; i < transformedCollisionPointsA.size(); ++i)
         {
@@ -684,26 +605,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // line A & point B
-        for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
-        {
-            const CollisionLine2D& lineA = transformedCollisionLinesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Line_Point_Overlap(
-                    lineA.position,
-                    lineA.slope,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(lineA.tag, pointB.tag);
-                }
-            }
-        }
-
         // line A & line B
         for (size_t i = 0; i < transformedCollisionLinesA.size(); ++i)
         {
@@ -918,26 +819,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // ray A & point B
-        for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
-        {
-            const CollisionRay2D& rayA = transformedCollisionRaysA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Ray_Point_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(rayA.tag, pointB.tag);
-                }
-            }
-        }
-
         // ray A & line B
         for (size_t i = 0; i < transformedCollisionRaysA.size(); ++i)
         {
@@ -1152,26 +1033,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // lineSegment A & point B
-        for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
-        {
-            const CollisionLineSegment2D& lineSegmentA = transformedCollisionLineSegmentsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_LineSegment_Point_Overlap(
-                    lineSegmentA.start,
-                    lineSegmentA.end,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(lineSegmentA.tag, pointB.tag);
-                }
-            }
-        }
-
         // lineSegment A & line B
         for (size_t i = 0; i < transformedCollisionLineSegmentsA.size(); ++i)
         {
@@ -1386,26 +1247,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // rectangle A & point B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-        {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Rectangle_Point_Overlap(
-                    rectangleA.bottomLeft,
-                    rectangleA.topRight,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(rectangleA.tag, pointB.tag);
-                }
-            }
-        }
-
         // rectangle A & line B
         for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
@@ -1666,27 +1507,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // orientedRectangle A & point B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-        {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_OrientedRectangle_Point_Overlap(
-                    orientedRectangleA.halfSize,
-                    orientedRectangleA.position,
-                    orientedRectangleA.rotation,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(orientedRectangleA.tag, pointB.tag);
-                }
-            }
-        }
-
         // orientedRectangle A & line B
         for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
@@ -1911,26 +1731,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // circle A & point B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-        {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Circle_Point_Overlap(
-                    circleA.position,
-                    circleA.radius,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(circleA.tag, pointB.tag);
-                }
-            }
-        }
-
         // circle A & line B
         for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
@@ -2191,27 +1991,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // capsule A & point B
-        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-        {
-            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Capsule_Point_Overlap(
-                    capsuleA.start,
-                    capsuleA.end,
-                    capsuleA.radius,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(capsuleA.tag, pointB.tag);
-                }
-            }
-        }
-
         // capsule A & line B
         for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
@@ -2436,27 +2215,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // triangle A & point B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-        {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Triangle_Point_Overlap(
-                    triangleA.corner1,
-                    triangleA.corner2,
-                    triangleA.corner3,
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(triangleA.tag, pointB.tag);
-                }
-            }
-        }
-
         // triangle A & line B
         for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
@@ -2681,26 +2439,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // polygon A & point B
-        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
-        {
-            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_Polygon_Point_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(polygonA.tag, pointB.tag);
-                }
-            }
-        }
-
         // polygon A & line B
         for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
         {
@@ -2915,26 +2653,6 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
-        // convexPolygon A & point B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-        {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
-            {
-                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
-
-                bool collisionFound = Check2D_ConvexPolygon_Point_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
-                    pointB.position);
-
-                if (collisionFound)
-                {
-                    AddCollisionData(convexPolygonA.tag, pointB.tag);
-                }
-            }
-        }
-
         // convexPolygon A & line B
         for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
@@ -3128,22 +2846,68 @@ namespace Project001
         }
 
         // convexPolygon A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
-
-                bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
-
-                if (collisionFound)
+                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
                 {
-                    AddCollisionData(convexPolygonA.tag, convexPolygonB.tag);
+                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
+                        convexPolygonA.positions.data(),
+                        convexPolygonA.positions.size(),
+                        convexPolygonB.positions.data(),
+                        convexPolygonB.positions.size(),
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = convexPolygonA.tag;
+                        collisionA.otherShapeTag = convexPolygonB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            {
+                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+                {
+                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
+                        convexPolygonA.positions.data(),
+                        convexPolygonA.positions.size(),
+                        convexPolygonB.positions.data(),
+                        convexPolygonB.positions.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, convexPolygonB.tag);
+                    }
                 }
             }
         }
