@@ -46,6 +46,8 @@ namespace Project001
 
     // Vector Manipulation -----------------------------------------------------
 
+    // angle from vector1 to vector2 (from -pi to pi)
+    // positive result is a counterclockwise rotation
     float Get2DVectorAngle(const glm::vec2& vector1, const glm::vec2& vector2);
 
     // projects vector1 onto vector2

@@ -574,8 +574,8 @@ namespace Project001
 
                 bool collisionFound = Check2D_Point_Polygon_Overlap(
                     pointA.position,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -594,8 +594,8 @@ namespace Project001
 
                 bool collisionFound = Check2D_Point_ConvexPolygon_Overlap(
                     pointA.position,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -787,8 +787,8 @@ namespace Project001
                 bool collisionFound = Check2D_Line_Polygon_Overlap(
                     lineA.position,
                     lineA.slope,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -808,8 +808,8 @@ namespace Project001
                 bool collisionFound = Check2D_Line_ConvexPolygon_Overlap(
                     lineA.position,
                     lineA.slope,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1001,8 +1001,8 @@ namespace Project001
                 bool collisionFound = Check2D_Ray_Polygon_Overlap(
                     rayA.position,
                     rayA.direction,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1022,8 +1022,8 @@ namespace Project001
                 bool collisionFound = Check2D_Ray_ConvexPolygon_Overlap(
                     rayA.position,
                     rayA.direction,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1215,8 +1215,8 @@ namespace Project001
                 bool collisionFound = Check2D_LineSegment_Polygon_Overlap(
                     lineSegmentA.start,
                     lineSegmentA.end,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1236,8 +1236,8 @@ namespace Project001
                 bool collisionFound = Check2D_LineSegment_ConvexPolygon_Overlap(
                     lineSegmentA.start,
                     lineSegmentA.end,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1475,8 +1475,8 @@ namespace Project001
                 bool collisionFound = Check2D_Rectangle_Polygon_Overlap(
                     rectangleA.bottomLeft,
                     rectangleA.topRight,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1496,8 +1496,8 @@ namespace Project001
                 bool collisionFound = Check2D_Rectangle_ConvexPolygon_Overlap(
                     rectangleA.bottomLeft,
                     rectangleA.topRight,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1698,8 +1698,8 @@ namespace Project001
                     orientedRectangleA.halfSize,
                     orientedRectangleA.position,
                     orientedRectangleA.rotation,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1720,8 +1720,8 @@ namespace Project001
                     orientedRectangleA.halfSize,
                     orientedRectangleA.position,
                     orientedRectangleA.rotation,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1959,8 +1959,8 @@ namespace Project001
                 bool collisionFound = Check2D_Circle_Polygon_Overlap(
                     circleA.position,
                     circleA.radius,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -1980,8 +1980,8 @@ namespace Project001
                 bool collisionFound = Check2D_Circle_ConvexPolygon_Overlap(
                     circleA.position,
                     circleA.radius,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2182,8 +2182,8 @@ namespace Project001
                     capsuleA.start,
                     capsuleA.end,
                     capsuleA.radius,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2204,8 +2204,8 @@ namespace Project001
                     capsuleA.start,
                     capsuleA.end,
                     capsuleA.radius,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2372,24 +2372,72 @@ namespace Project001
         }
 
         // triangle A & triangle B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
-
-                bool collisionFound = Check2D_Triangle_Triangle_Overlap(
-                    triangleA.corner1,
-                    triangleA.corner2,
-                    triangleA.corner3,
-                    triangleB.corner1,
-                    triangleB.corner2,
-                    triangleB.corner3);
-
-                if (collisionFound)
+                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
                 {
-                    AddCollisionData(triangleA.tag, triangleB.tag);
+                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Triangle_Triangle_CollisionPointNormalDepth(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = triangleA.tag;
+                        collisionA.otherShapeTag = triangleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            {
+                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+                {
+                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+
+                    bool collisionFound = Check2D_Triangle_Triangle_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, triangleB.tag);
+                    }
                 }
             }
         }
@@ -2406,8 +2454,8 @@ namespace Project001
                     triangleA.corner1,
                     triangleA.corner2,
                     triangleA.corner3,
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2428,8 +2476,8 @@ namespace Project001
                     triangleA.corner1,
                     triangleA.corner2,
                     triangleA.corner3,
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2448,8 +2496,8 @@ namespace Project001
                 const CollisionLine2D& lineB = transformedCollisionLinesB[j];
 
                 bool collisionFound = Check2D_Polygon_Line_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     lineB.position,
                     lineB.slope);
 
@@ -2469,8 +2517,8 @@ namespace Project001
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
                 bool collisionFound = Check2D_Polygon_Ray_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     rayB.position,
                     rayB.direction);
 
@@ -2490,8 +2538,8 @@ namespace Project001
                 const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
 
                 bool collisionFound = Check2D_Polygon_LineSegment_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     lineSegmentB.start,
                     lineSegmentB.end);
 
@@ -2511,8 +2559,8 @@ namespace Project001
                 const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
                 bool collisionFound = Check2D_Polygon_Rectangle_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     rectangleB.bottomLeft,
                     rectangleB.topRight);
 
@@ -2532,8 +2580,8 @@ namespace Project001
                 const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_Polygon_OrientedRectangle_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     orientedRectangleB.halfSize,
                     orientedRectangleB.position,
                     orientedRectangleB.rotation);
@@ -2554,8 +2602,8 @@ namespace Project001
                 const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
                 bool collisionFound = Check2D_Polygon_Circle_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     circleB.position,
                     circleB.radius);
 
@@ -2575,8 +2623,8 @@ namespace Project001
                 const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
                 bool collisionFound = Check2D_Polygon_Capsule_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     capsuleB.start,
                     capsuleB.end,
                     capsuleB.radius);
@@ -2597,8 +2645,8 @@ namespace Project001
                 const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
                 bool collisionFound = Check2D_Polygon_Triangle_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
                     triangleB.corner1,
                     triangleB.corner2,
                     triangleB.corner3);
@@ -2619,10 +2667,10 @@ namespace Project001
                 const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
 
                 bool collisionFound = Check2D_Polygon_Polygon_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2640,10 +2688,10 @@ namespace Project001
                 const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
                 bool collisionFound = Check2D_Polygon_ConvexPolygon_Overlap(
-                    polygonA.positions.data(),
-                    polygonA.positions.size(),
-                    convexPolygonB.positions.data(),
-                    convexPolygonB.positions.size());
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
+                    convexPolygonB.corners.data(),
+                    convexPolygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2662,8 +2710,8 @@ namespace Project001
                 const CollisionLine2D& lineB = transformedCollisionLinesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Line_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     lineB.position,
                     lineB.slope);
 
@@ -2683,8 +2731,8 @@ namespace Project001
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     rayB.position,
                     rayB.direction);
 
@@ -2704,8 +2752,8 @@ namespace Project001
                 const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_LineSegment_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     lineSegmentB.start,
                     lineSegmentB.end);
 
@@ -2725,8 +2773,8 @@ namespace Project001
                 const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Rectangle_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     rectangleB.bottomLeft,
                     rectangleB.topRight);
 
@@ -2746,8 +2794,8 @@ namespace Project001
                 const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_OrientedRectangle_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     orientedRectangleB.halfSize,
                     orientedRectangleB.position,
                     orientedRectangleB.rotation);
@@ -2768,8 +2816,8 @@ namespace Project001
                 const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Circle_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     circleB.position,
                     circleB.radius);
 
@@ -2789,8 +2837,8 @@ namespace Project001
                 const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Capsule_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     capsuleB.start,
                     capsuleB.end,
                     capsuleB.radius);
@@ -2811,8 +2859,8 @@ namespace Project001
                 const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
                     triangleB.corner1,
                     triangleB.corner2,
                     triangleB.corner3);
@@ -2833,10 +2881,10 @@ namespace Project001
                 const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
 
                 bool collisionFound = Check2D_ConvexPolygon_Polygon_Overlap(
-                    convexPolygonA.positions.data(),
-                    convexPolygonA.positions.size(),
-                    polygonB.positions.data(),
-                    polygonB.positions.size());
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
+                    polygonB.corners.data(),
+                    polygonB.corners.size());
 
                 if (collisionFound)
                 {
@@ -2857,10 +2905,10 @@ namespace Project001
 
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
-                        convexPolygonA.positions.data(),
-                        convexPolygonA.positions.size(),
-                        convexPolygonB.positions.data(),
-                        convexPolygonB.positions.size(),
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size(),
                         collisionA.point,
                         collisionA.normal,
                         collisionA.depth);
@@ -2899,10 +2947,10 @@ namespace Project001
                     const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
                     bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
-                        convexPolygonA.positions.data(),
-                        convexPolygonA.positions.size(),
-                        convexPolygonB.positions.data(),
-                        convexPolygonB.positions.size());
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
 
                     if (collisionFound)
                     {

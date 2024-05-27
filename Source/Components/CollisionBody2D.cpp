@@ -231,9 +231,9 @@ namespace Project001
                 continue;
             }
 
-            for (size_t j = 0; j < currentPolygon.positions.size(); ++j)
+            for (size_t j = 0; j < currentPolygon.corners.size(); ++j)
             {
-                const glm::vec2& corner = currentPolygon.positions[j];
+                const glm::vec2& corner = currentPolygon.corners[j];
                 float radius = glm::sqrt(corner.x * corner.x + corner.y * corner.y);
                 if (radius > largestRadius)
                 {
@@ -250,9 +250,9 @@ namespace Project001
                 continue;
             }
 
-            for (size_t j = 0; j < currentConvexPolygon.positions.size(); ++j)
+            for (size_t j = 0; j < currentConvexPolygon.corners.size(); ++j)
             {
-                const glm::vec2& corner = currentConvexPolygon.positions[j];
+                const glm::vec2& corner = currentConvexPolygon.corners[j];
                 float radius = glm::sqrt(corner.x * corner.x + corner.y * corner.y);
                 if (radius > largestRadius)
                 {
@@ -529,25 +529,25 @@ namespace Project001
                 continue;
             }
 
-            if (currentCollisionPolygon.positions.size() > 2)
+            if (currentCollisionPolygon.corners.size() > 2)
             {
                 transformedCollisionPolygons_.emplace_back();
                 CollisionPolygon2D& transformedCollisionPolygon = transformedCollisionPolygons_.back();
-                transformedCollisionPolygon.positions.reserve(currentCollisionPolygon.positions.size());
-                for (size_t j = 0; j < currentCollisionPolygon.positions.size(); ++j)
+                transformedCollisionPolygon.corners.reserve(currentCollisionPolygon.corners.size());
+                for (size_t j = 0; j < currentCollisionPolygon.corners.size(); ++j)
                 {
-                    const glm::vec2& currentCorner = currentCollisionPolygon.positions[j];
+                    const glm::vec2& currentCorner = currentCollisionPolygon.corners[j];
                     glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
-                    transformedCollisionPolygon.positions.push_back(newCorner);
+                    transformedCollisionPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
                 transformedCollisionPolygon.tangible = currentCollisionPolygon.tangible;
             }
-            else if (currentCollisionPolygon.positions.size() == 2)
+            else if (currentCollisionPolygon.corners.size() == 2)
             {
 
-                glm::vec2 newStart = Rotate2DVector(currentCollisionPolygon.positions[0], rotation_) + position_;
-                glm::vec2 newEnd = Rotate2DVector(currentCollisionPolygon.positions[1], rotation_) + position_;
+                glm::vec2 newStart = Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newEnd = Rotate2DVector(currentCollisionPolygon.corners[1], rotation_) + position_;
                 transformedCollisionLineSegments_.emplace_back(
                     newStart,
                     newEnd,
@@ -555,9 +555,9 @@ namespace Project001
                     currentCollisionPolygon.tangible
                 );
             }
-            else if (currentCollisionPolygon.positions.size() == 1)
+            else if (currentCollisionPolygon.corners.size() == 1)
             {
-                glm::vec2 newPosition = Rotate2DVector(currentCollisionPolygon.positions[0], rotation_) + position_;
+                glm::vec2 newPosition = Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionPolygon.tag,
@@ -574,25 +574,25 @@ namespace Project001
                 continue;
             }
 
-            if (currentCollisionConvexPolygon.positions.size() > 2)
+            if (currentCollisionConvexPolygon.corners.size() > 2)
             {
                 transformedCollisionConvexPolygons_.emplace_back();
                 CollisionConvexPolygon2D& transformedCollisionConvexPolygon = transformedCollisionConvexPolygons_.back();
-                transformedCollisionConvexPolygon.positions.reserve(currentCollisionConvexPolygon.positions.size());
-                for (size_t j = 0; j < currentCollisionConvexPolygon.positions.size(); ++j)
+                transformedCollisionConvexPolygon.corners.reserve(currentCollisionConvexPolygon.corners.size());
+                for (size_t j = 0; j < currentCollisionConvexPolygon.corners.size(); ++j)
                 {
-                    const glm::vec2& currentCorner = currentCollisionConvexPolygon.positions[j];
+                    const glm::vec2& currentCorner = currentCollisionConvexPolygon.corners[j];
                     glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
-                    transformedCollisionConvexPolygon.positions.push_back(newCorner);
+                    transformedCollisionConvexPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
                 transformedCollisionConvexPolygon.tangible = currentCollisionConvexPolygon.tangible;
             }
-            else if (currentCollisionConvexPolygon.positions.size() == 2)
+            else if (currentCollisionConvexPolygon.corners.size() == 2)
             {
 
-                glm::vec2 newStart = Rotate2DVector(currentCollisionConvexPolygon.positions[0], rotation_) + position_;
-                glm::vec2 newEnd = Rotate2DVector(currentCollisionConvexPolygon.positions[1], rotation_) + position_;
+                glm::vec2 newStart = Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newEnd = Rotate2DVector(currentCollisionConvexPolygon.corners[1], rotation_) + position_;
                 transformedCollisionLineSegments_.emplace_back(
                     newStart,
                     newEnd,
@@ -600,9 +600,9 @@ namespace Project001
                     currentCollisionConvexPolygon.tangible
                 );
             }
-            else if (currentCollisionConvexPolygon.positions.size() == 1)
+            else if (currentCollisionConvexPolygon.corners.size() == 1)
             {
-                glm::vec2 newPosition = Rotate2DVector(currentCollisionConvexPolygon.positions[0], rotation_) + position_;
+                glm::vec2 newPosition = Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionConvexPolygon.tag,
@@ -769,8 +769,8 @@ namespace Project001
 
             float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
                 rotatedPointPosition,
-                collisionPolygon.positions.data(),
-                collisionPolygon.positions.size(),
+                collisionPolygon.corners.data(),
+                collisionPolygon.corners.size(),
                 glm::vec2());
 
             if (distanceSquared < minDistanceSquared)
@@ -785,8 +785,8 @@ namespace Project001
 
             float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
                 rotatedPointPosition,
-                collisionConvexPolygon.positions.data(),
-                collisionConvexPolygon.positions.size(),
+                collisionConvexPolygon.corners.data(),
+                collisionConvexPolygon.corners.size(),
                 glm::vec2());
 
             if (distanceSquared < minDistanceSquared)
@@ -985,8 +985,8 @@ namespace Project001
             glm::vec2 currentClosestPointPosition;
             float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
                 rotatedPointPosition,
-                collisionPolygon.positions.data(),
-                collisionPolygon.positions.size(),
+                collisionPolygon.corners.data(),
+                collisionPolygon.corners.size(),
                 currentClosestPointPosition);
 
             if (distanceSquared < minDistanceSquared)
@@ -1005,8 +1005,8 @@ namespace Project001
             glm::vec2 currentClosestPointPosition;
             float distanceSquared = Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
                 rotatedPointPosition,
-                collisionConvexPolygon.positions.data(),
-                collisionConvexPolygon.positions.size(),
+                collisionConvexPolygon.corners.data(),
+                collisionConvexPolygon.corners.size(),
                 currentClosestPointPosition);
 
             if (distanceSquared < minDistanceSquared)

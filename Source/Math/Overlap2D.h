@@ -56,11 +56,11 @@
 // 
 // Collision Point And Normal And Depth Functions: (TODO)
 //                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |     |     |     |     |
-// O. Rectangle   |  -  |     |     |     |     |
-// Circle         |  -  |  -  |  \  |     |  :  |
-// Triangle       |  -  |  -  |  -  |  :  |     |
-// Convex Polygon |  -  |  -  |  -  |  -  |  :  | 13
+// Rectangle      |  \  |  c  |  b  |  d  |  d  |
+// O. Rectangle   |  -  |  c  |  b  |  d  |  d  |
+// Circle         |  -  |  -  |  \  |  e  |  e  |
+// Triangle       |  -  |  -  |  -  |  ?  |  a  |
+// Convex Polygon |  -  |  -  |  -  |  -  |  \  | 12
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -976,9 +976,21 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    // Triangle Collision Point And Normal And Depth Functions -----------------
+
+    bool Get2D_Triangle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& triangleA_corner1,
+        const glm::vec2& triangleA_corner2,
+        const glm::vec2& triangleA_corner3,
+        const glm::vec2& triangleB_corner1,
+        const glm::vec2& triangleB_corner2,
+        const glm::vec2& triangleB_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
 
-    // Work In Progress
     bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,

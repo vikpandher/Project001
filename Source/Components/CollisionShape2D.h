@@ -310,22 +310,22 @@ namespace Project001
     struct CollisionPolygon2D : CollisionShape2D
     {
         CollisionPolygon2D();
-        CollisionPolygon2D(const std::vector<glm::vec2>& positions);
-        CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible);
+        CollisionPolygon2D(const std::vector<glm::vec2>& corners);
+        CollisionPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible);
 
-        std::vector<glm::vec2> positions;
+        std::vector<glm::vec2> corners; // corners go around counterclockwise
     };
 
     inline CollisionPolygon2D::CollisionPolygon2D()
     {}
 
-    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& positions)
-        : positions(positions)
+    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& corners)
+        : corners(corners)
     {}
 
-    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible)
+    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible)
         : CollisionShape2D(tag, tangible)
-        , positions(positions)
+        , corners(corners)
     {}
 
     // -------------------------------------------------------------------------
@@ -333,21 +333,21 @@ namespace Project001
     struct CollisionConvexPolygon2D : CollisionShape2D
     {
         CollisionConvexPolygon2D();
-        CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions);
-        CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible);
+        CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners);
+        CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible);
 
-        std::vector<glm::vec2> positions;
+        std::vector<glm::vec2> corners; // corners go around counterclockwise
     };
 
     inline CollisionConvexPolygon2D::CollisionConvexPolygon2D()
     {}
 
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions)
-        : positions(positions)
+    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners)
+        : corners(corners)
     {}
 
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& positions, unsigned int tag, bool tangible)
+    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible)
         : CollisionShape2D(tag, tangible)
-        , positions(positions)
+        , corners(corners)
     {}
 }
