@@ -1400,22 +1400,68 @@ namespace Project001
         }
 
         // rectangle A & circle B
-        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-
-                bool collisionFound = Check2D_Rectangle_Circle_Overlap(
-                    rectangleA.bottomLeft,
-                    rectangleA.topRight,
-                    circleB.position,
-                    circleB.radius);
-
-                if (collisionFound)
+                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
                 {
-                    AddCollisionData(rectangleA.tag, circleB.tag);
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Rectangle_Circle_CollisionPointNormalDepth(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = rectangleA.tag;
+                        collisionA.otherShapeTag = circleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            {
+                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+                {
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+
+                    bool collisionFound = Check2D_Rectangle_Circle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, circleB.tag);
+                    }
                 }
             }
         }
@@ -1619,23 +1665,70 @@ namespace Project001
         }
 
         // orientedRectangle A & circle B
-        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
             {
-                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
-
-                bool collisionFound = Check2D_OrientedRectangle_Circle_Overlap(
-                    orientedRectangleA.halfSize,
-                    orientedRectangleA.position,
-                    orientedRectangleA.rotation,
-                    circleB.position,
-                    circleB.radius);
-
-                if (collisionFound)
+                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
                 {
-                    AddCollisionData(orientedRectangleA.tag, circleB.tag);
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        circleB.position,
+                        circleB.radius,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = orientedRectangleA.tag;
+                        collisionA.otherShapeTag = circleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            {
+                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
+                {
+                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+
+                    bool collisionFound = Check2D_OrientedRectangle_Circle_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, circleB.tag);
+                    }
                 }
             }
         }
@@ -1795,44 +1888,137 @@ namespace Project001
         }
 
         // circle A & rectangle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
             {
-                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
-
-                bool collisionFound = Check2D_Circle_Rectangle_Overlap(
-                    circleA.position,
-                    circleA.radius,
-                    rectangleB.bottomLeft,
-                    rectangleB.topRight);
-
-                if (collisionFound)
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
                 {
-                    AddCollisionData(circleA.tag, rectangleB.tag);
+                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Circle_Rectangle_CollisionPointNormalDepth(
+                        circleA.position,
+                        circleA.radius,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = circleA.tag;
+                        collisionA.otherShapeTag = rectangleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            {
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
+                {
+                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+
+                    bool collisionFound = Check2D_Circle_Rectangle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, rectangleB.tag);
+                    }
                 }
             }
         }
 
         // circle A & orientedRectangle B
-        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
-
-                bool collisionFound = Check2D_Circle_OrientedRectangle_Overlap(
-                    circleA.position,
-                    circleA.radius,
-                    orientedRectangleB.halfSize,
-                    orientedRectangleB.position,
-                    orientedRectangleB.rotation);
-
-                if (collisionFound)
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
                 {
-                    AddCollisionData(circleA.tag, orientedRectangleB.tag);
+                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
+                        circleA.position,
+                        circleA.radius,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = circleA.tag;
+                        collisionA.otherShapeTag = orientedRectangleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            {
+                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
+                {
+                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+
+                    bool collisionFound = Check2D_Circle_OrientedRectangle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, orientedRectangleB.tag);
+                    }
                 }
             }
         }
@@ -2465,23 +2651,70 @@ namespace Project001
         }
 
         // triangle A & convexPolygon B
-        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
             {
-                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
-
-                bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
-                    triangleA.corner1,
-                    triangleA.corner2,
-                    triangleA.corner3,
-                    convexPolygonB.corners.data(),
-                    convexPolygonB.corners.size());
-
-                if (collisionFound)
+                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
                 {
-                    AddCollisionData(triangleA.tag, convexPolygonB.tag);
+                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size(),
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = triangleA.tag;
+                        collisionA.otherShapeTag = convexPolygonB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            {
+                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
+                {
+                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+
+                    bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, convexPolygonB.tag);
+                    }
                 }
             }
         }
@@ -2851,23 +3084,70 @@ namespace Project001
         }
 
         // convexPolygon A & triangle B
-        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        if (resolvePhysics)
         {
-            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
             {
-                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
-
-                bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
-                    convexPolygonA.corners.data(),
-                    convexPolygonA.corners.size(),
-                    triangleB.corner1,
-                    triangleB.corner2,
-                    triangleB.corner3);
-
-                if (collisionFound)
+                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
                 {
-                    AddCollisionData(convexPolygonA.tag, triangleB.tag);
+                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+
+                    CollisionData2D collisionA;
+                    bool collisionFound = Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3,
+                        collisionA.point,
+                        collisionA.normal,
+                        collisionA.depth);
+
+                    if (collisionFound)
+                    {
+                        collisionA.otherEntityId = entityIdB;
+                        collisionA.myShapeTag = convexPolygonA.tag;
+                        collisionA.otherShapeTag = triangleB.tag;
+
+                        collisionBodyA.AddCollision(collisionA);
+
+                        if (recordInBodyB)
+                        {
+                            CollisionData2D collisionB;
+                            collisionB.otherEntityId = entityIdA;
+                            collisionB.myShapeTag = collisionA.otherShapeTag;
+                            collisionB.otherShapeTag = collisionA.myShapeTag;
+                            collisionB.point = collisionA.point;
+                            collisionB.normal = -collisionA.normal;
+                            collisionB.depth = collisionA.depth;
+
+                            collisionBodyB.AddCollision(collisionB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            {
+                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
+                {
+                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+
+                    bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, triangleB.tag);
+                    }
                 }
             }
         }

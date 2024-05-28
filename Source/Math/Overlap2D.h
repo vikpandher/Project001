@@ -56,11 +56,11 @@
 // 
 // Collision Point And Normal And Depth Functions: (TODO)
 //                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |  c  |  b  |  d  |  d  |
-// O. Rectangle   |  -  |  c  |  b  |  d  |  d  |
-// Circle         |  -  |  -  |  \  |  e  |  e  |
-// Triangle       |  -  |  -  |  -  |  ?  |  a  |
-// Convex Polygon |  -  |  -  |  -  |  -  |  \  | 12
+// Rectangle      |  \  |  c  |  \  |  d  |  d  |
+// O. Rectangle   |  -  |  c  |  \  |  d  |  d  |
+// Circle         | --- | --- |  \  |  b  |  b  |
+// Triangle       |  -  |  -  |  -  |  \  |  \  |
+// Convex Polygon |  -  |  -  |  -  | --- |  \  | 8
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -965,7 +965,47 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // Oriented Rectangle Collision Point And Normal And Depth Functions -------
+
+    bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     // Circle Collision Point And Normal And Depth Functions -------------------
+
+    bool Get2D_Circle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_Circle_Circle_CollisionPointNormalDepth(
         const glm::vec2& circleA_position,
@@ -989,7 +1029,27 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
+
+    bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygonA_corners,
@@ -1140,6 +1200,11 @@ namespace Project001
         const float& capsule_radius,
         float& max,
         float& min);
+
+    void GetPolygonCentroid(
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        glm::vec2& polygon_centeroid);
 
     float RotateSlope(float slope, float rotationInRadians);
 

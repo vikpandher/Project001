@@ -2735,7 +2735,193 @@ namespace Project001
         return true;
     }
 
+    inline bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        // Check if there is a collision
+        if (!Check2D_Rectangle_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius))
+        {
+            return false;
+        }
+
+        bool circleInCornerZone = false;
+        glm::vec2 collisionCorner;
+        if (circle_position.y < rectangle_bottomLeft.y)
+        {
+            if (circle_position.x < rectangle_bottomLeft.x)
+            {
+                collisionCorner.x = rectangle_bottomLeft.x;
+                collisionCorner.y = rectangle_bottomLeft.y;
+                circleInCornerZone = true;
+            }
+            else if (circle_position.x > rectangle_topRight.x)
+            {
+                collisionCorner.x = rectangle_topRight.x;
+                collisionCorner.y = rectangle_bottomLeft.y;
+                circleInCornerZone = true;
+            }
+        }
+        else if (circle_position.y > rectangle_topRight.y)
+        {
+            if (circle_position.x < rectangle_bottomLeft.x)
+            {
+                collisionCorner.x = rectangle_bottomLeft.x;
+                collisionCorner.y = rectangle_topRight.y;
+                circleInCornerZone = true;
+            }
+            else if (circle_position.x > rectangle_topRight.x)
+            {
+                collisionCorner.x = rectangle_topRight.x;
+                collisionCorner.y = rectangle_topRight.y;
+                circleInCornerZone = true;
+            }
+        }
+        if (circleInCornerZone)
+        {
+            collisionPoint = collisionCorner;
+            collisionNormal = glm::normalize(circle_position - collisionPoint);
+            collisionDepth = circle_radius - glm::length(collisionCorner - circle_position);
+        }
+        else
+        {
+            glm::vec2 rectangle_position = (rectangle_topRight + rectangle_bottomLeft) * 0.5f;
+
+            glm::vec2 rectangleCenter_circle_closestPoint;
+            Get2D_Point_Circle_ClosestPoint(rectangle_position, circle_position, circle_radius, rectangleCenter_circle_closestPoint);
+
+            glm::vec2 circleCenter_rectangle_closestPoint;
+            Get2D_Point_Rectangle_ClosestPoint(circle_position, rectangle_bottomLeft, rectangle_topRight, circleCenter_rectangle_closestPoint);
+
+            collisionPoint = (rectangleCenter_circle_closestPoint + circleCenter_rectangle_closestPoint) * 0.5f;
+
+            // negative distance means outside
+            float distanceFromLeft = circle_position.x - rectangle_bottomLeft.x;
+            float distanceFromRight = rectangle_topRight.x - circle_position.x;
+            float distanceFromBottom = circle_position.y - rectangle_bottomLeft.y;
+            float distanceFromTop = rectangle_topRight.y - circle_position.y;
+
+            float minDistanceX = std::min(distanceFromLeft, distanceFromRight);
+            float minDistanceY = std::min(distanceFromBottom, distanceFromTop);
+
+            if (minDistanceX < minDistanceY)
+            {
+                collisionNormal.y = 0.0f;
+
+                if (distanceFromLeft < distanceFromRight)
+                {
+                    collisionNormal.x = -1.0f;
+                    collisionDepth = circle_radius + distanceFromLeft;
+                }
+                else
+                {
+                    collisionNormal.x = 1.0f;
+                    collisionDepth = circle_radius + distanceFromRight;
+                }
+            }
+            else
+            {
+                collisionNormal.x = 0.0f;
+
+                if (distanceFromBottom < distanceFromTop)
+                {
+                    collisionNormal.y = -1.0f;
+                    collisionDepth = circle_radius + distanceFromBottom;
+                }
+                else
+                {
+                    collisionNormal.y = 1.0f;
+                    collisionDepth = circle_radius + distanceFromTop;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Oriented Rectangle Collision Point And Normal And Depth Functions -------
+
+    inline bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        // rotate and translate the circle rather then the orientedRectangle
+        glm::vec2 translatedCirclePosition = circle_position - orientedRectangle_position;
+        glm::vec2 rotatedCirclePosition = Rotate2DVector(translatedCirclePosition, -1.0f * orientedRectangle_rotation);
+
+        bool overlap = Get2D_Rectangle_Circle_CollisionPointNormalDepth(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedCirclePosition, circle_radius, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionPoint = Rotate2DVector(collisionPoint, orientedRectangle_rotation);
+        collisionPoint += orientedRectangle_position;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+
+        return true;
+    }
+
     // Circle Collision Point And Normal And Depth Functions -------------------
+
+    inline bool Get2D_Circle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        bool overlap = Get2D_Rectangle_Circle_CollisionPointNormalDepth(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
+    }
+
+    inline bool Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        // rotate and translate the circle rather then the orientedRectangle
+        glm::vec2 translatedCirclePosition = circle_position - orientedRectangle_position;
+        glm::vec2 rotatedCirclePosition = Rotate2DVector(translatedCirclePosition, -1.0f * orientedRectangle_rotation);
+
+        bool overlap = Get2D_Rectangle_Circle_CollisionPointNormalDepth(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedCirclePosition, circle_radius, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionPoint = Rotate2DVector(collisionPoint, orientedRectangle_rotation);
+        collisionPoint += orientedRectangle_position;
+        collisionNormal *= -1.0f;
+        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+
+        return true;
+    }
 
     inline bool Get2D_Circle_Circle_CollisionPointNormalDepth(
         const glm::vec2& circleA_position,
@@ -2792,7 +2978,35 @@ namespace Project001
         return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygonA_array, 3, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
     }
 
+    inline bool Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygonA_array, 3, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+    }
+
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
+
+    inline bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygon_corners, convexPolygon_cornerCount, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+    }
 
     inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygonA_corners,
@@ -2962,29 +3176,23 @@ namespace Project001
         collisionDepth = final_collisionDepth;
 
         glm::vec2 final_projection_max_point;
-        glm::vec2 final_projection_max_neighbor_point;
         if (projection_max_is_from_polygonA)
         {
             final_projection_max_point = convexPolygonA_corners[projection_max_index];
-            final_projection_max_neighbor_point = convexPolygonA_corners[(projection_max_index + 1) % convexPolygonA_cornerCount];
         }
         else
         {
             final_projection_max_point = convexPolygonB_corners[projection_max_index];
-            final_projection_max_neighbor_point = convexPolygonB_corners[(projection_max_index + 1) % convexPolygonB_cornerCount];
         }
 
         glm::vec2 final_projection_min_point;
-        glm::vec2 final_projection_min_neighbor_point;
         if (projection_min_is_from_polygonA)
         {
             final_projection_min_point = convexPolygonA_corners[projection_min_index];
-            final_projection_min_neighbor_point = convexPolygonA_corners[(projection_min_index + 1) % convexPolygonA_cornerCount];
         }
         else
         {
             final_projection_min_point = convexPolygonB_corners[projection_min_index];
-            final_projection_min_neighbor_point = convexPolygonB_corners[(projection_min_index + 1) % convexPolygonB_cornerCount];
         }
 
         bool final_projection_max_point_inside;
@@ -3003,14 +3211,23 @@ namespace Project001
         {
             collisionPoint = final_projection_max_point;
 
-            glm::vec2 vectorToNeighbor = final_projection_max_neighbor_point - final_projection_max_point;
-            glm::vec2 surfaceNormal(vectorToNeighbor.y, -vectorToNeighbor.x);
+            glm::vec2 polygon_centeroid;
+            if (projection_max_is_from_polygonA)
+            {
+                GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
+            }
+            else
+            {
+                GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
+            }
 
-            if (projection_max_is_from_polygonA && glm::dot(collisionNormal, surfaceNormal) < 0)
+            glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
+
+            if (projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
             {
                 collisionNormal *= -1.0f;
             }
-            else if (!projection_max_is_from_polygonA && glm::dot(collisionNormal, surfaceNormal) > 0)
+            else if (!projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
             {
                 collisionNormal *= -1.0f;
             }
@@ -3032,14 +3249,23 @@ namespace Project001
 
         collisionPoint = final_projection_min_point;
 
-        glm::vec2 vectorToNeighbor = final_projection_min_neighbor_point - final_projection_min_point;
-        glm::vec2 surfaceNormal(vectorToNeighbor.y, -vectorToNeighbor.x);
+        glm::vec2 polygon_centeroid;
+        if (projection_min_is_from_polygonA)
+        {
+            GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
+        }
+        else
+        {
+            GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
+        }
 
-        if (projection_min_is_from_polygonA && glm::dot(collisionNormal, surfaceNormal) < 0)
+        glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
+
+        if (projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
         {
             collisionNormal *= -1.0f;
         }
-        else if (!projection_min_is_from_polygonA && glm::dot(collisionNormal, surfaceNormal) > 0)
+        else if (!projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
         {
             collisionNormal *= -1.0f;
         }
@@ -3507,6 +3733,19 @@ namespace Project001
 
         max += capsule_radius;
         min -= capsule_radius;
+    }
+
+    inline void GetPolygonCentroid(
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        glm::vec2& polygon_centeroid)
+    {
+        polygon_centeroid = glm::vec2(0.0f, 0.0f);
+        for (size_t i = 0; i < polygon_cornerCount; ++i)
+        {
+            polygon_centeroid += polygon_corners[i];
+        }
+        polygon_centeroid /= polygon_cornerCount;
     }
 
     inline float RotateSlope(float slope, float rotationInRadians)
