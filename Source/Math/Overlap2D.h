@@ -56,11 +56,11 @@
 // 
 // Collision Point And Normal And Depth Functions: (TODO)
 //                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |  c  |  \  |  d  |  d  |
-// O. Rectangle   |  -  |  c  |  \  |  d  |  d  |
-// Circle         | --- | --- |  \  |  b  |  b  |
-// Triangle       |  -  |  -  |  -  |  \  |  \  |
-// Convex Polygon |  -  |  -  |  -  | --- |  \  | 8
+// Rectangle      |  \  |  d  |  \  |  c  |  c  |
+// O. Rectangle   |  -  |  d  |  \  |  c  |  c  |
+// Circle         | --- | --- |  \  |  \  |  \  |
+// Triangle       |  -  |  -  | --- |  \  |  \  |
+// Convex Polygon |  -  |  -  | --- | --- |  \  | 6
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -1016,7 +1016,36 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Circle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     // Triangle Collision Point And Normal And Depth Functions -----------------
+
+    bool Get2D_Triangle_Circle_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_Triangle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& triangleA_corner1,
@@ -1040,6 +1069,15 @@ namespace Project001
         float& collisionDepth);
 
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
+
+    bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
@@ -1205,6 +1243,12 @@ namespace Project001
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         glm::vec2& polygon_centeroid);
+
+    float GetPolygonPointClosestPoint(
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        const glm::vec2& point_position,
+        glm::vec2& closestPoint_position);
 
     float RotateSlope(float slope, float rotationInRadians);
 
