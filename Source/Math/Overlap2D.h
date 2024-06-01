@@ -54,13 +54,13 @@
 //                      | Lin | Ray | LiS | Rec | OrR |           | Tri | Pol |
 // Point                |  \  |  \  |  \  |  \  |  \  |           |  \  |  \  |
 // 
-// Collision Point And Normal And Depth Functions: (TODO)
+// Collision Point And Normal And Depth Functions:
 //                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |  d  |  \  |  c  |  c  |
-// O. Rectangle   |  -  |  d  |  \  |  c  |  c  |
+// Rectangle      |  \  |  \  |  \  |  \  |  \  |
+// O. Rectangle   | --- |  \  |  \  |  \  |  \  |
 // Circle         | --- | --- |  \  |  \  |  \  |
-// Triangle       |  -  |  -  | --- |  \  |  \  |
-// Convex Polygon |  -  |  -  | --- | --- |  \  | 6
+// Triangle       | --- | --- | --- |  \  |  \  |
+// Convex Polygon | --- | --- | --- | --- |  \  |
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -965,6 +965,16 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -974,7 +984,47 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     // Oriented Rectangle Collision Point And Normal And Depth Functions -------
+
+    bool Get2D_OrientedRectangle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangleA_halfSize,
+        const glm::vec2& orientedRectangleA_position,
+        const float& orientedRectangleA_rotation,
+        const glm::vec2& orientedRectangleB_halfSize,
+        const glm::vec2& orientedRectangleB_position,
+        const float& orientedRectangleB_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
@@ -982,6 +1032,27 @@ namespace Project001
         const float& orientedRectangle_rotation,
         const glm::vec2& circle_position,
         const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
@@ -1037,6 +1108,27 @@ namespace Project001
 
     // Triangle Collision Point And Normal And Depth Functions -----------------
 
+    bool Get2D_Triangle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Triangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     bool Get2D_Triangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -1069,6 +1161,25 @@ namespace Project001
         float& collisionDepth);
 
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
+
+    bool Get2D_ConvexPolygon_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_ConvexPolygon_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
 
     bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
@@ -1200,7 +1311,7 @@ namespace Project001
     // Projects the corners of both convexPolygonA and convexPolygonB onto
     // the perpendiculars from convexPolygonA to check for a seperating axis.
     // Returns false if an axis of seperation has been found.
-    bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
+    bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -1249,6 +1360,42 @@ namespace Project001
         const size_t& polygon_cornerCount,
         const glm::vec2& point_position,
         glm::vec2& closestPoint_position);
+
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolyhonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolyhonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const glm::vec2* const& convexPolyhonB_axes,
+        const size_t& convexPolygonB_axisCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    void ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const bool& projection_max_is_from_polygonA,
+        const bool& projection_min_is_from_polygonA,
+        const size_t& projection_max_index,
+        const size_t& projection_min_index,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal);
 
     float RotateSlope(float slope, float rotationInRadians);
 

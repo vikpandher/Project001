@@ -47,7 +47,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::vector<glm::vec3> meshEntityPositions;
     for (int i = 2; i >= -2; --i)
     {
-        for (int j = -2; j <= 2; ++j)
+        for (int j = -2; j <= 3; ++j)
         {
             meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
         }
@@ -902,6 +902,47 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             collisionCircles.emplace_back(
                 glm::vec2(),
                 0.24f
+            );
+        }
+    }
+
+    // Rectangle 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> shapePoints;
+        shapePoints.emplace_back(-0.32f, 0.16f);
+        shapePoints.emplace_back(-0.32f, -0.16f);
+        shapePoints.emplace_back(0.32f, -0.16f);
+        shapePoints.emplace_back(0.32f, 0.16f);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+            collisionRectangles.emplace_back(
+                glm::vec2(-0.32f, -0.16f),
+                glm::vec2(0.32f, 0.16f)
             );
         }
     }

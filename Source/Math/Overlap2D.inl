@@ -2078,12 +2078,12 @@ namespace Project001
             return false;
         }
 
-        return Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
+        return Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
             convexPolygonA_corners,
             convexPolygonA_cornerCount,
             convexPolygonB_corners,
             convexPolygonB_cornerCount) &&
-            Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
+            Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
                 convexPolygonB_corners,
                 convexPolygonB_cornerCount,
                 convexPolygonA_corners,
@@ -2735,6 +2735,50 @@ namespace Project001
         return true;
     }
 
+    inline bool Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+
+        glm::vec2 convexPolygonB_array[4];
+        convexPolygonB_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonB_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonB_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonB_array[1] = Rotate2DVector(convexPolygonB_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonB_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonB_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonB_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonB_array[3] = Rotate2DVector(convexPolygonB_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonB_axes[2];
+        convexPolygonB_axes[0].x = 1.0f;
+        convexPolygonB_axes[0].y = 0.0f;
+        convexPolygonB_axes[0] = Rotate2DVector(convexPolygonB_axes[0], orientedRectangle_rotation);
+        convexPolygonB_axes[1].x = 0.0f;
+        convexPolygonB_axes[1].y = 1.0f;
+        convexPolygonB_axes[1] = Rotate2DVector(convexPolygonB_axes[1], orientedRectangle_rotation);
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+    }
+
     inline bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -2844,7 +2888,155 @@ namespace Project001
         return true;
     }
 
+    inline bool Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+
+        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+    }
+
+    inline bool Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+    }
+
     // Oriented Rectangle Collision Point And Normal And Depth Functions -------
+
+    inline bool Get2D_OrientedRectangle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+
+        glm::vec2 convexPolygonB_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonB_axes[2];
+        convexPolygonB_axes[0].x = 1.0f;
+        convexPolygonB_axes[0].y = 0.0f;
+        convexPolygonB_axes[1].x = 0.0f;
+        convexPolygonB_axes[1].y = 1.0f;
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+    }
+
+    inline bool Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangleA_halfSize,
+        const glm::vec2& orientedRectangleA_position,
+        const float& orientedRectangleA_rotation,
+        const glm::vec2& orientedRectangleB_halfSize,
+        const glm::vec2& orientedRectangleB_position,
+        const float& orientedRectangleB_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        convexPolygonA_array[1].x = orientedRectangleA_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangleA_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangleA_rotation) + orientedRectangleA_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        convexPolygonA_array[3].x = -orientedRectangleA_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangleA_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangleA_rotation) + orientedRectangleA_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangleA_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangleA_rotation);
+
+        glm::vec2 convexPolygonB_array[4];
+        convexPolygonB_array[0] = Rotate2DVector(-orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        convexPolygonB_array[1].x = orientedRectangleB_halfSize.x;
+        convexPolygonB_array[1].y = -orientedRectangleB_halfSize.y;
+        convexPolygonB_array[1] = Rotate2DVector(convexPolygonB_array[1], orientedRectangleB_rotation) + orientedRectangleB_position;
+        convexPolygonB_array[2] = Rotate2DVector(orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        convexPolygonB_array[3].x = -orientedRectangleB_halfSize.x;
+        convexPolygonB_array[3].y = orientedRectangleB_halfSize.y;
+        convexPolygonB_array[3] = Rotate2DVector(convexPolygonB_array[3], orientedRectangleB_rotation) + orientedRectangleB_position;
+
+        glm::vec2 convexPolygonB_axes[2];
+        convexPolygonB_axes[0].x = 1.0f;
+        convexPolygonB_axes[0].y = 0.0f;
+        convexPolygonB_axes[0] = Rotate2DVector(convexPolygonB_axes[0], orientedRectangleB_rotation);
+        convexPolygonB_axes[1].x = 0.0f;
+        convexPolygonB_axes[1].y = 1.0f;
+        convexPolygonB_axes[1] = Rotate2DVector(convexPolygonB_axes[1], orientedRectangleB_rotation);
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+    }
 
     inline bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
@@ -2871,6 +3063,73 @@ namespace Project001
         collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
 
         return true;
+    }
+
+    inline bool Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+
+        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+    }
+
+    inline bool Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+
+        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
     }
 
     // Circle Collision Point And Normal And Depth Functions -------------------
@@ -3150,6 +3409,85 @@ namespace Project001
 
     // Triangle Collision Point And Normal And Depth Functions -----------------
 
+    inline bool Get2D_Triangle_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+
+        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
+    }
+
+    inline bool Get2D_Triangle_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+
+        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
+    }
+
     inline bool Get2D_Triangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -3203,6 +3541,79 @@ namespace Project001
     }
 
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
+
+    inline bool Get2D_ConvexPolygon_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        glm::vec2 convexPolygonA_array[4];
+        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
+        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
+        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
+        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
+        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 convexPolygonA_axes[2];
+        convexPolygonA_axes[0].x = 1.0f;
+        convexPolygonA_axes[0].y = 0.0f;
+        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
+        convexPolygonA_axes[1].x = 0.0f;
+        convexPolygonA_axes[1].y = 1.0f;
+        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
+    }
 
     inline bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
@@ -3405,100 +3816,17 @@ namespace Project001
         collisionNormal = glm::normalize(final_collisionNormal);
         collisionDepth = final_collisionDepth;
 
-        glm::vec2 final_projection_max_point;
-        if (projection_max_is_from_polygonA)
-        {
-            final_projection_max_point = convexPolygonA_corners[projection_max_index];
-        }
-        else
-        {
-            final_projection_max_point = convexPolygonB_corners[projection_max_index];
-        }
-
-        glm::vec2 final_projection_min_point;
-        if (projection_min_is_from_polygonA)
-        {
-            final_projection_min_point = convexPolygonA_corners[projection_min_index];
-        }
-        else
-        {
-            final_projection_min_point = convexPolygonB_corners[projection_min_index];
-        }
-
-        bool final_projection_max_point_inside;
-        if (projection_max_is_from_polygonA)
-        {
-            final_projection_max_point_inside =
-                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonB_corners, convexPolygonB_cornerCount);
-        }
-        else
-        {
-            final_projection_max_point_inside =
-                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonA_corners, convexPolygonA_cornerCount);
-        }
-
-        if (final_projection_max_point_inside)
-        {
-            collisionPoint = final_projection_max_point;
-
-            glm::vec2 polygon_centeroid;
-            if (projection_max_is_from_polygonA)
-            {
-                GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
-            }
-            else
-            {
-                GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
-            }
-
-            glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
-
-            if (projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
-            {
-                collisionNormal *= -1.0f;
-            }
-            else if (!projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
-            {
-                collisionNormal *= -1.0f;
-            }
-
-            return true;
-        }
-
-        // bool final_projection_min_point_inside;
-        // if (projection_min_is_from_polygonA)
-        // {
-        //     final_projection_min_point_inside =
-        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonB_corners, convexPolygonB_cornerCount);
-        // }
-        // else
-        // {
-        //     final_projection_min_point_inside =
-        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonA_corners, convexPolygonA_cornerCount);
-        // }
-
-        collisionPoint = final_projection_min_point;
-
-        glm::vec2 polygon_centeroid;
-        if (projection_min_is_from_polygonA)
-        {
-            GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
-        }
-        else
-        {
-            GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
-        }
-
-        glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
-
-        if (projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
-        {
-            collisionNormal *= -1.0f;
-        }
-        else if (!projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
-        {
-            collisionNormal *= -1.0f;
-        }
+        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
+            convexPolygonA_corners,
+            convexPolygonA_cornerCount,
+            convexPolygonB_corners,
+            convexPolygonB_cornerCount,
+            projection_max_is_from_polygonA,
+            projection_min_is_from_polygonA,
+            projection_max_index,
+            projection_min_index,
+            collisionPoint,
+            collisionNormal);
 
         return true;
     }
@@ -3834,7 +4162,7 @@ namespace Project001
             triangle_corner3.x * (triangle_corner1.y - triangle_corner2.y)) / 2.0f);
     }
 
-    inline bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparatedAxisTheorem(
+    inline bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -4013,6 +4341,463 @@ namespace Project001
         }
 
         return minDistanceSquared;
+    }
+
+    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolyhonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        if (convexPolygonA_cornerCount < 3 || convexPolygonB_cornerCount < 3)
+        {
+            return false;
+        }
+
+        glm::vec2 final_collisionNormal;
+        float final_collisionDepth = std::numeric_limits<float>::infinity();
+
+        bool projection_max_is_from_polygonA;
+        bool projection_min_is_from_polygonA;
+        size_t projection_max_index;
+        size_t projection_min_index;
+
+        for (size_t i = 0; i < convexPolygonA_axisCount; ++i)
+        {
+            const glm::vec2& axisOfSeparation = convexPolyhonA_axes[i];
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            size_t projectionA_max_index;
+            size_t projectionA_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            size_t projectionB_max_index;
+            size_t projectionB_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+
+            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < final_collisionDepth)
+            {
+                final_collisionDepth = axisDepth;
+                final_collisionNormal = axisOfSeparation;
+
+                if (projectionA_max > projectionB_max)
+                {
+                    projection_max_is_from_polygonA = false;
+                    projection_max_index = projectionB_max_index;
+                }
+                else
+                {
+                    projection_max_is_from_polygonA = true;
+                    projection_max_index = projectionA_max_index;
+                }
+
+                if (projectionA_min > projectionB_min)
+                {
+                    projection_min_is_from_polygonA = true;
+                    projection_min_index = projectionA_min_index;
+                }
+                else
+                {
+                    projection_min_is_from_polygonA = false;
+                    projection_min_index = projectionB_min_index;
+                }
+            }
+        }
+
+        size_t start_indexB = convexPolygonB_cornerCount - 1;
+        for (size_t end_indexB = 0; end_indexB < convexPolygonB_cornerCount; ++end_indexB)
+        {
+            const glm::vec2& lineSegmentB_start = convexPolygonB_corners[start_indexB];
+            const glm::vec2& lineSegmentB_end = convexPolygonB_corners[end_indexB];
+            glm::vec2 axisOfSeparation = lineSegmentB_end - lineSegmentB_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            size_t projectionA_max_index;
+            size_t projectionA_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            size_t projectionB_max_index;
+            size_t projectionB_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+
+            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < final_collisionDepth)
+            {
+                final_collisionDepth = axisDepth;
+                final_collisionNormal = axisOfSeparation;
+
+                if (projectionA_max > projectionB_max)
+                {
+                    projection_max_is_from_polygonA = false;
+                    projection_max_index = projectionB_max_index;
+                }
+                else
+                {
+                    projection_max_is_from_polygonA = true;
+                    projection_max_index = projectionA_max_index;
+                }
+
+                if (projectionA_min > projectionB_min)
+                {
+                    projection_min_is_from_polygonA = true;
+                    projection_min_index = projectionA_min_index;
+                }
+                else
+                {
+                    projection_min_is_from_polygonA = false;
+                    projection_min_index = projectionB_min_index;
+                }
+            }
+
+            start_indexB = end_indexB;
+        }
+
+        collisionNormal = glm::normalize(final_collisionNormal);
+        collisionDepth = final_collisionDepth;
+
+        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
+            convexPolygonA_corners,
+            convexPolygonA_cornerCount,
+            convexPolygonB_corners,
+            convexPolygonB_cornerCount,
+            projection_max_is_from_polygonA,
+            projection_min_is_from_polygonA,
+            projection_max_index,
+            projection_min_index,
+            collisionPoint,
+            collisionNormal);
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolyhonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const glm::vec2* const& convexPolyhonB_axes,
+        const size_t& convexPolygonB_axisCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        if (convexPolygonA_cornerCount < 3 || convexPolygonB_cornerCount < 3)
+        {
+            return false;
+        }
+
+        glm::vec2 final_collisionNormal;
+        float final_collisionDepth = std::numeric_limits<float>::infinity();
+
+        bool projection_max_is_from_polygonA;
+        bool projection_min_is_from_polygonA;
+        size_t projection_max_index;
+        size_t projection_min_index;
+
+        for (size_t i = 0; i < convexPolygonA_axisCount; ++i)
+        {
+            const glm::vec2& axisOfSeparation = convexPolyhonA_axes[i];
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            size_t projectionA_max_index;
+            size_t projectionA_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            size_t projectionB_max_index;
+            size_t projectionB_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+
+            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < final_collisionDepth)
+            {
+                final_collisionDepth = axisDepth;
+                final_collisionNormal = axisOfSeparation;
+
+                if (projectionA_max > projectionB_max)
+                {
+                    projection_max_is_from_polygonA = false;
+                    projection_max_index = projectionB_max_index;
+                }
+                else
+                {
+                    projection_max_is_from_polygonA = true;
+                    projection_max_index = projectionA_max_index;
+                }
+
+                if (projectionA_min > projectionB_min)
+                {
+                    projection_min_is_from_polygonA = true;
+                    projection_min_index = projectionA_min_index;
+                }
+                else
+                {
+                    projection_min_is_from_polygonA = false;
+                    projection_min_index = projectionB_min_index;
+                }
+            }
+        }
+
+        for (size_t i = 0; i < convexPolygonB_axisCount; ++i)
+        {
+            const glm::vec2& axisOfSeparation = convexPolyhonB_axes[i];
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            size_t projectionA_max_index;
+            size_t projectionA_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            size_t projectionB_max_index;
+            size_t projectionB_min_index;
+            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+
+            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < final_collisionDepth)
+            {
+                final_collisionDepth = axisDepth;
+                final_collisionNormal = axisOfSeparation;
+
+                if (projectionA_max > projectionB_max)
+                {
+                    projection_max_is_from_polygonA = false;
+                    projection_max_index = projectionB_max_index;
+                }
+                else
+                {
+                    projection_max_is_from_polygonA = true;
+                    projection_max_index = projectionA_max_index;
+                }
+
+                if (projectionA_min > projectionB_min)
+                {
+                    projection_min_is_from_polygonA = true;
+                    projection_min_index = projectionA_min_index;
+                }
+                else
+                {
+                    projection_min_is_from_polygonA = false;
+                    projection_min_index = projectionB_min_index;
+                }
+            }
+        }
+
+        collisionNormal = glm::normalize(final_collisionNormal);
+        collisionDepth = final_collisionDepth;
+
+        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
+            convexPolygonA_corners,
+            convexPolygonA_cornerCount,
+            convexPolygonB_corners,
+            convexPolygonB_cornerCount,
+            projection_max_is_from_polygonA,
+            projection_min_is_from_polygonA,
+            projection_max_index,
+            projection_min_index,
+            collisionPoint,
+            collisionNormal);
+
+        return true;
+    }
+
+    inline void ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const bool& projection_max_is_from_polygonA,
+        const bool& projection_min_is_from_polygonA,
+        const size_t& projection_max_index,
+        const size_t& projection_min_index,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal)
+    {
+        glm::vec2 final_projection_max_point;
+        if (projection_max_is_from_polygonA)
+        {
+            final_projection_max_point = convexPolygonA_corners[projection_max_index];
+        }
+        else
+        {
+            final_projection_max_point = convexPolygonB_corners[projection_max_index];
+        }
+
+        glm::vec2 final_projection_min_point;
+        if (projection_min_is_from_polygonA)
+        {
+            final_projection_min_point = convexPolygonA_corners[projection_min_index];
+        }
+        else
+        {
+            final_projection_min_point = convexPolygonB_corners[projection_min_index];
+        }
+
+        bool final_projection_max_point_inside;
+        if (projection_max_is_from_polygonA)
+        {
+            final_projection_max_point_inside =
+                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonB_corners, convexPolygonB_cornerCount);
+        }
+        else
+        {
+            final_projection_max_point_inside =
+                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonA_corners, convexPolygonA_cornerCount);
+        }
+
+        if (final_projection_max_point_inside)
+        {
+            collisionPoint = final_projection_max_point;
+
+            glm::vec2 polygon_centeroid;
+            if (projection_max_is_from_polygonA)
+            {
+                GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
+            }
+            else
+            {
+                GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
+            }
+
+            glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
+
+            if (projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
+            {
+                collisionNormal *= -1.0f;
+            }
+            else if (!projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
+            {
+                collisionNormal *= -1.0f;
+            }
+
+            return;
+        }
+
+        // bool final_projection_min_point_inside;
+        // if (projection_min_is_from_polygonA)
+        // {
+        //     final_projection_min_point_inside =
+        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonB_corners, convexPolygonB_cornerCount);
+        // }
+        // else
+        // {
+        //     final_projection_min_point_inside =
+        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonA_corners, convexPolygonA_cornerCount);
+        // }
+
+        collisionPoint = final_projection_min_point;
+
+        glm::vec2 polygon_centeroid;
+        if (projection_min_is_from_polygonA)
+        {
+            GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
+        }
+        else
+        {
+            GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
+        }
+
+        glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
+
+        if (projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
+        {
+            collisionNormal *= -1.0f;
+        }
+        else if (!projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
+        {
+            collisionNormal *= -1.0f;
+        }
     }
 
     inline float RotateSlope(float slope, float rotationInRadians)
