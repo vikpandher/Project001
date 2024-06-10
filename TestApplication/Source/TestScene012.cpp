@@ -1025,14 +1025,14 @@ void TestScene012::GenerateCombinationShape()
     _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerRectangleCorners));
     Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
 
-    // Center Polygon
+    // Center Convex Polygon
     tempMeshData.Clear();
-    std::vector<glm::vec2> centerPolygonCorners;
-    centerPolygonCorners.emplace_back(0.0f, -0.64f);
-    centerPolygonCorners.emplace_back(-0.22f, -0.68f);
-    centerPolygonCorners.emplace_back(0.0f, -0.96f);
-    centerPolygonCorners.emplace_back(0.22f, -0.68f);
-    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerPolygonCorners));
+    std::vector<glm::vec2> centerConvexPolygonCorners;
+    centerConvexPolygonCorners.emplace_back(0.0f, -0.64f);
+    centerConvexPolygonCorners.emplace_back(-0.22f, -0.68f);
+    centerConvexPolygonCorners.emplace_back(0.0f, -0.96f);
+    centerConvexPolygonCorners.emplace_back(0.22f, -0.68f);
+    _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerConvexPolygonCorners));
     Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Left Capsule
@@ -1123,8 +1123,8 @@ void TestScene012::GenerateCombinationShape()
         std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
         collisionRectangles.emplace_back(centerRectangleBottomLeft, centerRectangleTopRight);
 
-        std::vector<Project001::CollisionPolygon2D>& collisionPolygons = collisionBody2DPtr->GetCollisionPolygons();
-        collisionPolygons.emplace_back(centerPolygonCorners);
+        std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
+        collisionConvexPolygons.emplace_back(centerConvexPolygonCorners);
 
         std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
         collisionCapsules.emplace_back(leftCapsuleStart, leftCapsuleEnd, leftCapsuleRadius);

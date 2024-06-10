@@ -72,11 +72,9 @@ namespace Project001
         return true;
     }
 
-    // protected ---------------------------------------------------------------
-
 #ifdef VULKAN_BUILD
-    const bool TextureLoader::s_convertToRGBA = true;
+    bool TextureLoader::s_convertToRGBA = true;
 #else
-    const bool TextureLoader::s_convertToRGBA = false;
+    bool TextureLoader::s_convertToRGBA = false;
 #endif
 }

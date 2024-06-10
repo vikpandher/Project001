@@ -280,6 +280,9 @@ namespace Project001
         return true;
     }
 
+    bool FreetypeTextLoader::s_flipVerticalyOnLoad = true;
+    bool FreetypeTextLoader::s_triangulate = false;
+
     // protected ---------------------------------------------------------------
 
     bool FreetypeTextLoader::LoadTextureDataAndFontData_H(
@@ -645,7 +648,4 @@ namespace Project001
             if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
         }
     }
-
-    const bool FreetypeTextLoader::s_flipVerticalyOnLoad = true;
-    const bool FreetypeTextLoader::s_triangulate = false;
 }

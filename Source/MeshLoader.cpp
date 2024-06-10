@@ -5042,6 +5042,8 @@ namespace Project001
         }
     }
 
+    bool MeshLoader::s_triangulate = false;
+
     // protected ---------------------------------------------------------------
 
     bool MeshLoader::GetLineFromConstChar(
@@ -5471,6 +5473,4 @@ namespace Project001
             if (meshData.minVertexPosition.z > currentPosition.z) meshData.minVertexPosition.z = currentPosition.z;
         }
     }
-
-    const bool MeshLoader::s_triangulate = false;
 }

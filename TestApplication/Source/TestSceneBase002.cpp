@@ -500,6 +500,8 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessRenderEvent");
 
+    Sync_RenderedMesh_CollisionBody_Components();
+
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 }
 
@@ -541,7 +543,6 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     UpdatedSelectedEntityPosition(timestep_ns);
-    Sync_RenderedMesh_CollisionBody_Components();
 
     if (remainingTimeRecordingDuration_ns_ > 0)
     {
@@ -905,7 +906,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
 
 void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
 {
-    Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
+    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
 
     const float lineWidth = 0.04f;
 
@@ -915,12 +916,12 @@ void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
     {
         Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
 
-        std::stack<Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
+        std::stack<const Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
         nodePtrStack.push(rootNodePtr);
 
         while (!nodePtrStack.empty())
         {
-            Project001::CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+            const Project001::CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
             nodePtrStack.pop();
 
             if (!nodePtr->leafNode)

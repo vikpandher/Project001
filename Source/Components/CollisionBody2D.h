@@ -31,6 +31,12 @@ namespace Project001
     class CollisionBody2D : public Placement2D
     {
     public:
+        enum class PhysicsType
+        {
+            PHYSICS_TYPE_OVERLAP_ONLY,
+            PHYSICS_TYPE_REGULAR_PHYSICS
+        };
+
         CollisionBody2D();
 
         // For the collision system to count a collision, at least one group in the
@@ -112,6 +118,12 @@ namespace Project001
             const glm::vec2& point_position,
             glm::vec2& closestPoint_position) const;
 
+        const PhysicsType& GetPhysicsType() const;
+        void SetPhysicsType(PhysicsType physicsType);
+
+        const float& GetMass() const;
+        void SetMass(float mass);
+
         const glm::vec2& GetVelocity() const;
         void SetVelocity(const glm::vec2& velocity);
 
@@ -188,7 +200,9 @@ namespace Project001
 
         std::vector<CollisionData2D> collisions_;
 
-        // float mass_;
+        PhysicsType physicsType_;
+
+        float mass_;
 
         glm::vec2 velocity_;
         float angularVelocity_;
@@ -205,6 +219,8 @@ namespace Project001
         , boundingRadius_(0.0f)
         , boundingRadiusUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
+        , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+        , mass_(std::numeric_limits<float>::infinity())
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
         , acceleration_(0.0f, 0.0f)
@@ -456,6 +472,30 @@ namespace Project001
     inline const std::vector<CollisionData2D>& CollisionBody2D::GetCollisions() const
     {
         return collisions_;
+    }
+
+    inline const CollisionBody2D::PhysicsType& CollisionBody2D::GetPhysicsType() const
+    {
+        return physicsType_;
+    }
+
+    inline void CollisionBody2D::SetPhysicsType(PhysicsType physicsType)
+    {
+        physicsType_ = physicsType;
+    }
+
+    inline const float& CollisionBody2D::GetMass() const
+    {
+        return mass_;
+    }
+
+    inline void CollisionBody2D::SetMass(float mass)
+    {
+        mass_ = mass;
+        if (mass_ < 0.0f)
+        {
+            mass_ = 0.0f;
+        }
     }
 
     inline const glm::vec2& CollisionBody2D::GetVelocity() const

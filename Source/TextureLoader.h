@@ -23,7 +23,6 @@ namespace Project001
             size_t dataSize,
             bool convertToRGBA = s_convertToRGBA);
 
-    protected:
-        static const bool s_convertToRGBA;
+        static bool s_convertToRGBA;
     };
 }

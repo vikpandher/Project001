@@ -47,9 +47,9 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
-    for (int i = -2; i <= 2; ++i)
+    for (int i = -3; i <= 3; ++i)
     {
-        for (int j = 2; j >= -2; --j)
+        for (int j = 3; j >= -3; --j)
         {
             meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
         }

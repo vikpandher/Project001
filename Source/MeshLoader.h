@@ -269,6 +269,10 @@ namespace Project001
             MeshData& meshData,
             glm::vec2 translation);
 
+        // This makes it so verticies aren't reused by multiple indicies.
+        // One vertex has one associated index.
+        static bool s_triangulate;
+
     protected:
         // Used in LoadMeshOBJFromMemory
         static bool GetLineFromConstChar(
@@ -300,9 +304,5 @@ namespace Project001
             const float& slope2);
 
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
-
-        // This makes it so verticies aren't reused by multiple indicies.
-        // One vertex has one associated index.
-        static const bool s_triangulate;
     };
 }

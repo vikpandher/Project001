@@ -50,6 +50,7 @@ namespace Project001
         void Clear();
 
         CollisionBodyQuadTreeNode2D* GetRootNode();
+        const CollisionBodyQuadTreeNode2D* GetRootNode() const;
 
     protected:
         void DeleteAllNodes();
@@ -61,6 +62,11 @@ namespace Project001
     };
 
     inline CollisionBodyQuadTreeNode2D* CollisionBodyQuadTree2D::GetRootNode()
+    {
+        return rootNodePtr_;
+    }
+
+    inline const CollisionBodyQuadTreeNode2D* CollisionBodyQuadTree2D::GetRootNode() const
     {
         return rootNodePtr_;
     }

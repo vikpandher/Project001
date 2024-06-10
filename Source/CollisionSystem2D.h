@@ -26,13 +26,15 @@ namespace Project001
 
         static void CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr);
 
-        static CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
+        static const CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
 
         static void ResetCollisionBodyQuadTree2D(
             const glm::vec2& min,
             const glm::vec2& max,
             size_t maxDepth,
             size_t maxBodiesPerNode);
+
+        static float s_sunkenMeshSeperationSpacing;
 
     protected:
         struct PointerPairHashFunctor
@@ -44,6 +46,18 @@ namespace Project001
                 return hashA ^ (hashB << 1);
             }
         };
+
+        struct CollisionManifold2D
+        {
+            CollisionBody2D* collisionBodyA_Ptr;
+            CollisionBody2D* collisionBodyB_Ptr;
+
+            glm::vec2 collisionPoint;
+            glm::vec2 collisionNormal;
+            float collisionDepth;
+        };
+
+        static void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
 
         static void CalculateCollisionsBetweenTwoBodies(
             unsigned int entityIdA,
@@ -60,11 +74,13 @@ namespace Project001
         static CollisionBodyQuadTree2D s_tangibleCollisionBodyQuadTree2D_;
 
         static std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> s_collisionBodyPairPtrs_;
+
+        static std::vector<CollisionManifold2D> s_collisionManifolds_;
     };
 
     // public ------------------------------------------------------------------
 
-    inline CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
+    inline const CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
     {
         return s_tangibleCollisionBodyQuadTree2D_;
     }

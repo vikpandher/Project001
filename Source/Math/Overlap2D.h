@@ -17,7 +17,7 @@
 // * Polygon
 // * Convex Polygon
 // 
-// Overlap Functions: (TODO)
+// Overlap Functions:
 //                | Poi | Lin | Ray | LiS | Rec | OrR | Cir | Cap | Tri | Pol | CoP |
 // Point                                  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
 // Line                 |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |  \  |
@@ -37,6 +37,8 @@
 // * it may be possible for a ray to pass from one corner to another corner of
 //   some shapes without colliding, (thread the needle) but it's unlikely
 // * polygon shapes without at least 3 corners will not overlap with anything
+// * polygon shapes with 2 or more corners at the same point will give stange
+//   results
 // 
 // Closest Point Functions:
 //                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap |
@@ -55,12 +57,13 @@
 // Point                |  \  |  \  |  \  |  \  |  \  |           |  \  |  \  |
 // 
 // Collision Point And Normal And Depth Functions:
-//                | Rec | OrR | Cir | Tri | CoP |
-// Rectangle      |  \  |  \  |  \  |  \  |  \  |
-// O. Rectangle   | --- |  \  |  \  |  \  |  \  |
-// Circle         | --- | --- |  \  |  \  |  \  |
-// Triangle       | --- | --- | --- |  \  |  \  |
-// Convex Polygon | --- | --- | --- | --- |  \  |
+//                | Rec | OrR | Cir | Cap | Tri | CoP |
+// Rectangle      |  \  |  \  |  \  |  \  |  \  |  \  |
+// O. Rectangle   | --- |  \  |  \  |  \  |  \  |  \  |
+// Circle         | --- | --- |  \  |  \  |  \  |  \  |
+// Capsule        | --- | --- | --- |  \  |  \  |  \  |
+// Triangle       | --- | --- | --- | --- |  \  |  \  |
+// Convex Polygon | --- | --- | --- | --- | --- |  \  |
 // 
 // Intersection Functions:
 //                      | Lin |
@@ -984,6 +987,16 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Rectangle_Capsule_CollisionPointNormalDepth(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     bool Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -1032,6 +1045,17 @@ namespace Project001
         const float& orientedRectangle_rotation,
         const glm::vec2& circle_position,
         const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_OrientedRectangle_Capsule_CollisionPointNormalDepth(
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
@@ -1087,6 +1111,16 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_Circle_Capsule_CollisionPointNormalDepth(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     bool Get2D_Circle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
@@ -1100,6 +1134,71 @@ namespace Project001
     bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // Capsule Collision Point And Normal And Depth Functions ------------------
+
+    bool Get2D_Capsule_Rectangle_CollisionPointNormalDepth(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Capsule_Circle_CollisionPointNormalDepth(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Capsule_Capsule_CollisionPointNormalDepth(
+        const glm::vec2& capsuleA_start,
+        const glm::vec2& capsuleA_end,
+        const float& capsuleA_radius,
+        const glm::vec2& capsuleB_start,
+        const glm::vec2& capsuleB_end,
+        const float& capsuleB_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Capsule_Triangle_CollisionPointNormalDepth(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         glm::vec2& collisionPoint,
@@ -1135,6 +1234,17 @@ namespace Project001
         const glm::vec2& triangle_corner3,
         const glm::vec2& circle_position,
         const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_Triangle_Capsule_CollisionPointNormalDepth(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
@@ -1177,6 +1287,16 @@ namespace Project001
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    bool Get2D_ConvexPolygon_Capsule_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
@@ -1317,6 +1437,7 @@ namespace Project001
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount);
 
+    // If an axis is (0.0f, 0.0f) then the max and min will be 0.0f.
     void ProjectPolygonOntoAxis(
         const glm::vec2& axis,
         const glm::vec2* const& polygon_corners,
@@ -1324,6 +1445,7 @@ namespace Project001
         float& max,
         float& min);
 
+    // If an axis is (0.0f, 0.0f) then the max and min will be 0.0f.
     void ProjectPolygonOntoAxis_2(
         const glm::vec2& axis,
         const glm::vec2* const& polygon_corners,
@@ -1350,15 +1472,27 @@ namespace Project001
         float& max,
         float& min);
 
+    // Unused
+    // axis vector needs to be a unit vector
+    void ProjectCapsuleOntoAxis_2(
+        const glm::vec2& axis,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        float& max,
+        float& min,
+        bool& startIsMax,
+        bool& startIsMin);
+
     void GetPolygonCentroid(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         glm::vec2& polygon_centeroid);
 
-    float GetPolygonPointClosestPoint(
+    float Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(
+        const glm::vec2& point_position,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
-        const glm::vec2& point_position,
         glm::vec2& closestPoint_position);
 
     bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(

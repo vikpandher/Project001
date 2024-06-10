@@ -57,6 +57,9 @@ namespace Project001
             float pixelSize = 0.01f,
             bool trangulate = s_triangulate);
 
+        static bool s_flipVerticalyOnLoad;
+        static bool s_triangulate;
+
     protected:
         // Used in LoadTextureDataAndFontData and LoadTextureDataAndFontDataFromMemory
         static bool LoadTextureDataAndFontData_H(
@@ -85,8 +88,5 @@ namespace Project001
             unsigned char character,
             float pixelSize = 0.01f,
             bool trangulate = s_triangulate);
-
-        static const bool s_flipVerticalyOnLoad;
-        static const bool s_triangulate;
     };
 }

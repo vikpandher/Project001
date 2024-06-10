@@ -285,6 +285,8 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessRenderEvent");
 
+    SyncLightSourcePosition();
+
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 
     // _LOG_MESSAGE("timestep_ns: %llu", renderEvent.timestep_ns);
@@ -313,8 +315,6 @@ void TestSceneBase001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     // Update Entities
     UpdateMainCameraEntityPositionAndRoll(timestep_ns);
-
-    SyncLightSourcePosition();
 
     if (remainingTimeRecordingDuration_ns_ > 0)
     {
