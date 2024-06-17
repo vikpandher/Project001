@@ -3345,6 +3345,16 @@ namespace Project001
             return false;
         }
 
+        // if (a_to_b_distance == 0.0f)
+        // {
+        //     collisionNormal.x = 0.0f;
+        //     collisionNormal.y = 1.0f;
+        // }
+        // else
+        // {
+        //     collisionNormal = a_to_b / a_to_b_distance; // normalize
+        // }
+
         collisionNormal = a_to_b / a_to_b_distance; // normalize
 
         float collisionPointDistance = (a_to_b_distance - circleB_radius + circleA_radius) * 0.5f;
@@ -3380,6 +3390,16 @@ namespace Project001
         glm::vec2 a_to_b = closestPoint_position - circle_position;
 
         float a_to_b_distance = glm::length(a_to_b);
+
+        // if (a_to_b_distance == 0.0f)
+        // {
+        //     collisionNormal.x = 0.0f;
+        //     collisionNormal.y = 1.0f;
+        // }
+        // else
+        // {
+        //     collisionNormal = a_to_b / a_to_b_distance; // normalize
+        // }
 
         collisionNormal = a_to_b / a_to_b_distance; // normalize
 
@@ -4280,6 +4300,256 @@ namespace Project001
         return true;
     }
 
+    // Area Functions ----------------------------------------------------------
+
+    inline float Get2D_Rectangle_Area(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight)
+    {
+        float width = rectangle_topRight.x - rectangle_bottomLeft.x;
+        float height = rectangle_topRight.y - rectangle_bottomLeft.y;
+        return width * height;
+    }
+
+    inline float Get2D_Rectangle_Area_2(
+        const glm::vec2& rectangle_halfSize)
+    {
+        float width = rectangle_halfSize.x * 2.0f;
+        float height = rectangle_halfSize.y * 2.0f;
+        return width * height;
+    }
+
+    inline float Get2D_Circle_Area(
+        const float& circle_radius)
+    {
+        return glm::pi<float>() * circle_radius * circle_radius;
+    }
+
+    inline float Get2D_Capsule_Area(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius)
+    {
+        float distance = glm::distance(capsule_start, capsule_end);
+        float rectangle_area = distance * 2.0f * capsule_radius;
+        float circle_area = glm::pi<float>() * capsule_radius * capsule_radius;
+        return rectangle_area + circle_area;
+    }
+
+    inline float Get2D_Triangle_Area(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3)
+    {
+        // Heron's formula
+        return std::abs((triangle_corner1.x * (triangle_corner2.y - triangle_corner3.y) +
+            triangle_corner2.x * (triangle_corner3.y - triangle_corner1.y) +
+            triangle_corner3.x * (triangle_corner1.y - triangle_corner2.y))) * 0.5f;
+    }
+
+    inline float Get2D_ConvexPolygon_Area(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount)
+    {
+        if (convexPolygon_cornerCount < 3)
+        {
+            return 0.0f;
+        }
+
+        float totalArea = 0.0f;
+
+        const glm::vec2& convexPolygon_corner1 = convexPolygon_corners[0];
+
+        for (size_t i = 2; i < convexPolygon_cornerCount; ++i)
+        {
+            const glm::vec2& convexPolygon_corner2 = convexPolygon_corners[i - 1];
+            const glm::vec2& convexPolygon_corner3 = convexPolygon_corners[i];
+            totalArea += Get2D_Triangle_Area(convexPolygon_corner1, convexPolygon_corner2, convexPolygon_corner3);
+        }
+
+        return totalArea;
+    }
+
+    // Moment Of Inertia Functions ---------------------------------------------
+
+    inline float Get2D_Rectangle_MomentOfInertia(
+        const float& rectangle_mass,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight)
+    {
+        float width = rectangle_topRight.x - rectangle_bottomLeft.x;
+        float height = rectangle_topRight.y - rectangle_bottomLeft.y;
+
+        // Moment of inertia about the centeroid for a rectangle
+        float inertia_at_center = rectangle_mass * (1.0f / 12.0f) * (width * width + height * height);
+
+        // Calculate the center of mass for the rectangle (assuming it's at the center of the rectangle)
+        glm::vec2 center_of_mass = 0.5f * (rectangle_bottomLeft + rectangle_topRight);
+
+        // Calculate the distance squared from the origin (0,0) to the center of mass
+        float distanceSquared = glm::dot(center_of_mass, center_of_mass);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float inertia_at_origin = inertia_at_center + rectangle_mass * distanceSquared;
+
+        return inertia_at_origin;
+    }
+
+    inline float Get2D_Rectangle_MomentOfInertia_2(
+        const float& rectangle_mass,
+        const glm::vec2& rectangle_position,
+        const glm::vec2& rectangle_halfSize)
+    {
+        float width = 2.0f * rectangle_halfSize.x;
+        float height = 2.0f * rectangle_halfSize.y;
+
+        // Moment of inertia about the centeroid for a rectangle
+        float inertia_at_center = rectangle_mass * (1.0f / 12.0f) * (width * width + height * height);
+
+        // Calculate the distance squared from the origin (0,0) to the position of the rectangle
+        float distanceSquared = glm::dot(rectangle_position, rectangle_position);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float inertia_at_origin = inertia_at_center + rectangle_mass * distanceSquared;
+
+        return inertia_at_origin;
+    }
+
+    inline float Get2D_Circle_MomentOfInertia(
+        const float& circle_mass,
+        const glm::vec2& circle_position,
+        const float& circle_radius)
+    {
+        // Moment of inertia about the centeroid for a solid disk (circle)
+        float inertia_at_center = 0.5f * circle_mass * circle_radius * circle_radius;
+
+        // Calculate the distance squared from the origin (0,0) to the position of the circle
+        float distanceSquared = glm::dot(circle_position, circle_position);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float inertia_origin = inertia_at_center + circle_mass * distanceSquared;
+
+        return inertia_origin;
+    }
+
+    inline float Get2D_Capsule_MomentOfInertia(
+        const float& capsule_mass,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius)
+    {
+        float rectangle_width = glm::length(capsule_end - capsule_start);
+        float rectangle_height = 2.0f * capsule_radius;
+        glm::vec2 rectangle_position = (capsule_start + capsule_end) * 0.5f;
+
+        float rectangle_area = rectangle_width * rectangle_height;
+
+        float capsule_radiusSquared = capsule_radius * capsule_radius;
+
+        float endCaps_area = glm::pi<float>() * capsule_radiusSquared;
+
+        float total_area = rectangle_area + endCaps_area;
+
+        float rectangle_mass = capsule_mass * rectangle_area / total_area;
+
+        float semicircle_mass = capsule_mass * endCaps_area / total_area * 0.5f;
+
+        // Moment of inertia about the centroid for a rectangle
+        float inertia_at_rectangle_center = rectangle_mass * (1.0f / 12.0f) * (rectangle_width * rectangle_width + rectangle_height * rectangle_height);
+
+        // Calculate the distance squared from the origin (0,0) to the position of the rectangle
+        float rectangle_distanceSquared = glm::dot(rectangle_position, rectangle_position);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float rectangle_inertia_origin = inertia_at_rectangle_center + rectangle_mass * rectangle_distanceSquared;
+
+        // Moment of inertia about centeroid of a semicircle
+        // I = 1/2 * m * r^2
+        // 
+        // Moment of inertia about the flat edge center of a semicircle
+        // I = 1/2 * m * r^2 + m * d^2
+        // I = 1/2 * m * r^2 + m * (4/(3 * pi) * r)^2
+        // I = 1/2 * m * r^2 + m * 16/(9 * pi^2) * r^2
+        // I = (1/2 + 16/(9 * pi^2)) * m * r^2
+        float inertia_at_simicircle_edge = (0.5f + 16.0f / (9.0f * glm::pi<float>() * glm::pi<float>())) * semicircle_mass * capsule_radiusSquared;
+
+        // Calculate the distance squared from the origin (0,0) to the position of the first semicircle
+        float semicircle_01_distanceSquared = glm::dot(capsule_start, capsule_start);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float semicircle_01_inertia_origin = inertia_at_simicircle_edge + semicircle_mass * semicircle_01_distanceSquared;
+
+        // Calculate the distance squared from the origin (0,0) to the position of the second semicircle
+        float semicircle_02_distanceSquared = glm::dot(capsule_end, capsule_end);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float semicircle_02_inertia_origin = inertia_at_simicircle_edge + semicircle_mass * semicircle_02_distanceSquared;
+
+        return rectangle_inertia_origin + semicircle_01_inertia_origin + semicircle_02_inertia_origin;
+    }
+
+    inline float Get2D_Triangle_MomentOfInertia(
+        const float& triangle_mass,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3)
+    {
+        // Moment of inertia about the centeroid of a triangle
+        // I = 1 / 36 * m * (b^2 + h^2); b = base, h = height
+        // I = 1 / 18 * m * ((x2 - x1)^2 + (x3 - x1)^2 + (x2 - x3)^2 + (y2 - y1)^2 + (y3 - y1)^2 + (y2 - y3)^2)
+
+        glm::vec2 side12 = triangle_corner2 - triangle_corner1;
+        glm::vec2 side23 = triangle_corner3 - triangle_corner2;
+        glm::vec2 side31 = triangle_corner1 - triangle_corner3;
+
+        // Lengths of the sides of the triangle squared
+        float side1_squared = glm::dot(side12, side12);
+        float side2_squared = glm::dot(side23, side23);
+        float side3_squared = glm::dot(side31, side31);
+
+        // Moment of inertia about the centroid
+        float inertia_at_center = triangle_mass * (1.0f / 18.0f) * (side1_squared + side2_squared + side3_squared);
+
+        glm::vec2 triangle_center = (triangle_corner1 + triangle_corner2 + triangle_corner3) * (1.0f / 3.0f);
+
+        // Calculate the distance squared from the origin (0,0) to the center of the triangle
+        float distanceSquared = glm::dot(triangle_center, triangle_center);
+
+        // Apply the parallel axis theorem to get the moment of inertia about the origin
+        float inertia_at_origin = inertia_at_center + triangle_mass * distanceSquared;
+
+        return inertia_at_origin;
+    }
+
+    inline float Get2D_ConvexPolygon_MomentOfInertia(
+        const float& convexPolygon_area,
+        const float& convexPolygon_mass,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount)
+    {
+        if (convexPolygon_cornerCount < 3)
+        {
+            return 0.0f;
+        }
+
+        float totalMomentOfInertia = 0.0f;
+
+        const glm::vec2& convexPolygon_corner1 = convexPolygon_corners[0];
+
+        for (size_t i = 2; i < convexPolygon_cornerCount; ++i)
+        {
+            const glm::vec2& convexPolygon_corner2 = convexPolygon_corners[i - 1];
+            const glm::vec2& convexPolygon_corner3 = convexPolygon_corners[i];
+
+            float triangle_area = Get2D_Triangle_Area(convexPolygon_corner1, convexPolygon_corner2, convexPolygon_corner3);
+            float triangle_mass = convexPolygon_mass * (triangle_area / convexPolygon_area);
+
+            totalMomentOfInertia += Get2D_Triangle_MomentOfInertia(triangle_mass, convexPolygon_corner1, convexPolygon_corner2, convexPolygon_corner3);
+        }
+
+        return totalMomentOfInertia;
+    }
+
     // Intersection Functions --------------------------------------------------
 
     inline bool Get2D_Line_Line_Intersection(
@@ -4598,17 +4868,6 @@ namespace Project001
         {
             return 0; // colinear
         }
-    }
-
-    inline float Get2D_Triangle_Area(
-        const glm::vec2& triangle_corner1,
-        const glm::vec2& triangle_corner2,
-        const glm::vec2& triangle_corner3)
-    {
-        // Heron’s formula
-        return std::abs((triangle_corner1.x * (triangle_corner2.y - triangle_corner3.y) +
-            triangle_corner2.x * (triangle_corner3.y - triangle_corner1.y) +
-            triangle_corner3.x * (triangle_corner1.y - triangle_corner2.y)) / 2.0f);
     }
 
     inline bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(

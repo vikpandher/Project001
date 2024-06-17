@@ -22,6 +22,10 @@ protected:
 
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
+    void CreateEntitiesForNewtonsCradle01();
+    void CreateEntitiesForNewtonsCradle02();
+    void CreateEntitiesForNewtonsCradle03();
+
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;

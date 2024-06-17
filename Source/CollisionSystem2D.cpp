@@ -66,22 +66,6 @@ namespace Project001
             currentCollisionBody.ClearCollisions();
         }
 
-        // Calculate bounding radii and transformed collision shapes
-        for (size_t i = 0; i < collisionBodyCount; ++i)
-        {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-
-            if (!currentCollisionBody.BoundingRadiusUpToDate())
-            {
-                currentCollisionBody.CalculateBoundingRadius();
-            }
-
-            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
-            {
-                currentCollisionBody.CalculateTransformedCollisionShapes();
-            }
-        }
-
         // Gather together all tangible collision bodies
         s_tangibleCollisionBodyPtrs_.clear();
         s_collisionBodyPairPtrs_.clear();
@@ -161,22 +145,6 @@ namespace Project001
         // Clear primary entity's collisions
         primaryCollisionBodyPtr->ClearCollisions();
 
-        // Calculate bounding radii and transformed collision shapes
-        for (size_t i = 0; i < collisionBodyCount; ++i)
-        {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-
-            if (!currentCollisionBody.BoundingRadiusUpToDate())
-            {
-                currentCollisionBody.CalculateBoundingRadius();
-            }
-
-            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
-            {
-                currentCollisionBody.CalculateTransformedCollisionShapes();
-            }
-        }
-
         // Sort out all tangible collision bodies
         s_tangibleCollisionBodyPtrs_.clear();
 
@@ -190,7 +158,7 @@ namespace Project001
             }
         }
 
-        if (s_tangibleCollisionBodyPtrs_.size() == 0)
+        if (s_tangibleCollisionBodyPtrs_.empty())
         {
             return;
         }
@@ -239,22 +207,6 @@ namespace Project001
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
             currentCollisionBody.ClearCollisions();
-        }
-
-        // Calculate bounding radii and transformed collision shapes
-        for (size_t i = 0; i < collisionBodyCount; ++i)
-        {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-
-            if (!currentCollisionBody.BoundingRadiusUpToDate())
-            {
-                currentCollisionBody.CalculateBoundingRadius();
-            }
-
-            if (!currentCollisionBody.TransformedCollisionShapesUpToDate())
-            {
-                currentCollisionBody.CalculateTransformedCollisionShapes();
-            }
         }
 
         // Gather together all tangible collision bodies
@@ -345,6 +297,11 @@ namespace Project001
 
                 if (nodePtr->leafNode)
                 {
+                    if (nodePtr->bodyPtrs.empty())
+                    {
+                        continue;
+                    }
+
                     // Calculate collisions
                     for (unsigned int i = 0; i < nodePtr->bodyPtrs.size() - 1; ++i)
                     {
@@ -442,11 +399,31 @@ namespace Project001
             const glm::vec2& positionA = collisionBodyA.GetPosition();
             const glm::vec2& positionB = collisionBodyB.GetPosition();
 
+            const glm::vec2& velocityA = collisionBodyA.GetVelocity();
+            const glm::vec2& velocityB = collisionBodyB.GetVelocity();
+
+            const float& angularVelocityA = collisionBodyA.GetAngularVelocity();
+            const float& angularVelocityB = collisionBodyB.GetAngularVelocity();
+
             const float& massA = collisionBodyA.GetMass();
             const float& massB = collisionBodyB.GetMass();
 
-            bool bodyA_notMoving = std::isinf(massA) || massB <= 0.0f;
-            bool bodyB_notMoving = std::isinf(massB) || massA <= 0.0f;
+            const float& momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
+            const float& momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
+
+            const float& restitutionA = collisionBodyA.GetRestitution();
+            const float& restitutionB = collisionBodyB.GetRestitution();
+
+            // CollisionBody should ensure that its mass is never less than or
+            // equal to 0.0f. Same goes for momentOfInertia.
+            // 
+            // if (massA <= 0.0f || massB <= 0.0f)
+            // {
+            //     continue;
+            // }
+
+            bool bodyA_notMoving = std::isinf(massA);
+            bool bodyB_notMoving = std::isinf(massB);
 
             // First unsink bodies from eachother
             // -----------------------------------------------------------------
@@ -477,7 +454,58 @@ namespace Project001
                 collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
             }
 
-            // TODO: resolve collisions
+            // Resolve collisions
+            // -----------------------------------------------------------------
+
+            glm::vec2 rA = collisionPoint - positionA; // center of mass A to collision point
+            glm::vec2 rB = collisionPoint - positionB; // center of mass B to collision point
+
+            // Add angular velocity contribution
+            // vA = velocityA + cross(angularVelocityA, rA)
+            glm::vec2 vA = velocityA + glm::vec2(-angularVelocityA * rA.y, angularVelocityA * rA.x);
+            glm::vec2 vB = velocityB + glm::vec2(-angularVelocityB * rB.y, angularVelocityB * rB.x);
+
+            // Relative velocity at collision point
+            glm::vec2 relativeVelocity = vB - vA;
+
+            // Normal component of rel. velocity along the collision normal
+            float relativeVelocity_n = glm::dot(relativeVelocity, collisionNormal);
+
+            // Use minimum restitution value
+            float restitution = std::min(restitutionA, restitutionB);
+
+            float invMassA = 1.0f / massA;
+            float invMassB = 1.0f / massB;
+            float invMomentOfInertiaA = 1.0f / momentOfInertiaA;
+            float invMomentOfInertiaB = 1.0f / momentOfInertiaB;
+
+            glm::vec2 collisionNormalPerpendicular = glm::vec2(-collisionNormal.y, collisionNormal.x);
+
+            // scalar projections of rA and rB onto collisionNormalPerpendicular
+            float leverArmA = glm::dot(rA, collisionNormalPerpendicular);
+            float leverArmB = glm::dot(rB, collisionNormalPerpendicular);
+
+            float impulseScalar_numerator = -(1.0f + restitution) * relativeVelocity_n;
+            float impulseScalar_denominator = invMassA + invMassB +
+                (leverArmA * leverArmA * invMomentOfInertiaA) + (leverArmB * leverArmB * invMomentOfInertiaB);
+
+            float impulseScalar = impulseScalar_numerator / impulseScalar_denominator;
+
+            glm::vec2 impulse = impulseScalar * collisionNormal;
+
+            glm::vec2 newVelocityA = velocityA - impulse / massA;
+            glm::vec2 newVelocityB = velocityB + impulse / massB;
+
+            glm::vec2 impulsePerpendicular = glm::vec2(-impulse.y, impulse.x);
+
+            float newAngularVelocityA = angularVelocityA + glm::dot(rA, impulsePerpendicular) / momentOfInertiaA;
+            float newAngularVelocityB = angularVelocityB - glm::dot(rB, impulsePerpendicular) / momentOfInertiaB;
+
+            collisionBodyA.SetVelocity(newVelocityA);
+            collisionBodyB.SetVelocity(newVelocityB);
+
+            collisionBodyA.SetAngularVelocity(newAngularVelocityA);
+            collisionBodyB.SetAngularVelocity(newAngularVelocityB);
         }
     }
 
@@ -3972,7 +4000,22 @@ namespace Project001
         if (resolvePhysics && newCollisionManifold.collisionDepth != 0.0f &&
             !(newCollisionManifold.collisionNormal.x == 0.0f && newCollisionManifold.collisionNormal.y == 0.0f))
         {
-            s_collisionManifolds_.push_back(newCollisionManifold);
+            if (!std::isnan(newCollisionManifold.collisionPoint.x) &&
+                !std::isnan(newCollisionManifold.collisionPoint.y) &&
+                !std::isnan(newCollisionManifold.collisionNormal.x) &&
+                !std::isnan(newCollisionManifold.collisionNormal.y) &&
+                !std::isnan(newCollisionManifold.collisionDepth))
+            {
+                s_collisionManifolds_.push_back(newCollisionManifold);
+            }
+            else
+            {
+                newCollisionManifold.collisionPoint = collisionBodyA.GetPosition();
+                newCollisionManifold.collisionNormal.x = 0.0f;
+                newCollisionManifold.collisionNormal.y = 1.0f;
+                newCollisionManifold.collisionDepth = collisionBodyA.GetBoundingRadius() + collisionBodyB.GetBoundingRadius();
+                s_collisionManifolds_.push_back(newCollisionManifold);
+            }
         }
     }
 

@@ -661,7 +661,7 @@ void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep
         glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
 
         float translationSpeed = speedConstant * 0.8f * timestep_s;
-        float rotationSpeed = speedConstant * 1.2f * timestep_s;
+        float rotationSpeed = 1.2f * timestep_s;
 
         bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
         bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);

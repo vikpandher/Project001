@@ -65,6 +65,23 @@
 // Triangle       | --- | --- | --- | --- |  \  |  \  |
 // Convex Polygon | --- | --- | --- | --- | --- |  \  |
 // 
+// Area Functions:
+// Rectangle      |  \  |
+// Circle         |  \  |
+// Capsule        |  \  |
+// Triangle       |  \  |
+// Convex Polygon |  \  |
+// 
+// Moment Of Inertia Functions:
+// Rectangle      |  \  |
+// Circle         |  \  |
+// Capsule        |  \  |
+// Triangle       |  \  |
+// Convex Polygon |  \  |
+// 
+// NOTE: The Momemt of Inertia is calculated assuming the center of mass is at
+// (0.0f, 0.0f), even if the shape is offset.
+// 
 // Intersection Functions:
 //                      | Lin |
 // Line                 |  \  |
@@ -1329,6 +1346,67 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    // Area Functions ----------------------------------------------------------
+
+    float Get2D_Rectangle_Area(
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight);
+
+    float Get2D_Rectangle_Area_2(
+        const glm::vec2& rectangle_halfSize);
+
+    float Get2D_Circle_Area(
+        const float& circle_radius);
+
+    float Get2D_Capsule_Area(
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius);
+
+    float Get2D_Triangle_Area(
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3);
+
+    float Get2D_ConvexPolygon_Area(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
+
+    // Moment Of Inertia Functions ---------------------------------------------
+
+    float Get2D_Rectangle_MomentOfInertia(
+        const float& rectangle_mass,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight);
+
+    float Get2D_Rectangle_MomentOfInertia_2(
+        const float& rectangle_mass,
+        const glm::vec2& rectangle_position,
+        const glm::vec2& rectangle_halfSize);
+
+    float Get2D_Circle_MomentOfInertia(
+        const float& circle_mass,
+        const glm::vec2& circle_position,
+        const float& circle_radius);
+
+    float Get2D_Capsule_MomentOfInertia(
+        const float& capsule_mass,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius);
+
+    float Get2D_Triangle_MomentOfInertia(
+        const float& triangle_mass,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3);
+
+    float Get2D_ConvexPolygon_MomentOfInertia(
+        const float& convexPolygon_area,
+        const float& convexPolygon_mass,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount);
+
     // Intersection Functions --------------------------------------------------
 
     bool Get2D_Line_Line_Intersection(
@@ -1418,11 +1496,6 @@ namespace Project001
     // returns 1 if clockwise
     // returns 2 if counter-clockwise
     int Get2D_Triangle_ApparentFacingDirection(
-        const glm::vec2& triangle_corner1,
-        const glm::vec2& triangle_corner2,
-        const glm::vec2& triangle_corner3);
-
-    float Get2D_Triangle_Area(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3);

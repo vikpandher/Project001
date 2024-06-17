@@ -326,7 +326,6 @@ void TestScene013::TestCollisionBodyQuadTree2D()
                 glm::vec2(0.2f, 0.1f)
             );
         }
-        collisionBody2DPtr->CalculateBoundingRadius();
         collisionBodyPtrs.push_back(collisionBody2DPtr);
 
         collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
@@ -377,7 +376,6 @@ void TestScene013::TestCollisionBodyQuadTree2D()
                 0.1f
             );
         }
-        collisionBody2DPtr->CalculateBoundingRadius();
         collisionBodyPtrs.push_back(collisionBody2DPtr);
 
         collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
@@ -414,7 +412,6 @@ void TestScene013::TestCollisionBodyQuadTree2D()
                 glm::vec2(0.0f, 0.0f)
             );
         }
-        collisionBody2DPtr->CalculateBoundingRadius();
         collisionBodyPtrs.push_back(collisionBody2DPtr);
 
         collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
@@ -452,7 +449,6 @@ void TestScene013::TestCollisionBodyQuadTree2D()
                 glm::vec2(0.0f, 0.0f)
             );
         }
-        collisionBody2DPtr->CalculateBoundingRadius();
         collisionBodyPtrs.push_back(collisionBody2DPtr);
 
         collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
@@ -505,7 +501,6 @@ void TestScene013::TestCollisionBodyQuadTree2D()
                 0.1f
             );
         }
-        collisionBody2DPtr->CalculateBoundingRadius();
         collisionBodyPtrs.push_back(collisionBody2DPtr);
 
         collisionBodyQuadTree2D.Insert(collisionBody2DPtr);

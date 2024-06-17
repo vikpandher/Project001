@@ -44,6 +44,12 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Creating Entities
     // -------------------------------------------------------------------------
 
+    CreateEntitiesForNewtonsCradle01();
+
+    CreateEntitiesForNewtonsCradle02();
+
+    CreateEntitiesForNewtonsCradle03();
+
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
@@ -58,6 +64,7 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // -------------------------------------------------------------------------
 
+    /*
     // Circle 1
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -129,8 +136,6 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 glm::vec2(),
                 0.24f
             );
-
-            collisionBody2DPtr->SetAcceleration(glm::vec2(1.0f, 0.0));
         }
     }
 
@@ -215,10 +220,9 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 glm::vec2(-0.24f, -0.48f),
                 glm::vec2(0.24f, 0.48f)
             );
-
-            collisionBody2DPtr->SetAngularAcceleration(glm::quarter_pi<float>());
         }
     }
+    */
 
     // Member Scenes -----------------------------------------------------------
 
@@ -278,6 +282,10 @@ void TestScene015::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             collisionBody2D.SetPositionX(8.0f);
         }
+        // else if (std::isnan(collisionBody2D_position.x))
+        // {
+        //     collisionBody2D.SetPositionX(0.0f);
+        // }
 
         if (collisionBody2D_position.y > 6.0f)
         {
@@ -287,15 +295,23 @@ void TestScene015::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             collisionBody2D.SetPositionY(6.0f);
         }
+        // else if (std::isnan(collisionBody2D_position.y))
+        // {
+        //     collisionBody2D.SetPositionY(0.0f);
+        // }
+
+        // Cap Velocity
 
         const glm::vec2& collisionBody2D_velocity = collisionBody2D.GetVelocity();
         float velocityMagnitude = glm::length(collisionBody2D_velocity);
 
-        if (velocityMagnitude > 10.1f)
+        if (velocityMagnitude > 10.0f)
         {
             glm::vec2 newVelocity = glm::normalize(collisionBody2D_velocity) * 10.0f;
             collisionBody2D.SetVelocity(newVelocity);
         }
+
+        // Cap Angular Velocity
 
         const float& collisionBody2D_angularVelocity = collisionBody2D.GetAngularVelocity();
 
@@ -303,6 +319,150 @@ void TestScene015::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             constexpr float newAngularVelocity = 2.0f * glm::pi<float>();
             collisionBody2D.SetAngularVelocity(newAngularVelocity);
+        }
+        else if (collisionBody2D_angularVelocity < -2.0f * glm::pi<float>())
+        {
+            constexpr float newAngularVelocity = -2.0f * glm::pi<float>();
+            collisionBody2D.SetAngularVelocity(newAngularVelocity);
+        }
+    }
+}
+
+void TestScene015::CreateEntitiesForNewtonsCradle01()
+{
+    float yPos = 3.0f;
+    for (int i = -4; i < 5; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition((float)i, yPos, 0.0f);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(),
+                0.32f
+            );
+
+            if (i == -4)
+            {
+                collisionBody2DPtr->SetVelocity(glm::vec2(1.0f, 0.0));
+            }
+        }
+    }
+}
+
+void TestScene015::CreateEntitiesForNewtonsCradle02()
+{
+    float yPos = 2.0f;
+    for (int i = -4; i < 5; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition((float)i, yPos, 0.0f);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(),
+                0.32f
+            );
+
+            if (i == 4)
+            {
+                collisionBody2DPtr->SetVelocity(glm::vec2(-2.0f, 0.0));
+            }
+        }
+    }
+}
+
+void TestScene015::CreateEntitiesForNewtonsCradle03()
+{
+    float yPos = 1.0f;
+    for (int i = -4; i < 5; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition((float)i, yPos, 0.0f);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetLit(false);
+        }
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(),
+                0.32f
+            );
+
+            if (i == -4)
+            {
+                collisionBody2DPtr->SetVelocity(glm::vec2(1.0f, 0.0));
+            }
+            else if (i == 4)
+            {
+                collisionBody2DPtr->SetVelocity(glm::vec2(-1.0f, 0.0));
+            }
         }
     }
 }
