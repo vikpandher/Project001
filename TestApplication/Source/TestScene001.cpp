@@ -185,6 +185,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene003");
     buttonStrings.emplace_back("TestScene004");
     buttonStrings.emplace_back("TestScene006");
+    buttonStrings.emplace_back("TestScene007");
     buttonStrings.emplace_back("TestScene010");
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
@@ -204,6 +205,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene003Id);
     buttonDestinationSceneIds.push_back(g_testScene004Id);
     buttonDestinationSceneIds.push_back(g_testScene006Id);
+    buttonDestinationSceneIds.push_back(g_testScene007Id);
     buttonDestinationSceneIds.push_back(g_testScene010Id);
     buttonDestinationSceneIds.push_back(g_testScene011Id);
     buttonDestinationSceneIds.push_back(g_testScene012Id);

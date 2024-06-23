@@ -112,7 +112,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)icosphere001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        icosphere001_MaxBoundingRadius_ = icosphere001_MeshDataPtr_->maxBoundingRadius;
+        icosphere001_MaxBoundingRadius_ = icosphere001_MaxBoundingRadius_;
     }
 
     { // arc
@@ -130,7 +130,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)arc001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        arc001_MaxBoundingRadius_ = arc001_MeshDataPtr_->maxBoundingRadius;
+        arc001_MaxBoundingRadius_ = arc001_MaxBoundingRadius_;
     }
 
     { // line star
@@ -166,7 +166,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)line001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        line001_MaxBoundingRadius_ = line001_MeshDataPtr_->maxBoundingRadius;
+        line001_MaxBoundingRadius_ = line001_MaxBoundingRadius_;
     }
 
     { // cone
@@ -182,7 +182,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)cone001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        cone001_MaxBoundingRadius_ = cone001_MeshDataPtr_->maxBoundingRadius;
+        cone001_MaxBoundingRadius_ = cone001_MaxBoundingRadius_;
     }
 
     // Generate entities
@@ -196,7 +196,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
         if (renderedMeshPtr != nullptr)
         {
-            renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MeshDataPtr_->maxBoundingRadius);
+            renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MaxBoundingRadius_);
             renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
             renderedMeshPtr->SetTranslucent(true);
         }

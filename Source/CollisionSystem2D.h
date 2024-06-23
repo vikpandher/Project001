@@ -53,7 +53,7 @@ namespace Project001
             CollisionBody2D* collisionBodyB_Ptr;
 
             glm::vec2 collisionPoint;
-            glm::vec2 collisionNormal;
+            glm::vec2 collisionNormal; // should point away from bodyA
             float collisionDepth;
         };
 

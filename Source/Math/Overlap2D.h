@@ -65,6 +65,9 @@
 // Triangle       | --- | --- | --- | --- |  \  |  \  |
 // Convex Polygon | --- | --- | --- | --- | --- |  \  |
 // 
+// Collision Point And Normal And Depth Function Notes:
+// * collision normals point out from the first shape
+// 
 // Area Functions:
 // Rectangle      |  \  |
 // Circle         |  \  |
@@ -79,7 +82,8 @@
 // Triangle       |  \  |
 // Convex Polygon |  \  |
 // 
-// NOTE: The Momemt of Inertia is calculated assuming the center of mass is at
+// Moment Of Inertia Function Notes:
+// * the momemt of inertia is calculated assuming the center of mass is at
 // (0.0f, 0.0f), even if the shape is offset.
 // 
 // Intersection Functions:

@@ -5,6 +5,7 @@ extern unsigned int g_testScene002Id;
 extern unsigned int g_testScene003Id;
 extern unsigned int g_testScene004Id;
 extern unsigned int g_testScene006Id;
+extern unsigned int g_testScene007Id;
 extern unsigned int g_testScene010Id;
 extern unsigned int g_testScene011Id;
 extern unsigned int g_testScene012Id;

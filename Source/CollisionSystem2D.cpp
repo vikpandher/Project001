@@ -390,11 +390,17 @@ namespace Project001
         {
             CollisionManifold2D& collisionManifold = s_collisionManifolds_[i];
             const glm::vec2& collisionPoint = collisionManifold.collisionPoint;
-            const glm::vec2& collisionNormal = collisionManifold.collisionNormal;
+            const glm::vec2& collisionNormal = collisionManifold.collisionNormal; // points away from bodyA
             float collisionDepth = collisionManifold.collisionDepth + s_sunkenMeshSeperationSpacing;
 
             CollisionBody2D& collisionBodyA = *collisionManifold.collisionBodyA_Ptr;
             CollisionBody2D& collisionBodyB = *collisionManifold.collisionBodyB_Ptr;
+
+            const bool& fixedTranslationA = collisionBodyA.GetFixedTranslation();
+            const bool& fixedTranslationB = collisionBodyB.GetFixedTranslation();
+
+            const bool& fixedRotationA = collisionBodyA.GetFixedRotation();
+            const bool& fixedRotationB = collisionBodyB.GetFixedRotation();
 
             const glm::vec2& positionA = collisionBodyA.GetPosition();
             const glm::vec2& positionB = collisionBodyB.GetPosition();
@@ -405,14 +411,35 @@ namespace Project001
             const float& angularVelocityA = collisionBodyA.GetAngularVelocity();
             const float& angularVelocityB = collisionBodyB.GetAngularVelocity();
 
-            const float& massA = collisionBodyA.GetMass();
-            const float& massB = collisionBodyB.GetMass();
+            float massA = collisionBodyA.GetMass();
+            if (fixedTranslationA)
+            {
+                massA = std::numeric_limits<float>::infinity();
+            }
 
-            const float& momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
-            const float& momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
+            float massB = collisionBodyB.GetMass();
+            if (fixedTranslationB)
+            {
+                massB = std::numeric_limits<float>::infinity();
+            }
+
+            float momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
+            if (fixedRotationA)
+            {
+                momentOfInertiaA = std::numeric_limits<float>::infinity();
+            }
+
+            float momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
+            if (fixedRotationB)
+            {
+                momentOfInertiaB = std::numeric_limits<float>::infinity();
+            }
 
             const float& restitutionA = collisionBodyA.GetRestitution();
             const float& restitutionB = collisionBodyB.GetRestitution();
+
+            const float& frictionA = collisionBodyA.GetFriction();
+            const float& frictionB = collisionBodyB.GetFriction();
 
             // CollisionBody should ensure that its mass is never less than or
             // equal to 0.0f. Same goes for momentOfInertia.
@@ -422,18 +449,21 @@ namespace Project001
             //     continue;
             // }
 
-            bool bodyA_notMoving = std::isinf(massA);
-            bool bodyB_notMoving = std::isinf(massB);
-
-            // First unsink bodies from eachother
+            // Unsink bodies from eachother
             // -----------------------------------------------------------------
+
+            bool bodyA_notMoving = std::isinf(massA) || fixedTranslationA || fixedRotationA;
+            bool bodyB_notMoving = std::isinf(massB) || fixedTranslationB || fixedRotationB;
 
             if (bodyA_notMoving)
             {
-                if (bodyB_notMoving) // if both bodies are not moving, they are both moving
+                if (bodyB_notMoving)
                 {
-                    collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
-                    collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+                    // If both bodies are not moving, should be they are both moving?
+                    // collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
+                    // collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+
+                    continue;
                 }
                 else
                 {
@@ -454,22 +484,30 @@ namespace Project001
                 collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
             }
 
-            // Resolve collisions
+            // Apply collision impulses
             // -----------------------------------------------------------------
 
             glm::vec2 rA = collisionPoint - positionA; // center of mass A to collision point
             glm::vec2 rB = collisionPoint - positionB; // center of mass B to collision point
 
+            glm::vec2 rA_p(-rA.y, rA.x); // perpendicular
+            glm::vec2 rB_p(-rB.y, rB.x); // perpendicular
+
             // Add angular velocity contribution
-            // vA = velocityA + cross(angularVelocityA, rA)
-            glm::vec2 vA = velocityA + glm::vec2(-angularVelocityA * rA.y, angularVelocityA * rA.x);
-            glm::vec2 vB = velocityB + glm::vec2(-angularVelocityB * rB.y, angularVelocityB * rB.x);
+            glm::vec2 vA = velocityA + angularVelocityA * rA_p;
+            glm::vec2 vB = velocityB + angularVelocityB * rB_p;
 
             // Relative velocity at collision point
             glm::vec2 relativeVelocity = vB - vA;
 
-            // Normal component of rel. velocity along the collision normal
-            float relativeVelocity_n = glm::dot(relativeVelocity, collisionNormal);
+            // Normal component of rel. velocity along the collision normal length
+            float relativeVelocity_n_length = glm::dot(relativeVelocity, collisionNormal);
+
+            if (relativeVelocity_n_length >= 0.0f)
+            {
+                // The collision bodies are not moving towards eachother
+                continue;
+            }
 
             // Use minimum restitution value
             float restitution = std::min(restitutionA, restitutionB);
@@ -479,27 +517,141 @@ namespace Project001
             float invMomentOfInertiaA = 1.0f / momentOfInertiaA;
             float invMomentOfInertiaB = 1.0f / momentOfInertiaB;
 
-            glm::vec2 collisionNormalPerpendicular = glm::vec2(-collisionNormal.y, collisionNormal.x);
+            glm::vec2 collisionTangent = glm::vec2(-collisionNormal.y, collisionNormal.x);
 
-            // scalar projections of rA and rB onto collisionNormalPerpendicular
-            float leverArmA = glm::dot(rA, collisionNormalPerpendicular);
-            float leverArmB = glm::dot(rB, collisionNormalPerpendicular);
+            // Scalar projections of rA and rB onto collisionTangent
+            float leverArmA = glm::dot(rA, collisionTangent);
+            float leverArmB = glm::dot(rB, collisionTangent);
 
-            float impulseScalar_numerator = -(1.0f + restitution) * relativeVelocity_n;
             float impulseScalar_denominator = invMassA + invMassB +
                 (leverArmA * leverArmA * invMomentOfInertiaA) + (leverArmB * leverArmB * invMomentOfInertiaB);
 
-            float impulseScalar = impulseScalar_numerator / impulseScalar_denominator;
+            float impulseScalar = -(1.0f + restitution) * relativeVelocity_n_length / impulseScalar_denominator;
 
             glm::vec2 impulse = impulseScalar * collisionNormal;
+            glm::vec2 impulseA = impulse / massA;
+            glm::vec2 impulseB = impulse / massB;
 
-            glm::vec2 newVelocityA = velocityA - impulse / massA;
-            glm::vec2 newVelocityB = velocityB + impulse / massB;
+            glm::vec2 newVelocityA = velocityA;
+            glm::vec2 newVelocityB = velocityB;
+
+            if (!fixedTranslationA)
+            {
+                if (!fixedTranslationB)
+                {
+                    newVelocityA -= impulseA;
+                    newVelocityB += impulseB;
+                }
+                else
+                {
+                    newVelocityA -= impulseA;
+                    newVelocityA -= impulseB;
+                }
+            }
+            else if (!fixedTranslationB)
+            {
+                newVelocityB += impulseA;
+                newVelocityB += impulseB;
+            }
 
             glm::vec2 impulsePerpendicular = glm::vec2(-impulse.y, impulse.x);
+            float angularImpulseA = glm::dot(rA, impulsePerpendicular) / momentOfInertiaA;
+            float angularImpulseB = glm::dot(rB, impulsePerpendicular) / momentOfInertiaB;
 
-            float newAngularVelocityA = angularVelocityA + glm::dot(rA, impulsePerpendicular) / momentOfInertiaA;
-            float newAngularVelocityB = angularVelocityB - glm::dot(rB, impulsePerpendicular) / momentOfInertiaB;
+            float newAngularVelocityA = angularVelocityA;
+            float newAngularVelocityB = angularVelocityB;
+
+            if (!fixedRotationA)
+            {
+                if (!fixedRotationB)
+                {
+                    newAngularVelocityA += angularImpulseA;
+                    newAngularVelocityB -= angularImpulseB;
+                }
+                else
+                {
+                    newAngularVelocityA += angularImpulseA;
+                    newAngularVelocityA += angularImpulseB;
+                }
+            }
+            else if (!fixedRotationB)
+            {
+                newAngularVelocityB -= angularImpulseA;
+                newAngularVelocityB -= angularImpulseB;
+            }
+
+            // Apply friction impulses
+            // -----------------------------------------------------------------
+
+            float rA_dot_p = glm::dot(rA, collisionNormal);
+            float rB_dot_p = glm::dot(rB, collisionNormal);
+
+            float frictionImpulseScalar_denominator = invMassA + invMassB +
+                (rA_dot_p * rA_dot_p * invMomentOfInertiaA) + (rB_dot_p * rB_dot_p * invMomentOfInertiaB);
+
+            // Use minimum friction value
+            float friction = std::min(frictionA, frictionB);
+
+            // recalculate with updated velocity and angular velocity ?
+            // vA = newVelocityA + newAngularVelocityA * rA_p;
+            // vB = newVelocityB + newAngularVelocityB * rB_p;
+            // relativeVelocity = vB - vA;
+
+            float relativeVelocity_t_length = glm::dot(relativeVelocity, collisionTangent);
+
+            float frictionImpulseScalar = -relativeVelocity_t_length / frictionImpulseScalar_denominator;
+
+            frictionImpulseScalar = glm::clamp(frictionImpulseScalar, -friction * impulseScalar, friction * impulseScalar);
+
+            glm::vec2 frictionImpulse = frictionImpulseScalar * collisionTangent;
+            glm::vec2 frictionImpulseA = frictionImpulse / massA;
+            glm::vec2 frictionImpulseB = frictionImpulse / massB;
+
+            if (!fixedTranslationA)
+            {
+                if (!fixedTranslationB)
+                {
+                    newVelocityA -= frictionImpulseA;
+                    newVelocityB += frictionImpulseB;
+                }
+                else
+                {
+                    newVelocityA -= frictionImpulseA;
+                    newVelocityA -= frictionImpulseB;
+                }
+            }
+            else if (!fixedTranslationB)
+            {
+                newVelocityB += frictionImpulseA;
+                newVelocityB += frictionImpulseB;
+            }
+
+            glm::vec2 frictionImpulsePerpendicular = glm::vec2(-frictionImpulse.y, frictionImpulse.x);
+            float frictionAngularImpulseA = glm::dot(rA, frictionImpulsePerpendicular) / momentOfInertiaA;
+            float frictionAngularImpulseB = glm::dot(rB, frictionImpulsePerpendicular) / momentOfInertiaB;
+
+            if (!fixedRotationA)
+            {
+                if (!fixedRotationB)
+                {
+                    newAngularVelocityA += frictionAngularImpulseA;
+                    newAngularVelocityB -= frictionAngularImpulseB;
+                }
+                else
+                {
+                    newAngularVelocityA += frictionAngularImpulseA;
+                    newAngularVelocityA += frictionAngularImpulseB;
+                }
+            }
+            else if (!fixedRotationB)
+            {
+                newAngularVelocityB -= frictionAngularImpulseA;
+                newAngularVelocityB -= frictionAngularImpulseB;
+            }
+
+            // -----------------------------------------------------------------
+
+            // TODO add contact damping factor or maybe air resistance damping
 
             collisionBodyA.SetVelocity(newVelocityA);
             collisionBodyB.SetVelocity(newVelocityB);

@@ -121,17 +121,26 @@ namespace Project001
             const glm::vec2& point_position,
             glm::vec2& closestPoint_position) const;
 
+        float GetLinearKeneticEnergy() const;
+        float GetRotationalKeneticEnergy();
+
         const PhysicsType& GetPhysicsType() const;
         void SetPhysicsType(PhysicsType physicsType);
 
-        // Mass cannot be set to 0.0f or less. It will at minimum be set to
-        // s_minimumMass_
+        const bool& GetFixedTranslation() const;
+        void SetFixedTranslation(bool fixedTranslation);
+
+        const bool& GetFixedRotation() const;
+        void SetFixedRotation(bool fixedRotation);
 
         const float& GetMass() const;
         void SetMass(float mass);
 
         const float& GetRestitution() const;
         void SetRestitution(float restitution);
+
+        const float& GetFriction() const;
+        void SetFriction(float friction);
 
         const glm::vec2& GetVelocity() const;
         void SetVelocity(const glm::vec2& velocity);
@@ -231,9 +240,12 @@ namespace Project001
 
         PhysicsType physicsType_;
 
-        float mass_;
+        bool fixedTranslation_;
+        bool fixedRotation_;
 
+        float mass_;
         float restitution_; // from 0.0f to 1.0f
+        float friction_;
 
         glm::vec2 velocity_;
         float angularVelocity_;
@@ -258,8 +270,11 @@ namespace Project001
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
         , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+        , fixedTranslation_(false)
+        , fixedRotation_(false)
         , mass_(1.0f) //(std::numeric_limits<float>::infinity())
         , restitution_(1.0f)
+        , friction_(0.0f)
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
         , acceleration_(0.0f, 0.0f)
@@ -606,6 +621,16 @@ namespace Project001
         return collisions_;
     }
 
+    inline float CollisionBody2D::GetLinearKeneticEnergy() const
+    {
+        return 0.5f * mass_ * glm::dot(velocity_, velocity_);  // v^2 is dot(velocity, velocity)
+    }
+
+    inline float CollisionBody2D::GetRotationalKeneticEnergy()
+    {
+        return 0.5f * GetMomentOfInertia() * angularVelocity_ * angularVelocity_;
+    }
+
     inline const CollisionBody2D::PhysicsType& CollisionBody2D::GetPhysicsType() const
     {
         return physicsType_;
@@ -614,6 +639,26 @@ namespace Project001
     inline void CollisionBody2D::SetPhysicsType(PhysicsType physicsType)
     {
         physicsType_ = physicsType;
+    }
+
+    inline const bool& CollisionBody2D::GetFixedTranslation() const
+    {
+        return fixedTranslation_;
+    }
+
+    inline void CollisionBody2D::SetFixedTranslation(bool fixedTranslation)
+    {
+        fixedTranslation_ = fixedTranslation;
+    }
+
+    inline const bool& CollisionBody2D::GetFixedRotation() const
+    {
+        return fixedRotation_;
+    }
+
+    inline void CollisionBody2D::SetFixedRotation(bool fixedRotation)
+    {
+        fixedRotation_ = fixedRotation;
     }
 
     inline const float& CollisionBody2D::GetMass() const
@@ -646,6 +691,20 @@ namespace Project001
         else if (restitution_ < 0.0f)
         {
             restitution_ = 0.0f;
+        }
+    }
+
+    inline const float& CollisionBody2D::GetFriction() const
+    {
+        return friction_;
+    }
+
+    inline void CollisionBody2D::SetFriction(float friction)
+    {
+        friction_ = friction;
+        if (friction_ < 0.0f)
+        {
+            friction_ = 0.0f;
         }
     }
 
