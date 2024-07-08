@@ -20,3 +20,4 @@ extern unsigned int g_testScene034Id;
 extern unsigned int g_testScene050Id;
 extern unsigned int g_testScene051Id;
 extern unsigned int g_testScene060Id;
+extern unsigned int g_testScene100Id;

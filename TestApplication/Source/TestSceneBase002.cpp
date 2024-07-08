@@ -52,6 +52,7 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , generateEntityIdTextMesh_(true)
     , generateCollisionBodyQuadTreeMesh_(true)
     , generateCollisionMarkerCollectionMesh_(true)
+    , physicsStepsPerUpdate_(1)
 {}
 
 TestSceneBase002::~TestSceneBase002()
@@ -550,10 +551,13 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     }
 
     float timestep_s = (float)timestep_ns / 1e9f;
-    Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, timestep_s);
 
-    // Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
-    Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate_;
+    for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
+    {
+        Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
+        Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+    }
 
     if (remainingTimeRecordingDuration_ns_ > 0)
     {

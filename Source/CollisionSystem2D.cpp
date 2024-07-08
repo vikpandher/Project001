@@ -452,8 +452,8 @@ namespace Project001
             // Unsink bodies from eachother
             // -----------------------------------------------------------------
 
-            bool bodyA_notMoving = std::isinf(massA) || fixedTranslationA || fixedRotationA;
-            bool bodyB_notMoving = std::isinf(massB) || fixedTranslationB || fixedRotationB;
+            bool bodyA_notMoving = std::isinf(massA) || fixedTranslationA; // || fixedRotationA;
+            bool bodyB_notMoving = std::isinf(massB) || fixedTranslationB; // || fixedRotationB;
 
             if (bodyA_notMoving)
             {

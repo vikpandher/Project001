@@ -10,8 +10,6 @@
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "SoundLoader.h"
-#include "SoundPlayer.h"
 #include "Window.h"
 
 
@@ -23,10 +21,7 @@ TestScene060::TestScene060(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
-    , soundPlayerPtr_(nullptr)
     , componentStoresPtr_(nullptr)
-    , sound01_SoundDataPtr_(nullptr)
-    , sound01_SoundBufferId_((unsigned int)-1)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
@@ -76,23 +71,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     windowPtr_ = GetApplicationWindowPtr();
     rendererPtr_ = GetApplicationRendererPtr();
-    soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
-
-    // SoundData ---------------------------------------------------------------
-
-    sound01_SoundDataPtr_ = new Project001::SoundData();
-    _FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
-
-    _FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
-        sound01_SoundBufferId_,
-        sound01_SoundDataPtr_->data,
-        sound01_SoundDataPtr_->sizeInBytes,
-        sound01_SoundDataPtr_->numberOfChannels,
-        sound01_SoundDataPtr_->sampleRate_Hz,
-        sound01_SoundDataPtr_->bitsPerSample,
-        sound01_SoundDataPtr_->sizeInFrames
-    ));
 
     // Font Data ---------------------------------------------------------------
 
@@ -435,22 +414,11 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     rendererPtr_->DeleteAllTextures();
     rendererPtr_->DeleteAllMeshes();
-    soundPlayerPtr_->DeleteAllSoundSources();
-    soundPlayerPtr_->DeleteAllSoundBuffers();
-    soundPlayerPtr_->ResetListener();
     componentStoresPtr_->DeleteAllEntities();
 
     windowPtr_ = nullptr;
     rendererPtr_ = nullptr;
-    soundPlayerPtr_ = nullptr;
     componentStoresPtr_ = nullptr;
-
-    // Sound Data --------------------------------------------------------------
-
-    delete sound01_SoundDataPtr_;
-    sound01_SoundDataPtr_ = nullptr;
-    sound01_SoundBufferId_ = (unsigned int)-1;
-    buttonSoundSourceIds_.clear();
 
     // Font Data ---------------------------------------------------------------
 

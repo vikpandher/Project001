@@ -1,0 +1,13 @@
+Overlap2D_Scrap_01
+ * Has overlap functions that use FloatEqualsFloat to compare floats with a
+   margin for error.
+ * Margin for error FloatEqualsFloat seems unneccessary
+
+Overlap2D_Scrap_02
+ * Begins adding functions that get an approximate collision point and normal.
+ * Also uses FloatEqualsFloat margin for error; decided not to use it.
+
+Overlap2D_Scrap_03
+ * Adds functions that approximate collision point, depth, and normal.
+ * Faster then current methods, but not as accurate at finding collision point;
+   finds the deepest point as the collision point.

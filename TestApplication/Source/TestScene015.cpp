@@ -64,6 +64,8 @@ void TestScene015::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Creating Entities
     // -------------------------------------------------------------------------
 
+    physicsStepsPerUpdate_ = 8;
+
     CreateEntityForEnergyText();
 
     // CreateEntitiesForNewtonsCradle01(3.0f);
@@ -296,8 +298,15 @@ void TestScene015::UpdateEnergyString()
     {
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
-        totalLinearKeneticEnergy += currentCollisionBody.GetLinearKeneticEnergy();
-        totalRotationalKeneticEnergy += currentCollisionBody.GetRotationalKeneticEnergy();
+        if (!std::isinf(currentCollisionBody.GetMass()))
+        {
+            totalLinearKeneticEnergy += currentCollisionBody.GetLinearKeneticEnergy();
+        }
+
+        if (!std::isinf(currentCollisionBody.GetMomentOfInertia()))
+        {
+            totalRotationalKeneticEnergy += currentCollisionBody.GetRotationalKeneticEnergy();
+        }
     }
 
     std::string energy_string = std::to_string(totalLinearKeneticEnergy) + " + " + std::to_string(totalRotationalKeneticEnergy) + " = " + std::to_string(totalLinearKeneticEnergy + totalRotationalKeneticEnergy);

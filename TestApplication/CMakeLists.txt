@@ -104,6 +104,8 @@ set(TESTAPPLICATION_FILES
     "Source/TestScene051.h"
     "Source/TestScene060.cpp"
     "Source/TestScene060.h"
+    "Source/TestScene100.cpp"
+    "Source/TestScene100.h"
     "Source/TestSceneBase001.cpp"
     "Source/TestSceneBase001.h"
     "Source/TestSceneBase002.cpp"

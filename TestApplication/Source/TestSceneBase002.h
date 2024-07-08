@@ -112,4 +112,6 @@ protected:
     bool generateEntityIdTextMesh_;
     bool generateCollisionBodyQuadTreeMesh_;
     bool generateCollisionMarkerCollectionMesh_;
+
+    size_t physicsStepsPerUpdate_;
 };

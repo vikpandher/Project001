@@ -25,7 +25,6 @@ namespace Project001
         // rotate and translate the point rather then the orientedRectangle
         glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
         glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
-
         return Check2D_Point_Rectangle_Overlap(rotatedPointPosition, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
@@ -121,7 +120,7 @@ namespace Project001
 
         // Don't use an axis alinged rays. If they are aligned to the
         // x or y axis, they tend to dodge corners.
-        glm::vec2 ray_direction(0.78965f, 0.613558);
+        // glm::vec2 ray_direction(0.78965f, 0.613558);
         glm::vec2 ray_perpendicular(-0.613558, 0.78965f);
         const glm::vec2& ray_position = point_position;
 
@@ -133,8 +132,6 @@ namespace Project001
 
             glm::vec2 startToRay = ray_position - lineSegment_start;
             glm::vec2 startToEnd = lineSegment_end - lineSegment_start;
-
-            glm::vec2 currentIntersect_position;
 
             float denominator = glm::dot(startToEnd, ray_perpendicular); // can be zero
             float t1 = (startToEnd.x * startToRay.y - startToRay.x * startToEnd.y) / denominator;
@@ -148,12 +145,7 @@ namespace Project001
             start_index = end_index;
         }
 
-        if (intersectionCount % 2 == 0)
-        {
-            return false;
-        }
-
-        return true;
+        return intersectionCount % 2 != 0;
     }
 
     inline bool Check2D_Point_ConvexPolygon_Overlap(
@@ -161,7 +153,40 @@ namespace Project001
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount)
     {
-        return Check2D_Point_Polygon_Overlap(point_position, convexPolygon_corners, convexPolygon_cornerCount);
+        if (convexPolygon_cornerCount < 3)
+        {
+            return false;
+        }
+
+        size_t start_index = convexPolygon_cornerCount - 1;
+        for (size_t end_index = 0; end_index < convexPolygon_cornerCount; ++end_index)
+        {
+            const glm::vec2& lineSegmentA_start = convexPolygon_corners[start_index];
+            const glm::vec2& lineSegmentA_end = convexPolygon_corners[end_index];
+            glm::vec2 axisOfSeparation = lineSegmentA_end - lineSegmentA_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
+
+            float pointProjection = glm::dot(point_position, axisOfSeparation);
+
+            float projection_max = -std::numeric_limits<float>::infinity();
+            float projection_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(
+                axisOfSeparation,
+                convexPolygon_corners,
+                convexPolygon_cornerCount,
+                projection_max,
+                projection_min);
+
+            if (pointProjection >= projection_max || pointProjection <= projection_min)
+            {
+                return false;
+            }
+
+            start_index = end_index;
+        }
+
+        return true;
     }
 
     // Overlap Functions (Line) ------------------------------------------------
@@ -172,12 +197,7 @@ namespace Project001
         const glm::vec2& lineB_position,
         const float& lineB_slope)
     {
-        if ((std::isinf(lineA_slope) && std::isinf(lineB_slope)) || lineA_slope == lineB_slope)
-        {
-            return false;
-        }
-
-        return true;
+        return (!std::isinf(lineA_slope) || !std::isinf(lineB_slope)) && (lineA_slope != lineB_slope);
     }
 
     inline bool Check2D_Line_Ray_Overlap(
@@ -316,8 +336,11 @@ namespace Project001
         transformed_line_position -= orientedRectangle_position;
         transformed_line_position = Rotate2DVector(transformed_line_position, -1.0f * orientedRectangle_rotation);
         float transformed_line_slope = RotateSlope(line_slope, -1.0f * orientedRectangle_rotation);
-
-        return Check2D_Line_Rectangle_Overlap(transformed_line_position, transformed_line_slope, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
+        return Check2D_Line_Rectangle_Overlap(
+            transformed_line_position,
+            transformed_line_slope,
+            -1.0f * orientedRectangle_halfSize,
+            orientedRectangle_halfSize);
     }
 
     inline bool Check2D_Line_Circle_Overlap(
@@ -587,8 +610,11 @@ namespace Project001
         glm::vec2 transformed_position = ray_position - orientedRectangle_position;
         transformed_position = Rotate2DVector(transformed_position, -orientedRectangle_rotation);
         glm::vec2 transformed_direction = Rotate2DVector(ray_direction, -orientedRectangle_rotation);
-
-        return Check2D_Ray_Rectangle_Overlap(transformed_position, transformed_direction, -orientedRectangle_halfSize, orientedRectangle_halfSize);
+        return Check2D_Ray_Rectangle_Overlap(
+            transformed_position,
+            transformed_direction,
+            -1.0f * orientedRectangle_halfSize,
+            orientedRectangle_halfSize);
     }
 
     inline bool Check2D_Ray_Circle_Overlap(
@@ -769,7 +795,6 @@ namespace Project001
         transformedLineSegment_start = Rotate2DVector(transformedLineSegment_start, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedLineSegment_end = lineSegment_end - orientedRectangle_position;
         transformedLineSegment_end = Rotate2DVector(transformedLineSegment_end, -1.0f * orientedRectangle_rotation);
-
         return Check2D_LineSegment_Rectangle_Overlap(
             transformedLineSegment_start, transformedLineSegment_end,
             -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
@@ -966,13 +991,13 @@ namespace Project001
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            ProjectPolygonOntoAxis(axisOfSeparation, &rectangle_corner_array[0], 4, projectionA_max, projectionA_min);
+            ProjectPolygonOntoAxis(axisOfSeparation, rectangle_corner_array, 4, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            ProjectPolygonOntoAxis(axisOfSeparation, &orientedRectangle_corner_array[0], 4, projectionB_max, projectionB_min);
+            ProjectPolygonOntoAxis(axisOfSeparation, orientedRectangle_corner_array, 4, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1097,13 +1122,13 @@ namespace Project001
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            ProjectPolygonOntoAxis(axisOfSeparation, &rectangle_corner_array[0], 4, projectionA_max, projectionA_min);
+            ProjectPolygonOntoAxis(axisOfSeparation, rectangle_corner_array, 4, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            ProjectPolygonOntoAxis(axisOfSeparation, &triangle_corner_array[0], 3, projectionB_max, projectionB_min);
+            ProjectPolygonOntoAxis(axisOfSeparation, triangle_corner_array, 3, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1156,7 +1181,7 @@ namespace Project001
             glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
             rectangle_topRight,
             glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y)}; // topLeft
-        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(&convexPolygon_array[0], 4, convexPolygon_corners, convexPolygon_cornerCount);
+        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(convexPolygon_array, 4, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
     // Overlap Functions (OrientedRectangle) -----------------------------------
@@ -1243,7 +1268,6 @@ namespace Project001
         // rotate and translate the circle rather then the orientedRectangle
         glm::vec2 transformedCirclePosition = circle_position - orientedRectangle_position;
         transformedCirclePosition = Rotate2DVector(transformedCirclePosition, -1.0f * orientedRectangle_rotation);
-
         return Check2D_Rectangle_Circle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCirclePosition, circle_radius);
     }
 
@@ -1260,7 +1284,6 @@ namespace Project001
         transformedCapsuleStart = Rotate2DVector(transformedCapsuleStart, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedCapsuleEnd = capsule_end - orientedRectangle_position;
         transformedCapsuleEnd = Rotate2DVector(transformedCapsuleEnd, -1.0f * orientedRectangle_rotation);
-
         return Check2D_Rectangle_Capsule_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCapsuleStart, transformedCapsuleEnd, capsule_radius);
     }
 
@@ -1279,7 +1302,6 @@ namespace Project001
         transformedTriangleCorner2 = Rotate2DVector(transformedTriangleCorner2, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedTriangleCorner3 = triangle_corner3 - orientedRectangle_position;
         transformedTriangleCorner3 = Rotate2DVector(transformedTriangleCorner3, -1.0f * orientedRectangle_rotation);
-
         return Check2D_Rectangle_Triangle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedTriangleCorner1, transformedTriangleCorner2, transformedTriangleCorner3);
     }
 
@@ -1490,7 +1512,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1526,7 +1548,7 @@ namespace Project001
         float projectionB_min = std::numeric_limits<float>::infinity();
         ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-        if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+        if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
         {
             // projections don't overlap on axis of separation
             return false;
@@ -1692,7 +1714,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1716,7 +1738,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1751,7 +1773,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1786,7 +1808,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -1889,7 +1911,7 @@ namespace Project001
     {
         glm::vec2 convexPolygonA_array[3] = { triangleA_corner1, triangleA_corner2, triangleA_corner3 };
         glm::vec2 convexPolygonB_array[3] = { triangleB_corner1, triangleB_corner2, triangleB_corner3 };
-        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(&convexPolygonA_array[0], 3, &convexPolygonB_array[0], 3);
+        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(convexPolygonA_array, 3, convexPolygonB_array, 3);
     }
 
     inline bool Check2D_Triangle_Polygon_Overlap(
@@ -1932,7 +1954,7 @@ namespace Project001
         const size_t& convexPolygon_cornerCount)
     {
         glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(&convexPolygon_array[0], 3, convexPolygon_corners, convexPolygon_cornerCount);
+        return Check2D_ConvexPolygon_ConvexPolygon_Overlap(convexPolygon_array, 3, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
     // Overlap Functions (Polygon) ---------------------------------------------
@@ -2839,38 +2861,103 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4] = {
+        glm::vec2 rectangle_corners[4] = {
             rectangle_bottomLeft,
             glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
             rectangle_topRight,
             glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
 
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
+        glm::vec2 rectangle_axes[2];
+        rectangle_axes[0].x = 1.0f;
+        rectangle_axes[0].y = 0.0f;
+        rectangle_axes[1].x = 0.0f;
+        rectangle_axes[1].y = 1.0f;
 
-        glm::vec2 convexPolygonB_array[4];
-        convexPolygonB_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonB_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygonB_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygonB_array[1] = Rotate2DVector(convexPolygonB_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonB_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonB_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygonB_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygonB_array[3] = Rotate2DVector(convexPolygonB_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        glm::vec2 orientedRectangle_corners[4];
+        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
+        orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
+        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
+        orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
+        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
-        glm::vec2 convexPolygonB_axes[2];
-        convexPolygonB_axes[0].x = 1.0f;
-        convexPolygonB_axes[0].y = 0.0f;
-        convexPolygonB_axes[0] = Rotate2DVector(convexPolygonB_axes[0], orientedRectangle_rotation);
-        convexPolygonB_axes[1].x = 0.0f;
-        convexPolygonB_axes[1].y = 1.0f;
-        convexPolygonB_axes[1] = Rotate2DVector(convexPolygonB_axes[1], orientedRectangle_rotation);
+        glm::vec2 orientedRectangle_axes[2];
+        orientedRectangle_axes[0].x = 1.0f;
+        orientedRectangle_axes[0].y = 0.0f;
+        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[1].x = 0.0f;
+        orientedRectangle_axes[1].y = 1.0f;
+        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(rectangle_corners, 4, rectangle_axes, 2, orientedRectangle_corners, 4, orientedRectangle_axes, 2, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+        const glm::vec2& centerB = orientedRectangle_position;
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = rectangle_corners[i];
+
+            bool overlap = Check2D_Point_OrientedRectangle_Overlap(currentCorner, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangle_corners[i];
+
+            bool overlap = Check2D_Point_Rectangle_Overlap(currentCorner, rectangle_bottomLeft, rectangle_topRight);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
@@ -2882,102 +2969,64 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        // Check if there is a collision
-        if (!Check2D_Rectangle_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius))
+        glm::vec2 rectangle_corners[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 closestPoint_position;
+        Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(circle_position, rectangle_corners, 4, closestPoint_position);
+
+        glm::vec2 axisOfSeparation = closestPoint_position - circle_position;
+        axisOfSeparation = glm::normalize(axisOfSeparation);
+
+        float projectionA_max = -std::numeric_limits<float>::infinity();
+        float projectionA_min = std::numeric_limits<float>::infinity();
+        ProjectPolygonOntoAxis(axisOfSeparation, rectangle_corners, 4, projectionA_max, projectionA_min);
+
+        float projectionB_max = -std::numeric_limits<float>::infinity();
+        float projectionB_min = std::numeric_limits<float>::infinity();
+        ProjectCircleOntoAxis(axisOfSeparation, circle_position, circle_radius, projectionB_max, projectionB_min);
+
+        if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
         {
+            // projections don't overlap on axis of separation
             return false;
         }
 
-        bool circleInCornerZone = false;
-        glm::vec2 collisionCorner;
-        if (circle_position.y < rectangle_bottomLeft.y)
+        float aMin_to_bMax = projectionB_max - projectionA_min;
+        float bMin_to_aMax = projectionA_max - projectionB_min;
+
+        float axisDepth;
+        if (bMin_to_aMax < aMin_to_bMax)
         {
-            if (circle_position.x < rectangle_bottomLeft.x)
-            {
-                collisionCorner.x = rectangle_bottomLeft.x;
-                collisionCorner.y = rectangle_bottomLeft.y;
-                circleInCornerZone = true;
-            }
-            else if (circle_position.x > rectangle_topRight.x)
-            {
-                collisionCorner.x = rectangle_topRight.x;
-                collisionCorner.y = rectangle_bottomLeft.y;
-                circleInCornerZone = true;
-            }
-        }
-        else if (circle_position.y > rectangle_topRight.y)
-        {
-            if (circle_position.x < rectangle_bottomLeft.x)
-            {
-                collisionCorner.x = rectangle_bottomLeft.x;
-                collisionCorner.y = rectangle_topRight.y;
-                circleInCornerZone = true;
-            }
-            else if (circle_position.x > rectangle_topRight.x)
-            {
-                collisionCorner.x = rectangle_topRight.x;
-                collisionCorner.y = rectangle_topRight.y;
-                circleInCornerZone = true;
-            }
-        }
-        if (circleInCornerZone)
-        {
-            collisionPoint = collisionCorner;
-            collisionNormal = glm::normalize(circle_position - collisionPoint);
-            collisionDepth = circle_radius - glm::length(collisionCorner - circle_position);
+            axisDepth = bMin_to_aMax;
         }
         else
         {
-            glm::vec2 rectangle_position = (rectangle_topRight + rectangle_bottomLeft) * 0.5f;
-
-            glm::vec2 rectangleCenter_circle_closestPoint;
-            Get2D_Point_Circle_ClosestPoint(rectangle_position, circle_position, circle_radius, rectangleCenter_circle_closestPoint);
-
-            glm::vec2 circleCenter_rectangle_closestPoint;
-            Get2D_Point_Rectangle_ClosestPoint(circle_position, rectangle_bottomLeft, rectangle_topRight, circleCenter_rectangle_closestPoint);
-
-            collisionPoint = (rectangleCenter_circle_closestPoint + circleCenter_rectangle_closestPoint) * 0.5f;
-
-            // negative distance means outside
-            float distanceFromLeft = circle_position.x - rectangle_bottomLeft.x;
-            float distanceFromRight = rectangle_topRight.x - circle_position.x;
-            float distanceFromBottom = circle_position.y - rectangle_bottomLeft.y;
-            float distanceFromTop = rectangle_topRight.y - circle_position.y;
-
-            float minDistanceX = std::min(distanceFromLeft, distanceFromRight);
-            float minDistanceY = std::min(distanceFromBottom, distanceFromTop);
-
-            if (minDistanceX < minDistanceY)
-            {
-                collisionNormal.y = 0.0f;
-
-                if (distanceFromLeft < distanceFromRight)
-                {
-                    collisionNormal.x = -1.0f;
-                    collisionDepth = circle_radius + distanceFromLeft;
-                }
-                else
-                {
-                    collisionNormal.x = 1.0f;
-                    collisionDepth = circle_radius + distanceFromRight;
-                }
-            }
-            else
-            {
-                collisionNormal.x = 0.0f;
-
-                if (distanceFromBottom < distanceFromTop)
-                {
-                    collisionNormal.y = -1.0f;
-                    collisionDepth = circle_radius + distanceFromBottom;
-                }
-                else
-                {
-                    collisionNormal.y = 1.0f;
-                    collisionDepth = circle_radius + distanceFromTop;
-                }
-            }
+            axisDepth = aMin_to_bMax;
         }
+
+        collisionNormal = axisOfSeparation;
+        collisionDepth = axisDepth;
+
+        glm::vec2 polygon_centeroid = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+
+        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
+
+        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        float collisionOffset = circle_radius - collisionDepth * 0.5f;
+        if (collisionOffset < 0.0f)
+        {
+            collisionOffset = 0.0f;
+        }
+
+        collisionPoint = circle_position + collisionNormal * collisionOffset;
 
         return true;
     }
@@ -2992,13 +3041,83 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        bool overlap = Get2D_Capsule_Rectangle_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, rectangle_bottomLeft, rectangle_topRight, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 rectangle_corners[4] = {
+            rectangle_bottomLeft,
+            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
+            rectangle_topRight,
+            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+
+        glm::vec2 rectangle_axes[2];
+        rectangle_axes[0].x = 1.0f;
+        rectangle_axes[0].y = 0.0f;
+        rectangle_axes[1].x = 0.0f;
+        rectangle_axes[1].y = 1.0f;
+
+        bool overlap = Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(rectangle_corners, 4, rectangle_axes, 2, capsule_start, capsule_end, capsule_radius, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
         }
 
-        collisionNormal *= -1.0f;
+        glm::vec2 centerA = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+        glm::vec2 centerB = (capsule_start + capsule_end) * 0.5f;
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = rectangle_corners[i];
+
+            bool overlap = Check2D_Point_Capsule_Overlap(currentCorner, capsule_start, capsule_end, capsule_radius);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            collisionPoint = averageIntersectPointA;
+            return true;
+        }
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        {
+            bool overlap = Check2D_Circle_Rectangle_Overlap(capsule_start, capsule_radius, rectangle_bottomLeft, rectangle_topRight);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_start - collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        {
+            bool overlap = Check2D_Circle_Rectangle_Overlap(capsule_end, capsule_radius, rectangle_bottomLeft, rectangle_topRight);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_end - collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
 
         return true;
     }
@@ -3013,22 +3132,87 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4] = {
+        glm::vec2 rectangle_corners[4] = {
             rectangle_bottomLeft,
             glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
             rectangle_topRight,
             glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
 
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
+        glm::vec2 rectangle_axes[2];
+        rectangle_axes[0].x = 1.0f;
+        rectangle_axes[0].y = 0.0f;
+        rectangle_axes[1].x = 0.0f;
+        rectangle_axes[1].y = 1.0f;
 
-        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(rectangle_corners, 4, rectangle_axes, 2, triangle_corners, 3, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+        glm::vec2 centerB = GetPolygonCentroid(triangle_corners, 3);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = rectangle_corners[i];
+
+            bool overlap = Check2D_Point_Triangle_Overlap(currentCorner, triangle_corner1, triangle_corner2, triangle_corner3);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangle_corners[i];
+
+            bool overlap = Check2D_Point_Rectangle_Overlap(currentCorner, rectangle_bottomLeft, rectangle_topRight);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
@@ -3040,20 +3224,90 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4] = {
+        if (convexPolygon_cornerCount < 3)
+        {
+            return false;
+        }
+
+        glm::vec2 rectangle_corners[4] = {
             rectangle_bottomLeft,
             glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
             rectangle_topRight,
             glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
 
-        glm::vec2 convexPolygon_axes[2];
-        convexPolygon_axes[0].x = 1.0f;
-        convexPolygon_axes[0].y = 0.0f;
-        convexPolygon_axes[1].x = 0.0f;
-        convexPolygon_axes[1].y = 1.0f;
+        glm::vec2 rectangle_axes[2];
+        rectangle_axes[0].x = 1.0f;
+        rectangle_axes[0].y = 0.0f;
+        rectangle_axes[1].x = 0.0f;
+        rectangle_axes[1].y = 1.0f;
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygon_array, 4, convexPolygon_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(rectangle_corners, 4, rectangle_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
+        glm::vec2 centerB = GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = rectangle_corners[i];
+
+            bool overlap = Check2D_Point_ConvexPolygon_Overlap(currentCorner, convexPolygon_corners, convexPolygon_cornerCount);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < convexPolygon_cornerCount; ++i)
+        {
+            const glm::vec2& currentCorner = convexPolygon_corners[i];
+
+            bool overlap = Check2D_Point_Rectangle_Overlap(currentCorner, rectangle_bottomLeft, rectangle_topRight);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     // Oriented Rectangle Collision Point And Normal And Depth Functions -------
@@ -3068,38 +3322,15 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4];
-        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        bool overlap = Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(rectangle_bottomLeft, rectangle_topRight, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
 
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
-        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+        collisionNormal *= -1.0f;
 
-        glm::vec2 convexPolygonB_array[4] = {
-            rectangle_bottomLeft,
-            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
-            rectangle_topRight,
-            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
-
-        glm::vec2 convexPolygonB_axes[2];
-        convexPolygonB_axes[0].x = 1.0f;
-        convexPolygonB_axes[0].y = 0.0f;
-        convexPolygonB_axes[1].x = 0.0f;
-        convexPolygonB_axes[1].y = 1.0f;
-
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+        return true;
     }
 
     inline bool Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
@@ -3113,44 +3344,109 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4];
-        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
-        convexPolygonA_array[1].x = orientedRectangleA_halfSize.x;
-        convexPolygonA_array[1].y = -orientedRectangleA_halfSize.y;
-        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangleA_rotation) + orientedRectangleA_position;
-        convexPolygonA_array[2] = Rotate2DVector(orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
-        convexPolygonA_array[3].x = -orientedRectangleA_halfSize.x;
-        convexPolygonA_array[3].y = orientedRectangleA_halfSize.y;
-        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangleA_rotation) + orientedRectangleA_position;
+        glm::vec2 orientedRectangleA_corners[4];
+        orientedRectangleA_corners[0] = Rotate2DVector(-orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[1].x = orientedRectangleA_halfSize.x;
+        orientedRectangleA_corners[1].y = -orientedRectangleA_halfSize.y;
+        orientedRectangleA_corners[1] = Rotate2DVector(orientedRectangleA_corners[1], orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[2] = Rotate2DVector(orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[3].x = -orientedRectangleA_halfSize.x;
+        orientedRectangleA_corners[3].y = orientedRectangleA_halfSize.y;
+        orientedRectangleA_corners[3] = Rotate2DVector(orientedRectangleA_corners[3], orientedRectangleA_rotation) + orientedRectangleA_position;
 
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangleA_rotation);
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
-        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangleA_rotation);
+        glm::vec2 orientedRectangleA_axes[2];
+        orientedRectangleA_axes[0].x = 1.0f;
+        orientedRectangleA_axes[0].y = 0.0f;
+        orientedRectangleA_axes[0] = Rotate2DVector(orientedRectangleA_axes[0], orientedRectangleA_rotation);
+        orientedRectangleA_axes[1].x = 0.0f;
+        orientedRectangleA_axes[1].y = 1.0f;
+        orientedRectangleA_axes[1] = Rotate2DVector(orientedRectangleA_axes[1], orientedRectangleA_rotation);
 
-        glm::vec2 convexPolygonB_array[4];
-        convexPolygonB_array[0] = Rotate2DVector(-orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
-        convexPolygonB_array[1].x = orientedRectangleB_halfSize.x;
-        convexPolygonB_array[1].y = -orientedRectangleB_halfSize.y;
-        convexPolygonB_array[1] = Rotate2DVector(convexPolygonB_array[1], orientedRectangleB_rotation) + orientedRectangleB_position;
-        convexPolygonB_array[2] = Rotate2DVector(orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
-        convexPolygonB_array[3].x = -orientedRectangleB_halfSize.x;
-        convexPolygonB_array[3].y = orientedRectangleB_halfSize.y;
-        convexPolygonB_array[3] = Rotate2DVector(convexPolygonB_array[3], orientedRectangleB_rotation) + orientedRectangleB_position;
+        glm::vec2 orientedRectangleB_corners[4];
+        orientedRectangleB_corners[0] = Rotate2DVector(-orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[1].x = orientedRectangleB_halfSize.x;
+        orientedRectangleB_corners[1].y = -orientedRectangleB_halfSize.y;
+        orientedRectangleB_corners[1] = Rotate2DVector(orientedRectangleB_corners[1], orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[2] = Rotate2DVector(orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[3].x = -orientedRectangleB_halfSize.x;
+        orientedRectangleB_corners[3].y = orientedRectangleB_halfSize.y;
+        orientedRectangleB_corners[3] = Rotate2DVector(orientedRectangleB_corners[3], orientedRectangleB_rotation) + orientedRectangleB_position;
 
-        glm::vec2 convexPolygonB_axes[2];
-        convexPolygonB_axes[0].x = 1.0f;
-        convexPolygonB_axes[0].y = 0.0f;
-        convexPolygonB_axes[0] = Rotate2DVector(convexPolygonB_axes[0], orientedRectangleB_rotation);
-        convexPolygonB_axes[1].x = 0.0f;
-        convexPolygonB_axes[1].y = 1.0f;
-        convexPolygonB_axes[1] = Rotate2DVector(convexPolygonB_axes[1], orientedRectangleB_rotation);
+        glm::vec2 orientedRectangleB_axes[2];
+        orientedRectangleB_axes[0].x = 1.0f;
+        orientedRectangleB_axes[0].y = 0.0f;
+        orientedRectangleB_axes[0] = Rotate2DVector(orientedRectangleB_axes[0], orientedRectangleB_rotation);
+        orientedRectangleB_axes[1].x = 0.0f;
+        orientedRectangleB_axes[1].y = 1.0f;
+        orientedRectangleB_axes[1] = Rotate2DVector(orientedRectangleB_axes[1], orientedRectangleB_rotation);
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 4, convexPolygonB_axes, 2, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(orientedRectangleA_corners, 4, orientedRectangleA_axes, 2, orientedRectangleB_corners, 4, orientedRectangleB_axes, 2, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        const glm::vec2& centerA = orientedRectangleA_position;
+        const glm::vec2& centerB = orientedRectangleB_position;
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangleA_corners[i];
+
+            bool overlap = Check2D_Point_OrientedRectangle_Overlap(currentCorner, orientedRectangleB_halfSize, orientedRectangleB_position, orientedRectangleB_rotation);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangleB_corners[i];
+
+            bool overlap = Check2D_Point_OrientedRectangle_Overlap(currentCorner, orientedRectangleA_halfSize, orientedRectangleA_position, orientedRectangleA_rotation);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
@@ -3163,19 +3459,68 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        // rotate and translate the circle rather then the orientedRectangle
-        glm::vec2 translatedCirclePosition = circle_position - orientedRectangle_position;
-        glm::vec2 rotatedCirclePosition = Rotate2DVector(translatedCirclePosition, -1.0f * orientedRectangle_rotation);
+        glm::vec2 orientedRectangle_corners[4];
+        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
+        orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
+        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
+        orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
+        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
-        bool overlap = Get2D_Rectangle_Circle_CollisionPointNormalDepth(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedCirclePosition, circle_radius, collisionPoint, collisionNormal, collisionDepth);
-        if (!overlap)
+        glm::vec2 closestPoint_position;
+        Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(circle_position, orientedRectangle_corners, 4, closestPoint_position);
+
+        glm::vec2 axisOfSeparation = closestPoint_position - circle_position;
+        axisOfSeparation = glm::normalize(axisOfSeparation);
+
+        float projectionA_max = -std::numeric_limits<float>::infinity();
+        float projectionA_min = std::numeric_limits<float>::infinity();
+        ProjectPolygonOntoAxis(axisOfSeparation, orientedRectangle_corners, 4, projectionA_max, projectionA_min);
+
+        float projectionB_max = -std::numeric_limits<float>::infinity();
+        float projectionB_min = std::numeric_limits<float>::infinity();
+        ProjectCircleOntoAxis(axisOfSeparation, circle_position, circle_radius, projectionB_max, projectionB_min);
+
+        if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
         {
+            // projections don't overlap on axis of separation
             return false;
         }
 
-        collisionPoint = Rotate2DVector(collisionPoint, orientedRectangle_rotation);
-        collisionPoint += orientedRectangle_position;
-        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
+        float aMin_to_bMax = projectionB_max - projectionA_min;
+        float bMin_to_aMax = projectionA_max - projectionB_min;
+
+        float axisDepth;
+        if (bMin_to_aMax < aMin_to_bMax)
+        {
+            axisDepth = bMin_to_aMax;
+        }
+        else
+        {
+            axisDepth = aMin_to_bMax;
+        }
+
+        collisionNormal = axisOfSeparation;
+        collisionDepth = axisDepth;
+
+        const glm::vec2& polygon_centeroid = orientedRectangle_position;
+
+        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
+
+        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        float collisionOffset = circle_radius - collisionDepth * 0.5f;
+        if (collisionOffset < 0.0f)
+        {
+            collisionOffset = 0.0f;
+        }
+
+        collisionPoint = circle_position + collisionNormal * collisionOffset;
 
         return true;
     }
@@ -3191,13 +3536,91 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        bool overlap = Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 orientedRectangle_corners[4];
+        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
+        orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
+        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
+        orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
+        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+
+        glm::vec2 orientedRectangle_axes[2];
+        orientedRectangle_axes[0].x = 1.0f;
+        orientedRectangle_axes[0].y = 0.0f;
+        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[1].x = 0.0f;
+        orientedRectangle_axes[1].y = 1.0f;
+        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
+
+        bool overlap = Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(orientedRectangle_corners, 4, orientedRectangle_axes, 2, capsule_start, capsule_end, capsule_radius, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
         }
 
-        collisionNormal *= -1.0f;
+        glm::vec2 centerA = orientedRectangle_position;
+        glm::vec2 centerB = (capsule_start + capsule_end) * 0.5f;
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangle_corners[i];
+
+            bool overlap = Check2D_Point_Capsule_Overlap(currentCorner, capsule_start, capsule_end, capsule_radius);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+
+        if (intersectPointsA_count > 0)
+        {
+            collisionPoint = averageIntersectPointA;
+            return true;
+        }
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        {
+            bool overlap = Check2D_Circle_OrientedRectangle_Overlap(capsule_start, capsule_radius, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_start - collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        {
+            bool overlap = Check2D_Circle_OrientedRectangle_Overlap(capsule_end, capsule_radius, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_end - collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        
+        if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
 
         return true;
     }
@@ -3213,28 +3636,93 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4];
-        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        glm::vec2 orientedRectangle_corners[4];
+        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
+        orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
+        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
+        orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
+        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
-        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
+        glm::vec2 orientedRectangle_axes[2];
+        orientedRectangle_axes[0].x = 1.0f;
+        orientedRectangle_axes[0].y = 0.0f;
+        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[1].x = 0.0f;
+        orientedRectangle_axes[1].y = 1.0f;
+        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
 
-        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(orientedRectangle_corners, 4, orientedRectangle_axes, 2, triangle_corners, 3, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        const glm::vec2& centerA = orientedRectangle_position;
+        glm::vec2 centerB = GetPolygonCentroid(triangle_corners, 3);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangle_corners[i];
+
+            bool overlap = Check2D_Point_Triangle_Overlap(currentCorner, triangle_corner1, triangle_corner2, triangle_corner3);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangle_corners[i];
+
+            bool overlap = Check2D_Point_OrientedRectangle_Overlap(currentCorner, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
@@ -3247,26 +3735,96 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4];
-        convexPolygon_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygon_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygon_array[1] = Rotate2DVector(convexPolygon_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygon_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygon_array[3] = Rotate2DVector(convexPolygon_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        if (convexPolygon_cornerCount < 3)
+        {
+            return false;
+        }
 
-        glm::vec2 convexPolygon_axes[2];
-        convexPolygon_axes[0].x = 1.0f;
-        convexPolygon_axes[0].y = 0.0f;
-        convexPolygon_axes[0] = Rotate2DVector(convexPolygon_axes[0], orientedRectangle_rotation);
-        convexPolygon_axes[1].x = 0.0f;
-        convexPolygon_axes[1].y = 1.0f;
-        convexPolygon_axes[1] = Rotate2DVector(convexPolygon_axes[1], orientedRectangle_rotation);
+        glm::vec2 orientedRectangle_corners[4];
+        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
+        orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
+        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
+        orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
+        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygon_array, 4, convexPolygon_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 rectangle_axes[2];
+        rectangle_axes[0].x = 1.0f;
+        rectangle_axes[0].y = 0.0f;
+        rectangle_axes[0] = Rotate2DVector(rectangle_axes[0], orientedRectangle_rotation);
+        rectangle_axes[1].x = 0.0f;
+        rectangle_axes[1].y = 1.0f;
+        rectangle_axes[1] = Rotate2DVector(rectangle_axes[1], orientedRectangle_rotation);
+
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(orientedRectangle_corners, 4, rectangle_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        const glm::vec2& centerA = orientedRectangle_position;
+        glm::vec2 centerB = GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            const glm::vec2& currentCorner = orientedRectangle_corners[i];
+
+            bool overlap = Check2D_Point_ConvexPolygon_Overlap(currentCorner, convexPolygon_corners, convexPolygon_cornerCount);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < convexPolygon_cornerCount; ++i)
+        {
+            const glm::vec2& currentCorner = convexPolygon_corners[i];
+
+            bool overlap = Check2D_Point_OrientedRectangle_Overlap(currentCorner, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     // Circle Collision Point And Normal And Depth Functions -------------------
@@ -3301,20 +3859,13 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        // rotate and translate the circle rather then the orientedRectangle
-        glm::vec2 translatedCirclePosition = circle_position - orientedRectangle_position;
-        glm::vec2 rotatedCirclePosition = Rotate2DVector(translatedCirclePosition, -1.0f * orientedRectangle_rotation);
-
-        bool overlap = Get2D_Rectangle_Circle_CollisionPointNormalDepth(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, rotatedCirclePosition, circle_radius, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, circle_position, circle_radius, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
         }
 
-        collisionPoint = Rotate2DVector(collisionPoint, orientedRectangle_rotation);
-        collisionPoint += orientedRectangle_position;
         collisionNormal *= -1.0f;
-        collisionNormal = Rotate2DVector(collisionNormal, orientedRectangle_rotation);
 
         return true;
     }
@@ -3422,8 +3973,16 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        return Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(circle_position, circle_radius, convexPolygon_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+
+        return Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
+            circle_position,
+            circle_radius,
+            triangle_corners,
+            3,
+            collisionPoint,
+            collisionNormal,
+            collisionDepth);
     }
 
     inline bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
@@ -3440,61 +3999,14 @@ namespace Project001
             return false;
         }
 
-        glm::vec2 closestPoint_position;
-        Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(circle_position, convexPolygon_corners, convexPolygon_cornerCount, closestPoint_position);
-
-        glm::vec2 axisOfSeparation = closestPoint_position - circle_position;
-        axisOfSeparation = glm::normalize(axisOfSeparation);
-
-        float projectionA_max = -std::numeric_limits<float>::infinity();
-        float projectionA_min = std::numeric_limits<float>::infinity();
-        ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionA_max, projectionA_min);
-
-        float projectionB_max = -std::numeric_limits<float>::infinity();
-        float projectionB_min = std::numeric_limits<float>::infinity();
-        ProjectCircleOntoAxis(axisOfSeparation, circle_position, circle_radius, projectionB_max, projectionB_min);
-
-        if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
-        {
-            // projections don't overlap on axis of separation
-            return false;
-        }
-
-        float aMin_to_bMax = projectionB_max - projectionA_min;
-        float bMin_to_aMax = projectionA_max - projectionB_min;
-
-        float axisDepth;
-        if (bMin_to_aMax < aMin_to_bMax)
-        {
-            axisDepth = bMin_to_aMax;
-        }
-        else
-        {
-            axisDepth = aMin_to_bMax;
-        }
-
-        collisionNormal = axisOfSeparation;
-        collisionDepth = axisDepth;
-
-        glm::vec2 polygon_centeroid;
-        GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount, polygon_centeroid);
-
-        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
-
-        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
-        {
-            collisionNormal *= -1.0f;
-        }
-
-        float collisionOffset = circle_radius - collisionDepth * 0.5f;
-        if (collisionOffset < 0.0f)
-        {
-            collisionOffset = 0.0f;
-        }
-
-        collisionPoint = circle_position + collisionNormal * collisionOffset;
-
-        return true;
+        return Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
+            circle_position,
+            circle_radius,
+            convexPolygon_corners,
+            convexPolygon_cornerCount,
+            collisionPoint,
+            collisionNormal,
+            collisionDepth);
     }
 
     // Capsule Collision Point And Normal And Depth Functions ------------------
@@ -3509,13 +4021,15 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4] = {
-            rectangle_bottomLeft,
-            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
-            rectangle_topRight,
-            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
+        bool overlap = Get2D_Rectangle_Capsule_CollisionPointNormalDepth(rectangle_bottomLeft, rectangle_topRight, capsule_start, capsule_end, capsule_radius, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
 
-        return Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, convexPolygon_array, 4, collisionPoint, collisionNormal, collisionDepth);
+        collisionNormal *= -1.0f;
+
+        return true;
     }
 
     inline bool Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(
@@ -3529,17 +4043,15 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4];
-        convexPolygon_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygon_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygon_array[1] = Rotate2DVector(convexPolygon_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygon_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygon_array[3] = Rotate2DVector(convexPolygon_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        bool overlap = Get2D_OrientedRectangle_Capsule_CollisionPointNormalDepth(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, capsule_start, capsule_end, capsule_radius, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
 
-        return Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, convexPolygon_array, 4, collisionPoint, collisionNormal, collisionDepth);
+        collisionNormal *= -1.0f;
+
+        return true;
     }
 
     inline bool Get2D_Capsule_Circle_CollisionPointNormalDepth(
@@ -3613,8 +4125,7 @@ namespace Project001
 
         axes[2] = glm::normalize(axes[2]);
 
-        glm::vec2 final_collisionNormal;
-        float final_collisionDepth = std::numeric_limits<float>::infinity();
+        collisionDepth = std::numeric_limits<float>::infinity();
 
         for (size_t i = 0; i < 3; ++i)
         {
@@ -3628,7 +4139,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectCapsuleOntoAxis(axisOfSeparation, capsuleB_start, capsuleB_end, capsuleB_radius, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // Projections don't overlap on axis of separation
                 return false;
@@ -3639,15 +4150,14 @@ namespace Project001
 
             float axisDepth = std::min(bMin_to_aMax, aMin_to_bMax);
 
-            if (axisDepth < final_collisionDepth)
+            if (axisDepth < collisionDepth)
             {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
             }
         }
 
-        collisionNormal = glm::normalize(final_collisionNormal);
-        collisionDepth = final_collisionDepth;
+        collisionNormal = glm::normalize(collisionNormal);
 
         glm::vec2 capsuleA_closestPoint = capsuleA_start;
         glm::vec2 capsuleB_closestPoint;
@@ -3713,8 +4223,74 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        return Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, convexPolygon_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        bool overlap = Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(triangle_corners, 3, capsule_start, capsule_end, capsule_radius, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = (capsule_start + capsule_end) * 0.5f;
+        glm::vec2 centerB = GetPolygonCentroid(triangle_corners, 3);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangle_corners[i];
+
+            bool overlap = Check2D_Point_Capsule_Overlap(currentCorner, capsule_start, capsule_end, capsule_radius);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            collisionPoint = averageIntersectPointA;
+            return true;
+        }
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        {
+            bool overlap = Check2D_Circle_Triangle_Overlap(capsule_start, capsule_radius, triangle_corner1, triangle_corner2, triangle_corner3);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_start + collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        {
+            bool overlap = Check2D_Circle_Triangle_Overlap(capsule_end, capsule_radius, triangle_corner1, triangle_corner2, triangle_corner3);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_end + collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(
@@ -3732,102 +4308,71 @@ namespace Project001
             return false;
         }
 
-        glm::vec2 axes[2];
-
-        axes[0] = capsule_end - capsule_start;
-        axes[0] = glm::vec2(axes[0].y, -1.0f * axes[0].x);
-        axes[0] = glm::normalize(axes[0]);
-
-        glm::vec2 closestPointToStart_position;
-        float closestPointToStart_distance = Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(capsule_start, convexPolygon_corners, convexPolygon_cornerCount, closestPointToStart_position);
-
-        glm::vec2 closestPointToEnd_position;
-        float closestPointToEnd_distance = Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(capsule_end, convexPolygon_corners, convexPolygon_cornerCount, closestPointToEnd_position);
-
-        glm::vec2 closestPoint_position;
-        float closestPoint_distanceSquared;
-        if (closestPointToEnd_distance < closestPointToStart_distance)
+        bool overlap = Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(convexPolygon_corners, convexPolygon_cornerCount, capsule_start, capsule_end, capsule_radius, collisionNormal, collisionDepth);
+        if (!overlap)
         {
-            axes[1] = closestPointToEnd_position - capsule_end;
-            axes[1] = glm::normalize(axes[1]);
-
-            closestPoint_distanceSquared = closestPointToEnd_distance;
-            closestPoint_position = capsule_end;
-        }
-        else
-        {
-            axes[1] = closestPointToStart_position - capsule_start;
-            axes[1] = glm::normalize(axes[1]);
-
-            closestPoint_distanceSquared = closestPointToStart_distance;
-            closestPoint_position = capsule_start;
+            return false;
         }
 
-        glm::vec2 final_collisionNormal;
-        float final_collisionDepth = std::numeric_limits<float>::infinity();
+        glm::vec2 centerA = (capsule_start + capsule_end) * 0.5f;
+        glm::vec2 centerB = GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount);
 
-        for (size_t i = 0; i < 2; ++i)
-        {
-            const glm::vec2& axisOfSeparation = axes[i];
+        glm::vec2 direction = centerB - centerA;
 
-            float projectionA_max = -std::numeric_limits<float>::infinity();
-            float projectionA_min = std::numeric_limits<float>::infinity();
-            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionA_max, projectionA_min);
-
-            float projectionB_max = -std::numeric_limits<float>::infinity();
-            float projectionB_min = std::numeric_limits<float>::infinity();
-            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionB_max, projectionB_min);
-
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
-            {
-                // Projections don't overlap on axis of separation
-                return false;
-            }
-
-            float aMin_to_bMax = projectionB_max - projectionA_min;
-            float bMin_to_aMax = projectionA_max - projectionB_min;
-
-            float axisDepth = std::min(bMin_to_aMax, aMin_to_bMax);
-
-            if (axisDepth < final_collisionDepth)
-            {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
-            }
-        }
-
-        collisionNormal = glm::normalize(final_collisionNormal);
-        collisionDepth = final_collisionDepth;
-
-        for (size_t i = 0; i < convexPolygon_cornerCount; ++i)
-        {
-            glm::vec2 currentClosestPoint_position;
-            float currentClosestPoint_distanceSquared = Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(convexPolygon_corners[i], capsule_start, capsule_end, currentClosestPoint_position);
-
-            if (currentClosestPoint_distanceSquared < closestPoint_distanceSquared)
-            {
-                closestPoint_position = currentClosestPoint_position;
-                closestPoint_distanceSquared = currentClosestPoint_distanceSquared;
-            }
-        }
-
-        glm::vec2 polygon_centroid;
-        GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount, polygon_centroid);
-
-        glm::vec2 capsuleCenter_to_polygonCenter = polygon_centroid - closestPoint_position;
-
-        if (glm::dot(collisionNormal, capsuleCenter_to_polygonCenter) < 0)
+        if (glm::dot(direction, collisionNormal) < 0.0f)
         {
             collisionNormal *= -1.0f;
         }
 
-        float collisionOffset = capsule_radius - collisionDepth * 0.5f;
-        if (collisionOffset < 0.0f)
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < convexPolygon_cornerCount; ++i)
         {
-            collisionOffset = 0.0f;
+            const glm::vec2& currentCorner = convexPolygon_corners[i];
+
+            bool overlap = Check2D_Point_Capsule_Overlap(currentCorner, capsule_start, capsule_end, capsule_radius);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            collisionPoint = averageIntersectPointA;
+            return true;
         }
 
-        collisionPoint = closestPoint_position + collisionNormal * collisionOffset;
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        {
+            bool overlap = Check2D_Circle_ConvexPolygon_Overlap(capsule_start, capsule_radius, convexPolygon_corners, convexPolygon_cornerCount);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_start + collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        {
+            bool overlap = Check2D_Circle_ConvexPolygon_Overlap(capsule_end, capsule_radius, convexPolygon_corners, convexPolygon_cornerCount);
+            if (overlap)
+            {
+                averageIntersectPointB += capsule_end + collisionNormal * glm::clamp(capsule_radius - collisionDepth, 0.0f, capsule_radius);
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
 
         return true;
     }
@@ -3844,22 +4389,7 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4] = {
-            rectangle_bottomLeft,
-            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
-            rectangle_topRight,
-            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
-
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
-
-        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-
-        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_Rectangle_Triangle_CollisionPointNormalDepth(rectangle_bottomLeft, rectangle_topRight, triangle_corner1, triangle_corner2, triangle_corner3, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -3881,28 +4411,7 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[4];
-        convexPolygonA_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygonA_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygonA_array[1] = Rotate2DVector(convexPolygonA_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygonA_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygonA_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygonA_array[3] = Rotate2DVector(convexPolygonA_array[3], orientedRectangle_rotation) + orientedRectangle_position;
-
-        glm::vec2 convexPolygonA_axes[2];
-        convexPolygonA_axes[0].x = 1.0f;
-        convexPolygonA_axes[0].y = 0.0f;
-        convexPolygonA_axes[0] = Rotate2DVector(convexPolygonA_axes[0], orientedRectangle_rotation);
-        convexPolygonA_axes[1].x = 0.0f;
-        convexPolygonA_axes[1].y = 1.0f;
-        convexPolygonA_axes[1] = Rotate2DVector(convexPolygonA_axes[1], orientedRectangle_rotation);
-
-        glm::vec2 convexPolygonB_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-
-        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygonA_array, 4, convexPolygonA_axes, 2, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, triangle_corner1, triangle_corner2, triangle_corner3, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -3923,8 +4432,7 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        bool overlap = Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(circle_position, circle_radius, convexPolygon_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_Circle_Triangle_CollisionPointNormalDepth(circle_position, circle_radius, triangle_corner1, triangle_corner2, triangle_corner3, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -3946,8 +4454,7 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        bool overlap = Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, convexPolygon_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_Capsule_Triangle_CollisionPointNormalDepth(capsule_start, capsule_end, capsule_radius, triangle_corner1, triangle_corner2, triangle_corner3, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -3969,9 +4476,75 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygonA_array[3] = { triangleA_corner1, triangleA_corner2, triangleA_corner3 };
-        glm::vec2 convexPolygonB_array[3] = { triangleB_corner1, triangleB_corner2, triangleB_corner3 };
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygonA_array, 3, convexPolygonB_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        glm::vec2 triangleA_corners[3] = { triangleA_corner1, triangleA_corner2, triangleA_corner3 };
+        glm::vec2 triangleB_corners[3] = { triangleB_corner1, triangleB_corner2, triangleB_corner3 };
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(triangleA_corners, 3, triangleB_corners, 3, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = GetPolygonCentroid(triangleA_corners, 3);
+        glm::vec2 centerB = GetPolygonCentroid(triangleB_corners, 3);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangleA_corners[i];
+
+            bool overlap = Check2D_Point_Triangle_Overlap(currentCorner, triangleB_corner1, triangleB_corner2, triangleB_corner3);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangleB_corners[i];
+
+            bool overlap = Check2D_Point_Triangle_Overlap(currentCorner, triangleA_corner1, triangleA_corner2, triangleA_corner3);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     inline bool Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
@@ -3984,8 +4557,79 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygon_array, 3, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        if (convexPolygon_cornerCount < 3)
+        {
+            return false;
+        }
+
+        glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(triangle_corners, 3, convexPolygon_corners, convexPolygon_cornerCount, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        glm::vec2 centerA = GetPolygonCentroid(triangle_corners, 3);
+        glm::vec2 centerB = GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount);
+
+        glm::vec2 direction = centerB - centerA;
+
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            const glm::vec2& currentCorner = triangle_corners[i];
+
+            bool overlap = Check2D_Point_ConvexPolygon_Overlap(currentCorner, convexPolygon_corners, convexPolygon_cornerCount);
+            if (overlap)
+            {
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
+            }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
+
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < convexPolygon_cornerCount; ++i)
+        {
+            const glm::vec2& currentCorner = convexPolygon_corners[i];
+
+            bool overlap = Check2D_Point_Triangle_Overlap(currentCorner, triangle_corner1, triangle_corner2, triangle_corner3);
+            if (overlap)
+            {
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
+            }
+            else
+            {
+                collisionPoint = averageIntersectPointA;
+            }
+        }
+        else if (intersectPointsB_count > 0)
+        {
+            collisionPoint = averageIntersectPointB;
+        }
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
+
+        return true;
     }
 
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
@@ -3999,20 +4643,7 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4] = {
-            rectangle_bottomLeft,
-            glm::vec2(rectangle_topRight.x, rectangle_bottomLeft.y), // bottomRight
-            rectangle_topRight,
-            glm::vec2(rectangle_bottomLeft.x, rectangle_topRight.y) }; // topLeft
-
-        glm::vec2 convexPolygon_axes[2];
-        convexPolygon_axes[0].x = 1.0f;
-        convexPolygon_axes[0].y = 0.0f;
-        convexPolygon_axes[1].x = 0.0f;
-        convexPolygon_axes[1].y = 1.0f;
-
-        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygon_array, 4, convexPolygon_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(rectangle_bottomLeft, rectangle_topRight, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -4033,26 +4664,27 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[4];
-        convexPolygon_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[1].x = orientedRectangle_halfSize.x;
-        convexPolygon_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygon_array[1] = Rotate2DVector(convexPolygon_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[3].x = -orientedRectangle_halfSize.x;
-        convexPolygon_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygon_array[3] = Rotate2DVector(convexPolygon_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        bool overlap = Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
 
-        glm::vec2 convexPolygon_axes[2];
-        convexPolygon_axes[0].x = 1.0f;
-        convexPolygon_axes[0].y = 0.0f;
-        convexPolygon_axes[0] = Rotate2DVector(convexPolygon_axes[0], orientedRectangle_rotation);
-        convexPolygon_axes[1].x = 0.0f;
-        convexPolygon_axes[1].y = 1.0f;
-        convexPolygon_axes[1] = Rotate2DVector(convexPolygon_axes[1], orientedRectangle_rotation);
+        collisionNormal *= -1.0f;
 
-        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-            convexPolygon_array, 4, convexPolygon_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        bool overlap = Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(circle_position, circle_radius, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
         if (!overlap)
         {
             return false;
@@ -4084,26 +4716,6 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
-        const glm::vec2* const& convexPolygon_corners,
-        const size_t& convexPolygon_cornerCount,
-        const glm::vec2& circle_position,
-        const float& circle_radius,
-        glm::vec2& collisionPoint,
-        glm::vec2& collisionNormal,
-        float& collisionDepth)
-    {
-        bool overlap = Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(circle_position, circle_radius, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
-        if (!overlap)
-        {
-            return false;
-        }
-
-        collisionNormal *= -1.0f;
-
-        return true;
-    }
-
     inline bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
@@ -4114,8 +4726,15 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        glm::vec2 convexPolygon_array[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
-        return Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(convexPolygon_corners, convexPolygon_cornerCount, convexPolygon_array, 3, collisionPoint, collisionNormal, collisionDepth);
+        bool overlap = Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(triangle_corner1, triangle_corner2, triangle_corner3, convexPolygon_corners, convexPolygon_cornerCount, collisionPoint, collisionNormal, collisionDepth);
+        if (!overlap)
+        {
+            return false;
+        }
+
+        collisionNormal *= -1.0f;
+
+        return true;
     }
 
     inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
@@ -4132,170 +4751,71 @@ namespace Project001
             return false;
         }
 
-        glm::vec2 final_collisionNormal;
-        float final_collisionDepth = std::numeric_limits<float>::infinity();
-
-        bool projection_max_is_from_polygonA;
-        bool projection_min_is_from_polygonA;
-        size_t projection_max_index;
-        size_t projection_min_index;
-
-        size_t start_indexA = convexPolygonA_cornerCount - 1;
-        for (size_t end_indexA = 0; end_indexA < convexPolygonA_cornerCount; ++end_indexA)
+        bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(convexPolygonA_corners, convexPolygonA_cornerCount, convexPolygonB_corners, convexPolygonB_cornerCount, collisionNormal, collisionDepth);
+        if (!overlap)
         {
-            const glm::vec2& lineSegmentA_start = convexPolygonA_corners[start_indexA];
-            const glm::vec2& lineSegmentA_end = convexPolygonA_corners[end_indexA];
-            glm::vec2 axisOfSeparation = lineSegmentA_end - lineSegmentA_start;
-            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
-            axisOfSeparation = glm::normalize(axisOfSeparation);
+            return false;
+        }
 
-            float projectionA_max = -std::numeric_limits<float>::infinity();
-            float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+        glm::vec2 centerA = GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount);
+        glm::vec2 centerB = GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount);
 
-            float projectionB_max = -std::numeric_limits<float>::infinity();
-            float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+        glm::vec2 direction = centerB - centerA;
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+        if (glm::dot(direction, collisionNormal) < 0.0f)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        glm::vec2 averageIntersectPointA(0.0f, 0.0f);
+        size_t intersectPointsA_count = 0;
+        for (size_t i = 0; i < convexPolygonA_cornerCount; ++i)
+        {
+            const glm::vec2& currentCorner = convexPolygonA_corners[i];
+
+            bool overlap = Check2D_Point_ConvexPolygon_Overlap(currentCorner, convexPolygonB_corners, convexPolygonB_cornerCount);
+            if (overlap)
             {
-                // projections don't overlap on axis of separation
-                return false;
+                averageIntersectPointA += currentCorner;
+                intersectPointsA_count++;
             }
+        }
+        averageIntersectPointA /= (float)intersectPointsA_count;
 
-            float aMin_to_bMax = projectionB_max - projectionA_min;
-            float bMin_to_aMax = projectionA_max - projectionB_min;
+        glm::vec2 averageIntersectPointB(0.0f, 0.0f);
+        size_t intersectPointsB_count = 0;
+        for (size_t i = 0; i < convexPolygonB_cornerCount; ++i)
+        {
+            const glm::vec2& currentCorner = convexPolygonB_corners[i];
 
-            float axisDepth;
-            if (bMin_to_aMax < aMin_to_bMax)
+            bool overlap = Check2D_Point_ConvexPolygon_Overlap(currentCorner, convexPolygonA_corners, convexPolygonA_cornerCount);
+            if (overlap)
             {
-                axisDepth = bMin_to_aMax;
+                averageIntersectPointB += currentCorner;
+                intersectPointsB_count++;
+            }
+        }
+        averageIntersectPointB /= (float)intersectPointsB_count;
+
+        if (intersectPointsA_count > 0)
+        {
+            if (intersectPointsB_count > 0)
+            {
+                collisionPoint = (averageIntersectPointA + averageIntersectPointB) * 0.5f;
             }
             else
             {
-                axisDepth = aMin_to_bMax;
+                collisionPoint = averageIntersectPointA;
             }
-
-            if (axisDepth < final_collisionDepth)
-            {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
-
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
-
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
-            }
-
-            start_indexA = end_indexA;
         }
-
-        size_t start_indexB = convexPolygonB_cornerCount - 1;
-        for (size_t end_indexB = 0; end_indexB < convexPolygonB_cornerCount; ++end_indexB)
+        else if (intersectPointsB_count > 0)
         {
-            const glm::vec2& lineSegmentB_start = convexPolygonB_corners[start_indexB];
-            const glm::vec2& lineSegmentB_end = convexPolygonB_corners[end_indexB];
-            glm::vec2 axisOfSeparation = lineSegmentB_end - lineSegmentB_start;
-            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
-            axisOfSeparation = glm::normalize(axisOfSeparation);
-
-            float projectionA_max = -std::numeric_limits<float>::infinity();
-            float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
-
-            float projectionB_max = -std::numeric_limits<float>::infinity();
-            float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
-
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
-            {
-                // projections don't overlap on axis of separation
-                return false;
-            }
-
-            float aMin_to_bMax = projectionB_max - projectionA_min;
-            float bMin_to_aMax = projectionA_max - projectionB_min;
-
-            float axisDepth;
-            if (bMin_to_aMax < aMin_to_bMax)
-            {
-                axisDepth = bMin_to_aMax;
-            }
-            else
-            {
-                axisDepth = aMin_to_bMax;
-            }
-
-            if (axisDepth < final_collisionDepth)
-            {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
-
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
-
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
-            }
-
-            start_indexB = end_indexB;
+            collisionPoint = averageIntersectPointB;
         }
-
-        collisionNormal = glm::normalize(final_collisionNormal);
-        collisionDepth = final_collisionDepth;
-
-        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
-            convexPolygonA_corners,
-            convexPolygonA_cornerCount,
-            convexPolygonB_corners,
-            convexPolygonB_cornerCount,
-            projection_max_is_from_polygonA,
-            projection_min_is_from_polygonA,
-            projection_max_index,
-            projection_min_index,
-            collisionPoint,
-            collisionNormal);
+        else
+        {
+            collisionPoint = (centerA + centerB) * 0.5f;
+        }
 
         return true;
     }
@@ -4719,7 +5239,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, &triangle_corner_array[0], 3, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -4892,7 +5412,7 @@ namespace Project001
             float projectionB_min = std::numeric_limits<float>::infinity();
             ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -5001,55 +5521,17 @@ namespace Project001
         min -= capsule_radius;
     }
 
-    inline void ProjectCapsuleOntoAxis_2(
-        const glm::vec2& axis,
-        const glm::vec2& capsule_start,
-        const glm::vec2& capsule_end,
-        const float& capsule_radius,
-        float& max,
-        float& min,
-        bool& startIsMax,
-        bool& startIsMin)
-    {
-        float currentProjection = glm::dot(capsule_start, axis);
-        if (currentProjection > max)
-        {
-            max = currentProjection;
-            startIsMax = true;
-        }
-        if (currentProjection < min)
-        {
-            min = currentProjection;
-            startIsMin = true;
-        }
-
-        currentProjection = glm::dot(capsule_end, axis);
-        if (currentProjection > max)
-        {
-            max = currentProjection;
-            startIsMax = false;
-        }
-        if (currentProjection < min)
-        {
-            min = currentProjection;
-            startIsMin = false;
-        }
-
-        max += capsule_radius;
-        min -= capsule_radius;
-    }
-
-    inline void GetPolygonCentroid(
+    inline glm::vec2 GetPolygonCentroid(
         const glm::vec2* const& polygon_corners,
-        const size_t& polygon_cornerCount,
-        glm::vec2& polygon_centeroid)
+        const size_t& polygon_cornerCount)
     {
-        polygon_centeroid = glm::vec2(0.0f, 0.0f);
+        glm::vec2 polygon_centeroid(0.0f, 0.0f);
         for (size_t i = 0; i < polygon_cornerCount; ++i)
         {
             polygon_centeroid += polygon_corners[i];
         }
         polygon_centeroid /= polygon_cornerCount;
+        return polygon_centeroid;
     }
 
     inline float Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(
@@ -5089,47 +5571,102 @@ namespace Project001
         return minDistanceSquared;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-        const glm::vec2* const& convexPolygonA_corners,
-        const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolyhonA_axes,
-        const size_t& convexPolygonA_axisCount,
-        const glm::vec2* const& convexPolygonB_corners,
-        const size_t& convexPolygonB_cornerCount,
+    inline bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        if (convexPolygonA_cornerCount < 3 || convexPolygonB_cornerCount < 3)
+        glm::vec2 closestPoint_position;
+        Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(circle_position, convexPolygon_corners, convexPolygon_cornerCount, closestPoint_position);
+
+        glm::vec2 axisOfSeparation = closestPoint_position - circle_position;
+        axisOfSeparation = glm::normalize(axisOfSeparation);
+
+        float projectionA_max = -std::numeric_limits<float>::infinity();
+        float projectionA_min = std::numeric_limits<float>::infinity();
+        ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionA_max, projectionA_min);
+
+        float projectionB_max = -std::numeric_limits<float>::infinity();
+        float projectionB_min = std::numeric_limits<float>::infinity();
+        ProjectCircleOntoAxis(axisOfSeparation, circle_position, circle_radius, projectionB_max, projectionB_min);
+
+        if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
         {
+            // projections don't overlap on axis of separation
             return false;
         }
 
-        glm::vec2 final_collisionNormal;
-        float final_collisionDepth = std::numeric_limits<float>::infinity();
+        float aMin_to_bMax = projectionB_max - projectionA_min;
+        float bMin_to_aMax = projectionA_max - projectionB_min;
 
-        bool projection_max_is_from_polygonA;
-        bool projection_min_is_from_polygonA;
-        size_t projection_max_index;
-        size_t projection_min_index;
-
-        for (size_t i = 0; i < convexPolygonA_axisCount; ++i)
+        float axisDepth;
+        if (bMin_to_aMax < aMin_to_bMax)
         {
-            const glm::vec2& axisOfSeparation = convexPolyhonA_axes[i];
+            axisDepth = bMin_to_aMax;
+        }
+        else
+        {
+            axisDepth = aMin_to_bMax;
+        }
+
+        collisionNormal = axisOfSeparation;
+        collisionDepth = axisDepth;
+
+        glm::vec2 polygon_centeroid = GetPolygonCentroid(convexPolygon_corners, convexPolygon_cornerCount);
+
+        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
+
+        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
+        {
+            collisionNormal *= -1.0f;
+        }
+
+        float collisionOffset = circle_radius - collisionDepth * 0.5f;
+        if (collisionOffset < 0.0f)
+        {
+            collisionOffset = 0.0f;
+        }
+
+        collisionPoint = circle_position + collisionNormal * collisionOffset;
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        collisionDepth = std::numeric_limits<float>::infinity();
+
+        // convex polygon normal axes
+
+        size_t start_indexA = convexPolygon_cornerCount - 1;
+        for (size_t end_indexA = 0; end_indexA < convexPolygon_cornerCount; ++end_indexA)
+        {
+            const glm::vec2& lineSegmentA_start = convexPolygon_corners[start_indexA];
+            const glm::vec2& lineSegmentA_end = convexPolygon_corners[end_indexA];
+            glm::vec2 axisOfSeparation = lineSegmentA_end - lineSegmentA_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -5148,57 +5685,445 @@ namespace Project001
                 axisDepth = aMin_to_bMax;
             }
 
-            if (axisDepth < final_collisionDepth)
+            if (axisDepth < collisionDepth)
             {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
 
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
+            start_indexA = end_indexA;
+        }
 
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
+        // perpenduclar to capsule axis
+
+        {
+            glm::vec2 axisOfSeparation = capsule_end - capsule_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
             }
         }
 
-        size_t start_indexB = convexPolygonB_cornerCount - 1;
-        for (size_t end_indexB = 0; end_indexB < convexPolygonB_cornerCount; ++end_indexB)
+        // closest to capsule start axis
+
         {
-            const glm::vec2& lineSegmentB_start = convexPolygonB_corners[start_indexB];
-            const glm::vec2& lineSegmentB_end = convexPolygonB_corners[end_indexB];
+            glm::vec2 start_to_closestCorner = convexPolygon_corners[0] - capsule_start;
+            float closest_corner_distanceSquared = glm::dot(start_to_closestCorner, start_to_closestCorner);
+
+            for (size_t i = 1; i < convexPolygon_cornerCount; ++i)
+            {
+                glm::vec2 circle_to_currentCorner = convexPolygon_corners[i] - capsule_start;
+                float distanceSquared = glm::dot(circle_to_currentCorner, circle_to_currentCorner);
+
+                if (distanceSquared < closest_corner_distanceSquared)
+                {
+                    closest_corner_distanceSquared = distanceSquared;
+                    start_to_closestCorner = circle_to_currentCorner;
+                }
+            }
+
+            glm::vec2 axisOfSeparation = glm::normalize(start_to_closestCorner);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        // closest to capsule end axis
+
+        {
+            glm::vec2 end_to_closestCorner = convexPolygon_corners[0] - capsule_end;
+            float closest_corner_distanceSquared = glm::dot(end_to_closestCorner, end_to_closestCorner);
+
+            for (size_t i = 1; i < convexPolygon_cornerCount; ++i)
+            {
+                glm::vec2 circle_to_currentCorner = convexPolygon_corners[i] - capsule_end;
+                float distanceSquared = glm::dot(circle_to_currentCorner, circle_to_currentCorner);
+
+                if (distanceSquared < closest_corner_distanceSquared)
+                {
+                    closest_corner_distanceSquared = distanceSquared;
+                    end_to_closestCorner = circle_to_currentCorner;
+                }
+            }
+
+            glm::vec2 axisOfSeparation = glm::normalize(end_to_closestCorner);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2* const& convexPolygon_axes,
+        const size_t& convexPolygon_axisCount,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        collisionDepth = std::numeric_limits<float>::infinity();
+
+        // convex polygon normal axes
+
+        for (size_t i = 0; i < convexPolygon_axisCount; ++i)
+        {
+            glm::vec2 axisOfSeparation = convexPolygon_axes[i];
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        // perpenduclar to capsule axis
+
+        {
+            glm::vec2 axisOfSeparation = capsule_end - capsule_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        // closest to capsule start axis
+
+        {
+            glm::vec2 start_to_closestCorner = convexPolygon_corners[0] - capsule_start;
+            float closest_corner_distanceSquared = glm::dot(start_to_closestCorner, start_to_closestCorner);
+
+            for (size_t i = 1; i < convexPolygon_cornerCount; ++i)
+            {
+                glm::vec2 circle_to_currentCorner = convexPolygon_corners[i] - capsule_start;
+                float distanceSquared = glm::dot(circle_to_currentCorner, circle_to_currentCorner);
+
+                if (distanceSquared < closest_corner_distanceSquared)
+                {
+                    closest_corner_distanceSquared = distanceSquared;
+                    start_to_closestCorner = circle_to_currentCorner;
+                }
+            }
+
+            glm::vec2 axisOfSeparation = glm::normalize(start_to_closestCorner);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        // closest to capsule end axis
+
+        {
+            glm::vec2 end_to_closestCorner = convexPolygon_corners[0] - capsule_end;
+            float closest_corner_distanceSquared = glm::dot(end_to_closestCorner, end_to_closestCorner);
+
+            for (size_t i = 1; i < convexPolygon_cornerCount; ++i)
+            {
+                glm::vec2 circle_to_currentCorner = convexPolygon_corners[i] - capsule_end;
+                float distanceSquared = glm::dot(circle_to_currentCorner, circle_to_currentCorner);
+
+                if (distanceSquared < closest_corner_distanceSquared)
+                {
+                    closest_corner_distanceSquared = distanceSquared;
+                    end_to_closestCorner = circle_to_currentCorner;
+                }
+            }
+
+            glm::vec2 axisOfSeparation = glm::normalize(end_to_closestCorner);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectCapsuleOntoAxis(axisOfSeparation, capsule_start, capsule_end, capsule_radius, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygon_corners, convexPolygon_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        collisionDepth = std::numeric_limits<float>::infinity();
+
+        size_t start_index = convexPolygonA_cornerCount - 1;
+        for (size_t end_index = 0; end_index < convexPolygonA_cornerCount; ++end_index)
+        {
+            const glm::vec2& lineSegmentA_start = convexPolygonA_corners[start_index];
+            const glm::vec2& lineSegmentA_end = convexPolygonA_corners[end_index];
+            glm::vec2 axisOfSeparation = lineSegmentA_end - lineSegmentA_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+
+            start_index = end_index;
+        }
+
+        start_index = convexPolygonB_cornerCount - 1;
+        for (size_t end_index = 0; end_index < convexPolygonB_cornerCount; ++end_index)
+        {
+            const glm::vec2& lineSegmentB_start = convexPolygonB_corners[start_index];
+            const glm::vec2& lineSegmentB_end = convexPolygonB_corners[end_index];
             glm::vec2 axisOfSeparation = lineSegmentB_end - lineSegmentB_start;
             axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
             axisOfSeparation = glm::normalize(axisOfSeparation);
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -5217,98 +6142,43 @@ namespace Project001
                 axisDepth = aMin_to_bMax;
             }
 
-            if (axisDepth < final_collisionDepth)
+            if (axisDepth < collisionDepth)
             {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
-
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
-
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
             }
 
-            start_indexB = end_indexB;
+            start_index = end_index;
         }
-
-        collisionNormal = glm::normalize(final_collisionNormal);
-        collisionDepth = final_collisionDepth;
-
-        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
-            convexPolygonA_corners,
-            convexPolygonA_cornerCount,
-            convexPolygonB_corners,
-            convexPolygonB_cornerCount,
-            projection_max_is_from_polygonA,
-            projection_min_is_from_polygonA,
-            projection_max_index,
-            projection_min_index,
-            collisionPoint,
-            collisionNormal);
 
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolyhonA_axes,
+        const glm::vec2* const& convexPolygonA_axes,
         const size_t& convexPolygonA_axisCount,
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount,
-        const glm::vec2* const& convexPolyhonB_axes,
-        const size_t& convexPolygonB_axisCount,
-        glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth)
     {
-        if (convexPolygonA_cornerCount < 3 || convexPolygonB_cornerCount < 3)
-        {
-            return false;
-        }
-
-        glm::vec2 final_collisionNormal;
-        float final_collisionDepth = std::numeric_limits<float>::infinity();
-
-        bool projection_max_is_from_polygonA;
-        bool projection_min_is_from_polygonA;
-        size_t projection_max_index;
-        size_t projection_min_index;
+        collisionDepth = std::numeric_limits<float>::infinity();
 
         for (size_t i = 0; i < convexPolygonA_axisCount; ++i)
         {
-            const glm::vec2& axisOfSeparation = convexPolyhonA_axes[i];
+            const glm::vec2& axisOfSeparation = convexPolygonA_axes[i];
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -5327,52 +6197,126 @@ namespace Project001
                 axisDepth = aMin_to_bMax;
             }
 
-            if (axisDepth < final_collisionDepth)
+            if (axisDepth < collisionDepth)
             {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+        }
 
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
+        size_t start_index = convexPolygonB_cornerCount - 1;
+        for (size_t end_index = 0; end_index < convexPolygonB_cornerCount; ++end_index)
+        {
+            const glm::vec2& lineSegmentB_start = convexPolygonB_corners[start_index];
+            const glm::vec2& lineSegmentB_end = convexPolygonB_corners[end_index];
+            glm::vec2 axisOfSeparation = lineSegmentB_end - lineSegmentB_start;
+            axisOfSeparation = glm::vec2(axisOfSeparation.y, -1.0f * axisOfSeparation.x);
+            axisOfSeparation = glm::normalize(axisOfSeparation);
 
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
+            }
+
+            start_index = end_index;
+        }
+
+        return true;
+    }
+
+    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const glm::vec2* const& convexPolygonB_axes,
+        const size_t& convexPolygonB_axisCount,
+        glm::vec2& collisionNormal,
+        float& collisionDepth)
+    {
+        collisionDepth = std::numeric_limits<float>::infinity();
+
+        for (size_t i = 0; i < convexPolygonA_axisCount; ++i)
+        {
+            const glm::vec2& axisOfSeparation = convexPolygonA_axes[i];
+
+            float projectionA_max = -std::numeric_limits<float>::infinity();
+            float projectionA_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
+
+            float projectionB_max = -std::numeric_limits<float>::infinity();
+            float projectionB_min = std::numeric_limits<float>::infinity();
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
+
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
+            {
+                // projections don't overlap on axis of separation
+                return false;
+            }
+
+            float aMin_to_bMax = projectionB_max - projectionA_min;
+            float bMin_to_aMax = projectionA_max - projectionB_min;
+
+            float axisDepth;
+            if (bMin_to_aMax < aMin_to_bMax)
+            {
+                axisDepth = bMin_to_aMax;
+            }
+            else
+            {
+                axisDepth = aMin_to_bMax;
+            }
+
+            if (axisDepth < collisionDepth)
+            {
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
             }
         }
 
         for (size_t i = 0; i < convexPolygonB_axisCount; ++i)
         {
-            const glm::vec2& axisOfSeparation = convexPolyhonB_axes[i];
+            const glm::vec2& axisOfSeparation = convexPolygonB_axes[i];
 
             float projectionA_max = -std::numeric_limits<float>::infinity();
             float projectionA_min = std::numeric_limits<float>::infinity();
-            size_t projectionA_max_index;
-            size_t projectionA_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min, projectionA_max_index, projectionA_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonA_corners, convexPolygonA_cornerCount, projectionA_max, projectionA_min);
 
             float projectionB_max = -std::numeric_limits<float>::infinity();
             float projectionB_min = std::numeric_limits<float>::infinity();
-            size_t projectionB_max_index;
-            size_t projectionB_min_index;
-            ProjectPolygonOntoAxis_2(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min, projectionB_max_index, projectionB_min_index);
+            ProjectPolygonOntoAxis(axisOfSeparation, convexPolygonB_corners, convexPolygonB_cornerCount, projectionB_max, projectionB_min);
 
-            if (!(projectionA_min < projectionB_max && projectionA_max > projectionB_min))
+            if (projectionA_min >= projectionB_max || projectionB_min >= projectionA_max)
             {
                 // projections don't overlap on axis of separation
                 return false;
@@ -5391,159 +6335,14 @@ namespace Project001
                 axisDepth = aMin_to_bMax;
             }
 
-            if (axisDepth < final_collisionDepth)
+            if (axisDepth < collisionDepth)
             {
-                final_collisionDepth = axisDepth;
-                final_collisionNormal = axisOfSeparation;
-
-                if (projectionA_max > projectionB_max)
-                {
-                    projection_max_is_from_polygonA = false;
-                    projection_max_index = projectionB_max_index;
-                }
-                else
-                {
-                    projection_max_is_from_polygonA = true;
-                    projection_max_index = projectionA_max_index;
-                }
-
-                if (projectionA_min > projectionB_min)
-                {
-                    projection_min_is_from_polygonA = true;
-                    projection_min_index = projectionA_min_index;
-                }
-                else
-                {
-                    projection_min_is_from_polygonA = false;
-                    projection_min_index = projectionB_min_index;
-                }
+                collisionDepth = axisDepth;
+                collisionNormal = axisOfSeparation;
             }
         }
-
-        collisionNormal = glm::normalize(final_collisionNormal);
-        collisionDepth = final_collisionDepth;
-
-        ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
-            convexPolygonA_corners,
-            convexPolygonA_cornerCount,
-            convexPolygonB_corners,
-            convexPolygonB_cornerCount,
-            projection_max_is_from_polygonA,
-            projection_min_is_from_polygonA,
-            projection_max_index,
-            projection_min_index,
-            collisionPoint,
-            collisionNormal);
 
         return true;
-    }
-
-    inline void ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
-        const glm::vec2* const& convexPolygonA_corners,
-        const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolygonB_corners,
-        const size_t& convexPolygonB_cornerCount,
-        const bool& projection_max_is_from_polygonA,
-        const bool& projection_min_is_from_polygonA,
-        const size_t& projection_max_index,
-        const size_t& projection_min_index,
-        glm::vec2& collisionPoint,
-        glm::vec2& collisionNormal)
-    {
-        glm::vec2 final_projection_max_point;
-        if (projection_max_is_from_polygonA)
-        {
-            final_projection_max_point = convexPolygonA_corners[projection_max_index];
-        }
-        else
-        {
-            final_projection_max_point = convexPolygonB_corners[projection_max_index];
-        }
-
-        glm::vec2 final_projection_min_point;
-        if (projection_min_is_from_polygonA)
-        {
-            final_projection_min_point = convexPolygonA_corners[projection_min_index];
-        }
-        else
-        {
-            final_projection_min_point = convexPolygonB_corners[projection_min_index];
-        }
-
-        bool final_projection_max_point_inside;
-        if (projection_max_is_from_polygonA)
-        {
-            final_projection_max_point_inside =
-                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonB_corners, convexPolygonB_cornerCount);
-        }
-        else
-        {
-            final_projection_max_point_inside =
-                Check2D_Point_ConvexPolygon_Overlap(final_projection_max_point, convexPolygonA_corners, convexPolygonA_cornerCount);
-        }
-
-        if (final_projection_max_point_inside)
-        {
-            collisionPoint = final_projection_max_point;
-
-            glm::vec2 polygon_centeroid;
-            if (projection_max_is_from_polygonA)
-            {
-                GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
-            }
-            else
-            {
-                GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
-            }
-
-            glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
-
-            if (projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
-            {
-                collisionNormal *= -1.0f;
-            }
-            else if (!projection_max_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
-            {
-                collisionNormal *= -1.0f;
-            }
-
-            return;
-        }
-
-        // bool final_projection_min_point_inside;
-        // if (projection_min_is_from_polygonA)
-        // {
-        //     final_projection_min_point_inside =
-        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonB_corners, convexPolygonB_cornerCount);
-        // }
-        // else
-        // {
-        //     final_projection_min_point_inside =
-        //         Check2D_Point_ConvexPolygon_Overlap(final_projection_min_point, convexPolygonA_corners, convexPolygonA_cornerCount);
-        // }
-
-        collisionPoint = final_projection_min_point;
-
-        glm::vec2 polygon_centeroid;
-        if (projection_min_is_from_polygonA)
-        {
-            GetPolygonCentroid(convexPolygonA_corners, convexPolygonA_cornerCount, polygon_centeroid);
-        }
-        else
-        {
-            GetPolygonCentroid(convexPolygonB_corners, convexPolygonB_cornerCount, polygon_centeroid);
-        }
-
-        glm::vec2 collision_to_centeroid = polygon_centeroid - collisionPoint;
-
-        if (projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) > 0)
-        {
-            collisionNormal *= -1.0f;
-        }
-        else if (!projection_min_is_from_polygonA && glm::dot(collisionNormal, collision_to_centeroid) < 0)
-        {
-            collisionNormal *= -1.0f;
-        }
     }
 
     inline float RotateSlope(float slope, float rotationInRadians)

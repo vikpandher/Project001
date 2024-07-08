@@ -246,4 +246,72 @@ namespace Project001
             delete nodePtr;
         }
     }
+
+    void CollisionBodyQuadTree2D::AllocateNodeMemory()
+    {
+        std::stack<CollisionBodyQuadTreeNode2D*> nodePtrStack;
+        nodePtrStack.push(rootNodePtr_);
+
+        while (!nodePtrStack.empty())
+        {
+            CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+            nodePtrStack.pop();
+
+            if (nodePtr->depth > maxDepth_)
+            {
+                continue;
+            }
+
+            // Create the child nodes, if they don't exist.
+            if (nodePtr->childrenPtrs[0] == nullptr)
+            {
+                glm::vec2 mid = (nodePtr->min + nodePtr->max) / 2.0f;
+
+                // NE
+                nodePtr->childrenPtrs[0] = new CollisionBodyQuadTreeNode2D(
+                    nodePtr->depth + 1,
+                    mid.x,
+                    mid.y,
+                    nodePtr->max.x,
+                    nodePtr->max.y
+                );
+                nodePtr->childrenPtrs[0]->bodyPtrs.reserve(maxBodiesPerNode_);
+                nodePtrStack.push(nodePtr->childrenPtrs[0]);
+
+                // NW
+                nodePtr->childrenPtrs[1] = new CollisionBodyQuadTreeNode2D(
+                    nodePtr->depth + 1,
+                    nodePtr->min.x,
+                    mid.y,
+                    mid.x,
+                    nodePtr->max.y
+                );
+                nodePtr->childrenPtrs[1]->bodyPtrs.reserve(maxBodiesPerNode_);
+                nodePtrStack.push(nodePtr->childrenPtrs[1]);
+
+
+                // SW
+                nodePtr->childrenPtrs[2] = new CollisionBodyQuadTreeNode2D(
+                    nodePtr->depth + 1,
+                    nodePtr->min.x,
+                    nodePtr->min.y,
+                    mid.x,
+                    mid.y
+                );
+                nodePtr->childrenPtrs[2]->bodyPtrs.reserve(maxBodiesPerNode_);
+                nodePtrStack.push(nodePtr->childrenPtrs[2]);
+
+                // SE
+                nodePtr->childrenPtrs[3] = new CollisionBodyQuadTreeNode2D(
+                    nodePtr->depth + 1,
+                    mid.x,
+                    nodePtr->min.y,
+                    nodePtr->max.x,
+                    mid.y
+                );
+                nodePtr->childrenPtrs[3]->bodyPtrs.reserve(maxBodiesPerNode_);
+                nodePtrStack.push(nodePtr->childrenPtrs[3]);
+            }
+        }
+    }
 }

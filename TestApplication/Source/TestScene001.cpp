@@ -199,6 +199,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene050");
     buttonStrings.emplace_back("TestScene051");
     buttonStrings.emplace_back("TestScene060");
+    buttonStrings.emplace_back("TestScene100");
 
     std::vector<unsigned int> buttonDestinationSceneIds;
     buttonDestinationSceneIds.push_back(g_testScene002Id);
@@ -219,6 +220,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene050Id);
     buttonDestinationSceneIds.push_back(g_testScene051Id);
     buttonDestinationSceneIds.push_back(g_testScene060Id);
+    buttonDestinationSceneIds.push_back(g_testScene100Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {

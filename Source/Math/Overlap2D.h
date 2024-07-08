@@ -1312,21 +1312,21 @@ namespace Project001
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
+    bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& collisionPoint,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
     bool Get2D_ConvexPolygon_Capsule_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
-        glm::vec2& collisionPoint,
-        glm::vec2& collisionNormal,
-        float& collisionDepth);
-
-    bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
-        const glm::vec2* const& convexPolygon_corners,
-        const size_t& convexPolygon_cornerCount,
-        const glm::vec2& circle_position,
-        const float& circle_radius,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
@@ -1549,22 +1549,9 @@ namespace Project001
         float& max,
         float& min);
 
-    // Unused
-    // axis vector needs to be a unit vector
-    void ProjectCapsuleOntoAxis_2(
-        const glm::vec2& axis,
-        const glm::vec2& capsule_start,
-        const glm::vec2& capsule_end,
-        const float& capsule_radius,
-        float& max,
-        float& min,
-        bool& startIsMax,
-        bool& startIsMin);
-
-    void GetPolygonCentroid(
+    glm::vec2 GetPolygonCentroid(
         const glm::vec2* const& polygon_corners,
-        const size_t& polygon_cornerCount,
-        glm::vec2& polygon_centeroid);
+        const size_t& polygon_cornerCount);
 
     float Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
@@ -1572,41 +1559,69 @@ namespace Project001
         const size_t& polygon_cornerCount,
         glm::vec2& closestPoint_position);
 
-    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v2(
-        const glm::vec2* const& convexPolygonA_corners,
-        const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolyhonA_axes,
-        const size_t& convexPolygonA_axisCount,
-        const glm::vec2* const& convexPolygonB_corners,
-        const size_t& convexPolygonB_cornerCount,
+    bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
         glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
 
-    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth_v3(
+    // normal doesn't always point out of convexPolygonA 
+    bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // normal doesn't always point out of convexPolygonA 
+    bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        const glm::vec2* const& convexPolygon_axes,
+        const size_t& convexPolygon_axisCount,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // normal doesn't always point out of convexPolygonA
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolyhonA_axes,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // normal doesn't always point out of convexPolygonA
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonA_axes,
         const size_t& convexPolygonA_axisCount,
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount,
-        const glm::vec2* const& convexPolyhonB_axes,
+        glm::vec2& collisionNormal,
+        float& collisionDepth);
+
+    // normal doesn't always point out of convexPolygonA
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(
+        const glm::vec2* const& convexPolygonA_corners,
+        const size_t& convexPolygonA_cornerCount,
+        const glm::vec2* const& convexPolygonA_axes,
+        const size_t& convexPolygonA_axisCount,
+        const glm::vec2* const& convexPolygonB_corners,
+        const size_t& convexPolygonB_cornerCount,
+        const glm::vec2* const& convexPolygonB_axes,
         const size_t& convexPolygonB_axisCount,
-        glm::vec2& collisionPoint,
         glm::vec2& collisionNormal,
         float& collisionDepth);
-
-    void ConvexPolygon_ConvexPolygon_FixNormalAndSelectCollisionPoint_H(
-        const glm::vec2* const& convexPolygonA_corners,
-        const size_t& convexPolygonA_cornerCount,
-        const glm::vec2* const& convexPolygonB_corners,
-        const size_t& convexPolygonB_cornerCount,
-        const bool& projection_max_is_from_polygonA,
-        const bool& projection_min_is_from_polygonA,
-        const size_t& projection_max_index,
-        const size_t& projection_min_index,
-        glm::vec2& collisionPoint,
-        glm::vec2& collisionNormal);
 
     float RotateSlope(float slope, float rotationInRadians);
 

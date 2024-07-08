@@ -55,6 +55,8 @@ namespace Project001
     protected:
         void DeleteAllNodes();
 
+        void AllocateNodeMemory();
+
         size_t maxDepth_;
         size_t maxBodiesPerNode_;
 

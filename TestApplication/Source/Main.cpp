@@ -38,6 +38,7 @@
 #include "TestScene050.h"
 #include "TestScene051.h"
 #include "TestScene060.h"
+#include "TestScene100.h"
 #include "TestSceneIds.h"
 
 unsigned int g_testScene001Id = (unsigned int)-1; // declared extern in TestSceneIds.h
@@ -60,6 +61,7 @@ unsigned int g_testScene034Id = (unsigned int)-1; // declared extern in TestScen
 unsigned int g_testScene050Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene051Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 unsigned int g_testScene060Id = (unsigned int)-1; // declared extern in TestSceneIds.h
+unsigned int g_testScene100Id = (unsigned int)-1; // declared extern in TestSceneIds.h
 
 
 
@@ -190,6 +192,10 @@ int main(int argc, char** argv)
     TestScene060* testScene060Ptr = new TestScene060(applicationPtr);
     g_testScene060Id = testScene060Ptr->GetId();
 
+    // 
+    TestScene100* testScene100Ptr = new TestScene100(applicationPtr);
+    g_testScene100Id = testScene100Ptr->GetId();
+
     applicationPtr->Run();
 
     delete testScene001Ptr;
@@ -212,6 +218,7 @@ int main(int argc, char** argv)
     delete testScene050Ptr;
     delete testScene051Ptr;
     delete testScene060Ptr;
+    delete testScene100Ptr;
     delete applicationPtr;
 
     return 0;

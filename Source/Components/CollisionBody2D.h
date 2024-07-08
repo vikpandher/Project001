@@ -273,7 +273,7 @@ namespace Project001
         , fixedTranslation_(false)
         , fixedRotation_(false)
         , mass_(1.0f) //(std::numeric_limits<float>::infinity())
-        , restitution_(1.0f)
+        , restitution_(0.8f) //(1.0f)
         , friction_(0.0f)
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
