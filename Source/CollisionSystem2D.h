@@ -20,7 +20,7 @@ namespace Project001
 
         static void CalculateCollisions(ComponentStores* componentStoresPtr);
 
-        static void CalculateCollisionsForGivenEntity(
+        static void CalculateOverlapForGivenEntity(
             unsigned int entityId,
             ComponentStores* componentStoresPtr);
 
@@ -65,7 +65,10 @@ namespace Project001
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
             bool recordInBodyB,
+            bool collectDetailedCollisionData,
             bool resolvePhysics);
+
+        static void ResolveCollisions();
 
         static std::vector<CollisionBody2D*> s_tangibleCollisionBodyPtrs_;
 

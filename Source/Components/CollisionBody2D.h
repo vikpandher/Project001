@@ -7,6 +7,8 @@
 
 namespace Project001
 {
+    struct CollisionBody2DCreationInfo;
+
     struct CollisionData2D
     {
         CollisionData2D()
@@ -34,6 +36,7 @@ namespace Project001
         enum class PhysicsType
         {
             PHYSICS_TYPE_OVERLAP_ONLY,
+            PHYSICS_TYPE_DETAILED_OVERLAP_ONLY,
             PHYSICS_TYPE_REGULAR_PHYSICS
         };
 
@@ -42,6 +45,8 @@ namespace Project001
         // only have overlap detection.
 
         CollisionBody2D();
+
+        CollisionBody2D(const CollisionBody2DCreationInfo& collisionBody2DCreationInfo);
 
         // For the collision system to count a collision, at least one group in the
         // collisionGroupMask of each body needs to be in the other body's 
@@ -256,6 +261,23 @@ namespace Project001
         static const float s_minimumMass_;
     };
 
+    struct CollisionBody2DCreationInfo
+    {
+        uint32_t collisionGroupMask = 0b00000000000000000000000000000001;
+        uint32_t allowedCollisionFilterMask = 0b11111111111111111111111111111111;
+        bool tangible = true;
+        CollisionBody2D::PhysicsType physicsType = CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
+        bool fixedTranslation = false;
+        bool fixedRotation = false;
+        float mass = 1.0f;
+        float restitution = 0.6f;
+        float friction = 1.0f;
+        glm::vec2 velocity = glm::vec2(0.0f, 0.0f);
+        float angularVelocity = 0.0f;
+        glm::vec2 acceleration = glm::vec2(0.0f, 0.0f);
+        float angularAcceleration = 0.0f;
+    };
+
     // public ------------------------------------------------------------------
 
     inline CollisionBody2D::CollisionBody2D()
@@ -273,12 +295,35 @@ namespace Project001
         , fixedTranslation_(false)
         , fixedRotation_(false)
         , mass_(1.0f) //(std::numeric_limits<float>::infinity())
-        , restitution_(0.8f) //(1.0f)
-        , friction_(0.0f)
+        , restitution_(0.6f) //(1.0f)
+        , friction_(1.0f)
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
         , acceleration_(0.0f, 0.0f)
         , angularAcceleration_(0.0f)
+    {}
+
+    inline CollisionBody2D::CollisionBody2D(const CollisionBody2DCreationInfo& collisionBody2DCreationInfo)
+        : collisionGroupMask_(collisionBody2DCreationInfo.collisionGroupMask)
+        , allowedCollisionFilterMask_(collisionBody2DCreationInfo.allowedCollisionFilterMask)
+        , tangible_(collisionBody2DCreationInfo.tangible)
+        , boundingRadius_(0.0f)
+        , area_(0.0f)
+        , momentOfInertia_(0.0f)
+        , boundingRadiusUpToDate_(false)
+        , areaUpToDate_(false)
+        , momentOfInertiaUpToDate_(false)
+        , transformedCollisionShapesUpToDate_(false)
+        , physicsType_(collisionBody2DCreationInfo.physicsType)
+        , fixedTranslation_(collisionBody2DCreationInfo.fixedTranslation)
+        , fixedRotation_(collisionBody2DCreationInfo.fixedRotation)
+        , mass_(collisionBody2DCreationInfo.mass)
+        , restitution_(collisionBody2DCreationInfo.restitution)
+        , friction_(collisionBody2DCreationInfo.friction)
+        , velocity_(collisionBody2DCreationInfo.velocity)
+        , angularVelocity_(collisionBody2DCreationInfo.angularVelocity)
+        , acceleration_(collisionBody2DCreationInfo.acceleration)
+        , angularAcceleration_(collisionBody2DCreationInfo.angularAcceleration)
     {}
 
     inline const uint32_t& CollisionBody2D::GetCollisionGroupMask() const

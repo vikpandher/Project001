@@ -75,19 +75,19 @@ int main(int argc, char** argv)
 #endif
 
     const size_t sizeScalar = 4;
-    Project001::ApplicationInfo applicationInfo = {};
-    applicationInfo.windowTitle = "Project001";
-    applicationInfo.windowWidth = 240 * sizeScalar;
-    applicationInfo.windowHeight = 160 * sizeScalar;
-    applicationInfo.frameBufferWidth = 240 * sizeScalar;
-    applicationInfo.frameBufferHeight = 160 * sizeScalar;
-    applicationInfo.instanceBufferCapacity = 1024 * 8;
-    applicationInfo.batchedIndexBufferCapacity = 1024 * 8;
-    applicationInfo.batchedVertexBufferCapacity = 1024 * 8;
-    applicationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
-    applicationInfo.sleepyRunLoop = false;
-    applicationInfo.fixedSizeFramebuffer_ = false;
-    Project001::Application* applicationPtr = new Project001::Application(applicationInfo);
+    Project001::ApplicationCreationInfo applicationCreationInfo = {};
+    applicationCreationInfo.windowTitle = "Project001";
+    applicationCreationInfo.windowWidth = 240 * sizeScalar;
+    applicationCreationInfo.windowHeight = 160 * sizeScalar;
+    applicationCreationInfo.frameBufferWidth = 240 * sizeScalar;
+    applicationCreationInfo.frameBufferHeight = 160 * sizeScalar;
+    applicationCreationInfo.instanceBufferCapacity = 1024 * 8;
+    applicationCreationInfo.batchedIndexBufferCapacity = 1024 * 8;
+    applicationCreationInfo.batchedVertexBufferCapacity = 1024 * 8;
+    applicationCreationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
+    applicationCreationInfo.sleepyRunLoop = false;
+    applicationCreationInfo.fixedSizeFramebuffer_ = false;
+    Project001::Application* applicationPtr = new Project001::Application(applicationCreationInfo);
 
     // main menu
     TestScene001* testScene001Ptr = new TestScene001(applicationPtr);

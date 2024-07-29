@@ -18,7 +18,7 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    Application::Application(const ApplicationInfo& applicationInfo)
+    Application::Application(const ApplicationCreationInfo& applicationInfo)
         : desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
         , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
         , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer_)

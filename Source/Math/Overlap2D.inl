@@ -3013,9 +3013,9 @@ namespace Project001
 
         glm::vec2 polygon_centeroid = (rectangle_bottomLeft + rectangle_topRight) * 0.5f;
 
-        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
+        glm::vec2 polygonCenter_to_circleCenter = circle_position - polygon_centeroid;
 
-        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
+        if (glm::dot(collisionNormal, polygonCenter_to_circleCenter) < 0)
         {
             collisionNormal *= -1.0f;
         }
@@ -3026,7 +3026,7 @@ namespace Project001
             collisionOffset = 0.0f;
         }
 
-        collisionPoint = circle_position + collisionNormal * collisionOffset;
+        collisionPoint = circle_position - collisionNormal * collisionOffset;
 
         return true;
     }
@@ -3507,9 +3507,9 @@ namespace Project001
 
         const glm::vec2& polygon_centeroid = orientedRectangle_position;
 
-        glm::vec2 circleCenter_to_polygonCenter = polygon_centeroid - circle_position;
+        glm::vec2 polygonCenter_to_circleCenter = circle_position - polygon_centeroid;
 
-        if (glm::dot(collisionNormal, circleCenter_to_polygonCenter) < 0)
+        if (glm::dot(collisionNormal, polygonCenter_to_circleCenter) < 0)
         {
             collisionNormal *= -1.0f;
         }
@@ -3520,7 +3520,7 @@ namespace Project001
             collisionOffset = 0.0f;
         }
 
-        collisionPoint = circle_position + collisionNormal * collisionOffset;
+        collisionPoint = circle_position - collisionNormal * collisionOffset;
 
         return true;
     }

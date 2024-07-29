@@ -40,7 +40,15 @@ protected:
 
     void UpdateWorldCursor(float xPosition, float yPosition);
 
-    void UpdatedSelectedEntityPosition(unsigned long long timestep_ns);
+    void UpdateCameraPosition(unsigned long long timestep_ns);
+
+    void UpdateSelectedEntityPosition(unsigned long long timestep_ns);
+
+    void UpdateSelectedEntityVelocity(unsigned long long timestep_ns);
+
+    void ApplyGravity(unsigned long long timestep_ns);
+
+    void CapVelocities();
 
     void Sync_RenderedMesh_CollisionBody_Components();
 
@@ -49,6 +57,10 @@ protected:
     void UpdateCursorLineAndDistanceTextMesh();
 
     void UpdateEntityIdTextMesh();
+
+    void UpdateFpsTextMesh(unsigned long long timestep_ns);
+
+    void UpdateEnergyTextMesh();
 
     void UpdateCollisionBodyQuadTreeMesh();
 
@@ -74,6 +86,8 @@ protected:
     const float fontPixelSize_ = 0.005f;
     Project001::MeshData* distanceTextMeshDataPtr_;
     Project001::MeshData* entityIdTextMeshDataPtr_;
+    Project001::MeshData* fps_MeshDataPtr_;
+    Project001::MeshData* energy_MeshDataPtr_;
 
     Project001::MeshData* collisionBodyQuadTreeMeshDataPtr_;
 
@@ -90,8 +104,9 @@ protected:
     unsigned int cursorEntityId_;
 
     unsigned int distanceEntityId_;
-
     unsigned int entityIdTextEntityId_;
+    unsigned int fpsTextEntityId_;
+    unsigned int energyTextEntityId_;
 
     unsigned int collisionBodyQuadTreeEntityId_;
 
@@ -110,8 +125,17 @@ protected:
 
     bool generateCursorLineAndDistanceTextMesh_;
     bool generateEntityIdTextMesh_;
+    bool generateFpsTextMesh_;
+    bool generateEnergyTextMesh_;
     bool generateCollisionBodyQuadTreeMesh_;
     bool generateCollisionMarkerCollectionMesh_;
 
+    bool recolorOverlappingCollisionBodies_;
+    bool velocityBasedMovement_;
+
     size_t physicsStepsPerUpdate_;
+    bool useCollisionBodyQuadTree_;
+
+    static const uint32_t gravityCollisionGroupMask_ = 0b00000000000000000000000000000010;
+    glm::vec2 gravity_;
 };

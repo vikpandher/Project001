@@ -20,13 +20,12 @@
 
 TestScene013::TestScene013(Project001::Application* applicationPtr)
     : TestSceneBase002(applicationPtr)
-    , ui_fps_MeshDataPtr_(nullptr)
     , rectangleMeshId_((unsigned int)-1)
     , circleMeshId_((unsigned int)-1)
-    , ui_fps_EntityId_((unsigned int)-1)
     , instructionScene_(applicationPtr)
 {
-    generateCollisionMarkerCollectionMesh_ = false; // overwrite base class value
+    generateCollisionMarkerCollectionMesh_ = false;
+    generateEnergyTextMesh_ = false;
 
     TestCollisionBodyQuadTree2D();
 }
@@ -53,11 +52,6 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     _LOG_MESSAGE("INITIALIZING:   TestScene013:            %u", GetId());
 
-    // Generate Meshes ---------------------------------------------------------
-
-    ui_fps_MeshDataPtr_ = new Project001::MeshData();
-    meshDataPtrArray_.push_back(ui_fps_MeshDataPtr_);
-
     // Creating Entities
     // -------------------------------------------------------------------------
 
@@ -66,6 +60,9 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::mt19937 randomNumberEngine(777);
     std::uniform_real_distribution<float> distributionX(-8.0f, 8.0f);
     std::uniform_real_distribution<float> distributionY(-6.0f, 6.0f);
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY;
 
     // Rectangles
     // -------------------------------------------------------------------------
@@ -117,7 +114,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetLit(false);
             }
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
             if (collisionBody2DPtr != nullptr)
@@ -176,7 +173,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetLit(false);
             }
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId));
+            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
             if (collisionBody2DPtr != nullptr)
@@ -204,24 +201,6 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             uiCameraHalfHeight = cameraPtr->GetTopCutoff();
             uiCameraHalfWidth = cameraPtr->GetRightCutoff();
-        }
-    }
-
-    {
-        componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
-
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
-            renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
-            renderedMeshPtr->SetTextureId(font01_TextureId_);
-            renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.2f);
-            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
         }
     }
 
@@ -265,25 +244,9 @@ void TestScene013::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // dont need to delete these here since they are added to meshDataPtrArray_
 
-    ui_fps_MeshDataPtr_ = nullptr;
-
     rectangleMeshId_ = (unsigned int)-1;
 
     circleMeshId_ = (unsigned int)-1;
-
-    // Entity Ids --------------------------------------------------------------
-
-    ui_fps_EntityId_ = (unsigned int)-1;
-}
-
-void TestScene013::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
-{
-    float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
-    std::string fps_string = std::to_string(fps);
-    ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
-    Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
-    Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
 
 // private ---------------------------------------------------------------------

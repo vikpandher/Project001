@@ -33,6 +33,8 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , cursorLineMeshDataPtr_(nullptr)
     , distanceTextMeshDataPtr_(nullptr)
     , entityIdTextMeshDataPtr_(nullptr)
+    , fps_MeshDataPtr_(nullptr)
+    , energy_MeshDataPtr_(nullptr)
     , collisionBodyQuadTreeMeshDataPtr_(nullptr)
     , collisionMarkerCollectionMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
@@ -41,6 +43,8 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , cursorEntityId_((unsigned int)-1)
     , distanceEntityId_((unsigned int)-1)
     , entityIdTextEntityId_((unsigned int)-1)
+    , fpsTextEntityId_((unsigned int)-1)
+    , energyTextEntityId_((unsigned int)-1)
     , collisionBodyQuadTreeEntityId_((unsigned int)-1)
     , collisionMarkerCollectionEntityId_((unsigned int)-1)
     , entityIds_()
@@ -50,9 +54,14 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , remainingTimeRecordingDuration_ns_(0)
     , generateCursorLineAndDistanceTextMesh_(true)
     , generateEntityIdTextMesh_(true)
+    , generateFpsTextMesh_(true)
     , generateCollisionBodyQuadTreeMesh_(true)
     , generateCollisionMarkerCollectionMesh_(true)
+    , recolorOverlappingCollisionBodies_(true)
+    , velocityBasedMovement_(false)
     , physicsStepsPerUpdate_(1)
+    , useCollisionBodyQuadTree_(true)
+    , gravity_()
 {}
 
 TestSceneBase002::~TestSceneBase002()
@@ -118,6 +127,10 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     distanceTextMeshDataPtr_ = new Project001::MeshData();
 
     entityIdTextMeshDataPtr_ = new Project001::MeshData();
+
+    fps_MeshDataPtr_ = new Project001::MeshData();
+
+    energy_MeshDataPtr_ = new Project001::MeshData();
 
     collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
 
@@ -241,10 +254,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetTranslucent(true);
             // renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
             renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.4f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
         }
     }
 
-    // Entity Id  Text Entity
+    // Entity Id Text Entity
     // -------------------------------------------------------------------------
 
     {
@@ -262,6 +276,51 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetTranslucent(true);
             renderedMeshPtr->SetPositionX(-uiCameraHalfWidth + 0.2f);
             renderedMeshPtr->SetPositionY(-uiCameraHalfHeight + 0.2f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+        }
+    }
+
+    // FPS Text Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(fpsTextEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(fpsTextEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, fpsTextEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(fps_MeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.6f);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+        }
+    }
+
+    // Energy Text Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(energyTextEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(energyTextEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, energyTextEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(energy_MeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 3.2f);
+            renderedMeshPtr->SetPositionY(-uiCameraHalfHeight + 0.2f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
         }
     }
 
@@ -332,6 +391,12 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     delete entityIdTextMeshDataPtr_;
     entityIdTextMeshDataPtr_ = nullptr;
 
+    delete fps_MeshDataPtr_;
+    fps_MeshDataPtr_ = nullptr;
+
+    delete energy_MeshDataPtr_;
+    energy_MeshDataPtr_ = nullptr;
+
     delete collisionBodyQuadTreeMeshDataPtr_;
     collisionBodyQuadTreeMeshDataPtr_ = nullptr;
 
@@ -354,6 +419,10 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     distanceEntityId_ = (unsigned int)-1;
 
     entityIdTextEntityId_ = (unsigned int)-1;
+
+    fpsTextEntityId_ = (unsigned int)-1;
+
+    energyTextEntityId_ = (unsigned int)-1;
 
     collisionBodyQuadTreeEntityId_ = (unsigned int)-1;
 
@@ -466,7 +535,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        Project001::CollisionSystem2D::CalculateCollisionsForGivenEntity(cursorEntityId_, componentStoresPtr_);
+        Project001::CollisionSystem2D::CalculateOverlapForGivenEntity(cursorEntityId_, componentStoresPtr_);
 
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
         _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
@@ -489,6 +558,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
                         selectedEntityIdIndex_ = j;
 
                         cursorGrabbingEntity_ = true;
+
                         break;
                     }
                 }
@@ -502,6 +572,11 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     Project001::ScopeTimer scopeTimer("TestSceneBase002::ProcessRenderEvent");
 
     Sync_RenderedMesh_CollisionBody_Components();
+
+    if (generateFpsTextMesh_)
+    {
+        UpdateFpsTextMesh(renderEvent.timestep_ns);
+    }
 
     Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
 }
@@ -543,7 +618,25 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
-    UpdatedSelectedEntityPosition(timestep_ns);
+    ApplyGravity(timestep_ns);
+
+    CapVelocities();
+
+    if (selectedEntityIdIndex_ >= entityIds_.size())
+    {
+        UpdateCameraPosition(timestep_ns);
+    }
+    else
+    {
+        if (velocityBasedMovement_)
+        {
+            UpdateSelectedEntityVelocity(timestep_ns);
+        }
+        else
+        {
+            UpdateSelectedEntityPosition(timestep_ns);
+        }
+    }
 
     if (remainingTimeRecordingDuration_ns_ > 0)
     {
@@ -553,10 +646,21 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float timestep_s = (float)timestep_ns / 1e9f;
 
     float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate_;
-    for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
+    if (useCollisionBodyQuadTree_)
     {
-        Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
-        Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+        for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
+        {
+            Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
+            Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
+        {
+            Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
+            Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+        }
     }
 
     if (remainingTimeRecordingDuration_ns_ > 0)
@@ -591,6 +695,11 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     if (generateEntityIdTextMesh_)
     {
         UpdateEntityIdTextMesh();
+    }
+
+    if (generateEnergyTextMesh_)
+    {
+        UpdateEnergyTextMesh();
     }
 
     if (generateCollisionBodyQuadTreeMesh_)
@@ -643,7 +752,11 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
                 _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
                 if (selectedCollisionBody2DPtr != nullptr)
                 {
-                    selectedCollisionBody2DPtr->AddTranslation(worldCursorPosition - previousWorldCursorPosition_);
+                    if (!velocityBasedMovement_)
+                    {
+                        glm::vec2 translation = worldCursorPosition - previousWorldCursorPosition_;
+                        selectedCollisionBody2DPtr->AddTranslation(translation);
+                    }
                 }
             }
 
@@ -652,7 +765,7 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
     }
 }
 
-void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep_ns)
+void TestSceneBase002::UpdateCameraPosition(unsigned long long timestep_ns)
 {
     Project001::Camera* cameraPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
@@ -674,85 +787,366 @@ void TestSceneBase002::UpdatedSelectedEntityPosition(unsigned long long timestep
         bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
         bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
-        if (selectedEntityIdIndex_ < entityIds_.size())
+        if (movingLeft)
         {
-            unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
-
-            Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
-            if (collisionBodyPtr != nullptr)
-            {
-                if (movingLeft)
-                {
-                    // collisionBodyPtr->TranslateRight(-1.0f * translationSpeed);
-                    collisionBodyPtr->AddTranslation(cameraLeft * translationSpeed);
-                }
-
-                if (movingRight)
-                {
-                    // collisionBodyPtr->TranslateRight(translationSpeed);
-                    collisionBodyPtr->AddTranslation(cameraLeft * -1.0f * translationSpeed);
-                }
-
-                if (movingUp)
-                {
-                    // collisionBodyPtr->TranslateUp(translationSpeed);
-                    collisionBodyPtr->AddTranslation(cameraUp * translationSpeed);
-                }
-
-                if (movingDown)
-                {
-                    // collisionBodyPtr->TranslateUp(-1.0f * translationSpeed);
-                    collisionBodyPtr->AddTranslation(cameraUp * -1.0f * translationSpeed);
-                }
-
-                if (rollingLeft)
-                {
-                    collisionBodyPtr->AddRotation(rotationSpeed);
-                }
-
-                if (rollingRight)
-                {
-                    collisionBodyPtr->AddRotation(-1.0f * rotationSpeed);
-                }
-            }
+            cameraPtr->MoveLeft(translationSpeed);
         }
-        else
+
+        if (movingRight)
+        {
+            cameraPtr->MoveRight(translationSpeed);
+        }
+
+        if (movingUp)
+        {
+            cameraPtr->MoveUp(translationSpeed);
+        }
+
+        if (movingDown)
+        {
+            cameraPtr->MoveDown(translationSpeed);
+        }
+
+        if (rollingLeft)
+        {
+            cameraPtr->AddRoll(-1.0f * rotationSpeed);
+        }
+
+        if (rollingRight)
+        {
+            cameraPtr->AddRoll(rotationSpeed);
+        }
+
+        float xPosition = 0.0f;
+        float yPosition = 0.0f;
+        windowPtr_->GetCursorPosition(xPosition, yPosition);
+        UpdateWorldCursor(xPosition, yPosition);
+    }
+}
+
+void TestSceneBase002::UpdateSelectedEntityPosition(unsigned long long timestep_ns)
+{
+    if (selectedEntityIdIndex_ >= entityIds_.size())
+    {
+        return;
+    }
+
+    Project001::Camera* cameraPtr = nullptr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    if (cameraPtr != nullptr)
+    {
+        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+
+        float speedConstant = cameraPtr->GetTopCutoff();
+        glm::vec2 cameraUp = cameraPtr->GetUpVector();
+        glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
+
+        float translationSpeed = speedConstant * 0.8f * timestep_s;
+        float rotationSpeed = 1.2f * timestep_s;
+
+        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+
+        unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+        if (collisionBodyPtr != nullptr)
         {
             if (movingLeft)
             {
-                cameraPtr->MoveLeft(translationSpeed);
+                // collisionBodyPtr->TranslateRight(-1.0f * translationSpeed);
+                collisionBodyPtr->AddTranslation(cameraLeft * translationSpeed);
             }
 
             if (movingRight)
             {
-                cameraPtr->MoveRight(translationSpeed);
+                // collisionBodyPtr->TranslateRight(translationSpeed);
+                collisionBodyPtr->AddTranslation(cameraLeft * -1.0f * translationSpeed);
             }
 
             if (movingUp)
             {
-                cameraPtr->MoveUp(translationSpeed);
+                // collisionBodyPtr->TranslateUp(translationSpeed);
+                collisionBodyPtr->AddTranslation(cameraUp * translationSpeed);
             }
 
             if (movingDown)
             {
-                cameraPtr->MoveDown(translationSpeed);
+                // collisionBodyPtr->TranslateUp(-1.0f * translationSpeed);
+                collisionBodyPtr->AddTranslation(cameraUp * -1.0f * translationSpeed);
             }
 
             if (rollingLeft)
             {
-                cameraPtr->AddRoll(-1.0f * rotationSpeed);
+                collisionBodyPtr->AddRotation(rotationSpeed);
             }
 
             if (rollingRight)
             {
-                cameraPtr->AddRoll(rotationSpeed);
+                collisionBodyPtr->AddRotation(-1.0f * rotationSpeed);
+            }
+        }
+    }
+}
+
+void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_ns)
+{
+    if (selectedEntityIdIndex_ >= entityIds_.size())
+    {
+        return;
+    }
+
+    Project001::Camera* cameraPtr = nullptr;
+    _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    if (cameraPtr != nullptr)
+    {
+        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+
+        float speedConstant = cameraPtr->GetTopCutoff();
+        glm::vec2 cameraUp = cameraPtr->GetUpVector();
+        glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
+
+        float accelerationSpeed = 1.6f * timestep_s;
+        float angularAccelerationSpeed = 1.6f * timestep_s;
+
+        float decelerationSpeed = accelerationSpeed;
+        float angularDecelerationSpeed = angularAccelerationSpeed;
+
+        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+
+        unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
+
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+        if (collisionBodyPtr != nullptr)
+        {
+            const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
+            float velocityMagnitude = glm::length(velocity);
+            glm::vec2 velocityDirection = velocity / velocityMagnitude;
+
+            if (!movingLeft && !movingRight && !movingUp && !movingDown && !cursorGrabbingEntity_)
+            {
+                if (velocityMagnitude != 0.0f)
+                {
+                    float decelerationMagnitude = glm::min(velocityMagnitude, decelerationSpeed);
+
+                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
+
+                    collisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationMagnitude);
+                }
+            }
+            else
+            {
+                if (cursorGrabbingEntity_)
+                {
+                    glm::vec2 closestPoint_position;
+                    float distanceSquared = collisionBodyPtr->GetDistanceSquaredToPointAndClosestPointToPoint(previousWorldCursorPosition_, closestPoint_position);
+                    glm::vec2 grabTranslation = previousWorldCursorPosition_ - closestPoint_position;
+
+                    if (distanceSquared == 0.0f)
+                    {
+                        if (velocityMagnitude != 0.0f)
+                        {
+                            float decelerationMagnitude = glm::min(velocityMagnitude, decelerationSpeed);
+
+                            glm::vec2 velocityDirection = velocity / velocityMagnitude;
+
+                            collisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationMagnitude);
+                        }
+                    }
+                    else
+                    {
+                        float accelerationMagnitude = glm::length(grabTranslation);
+
+                        if (accelerationMagnitude != 0.0f)
+                        {
+                            glm::vec2 accelerationDirection = grabTranslation / accelerationMagnitude;
+
+                            float accelerationMultiplier = 1.0f;
+                            if (glm::dot(accelerationDirection, velocityDirection) < 0)
+                            {
+                                accelerationMultiplier = 2.0f;
+                            }
+
+                            collisionBodyPtr->SetVelocity(velocity + accelerationDirection * accelerationSpeed * accelerationMultiplier);
+                        }
+                    }
+                }
+
+                if (movingLeft)
+                {
+                    collisionBodyPtr->SetVelocity(velocity + cameraLeft * accelerationSpeed);
+                }
+
+                if (movingRight)
+                {
+                    collisionBodyPtr->SetVelocity(velocity + cameraLeft * -1.0f * accelerationSpeed);
+                }
+
+                if (movingUp)
+                {
+                    collisionBodyPtr->SetVelocity(velocity + cameraUp * accelerationSpeed);
+                }
+
+                if (movingDown)
+                {
+                    collisionBodyPtr->SetVelocity(velocity + cameraUp * -1.0f * accelerationSpeed);
+                }
             }
 
-            float xPosition = 0.0f;
-            float yPosition = 0.0f;
-            windowPtr_->GetCursorPosition(xPosition, yPosition);
-            UpdateWorldCursor(xPosition, yPosition);
+            const float& angularVelocity = collisionBodyPtr->GetAngularVelocity();
+
+            if (!rollingLeft && !rollingRight)
+            {
+                float angularVelocityMagnitude = std::abs(angularVelocity);
+
+                float angularDecelerationMagnitude = glm::min(angularVelocityMagnitude, angularDecelerationSpeed);
+
+                if (angularVelocity < 0.0f)
+                {
+                    collisionBodyPtr->SetAngularVelocity(angularVelocity + angularDecelerationMagnitude);
+                }
+                else if (angularVelocity > 0.0f)
+                {
+                    collisionBodyPtr->SetAngularVelocity(angularVelocity - angularDecelerationMagnitude);
+                }
+            }
+            else
+            {
+                if (rollingLeft)
+                {
+                    collisionBodyPtr->SetAngularVelocity(angularVelocity + angularAccelerationSpeed);
+                }
+
+                if (rollingRight)
+                {
+                    collisionBodyPtr->SetAngularVelocity(angularVelocity - angularAccelerationSpeed);
+                }
+            }
+        }
+    }
+}
+
+void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
+{
+    float timestep_s = (float)timestep_ns / 1e9f;
+
+    unsigned int selectedEntityId = (unsigned int)-1;
+    if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
+    {
+        selectedEntityId = entityIds_[selectedEntityIdIndex_];
+    }
+
+    Project001::CollisionBody2D* collisionBody2DArray = nullptr;
+    size_t collisionBodyCount = 0;
+
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+
+    for (unsigned int i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
+
+        if (!(collisionBody2D.GetCollisionGroupMask() & gravityCollisionGroupMask_))
+        {
+            continue;
+        }
+
+        unsigned int currentEntityId = (unsigned int)-1;
+        if (componentStoresPtr_->GetComponentEntityId(currentEntityId, &collisionBody2D) &&
+            currentEntityId == selectedEntityId)
+        {
+            continue;
+        }
+
+        if (collisionBody2D.GetFixedTranslation())
+        {
+            continue;
+        }
+
+        collisionBody2D.SetVelocity(collisionBody2D.GetVelocity() + gravity_ * timestep_s);
+    }
+}
+
+void TestSceneBase002::CapVelocities()
+{
+    Project001::CollisionBody2D* collisionBody2DArray = nullptr;
+    size_t collisionBodyCount = 0;
+
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+
+    for (unsigned int i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
+
+        const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
+
+        if (!(collisionGroupMask & gravityCollisionGroupMask_))
+        {
+            continue;
+        }
+
+        const glm::vec2& collisionBody2D_position = collisionBody2D.GetPosition();
+
+        if (collisionBody2D_position.x > 8.0f)
+        {
+            collisionBody2D.SetPositionX(-8.0f + std::fmod(collisionBody2D_position.x, 8.0f));
+        }
+        else if (collisionBody2D_position.x < -8.0f)
+        {
+            collisionBody2D.SetPositionX(8.0f + std::fmod(collisionBody2D_position.x, 8.0f));
+        }
+        // else if (std::isnan(collisionBody2D_position.x))
+        // {
+        //     collisionBody2D.SetPositionX(0.0f);
+        // }
+
+        if (collisionBody2D_position.y > 6.0f)
+        {
+            collisionBody2D.SetPositionY(-6.0f + std::fmod(collisionBody2D_position.y, 6.0f));
+        }
+        else if (collisionBody2D_position.y < -6.0f)
+        {
+            collisionBody2D.SetPositionY(6.0f + std::fmod(collisionBody2D_position.y, 6.0f));
+        }
+        // else if (std::isnan(collisionBody2D_position.y))
+        // {
+        //     collisionBody2D.SetPositionY(0.0f);
+        // }
+
+        // Cap Velocity
+
+        const glm::vec2& collisionBody2D_velocity = collisionBody2D.GetVelocity();
+        float velocityMagnitude = glm::length(collisionBody2D_velocity);
+
+        if (velocityMagnitude > 10.0f)
+        {
+            glm::vec2 newVelocity = glm::normalize(collisionBody2D_velocity) * 10.0f;
+            collisionBody2D.SetVelocity(newVelocity);
+        }
+
+        // Cap Angular Velocity
+
+        const float& collisionBody2D_angularVelocity = collisionBody2D.GetAngularVelocity();
+
+        if (collisionBody2D_angularVelocity > 4.0f * glm::pi<float>())
+        {
+            constexpr float newAngularVelocity = 4.0f * glm::pi<float>();
+            collisionBody2D.SetAngularVelocity(newAngularVelocity);
+        }
+        else if (collisionBody2D_angularVelocity < -4.0f * glm::pi<float>())
+        {
+            constexpr float newAngularVelocity = -4.0f * glm::pi<float>();
+            collisionBody2D.SetAngularVelocity(newAngularVelocity);
         }
     }
 }
@@ -819,7 +1213,7 @@ void TestSceneBase002::UpdateCollisionBodyColors()
 
         if (renderedMeshFound)
         {
-            if (collisionBodyColliding)
+            if (recolorOverlappingCollisionBodies_ && collisionBodyColliding )
             {
                 if (selectedEntityIdIndex_ < entityIds_.size() && collidingEntityId == entityIds_[selectedEntityIdIndex_])
                 {
@@ -871,7 +1265,7 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
                 _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
                     *distanceTextMeshDataPtr_,
                     *font01_FontDataPtr_,
-                    std::to_string(glm::sqrt(distanceSquared)),
+                    "distance: " + std::to_string(glm::sqrt(distanceSquared)),
                     fontPixelSize_
                 ));
             }
@@ -887,7 +1281,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
     if (collisionBody2DPtr != nullptr)
     {
-        std::string entityIdTextString;
+        std::string entityIdTextString = "entityId:";
 
         const std::vector<Project001::CollisionData2D>& currentCollisions = collisionBody2DPtr->GetCollisions();
         for (size_t j = 0; j < currentCollisions.size(); ++j)
@@ -908,6 +1302,74 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
     }
 }
 
+void TestSceneBase002::UpdateFpsTextMesh(unsigned long long timestep_ns)
+{
+    float fps = 1000000000.0f / (float)timestep_ns;
+    std::string fps_string = std::to_string(fps);
+    if (fps_string.length() > 5)
+    {
+        fps_string.resize(5);
+    }
+    fps_string = "fps: " + fps_string;
+    fps_MeshDataPtr_->Clear();
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    Project001::MeshLoader::RecenterMesh(*fps_MeshDataPtr_);
+}
+
+void TestSceneBase002::UpdateEnergyTextMesh()
+{
+    energy_MeshDataPtr_->Clear();
+
+    float totalLinearKeneticEnergy = 0.0f;
+    float totalRotationalKeneticEnergy = 0.0f;
+
+    Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
+    size_t collisionBodyCount = 0;
+    bool componentFound = componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+
+    for (size_t i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+
+        if (!std::isinf(currentCollisionBody.GetMass()))
+        {
+            totalLinearKeneticEnergy += currentCollisionBody.GetLinearKeneticEnergy();
+        }
+
+        if (!std::isinf(currentCollisionBody.GetMomentOfInertia()))
+        {
+            totalRotationalKeneticEnergy += currentCollisionBody.GetRotationalKeneticEnergy();
+        }
+    }
+
+    std::string linearKeneticEnergy_string = std::to_string(totalLinearKeneticEnergy);
+    if (linearKeneticEnergy_string.length() > 5)
+    {
+        linearKeneticEnergy_string.resize(5);
+    }
+    linearKeneticEnergy_string = "LKE: " + linearKeneticEnergy_string;
+
+    std::string rotationalKeneticEnergy_string = std::to_string(totalRotationalKeneticEnergy);
+    if (rotationalKeneticEnergy_string.length() > 5)
+    {
+        rotationalKeneticEnergy_string.resize(5);
+    }
+    rotationalKeneticEnergy_string = "RKE: " + rotationalKeneticEnergy_string;
+
+    std::string totalKeneticEnergy_string = std::to_string(totalLinearKeneticEnergy + totalRotationalKeneticEnergy);
+    if (totalKeneticEnergy_string.length() > 5)
+    {
+        totalKeneticEnergy_string.resize(5);
+    }
+    totalKeneticEnergy_string = "TKE: " + totalKeneticEnergy_string;
+
+    std::string energy_string = linearKeneticEnergy_string + " + " + rotationalKeneticEnergy_string + " = " + totalKeneticEnergy_string;
+
+    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
+    // Project001::MeshLoader::RecenterMesh(*energy_MeshDataPtr_);
+    // Project001::MeshLoader::TranslateMesh(*energy_MeshDataPtr_, -0.5f * energy_MeshDataPtr_->GetSize());
+}
+
 void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
 {
     const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
@@ -916,7 +1378,7 @@ void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
 
     collisionBodyQuadTreeMeshDataPtr_->Clear();
 
-    if (!rootNodePtr->leafNode || !rootNodePtr->bodyPtrs.empty())
+    if (useCollisionBodyQuadTree_ && (!rootNodePtr->leafNode || !rootNodePtr->bodyPtrs.empty()))
     {
         Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
 

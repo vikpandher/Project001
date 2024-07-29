@@ -160,9 +160,7 @@ void TestScene100::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "This Scene tests a joystick. It'll output the\n"
-        "first joystick's axis and button values while\n"
-        "the joystick is plugged in.\n"
+        "This Scene tests ...\n"
         "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );

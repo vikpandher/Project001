@@ -20,20 +20,11 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
-
     // Mesh Data ---------------------------------------------------------------
-
-    const float fontPixelSize_ = 0.008f;
-    Project001::MeshData* ui_fps_MeshDataPtr_;
 
     unsigned int rectangleMeshId_;
 
     unsigned int circleMeshId_;
-
-    // Entity Ids --------------------------------------------------------------
-
-    unsigned int ui_fps_EntityId_;
 
     // -------------------------------------------------------------------------
 

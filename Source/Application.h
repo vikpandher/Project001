@@ -17,7 +17,7 @@ namespace Project001
     struct SwitchSceneEvent;
     struct WindowCloseEvent;
 
-    struct ApplicationInfo
+    struct ApplicationCreationInfo
     {
         const char* windowTitle;
         unsigned int windowWidth;
@@ -37,7 +37,7 @@ namespace Project001
     public:
         friend class Scene;
 
-        Application(const ApplicationInfo& applicationInfo);
+        Application(const ApplicationCreationInfo& applicationInfo);
         virtual ~Application();
 
         Application(Application& other) = delete;
