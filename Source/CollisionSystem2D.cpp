@@ -3968,16 +3968,16 @@ namespace Project001
             // Unsink bodies from eachother
             // -----------------------------------------------------------------
 
-            bool bodyA_notMoving = std::isinf(massA) || fixedTranslationA; // || fixedRotationA;
-            bool bodyB_notMoving = std::isinf(massB) || fixedTranslationB; // || fixedRotationB;
+            bool bodyA_notMoving = std::isinf(massA); // || fixedTranslationA; // || fixedRotationA;
+            bool bodyB_notMoving = std::isinf(massB); // || fixedTranslationB; // || fixedRotationB;
 
             if (bodyA_notMoving)
             {
                 if (bodyB_notMoving)
                 {
-                    // If both bodies are not moving, should be they are both moving?
-                    // collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
-                    // collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+                    // If both bodies are not moving, they will just seperate.
+                    collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
+                    collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
 
                     continue;
                 }
@@ -3999,6 +3999,23 @@ namespace Project001
                 collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f * massRatioA);
                 collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
             }
+
+            // float velocityMagnitudeA = glm::length(velocityA);
+            // float velocityMagnitudeB = glm::length(velocityB);
+            // float angularVelocityMagnitudeA = std::abs(angularVelocityA);
+            // float angularVelocityMagnitudeB = std::abs(angularVelocityB);
+
+            // if (velocityMagnitudeA < 0.01f && velocityMagnitudeB < 0.01f &&
+            //     angularVelocityMagnitudeA < 0.01f && angularVelocityMagnitudeB < 0.01f)
+            // {
+            //     collisionBodyA.SetVelocity(glm::vec2(0.0f, 0.0f));
+            //     collisionBodyB.SetVelocity(glm::vec2(0.0f, 0.0f));
+            // 
+            //     collisionBodyA.SetAngularVelocity(0.0f);
+            //     collisionBodyB.SetAngularVelocity(0.0f);
+            // 
+            //     continue;
+            // }
 
             // Apply collision impulses
             // -----------------------------------------------------------------

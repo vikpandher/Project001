@@ -514,6 +514,7 @@ namespace Project001
         return minDistanceSquared;
     }
 
+    const float CollisionBody2D::s_minimumDensity_ = 0.00001f;
     const float CollisionBody2D::s_minimumMass_ = 0.00001f;
 
     // protected ---------------------------------------------------------------
@@ -851,7 +852,92 @@ namespace Project001
         areaUpToDate_ = true;
     }
 
-    void CollisionBody2D::CalculateMomentOfInertia()
+    void CollisionBody2D::CalculateMassUsingDensity()
+    {
+        if (!areaUpToDate_)
+        {
+            CalculateArea();
+        }
+
+        mass_ = density_ * area_;
+
+        massFromDensityUpToDate_ = true;
+    }
+
+    void CollisionBody2D::CalculateMomentOfInertiaUsingDensity()
+    {
+        if (!areaUpToDate_)
+        {
+            CalculateArea();
+        }
+
+        if (std::isinf(density_))
+        {
+            momentOfInertia_ = std::numeric_limits<float>::infinity();
+            momentOfInertiaUpToDate_ = true;
+            return;
+        }
+
+        momentOfInertia_ = 0.0f;
+
+        for (size_t i = 0; i < collisionRectangles_.size(); ++i)
+        {
+            const CollisionRectangle2D& collisionRectangle = collisionRectangles_[i];
+            const float& area = collisionRectangleAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_Rectangle_MomentOfInertia(mass, collisionRectangle.bottomLeft, collisionRectangle.topRight);
+        }
+
+        for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
+        {
+            const CollisionOrientedRectangle2D& collisionOrientedRectangle = collisionOrientedRectangles_[i];
+            const float& area = collisionOrientedRectangleAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_Rectangle_MomentOfInertia_2(mass, collisionOrientedRectangle.position, collisionOrientedRectangle.halfSize);
+        }
+
+        for (size_t i = 0; i < collisionCircles_.size(); ++i)
+        {
+            const CollisionCircle2D& collisionCircle = collisionCircles_[i];
+            const float& area = collisionCircleAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_Circle_MomentOfInertia(mass, collisionCircle.position, collisionCircle.radius);
+        }
+
+        for (size_t i = 0; i < collisionCapsules_.size(); ++i)
+        {
+            const CollisionCapsule2D& collisionCapsule = collisionCapsules_[i];
+            const float& area = collisionCapsuleAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_Capsule_MomentOfInertia(mass, collisionCapsule.start, collisionCapsule.end, collisionCapsule.radius);
+        }
+
+        for (size_t i = 0; i < collisionTriangles_.size(); ++i)
+        {
+            const CollisionTriangle2D& collisionTriangle = collisionTriangles_[i];
+            const float& area = collisionTriangleAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_Triangle_MomentOfInertia(mass, collisionTriangle.corner1, collisionTriangle.corner2, collisionTriangle.corner3);
+        }
+
+        for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
+        {
+            const CollisionConvexPolygon2D& collisionConvexPolygon = collisionConvexPolygons_[i];
+            const float& area = collisionConvexPolygonAreas_[i];
+            float mass = density_ * area;
+
+            momentOfInertia_ += Get2D_ConvexPolygon_MomentOfInertia(area, mass, collisionConvexPolygon.corners.data(), collisionConvexPolygon.corners.size());
+        }
+
+        momentOfInertiaUpToDate_ = true;
+    }
+
+    void CollisionBody2D::CalculateMomentOfInertiaUsingMass()
     {
         if (!areaUpToDate_)
         {

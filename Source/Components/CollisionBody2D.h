@@ -138,7 +138,13 @@ namespace Project001
         const bool& GetFixedRotation() const;
         void SetFixedRotation(bool fixedRotation);
 
-        const float& GetMass() const;
+        const bool& GetMassCalculatedFromDensity() const;
+        void SetMassCalculatedFromDensity(bool massCalculatedFromDensity);
+
+        const float& GetDensity() const;
+        void SetDensity(float density);
+
+        const float& GetMass();
         void SetMass(float mass);
 
         const float& GetRestitution() const;
@@ -182,7 +188,9 @@ namespace Project001
     protected:
         void CalculateBoundingRadius();
         void CalculateArea();
-        void CalculateMomentOfInertia();
+        void CalculateMassUsingDensity();
+        void CalculateMomentOfInertiaUsingDensity();
+        void CalculateMomentOfInertiaUsingMass();
         void CalculateTransformedCollisionShapes();
 
         // Inherited:
@@ -237,6 +245,7 @@ namespace Project001
 
         bool boundingRadiusUpToDate_;
         bool areaUpToDate_;
+        bool massFromDensityUpToDate_;
         bool momentOfInertiaUpToDate_;
 
         bool transformedCollisionShapesUpToDate_;
@@ -248,9 +257,11 @@ namespace Project001
         bool fixedTranslation_;
         bool fixedRotation_;
 
-        float mass_;
-        float restitution_; // from 0.0f to 1.0f
-        float friction_;
+        bool massCalculatedFromDensity_;
+        float density_; // used when massCalculatedFromDensity_ is true;
+        float mass_; // used when massCalculatedFromDensity_ is false;
+        float restitution_; // from 0.0f to 1.0f; 1.0f means no loss
+        float friction_; // from 0.0f to 1.0f; 0.0f means no friction
 
         glm::vec2 velocity_;
         float angularVelocity_;
@@ -258,6 +269,7 @@ namespace Project001
         glm::vec2 acceleration_;
         float angularAcceleration_;
 
+        static const float s_minimumDensity_;
         static const float s_minimumMass_;
     };
 
@@ -269,9 +281,11 @@ namespace Project001
         CollisionBody2D::PhysicsType physicsType = CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
         bool fixedTranslation = false;
         bool fixedRotation = false;
+        float massCalculatedFromDensity_ = true;
+        float density_ = 1.0f;
         float mass = 1.0f;
-        float restitution = 0.6f;
-        float friction = 1.0f;
+        float restitution = 1.0f;
+        float friction = 0.0f;
         glm::vec2 velocity = glm::vec2(0.0f, 0.0f);
         float angularVelocity = 0.0f;
         glm::vec2 acceleration = glm::vec2(0.0f, 0.0f);
@@ -289,14 +303,17 @@ namespace Project001
         , momentOfInertia_(0.0f)
         , boundingRadiusUpToDate_(false)
         , areaUpToDate_(false)
+        , massFromDensityUpToDate_(false)
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
         , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
         , fixedTranslation_(false)
         , fixedRotation_(false)
+        , massCalculatedFromDensity_(true)
+        , density_(1.0f)
         , mass_(1.0f) //(std::numeric_limits<float>::infinity())
-        , restitution_(0.6f) //(1.0f)
-        , friction_(1.0f)
+        , restitution_(1.0f)
+        , friction_(0.0f)
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
         , acceleration_(0.0f, 0.0f)
@@ -312,11 +329,14 @@ namespace Project001
         , momentOfInertia_(0.0f)
         , boundingRadiusUpToDate_(false)
         , areaUpToDate_(false)
+        , massFromDensityUpToDate_(false)
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
         , physicsType_(collisionBody2DCreationInfo.physicsType)
         , fixedTranslation_(collisionBody2DCreationInfo.fixedTranslation)
         , fixedRotation_(collisionBody2DCreationInfo.fixedRotation)
+        , massCalculatedFromDensity_(collisionBody2DCreationInfo.massCalculatedFromDensity_)
+        , density_(collisionBody2DCreationInfo.density_)
         , mass_(collisionBody2DCreationInfo.mass)
         , restitution_(collisionBody2DCreationInfo.restitution)
         , friction_(collisionBody2DCreationInfo.friction)
@@ -645,7 +665,14 @@ namespace Project001
     {
         if (!momentOfInertiaUpToDate_)
         {
-            CalculateMomentOfInertia();
+            if (massCalculatedFromDensity_)
+            {
+                CalculateMomentOfInertiaUsingDensity();
+            }
+            else
+            {
+                CalculateMomentOfInertiaUsingMass();
+            }
         }
 
         return momentOfInertia_;
@@ -706,17 +733,58 @@ namespace Project001
         fixedRotation_ = fixedRotation;
     }
 
-    inline const float& CollisionBody2D::GetMass() const
+    inline const bool& CollisionBody2D::GetMassCalculatedFromDensity() const
     {
+        return massCalculatedFromDensity_;
+    }
+
+    inline void CollisionBody2D::SetMassCalculatedFromDensity(bool massCalculatedFromDensity)
+    {
+        massCalculatedFromDensity = massCalculatedFromDensity_;
+        massFromDensityUpToDate_ = false;
+        momentOfInertiaUpToDate_ = false;
+    }
+
+    inline const float& CollisionBody2D::GetDensity() const
+    {
+        return density_;
+    }
+
+    inline void CollisionBody2D::SetDensity(float density)
+    {
+        density_ = density;
+        if (density_ < s_minimumDensity_)
+        {
+            density_ = s_minimumDensity_;
+        }
+
+        if (massCalculatedFromDensity_)
+        {
+            massFromDensityUpToDate_ = false;
+            momentOfInertiaUpToDate_ = false;
+        }
+    }
+
+    inline const float& CollisionBody2D::GetMass()
+    {
+        if (massCalculatedFromDensity_ && !massFromDensityUpToDate_)
+        {
+            CalculateMassUsingDensity();
+        }
         return mass_;
     }
 
     inline void CollisionBody2D::SetMass(float mass)
     {
-        mass_ = mass;
-        if (mass_ < s_minimumMass_)
+        if (!massCalculatedFromDensity_)
         {
-            mass_ = s_minimumMass_;
+            mass_ = mass;
+            if (mass_ < s_minimumMass_)
+            {
+                mass_ = s_minimumMass_;
+            }
+
+            momentOfInertiaUpToDate_ = false;
         }
     }
 

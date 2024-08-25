@@ -60,6 +60,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
 
     // Point 1
     {
@@ -244,7 +245,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    GenerateCombinationShape();
+    GenerateCombinationShape(glm::vec3 (-4.0f, 1.0f, 0.0f));
 
     // Rectangle 1
     {
@@ -256,6 +257,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -298,6 +301,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.48f, 0.32f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -335,6 +340,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -371,6 +378,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.08f, 12));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -407,6 +416,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -448,6 +459,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -530,6 +543,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             loopPoints[i] *= 0.16f;
         }
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -576,6 +591,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             fanPoints[i] *= 0.08f;
         }
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, fanPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -636,6 +653,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             loopPoints[i] *= 0.16f;
         }
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -684,6 +703,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
 
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -732,6 +753,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
 
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -769,6 +792,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         linePoints.emplace_back(-0.32f, -0.32f);
 
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -806,6 +831,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         linePoints.emplace_back(-0.32f, 0.32f);
 
         _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -843,6 +870,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.32f, 0.0f);
         shapePoints.emplace_back(0.16f, 0.48f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -880,6 +909,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 16));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -921,6 +952,8 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, 0.16f);
         _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -989,7 +1022,7 @@ void TestScene012::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     _LOG_MESSAGE("DEINITIALIZING: TestScene012:            %u", GetId());
 }
 
-void TestScene012::GenerateCombinationShape()
+void TestScene012::GenerateCombinationShape(glm::vec3& position)
 {
     Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
     meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1094,31 +1127,33 @@ void TestScene012::GenerateCombinationShape()
     _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, rightTriangleCorners));
     Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
 
+    Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+    Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
     unsigned int tempEntityId;
     componentStoresPtr_->CreateEntity(tempEntityId);
     entityIds_.push_back(tempEntityId);
-
-    glm::vec3 currentPosition(-4.0f, 1.0f, 0.0f);
 
     _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
     Project001::RenderedMesh* renderedMeshPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
     if (renderedMeshPtr != nullptr)
     {
-        renderedMeshPtr->SetPosition(currentPosition);
+        renderedMeshPtr->SetPosition(position);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
         renderedMeshPtr->SetLit(false);
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
 
     _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
     _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
     if (collisionBody2DPtr != nullptr)
     {
-        collisionBody2DPtr->SetPosition(currentPosition);
+        collisionBody2DPtr->SetPosition(position);
 
         std::vector<Project001::CollisionTriangle2D>& collisionTrangles = collisionBody2DPtr->GetCollisionTriangles();
         collisionTrangles.emplace_back(centerTriangleCorner1, centerTriangleCorner2, centerTriangleCorner3);

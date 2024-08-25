@@ -13,6 +13,7 @@
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "RenderSystem.h"
+#include "TextureLoader.h"
 #include "Window.h"
 
 #include <stack>
@@ -29,12 +30,20 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
+    , text_dynamic_TextureId_((unsigned int)-1)
+    , text_overlapOnly_TextureId_((unsigned int)-1)
+    , text_rotationOnly_TextureId_((unsigned int)-1)
+    , text_static_TextureId_((unsigned int)-1)
+    , text_translationOnly_TextureId_((unsigned int)-1)
     , cursorLinePositions_()
     , cursorLineMeshDataPtr_(nullptr)
     , distanceTextMeshDataPtr_(nullptr)
+    , massTextMeshDataPtr_(nullptr)
+    , momentOfInertiaTextMeshDataPtr_(nullptr)
     , entityIdTextMeshDataPtr_(nullptr)
     , fps_MeshDataPtr_(nullptr)
     , energy_MeshDataPtr_(nullptr)
+    , collisionBodyBorderMeshDataPtr_(nullptr)
     , collisionBodyQuadTreeMeshDataPtr_(nullptr)
     , collisionMarkerCollectionMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
@@ -42,9 +51,12 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , uiCameraEntityId_((unsigned int)-1)
     , cursorEntityId_((unsigned int)-1)
     , distanceEntityId_((unsigned int)-1)
+    , massEntityId_((unsigned int)-1)
+    , momentOfInertiaEntityId_((unsigned int)-1)
     , entityIdTextEntityId_((unsigned int)-1)
     , fpsTextEntityId_((unsigned int)-1)
     , energyTextEntityId_((unsigned int)-1)
+    , collisionBodyBorderEntityId_((unsigned int)-1)
     , collisionBodyQuadTreeEntityId_((unsigned int)-1)
     , collisionMarkerCollectionEntityId_((unsigned int)-1)
     , entityIds_()
@@ -52,16 +64,24 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , previousWorldCursorPosition_()
     , selectedEntityIdIndex_((unsigned int)-1)
     , remainingTimeRecordingDuration_ns_(0)
+    , positionBorderSize_(16.0f, 12.0f)
+    , maxVelocity_(10.0f)
+    , maxAngularVelocity_(4.0f * glm::pi<float>())
     , generateCursorLineAndDistanceTextMesh_(true)
+    , generateMassTextMesh_(true)
+    , generateMomentOfInertiaTextMesh_(true)
     , generateEntityIdTextMesh_(true)
     , generateFpsTextMesh_(true)
+    , generateEnergyTextMesh_(true)
     , generateCollisionBodyQuadTreeMesh_(true)
     , generateCollisionMarkerCollectionMesh_(true)
+    , applyGravity_(false)
+    , updateCollisionBodyTexture_(true)
     , recolorOverlappingCollisionBodies_(true)
     , velocityBasedMovement_(false)
     , physicsStepsPerUpdate_(1)
     , useCollisionBodyQuadTree_(true)
-    , gravity_()
+    , gravity_(0.0f, -1.0f)
 {}
 
 TestSceneBase002::~TestSceneBase002()
@@ -119,6 +139,36 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         );
     }
 
+    {
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Dynamic.png"));
+        rendererPtr_->CreateTexture(text_dynamic_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_OverlapOnly.png"));
+        rendererPtr_->CreateTexture(text_overlapOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_RotationOnly.png"));
+        rendererPtr_->CreateTexture(text_rotationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Static.png"));
+        rendererPtr_->CreateTexture(text_static_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_TranslationOnly.png"));
+        rendererPtr_->CreateTexture(text_translationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
     // Generate meshes
     // -------------------------------------------------------------------------
 
@@ -126,11 +176,17 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     distanceTextMeshDataPtr_ = new Project001::MeshData();
 
+    massTextMeshDataPtr_ = new Project001::MeshData();
+
+    momentOfInertiaTextMeshDataPtr_ = new Project001::MeshData();
+
     entityIdTextMeshDataPtr_ = new Project001::MeshData();
 
     fps_MeshDataPtr_ = new Project001::MeshData();
 
     energy_MeshDataPtr_ = new Project001::MeshData();
+
+    collisionBodyBorderMeshDataPtr_ = new Project001::MeshData();
 
     collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
 
@@ -252,8 +308,49 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetMeshDataPtr(distanceTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
-            // renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.9f);
-            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.4f);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.3f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+        }
+    }
+
+    // Mass Text Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(massEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(massEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, massEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(massTextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.6f);
+            renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+        }
+    }
+
+    // MomentOfInertia Text Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(momentOfInertiaEntityId_);
+
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(momentOfInertiaEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, momentOfInertiaEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(momentOfInertiaTextMeshDataPtr_);
+            renderedMeshPtr->SetTextureId(font01_TextureId_);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.9f);
             renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
         }
     }
@@ -296,8 +393,8 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetMeshDataPtr(fps_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 0.6f);
-            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.2f);
+            renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 1.0f);
+            renderedMeshPtr->SetPositionY(uiCameraHalfHeight - 0.3f);
             renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
         }
     }
@@ -321,6 +418,23 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetPositionX(uiCameraHalfWidth - 3.2f);
             renderedMeshPtr->SetPositionY(-uiCameraHalfHeight + 0.2f);
             renderedMeshPtr->SetColor(0.8f, 0.7f, 0.3f, 1.0f);
+        }
+    }
+
+    // Collision Body Border Entity
+    // -------------------------------------------------------------------------
+
+    {
+        componentStoresPtr_->CreateEntity(collisionBodyBorderEntityId_);
+        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionBodyBorderEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyBorderEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetMeshDataPtr(collisionBodyBorderMeshDataPtr_);
+            renderedMeshPtr->SetColor(0.1f, 0.2f, 0.2f, 1.0f);
+            renderedMeshPtr->SetRenderPriorityOverride(-99);
         }
     }
 
@@ -380,6 +494,12 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     font01_TextureId_ = (unsigned int)-1;
 
+    text_dynamic_TextureId_ = (unsigned int)-1;
+    text_overlapOnly_TextureId_ = (unsigned int)-1;
+    text_rotationOnly_TextureId_ = (unsigned int)-1;
+    text_static_TextureId_ = (unsigned int)-1;
+    text_translationOnly_TextureId_ = (unsigned int)-1;
+
     // Mesh Data ---------------------------------------------------------------
 
     delete cursorLineMeshDataPtr_;
@@ -387,6 +507,12 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     delete distanceTextMeshDataPtr_;
     distanceTextMeshDataPtr_ = nullptr;
+
+    delete massTextMeshDataPtr_;
+    massTextMeshDataPtr_ = nullptr;
+
+    delete momentOfInertiaTextMeshDataPtr_;
+    momentOfInertiaTextMeshDataPtr_ = nullptr;
 
     delete entityIdTextMeshDataPtr_;
     entityIdTextMeshDataPtr_ = nullptr;
@@ -396,6 +522,9 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     delete energy_MeshDataPtr_;
     energy_MeshDataPtr_ = nullptr;
+
+    delete collisionBodyBorderMeshDataPtr_;
+    collisionBodyBorderMeshDataPtr_ = nullptr;
 
     delete collisionBodyQuadTreeMeshDataPtr_;
     collisionBodyQuadTreeMeshDataPtr_ = nullptr;
@@ -418,11 +547,17 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     distanceEntityId_ = (unsigned int)-1;
 
+    massEntityId_ = (unsigned int)-1;
+
+    momentOfInertiaEntityId_ = (unsigned int)-1;
+
     entityIdTextEntityId_ = (unsigned int)-1;
 
     fpsTextEntityId_ = (unsigned int)-1;
 
     energyTextEntityId_ = (unsigned int)-1;
+
+    collisionBodyBorderEntityId_ = (unsigned int)-1;
 
     collisionBodyQuadTreeEntityId_ = (unsigned int)-1;
 
@@ -496,7 +631,37 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
                 selectedEntityIdIndex_--;
             }
         }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_R)
+        {
+            if (selectedEntityIdIndex_ < entityIds_.size())
+            {
+                const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
+                Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+                bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+                if (collisionBodyFound)
+                {
+                    collisionBodyPtr->SetFixedRotation(!collisionBodyPtr->GetFixedRotation());
+                }
+            }
+        }
         else if (keyCode == Project001::KeyCode::KEY_CODE_T)
+        {
+            if (selectedEntityIdIndex_ < entityIds_.size())
+            {
+                const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
+                Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+                bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+                if (collisionBodyFound)
+                {
+                    collisionBodyPtr->SetFixedTranslation(!collisionBodyPtr->GetFixedTranslation());
+                }
+            }
+        }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_G)
+        {
+            applyGravity_ = !applyGravity_;
+        }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_0)
         {
             std::string timeProfileOutFileName = "TestSceneBase002_";
 #ifndef NDEBUG
@@ -618,8 +783,12 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
-    ApplyGravity(timestep_ns);
+    if (applyGravity_)
+    {
+        ApplyGravity(timestep_ns);
+    }
 
+    CapPositions();
     CapVelocities();
 
     if (selectedEntityIdIndex_ >= entityIds_.size())
@@ -692,6 +861,16 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         UpdateCursorLineAndDistanceTextMesh();
     }
 
+    if (generateMassTextMesh_)
+    {
+        UpdateMassTextMesh();
+    }
+
+    if (generateMomentOfInertiaTextMesh_)
+    {
+        UpdateMomentOfInertiaTextMesh();
+    }
+
     if (generateEntityIdTextMesh_)
     {
         UpdateEntityIdTextMesh();
@@ -702,6 +881,8 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         UpdateEnergyTextMesh();
     }
 
+    UpdateCollisionBodyBorderMesh();
+
     if (generateCollisionBodyQuadTreeMesh_)
     {
         UpdateCollisionBodyQuadTreeMesh();
@@ -710,6 +891,11 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     if (generateCollisionMarkerCollectionMesh_)
     {
         UpdateCollisionMarkerCollectionMesh();
+    }
+
+    if (updateCollisionBodyTexture_)
+    {
+        UpdateCollisionBodyTexture();
     }
 }
 
@@ -1056,7 +1242,7 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
     {
         Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
 
-        if (!(collisionBody2D.GetCollisionGroupMask() & gravityCollisionGroupMask_))
+        if (!(collisionBody2D.GetCollisionGroupMask() & mainCollisionGroupMask_))
         {
             continue;
         }
@@ -1077,6 +1263,56 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
     }
 }
 
+void TestSceneBase002::CapPositions()
+{
+    Project001::CollisionBody2D* collisionBody2DArray = nullptr;
+    size_t collisionBodyCount = 0;
+
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+
+    for (unsigned int i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
+
+        const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
+
+        if (!(collisionGroupMask & mainCollisionGroupMask_))
+        {
+            continue;
+        }
+
+        const glm::vec2& collisionBody2D_position = collisionBody2D.GetPosition();
+
+        glm::vec2 positionBorderHalfSize = positionBorderSize_ * 0.5f;
+
+        if (collisionBody2D_position.x > positionBorderHalfSize.x)
+        {
+            collisionBody2D.SetPositionX(-positionBorderHalfSize.x + std::fmod(collisionBody2D_position.x, positionBorderHalfSize.x));
+        }
+        else if (collisionBody2D_position.x < -8.0f)
+        {
+            collisionBody2D.SetPositionX(positionBorderHalfSize.x + std::fmod(collisionBody2D_position.x, positionBorderHalfSize.x));
+        }
+        // else if (std::isnan(collisionBody2D_position.x))
+        // {
+        //     collisionBody2D.SetPositionX(0.0f);
+        // }
+
+        if (collisionBody2D_position.y > positionBorderHalfSize.y)
+        {
+            collisionBody2D.SetPositionY(-positionBorderHalfSize.y + std::fmod(collisionBody2D_position.y, positionBorderHalfSize.y));
+        }
+        else if (collisionBody2D_position.y < -positionBorderHalfSize.y)
+        {
+            collisionBody2D.SetPositionY(positionBorderHalfSize.y + std::fmod(collisionBody2D_position.y, positionBorderHalfSize.y));
+        }
+        // else if (std::isnan(collisionBody2D_position.y))
+        // {
+        //     collisionBody2D.SetPositionY(0.0f);
+        // }
+    }
+}
+
 void TestSceneBase002::CapVelocities()
 {
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
@@ -1090,63 +1326,30 @@ void TestSceneBase002::CapVelocities()
 
         const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
 
-        if (!(collisionGroupMask & gravityCollisionGroupMask_))
+        if (!(collisionGroupMask & mainCollisionGroupMask_))
         {
             continue;
         }
 
-        const glm::vec2& collisionBody2D_position = collisionBody2D.GetPosition();
-
-        if (collisionBody2D_position.x > 8.0f)
-        {
-            collisionBody2D.SetPositionX(-8.0f + std::fmod(collisionBody2D_position.x, 8.0f));
-        }
-        else if (collisionBody2D_position.x < -8.0f)
-        {
-            collisionBody2D.SetPositionX(8.0f + std::fmod(collisionBody2D_position.x, 8.0f));
-        }
-        // else if (std::isnan(collisionBody2D_position.x))
-        // {
-        //     collisionBody2D.SetPositionX(0.0f);
-        // }
-
-        if (collisionBody2D_position.y > 6.0f)
-        {
-            collisionBody2D.SetPositionY(-6.0f + std::fmod(collisionBody2D_position.y, 6.0f));
-        }
-        else if (collisionBody2D_position.y < -6.0f)
-        {
-            collisionBody2D.SetPositionY(6.0f + std::fmod(collisionBody2D_position.y, 6.0f));
-        }
-        // else if (std::isnan(collisionBody2D_position.y))
-        // {
-        //     collisionBody2D.SetPositionY(0.0f);
-        // }
-
-        // Cap Velocity
-
         const glm::vec2& collisionBody2D_velocity = collisionBody2D.GetVelocity();
+
         float velocityMagnitude = glm::length(collisionBody2D_velocity);
 
-        if (velocityMagnitude > 10.0f)
+        if (velocityMagnitude > maxVelocity_)
         {
-            glm::vec2 newVelocity = glm::normalize(collisionBody2D_velocity) * 10.0f;
+            glm::vec2 newVelocity = glm::normalize(collisionBody2D_velocity) * maxVelocity_;
             collisionBody2D.SetVelocity(newVelocity);
         }
 
-        // Cap Angular Velocity
-
         const float& collisionBody2D_angularVelocity = collisionBody2D.GetAngularVelocity();
 
-        if (collisionBody2D_angularVelocity > 4.0f * glm::pi<float>())
+        if (collisionBody2D_angularVelocity > maxAngularVelocity_)
         {
-            constexpr float newAngularVelocity = 4.0f * glm::pi<float>();
-            collisionBody2D.SetAngularVelocity(newAngularVelocity);
+            collisionBody2D.SetAngularVelocity(maxAngularVelocity_);
         }
-        else if (collisionBody2D_angularVelocity < -4.0f * glm::pi<float>())
+        else if (collisionBody2D_angularVelocity < -maxAngularVelocity_)
         {
-            constexpr float newAngularVelocity = -4.0f * glm::pi<float>();
-            collisionBody2D.SetAngularVelocity(newAngularVelocity);
+            collisionBody2D.SetAngularVelocity(-maxAngularVelocity_);
         }
     }
 }
@@ -1232,7 +1435,37 @@ void TestSceneBase002::UpdateCollisionBodyColors()
                 }
                 else
                 {
-                    renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    const Project001::CollisionBody2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
+
+                    if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY ||
+                        physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY)
+                    {
+                        renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    }
+                    else if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+                    {
+                        const bool& fixedTranslation = currentCollisionBody.GetFixedTranslation();
+                        const bool& fixedRotation = currentCollisionBody.GetFixedRotation();
+                        if (fixedTranslation)
+                        {
+                            if (fixedRotation)
+                            {
+                                renderedMeshPtr->SetColor(0.9f, 0.6f, 0.9f, 1.0f);
+                            }
+                            else
+                            {
+                                renderedMeshPtr->SetColor(0.6f, 0.6f, 0.9f, 1.0f);
+                            }
+                        }
+                        else if (fixedRotation)
+                        {
+                            renderedMeshPtr->SetColor(0.9f, 0.6f, 0.6f, 1.0f);
+                        }
+                        else
+                        {
+                            renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                        }
+                    }
                 }
             }
         }
@@ -1269,6 +1502,52 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
                     fontPixelSize_
                 ));
             }
+        }
+    }
+}
+
+void TestSceneBase002::UpdateMassTextMesh()
+{
+    massTextMeshDataPtr_->Clear();
+
+    if (selectedEntityIdIndex_ < entityIds_.size())
+    {
+        const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        if (collisionBodyFound)
+        {
+            const float& mass = collisionBodyPtr->GetMass();
+
+            _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+                *massTextMeshDataPtr_,
+                *font01_FontDataPtr_,
+                "mass: " + std::to_string(mass),
+                fontPixelSize_
+            ));
+        }
+    }
+}
+
+void TestSceneBase002::UpdateMomentOfInertiaTextMesh()
+{
+    momentOfInertiaTextMeshDataPtr_->Clear();
+
+    if (selectedEntityIdIndex_ < entityIds_.size())
+    {
+        const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        if (collisionBodyFound)
+        {
+            const float& momentOfInertia = collisionBodyPtr->GetMomentOfInertia();
+
+            _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+                *momentOfInertiaTextMeshDataPtr_,
+                *font01_FontDataPtr_,
+                "momentOfInertia: " + std::to_string(momentOfInertia),
+                fontPixelSize_
+            ));
         }
     }
 }
@@ -1313,7 +1592,7 @@ void TestSceneBase002::UpdateFpsTextMesh(unsigned long long timestep_ns)
     fps_string = "fps: " + fps_string;
     fps_MeshDataPtr_->Clear();
     _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
-    Project001::MeshLoader::RecenterMesh(*fps_MeshDataPtr_);
+    // Project001::MeshLoader::RecenterMesh(*fps_MeshDataPtr_);
 }
 
 void TestSceneBase002::UpdateEnergyTextMesh()
@@ -1368,6 +1647,15 @@ void TestSceneBase002::UpdateEnergyTextMesh()
     _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
     // Project001::MeshLoader::RecenterMesh(*energy_MeshDataPtr_);
     // Project001::MeshLoader::TranslateMesh(*energy_MeshDataPtr_, -0.5f * energy_MeshDataPtr_->GetSize());
+}
+
+void TestSceneBase002::UpdateCollisionBodyBorderMesh()
+{
+    const float lineWidth = 0.04f;
+
+    collisionBodyBorderMeshDataPtr_->Clear();
+
+    Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyBorderMeshDataPtr_, -0.5f * positionBorderSize_, 0.5f * positionBorderSize_, lineWidth);
 }
 
 void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
@@ -1449,6 +1737,62 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
                     {
                         Project001::MeshLoader::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.point, currentCollision.point + currentCollision.normal * currentCollision.depth, 0.01f);
                     }
+                }
+            }
+        }
+    }
+}
+
+void TestSceneBase002::UpdateCollisionBodyTexture()
+{
+    Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
+    size_t collisionBodyCount = 0;
+    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    for (size_t i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+        const uint32_t& collisionGroupMask = currentCollisionBody.GetCollisionGroupMask();
+        if (!(collisionGroupMask & mainCollisionGroupMask_))
+        {
+            continue;
+        }
+
+        unsigned int currentEntityId;
+        componentStoresPtr_->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
+
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, currentEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            const Project001::CollisionBody2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
+
+            if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY ||
+                physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY)
+            {
+                renderedMeshPtr->SetTextureId(text_overlapOnly_TextureId_);
+            }
+            else if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+            {
+                const bool& fixedTranslation = currentCollisionBody.GetFixedTranslation();
+                const bool& fixedRotation = currentCollisionBody.GetFixedRotation();
+                if (fixedTranslation)
+                {
+                    if (fixedRotation)
+                    {
+                        renderedMeshPtr->SetTextureId(text_static_TextureId_);
+                    }
+                    else
+                    {
+                        renderedMeshPtr->SetTextureId(text_rotationOnly_TextureId_);
+                    }
+                }
+                else if (fixedRotation)
+                {
+                    renderedMeshPtr->SetTextureId(text_translationOnly_TextureId_);
+                }
+                else
+                {
+                    renderedMeshPtr->SetTextureId(text_dynamic_TextureId_);
                 }
             }
         }

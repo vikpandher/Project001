@@ -243,7 +243,7 @@ void TestSceneBase001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             return;
         }
     }
-    else if (keyCode == Project001::KeyCode::KEY_CODE_T)
+    else if (keyCode == Project001::KeyCode::KEY_CODE_0)
     {
         std::string timeProfileOutFileName = "TestSceneBase002_";
 #ifndef NDEBUG

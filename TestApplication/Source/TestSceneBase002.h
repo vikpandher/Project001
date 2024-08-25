@@ -48,6 +48,8 @@ protected:
 
     void ApplyGravity(unsigned long long timestep_ns);
 
+    void CapPositions();
+
     void CapVelocities();
 
     void Sync_RenderedMesh_CollisionBody_Components();
@@ -56,15 +58,23 @@ protected:
 
     void UpdateCursorLineAndDistanceTextMesh();
 
+    void UpdateMassTextMesh();
+
+    void UpdateMomentOfInertiaTextMesh();
+
     void UpdateEntityIdTextMesh();
 
     void UpdateFpsTextMesh(unsigned long long timestep_ns);
 
     void UpdateEnergyTextMesh();
 
+    void UpdateCollisionBodyBorderMesh();
+
     void UpdateCollisionBodyQuadTreeMesh();
 
     void UpdateCollisionMarkerCollectionMesh();
+
+    void UpdateCollisionBodyTexture();
 
     // -------------------------------------------------------------------------
 
@@ -78,6 +88,12 @@ protected:
     Project001::TextureData* font01_TextureDataPtr_;
     unsigned int font01_TextureId_;
 
+    unsigned int text_dynamic_TextureId_;
+    unsigned int text_overlapOnly_TextureId_;
+    unsigned int text_rotationOnly_TextureId_;
+    unsigned int text_static_TextureId_;
+    unsigned int text_translationOnly_TextureId_;
+
     // Mesh Data ---------------------------------------------------------------
 
     std::vector<glm::vec2> cursorLinePositions_;
@@ -85,12 +101,14 @@ protected:
 
     const float fontPixelSize_ = 0.005f;
     Project001::MeshData* distanceTextMeshDataPtr_;
+    Project001::MeshData* massTextMeshDataPtr_;
+    Project001::MeshData* momentOfInertiaTextMeshDataPtr_;
+
     Project001::MeshData* entityIdTextMeshDataPtr_;
     Project001::MeshData* fps_MeshDataPtr_;
     Project001::MeshData* energy_MeshDataPtr_;
-
+    Project001::MeshData* collisionBodyBorderMeshDataPtr_;
     Project001::MeshData* collisionBodyQuadTreeMeshDataPtr_;
-
     Project001::MeshData* collisionMarkerCollectionMeshDataPtr_;
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
@@ -104,12 +122,13 @@ protected:
     unsigned int cursorEntityId_;
 
     unsigned int distanceEntityId_;
+    unsigned int massEntityId_;
+    unsigned int momentOfInertiaEntityId_;
     unsigned int entityIdTextEntityId_;
     unsigned int fpsTextEntityId_;
     unsigned int energyTextEntityId_;
-
+    unsigned int collisionBodyBorderEntityId_;
     unsigned int collisionBodyQuadTreeEntityId_;
-
     unsigned int collisionMarkerCollectionEntityId_;
 
     std::vector<unsigned int> entityIds_;
@@ -123,19 +142,28 @@ protected:
     Project001::Timer timer01_;
     unsigned long long remainingTimeRecordingDuration_ns_;
 
+    glm::vec2 positionBorderSize_;
+
+    float maxVelocity_;
+    float maxAngularVelocity_;
+
     bool generateCursorLineAndDistanceTextMesh_;
+    bool generateMassTextMesh_;
+    bool generateMomentOfInertiaTextMesh_;
     bool generateEntityIdTextMesh_;
     bool generateFpsTextMesh_;
     bool generateEnergyTextMesh_;
     bool generateCollisionBodyQuadTreeMesh_;
     bool generateCollisionMarkerCollectionMesh_;
 
+    bool applyGravity_;
+    bool updateCollisionBodyTexture_;
     bool recolorOverlappingCollisionBodies_;
     bool velocityBasedMovement_;
 
     size_t physicsStepsPerUpdate_;
     bool useCollisionBodyQuadTree_;
 
-    static const uint32_t gravityCollisionGroupMask_ = 0b00000000000000000000000000000010;
+    static const uint32_t mainCollisionGroupMask_ = 0b00000000000000000000000000000010;
     glm::vec2 gravity_;
 };

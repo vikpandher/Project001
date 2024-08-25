@@ -20,20 +20,9 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    void CreateEntitiesForNewtonsCradle01(float yPos);
-    void CreateEntitiesForNewtonsCradle02(float yPos);
-    void CreateEntitiesForNewtonsCradle03(float yPos);
-    void CreateEntitiesForNewtonsCradle04(float yPos);
-    void CreateEntitiesForNewtonsCradle05(float yPos, float friction);
-    void CreateEntitiesForNewtonsCradle06(float yPos, float friction);
-    void CreateEntitiesForGravityTest01();
+    void CreateEntitiesForTest01();
 
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
-
-    // Texture Data ------------------------------------------------------------
-
-    unsigned int texture001_TextureId_;
-
 };

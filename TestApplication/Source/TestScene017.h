@@ -5,14 +5,19 @@
 
 
 
-class TestScene012 : public TestSceneBase002
+namespace Project001
+{
+    struct CollisionBody2DCreationInfo;
+}
+
+class TestScene017 : public TestSceneBase002
 {
 public:
-    TestScene012(Project001::Application* applicationPtr);
-    ~TestScene012();
+    TestScene017(Project001::Application* applicationPtr);
+    ~TestScene017();
 
-    TestScene012(TestScene012& other) = delete;
-    void operator=(const TestScene012&) = delete;
+    TestScene017(TestScene017& other) = delete;
+    void operator=(const TestScene017&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -20,7 +25,7 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    void GenerateCombinationShape(glm::vec3& position);
+    void CreateCollisionBodyEntities();
 
     // -------------------------------------------------------------------------
 

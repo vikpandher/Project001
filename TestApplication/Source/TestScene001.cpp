@@ -191,6 +191,8 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene012");
     buttonStrings.emplace_back("TestScene013");
     buttonStrings.emplace_back("TestScene015");
+    buttonStrings.emplace_back("TestScene016");
+    buttonStrings.emplace_back("TestScene017");
     buttonStrings.emplace_back("TestScene030");
     buttonStrings.emplace_back("TestScene031");
     buttonStrings.emplace_back("TestScene032");
@@ -199,7 +201,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene050");
     buttonStrings.emplace_back("TestScene051");
     buttonStrings.emplace_back("TestScene060");
-    buttonStrings.emplace_back("TestScene100");
 
     std::vector<unsigned int> buttonDestinationSceneIds;
     buttonDestinationSceneIds.push_back(g_testScene002Id);
@@ -212,6 +213,8 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene012Id);
     buttonDestinationSceneIds.push_back(g_testScene013Id);
     buttonDestinationSceneIds.push_back(g_testScene015Id);
+    buttonDestinationSceneIds.push_back(g_testScene016Id);
+    buttonDestinationSceneIds.push_back(g_testScene017Id);
     buttonDestinationSceneIds.push_back(g_testScene030Id);
     buttonDestinationSceneIds.push_back(g_testScene031Id);
     buttonDestinationSceneIds.push_back(g_testScene032Id);
@@ -220,7 +223,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(g_testScene050Id);
     buttonDestinationSceneIds.push_back(g_testScene051Id);
     buttonDestinationSceneIds.push_back(g_testScene060Id);
-    buttonDestinationSceneIds.push_back(g_testScene100Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
@@ -377,14 +379,14 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 000 ] [ 001 ] [ 002 ] [ 003 ] [ 004 ]
     // [ 005 ] [ 006 ] [ 007 ] [ 008 ] [ 009 ]
     // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 014 ]
-    // [ 015 ] [ 016 ]
+    // [ 015 ] [ 016 ] [ 017 ] [ 018 ] [ 019 ]
     // 
     // Test Scenes:
     // 
-    // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 010 ]
-    // [ 011 ] [ 012 ] [ 013 ] [ 015 ] [ 030 ]
-    // [ 031 ] [ 032 ] [ 033 ] [ 034 ] [ 050 ]
-    // [ 051 ] [ 060 ]
+    // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 007 ]
+    // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 015 ]
+    // [ 016 ] [ 017 ] [ 030 ] [ 031 ] [ 032 ]
+    // [ 033 ] [ 034 ] [ 050 ] [ 051 ] [ 060 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -465,7 +467,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             // [ 0,0 ] [ 1,0 ] [ 2,0 ] [ 3,0 ] [ 4,0 ]
             // [ 0,1 ] [ 1,1 ] [ 2,1 ] [ 3,1 ] [ 4,1 ]
             // [ 0,2 ] [ 1,2 ] [ 2,2 ] [ 3,2 ] [ 4,2 ]
-            // [ 0,3 ] [ 1,3 ]
+            // [ 0,3 ] [ 1,3 ] [ 2,3 ] [ 3,3 ] [ 4,3 ]
 
             int currentColumnIndex = i % columns;
             int currentRowIndex = i / columns;

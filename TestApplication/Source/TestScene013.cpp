@@ -63,6 +63,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
 
     // Rectangles
     // -------------------------------------------------------------------------
