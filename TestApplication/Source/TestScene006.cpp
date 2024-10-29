@@ -1,12 +1,13 @@
 #include "TestScene006.h"
 
-#include "TestResource_AntonioRegular_ttf.h"
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
@@ -68,49 +69,54 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font01_pixelSize = 0.005f;
     Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        font01_TextureData,
+    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
     ));
+
+    Project001::TextureData font01_TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        font01_TextureData,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
+    ));
+    unsigned int font01_TextureId = (unsigned int)-1;
     rendererPtr_->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,
         font01_TextureData.height,
         font01_TextureData.bytesPerPixel,
-        false,
+        true,
         false
     );
 
     float font02_pixelSize = 0.005f;
     Project001::FontData font02_FontData;
-    Project001::TextureData font02_TextureData;
-    unsigned int font02_TextureId = (unsigned int)-1;
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontDataFromMemory(
-        font02_TextureData,
+    _FAIL_CHECK(Project001::FontLoader::LoadFontData(
         font02_FontData,
-        characterList,
-        g_AntonioRegular_ttf,
-        sizeof(g_AntonioRegular_ttf) / sizeof(unsigned char),
-        48
+        "../Fonts/Antonio-Regular.ttf"
     ));
+
+    Project001::TextureData font02_TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTexture(
+        font02_TextureData,
+        "../Fonts/Antonio-Regular.png"
+    ));
+    unsigned int font02_TextureId = (unsigned int)-1;
     rendererPtr_->CreateTexture(
         font02_TextureId,
         font02_TextureData.data,
         font02_TextureData.width,
         font02_TextureData.height,
         font02_TextureData.bytesPerPixel,
-        true,
-        true
+        false,
+        false
     );
 
     Project001::GlyphMeshData font01_Z_glyphMeshData;
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadGlpyhMeshData(
+    _FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
         font01_Z_glyphMeshData,
         font01_FontData,
         'Z',
@@ -118,7 +124,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     ));
 
     Project001::FontMeshData font01_fontMeshData;
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadFontMeshData(
+    _FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
         font01_fontMeshData,
         font01_FontData,
         font01_pixelSize
@@ -186,7 +192,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font02_TextureId);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
             renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
         }
     }
@@ -224,7 +230,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
         }
     }
@@ -234,7 +240,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -253,7 +259,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(0.6f, 1.0f, 0.6f);
         }
     }
@@ -263,7 +269,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -283,7 +289,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(0.6f, 0.6f, 1.0f);
         }
     }
@@ -293,7 +299,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "Sphinx of black quartz, judge my vow!",
@@ -312,7 +318,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
         }
     }
 
@@ -349,13 +355,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh1 = renderedMeshes.back();
             character_Z_Mesh1.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh1.SetTextureId(font01_TextureId);
+            character_Z_Mesh1.SetTextureId(font02_TextureId);
             character_Z_Mesh1.SetColorRGB(1.0f, 0.8f, 0.8f);
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh2 = renderedMeshes.back();
             character_Z_Mesh2.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh2.SetTextureId(font01_TextureId);
+            character_Z_Mesh2.SetTextureId(font02_TextureId);
             character_Z_Mesh2.SetColorRGB(1.0f, 0.6f, 0.6f);
             character_Z_Mesh2.SetPosition(
                 character_Z_Mesh1.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
@@ -366,7 +372,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh3 = renderedMeshes.back();
             character_Z_Mesh3.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh3.SetTextureId(font01_TextureId);
+            character_Z_Mesh3.SetTextureId(font02_TextureId);
             character_Z_Mesh3.SetColorRGB(1.0f, 0.4f, 0.4f);
             character_Z_Mesh3.SetPosition(
                 character_Z_Mesh2.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
@@ -377,7 +383,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh4 = renderedMeshes.back();
             character_Z_Mesh4.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh4.SetTextureId(font01_TextureId);
+            character_Z_Mesh4.SetTextureId(font02_TextureId);
             character_Z_Mesh4.SetColorRGB(1.0f, 0.2f, 0.2f);
             character_Z_Mesh4.SetPosition(
                 character_Z_Mesh3.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
@@ -388,7 +394,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh5 = renderedMeshes.back();
             character_Z_Mesh5.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh5.SetTextureId(font01_TextureId);
+            character_Z_Mesh5.SetTextureId(font02_TextureId);
             character_Z_Mesh5.SetColorRGB(1.0f, 0.0f, 0.0f);
             character_Z_Mesh5.SetPosition(
                 character_Z_Mesh4.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
@@ -431,7 +437,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshes.emplace_back();
                 Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
                 currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-                currentRenderedMesh.SetTextureId(font01_TextureId);
+                currentRenderedMesh.SetTextureId(font02_TextureId);
                 currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f, 1.0f - colorFade);
                 currentRenderedMesh.SetScale(glm::vec3(scale));
                 currentRenderedMesh.SetPositionX(currentOffsetX * scale);
@@ -478,7 +484,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshes.emplace_back();
                 Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
                 currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-                currentRenderedMesh.SetTextureId(font01_TextureId);
+                currentRenderedMesh.SetTextureId(font02_TextureId);
                 currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f - colorFade, 1.0f);
                 currentRenderedMesh.SetScale(scale);
                 currentRenderedMesh.SetPositionX(currentOffsetX * scale.x);

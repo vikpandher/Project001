@@ -28,27 +28,6 @@ CD Build
 %msbuild_path% FileToHeaderConverter.sln /p:Configuration=Release /p:Platform=x64
 
 ECHO.
-ECHO Building freetype
-ECHO ^
---------------------------------------------------------------------------------
-
-CD %~dp0/../Vendor/freetype
-
-cmake ^
-    -DFT_DISABLE_BROTLI=ON ^
-    -DFT_DISABLE_BZIP2=ON ^
-    -DFT_DISABLE_HARFBUZZ=ON ^
-    -DFT_DISABLE_PNG=ON ^
-    -DFT_DISABLE_ZLIB=ON ^
-    -B build ^
-    -G %cmake_generator% ^
-    -A %cmake_architecture%
-
-CD build
-
-%msbuild_path% freetype.sln /p:Configuration=Release /p:Platform=x64
-
-ECHO.
 ECHO Building glfw
 ECHO ^
 --------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ namespace Project001
             unsigned int horizontalSpacing = 1,
             unsigned int verticalSpacing = 1);
 
-        static bool LoadMeshData(
+        static bool GenerateMeshDataFromFontDataAndString(
             MeshData& meshData,
             const FontData& fontData,
             const std::string& text,
@@ -44,14 +44,14 @@ namespace Project001
             bool centeredLines = false,
             bool trangulate = s_triangulate);
 
-        static bool LoadGlpyhMeshData(
+        static bool GenerateGlpyhMeshDataFromFontDataAndCharacter(
             GlyphMeshData& glyphMeshData,
             const FontData& fontData,
             unsigned char character,
             float pixelSize = 0.01f,
             bool trangulate = s_triangulate);
 
-        static bool LoadFontMeshData(
+        static bool GenerateFontMeshDataFromFontData(
             FontMeshData& fontMeshData,
             const FontData& fontData,
             float pixelSize = 0.01f,
@@ -80,12 +80,10 @@ namespace Project001
             unsigned int yOffset,
             unsigned int textureHeight);
 
-        // Used in LoadGlpyhMeshData and LoadFontMeshData
-        static void LoadGlpyhMeshData_H(
+        // Used in GenerateGlpyhMeshDataFromFontDataAndCharacter and GenerateFontMeshDataFromFontData
+        static void GenerateGlpyhMeshDataFromGlyphMetrics_H(
             GlyphMeshData& glyphMeshData,
             const GlyphMetrics& glyphMetrics,
-            const FontData& fontData,
-            unsigned char character,
             float pixelSize = 0.01f,
             bool trangulate = s_triangulate);
     };

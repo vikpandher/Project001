@@ -8,8 +8,6 @@ cmake_minimum_required(VERSION 3.22.0)
 set(TESTAPPLICATION_PROJECT001_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/../Source" CACHE PATH "")
 set(TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Library" CACHE PATH "")
 set(TESTAPPLICATION_PROJECT001_LIBRARY_NAME "Project001" CACHE PATH "") # Name without postfix and extension
-# https://github.com/freetype/freetype.git
-set(TESTAPPLICATION_FREETYPE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/freetype/build/Release/freetype.lib" CACHE PATH "")
 # https://github.com/glfw/glfw.git
 set(TESTAPPLICATION_GLFW_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
 # https://github.com/g-truc/glm.git
@@ -59,7 +57,8 @@ set(TESTAPPLICATION_FILES
     "Source/TestComponents.h"
     "Source/TestInstructionScene001.cpp"
     "Source/TestInstructionScene001.h"
-    "Source/TestResource_AntonioRegular_ttf.h"
+    "Source/TestResource_AntonioRegular_png.h"
+    "Source/TestResource_AntonioRegular_ssf.h"
     "Source/TestResource_Bounce_wav.h"
     "Source/TestResource_Congratulations_ogg.h"
     "Source/TestResource_CounterclockwiseDie_png.h"
@@ -161,7 +160,6 @@ target_include_directories("${PROJECT_NAME}"
 
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE
-    "${TESTAPPLICATION_FREETYPE_LIBRARY}"
     "${TESTAPPLICATION_GLFW_LIBRARY}"
     $<$<CONFIG:Debug>:${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY}/${TESTAPPLICATION_PROJECT001_LIBRARY_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d.lib>
     $<$<CONFIG:Release>:${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY}/${TESTAPPLICATION_PROJECT001_LIBRARY_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}.lib>
@@ -191,7 +189,6 @@ if(${TESTAPPLICATION_SANITY_CHECK_DEBUG_OUTPUT})
     message("TESTAPPLICATION_PROJECT001_INCLUDE:" ${TESTAPPLICATION_PROJECT001_INCLUDE})
     message("TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY:" ${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY})
     message("TESTAPPLICATION_PROJECT001_LIBRARY_NAME:" ${TESTAPPLICATION_PROJECT001_LIBRARY_NAME})
-    message("TESTAPPLICATION_FREETYPE_LIBRARY:" ${TESTAPPLICATION_FREETYPE_LIBRARY})
     message("TESTAPPLICATION_GLFW_LIBRARY:" ${TESTAPPLICATION_GLFW_LIBRARY})
     message("TESTAPPLICATION_GLM_INCLUDE: ${TESTAPPLICATION_GLM_INCLUDE}")
     message("TESTAPPLICATION_VULKAN_DIRECTORY: ${TESTAPPLICATION_VULKAN_DIRECTORY}")

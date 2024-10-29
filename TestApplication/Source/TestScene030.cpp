@@ -1,10 +1,13 @@
 #include "TestScene030.h"
 
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
+
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "RenderSystem.h"
@@ -52,20 +55,18 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    font01_FontDataPtr_ = new Project001::FontData();
-    font01_TextureDataPtr_ = new Project001::TextureData();
-    font01_TextureId_ = (unsigned int)-1;
-    std::vector<unsigned char> characterList;
-    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-    {
-        characterList.push_back(c);
-    }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        *font01_TextureDataPtr_,
+    font01_FontDataPtr_ = new Project001::FontData;
+    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         *font01_FontDataPtr_,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
+    ));
+
+    font01_TextureDataPtr_ = new Project001::TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        *font01_TextureDataPtr_,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
     ));
     rendererPtr_->CreateTexture(
         font01_TextureId_,
@@ -252,7 +253,7 @@ void TestScene030::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
@@ -264,7 +265,7 @@ void TestScene030::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         std::string count_string = std::to_string(numberOfMeshesBeingRenderedForMainCamera);
         ui_renderedMeshCount_MeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_renderedMeshCount_MeshDataPtr_);
         Project001::MeshLoader::TranslateMesh(*ui_renderedMeshCount_MeshDataPtr_, 0.5f * ui_renderedMeshCount_MeshDataPtr_->GetSize());
     }

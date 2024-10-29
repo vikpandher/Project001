@@ -1,18 +1,21 @@
 #include "TestScene051.h"
 
 #include "TestSceneIds.h"
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "RenderSystem.h"
 #include "SoundLoader.h"
 #include "SoundPlayer.h"
+#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -97,18 +100,17 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        font01_TextureDataPtr_ = new Project001::TextureData;
-        std::vector<unsigned char> characterList;
-        for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-        {
-            characterList.push_back(c);
-        }
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-            *font01_TextureDataPtr_,
+        _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
-            characterList,
-            "../Fonts/Antonio-Regular.ttf",
-            48
+            g_AntonioRegular_ssf,
+            sizeof(g_AntonioRegular_ssf)
+        ));
+
+        font01_TextureDataPtr_ = new Project001::TextureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+            *font01_TextureDataPtr_,
+            g_AntonioRegular_png,
+            sizeof(g_AntonioRegular_png)
         ));
         rendererPtr_->CreateTexture(
             font01_TextureId_,
@@ -135,7 +137,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
         Project001::MeshData* newTextMeshDataPtr = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newTextMeshDataPtr,
             *font01_FontDataPtr_,
             buttonStrings[i],

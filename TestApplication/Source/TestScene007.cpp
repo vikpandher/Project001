@@ -1,12 +1,13 @@
 #include "TestScene007.h"
 
-#include "TestResource_AntonioRegular_ttf.h"
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
@@ -23,6 +24,7 @@ TestScene007::TestScene007(Project001::Application* applicationPtr)
     , mesh001_MeshDataPtr_(nullptr)
     , mesh001_MeshId_((unsigned int)-1)
     , mesh001_MaxBoundingRadius_(0.0f)
+    , object001_EntityId_((unsigned int)-1)
 {}
 
 TestScene007::~TestScene007()
@@ -102,22 +104,26 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font01_pixelSize = 0.005f;
     Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        font01_TextureData,
+    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
     ));
+
+    Project001::TextureData font01_TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        font01_TextureData,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
+    ));
+    unsigned int font01_TextureId = (unsigned int)-1;
     rendererPtr_->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,
         font01_TextureData.height,
         font01_TextureData.bytesPerPixel,
-        false,
+        true,
         false
     );
 

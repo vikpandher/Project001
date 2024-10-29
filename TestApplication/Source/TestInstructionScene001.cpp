@@ -3,7 +3,7 @@
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 
@@ -47,7 +47,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     const float instructionFontPixelSize = 0.0048f;
 
     hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
         *hiddenInstructionMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.hiddenInstructionString,
@@ -56,7 +56,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
 
     instructionMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
         *instructionMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.instructionString,

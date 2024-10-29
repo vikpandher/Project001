@@ -1,9 +1,6 @@
 [submodule "Vendor/FileToHeaderConverter"]
 	path = Vendor/FileToHeaderConverter
 	url = https://github.com/vikpandher/FileToHeaderConverter.git
-[submodule "Vendor/freetype"]
-	path = Vendor/freetype
-	url = https://github.com/freetype/freetype.git
 [submodule "Vendor/glfw"]
 	path = Vendor/glfw
 	url = https://github.com/glfw/glfw.git

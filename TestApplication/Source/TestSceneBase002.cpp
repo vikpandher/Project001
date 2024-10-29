@@ -1,6 +1,8 @@
 #include "TestSceneBase002.h"
 
 #include "TestSceneIds.h"
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
@@ -9,7 +11,7 @@
 #include "Math/Overlap2D.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "RenderSystem.h"
@@ -114,19 +116,18 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        font01_FontDataPtr_ = new Project001::FontData();
-        font01_TextureDataPtr_ = new Project001::TextureData();
-        std::vector<unsigned char> characterList;
-        for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-        {
-            characterList.push_back(c);
-        }
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-            *font01_TextureDataPtr_,
+        font01_FontDataPtr_ = new Project001::FontData;
+        _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
-            characterList,
-            "../Fonts/Antonio-Regular.ttf",
-            48
+            g_AntonioRegular_ssf,
+            sizeof(g_AntonioRegular_ssf)
+        ));
+
+        font01_TextureDataPtr_ = new Project001::TextureData;
+        _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+            *font01_TextureDataPtr_,
+            g_AntonioRegular_png,
+            sizeof(g_AntonioRegular_png)
         ));
         rendererPtr_->CreateTexture(
             font01_TextureId_,
@@ -134,7 +135,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             font01_TextureDataPtr_->width,
             font01_TextureDataPtr_->height,
             font01_TextureDataPtr_->bytesPerPixel,
-            false,
+            true,
             false
         );
     }
@@ -1495,7 +1496,7 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
 
                 Project001::MeshLoader::Generate2DLine(*cursorLineMeshDataPtr_, cursorLinePositions_, 0.01f); // No Fail Check
 
-                _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+                _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
                     *distanceTextMeshDataPtr_,
                     *font01_FontDataPtr_,
                     "distance: " + std::to_string(glm::sqrt(distanceSquared)),
@@ -1519,7 +1520,7 @@ void TestSceneBase002::UpdateMassTextMesh()
         {
             const float& mass = collisionBodyPtr->GetMass();
 
-            _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+            _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
                 *massTextMeshDataPtr_,
                 *font01_FontDataPtr_,
                 "mass: " + std::to_string(mass),
@@ -1542,7 +1543,7 @@ void TestSceneBase002::UpdateMomentOfInertiaTextMesh()
         {
             const float& momentOfInertia = collisionBodyPtr->GetMomentOfInertia();
 
-            _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+            _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
                 *momentOfInertiaTextMeshDataPtr_,
                 *font01_FontDataPtr_,
                 "momentOfInertia: " + std::to_string(momentOfInertia),
@@ -1572,7 +1573,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
             }
         }
 
-        _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(
+        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *entityIdTextMeshDataPtr_,
             *font01_FontDataPtr_,
             entityIdTextString,
@@ -1591,7 +1592,7 @@ void TestSceneBase002::UpdateFpsTextMesh(unsigned long long timestep_ns)
     }
     fps_string = "fps: " + fps_string;
     fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     // Project001::MeshLoader::RecenterMesh(*fps_MeshDataPtr_);
 }
 
@@ -1644,7 +1645,7 @@ void TestSceneBase002::UpdateEnergyTextMesh()
 
     std::string energy_string = linearKeneticEnergy_string + " + " + rotationalKeneticEnergy_string + " = " + totalKeneticEnergy_string;
 
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadMeshData(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
+    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
     // Project001::MeshLoader::RecenterMesh(*energy_MeshDataPtr_);
     // Project001::MeshLoader::TranslateMesh(*energy_MeshDataPtr_, -0.5f * energy_MeshDataPtr_->GetSize());
 }

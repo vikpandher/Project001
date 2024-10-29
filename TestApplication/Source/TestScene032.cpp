@@ -1,11 +1,14 @@
 #include "TestScene032.h"
 
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
+
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
 #include "Math/MathUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
@@ -112,7 +115,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)icosphere001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        icosphere001_MaxBoundingRadius_ = icosphere001_MaxBoundingRadius_;
+        icosphere001_MaxBoundingRadius_ = icosphere001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // arc
@@ -130,7 +133,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)arc001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        arc001_MaxBoundingRadius_ = arc001_MaxBoundingRadius_;
+        arc001_MaxBoundingRadius_ = arc001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // line star
@@ -166,7 +169,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)line001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        line001_MaxBoundingRadius_ = line001_MaxBoundingRadius_;
+        line001_MaxBoundingRadius_ = line001_MeshDataPtr_->maxBoundingRadius;
     }
 
     { // cone
@@ -182,7 +185,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             (unsigned int)cone001_MeshDataPtr_->meshIndexArray.size()
         );
 
-        cone001_MaxBoundingRadius_ = cone001_MaxBoundingRadius_;
+        cone001_MaxBoundingRadius_ = cone001_MeshDataPtr_->maxBoundingRadius;
     }
 
     // Generate entities
@@ -440,20 +443,19 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
-    std::vector<unsigned char> characterList;
-    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-    {
-        characterList.push_back(c);
-    }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        font01_TextureData,
+    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
     ));
+
+    Project001::TextureData font01_TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        font01_TextureData,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
+    ));
+    unsigned int font01_TextureId = (unsigned int)-1;
     rendererPtr_->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,

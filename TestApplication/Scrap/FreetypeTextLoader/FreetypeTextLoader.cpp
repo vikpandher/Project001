@@ -84,7 +84,7 @@ namespace Project001
         );
     }
 
-    bool FreetypeTextLoader::LoadMeshData(
+    bool FreetypeTextLoader::GenerateMeshDataFromFontDataAndString(
         MeshData& meshData,
         const FontData& fontData,
         const std::string& text,
@@ -231,7 +231,7 @@ namespace Project001
         return true;
     }
 
-    bool FreetypeTextLoader::LoadGlpyhMeshData(
+    bool FreetypeTextLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
         GlyphMeshData& glyphMeshData,
         const FontData& fontData,
         unsigned char character,
@@ -247,12 +247,12 @@ namespace Project001
         }
 
         const GlyphMetrics& currentGlyphMetrics = glyphMetricsMapIter->second;
-        LoadGlpyhMeshData_H(glyphMeshData, currentGlyphMetrics, fontData, character, pixelSize, trangulate);
+        GenerateGlpyhMeshDataFromGlyphMetrics_H(glyphMeshData, currentGlyphMetrics, pixelSize, trangulate);
 
         return true;
     }
 
-    bool FreetypeTextLoader::LoadFontMeshData(
+    bool FreetypeTextLoader::GenerateFontMeshDataFromFontData(
         FontMeshData& fontMeshData,
         const FontData& fontData,
         float pixelSize,
@@ -274,7 +274,7 @@ namespace Project001
             }
 
             GlyphMeshData& glyphMeshData = fontMeshData.glyphMeshDataMap[character];
-            LoadGlpyhMeshData_H(glyphMeshData, glyphMetrics, fontData, character, pixelSize, trangulate);
+            GenerateGlpyhMeshDataFromGlyphMetrics_H(glyphMeshData, glyphMetrics, pixelSize, trangulate);
         }
 
         return true;
@@ -539,18 +539,16 @@ namespace Project001
         return textureIndex;
     }
 
-    void FreetypeTextLoader::LoadGlpyhMeshData_H(
+    void FreetypeTextLoader::GenerateGlpyhMeshDataFromGlyphMetrics_H(
         GlyphMeshData& glyphMeshData,
         const GlyphMetrics& glyphMetrics,
-        const FontData& fontData,
-        unsigned char character,
         float pixelSize,
         bool trangulate)
     {
         glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
         if (glyphMetrics.height_px == 0)
         {
-            // _LOG_MESSAGE("FreetypeTextLoader: Warning, character not printable: %c (ASCII: %i)", character, character);
+            // _LOG_MESSAGE("FreetypeTextLoader: Warning, character of height_px == 0 is not printable);
             return;
         }
 

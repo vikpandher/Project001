@@ -1,6 +1,8 @@
 #include "TestScene002.h"
 
 #include "TestComponents.h"
+#include "TestResource_AntonioRegular_png.h"
+#include "TestResource_AntonioRegular_ssf.h"
 #include "TestResource_CounterclockwiseDie_png.h"
 #include "TestResource_Cube_obj.h"
 
@@ -8,7 +10,7 @@
 #include "Application.h"
 #include "AutoIdMap.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
+#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
@@ -1513,20 +1515,19 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    Project001::TextureData font01_TextureData;
-    unsigned int font01_TextureId = (unsigned int)-1;
-    std::vector<unsigned char> characterList;
-    for (unsigned char c = 32; c < 127; ++c) // ASCII characters
-    {
-        characterList.push_back(c);
-    }
-    _FAIL_CHECK(Project001::FreetypeTextLoader::LoadTextureDataAndFontData(
-        font01_TextureData,
+    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
-        characterList,
-        "../Fonts/Antonio-Regular.ttf",
-        48
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
     ));
+
+    Project001::TextureData font01_TextureData;
+    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        font01_TextureData,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
+    ));
+    unsigned int font01_TextureId = (unsigned int)-1;
     rendererPtr_->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,

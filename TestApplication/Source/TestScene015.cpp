@@ -6,7 +6,6 @@
 #include "Math/Overlap2D.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"

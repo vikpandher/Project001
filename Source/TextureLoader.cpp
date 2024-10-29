@@ -16,6 +16,13 @@ namespace Project001
     {
         stbi_set_flip_vertically_on_load(true);
 
+        // // free existing texture data if any (to prevent memory leak)
+        // if (textureData.data != nullptr)
+        // {
+        //     stbi_image_free(textureData.data);
+        //     textureData.data = nullptr;
+        // }
+
         int width;
         int height;
         int bytesPerPixel;

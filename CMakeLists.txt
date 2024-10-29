@@ -6,8 +6,6 @@ cmake_minimum_required(VERSION 3.22.0)
 
 # https://github.com/vikpandher/FileToHeaderConverter.git
 set(PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
-# https://github.com/freetype/freetype.git
-set(PROJECT001_FREETYPE_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/freetype/include" CACHE PATH "")
 # https://glad.dav1d.de/
 set(PROJECT001_GLAD_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glad/include" CACHE PATH "")
 set(PROJECT001_GLAD_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glad/src" CACHE PATH "")
@@ -61,9 +59,9 @@ set(GENERAL_FILES
     "Source/ComponentStores.h"
     "Source/Event.h"
     "Source/FontData.h"
+    "Source/FontLoader.cpp"
+    "Source/FontLoader.h"
     "Source/FontMeshData.h"
-    "Source/FreetypeTextLoader.cpp"
-    "Source/FreetypeTextLoader.h"
     "Source/Logger.cpp"
     "Source/Logger.h"
     "Source/MeshData.h"
@@ -257,7 +255,6 @@ endif()
 
 target_include_directories("${PROJECT_NAME}"
     PRIVATE 
-    "${PROJECT001_FREETYPE_INCLUDE}"
     "${PROJECT001_GLAD_INCLUDE}"
     "${PROJECT001_GLFW_INCLUDE}"
     "${PROJECT001_GLM_INCLUDE}"
@@ -304,7 +301,6 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
     message("PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY: ${PROJECT001_FILE_TO_HEADER_CONVERTER_BINARY}")
-    message("PROJECT001_FREETYPE_INCLUDE: ${PROJECT001_FREETYPE_INCLUDE}")
     message("PROJECT001_GLAD_INCLUDE: ${PROJECT001_GLAD_INCLUDE}")
     message("PROJECT001_GLAD_SOURCE: ${PROJECT001_GLAD_SOURCE}")
     message("PROJECT001_GLFW_INCLUDE: ${PROJECT001_GLFW_INCLUDE}")

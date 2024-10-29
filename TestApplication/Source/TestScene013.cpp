@@ -7,7 +7,6 @@
 #include "Application.h"
 #include "CollisionBodyQuadTree2D.h"
 #include "ComponentStores.h"
-#include "FreetypeTextLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
