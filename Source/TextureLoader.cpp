@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TextureLoader.h"
 
 #define STB_IMAGE_IMPLEMENTATION

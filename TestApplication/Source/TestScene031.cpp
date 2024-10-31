@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene031.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -51,19 +55,19 @@ void TestScene031::HandleEvent(Project001::Event& event)
 
 void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene031:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene031:            " << GetId());
 
     // Texture Data ------------------------------------------------------------
 
     font01_FontDataPtr_ = new Project001::FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         *font01_FontDataPtr_,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     font01_TextureDataPtr_ = new Project001::TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         *font01_TextureDataPtr_,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -83,7 +87,7 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     meshDataPtrArray_.push_back(meshDataPtr00);
     glm::vec3 min(-0.04f, -0.04f, -0.04f);
     glm::vec3 max(0.04f, 0.04f, 0.04f);
-    _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*meshDataPtr00, min, max, false));
+    FAIL_CHECK(Project001::MeshLoader::GenerateBox(*meshDataPtr00, min, max, false));
 
     unsigned int meshId00;
     rendererPtr_->CreateMesh(
@@ -135,9 +139,9 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[i];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -157,7 +161,7 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::Camera* cameraPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             uiCameraHalfHeight = cameraPtr->GetTopCutoff();
@@ -168,9 +172,9 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -186,9 +190,9 @@ void TestScene031::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -230,7 +234,7 @@ void TestScene031::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene031:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene031:            " << GetId());
 
     // Texture Data ------------------------------------------------------------
 
@@ -262,7 +266,7 @@ void TestScene031::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
     Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
     Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
@@ -274,7 +278,7 @@ void TestScene031::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         std::string count_string = std::to_string(numberOfMeshesBeingRenderedForMainCamera);
         ui_renderedMeshCount_MeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_renderedMeshCount_MeshDataPtr_, *font01_FontDataPtr_, count_string, fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_renderedMeshCount_MeshDataPtr_);
         Project001::MeshLoader::TranslateMesh(*ui_renderedMeshCount_MeshDataPtr_, 0.5f * ui_renderedMeshCount_MeshDataPtr_->GetSize());
     }

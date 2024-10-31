@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene007.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -45,13 +49,13 @@ void TestScene007::HandleEvent(Project001::Event& event)
 
 void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene007:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene007:            " << GetId());
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
     {
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             cameraPtr->SetDepthTestEnabled(false);
@@ -64,7 +68,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // mesh001
         mesh001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(mesh001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*mesh001_MeshDataPtr_, "../Models/Cube.obj"));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*mesh001_MeshDataPtr_, "../Models/Cube.obj"));
 
         rendererPtr_->CreateMesh(
             mesh001_MeshId_,
@@ -83,9 +87,9 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // icosphere at the center (GPU side mesh)
         componentStoresPtr_->CreateEntity(object001_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(object001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(object001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, object001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, object001_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(mesh001_MeshId_, mesh001_MaxBoundingRadius_);
@@ -104,14 +108,14 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font01_pixelSize = 0.005f;
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -154,7 +158,7 @@ void TestScene007::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene007:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene007:            " << GetId());
 
     // Mesh Data ---------------------------------------------------------------
 

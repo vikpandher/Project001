@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene010.h"
 
 #include "Components/Camera.h"
@@ -10,11 +14,11 @@
 #include "MeshLoader.h"
 #include "Renderer.h"
 
-#define _LOG_TEST(x) if ((x)) {_LOG_MESSAGE("%s %d --TEST-PASSED--", __FILENAME__, __LINE__);}\
-else {_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_assert(true, "")
+#define _LOG_TEST(x) if ((x)) {LOG_INFO_F("--TEST-PASSED--");}\
+else {LOG_INFO_F("--TEST-FAILED--");} do {} while(0)
 
 #define _LOG_TEST_QUIET(x) if (!(x))\
-{_LOG_MESSAGE("%s %d --TEST-FAILED--*", __FILENAME__, __LINE__);} static_assert(true, "")
+{LOG_INFO_F("--TEST-FAILED--*");} do {} while(0)
 
 
 
@@ -55,7 +59,7 @@ void TestScene010::HandleEvent(Project001::Event& event)
 
 void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene010:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene010:            " << GetId());
 
     // Creating Entities
     // -------------------------------------------------------------------------
@@ -82,7 +86,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -90,9 +94,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -100,9 +104,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -118,7 +122,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -126,9 +130,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -136,9 +140,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -154,7 +158,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.48f, -0.8f);
         shapePoints.emplace_back(0.48f, 0.8f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -162,9 +166,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -172,9 +176,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -195,7 +199,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -205,9 +209,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -215,9 +219,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         collisionBody2DPtr->SetPosition(currentPosition);
         if (collisionBody2DPtr != nullptr)
         {
@@ -238,7 +242,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, 0.32f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -249,9 +253,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -259,9 +263,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -278,7 +282,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -288,9 +292,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -298,9 +302,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -316,7 +320,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -326,9 +330,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -336,9 +340,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -359,7 +363,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -369,9 +373,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -379,9 +383,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -398,7 +402,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -406,9 +410,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -416,9 +420,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -434,7 +438,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -442,9 +446,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -452,9 +456,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -470,7 +474,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.32f, 0.32f);
         shapePoints.emplace_back(0.32f, -0.32f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -478,9 +482,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -488,9 +492,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -511,7 +515,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, 0.32f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -521,9 +525,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -531,9 +535,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -554,7 +558,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, -1.0f * glm::quarter_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -565,9 +569,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -575,9 +579,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -594,7 +598,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 24));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 24));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -604,9 +608,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -614,9 +618,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -632,7 +636,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.64f, 0.24f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.64f, 0.24f, 8));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -643,9 +647,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -653,9 +657,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -676,7 +680,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, 0.32f);
         shapePoints.emplace_back(0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -686,9 +690,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -696,9 +700,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -715,7 +719,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -723,9 +727,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -733,9 +737,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -751,7 +755,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -759,9 +763,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -769,9 +773,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -787,7 +791,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.16f, -0.16f);
         shapePoints.emplace_back(0.16f, 0.16f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -795,9 +799,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -805,9 +809,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -828,7 +832,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -838,9 +842,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -848,9 +852,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -871,7 +875,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -882,9 +886,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -892,9 +896,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -911,7 +915,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -921,9 +925,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -931,9 +935,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -949,7 +953,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.48f, 0.16f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.48f, 0.16f, 8));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -959,9 +963,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -969,9 +973,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -992,7 +996,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.32f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1002,9 +1006,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -1012,9 +1016,9 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetLit(false);
         }
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
@@ -1061,7 +1065,7 @@ void TestScene010::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene010:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene010:            " << GetId());
 }
 
 // private ---------------------------------------------------------------------

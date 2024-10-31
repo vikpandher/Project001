@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene003.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -40,260 +44,260 @@ void TestScene003::HandleEvent(Project001::Event& event)
 
 void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene003:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene003:            " << GetId());
 
     // Mesh Data ---------------------------------------------------------------
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4, false));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8, false));
     }
 
     // test TurnInsideOut
@@ -321,13 +325,13 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
         rendererPtr_->CreateTexture(earthTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/120_60_rgb.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/120_60_rgb.png"));
         rendererPtr_->CreateTexture(rgb120x60TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -353,9 +357,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -370,9 +374,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -388,9 +392,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -406,9 +410,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -424,9 +428,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -442,9 +446,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -460,9 +464,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -478,9 +482,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -495,9 +499,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -513,9 +517,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -531,9 +535,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -549,9 +553,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -567,9 +571,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -585,9 +589,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -603,9 +607,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -620,9 +624,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -637,9 +641,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -654,9 +658,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -671,9 +675,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -688,9 +692,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -705,9 +709,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -722,9 +726,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -739,9 +743,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -756,9 +760,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -773,9 +777,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -790,9 +794,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -807,9 +811,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -824,9 +828,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -841,9 +845,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -858,9 +862,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -875,9 +879,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -892,9 +896,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -909,9 +913,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -926,9 +930,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -943,9 +947,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -960,9 +964,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -977,9 +981,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -994,9 +998,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -1011,9 +1015,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -1028,9 +1032,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -1045,9 +1049,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -1062,9 +1066,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionPosition++]);
@@ -1075,14 +1079,14 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -1123,5 +1127,5 @@ void TestScene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene003:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene003:            " << GetId());
 }

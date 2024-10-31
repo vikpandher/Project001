@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "CollisionSystem2D.h"
 
 #include "ComponentStores.h"

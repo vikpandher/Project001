@@ -1,3 +1,7 @@
+# ==============================================================================
+# @AUTHOR Vik Pandher
+# @DATE 2024-10-30
+
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
     message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
 endif()

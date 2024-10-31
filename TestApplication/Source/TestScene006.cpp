@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene006.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -46,13 +50,13 @@ void TestScene006::HandleEvent(Project001::Event& event)
 
 void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene006:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene006:            " << GetId());
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
     {
         Project001::Camera* cameraPtr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             cameraPtr->SetDepthTestEnabled(false);
@@ -69,14 +73,14 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font01_pixelSize = 0.005f;
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -94,13 +98,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font02_pixelSize = 0.005f;
     Project001::FontData font02_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontData(
+    FAIL_CHECK(Project001::FontLoader::LoadFontData(
         font02_FontData,
-        "../Fonts/Antonio-Regular.ttf"
+        "../Fonts/Antonio-Regular.ssf"
     ));
 
     Project001::TextureData font02_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTexture(
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(
         font02_TextureData,
         "../Fonts/Antonio-Regular.png"
     ));
@@ -116,7 +120,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     );
 
     Project001::GlyphMeshData font01_Z_glyphMeshData;
-    _FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
+    FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
         font01_Z_glyphMeshData,
         font01_FontData,
         'Z',
@@ -124,7 +128,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     ));
 
     Project001::FontMeshData font01_fontMeshData;
-    _FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
+    FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
         font01_fontMeshData,
         font01_FontData,
         font01_pixelSize
@@ -138,7 +142,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> positions;
         float width = font01_pixelSize * font01_TextureData.width;
         float height = font01_pixelSize * font01_TextureData.height;
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -152,9 +156,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(0.0f, 2.5f, 0.0f);
@@ -171,7 +175,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> positions;
         float width = font02_pixelSize * font02_TextureData.width;
         float height = font02_pixelSize * font02_TextureData.height;
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -185,9 +189,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
@@ -209,7 +213,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         const float& textureLeft = currentGlyph.textureBottomLeft.x;
         const float& textureTop = currentGlyph.textureTopRight.y;
         const float& textureRight = currentGlyph.textureTopRight.x;
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -223,9 +227,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
@@ -240,7 +244,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -252,9 +256,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
@@ -269,7 +273,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -282,9 +286,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
@@ -299,7 +303,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "Sphinx of black quartz, judge my vow!",
@@ -311,9 +315,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
@@ -343,9 +347,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
         zzzEntityId_ = tempEntityId;
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
             renderedModelPtr->SetPosition(-3.2f, -1.6f, 0.0f);
@@ -412,9 +416,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
         printableEntityId_ = tempEntityId;
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -457,9 +461,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         entityIds_.push_back(tempEntityId);
         sphinxEntityId_ = tempEntityId;
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -523,7 +527,7 @@ void TestScene006::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene006:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene006:            " << GetId());
 
     zzzEntityId_ = (unsigned int)-1;
     printableEntityId_ = (unsigned int)-1;
@@ -538,7 +542,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, zzzEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, zzzEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -554,7 +558,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, printableEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, printableEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -570,7 +574,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     {
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, sphinxEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, sphinxEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();

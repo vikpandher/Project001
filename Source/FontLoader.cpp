@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "FontLoader.h"
 
 #include "Math/MathUtilities.h"
@@ -19,7 +23,7 @@ namespace Project001
 
         if (!fileStream.is_open())
         {
-            _LOG_MESSAGE("FontLoader: failed to open file");
+            LOG_ERROR_F("Failed to open file");
             return false;
         }
 
@@ -27,7 +31,7 @@ namespace Project001
         fileStream.read(signature, 8); // ----------------------------------------------- 8 bytes
         if (std::string(signature) != "FSSDATA")
         {
-            _LOG_MESSAGE("FontLoader: invalid file signature");
+            LOG_ERROR_F("Invalid file signature");
             return false;
         }
 
@@ -35,7 +39,7 @@ namespace Project001
         fileStream.read(reinterpret_cast<char*>(&version), 4); // ----------------------- 4 bytes
         if (version != 1)
         {
-            _LOG_MESSAGE("FontLoader: unsupported version");
+            LOG_ERROR_F("Unsupported version");
             return false;
         }
 
@@ -73,7 +77,7 @@ namespace Project001
 
         if (fileStream.bad())
         {
-            _LOG_MESSAGE("FontLoader: file stream error");
+            LOG_ERROR_F("File stream error");
             return false;
         }
 
@@ -89,7 +93,7 @@ namespace Project001
         {
             if (dataSize < bytes)
             {
-                _LOG_MESSAGE("FontLoader: not enough data in buffer");
+                LOG_ERROR_F("Not enough data in buffer");
                 return false;
             }
             std::memcpy(dest, dataPtr, bytes);
@@ -101,27 +105,27 @@ namespace Project001
         char signature[8] = { 0 };
         if (!ReadData(signature, 8) || std::string(signature) != "FSSDATA") // 8 bytes
         {
-            _LOG_MESSAGE("FontLoader: invalid file signature");
+            LOG_ERROR_F("Invalid file signature");
             return false;
         }
 
         unsigned int version = 0;
         if (!ReadData(&version, 4) || version != 1) // ----------------------- 4 bytes
         {
-            _LOG_MESSAGE("FontLoader: unsupported version");
+            LOG_ERROR_F("Unsupported version");
             return false;
         }
 
         if (!ReadData(&fontData.lineSpacing_px, 4)) // ----------------------- 4 bytes
         {
-            _LOG_MESSAGE("FontLoader: could not read line spacing");
+            LOG_ERROR_F("Could not read line spacing");
             return false;
         }
 
         unsigned int glyphCount = 0;
         if (!ReadData(&glyphCount, 4)) // ------------------------------------ 4 bytes
         {
-            _LOG_MESSAGE("FontLoader: could not read glyph count");
+            LOG_ERROR_F("Could not read glyph count");
             return false;
         }
 
@@ -132,7 +136,7 @@ namespace Project001
             unsigned char glyph = 0;
             if (!ReadData(&glyph, 1)) // ------------------------------------- 1 byte
             {
-                _LOG_MESSAGE("FontLoader: could not read glyph");
+                LOG_ERROR_F("Could not read glyph");
                 return false;
             }
 
@@ -151,7 +155,7 @@ namespace Project001
                 !ReadData(&metrics.textureBottomLeft.y, 4) || // ------------- 4 bytes
                 !ReadData(&metrics.textureTopRight.y, 4)) // ----------------- 4 bytes
             {
-                _LOG_MESSAGE("FontLoader: could not read glyph metrics");
+                LOG_ERROR_F("Could not read glyph metrics");
                 return false;
             }
 
@@ -280,7 +284,8 @@ namespace Project001
                 }
                 else
                 {
-                    // _LOG_MESSAGE("FontLoader: Warning, failed to generate mesh for character: %c (ASCII: %i)", c, c);
+                    LOG_WARNING_F("Failed to generate mesh for character: " << c << " (ASCII: " << (unsigned int)c << ")");
+
                     // return false;
                 }
             }
@@ -319,7 +324,7 @@ namespace Project001
             fontData.glyphMetricsMap.find(character);
         if (glyphMetricsMapIter == fontData.glyphMetricsMap.end())
         {
-            _LOG_MESSAGE("FontLoader: Warning, character glyph not found for: %c", character);
+            LOG_ERROR_F("Character glyph not found for: " << character);
             return false;
         }
 
@@ -345,7 +350,7 @@ namespace Project001
                 fontMeshData.glyphMeshDataMap.find(character);
             if (glyphMeshDataMapIter != fontMeshData.glyphMeshDataMap.end())
             {
-                _LOG_MESSAGE("FontLoader: Warning, reloading character mesh data for: %c", character);
+                LOG_WARNING_F("Reloading character mesh data for: " << character);
                 fontMeshData.glyphMeshDataMap[character].horiAdvance = 0.0f;
                 fontMeshData.glyphMeshDataMap[character].meshData.Clear();
             }
@@ -370,7 +375,8 @@ namespace Project001
         glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
         if (glyphMetrics.height_px == 0)
         {
-            // _LOG_MESSAGE("FontLoader: Warning, character of height_px == 0 is not printable);
+            // LOG_WARNING_F("Character of height_px == 0");
+
             return;
         }
 

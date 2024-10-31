@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "Application.h"
 
 #include "ComponentStores.h"
@@ -7,7 +11,6 @@
 #include "Scene.h"
 #include "SoundPlayer.h"
 #include "Window.h"
-
 
 #include <functional>
 #include <thread>
@@ -30,6 +33,8 @@ namespace Project001
         , resourceStoresPtr_(nullptr)
         , activeScenePtr_(nullptr)
     {
+        Logger::EnableConsole();
+
         windowPtr_ = Window::Create(applicationInfo.windowTitle, applicationInfo.windowWidth, applicationInfo.windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
         windowPtr_->SetAspectRatio(applicationInfo.windowWidth, applicationInfo.windowHeight);
@@ -76,15 +81,13 @@ namespace Project001
             // So Scenes don't attempt to use a nonexisting Application
             iter->second->applicationPtr_ = nullptr;
         }
-
-        _DESTROY_LOGGER();
     }
 
     void Application::Run()
     {
         if (activeScenePtr_ == nullptr)
         {
-            _LOG_ERROR("No Active Scene");
+            LOG_ERROR_F("No Active Scene");
             return;
         }
 
@@ -217,7 +220,7 @@ namespace Project001
         }
         else
         {
-            _LOG_MESSAGE("Application: Failed to set active scene: %u", sceneId);
+            LOG_ERROR_F("Failed to set active scene: " << sceneId);
         }
         switchSceneEvent.handled = true;
     }

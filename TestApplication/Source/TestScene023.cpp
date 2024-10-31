@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene023.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -44,7 +48,7 @@ void TestScene023::HandleEvent(Project001::Event& event)
 
 void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene023:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene023:            " << GetId());
 
     // Creating Entities
     // -------------------------------------------------------------------------
@@ -54,7 +58,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
         Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() +  glm::quarter_pi<float>());
         Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
@@ -63,9 +67,9 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
@@ -102,15 +106,15 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
+            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
 
             unsigned int tempEntityId;
             componentStoresPtr_->CreateEntity(tempEntityId);
             entityIds_.push_back(tempEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
@@ -123,15 +127,15 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
+            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
 
             unsigned int tempEntityId;
             componentStoresPtr_->CreateEntity(tempEntityId);
             entityIds_.push_back(tempEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
@@ -164,15 +168,15 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
@@ -186,15 +190,15 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
@@ -213,7 +217,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-0.2f, -0.1f, 0.0f);
         positions.emplace_back(-0.3f, 0.0f, 0.0f);
         positions.emplace_back(-0.1f, 0.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
         // Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         // Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() + glm::quarter_pi<float>());
         // Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
@@ -222,9 +226,9 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
@@ -242,15 +246,15 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.2f, 0.1f, 0.0f);
         positions.emplace_back(-0.3f, 0.0f, 0.0f);
         positions.emplace_back(0.1f, 0.0f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
@@ -269,16 +273,16 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(1.0f, 0.0f, 0.0f);
         positions.emplace_back(0.0f, 1.0f, 0.0f);
         positions.emplace_back(0.0f, 0.0f, 1.0f);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
         Project001::MeshLoader::TranslateMesh(*newMeshDataPtr,glm::vec3(1.0f, 1.0f, 1.0f) / 3.0f);
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
@@ -290,14 +294,14 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -338,7 +342,7 @@ void TestScene023::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene023:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene023:            " << GetId());
 }
 
 // private ---------------------------------------------------------------------
@@ -350,61 +354,61 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Point_Point_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Point_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Point_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Line_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Line_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Line_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Ray_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Ray_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Ray_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_LineSegment_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_LineSegment_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_LineSegment_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Plane_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Plane_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Plane_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Triangle_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Triangle_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Sphere_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Point_Capsule_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Point_Capsule_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Point_Capsule_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -412,49 +416,49 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Line_Line_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_Line_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_Line_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_Ray_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_Ray_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_Ray_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_LineSegment_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_LineSegment_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_LineSegment_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_Plane_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_Plane_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_Plane_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_Triangle_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_Triangle_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Line_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Line_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Line_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -462,43 +466,43 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Ray_Ray_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_Ray_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_Ray_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_LineSegment_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_LineSegment_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_LineSegment_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_Plane_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_Plane_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_Plane_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_Triangle_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_Triangle_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Ray_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Ray_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Ray_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -506,37 +510,37 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_LineSegment_LineSegment_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_LineSegment_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_LineSegment_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_Plane_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_Plane_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_Plane_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_Triangle_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_Triangle_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_LineSegment_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_LineSegment_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_LineSegment_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -544,31 +548,31 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Plane_Plane_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Plane_Plane_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Plane_Plane_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Plane_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Plane_Triangle_Ovelap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Plane_Triangle_Ovelap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Plane_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Plane_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Plane_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Plane_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Plane_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Plane_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Plane_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Plane_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Plane_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -576,25 +580,25 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Triangle_Triangle_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Triangle_Triangle_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Triangle_Triangle_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Triangle_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Triangle_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Triangle_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Triangle_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Triangle_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Triangle_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_Triangle_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Triangle_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Triangle_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -602,19 +606,19 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_AABB_AABB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_AABB_AABB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_AABB_AABB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_AABB_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_AABB_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_AABB_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_AABB_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_AABB_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_AABB_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -622,13 +626,13 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_OBB_OBB_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_OBB_OBB_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_OBB_OBB_Overlap FAILED " << result);
     }
 
     result = Project001::UnitTest_Check3D_OBB_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_OBB_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_OBB_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -636,7 +640,7 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Check3D_Sphere_Sphere_Overlap();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Check3D_Sphere_Sphere_Overlap FAILED (%d)", result);
+        LOG_INFO("UnitTest_Check3D_Sphere_Sphere_Overlap FAILED " << result);
     }
 
     // -------------------------------------------------------------------------
@@ -644,48 +648,48 @@ void TestScene023::Run_UnitTests() const
     result = Project001::UnitTest_Get3D_Point_Line_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_Line_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_Line_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_Ray_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_Ray_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_Ray_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_LineSegment_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_LineSegment_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_LineSegment_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_Plane_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_Plane_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_Plane_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_Triangle_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_Triangle_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_Triangle_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_AABB_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_AABB_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_AABB_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_OBB_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_OBB_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_OBB_ClosestPoint FAILED " << result);
     }
 
     result = Project001::UnitTest_Get3D_Point_Sphere_ClosestPoint();
     if (result != 0)
     {
-        _LOG_MESSAGE("UnitTest_Get3D_Point_Sphere_ClosestPoint FAILED (%d)", result);
+        LOG_INFO("UnitTest_Get3D_Point_Sphere_ClosestPoint FAILED " << result);
     }
 }

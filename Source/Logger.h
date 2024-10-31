@@ -1,58 +1,211 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #pragma once
-
-#include <mutex>
-
-
-// static_assert(true, "") is at the end of macros so they require a semi-colon
-// maybe add exit(1); to _FAIL_CHECK(x)
-
-#ifdef _MSC_VER 
-#define __FILENAME__ strrchr("\\" __FILE__, '\\') + 1
-#elif
-#define __FILENAME__ strrchr("/" __FILE__, '/') + 1
-#endif
-
-#ifndef NDEBUG
-#define _LOG_ERROR(...) Project001::Logger::Error("%s %s %d", __FILENAME__ , __FUNCTION__, __LINE__); Project001::Logger::Error(__VA_ARGS__)
-#define _LOG_MESSAGE(...) Project001::Logger::Message(__VA_ARGS__)
-#define _FAIL_CHECK(x) if (!(x)) {_LOG_ERROR(#x);} static_assert(true, "")
-#define _DESTROY_LOGGER() Project001::Logger::DestroyLogger()
-#else
-#define _LOG_ERROR(...)
-#define _LOG_MESSAGE(...)
-#define _FAIL_CHECK(x) x
-#define _DESTROY_LOGGER()
-#endif
-
-
 
 namespace Project001
 {
+    typedef enum LogLevelType
+    {
+        LOG_LEVEL_NONE,
+        LOG_LEVEL_ERROR,
+        LOG_LEVEL_WARNING,
+        LOG_LEVEL_INFO
+    } LogLevelType;
+}
+
+#ifndef NDEBUG
+
+#include <iostream>
+
+
+
+#define FILE_LINE_FUNC __FILE__ << " (" << __LINE__ << ") " << __func__
+#define INDENT "         "
+
+#define LOG_ERROR(x)   Project001::Logger(Project001::LOG_LEVEL_ERROR)   << "ERROR:   " x << Project001::Logger::endl
+#define LOG_WARNING(x) Project001::Logger(Project001::LOG_LEVEL_WARNING) << "WARNING: " x << Project001::Logger::endl
+#define LOG_INFO(x)    Project001::Logger(Project001::LOG_LEVEL_INFO)    << "INFO:    " x << Project001::Logger::endl
+
+#define LOG_ERROR_F(x)   LOG_ERROR(FILE_LINE_FUNC << ":\n" << INDENT << x)
+#define LOG_WARNING_F(x) LOG_WARNING(FILE_LINE_FUNC << ":\n" << INDENT << x)
+#define LOG_INFO_F(x)    LOG_INFO(FILE_LINE_FUNC << ":\n" << INDENT << x)
+
+#define FAIL_CHECK(x) if (!(x)) {LOG_ERROR_F(#x);} do {} while(0)
+
+#else
+
+#include <string>
+
+
+
+#define FILE_LINE_FUNC ""
+#define INDENT ""
+
+#define LOG_ERROR(x)   do {} while(0)
+#define LOG_WARNING(x) do {} while(0)
+#define LOG_INFO(x)    do {} while(0)
+
+#define LOG_ERROR_F(x)   do {} while(0)
+#define LOG_WARNING_F(x) do {} while(0)
+#define LOG_INFO_F(x)    do {} while(0)
+
+#define FAIL_CHECK(x) x
+
+#endif
+
+namespace Project001
+{
+    // This class is a simple logger utility that wraps an output stream. It must
+    // be enabled via a call to EnableConsole(). If compiled with the NDEBUG
+    // preprocessor macro, then its interfaces are compiled as no-ops.
+    //
+    // The basic intended usage via macro (prefered):
+    //
+    // LOG_DEBUG("foo" << bar);
+    //
+    // or, directly instantiating:
+    //
+    // Logger(LOG_LEVEL_INFO) << "foo" << bar << Logger::endl;
+    //
+    // An intance of the logger can be kept around and used repeatedly:
+    //
+    // Logger myLog(LOG_LEVEL_INFO);
+    //
+    // myLog << "foo" << bar << Logger::endl;
+    // myLog << baz;
+    // myLog << Logger::endl;
+    //
     class Logger
     {
     public:
-        static void DestroyLogger();
+        // This empty struct is a distinct type denoting the end of a line.
+        struct LineEndMarkerType {};
 
-        static void Error(const char* format, ...);
+        // Static end of line marker
+        static const LineEndMarkerType endl;
 
-        static void Message(const char* format, ...);
+        // Static default log level
+        static const LogLevelType DEFAULT_LOG_LEVEL;
 
-        ~Logger();
+#ifndef NDEBUG
+        // Constructor
+        Logger(LogLevelType level)
+            : outStream_(s_outStream)
+            , level_(level)
+        {}
 
-        Logger(const Logger&) = delete;
-        void operator=(const Logger&) = delete;
+        static void SetLogLevel(LogLevelType level)
+        {
+            s_enabledDownThroughLevel = level;
+        }
 
-    protected:
+        // Enable streaming to the given stream
+        static void SetOutStream(std::ostream* outStream)
+        {
+            s_outStream = outStream;
+        }
+
+        // Enable streaming to std::cout
+        static void EnableConsole()
+        {
+            s_outStream = &std::cout;
+        }
+
+        // Ends a line and flushes the stream, if the stream has been enabled
+        void Flush()
+        {
+            if (outStream_ && level_ <= s_enabledDownThroughLevel)
+            {
+                *outStream_ << std::endl;
+            }
+        }
+
+        // Stream the given parameter to the output stream if enabled
+        template <typename T>
+        Logger& operator<<(const T& parameter)
+        {
+            if (outStream_ && level_ <= s_enabledDownThroughLevel)
+            {
+                *outStream_ << parameter;
+            }
+
+            return *this;
+        }
+
+        // Streams the end of line marker to the stream, flushing iter_swap
+        Logger& operator<<(const LineEndMarkerType)
+        {
+            Flush();
+
+            return *this;
+        }
+
+#else
+
+        Logger(LogLevelType) {}
+
+        static void SetLogLevel(LogLevelType) {}
+
+        static void SetOutStream(void*) {}
+
+        static void EnableConsole() {}
+
+        void Flush() {}
+
+        template <typename T>
+        Logger& operator<<(const T&)
+        {
+            return *this;
+        }
+
+#endif
+
+        static LogLevelType SeverityStringToEnumType(std::string logLevel)
+        {
+            for (char& character : logLevel)
+            {
+                if (character >= 'a' && character <= 'z')
+                {
+                    character -= 32;
+                }
+            }
+
+            LogLevelType result = LOG_LEVEL_NONE;
+
+            if (logLevel.compare("ERROR") == 0)
+            {
+                result = LOG_LEVEL_ERROR;
+            }
+            else if (logLevel.compare("WARNING") == 0)
+            {
+                result = LOG_LEVEL_WARNING;
+            }
+            else if (logLevel.compare("INFO") == 0)
+            {
+                result = LOG_LEVEL_INFO;
+            }
+
+            return result;
+        }
 
     private:
-        static Logger* GetInstance();
 
-        Logger();
+#ifndef NDEBUG
+        // The statically configured output stream which new logger instances copy
+        // on construction
+        static std::ostream* s_outStream;
 
-        static Logger* s_instance_;
-        static std::mutex s_lock_;
+        // The level through which log messagesare currently enabled.
+        static LogLevelType s_enabledDownThroughLevel;
 
-        static const unsigned int s_charBufferCapacity_ = 1024;
-        char* charBuffer_;
+        // Non-owning pointer to an output stream for the logger instance
+        std::ostream* outStream_;
+
+        // The severity level at which this instance logs
+        LogLevelType level_;
+
+#endif
     };
 }

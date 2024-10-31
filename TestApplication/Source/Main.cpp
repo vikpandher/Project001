@@ -1,5 +1,6 @@
-///
-////////////////////////////////////////////////////////////////////////////////
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -73,6 +74,8 @@ int main(int argc, char** argv)
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
     // Enable memory leak detection
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+    // _CrtSetBreakAlloc(643);
 #endif
 #endif
 

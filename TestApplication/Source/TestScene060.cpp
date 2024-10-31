@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene060.h"
 
 #include "TestSceneIds.h"
@@ -70,7 +74,7 @@ void TestScene060::HandleEvent(Project001::Event& event)
 
 void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene060:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene060:            " << GetId());
 
     windowPtr_ = GetApplicationWindowPtr();
     rendererPtr_ = GetApplicationRendererPtr();
@@ -80,14 +84,14 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -112,7 +116,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(4.0f, 2.6f);
         positions.emplace_back(-4.0f, 2.6f);
         positions.emplace_back(-4.0f, -2.6f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*backgroundRectangleMeshDataPtr_, positions));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*backgroundRectangleMeshDataPtr_, positions));
         rendererPtr_->CreateMesh(
             backgroundEntityId_,
             backgroundRectangleMeshDataPtr_->meshVertexArray.data(),
@@ -124,7 +128,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickAxisTextMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -134,7 +138,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickButton_01_TextMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -144,7 +148,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickButton_02_TextMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -158,7 +162,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.2f, 0.0f);
         positions.emplace_back(0.0f, 0.6f);
         positions.emplace_back(-0.2f, 0.0f);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*triangleMeshDataPtr_, positions));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*triangleMeshDataPtr_, positions));
         rendererPtr_->CreateMesh(
             triangleMeshId_,
             triangleMeshDataPtr_->meshVertexArray.data(),
@@ -170,7 +174,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         circleMeshDataPtr_ = new Project001::MeshData();
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 8));
         rendererPtr_->CreateMesh(
             circleMeshId_,
             circleMeshDataPtr_->meshVertexArray.data(),
@@ -189,9 +193,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(mainCameraEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
@@ -221,9 +225,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(uiCameraEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
@@ -256,9 +260,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(backgroundEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(backgroundEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(backgroundEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
@@ -273,9 +277,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(joystickAxisTextEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickAxisTextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickAxisTextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickAxisTextMeshDataPtr_);
@@ -292,9 +296,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(joystickButton_01_TextEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_01_TextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_01_TextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickButton_01_TextMeshDataPtr_);
@@ -311,9 +315,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(joystickButton_02_TextEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_02_TextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_02_TextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickButton_02_TextMeshDataPtr_);
@@ -330,9 +334,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(leftStickEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(leftStickEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(leftStickEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -361,9 +365,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         componentStoresPtr_->CreateEntity(rightStickEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(rightStickEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(rightStickEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -410,7 +414,7 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene060:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene060:            " << GetId());
 
     // -------------------------------------------------------------------------
 
@@ -513,7 +517,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickAxisTextMeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickAxisText.c_str(),
@@ -585,7 +589,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickButton_01_TextMeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText01.c_str(),
@@ -599,7 +603,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickButton_02_TextMeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText02.c_str(),
@@ -611,7 +615,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         const char* noJoyStickTestPtr = "NO JOYSTICK DETECTED";
 
         joystickAxisTextMeshDataPtr_->Clear();
-        _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             noJoyStickTestPtr,

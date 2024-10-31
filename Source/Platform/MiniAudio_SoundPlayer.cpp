@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "MiniAudio_SoundPlayer.h"
 
 #include "Logger.h"
@@ -22,7 +26,7 @@ namespace Project001
         ma_result result = ma_engine_init(NULL, enginePtr_);
         if (result != MA_SUCCESS)
         {
-            _LOG_ERROR("Failed to initialize audio engine.");
+            LOG_ERROR_F("Failed to initialize audio engine");
 
             delete enginePtr_;
             enginePtr_ = NULL;
@@ -75,7 +79,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Unrecognized format; failed to create sound buffer.");
+            LOG_ERROR_F("Unrecognized format; failed to create sound buffer");
             return false;
         }
 
@@ -91,7 +95,7 @@ namespace Project001
         ma_result result = ma_audio_buffer_init(&bufferConfig, audioBufferPtr);
         if (result != MA_SUCCESS)
         {
-            _LOG_ERROR("Failed to create sound buffer (ma_audio_buffer).");
+            LOG_ERROR_F("Failed to create sound buffer (ma_audio_buffer)");
             return false;
         }
 
@@ -126,7 +130,7 @@ namespace Project001
             return true;
         }
 
-        _LOG_ERROR("Failed to delete sound buffer. Sound buffer not found.");
+        LOG_ERROR_F("Failed to delete sound buffer; sound buffer not found");
         return false;
     }
 
@@ -150,7 +154,7 @@ namespace Project001
         AutoIdMap<void*>::iterator iter = soundBufferPtrMap_.Find(soundBufferId);
         if (iter == soundBufferPtrMap_.IteratorPastTheEnd())
         {
-            _LOG_ERROR("Failed to find sound buffer.");
+            LOG_ERROR_F("Failed to find sound buffer");
             return false;
         }
         audioBufferPtr = (ma_audio_buffer*)iter->second;
@@ -170,14 +174,14 @@ namespace Project001
         ma_result result = ma_audio_buffer_init(&bufferConfig, (ma_audio_buffer*)newSoundSource.audioBufferPtr);
         if (result != MA_SUCCESS)
         {
-            _LOG_ERROR("Failed to create sound buffer (ma_audio_buffer).");
+            LOG_ERROR_F("Failed to create sound buffer (ma_audio_buffer)");
             return false;
         }
 
         result = ma_sound_init_from_data_source(enginePtr_, &((ma_audio_buffer*)newSoundSource.audioBufferPtr)->ref.ds, 0, NULL, newSoundSource.soundPtr);
         if (result != MA_SUCCESS)
         {
-            _LOG_ERROR("Failed to create sound source (ma_sound).");
+            LOG_ERROR_F("Failed to create sound source (ma_sound)");
             return false;
         }
 
@@ -200,7 +204,7 @@ namespace Project001
             return true;
         }
 
-        _LOG_ERROR("Failed to delete sound source. Sound source not found.");
+        LOG_ERROR_F("Failed to delete sound source; sound source not found");
         return false;
     }
 

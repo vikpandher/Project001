@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestInstructionScene001.h"
 
 #include "Components/Camera.h"
@@ -36,7 +40,7 @@ void TestInstructionScene001::HandleEvent(Project001::Event& event)
 
 void TestInstructionScene001::Initialize(const InitializationInfo& initializationInfo)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestInstructionScene001: %u", GetId());
+    LOG_INFO("INITIALIZING:   TestInstructionScene001: " << GetId());
 
     componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
@@ -47,7 +51,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     const float instructionFontPixelSize = 0.0048f;
 
     hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
         *hiddenInstructionMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.hiddenInstructionString,
@@ -56,7 +60,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
 
     instructionMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
         *instructionMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.instructionString,
@@ -69,7 +73,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionMeshDataPtr_->GetSize();
 
     hiddenInstructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+    FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
         *hiddenInstructionBackgroundMeshDataPtr_,
         hiddenInstructionMeshDataSize.x + bezelSize,
         hiddenInstructionMeshDataSize.y + bezelSize,
@@ -80,7 +84,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     glm::vec3 instructionMeshDataSize = instructionMeshDataPtr_->GetSize();
 
     instructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-    _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+    FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
         *instructionBackgroundMeshDataPtr_,
         instructionMeshDataSize.x + bezelSize,
         instructionMeshDataSize.y + bezelSize,
@@ -94,7 +98,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     float uiCameraHalfHeight = 0;
     {
         Project001::Camera* cameraPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
         if(cameraPtr != nullptr)
         {
             uiCameraHalfWidth = cameraPtr->GetRightCutoff();
@@ -105,9 +109,9 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     {
         componentStoresPtr_->CreateEntity(instructionsEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -169,7 +173,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 
 void TestInstructionScene001::Deinitialize()
 {
-    _LOG_MESSAGE("DEINITIALIZING: TestInstructionScene001: %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestInstructionScene001: " << GetId());
 
     componentStoresPtr_ = nullptr;
 
@@ -211,7 +215,7 @@ void TestInstructionScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         if (keyCode == keyCode_toggleInstructions_)
         {
             Project001::RenderedModel* renderedModelPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
             if (renderedModelPtr != nullptr)
             {
                 std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();

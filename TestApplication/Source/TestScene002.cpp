@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene002.h"
 
 #include "TestComponents.h"
@@ -57,7 +61,7 @@ void TestScene002::HandleEvent(Project001::Event& event)
 
 void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene002:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene002:            " << GetId());
 
     // Texture Data ------------------------------------------------------------
 
@@ -72,49 +76,49 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/CounterclockwiseDie.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/CounterclockwiseDie.png"));
         rendererPtr_->CreateTexture(dice01TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(textureData, g_CounterclockwiseDie_png, sizeof(g_CounterclockwiseDie_png) / sizeof(unsigned char)));
+        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(textureData, g_CounterclockwiseDie_png, sizeof(g_CounterclockwiseDie_png) / sizeof(unsigned char)));
         rendererPtr_->CreateTexture(dice02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, true, true);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/HallowDie.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/HallowDie.png"));
         rendererPtr_->CreateTexture(dice03TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
         rendererPtr_->CreateTexture(thonkTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/100x100_2.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/100x100_2.png"));
         rendererPtr_->CreateTexture(_100x100TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
         rendererPtr_->CreateTexture(patternSpecular01TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular2.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular2.png"));
         rendererPtr_->CreateTexture(patternSpecular02TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
         rendererPtr_->CreateTexture(thonkSpecularTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -139,15 +143,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -162,15 +166,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -184,15 +188,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -206,15 +210,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*newMeshDataPtr, "../Models/Cube.obj"));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -230,15 +234,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -252,15 +256,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -274,15 +278,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -298,15 +302,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJFromMemory(*newMeshDataPtr, g_Cube_obj));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -341,7 +345,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, positions));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -349,9 +353,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -387,7 +391,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleStrip(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleStrip(*newMeshDataPtr, positions));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -395,9 +399,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -429,7 +433,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DTriangles(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangles(*newMeshDataPtr, positions));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -437,9 +441,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -480,7 +484,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -488,9 +492,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -527,7 +531,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.04f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.04f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -535,9 +539,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -561,7 +565,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.12f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.12f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -569,9 +573,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -605,7 +609,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.04f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.04f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -613,9 +617,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -630,7 +634,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, -0.32f), glm::vec2(0.32f, 0.32f), 0.12f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, -0.32f), glm::vec2(0.32f, 0.32f), 0.12f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -638,9 +642,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -655,9 +659,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(0.0f, 0.32f), glm::vec2(0.32f, 0.0f), 0.12f));
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, 0.32f), glm::vec2(0.32f, -0.32f), 0.12f));
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, 0.0f), glm::vec2(0.0f, -0.32f), 0.12f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(0.0f, 0.32f), glm::vec2(0.32f, 0.0f), 0.12f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, 0.32f), glm::vec2(0.32f, -0.32f), 0.12f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, glm::vec2(-0.32f, 0.0f), glm::vec2(0.0f, -0.32f), 0.12f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -665,9 +669,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -682,7 +686,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 3));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 3));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -690,9 +694,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -707,7 +711,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 4));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 4));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -715,9 +719,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -732,7 +736,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 5));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 5));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -740,9 +744,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -757,7 +761,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 6));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 6));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -765,9 +769,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -782,7 +786,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 7));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 7));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -790,9 +794,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -807,7 +811,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 8));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -815,9 +819,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -832,7 +836,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(2.0f, 1.5f, 1.0f));
@@ -845,9 +849,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -871,7 +875,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -879,9 +883,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -895,7 +899,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -903,9 +907,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -919,7 +923,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -927,9 +931,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -943,7 +947,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 0.0f, 2.0f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 0.0f, 2.0f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -951,9 +955,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -967,7 +971,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -975,9 +979,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -991,7 +995,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -999,9 +1003,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1015,7 +1019,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1023,9 +1027,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1049,7 +1053,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 1, 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 1, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1057,9 +1061,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1073,7 +1077,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 2, 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 2, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1081,9 +1085,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1097,7 +1101,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 3, 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 3, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1105,9 +1109,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1121,7 +1125,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 6, 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*newMeshDataPtr, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.16f), 0.48f, 6, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1129,9 +1133,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1151,12 +1155,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         Project001::MeshData meshDataA;
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(meshDataA, 0.08f, 0.32f, 2, 0.0f, glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(meshDataA, 0.08f, 0.32f, 2, 0.0f, glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(meshDataA);
         Project001::MeshLoader::TranslateTextureCoordinates(meshDataA, glm::vec2(0.5f, 0.5f));
         Project001::MeshLoader::TranslateMesh(meshDataA, glm::vec3(-0.016f, 0.0f, 0.0f));
         Project001::MeshData meshDataB;
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(meshDataB, 0.08f, 0.32f, 6, glm::pi<float>(), 0.0f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(meshDataB, 0.08f, 0.32f, 6, glm::pi<float>(), 0.0f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(meshDataB);
         Project001::MeshLoader::TranslateTextureCoordinates(meshDataB, glm::vec2(0.5f, 0.5f));
         Project001::MeshLoader::TranslateMesh(meshDataB, glm::vec3(0.016f, 0.0f, 0.0f));
@@ -1167,9 +1171,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1188,7 +1192,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRectangleFrame(*newMeshDataPtr, glm::vec2(-0.24f, -0.32f), glm::vec2(0.24f, 0.32f), 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRectangleFrame(*newMeshDataPtr, glm::vec2(-0.24f, -0.32f), glm::vec2(0.24f, 0.32f), 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1196,9 +1200,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1212,7 +1216,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DRectangleFrame(*newMeshDataPtr, glm::vec2(-0.32f, -0.24f), glm::vec2(0.32f, 0.24f), 0.08f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRectangleFrame(*newMeshDataPtr, glm::vec2(-0.32f, -0.24f), glm::vec2(0.32f, 0.24f), 0.08f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1220,9 +1224,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1236,7 +1240,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 2));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 2));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1244,9 +1248,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1260,7 +1264,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 4));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 4));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1268,9 +1272,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1284,7 +1288,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 8));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.32f, 0.32f, 8));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1292,9 +1296,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1308,7 +1312,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(0.16f, 0.16f), glm::vec2(-0.16f, -0.16f), 0.12f, 2));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(0.16f, 0.16f), glm::vec2(-0.16f, -0.16f), 0.12f, 2));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1316,9 +1320,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1332,7 +1336,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(-0.16f, 0.16f), glm::vec2(0.16f, -0.16f), 0.12f, 3));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(-0.16f, 0.16f), glm::vec2(0.16f, -0.16f), 0.12f, 3));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1340,9 +1344,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1356,7 +1360,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(0.08f, 0.08f), glm::vec2(0.08f, 0.08f), 0.12f, 4));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, glm::vec2(0.08f, 0.08f), glm::vec2(0.08f, 0.08f), 0.12f, 4));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1364,9 +1368,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1395,7 +1399,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 1));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 1));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1403,9 +1407,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1419,7 +1423,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 2));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 2));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1427,9 +1431,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1443,7 +1447,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 3));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.64f, 0.16f, 3));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1451,9 +1455,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1467,7 +1471,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.48f, 0.16f, 4));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(*newMeshDataPtr, 0.64f, 0.48f, 0.16f, 4));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -1475,9 +1479,9 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -1515,14 +1519,14 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -1563,7 +1567,7 @@ void TestScene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene002:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene002:            " << GetId());
 }
 
 // private ---------------------------------------------------------------------

@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "OpenGL_Renderer.h"
 
 #include "Platform/OpenGL_Mesh.h"
@@ -230,7 +234,7 @@ namespace Project001
         batchedIndexBufferCapacity_ = capacity;
         if (batchedIndexBufferCapacity_ % 3 != 0)
         {
-            _LOG_MESSAGE("OpenGL_Renderer: Index Buffer Size Not Multiple Of 3");
+            LOG_WARNING_F("Index Buffer Size Not Multiple Of 3");
         }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glDeleteBuffers(1, &batchedIndexBufferId_);
@@ -502,7 +506,7 @@ namespace Project001
         AutoIdMap<OpenGL_Mesh*>::iterator iter = meshPtrMap_.Find(meshId);
         if (iter == meshPtrMap_.IteratorPastTheEnd())
         {
-            _LOG_ERROR("Mesh Id not found!");
+            LOG_ERROR_F("Mesh Id not found");
             return false;
         }
 
@@ -537,7 +541,7 @@ namespace Project001
                 }
                 else if (getTextureUnitResult == 2)
                 {
-                    _LOG_ERROR("TextureId %u not found!", textureId);
+                    LOG_ERROR_F("TextureId (" << textureId << ") not found");
                     return false;
                 }
             }
@@ -552,7 +556,7 @@ namespace Project001
                 }
                 else if (getTextureUnitResult == 2)
                 {
-                    _LOG_ERROR("SpecularId %u not found!", specularId);
+                    LOG_ERROR_F("SpecularId (" << specularId << ") not found");
                     return false;
                 }
             }
@@ -605,7 +609,7 @@ namespace Project001
             if (meshVertexCount > batchedVertexBufferCapacity_ ||
                 meshIndexCount > batchedIndexBufferCapacity_)
             {
-                _LOG_ERROR("Mesh larger then buffer!");
+                LOG_ERROR_F("Mesh larger then buffer");
                 return false;
             }
 
@@ -624,7 +628,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
-                _LOG_ERROR("TextureId %u not found!", textureId);
+                LOG_ERROR_F("TextureId (" << textureId << ") not found");
                 return false;
             }
         }
@@ -639,7 +643,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
-                _LOG_ERROR("SpecularId %u not found!", specularId);
+                LOG_ERROR_F("SpecularId (" << specularId << ") not found");
                 return false;
             }
         }
@@ -1071,8 +1075,7 @@ namespace Project001
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-            // Log Error
-            _LOG_ERROR("OpenGL Error: Framebuffer not complete!");
+            LOG_ERROR_F("Framebuffer not complete");
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

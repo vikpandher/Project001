@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "GLFW_Window.h"
 
 #include "Event.h"
@@ -35,7 +39,7 @@ namespace Project001
         {
             if (!glfwInit())
             {
-                _LOG_ERROR("Could not initalize GLFW!");
+                LOG_ERROR_F("Could not initalize GLFW");
             }
 
 #ifdef GLFW_INCLUDE_VULKAN
@@ -53,7 +57,7 @@ namespace Project001
 
             glfwSetErrorCallback([](int errorCode, const char* description)
                 {
-                    _LOG_ERROR("GLFW Error: (%d) %s", errorCode, description);
+                    LOG_ERROR_F("GLFW Error: (" << errorCode << ") " << description);
                 });
         }
 
@@ -70,15 +74,16 @@ namespace Project001
         {
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             {
-                _LOG_ERROR("Failed to initialize OpenGL!");
+                LOG_ERROR_F("Failed to initialize OpenGL");
             }
             else
             {
-                _LOG_MESSAGE("OpenGL Info:");
-                _LOG_MESSAGE("    Vendor: %s", glGetString(GL_VENDOR));
-                _LOG_MESSAGE("    Renderer: %s", glGetString(GL_RENDERER));
-                _LOG_MESSAGE("    Version: %s", glGetString(GL_VERSION));
-                _LOG_MESSAGE("    Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+                LOG_INFO("OpenGL Info:\n" << 
+                    INDENT << "    Vendor: " << glGetString(GL_VENDOR) << "\n" <<
+                    INDENT << "    Renderer: " << glGetString(GL_RENDERER) << "\n" <<
+                    INDENT << "    Version: " << glGetString(GL_VERSION) << "\n" <<
+                    INDENT << "    Shading Language Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION)
+                );
             }
         }
 
@@ -262,7 +267,7 @@ namespace Project001
 #ifdef GLFW_INCLUDE_VULKAN
         if (glfwCreateWindowSurface(instance, glfwWindowPtr_, NULL, &surface) != VK_SUCCESS)
         {
-            _LOG_ERROR("Vulkan Error: Failed to create window surface!");
+            LOG_ERROR_F("Failed to create window surface");
         }
 #endif
     }

@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "RenderSystem.h"
 
 #include "Components/Camera.h"
@@ -6,7 +10,6 @@
 #include "Math/Overlap3D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "Renderer.h"
 
 #include <algorithm>
 
@@ -385,7 +388,7 @@ namespace Project001
                                 }
                                 else if (currentRenderedMeshPtr->GetMeshId() != previousRenderedMeshPtr->GetMeshId()) // previous and current mesh ids are different
                                 {
-                                    _FAIL_CHECK(rendererPtr->RenderMesh(
+                                    FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         s_meshInstanceDataArray_.data(),
                                         (unsigned int)s_meshInstanceDataArray_.size()
@@ -409,7 +412,7 @@ namespace Project001
                             {
                                 if (currentRenderedMeshType != previousRenderedMeshType) // previous mesh was instanced
                                 {
-                                    _FAIL_CHECK(rendererPtr->RenderMesh(
+                                    FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         s_meshInstanceDataArray_.data(),
                                         (unsigned int)s_meshInstanceDataArray_.size()
@@ -419,7 +422,7 @@ namespace Project001
                                 }
 
                                 const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
-                                _FAIL_CHECK(rendererPtr->AddMeshToBatch(
+                                FAIL_CHECK(rendererPtr->AddMeshToBatch(
                                     currentMeshDataPtr->meshVertexArray.data(),
                                     (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
                                     currentMeshDataPtr->meshIndexArray.data(),
@@ -441,7 +444,7 @@ namespace Project001
 
                         if (previousRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // last mesh was instanced
                         {
-                            _FAIL_CHECK(rendererPtr->RenderMesh(
+                            FAIL_CHECK(rendererPtr->RenderMesh(
                                 previousRenderedMeshPtr->GetMeshId(),
                                 s_meshInstanceDataArray_.data(),
                                 (unsigned int)s_meshInstanceDataArray_.size()
@@ -498,7 +501,7 @@ namespace Project001
         {
             if (renderedMeshPtr->GetMeshDataPtr() == nullptr)
             {
-                _LOG_ERROR("Renderend Mesh expected a MeshDataPtr, but it was Null.");
+                LOG_ERROR_F("Expected a valid MeshDataPtr, but it was nullptr");
                 return;
             }
 

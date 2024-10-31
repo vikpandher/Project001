@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "Window.h"
 
 #include "Platform/GLFW_Window.h"

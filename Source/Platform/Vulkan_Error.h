@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #pragma once
 
 #include <vulkan/vulkan.h>
@@ -11,9 +15,9 @@
     VkResult result = (f);\
     if (result != VK_SUCCESS)\
     {\
-        Project001::Logger::Error("Vulkan ErrorCode: %s %d %d", __FILE__, __LINE__, result);\
+        LOG_ERROR_F("Vulkan error code: " << result);\
     }\
-}
+} do {} while(0)
 #else
 #define _VK_CHECK(f) f
 #endif

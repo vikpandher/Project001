@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "OpenGL_Shader.h"
 
 #include "glad/glad.h"
@@ -27,16 +31,14 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            _LOG_ERROR("SHADER::PROGRAM::LINKING_FAILED");
-            _LOG_ERROR(infoLog);
+            LOG_ERROR_F("Shader program (" << programId_ << ") linking failed:\n" << INDENT << infoLog);
         }
         glValidateProgram(programId_);
         glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            _LOG_ERROR("SHADER::PROGRAM::VALIDATE_FAILED");
-            _LOG_ERROR(infoLog);
+            LOG_ERROR_F("Shader program (" << programId_ << ") validation failed:\n" << INDENT << infoLog);
         }
 
         glDetachShader(programId_, vertexShaderId);
@@ -66,16 +68,14 @@ namespace Project001
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            _LOG_ERROR("SHADER::PROGRAM::LINKING_FAILED");
-            _LOG_ERROR(infoLog);
+            LOG_ERROR_F("Shader program (" << programId_ << ") linking failed:\n" << INDENT << infoLog);
         }
         glValidateProgram(programId_);
         glGetProgramiv(programId_, GL_VALIDATE_STATUS, &success);
         if (!success)
         {
             glGetProgramInfoLog(programId_, 512, NULL, infoLog);
-            _LOG_ERROR("SHADER::PROGRAM::VALIDATE_FAILED");
-            _LOG_ERROR(infoLog);
+            LOG_ERROR_F("Shader program (" << programId_ << ") validation failed:\n" << INDENT << infoLog);
         }
 
         glDetachShader(programId_, vertexShaderId);
@@ -202,21 +202,20 @@ namespace Project001
             glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
             if (shaderType == GL_VERTEX_SHADER)
             {
-                _LOG_ERROR("VERTEX_SHADER::COMPILATION_FAILED");
+                LOG_ERROR_F("Vertex shader (" << shaderId << ") compilation failed:\n" << INDENT << infoLog);
             }
             else if (shaderType == GL_GEOMETRY_SHADER)
             {
-                _LOG_ERROR("GEOMETRY_SHADER::COMPILATION_FAILED");
+                LOG_ERROR_F("Geometry shader (" << shaderId << ") compilation failed:\n" << INDENT << infoLog);
             }
             else if (shaderType == GL_FRAGMENT_SHADER)
             {
-                _LOG_ERROR("FRAGMET_SHADER::COMPILATION_FAILED");
+                LOG_ERROR_F("Fragment shader (" << shaderId << ") compilation failed:\n" << INDENT << infoLog);
             }
             else
             {
-                _LOG_ERROR("UNKNOWN_SHADER::COMPILATION_FAILED");
+                LOG_ERROR_F("Unknown shader (" << shaderId << ") compilation failed:\n" << INDENT << infoLog);
             }
-            _LOG_ERROR(infoLog);
         }
         return shaderId;
     }
@@ -235,26 +234,28 @@ namespace Project001
 
         // ATTRIBUTES
         glGetProgramiv(programId_, GL_ACTIVE_ATTRIBUTES, &count);
-        _LOG_MESSAGE("Active Attributes: %d", count);
+
+        Logger log(LOG_LEVEL_INFO);
+        log << "Active Attributes: " << count;
 
         for (i = 0; i < count; i++)
         {
             glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
-            _LOG_MESSAGE("Attribute #%d Type: %u Name: %s", i, type, name);
+            log << "\nAttribute: " << i << " Type: " << type << " Name: " << name;
         }
 
         // UNIFORMS
         glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
-        _LOG_MESSAGE("Active Uniforms: %d", count);
+        log << "\nActive Uniforms: " << count;
 
         for (i = 0; i < count; i++)
         {
             glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
 
-            _LOG_MESSAGE("Uniform #%d Type: %u Name: %s", i, type, name);
+            log << "\nUniform: " << i << " Type: " << type << " Name: " << name;
         }
 
-        _LOG_MESSAGE("");
+        log << Logger::endl;
     }
 }

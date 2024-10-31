@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "Scene.h"
 
 #include "Application.h"
@@ -43,7 +47,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is null");
+            LOG_ERROR_F("Application pointer is null");
         }
     }
 
@@ -55,7 +59,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -68,7 +72,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -81,7 +85,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -94,7 +98,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -107,7 +111,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -123,12 +127,12 @@ namespace Project001
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the id: %u", sceneId);
+                LOG_ERROR_F("Application doesn't have a Scene with the id: " << sceneId);
             }
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -141,7 +145,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return nullptr;
     }
@@ -154,7 +158,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
     }
 
@@ -169,12 +173,12 @@ namespace Project001
             }
             else
             {
-                _LOG_ERROR("Application doesn't have a Scene with the id: %u", sceneId);
+                LOG_ERROR_F("Application doesn't have a Scene with the id: " << sceneId);
             }
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
     }
 
@@ -186,7 +190,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
     }
 
@@ -198,7 +202,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return 0ull;
     }
@@ -211,7 +215,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
     }
 
@@ -223,7 +227,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return false;
     }
@@ -236,7 +240,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
     }
 
@@ -248,7 +252,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Application pointer is nullptr");
+            LOG_ERROR_F("Application pointer is nullptr");
         }
         return false;
     }

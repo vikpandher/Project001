@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene034.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -54,20 +58,20 @@ void TestScene034::HandleEvent(Project001::Event& event)
 
 void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene034:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene034:            " << GetId());
 
     // Load Textures
     // -------------------------------------------------------------------------
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
         rendererPtr_->CreateTexture(thonk001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
         rendererPtr_->CreateTexture(thonkSpecular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -82,7 +86,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
         rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -94,8 +98,8 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // cube
         cube001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cube001_MeshDataPtr_);
-        // _FAIL_CHECK(Project001::MeshLoader::GenerateBox(*cube001_MeshDataPtr_, glm::vec3(-0.34f), glm::vec3(0.34f), false));
-        _FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*cube001_MeshDataPtr_, "../Models/Cube.obj"));
+        // FAIL_CHECK(Project001::MeshLoader::GenerateBox(*cube001_MeshDataPtr_, glm::vec3(-0.34f), glm::vec3(0.34f), false));
+        FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*cube001_MeshDataPtr_, "../Models/Cube.obj"));
 
         rendererPtr_->CreateMesh(
             cube001_MeshId_,
@@ -129,7 +133,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         line001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(line001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.16f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.16f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
         Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);
 
@@ -147,7 +151,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // cone
         cone001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cone001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
 
         rendererPtr_->CreateMesh(
             cone001_MeshId_,
@@ -192,9 +196,9 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         componentStoresPtr_->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
             renderedModelPtr->SetPosition(positions[i]);
@@ -260,14 +264,14 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -309,7 +313,7 @@ void TestScene034::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene034:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene034:            " << GetId());
 
     // Texture Data ------------------------------------------------------------
 

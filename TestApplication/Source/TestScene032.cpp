@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-10-30
+
 #include "TestScene032.h"
 
 #include "TestResource_AntonioRegular_png.h"
@@ -65,20 +69,20 @@ void TestScene032::HandleEvent(Project001::Event& event)
 
 void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    _LOG_MESSAGE("INITIALIZING:   TestScene032:            %u", GetId());
+    LOG_INFO("INITIALIZING:   TestScene032:            " << GetId());
 
     // Load Textures
     // -------------------------------------------------------------------------
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
         rendererPtr_->CreateTexture(earth001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
         rendererPtr_->CreateTexture(specular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -93,7 +97,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        _FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
         rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -105,7 +109,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // icosphere
         icosphere001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(icosphere001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*icosphere001_MeshDataPtr_, 0.64f, 1, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*icosphere001_MeshDataPtr_, 0.64f, 1, false));
 
         rendererPtr_->CreateMesh(
             icosphere001_MeshId_,
@@ -121,7 +125,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // arc
         arc001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(arc001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*arc001_MeshDataPtr_, 0.08f, 0.32f, 24, glm::pi<float>(), 0.5f * glm::pi<float>()));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*arc001_MeshDataPtr_, 0.08f, 0.32f, 24, glm::pi<float>(), 0.5f * glm::pi<float>()));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*arc001_MeshDataPtr_);
         Project001::MeshLoader::TranslateTextureCoordinates(*arc001_MeshDataPtr_, glm::vec2(0.5f, 0.5f));
 
@@ -157,7 +161,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         line001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(line001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.24f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.24f));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
         Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);
 
@@ -175,7 +179,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // cone
         cone001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cone001_MeshDataPtr_);
-        _FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
 
         rendererPtr_->CreateMesh(
             cone001_MeshId_,
@@ -194,9 +198,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // icosphere at the center (GPU side mesh)
         componentStoresPtr_->CreateEntity(centerIcosphereEntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerIcosphereEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MaxBoundingRadius_);
@@ -208,9 +212,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // star at the center top (CPU side mesh)
         componentStoresPtr_->CreateEntity(centerStar001_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar001_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
@@ -223,9 +227,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // star at the center bottom (CPU side mesh)
         componentStoresPtr_->CreateEntity(centerStar002_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar002_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(centerStar002_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar002_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar002_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
@@ -237,9 +241,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // stencils out stuff positioned behind it, that is rendered after it (CPU side mesh)
         componentStoresPtr_->CreateEntity(psudoStencil001_EntityId_);
 
-        _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(psudoStencil001_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, psudoStencil001_EntityId_));
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, psudoStencil001_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
@@ -277,9 +281,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             componentStoresPtr_->CreateEntity(newEntityId);
             icosphereEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MaxBoundingRadius_);
@@ -318,9 +322,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             componentStoresPtr_->CreateEntity(newEntityId);
             arcEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
@@ -356,9 +360,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             componentStoresPtr_->CreateEntity(newEntityId);
             arcEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(arc001_MeshId_, arc001_MaxBoundingRadius_);
@@ -395,9 +399,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             componentStoresPtr_->CreateEntity(newEntityId);
             coneEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(cone001_MeshId_, cone001_MaxBoundingRadius_);
@@ -426,9 +430,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             componentStoresPtr_->CreateEntity(newEntityId);
             starEntityIds_.push_back(newEntityId);
 
-            _FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
+            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(newEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            _FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
+            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(line001_MeshId_, line001_MaxBoundingRadius_);
@@ -443,14 +447,14 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    _FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    _FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -492,7 +496,7 @@ void TestScene032::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    _LOG_MESSAGE("DEINITIALIZING: TestScene032:            %u", GetId());
+    LOG_INFO("DEINITIALIZING: TestScene032:            " << GetId());
 
     // Texture Data ------------------------------------------------------------
 
