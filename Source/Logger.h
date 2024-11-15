@@ -57,8 +57,8 @@ namespace Project001
 
 namespace Project001
 {
-    // This class is a simple logger utility that wraps an output stream. It must
-    // be enabled via a call to EnableConsole(). If compiled with the NDEBUG
+    // This class is a simple logger utility that wraps an output stream. It's
+    // enabled via a call to EnableConsole(). If compiled with the NDEBUG
     // preprocessor macro, then its interfaces are compiled as no-ops.
     //
     // The basic intended usage via macro (prefered):

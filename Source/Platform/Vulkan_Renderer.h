@@ -22,8 +22,8 @@ namespace Project001
 
         ~Vulkan_Renderer() override;
 
-        void SetDepthTesting(bool depthTesting) override;
         bool GetDepthTesting() const override;
+        void SetDepthTesting(bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
@@ -867,14 +867,14 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    inline void Vulkan_Renderer::SetDepthTesting(bool depthTesting)
-    {
-        depthTesting_ = depthTesting;
-    }
-
     inline bool Vulkan_Renderer::GetDepthTesting() const
     {
         return depthTesting_;
+    }
+
+    inline void Vulkan_Renderer::SetDepthTesting(bool depthTesting)
+    {
+        depthTesting_ = depthTesting;
     }
 
     inline void Vulkan_Renderer::SetMultisampleAntiAliasing(bool multisampleAntiAliasing)

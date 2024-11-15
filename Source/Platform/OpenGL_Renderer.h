@@ -25,8 +25,8 @@ namespace Project001
         OpenGL_Renderer(const RendererInfo& rendererInfo);
         ~OpenGL_Renderer() override;
 
-        void SetDepthTesting(bool depthTesting) override;
         bool GetDepthTesting() const override;
+        void SetDepthTesting(bool depthTesting) override;
 
         void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) override;
 
@@ -283,14 +283,14 @@ namespace Project001
         std::vector<unsigned int> batchedIndexStagingBuffer_;
     };
 
-    inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)
-    {
-        depthTesting_ = depthTesting;
-    }
-
     inline bool OpenGL_Renderer::GetDepthTesting() const
     {
         return depthTesting_;
+    }
+
+    inline void OpenGL_Renderer::SetDepthTesting(bool depthTesting)
+    {
+        depthTesting_ = depthTesting;
     }
 
     inline void OpenGL_Renderer::GetFramebufferSize(

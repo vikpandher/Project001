@@ -18,8 +18,8 @@
 TestInstructionScene001::TestInstructionScene001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , componentStoresPtr_(nullptr)
-    , hiddenInstructionMeshDataPtr_(nullptr)
-    , instructionMeshDataPtr_(nullptr)
+    , hiddenInstructionTextMeshDataPtr_(nullptr)
+    , instructionTextMeshDataPtr_(nullptr)
     , hiddenInstructionBackgroundMeshDataPtr_(nullptr)
     , instructionBackgroundMeshDataPtr_(nullptr)
     , instructionsEntityId_((unsigned int)-1)
@@ -50,27 +50,27 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 
     const float instructionFontPixelSize = 0.0048f;
 
-    hiddenInstructionMeshDataPtr_ = new Project001::MeshData();
+    hiddenInstructionTextMeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
-        *hiddenInstructionMeshDataPtr_,
+        *hiddenInstructionTextMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.hiddenInstructionString,
         instructionFontPixelSize
     ));
-    Project001::MeshLoader::RecenterMesh(*hiddenInstructionMeshDataPtr_);
+    Project001::MeshLoader::RecenterMesh(*hiddenInstructionTextMeshDataPtr_);
 
-    instructionMeshDataPtr_ = new Project001::MeshData();
+    instructionTextMeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
-        *instructionMeshDataPtr_,
+        *instructionTextMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.instructionString,
         instructionFontPixelSize
     ));
-    Project001::MeshLoader::RecenterMesh(*instructionMeshDataPtr_);
+    Project001::MeshLoader::RecenterMesh(*instructionTextMeshDataPtr_);
 
     float bezelSize = 0.08f;
 
-    glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionMeshDataPtr_->GetSize();
+    glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionTextMeshDataPtr_->GetSize();
 
     hiddenInstructionBackgroundMeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
@@ -81,7 +81,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
         4
     ));
 
-    glm::vec3 instructionMeshDataSize = instructionMeshDataPtr_->GetSize();
+    glm::vec3 instructionMeshDataSize = instructionTextMeshDataPtr_->GetSize();
 
     instructionBackgroundMeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
@@ -117,20 +117,20 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             glm::vec2 hiddenInstructionMeshPosition(
-                -uiCameraHalfWidth + hiddenInstructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
-                uiCameraHalfHeight - hiddenInstructionMeshDataPtr_->maxVertexPosition.y - 0.2f
+                -uiCameraHalfWidth + hiddenInstructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                uiCameraHalfHeight - hiddenInstructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
             );
 
             glm::vec2 instructionMeshPosition(
-                -uiCameraHalfWidth + instructionMeshDataPtr_->maxVertexPosition.x + 0.2f,
-                uiCameraHalfHeight - instructionMeshDataPtr_->maxVertexPosition.y - 0.2f
+                -uiCameraHalfWidth + instructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                uiCameraHalfHeight - instructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
             );
 
             hiddenInstructionMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes.back();
             hiddenInstructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-            hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionMeshDataPtr_);
+            hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionTextMeshDataPtr_);
             hiddenInstructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
             hiddenInstructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
             hiddenInstructionMesh.SetLit(false);
@@ -140,7 +140,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& instructionMesh = renderedMeshes.back();
             instructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
-            instructionMesh.SetMeshDataPtr(instructionMeshDataPtr_);
+            instructionMesh.SetMeshDataPtr(instructionTextMeshDataPtr_);
             instructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
             instructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
             instructionMesh.SetLit(false);
@@ -179,10 +179,10 @@ void TestInstructionScene001::Deinitialize()
 
     // Mesh Data ---------------------------------------------------------------
 
-    delete hiddenInstructionMeshDataPtr_;
-    hiddenInstructionMeshDataPtr_ = nullptr;
-    delete instructionMeshDataPtr_;
-    instructionMeshDataPtr_ = nullptr;
+    delete hiddenInstructionTextMeshDataPtr_;
+    hiddenInstructionTextMeshDataPtr_ = nullptr;
+    delete instructionTextMeshDataPtr_;
+    instructionTextMeshDataPtr_ = nullptr;
 
     delete hiddenInstructionBackgroundMeshDataPtr_;
     hiddenInstructionBackgroundMeshDataPtr_ = nullptr;

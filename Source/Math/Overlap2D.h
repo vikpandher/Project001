@@ -87,8 +87,9 @@
 // (0.0f, 0.0f), even if the shape is offset.
 // 
 // Intersection Functions:
-//                      | Lin |
-// Line                 |  \  |
+//                      | Lin | Cir |
+// Line                 |  \  |     |
+// LineSegment          |     |  ?  |
 // 
 // NOTE: Positive rotations are counter-clockwise
 
@@ -1419,6 +1420,14 @@ namespace Project001
         const glm::vec2& lineB_position,
         const float& lineB_slope,
         glm::vec2& intersection_position);
+
+    unsigned int Get2D_LineSegment_Circle_Intersections(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& intersection1,
+        glm::vec2& intersection2);
 
     // Helper Functions --------------------------------------------------------
 

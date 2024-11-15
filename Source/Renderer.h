@@ -75,8 +75,8 @@ namespace Project001
 
         virtual ~Renderer();
 
-        virtual void SetDepthTesting(bool depthTesting) = 0;
         virtual bool GetDepthTesting() const = 0;
+        virtual void SetDepthTesting(bool depthTesting) = 0;
 
         virtual void SetMultisampleAntiAliasing(bool multisampleAntiAliasing) = 0;
 

@@ -52,8 +52,8 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    Project001::MeshData* hiddenInstructionMeshDataPtr_;
-    Project001::MeshData* instructionMeshDataPtr_;
+    Project001::MeshData* hiddenInstructionTextMeshDataPtr_;
+    Project001::MeshData* instructionTextMeshDataPtr_;
 
     Project001::MeshData* hiddenInstructionBackgroundMeshDataPtr_;
     Project001::MeshData* instructionBackgroundMeshDataPtr_;

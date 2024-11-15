@@ -5112,6 +5112,100 @@ namespace Project001
         return true;
     }
 
+    inline unsigned int Get2D_LineSegment_Circle_Intersections(
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        glm::vec2& intersection1,
+        glm::vec2& intersection2)
+    {
+        glm::vec2 lineStartToEnd = lineSegment_end - lineSegment_start;
+        glm::vec2 circleCenterToLineStart = lineSegment_start - circle_position;
+
+        float a = glm::dot(lineStartToEnd, lineStartToEnd);
+        float b = 2.0f * glm::dot(lineStartToEnd, circleCenterToLineStart);
+        float c = glm::dot(circleCenterToLineStart, circleCenterToLineStart) - circle_radius * circle_radius;
+
+        float d = b * b - 4 * a * c;
+
+        const float EPSILON = 1e-7f;
+        if (a < EPSILON || d < 0.0f)
+        {
+            // No intersections, misses circle
+            return 0;
+        }
+
+        if (d < EPSILON) // Tangent: Touched the circle at exactly one point
+        {
+            float t = -1.0f * b / (2.0f * a);
+            if (t >= 0.0f && t <= 1.0f)
+            {
+                intersection1 = lineSegment_start + t * lineStartToEnd;
+
+                // Tangent point in segment range
+                return 1;
+            }
+
+            // No intersections, tangent point is outside the segment range
+            return 0;
+        }
+        
+        float sqrt_of_d = std::sqrt(d);
+
+        float t1 = (-1.0f * b - sqrt_of_d) / (2.0f * a);
+        float t2 = (-1.0f * b + sqrt_of_d) / (2.0f * a);
+
+        bool hasIntersection1 = t1 >= 0.0f && t1 <= 1.0f;
+        bool hasIntersection2 = t2 >= 0.0f && t2 <= 1.0f;
+
+        // Impale: --(---)-> : Goes through two points in the circle
+        if (hasIntersection1 && hasIntersection2)
+        {
+            intersection1 = lineSegment_start + t1 * lineStartToEnd;
+            intersection2 = lineSegment_start + t2 * lineStartToEnd;
+
+            return 2;
+        }
+
+        // Stab: --(-> ) : Starts outside circle and ends inside
+        if (!hasIntersection1 && hasIntersection2)
+        {
+            intersection1 = lineSegment_start + t2 * lineStartToEnd;
+
+            return 1;
+        }
+
+        // Burst: ( --)-> : Starts inside circle and ends outside
+        if (hasIntersection1 && !hasIntersection2)
+        {
+            intersection1 = lineSegment_start + t1 * lineStartToEnd;
+
+            return 1;
+        }
+
+        // Short: ---> (   ) : Ends before reaching the circle
+        if (t1 > 1.0f && t2 > 1.0f)
+        {
+            return 0;
+        }
+
+        // Past: (   ) ---> : Starts after passing the circle
+        if (t1 < 0.0f && t2 < 0.0f)
+        {
+            return 0;
+        }
+
+        // Inside: ( ---> ) : Within the circle
+        if (t1 < 0.0f && t2 > 1.0f)
+        {
+            return 0;
+        }
+
+        // Should never reach here
+        return 0;
+    }
+
     // Helper Functions --------------------------------------------------------
 
     inline bool Check2D_Point_Rectangle_Overlap_H(
