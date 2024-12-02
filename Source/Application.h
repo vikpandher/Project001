@@ -33,7 +33,8 @@ namespace Project001
         unsigned int batchedVertexBufferCapacity;
         unsigned long long desiredFrameDuration_ns;
         bool sleepyRunLoop;
-        bool fixedSizeFramebuffer_;
+        unsigned int updatesInARowLimit;
+        bool fixedSizeFramebuffer;
     };
 
     class Application
@@ -58,6 +59,7 @@ namespace Project001
 
         unsigned long long desiredFrameDuration_ns_;
         bool sleepyRunLoop_;
+        unsigned long updatesInARowLimit_;
         bool fixedSizeFramebuffer_;
 
         bool running_;

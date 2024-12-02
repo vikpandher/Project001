@@ -91,7 +91,8 @@ int main(int argc, char** argv)
     applicationCreationInfo.batchedVertexBufferCapacity = 1024 * 8;
     applicationCreationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
     applicationCreationInfo.sleepyRunLoop = false;
-    applicationCreationInfo.fixedSizeFramebuffer_ = false;
+    applicationCreationInfo.updatesInARowLimit = 100;
+    applicationCreationInfo.fixedSizeFramebuffer = false;
     Project001::Application* applicationPtr = new Project001::Application(applicationCreationInfo);
 
     // main menu

@@ -24,7 +24,8 @@ namespace Project001
     Application::Application(const ApplicationCreationInfo& applicationInfo)
         : desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
         , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
-        , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer_)
+        , updatesInARowLimit_(applicationInfo.updatesInARowLimit)
+        , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer)
         , running_(false)
         , windowPtr_(nullptr)
         , rendererPtr_(nullptr)
@@ -98,7 +99,8 @@ namespace Project001
         std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
 
         unsigned long long simulationTimeDebt_ns = 0ull;
-        size_t unsigned_long_size = sizeof(unsigned long);
+
+        unsigned int updatesInARow = 0;
 
         while (running_)
         {
@@ -138,13 +140,20 @@ namespace Project001
             while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
             {
                 HandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
+                updatesInARow++;
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
+
+                if (updatesInARow >= updatesInARowLimit_)
+                {
+                    simulationTimeDebt_ns = 0;
+                }
             }
 
             // Render
             // -----------------------------------------------------------------
 
             HandleEvent(RenderEvent(0, lastFrameDuration_ns));
+            updatesInARow = 0;
             windowPtr_->PollEvents();
         }
 
