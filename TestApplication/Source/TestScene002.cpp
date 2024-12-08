@@ -137,8 +137,6 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
     size_t positionIndex = 0;
 
-    size_t meshDataPtrArrayIndex = 0;
-
     // row 1 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();

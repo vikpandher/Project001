@@ -191,6 +191,13 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateIcosphere_v2(
+            MeshData& meshData,
+            float radius,
+            size_t subdivisions,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         static bool GenerateSphere(
             MeshData& meshData,
             float radius,
@@ -306,6 +313,14 @@ namespace Project001
             const float& slope1,
             const glm::vec2& point2,
             const float& slope2);
+
+        // Used in GenerateIcosphere
+        static void SubdivideIcosphereTriangleFaces(
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<glm::uvec3>& triangleFaces,
+            float radius,
+            size_t subdivisions);
 
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
     };
