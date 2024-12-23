@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 
     const size_t sizeScalar = 4;
     Project001::ApplicationCreationInfo applicationCreationInfo = {};
-    applicationCreationInfo.windowTitle = "Project001";
+    applicationCreationInfo.windowTitle = "Project001_TestApp";
     applicationCreationInfo.windowWidth = 240 * sizeScalar;
     applicationCreationInfo.windowHeight = 160 * sizeScalar;
     applicationCreationInfo.frameBufferWidth = 240 * sizeScalar;

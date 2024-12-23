@@ -55,7 +55,7 @@ namespace Project001
         void* data,
         unsigned int sizeInBytes,
         unsigned int numberOfChannels,
-        unsigned int sampleRate_Hz,
+        unsigned int sampleRate_Hz, // unused
         unsigned int bitsPerSample,
         unsigned int sizeInFrames)
     {

@@ -96,7 +96,7 @@ void TestScene017::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 {
     instructionScene_.Deinitialize();
 
-    LOG_INFO("DEINITIALIZING: TestScene017:            %u" << GetId());
+    LOG_INFO("DEINITIALIZING: TestScene017:            " << GetId());
 }
 
 void TestScene017::CreateCollisionBodyEntities()

@@ -358,6 +358,11 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             currentSoundSourceId,
             sound01_SoundBufferId_
         ));
+
+        FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePitch(
+            currentSoundSourceId,
+            0.1f + 0.02f * (float)i
+        ));
     }
 
     // Button Entities

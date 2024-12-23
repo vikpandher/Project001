@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2024-10-30
+# @DATE 2024-12-22
 
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
     message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
@@ -8,40 +8,24 @@ endif()
 
 cmake_minimum_required(VERSION 3.22.0)
 
-# https://github.com/vikpandher/Project001.git
-set(TESTAPPLICATION_PROJECT001_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/../Source" CACHE PATH "")
-set(TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Library" CACHE PATH "")
-set(TESTAPPLICATION_PROJECT001_LIBRARY_NAME "Project001" CACHE PATH "") # Name without postfix and extension
-# https://github.com/glfw/glfw.git
-set(TESTAPPLICATION_GLFW_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
-# https://github.com/g-truc/glm.git
-set(TESTAPPLICATION_GLM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/glm" CACHE PATH "")
-# https://vulkan.lunarg.com/
-set(TESTAPPLICATION_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
-set(TESTAPPLICATION_VULKAN_LIBRARY "${TESTAPPLICATION_VULKAN_DIRECTORY}/Lib/vulkan-1.lib")
+set(TESTAPP_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Binary" CACHE PATH "")
+set(TESTAPP_PROJECT_NAME "Project001_TestApp" CACHE PATH "") # Name without postfix and extension
 
-set(TESTAPPLICATION_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Binary")
-
-option(TESTAPPLICATION_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
-
-# If TRUE, sets renderer to Vulkan
-# If FALSE, renderer is set to OpenGL
-option(TESTAPPLICATION_VULKAN_BUILD "If TRUE, sets renderer to Vulkan. If FALSE, renderer is set to OpenGL" FALSE)
+option(TESTAPP_SANITY_CHECK_DEBUG_OUTPUT "Cmake outputs extra dubug info." TRUE)
 
 # If TRUE, removes the console on Windows builds
 # If FALSE, Windows builds have a console
-option(TESTAPPLICATION_WINDOWS_NO_CONSOLE "If TRUE, removes the console on Windows builds. If FALSE, Windows builds have a console." FALSE)
+option(TESTAPP_WINDOWS_NO_CONSOLE "If TRUE, removes the console on Windows builds. If FALSE, Windows builds have a console." FALSE)
 
 # If TRUE, adds memory leak check to Windows builds
 # If FALSE, doesn't
-option(TESTAPPLICATION_WINDOWS_MEMORY_LEAK_CHECK "If TRUE, adds memory leak check to Windows builds. If False, doesn't." TRUE)
+option(TESTAPP_WINDOWS_MEMORY_LEAK_CHECK "If TRUE, adds memory leak check to Windows builds. If False, doesn't." TRUE)
 
 # ##############################################################################
-# ##############################################################################
 
-project("TestApplication" # ${PROJECT_NAME}
+project("${TESTAPP_PROJECT_NAME}" # ${PROJECT_NAME}
     VERSION 0.1.0.0
-    DESCRIPTION "This is project 001."
+    DESCRIPTION ""
     LANGUAGES C CXX
 )
 
@@ -54,7 +38,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
-set(TESTAPPLICATION_FILES
+set(TESTAPP_FILES
     "Source/Main.cpp"
     "Source/TestButtonData001.h"
     "Source/TestComponents.cpp"
@@ -118,43 +102,39 @@ set(TESTAPPLICATION_FILES
     "Source/TestSceneIds.h"
 )
 
-source_group("Source" FILES ${TESTAPPLICATION_FILES})
+source_group("Source" FILES ${TESTAPP_FILES})
 
-if (${TESTAPPLICATION_WINDOWS_NO_CONSOLE})
+if (${TESTAPP_WINDOWS_NO_CONSOLE})
     # adding WIN32 makes WinMain() the entry point and so no conole appears
     set(CMAKE_WIN32 WIN32)
 endif()
 
 add_executable("${PROJECT_NAME}" ${CMAKE_WIN32}
-    ${TESTAPPLICATION_FILES}
+    ${TESTAPP_FILES}
 )
 
 # target_link_options(${PROJECT_NAME} PRIVATE "/NODEFAULTLIB:msvcrt.lib")
 # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")
 
-if (${TESTAPPLICATION_VULKAN_BUILD})
+if (${PROJECT001_VULKAN_BUILD})
     target_compile_definitions(${PROJECT_NAME} PRIVATE "VULKAN_BUILD")
     target_compile_definitions(${PROJECT_NAME} PRIVATE "GLFW_INCLUDE_VULKAN")
     target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_FORCE_DEPTH_ZERO_TO_ONE")
     # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_FORCE_LEFT_HANDED"") # flipped the viewport instead
-
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_v")
-else()
-    set(CMAKE_OUTPUT_NAME_SUFFIX "_o")
 endif()
 
-if (${TESTAPPLICATION_WINDOWS_NO_CONSOLE})
+if (${TESTAPP_WINDOWS_NO_CONSOLE})
     target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_NO_CONSOLE")
 endif()
 
-if (${TESTAPPLICATION_WINDOWS_MEMORY_LEAK_CHECK})
+if (${TESTAPP_WINDOWS_MEMORY_LEAK_CHECK})
     target_compile_definitions(${PROJECT_NAME} PRIVATE "WINDOWS_MEMORY_LEAK_CHECK")
 endif()
 
 target_include_directories("${PROJECT_NAME}"
     PRIVATE 
-    "${TESTAPPLICATION_PROJECT001_INCLUDE}"
-    "${TESTAPPLICATION_GLM_INCLUDE}"
+    "${FRAMEWORK_SOURCE}"
+    "${VENDOR_GLM_INCLUDE}"
     "Source"
 )
 
@@ -164,45 +144,36 @@ target_include_directories("${PROJECT_NAME}"
 
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE
-    "${TESTAPPLICATION_GLFW_LIBRARY}"
-    $<$<CONFIG:Debug>:${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY}/${TESTAPPLICATION_PROJECT001_LIBRARY_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d.lib>
-    $<$<CONFIG:Release>:${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY}/${TESTAPPLICATION_PROJECT001_LIBRARY_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}.lib>
+    "${VENDOR_GLFW_LIBRARY}"
+    $<$<CONFIG:Debug>:${FRAMEWORK_OUTPUT_DIRECTORY}/${FRAMEWORK_PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}_d.lib>
+    $<$<CONFIG:Release>:${FRAMEWORK_OUTPUT_DIRECTORY}/${FRAMEWORK_PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}.lib>
 )
 
-if(${TESTAPPLICATION_VULKAN_BUILD})
+if(${PROJECT001_VULKAN_BUILD})
     target_link_libraries("${PROJECT_NAME}"
         PRIVATE 
-        "${TESTAPPLICATION_VULKAN_LIBRARY}"
+        "${VENDOR_VULKAN_LIBRARY}"
     )
 endif()
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${TESTAPPLICATION_OUTPUT_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${TESTAPPLICATION_OUTPUT_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${TESTAPPLICATION_OUTPUT_DIRECTORY}"
-    OUTPUT_NAME_DEBUG "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}_d"
-    OUTPUT_NAME_RELEASE "${PROJECT_NAME}${CMAKE_OUTPUT_NAME_SUFFIX}"
+    VS_DEBUGGER_WORKING_DIRECTORY "${TESTAPP_OUTPUT_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${TESTAPP_OUTPUT_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${TESTAPP_OUTPUT_DIRECTORY}"
+    OUTPUT_NAME_DEBUG "${PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}_d"
+    OUTPUT_NAME_RELEASE "${PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}"
 )
 
 # ##############################################################################
-# ##############################################################################
 
-if(${TESTAPPLICATION_SANITY_CHECK_DEBUG_OUTPUT})
+if(${TESTAPP_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 
-    message("TESTAPPLICATION_PROJECT001_INCLUDE:" ${TESTAPPLICATION_PROJECT001_INCLUDE})
-    message("TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY:" ${TESTAPPLICATION_PROJECT001_LIBRARY_DIRECTORY})
-    message("TESTAPPLICATION_PROJECT001_LIBRARY_NAME:" ${TESTAPPLICATION_PROJECT001_LIBRARY_NAME})
-    message("TESTAPPLICATION_GLFW_LIBRARY:" ${TESTAPPLICATION_GLFW_LIBRARY})
-    message("TESTAPPLICATION_GLM_INCLUDE: ${TESTAPPLICATION_GLM_INCLUDE}")
-    message("TESTAPPLICATION_VULKAN_DIRECTORY: ${TESTAPPLICATION_VULKAN_DIRECTORY}")
-    message("TESTAPPLICATION_VULKAN_LIBRARY: ${TESTAPPLICATION_VULKAN_LIBRARY}")
+    message("TESTAPP_OUTPUT_DIRECTORY:" ${TESTAPP_OUTPUT_DIRECTORY})
+    message("TESTAPP_PROJECT_NAME:" ${TESTAPP_PROJECT_NAME})
 
-    message("TESTAPPLICATION_OUTPUT_DIRECTORY: ${TESTAPPLICATION_OUTPUT_DIRECTORY}")
-
-    message("TESTAPPLICATION_VULKAN_BUILD: ${TESTAPPLICATION_VULKAN_BUILD}")
-    message("TESTAPPLICATION_WINDOWS_NO_CONSOLE: ${TESTAPPLICATION_WINDOWS_NO_CONSOLE}")
-    message("TESTAPPLICATION_WINDOWS_MEMORY_LEAK_CHECK: ${TESTAPPLICATION_WINDOWS_MEMORY_LEAK_CHECK}")
+    message("TESTAPP_WINDOWS_NO_CONSOLE: ${TESTAPP_WINDOWS_NO_CONSOLE}")
+    message("TESTAPP_WINDOWS_MEMORY_LEAK_CHECK: ${TESTAPP_WINDOWS_MEMORY_LEAK_CHECK}")
 
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
@@ -279,5 +250,4 @@ if(${TESTAPPLICATION_SANITY_CHECK_DEBUG_OUTPUT})
     message("--------------------------------------------------------------------------------")
 endif()
 
-# ##############################################################################
 # ##############################################################################
