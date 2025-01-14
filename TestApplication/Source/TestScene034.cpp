@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-01-13
 
 #include "TestScene034.h"
 
@@ -98,7 +98,6 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // cube
         cube001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cube001_MeshDataPtr_);
-        // FAIL_CHECK(Project001::MeshLoader::GenerateBox(*cube001_MeshDataPtr_, glm::vec3(-0.34f), glm::vec3(0.34f), false));
         FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*cube001_MeshDataPtr_, "../Models/Cube.obj"));
 
         rendererPtr_->CreateMesh(

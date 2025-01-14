@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-01-13
 
 #pragma once
 
@@ -159,7 +159,24 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateBoxWithTexture(
+            MeshData& meshData,
+            const glm::vec3& min,
+            const glm::vec3& max,
+            const std::vector<glm::vec2>& textureCoordinates,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         static bool GenerateCapsule(
+            MeshData& meshData,
+            float cylindricalHeight,
+            float radius,
+            size_t faces,
+            size_t stacks,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateCapsule_v2(
             MeshData& meshData,
             float cylindricalHeight,
             float radius,
@@ -176,11 +193,35 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateCone_v2(
+            MeshData& meshData,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         static bool GenerateCylinder(
             MeshData& meshData,
             float height,
             float radius,
             size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateCylinder_v2(
+            MeshData& meshData,
+            float height,
+            float radius,
+            size_t faces,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateHemisphere(
+            MeshData& meshData,
+            float radius,
+            size_t longitudinalSections,
+            size_t latitudinalSections,
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
@@ -314,13 +355,26 @@ namespace Project001
             const glm::vec2& point2,
             const float& slope2);
 
-        // Used in GenerateIcosphere
+        // Used in GenerateIcosphere and GenerateIcosphere_v2
         static void SubdivideIcosphereTriangleFaces(
             std::vector<glm::vec3>& positions,
             std::vector<glm::vec2>& textureCoordinates,
             std::vector<glm::uvec3>& triangleFaces,
             float radius,
             size_t subdivisions);
+
+        // Used in GenerateCapsule, GenerateCone, GenerateCylinder,
+        // GenerateHemisphere, and GenerateSphere
+        // longitudionalSections must be >= 3
+        // latitudionalSections must be >= 2
+        static void GenerateSphereMeshVerticesAndIndices(MeshData& meshData,
+            size_t longitudinalSections,
+            size_t latitudinalSections,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<glm::vec3>& normals,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
 
         static void RecalculateMeshMinMax_v2(MeshData& meshData);
     };

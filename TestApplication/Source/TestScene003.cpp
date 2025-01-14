@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-01-13
 
 #include "TestScene003.h"
 
@@ -50,6 +50,10 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     unsigned int earthTextureId = (unsigned int)-1;
     unsigned int rgb120x60TextureId = (unsigned int)-1;
+    unsigned int numbers12x6TextureId = (unsigned int)-1;
+    unsigned int box01_textureId = (unsigned int)-1;
+    unsigned int box02_textureId = (unsigned int)-1;
+    unsigned int box03_textureId = (unsigned int)-1;
 
     {
         Project001::TextureData textureData;
@@ -63,13 +67,118 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         rendererPtr_->CreateTexture(rgb120x60TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        rendererPtr_->CreateTexture(numbers12x6TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_01.png"));
+        rendererPtr_->CreateTexture(box01_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_02.png"));
+        rendererPtr_->CreateTexture(box02_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
+        rendererPtr_->CreateTexture(box03_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    std::vector<glm::vec2> box01_textureCoordinates;
+    box01_textureCoordinates.reserve(24);
+    box01_textureCoordinates.emplace_back(0.0f, 1.0f);        // front
+    box01_textureCoordinates.emplace_back(0.0f, 0.5f);        //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 1.0f); //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 1.0f); // right
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 1.0f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 1.0f); // back
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(1.0f, 1.0f);        //
+    box01_textureCoordinates.emplace_back(1.0f, 0.5f);        //
+    box01_textureCoordinates.emplace_back(0.0f, 0.5f);        // left
+    box01_textureCoordinates.emplace_back(0.0f, 0.0f);        //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.0f); //
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.5f); // top
+    box01_textureCoordinates.emplace_back(1.0f / 3.0f, 0.0f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.5f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.0f); //
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.5f); // bottom
+    box01_textureCoordinates.emplace_back(2.0f / 3.0f, 0.0f); //
+    box01_textureCoordinates.emplace_back(1.0f, 0.5f);        //
+    box01_textureCoordinates.emplace_back(1.0f, 0.0f);        //
+
+    std::vector<glm::vec2> box02_textureCoordinates;
+    box02_textureCoordinates.reserve(24);
+    box02_textureCoordinates.emplace_back(0.0f, 1.0f); // front
+    box02_textureCoordinates.emplace_back(0.0f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.4f, 1.0f); //
+    box02_textureCoordinates.emplace_back(0.4f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.4f, 1.0f); // right
+    box02_textureCoordinates.emplace_back(0.4f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.6f, 1.0f); //
+    box02_textureCoordinates.emplace_back(0.6f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.6f, 1.0f); // back
+    box02_textureCoordinates.emplace_back(0.6f, 0.5f); //
+    box02_textureCoordinates.emplace_back(1.0f, 1.0f); //
+    box02_textureCoordinates.emplace_back(1.0f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.0f, 0.5f); // left
+    box02_textureCoordinates.emplace_back(0.0f, 0.0f); //
+    box02_textureCoordinates.emplace_back(0.2f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.2f, 0.0f); //
+    box02_textureCoordinates.emplace_back(0.2f, 0.5f); // top
+    box02_textureCoordinates.emplace_back(0.2f, 0.0f); //
+    box02_textureCoordinates.emplace_back(0.6f, 0.5f); //
+    box02_textureCoordinates.emplace_back(0.6f, 0.0f); //
+    box02_textureCoordinates.emplace_back(0.6f, 0.5f); // bottom
+    box02_textureCoordinates.emplace_back(0.6f, 0.0f); //
+    box02_textureCoordinates.emplace_back(1.0f, 0.5f); //
+    box02_textureCoordinates.emplace_back(1.0f, 0.0f); //
+
+    std::vector<glm::vec2> box03_textureCoordinates;
+    box03_textureCoordinates.reserve(24);
+    box03_textureCoordinates.emplace_back(0.0f, 1.0f);  // front
+    box03_textureCoordinates.emplace_back(0.0f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 1.0f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 1.0f);  // right
+    box03_textureCoordinates.emplace_back(0.5f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(0.75f, 1.0f); //
+    box03_textureCoordinates.emplace_back(0.75f, 0.5f); //
+    box03_textureCoordinates.emplace_back(0.0f, 0.5f);  // back
+    box03_textureCoordinates.emplace_back(0.0f, 0.0f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 0.0f);  //
+    box03_textureCoordinates.emplace_back(0.75f, 1.0f); // left
+    box03_textureCoordinates.emplace_back(0.75f, 0.5f); //
+    box03_textureCoordinates.emplace_back(1.0f, 1.0f);  //
+    box03_textureCoordinates.emplace_back(1.0f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(0.5f, 0.5f);  // top
+    box03_textureCoordinates.emplace_back(0.5f, 0.25f); //
+    box03_textureCoordinates.emplace_back(1.0f, 0.5f);  //
+    box03_textureCoordinates.emplace_back(1.0f, 0.25f); //
+    box03_textureCoordinates.emplace_back(0.5f, 0.25f); // bottom
+    box03_textureCoordinates.emplace_back(0.5f, 0.0f);  //
+    box03_textureCoordinates.emplace_back(1.0f, 0.25f); //
+    box03_textureCoordinates.emplace_back(1.0f, 0.0f);  //
+
     // Creating Entities
     // -------------------------------------------------------------------------
 
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
-    for (int j = 3; j >= -4; --j)
+    for (int j = 5; j >= -4; --j)
     {
         for (int i = -3; i <= 2; ++i)
         {
@@ -83,7 +192,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f, false));
+        const glm::vec3 min(-0.16f, -0.16f, -0.16f);
+        const glm::vec3 max(0.16f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -103,7 +214,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f, false));
+        const glm::vec3 min(-0.32f, -0.16f, -0.16f);
+        const glm::vec3 max(0.32f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -123,7 +236,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.48f, 0.32f));
+        const glm::vec3 min(-0.32f, -0.32f, -0.16f);
+        const glm::vec3 max(0.32f, 0.32f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -143,7 +258,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.64f, 0.64f, 0.64f));
+        const glm::vec3 min(-0.16f, -0.16f, -0.16f);
+        const glm::vec3 max(0.16f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -163,7 +280,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
+        const glm::vec3 min(-0.32f, -0.16f, -0.16f);
+        const glm::vec3 max(0.32f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -183,7 +302,9 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, 0.32f, 0.32f, 0.32f, false));
+        const glm::vec3 min(-0.32f, -0.32f, -0.16f);
+        const glm::vec3 max(0.32f, 0.32f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         componentStoresPtr_->CreateEntity(tempEntityId);
@@ -203,6 +324,144 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.16f, -0.16f, -0.16f);
+        const glm::vec3 max(0.16f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box01_textureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.32f, -0.16f, -0.16f);
+        const glm::vec3 max(0.32f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box02_textureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.32f, -0.32f, -0.16f);
+        const glm::vec3 max(0.32f, 0.32f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box03_textureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.16f, -0.16f, -0.16f);
+        const glm::vec3 max(0.16f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box01_textureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.32f, -0.16f, -0.16f);
+        const glm::vec3 max(0.32f, 0.16f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box02_textureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const glm::vec3 min(-0.32f, -0.32f, -0.16f);
+        const glm::vec3 max(0.32f, 0.32f, 0.16f);
+        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(box03_textureId);
+        }
+    }
+
+    // row 3 -------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2));
 
         unsigned int tempEntityId;
@@ -216,7 +475,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -237,7 +496,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -258,7 +517,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -279,7 +538,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -300,7 +559,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -321,11 +580,11 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(earthTextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
-    // row 3 -------------------------------------------------------------------
+    // row 4 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -342,7 +601,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -363,7 +622,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -384,7 +643,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -405,7 +664,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -426,7 +685,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -447,11 +706,11 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
-    // row 4 -------------------------------------------------------------------
+    // row 5 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -468,7 +727,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -489,7 +748,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -510,7 +769,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -531,7 +790,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -552,7 +811,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -573,127 +832,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(rgb120x60TextureId);
-        }
-    }
-
-    // row 5 -------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
-
-        unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -714,6 +853,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -734,6 +874,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -754,6 +895,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -774,6 +916,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -794,6 +937,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -814,10 +958,263 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
     // row 7 -------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // row 8 -------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // row 9 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -834,6 +1231,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -854,6 +1252,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -874,6 +1273,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -894,6 +1294,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -914,6 +1315,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
@@ -934,10 +1336,11 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
         }
     }
 
-    // row 8 -------------------------------------------------------------------
+    // row 10 ------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
