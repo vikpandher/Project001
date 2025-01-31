@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-13
+// @DATE 2025-01-31
 
 #pragma once
 
@@ -110,6 +110,11 @@ namespace Project001
             const std::vector<glm::vec2>& positions,
             float width,
             bool beveledCorners = true,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DPolygon(
+            MeshData& meshData,
+            const std::vector<glm::vec2>& corners,
             bool triangulate = s_triangulate);
 
         static bool Generate2DRegularPolygon(

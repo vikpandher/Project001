@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-01-31
 
 #pragma once
 
@@ -27,14 +27,4 @@ protected:
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
-
-    // Mesh Data ---------------------------------------------------------------
-
-    Project001::MeshData* mesh001_MeshDataPtr_;
-    unsigned int mesh001_MeshId_;
-    float mesh001_MaxBoundingRadius_;
-
-    // Entity Ids --------------------------------------------------------------
-
-    unsigned int object001_EntityId_;
 };

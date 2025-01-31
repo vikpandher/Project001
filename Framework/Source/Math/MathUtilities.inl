@@ -1,3 +1,6 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2025-01-31
 
 
 
@@ -102,6 +105,105 @@ namespace Project001
             min = a;
             max = b;
         }
+    }
+
+    // Miscellaneous Algorithms ------------------------------------------------
+
+    inline bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
+    {
+        // Ear Clipping Algorithm
+        // 
+        // Valid polygons must have their corners ordered counter-clockwise.
+        // 
+        // Indices will represent tirangles with their corners ordered
+        // counter-clockwise.
+
+        if (corners.size() < 3)
+        {
+            return false;
+        }
+
+        std::vector<size_t> polygon(corners.size());
+        for (size_t i = 0; i < corners.size(); ++i)
+        {
+            polygon[i] = i;
+        }
+
+        while (polygon.size() > 3)
+        {
+            bool earFound = false;
+
+            for (size_t i = 0; i < polygon.size(); ++i)
+            {
+                size_t prev = polygon[(i - 1 + polygon.size()) % polygon.size()];
+                size_t curr = polygon[i];
+                size_t next = polygon[(i + 1) % polygon.size()];
+
+                const glm::vec2& p0 = corners[prev];
+                const glm::vec2& p1 = corners[curr];
+                const glm::vec2& p2 = corners[next];
+
+                // check if the triangle is counter-clockwise
+                float cross = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
+                if (cross <= 0)
+                {
+                    continue; // not counter-clockwise
+                }
+
+                // check if any other corner is inside the triangle
+                bool isEar = true;
+
+                for (size_t j = 0; j < polygon.size(); ++j)
+                {
+                    if (j == (i - 1 + polygon.size()) % polygon.size() ||
+                        j == i ||
+                        j == (i + 1) % polygon.size())
+                    {
+                        continue;
+                    }
+
+                    const glm::vec2& pt = corners[polygon[j]];
+
+                    // Barycentric test for point inside the triangle
+                    float alpha = ((p1.y - p2.y) * (pt.x - p2.x) + (p2.x - p1.x) * (pt.y - p2.y)) /
+                        ((p1.y - p2.y) * (p0.x - p2.x) + (p2.x - p1.x) * (p0.y - p2.y));
+                    float beta = ((p2.y - p0.y) * (pt.x - p2.x) + (p0.x - p2.x) * (pt.y - p2.y)) /
+                        ((p1.y - p2.y) * (p0.x - p2.x) + (p2.x - p1.x) * (p0.y - p2.y));
+                    float gamma = 1.0f - alpha - beta;
+
+                    if (alpha > 0 && beta > 0 && gamma > 0)
+                    {
+                        isEar = false;
+                        break; // corner is inside the triangle
+                    }
+                }
+
+                if (isEar)
+                {
+                    // Add the ear triangle
+                    indices.push_back(prev);
+                    indices.push_back(curr);
+                    indices.push_back(next);
+
+                    // Remove the ear corner
+                    polygon.erase(polygon.begin() + i);
+                    earFound = true;
+                    break;
+                }
+            }
+
+            if (!earFound)
+            {
+                return false; // No ear found, invalid polygon
+            }
+        }
+
+        // Add the last remaining triangle
+        indices.push_back(polygon[0]);
+        indices.push_back(polygon[1]);
+        indices.push_back(polygon[2]);
+
+        return true;
     }
 
     // Vector Manipulation -----------------------------------------------------

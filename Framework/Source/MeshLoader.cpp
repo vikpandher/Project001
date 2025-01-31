@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-13
+// @DATE 2025-01-31
 
 #include "MeshLoader.h"
 
@@ -1655,6 +1655,23 @@ namespace Project001
             if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
             if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
         }
+
+        return true;
+    }
+
+    bool MeshLoader::Generate2DPolygon(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& corners,
+        bool triangulate)
+    {
+        std::vector<size_t> indices;
+        bool validPolygon = EarClipPolygon(indices, corners);
+        if (!validPolygon)
+        {
+            return false;
+        }
+
+        // TODO: finish
 
         return true;
     }

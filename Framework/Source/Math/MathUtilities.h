@@ -1,7 +1,13 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2025-01-31
+
 #pragma once
 
 #include "glm/glm.hpp"
 #include "glm/gtc/constants.hpp"
+
+#include <vector>
 
 
 
@@ -11,6 +17,7 @@ namespace Project001
     // * Coordinate Systems
     // * Fast Square Root
     // * Float Comparisons
+    // * Miscellaneous Algorithms
     // * Vector Manipulation
 
     // Coordinate Systems ------------------------------------------------------
@@ -43,6 +50,10 @@ namespace Project001
     bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
     void GetMinMax(float a, float b, float& min, float& max);
+
+    // Miscellaneous Algorithms ------------------------------------------------
+
+    bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
 
     // Vector Manipulation -----------------------------------------------------
 
