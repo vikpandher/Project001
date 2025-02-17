@@ -1671,7 +1671,24 @@ namespace Project001
             return false;
         }
 
-        // TODO: finish
+        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(meshData, corners, indices, triangulate);
+
+        return true;
+    }
+
+    bool MeshLoader::Generate2DPolygon_v2(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& corners,
+        bool triangulate)
+    {
+        std::vector<size_t> indices;
+        bool validPolygon = EarClipPolygon_v2(indices, corners);
+        if (!validPolygon)
+        {
+            return false;
+        }
+
+        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(meshData, corners, indices, triangulate);
 
         return true;
     }
@@ -5725,6 +5742,74 @@ namespace Project001
         }
 
         return intersectionPoint;
+    }
+
+    void MeshLoader::PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& vertices,
+        const std::vector<size_t>& indices,
+        bool triangulate)
+    {
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        size_t currentVertexCount = meshVertexArray.size();
+
+        if (!triangulate)
+        {
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                const glm::vec2& currentCorner = vertices[i];
+
+                MeshVertex meshVertex;
+                meshVertex.position = glm::vec3(currentCorner, 0.0f);
+                meshVertex.normal = normal;
+                meshVertexArray.push_back(meshVertex);
+            }
+
+            for (size_t i = 0; i < indices.size(); ++i)
+            {
+                const size_t& currentIndex = indices[i];
+
+                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)currentIndex);
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < indices.size(); ++i)
+            {
+                const size_t& currentIndex = indices[i];
+                const glm::vec2& currentCorner = vertices[currentIndex];
+
+                MeshVertex meshVertex;
+                meshVertex.position = glm::vec3(currentCorner, 0.0f);
+                meshVertex.normal = normal;
+                meshVertexArray.push_back(meshVertex);
+
+                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i);
+            }
+        }
+
+        for (size_t i = 0; i < vertices.size(); ++i)
+        {
+            const glm::vec2& currentPosition = vertices[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+        }
     }
 
     void MeshLoader::SubdivideIcosphereTriangleFaces(

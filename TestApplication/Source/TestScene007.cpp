@@ -49,12 +49,12 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int abc123TextureId = (unsigned int)-1;
+    unsigned int box03_textureId = (unsigned int)-1;
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/123456789abcdefghij.png"));
-        rendererPtr_->CreateTexture(abc123TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
+        rendererPtr_->CreateTexture(box03_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     // Creating Entities
@@ -180,7 +180,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -203,7 +203,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -211,7 +211,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon01_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon01_verticies));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -226,7 +226,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -249,7 +249,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -272,7 +272,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -280,7 +280,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon02_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon02_verticies));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -295,7 +295,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -318,7 +318,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -341,7 +341,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -349,7 +349,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon03_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon03_verticies));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -364,7 +364,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(abc123TextureId);
+            renderedMeshPtr->SetTextureId(box03_textureId);
         }
     }
 
@@ -399,7 +399,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "This Scene tests ...\n"
+        "This Scene tests polygon Mesh Generation.\n"
         "Use <WASD> to move the camera up, left, down, and right.\n"
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"

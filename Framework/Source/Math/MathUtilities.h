@@ -55,6 +55,8 @@ namespace Project001
 
     bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
 
+    bool EarClipPolygon_v2(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
+
     // Vector Manipulation -----------------------------------------------------
 
     // angle from vector1 to vector2 (from -pi to pi)

@@ -117,6 +117,12 @@ namespace Project001
             const std::vector<glm::vec2>& corners,
             bool triangulate = s_triangulate);
 
+        // Works a bit better
+        static bool Generate2DPolygon_v2(
+            MeshData& meshData,
+            const std::vector<glm::vec2>& corners,
+            bool triangulate = s_triangulate);
+
         static bool Generate2DRegularPolygon(
             MeshData& meshData,
             float radius,
@@ -181,6 +187,7 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        // No texture
         static bool GenerateCapsule_v2(
             MeshData& meshData,
             float cylindricalHeight,
@@ -198,6 +205,7 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        // No texture
         static bool GenerateCone_v2(
             MeshData& meshData,
             float height,
@@ -214,6 +222,7 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        // No texture
         static bool GenerateCylinder_v2(
             MeshData& meshData,
             float height,
@@ -359,6 +368,13 @@ namespace Project001
             const float& slope1,
             const glm::vec2& point2,
             const float& slope2);
+
+        // Used in Generate2DPolygon and Generate2DPolygon_v2
+        static void PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(
+            MeshData& meshData,
+            const std::vector<glm::vec2>& vertices,
+            const std::vector<size_t>& indices,
+            bool triangulate = s_triangulate);
 
         // Used in GenerateIcosphere and GenerateIcosphere_v2
         static void SubdivideIcosphereTriangleFaces(
