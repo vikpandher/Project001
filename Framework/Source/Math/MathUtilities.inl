@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-31
+// @DATE 2025-04-07
 
 
 
@@ -105,6 +105,21 @@ namespace Project001
             min = a;
             max = b;
         }
+    }
+
+    inline float GetRandomFloat(uint32_t seed)
+    {
+        // Scramble the seed
+        seed ^= seed >> 17;
+        seed *= 0xed5ad4bb;
+        seed ^= seed >> 11;
+        seed *= 0xac4c1b51;
+        seed ^= seed >> 15;
+        seed *= 0x31848bab;
+        seed ^= seed >> 14;
+
+        // mask out with a 24-bit mask and then divide it by 2^24
+        return (seed & 0xFFFFFF) / float(0x1000000);
     }
 
     // Miscellaneous Algorithms ------------------------------------------------

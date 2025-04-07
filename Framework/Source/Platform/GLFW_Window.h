@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-07
 
 #pragma once
 
@@ -72,6 +72,8 @@ namespace Project001
 
     protected:
         void InitializeCallbacks();
+
+        void RemoveCallbacks();
 
         static int s_glfwWindowCount_;
 

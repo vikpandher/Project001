@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-07
 
 
 
@@ -5154,7 +5154,7 @@ namespace Project001
             return 0;
         }
         
-        float sqrt_of_d = std::sqrt(d);
+        float sqrt_of_d = glm::sqrt(d);
 
         float t1 = (-1.0f * b - sqrt_of_d) / (2.0f * a);
         float t2 = (-1.0f * b + sqrt_of_d) / (2.0f * a);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-31
+// @DATE 2025-04-07
 
 #pragma once
 
@@ -253,6 +253,17 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateIcosphereAsteroid(
+            MeshData& meshData,
+            std::vector<glm::vec2>& borderPoints,
+            float radius,
+            uint32_t offsetSeed,
+            float maxOffsetLength,
+            size_t subdivisions,
+            std::vector<float>& vertexOffsetDistances,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         static bool GenerateSphere(
             MeshData& meshData,
             float radius,
@@ -384,11 +395,40 @@ namespace Project001
             float radius,
             size_t subdivisions);
 
+        // Used in GenerateIcosphereAsteroid
+        // This version includes the offset seeds
+        static void SubdivideIcosphereTriangleFaces_v2(
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<uint32_t>& offsetSeeds,
+            std::vector<glm::uvec3>& triangleFaces,
+            float radius,
+            size_t subdivisions);
+
+        // This version avoids duplicate positions, but doesn't handle textures.
+        static void SubdivideIcosphereTriangleFaces_v3(
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::uvec3>& triangleFaces,
+            float radius,
+            size_t subdivisions);
+
+        // Used in GenerateIcosphere and GenerateIcosphere_v2
+        // radius must be > 0
+        static void GenerateIcosphereMeshVerticesAndIndices(
+            MeshData& meshData,
+            float radius,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<glm::uvec3>& triangleFaces,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         // Used in GenerateCapsule, GenerateCone, GenerateCylinder,
         // GenerateHemisphere, and GenerateSphere
         // longitudionalSections must be >= 3
         // latitudionalSections must be >= 2
-        static void GenerateSphereMeshVerticesAndIndices(MeshData& meshData,
+        static void GenerateSphereMeshVerticesAndIndices(
+            MeshData& meshData,
             size_t longitudinalSections,
             size_t latitudinalSections,
             std::vector<glm::vec3>& positions,

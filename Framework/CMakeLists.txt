@@ -1,13 +1,12 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2024-12-22
-
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
-endif()
+# @DATE 2025-04-07
 
 cmake_minimum_required(VERSION 3.22.0)
 
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
+endif()
 
 set(FRAMEWORK_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Source" CACHE PATH "")
 set(FRAMEWORK_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Library" CACHE PATH "")
@@ -248,9 +247,9 @@ target_include_directories("${PROJECT_NAME}"
 #     PRIVATE
 # )
 
-target_link_libraries("${PROJECT_NAME}"
-    PRIVATE
-)
+# target_link_libraries("${PROJECT_NAME}"
+#     PRIVATE
+# )
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES
     # ARCHIVE_OUTPUT_DIRECTORY "${FRAMEWORK_OUTPUT_DIRECTORY}" # Creates a Debug and Release folder in given directory

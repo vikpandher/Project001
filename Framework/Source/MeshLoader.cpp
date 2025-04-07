@@ -1,11 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-31
+// @DATE 2025-04-07
 
 #include "MeshLoader.h"
 
 #include "Math/MathUtilities.h"
 
+#include <algorithm> // for std::sort
 #include <fstream>
 
 
@@ -3954,7 +3955,7 @@ namespace Project001
                 {
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 2) + 1);
                     meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount) + 1);
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount)+1);
                 }
             }
         }
@@ -4220,16 +4221,12 @@ namespace Project001
             return false;
         }
 
-        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
-        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
         float& maxBoundingRadius = meshData.maxBoundingRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
         if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
         if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
-
-        size_t initialVertexCount = meshVertexArray.size();
 
         // Calculations initalialy done using Polar Coordinates:
         // x = radial distance of a point from the origin
@@ -4350,102 +4347,14 @@ namespace Project001
 
         // generate meshVerticies
         // ---------------------------------------------------------------------
-        if (smoothNormals)
-        {
-            if (triangulate)
-            {
-                std::vector<MeshVertex> tempMeshVertexArray;
-                for (size_t i = 0; i < positions.size(); ++i)
-                {
-                    MeshVertex meshVertex;
-                    meshVertex.position = positions[i];
-                    meshVertex.textureCoordinate = textureCoordinates[i];
-                    meshVertex.normal = positions[i] / radius;
-                    tempMeshVertexArray.push_back(meshVertex);
-                }
-
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-
-                for (size_t i = 0; i < triangleFaces.size(); ++i)
-                {
-                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                    const unsigned int& index0 = currentTriangleFace.x;
-                    const unsigned int& index1 = currentTriangleFace.y;
-                    const unsigned int& index2 = currentTriangleFace.z;
-
-                    meshVertexArray.push_back(tempMeshVertexArray[index0]);
-                    meshVertexArray.push_back(tempMeshVertexArray[index1]);
-                    meshVertexArray.push_back(tempMeshVertexArray[index2]);
-                }
-
-                for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
-                {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                }
-            }
-            else
-            {
-                for (size_t i = 0; i < positions.size(); ++i)
-                {
-                    MeshVertex meshVertex;
-                    meshVertex.position = positions[i];
-                    meshVertex.textureCoordinate = textureCoordinates[i];
-                    meshVertex.normal = positions[i] / radius;
-                    meshVertexArray.push_back(meshVertex);
-                }
-
-                for (size_t i = 0; i < triangleFaces.size(); ++i)
-                {
-                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.x);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.y);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.z);
-                }
-            }
-        }
-        else
-        {
-            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-
-            for (size_t i = 0; i < triangleFaces.size(); ++i)
-            {
-                const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                const unsigned int& index0 = currentTriangleFace.x;
-                const unsigned int& index1 = currentTriangleFace.y;
-                const unsigned int& index2 = currentTriangleFace.z;
-                const glm::vec3& position0 = positions[index0];
-                const glm::vec3& position1 = positions[index1];
-                const glm::vec3& position2 = positions[index2];
-
-                glm::vec3 position01 = position1 - position0;
-                glm::vec3 position12 = position2 - position1;
-                glm::vec3 normal = glm::normalize(glm::cross(position01, position12));
-
-                MeshVertex meshVertex0;
-                meshVertex0.position = position0;
-                meshVertex0.textureCoordinate = textureCoordinates[index0];
-                meshVertex0.normal = normal;
-
-                MeshVertex meshVertex1;
-                meshVertex1.position = position1;
-                meshVertex1.textureCoordinate = textureCoordinates[index1];
-                meshVertex1.normal = normal;
-
-                MeshVertex meshVertex2;
-                meshVertex2.position = position2;
-                meshVertex2.textureCoordinate = textureCoordinates[index2];
-                meshVertex2.normal = normal;
-
-                meshVertexArray.push_back(meshVertex0);
-                meshVertexArray.push_back(meshVertex1);
-                meshVertexArray.push_back(meshVertex2);
-            }
-
-            for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
-            {
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-            }
-        }
+        GenerateIcosphereMeshVerticesAndIndices(
+            meshData,
+            radius,
+            positions,
+            textureCoordinates,
+            triangleFaces,
+            smoothNormals,
+            triangulate);
 
         return true;
     }
@@ -4462,8 +4371,6 @@ namespace Project001
             return false;
         }
 
-        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
-        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
         float& maxBoundingRadius = meshData.maxBoundingRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
@@ -4471,13 +4378,11 @@ namespace Project001
         if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
         if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
 
-        size_t initialVertexCount = meshVertexArray.size();
-
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> textureCoordinates;
 
-        positions.reserve(22);
-        textureCoordinates.reserve(22);
+        positions.reserve(10);
+        textureCoordinates.reserve(10);
 
         // initial verticies
         // ---------------------------------------------------------------------
@@ -4558,102 +4463,195 @@ namespace Project001
 
         // generate meshVerticies
         // ---------------------------------------------------------------------
-        if (smoothNormals)
+        GenerateIcosphereMeshVerticesAndIndices(
+            meshData,
+            radius,
+            positions,
+            textureCoordinates,
+            triangleFaces,
+            smoothNormals,
+            triangulate);
+
+        return true;
+    }
+
+    bool MeshLoader::GenerateIcosphereAsteroid(
+        MeshData& meshData,
+        std::vector<glm::vec2>& borderPoints,
+        float radius,
+        uint32_t offsetSeed,
+        float maxOffsetLength,
+        size_t subdivisions,
+        std::vector<float>& vertexOffsetDistances,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius <= 0.0f)
         {
-            if (triangulate)
+            return false;
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
+        if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<uint32_t> offsetSeeds;
+
+        positions.reserve(10);
+        textureCoordinates.reserve(10);
+        offsetSeeds.reserve(10);
+
+        // initial verticies
+        // ---------------------------------------------------------------------
+        //    00    01    02    <- top
+        //   /  \  /  \  /  \
+        // 03 -- 04 -- 05 -- 06 <- body
+        //   \  /  \  /  \  /
+        //    07    08     09   <- bottom
+
+        offsetSeeds.push_back(0);
+        offsetSeeds.push_back(0);
+        offsetSeeds.push_back(0);
+        offsetSeeds.push_back(1);
+        offsetSeeds.push_back(2);
+        offsetSeeds.push_back(3);
+        offsetSeeds.push_back(1);
+        offsetSeeds.push_back(4);
+        offsetSeeds.push_back(4);
+        offsetSeeds.push_back(4);
+
+        constexpr const float hAngle = 2.0f / 3.0f * glm::pi<float>();
+
+        // top
+        for (size_t i = 0; i < 3; ++i)
+        {
+            positions.emplace_back(radius, 0.0f, 0.0f);
+            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 1.0f);
+        }
+
+        // body
+        for (size_t i = 0; i < 4; ++i)
+        {
+            positions.emplace_back(radius, 0.5f * glm::pi<float>(), (float)i * hAngle);
+            textureCoordinates.emplace_back((float)(i * 2) / 6.0f, 0.5f);
+        }
+
+        // bottom
+        for (size_t i = 0; i < 3; ++i)
+        {
+            positions.emplace_back(radius, glm::pi<float>(), 0.0f);
+            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 0.0f);
+        }
+
+        // convert positions from polar coordinates to cartesian coordinates
+        // ---------------------------------------------------------------------
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            float x = positions[i].x;
+            float y = positions[i].y;
+            float z = positions[i].z;
+            positions[i].z = x * glm::sin(y) * glm::cos(z);
+            positions[i].x = x * glm::sin(y) * glm::sin(z);
+            positions[i].y = x * glm::cos(y);
+        }
+
+        // initial triangles
+        // ---------------------------------------------------------------------
+        std::vector<glm::uvec3> triangleFaces;
+
+        triangleFaces.emplace_back(0, 3, 4);
+        triangleFaces.emplace_back(1, 4, 5);
+        triangleFaces.emplace_back(2, 5, 6);
+
+        triangleFaces.emplace_back(3, 7, 4);
+        triangleFaces.emplace_back(4, 8, 5);
+        triangleFaces.emplace_back(5, 9, 6);
+
+        // subdivide
+        // ---------------------------------------------------------------------
+        SubdivideIcosphereTriangleFaces_v2(
+            positions,
+            textureCoordinates,
+            offsetSeeds,
+            triangleFaces,
+            radius,
+            subdivisions);
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            glm::vec3& currentPosition = positions[i];
+            uint32_t currentOffsetSeed = offsetSeed + offsetSeeds[i];
+            float offset = maxOffsetLength * (GetRandomFloat(currentOffsetSeed) - 1.0f);
+
+            float positionLength = glm::sqrt(currentPosition.x * currentPosition.x + currentPosition.y * currentPosition.y + currentPosition.z * currentPosition.z);
+            currentPosition *= (offset + positionLength) / positionLength;
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            if (FloatEqualToFloat(currentPosition.y, 0.0f))
             {
-                std::vector<MeshVertex> tempMeshVertexArray;
-                for (size_t i = 0; i < positions.size(); ++i)
-                {
-                    MeshVertex meshVertex;
-                    meshVertex.position = positions[i];
-                    meshVertex.textureCoordinate = textureCoordinates[i];
-                    meshVertex.normal = positions[i] / radius;
-                    tempMeshVertexArray.push_back(meshVertex);
-                }
-
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-
-                for (size_t i = 0; i < triangleFaces.size(); ++i)
-                {
-                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                    const unsigned int& index0 = currentTriangleFace.x;
-                    const unsigned int& index1 = currentTriangleFace.y;
-                    const unsigned int& index2 = currentTriangleFace.z;
-
-                    meshVertexArray.push_back(tempMeshVertexArray[index0]);
-                    meshVertexArray.push_back(tempMeshVertexArray[index1]);
-                    meshVertexArray.push_back(tempMeshVertexArray[index2]);
-                }
-
-                for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
-                {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                }
-            }
-            else
-            {
-                for (size_t i = 0; i < positions.size(); ++i)
-                {
-                    MeshVertex meshVertex;
-                    meshVertex.position = positions[i];
-                    meshVertex.textureCoordinate = textureCoordinates[i];
-                    meshVertex.normal = positions[i] / radius;
-                    meshVertexArray.push_back(meshVertex);
-                }
-
-                for (size_t i = 0; i < triangleFaces.size(); ++i)
-                {
-                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.x);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.y);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.z);
-                }
+                borderPoints.emplace_back(currentPosition.x, -currentPosition.z); // negative z because right handed coordinate system
             }
         }
-        else
+
+        for (size_t i = 0; i < borderPoints.size(); ++i)
         {
-            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+            const glm::vec2& currentPosition = borderPoints[i];
+            borderPoints[i] = CartesianToPolar(currentPosition);
+        }
 
-            for (size_t i = 0; i < triangleFaces.size(); ++i)
+        std::sort(borderPoints.begin(), borderPoints.end(),
+            [](const glm::vec2& a, const glm::vec2& b)
             {
-                const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                const unsigned int& index0 = currentTriangleFace.x;
-                const unsigned int& index1 = currentTriangleFace.y;
-                const unsigned int& index2 = currentTriangleFace.z;
-                const glm::vec3& position0 = positions[index0];
-                const glm::vec3& position1 = positions[index1];
-                const glm::vec3& position2 = positions[index2];
-
-                glm::vec3 position01 = position1 - position0;
-                glm::vec3 position12 = position2 - position1;
-                glm::vec3 normal = glm::normalize(glm::cross(position01, position12));
-
-                MeshVertex meshVertex0;
-                meshVertex0.position = position0;
-                meshVertex0.textureCoordinate = textureCoordinates[index0];
-                meshVertex0.normal = normal;
-
-                MeshVertex meshVertex1;
-                meshVertex1.position = position1;
-                meshVertex1.textureCoordinate = textureCoordinates[index1];
-                meshVertex1.normal = normal;
-
-                MeshVertex meshVertex2;
-                meshVertex2.position = position2;
-                meshVertex2.textureCoordinate = textureCoordinates[index2];
-                meshVertex2.normal = normal;
-
-                meshVertexArray.push_back(meshVertex0);
-                meshVertexArray.push_back(meshVertex1);
-                meshVertexArray.push_back(meshVertex2);
+                return a.y < b.y; // Sort in ascending order based on t value
             }
+        );
 
-            for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
+        // the start and end points will be the same, so the duplicate needs to be removed
+        for (size_t i = 0; i < borderPoints.size() - 1; ++i)
+        {
+            if (FloatEqualToFloat(borderPoints[i].y, borderPoints[i + 1].y))
             {
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                borderPoints.erase(borderPoints.begin() + i);
             }
         }
+
+        for (size_t i = 0; i < borderPoints.size(); ++i)
+        {
+            const glm::vec2& currentPosition = borderPoints[i];
+            borderPoints[i] = PolarToCartesian(currentPosition);
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        // generate meshVerticies
+        // ---------------------------------------------------------------------
+        GenerateIcosphereMeshVerticesAndIndices(
+            meshData,
+            radius,
+            positions,
+            textureCoordinates,
+            triangleFaces,
+            smoothNormals,
+            triangulate);
 
         return true;
     }
@@ -5890,6 +5888,383 @@ namespace Project001
             }
 
             triangleFaces = std::move(newTriangleFaces);
+        }
+    }
+
+    void MeshLoader::SubdivideIcosphereTriangleFaces_v2(
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec2>& textureCoordinates,
+        std::vector<uint32_t>& offsetSeeds,
+        std::vector<glm::uvec3>& triangleFaces,
+        float radius,
+        size_t subdivisions)
+    {
+        for (size_t i = 0; i < subdivisions; ++i)
+        {
+            std::vector<glm::uvec3> newTriangleFaces;
+
+            for (size_t j = 0; j < triangleFaces.size(); ++j)
+            {
+                //       0         ->         0         ->         0
+                //     /   \       ->       /   \       ->       /   \
+                //    /     \      ->      A     C      ->      A --- C
+                //   /       \     ->     /       \     ->     /  \ /  \
+                //  1 ------- 2    ->    1 -- B -- 2    ->    1 -- B -- 2
+                // 
+                // or
+                // 
+                //  0 ------- 2    ->    0 -- C -- 2    ->    0 -- C -- 2
+                //   \       /     ->     \       /     ->     \  / \  /
+                //    \     /      ->      A     B      ->      A --- B
+                //     \   /       ->       \   /       ->       \   /
+                //       1         ->         1         ->         1
+
+                const glm::uvec3& currentTriangleFace = triangleFaces[j];
+                const unsigned int& index0 = currentTriangleFace.x;
+                const unsigned int& index1 = currentTriangleFace.y;
+                const unsigned int& index2 = currentTriangleFace.z;
+
+                const glm::vec3& position0 = positions[index0];
+                const glm::vec2& textureCoordinate0 = textureCoordinates[index0];
+                const glm::vec3& position1 = positions[index1];
+                const glm::vec2& textureCoordinate1 = textureCoordinates[index1];
+                const glm::vec3& position2 = positions[index2];
+                const glm::vec2& textureCoordinate2 = textureCoordinates[index2];
+
+                glm::vec3 positionA(position0.x + position1.x, position0.y + position1.y, position0.z + position1.z);
+                float scaleA = radius / glm::sqrt(positionA.x * positionA.x + positionA.y * positionA.y + positionA.z * positionA.z);
+                positionA.x *= scaleA;
+                positionA.y *= scaleA;
+                positionA.z *= scaleA;
+                glm::vec2 textureCoordinateA((textureCoordinate0.x + textureCoordinate1.x) / 2.0f, (textureCoordinate0.y + textureCoordinate1.y) / 2.0f);
+
+                glm::vec3 positionB(position1.x + position2.x, position1.y + position2.y, position1.z + position2.z);
+                float scaleB = radius / glm::sqrt(positionB.x * positionB.x + positionB.y * positionB.y + positionB.z * positionB.z);
+                positionB.x *= scaleB;
+                positionB.y *= scaleB;
+                positionB.z *= scaleB;
+                glm::vec2 textureCoordinateB((textureCoordinate1.x + textureCoordinate2.x) / 2.0f, (textureCoordinate1.y + textureCoordinate2.y) / 2.0f);
+
+                glm::vec3 positionC(position2.x + position0.x, position2.y + position0.y, position2.z + position0.z);
+                float scaleC = radius / glm::sqrt(positionC.x * positionC.x + positionC.y * positionC.y + positionC.z * positionC.z);
+                positionC.x *= scaleC;
+                positionC.y *= scaleC;
+                positionC.z *= scaleC;
+                glm::vec2 textureCoordinateC((textureCoordinate2.x + textureCoordinate0.x) / 2.0f, (textureCoordinate2.y + textureCoordinate0.y) / 2.0f);
+
+                // Positions that are the same as another positions will get
+                // the same offset seed
+
+                bool positionA_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionA.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionA.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionA.z, currentPosition.z))
+                    {
+                        positionA_is_unique = false;
+                        offsetSeeds.push_back(offsetSeeds[i]);
+                        break;
+                    }
+                }
+                if (positionA_is_unique)
+                {
+                    offsetSeeds.push_back(offsetSeeds.size());
+                }
+
+                bool positionB_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionB.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionB.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionB.z, currentPosition.z))
+                    {
+                        positionB_is_unique = false;
+                        offsetSeeds.push_back(offsetSeeds[i]);
+                        break;
+                    }
+                }
+                if (positionB_is_unique)
+                {
+                    offsetSeeds.push_back(offsetSeeds.size());
+                }
+
+                bool positionC_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionC.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionC.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionC.z, currentPosition.z))
+                    {
+                        positionC_is_unique = false;
+                        offsetSeeds.push_back(offsetSeeds[i]);
+                        break;
+                    }
+                }
+                if (positionC_is_unique)
+                {
+                    offsetSeeds.push_back(offsetSeeds.size());
+                }
+
+                const unsigned int indexA = (unsigned int)positions.size();
+                const unsigned int indexB = indexA + 1;
+                const unsigned int indexC = indexB + 1;
+
+                positions.push_back(positionA);
+                textureCoordinates.push_back(textureCoordinateA);
+                positions.push_back(positionB);
+                textureCoordinates.push_back(textureCoordinateB);
+                positions.push_back(positionC);
+                textureCoordinates.push_back(textureCoordinateC);
+
+                newTriangleFaces.emplace_back(index0, indexA, indexC);
+                newTriangleFaces.emplace_back(indexA, indexB, indexC);
+                newTriangleFaces.emplace_back(indexA, index1, indexB);
+                newTriangleFaces.emplace_back(indexC, indexB, index2);
+            }
+
+            triangleFaces = std::move(newTriangleFaces);
+        }
+    }
+
+    void MeshLoader::SubdivideIcosphereTriangleFaces_v3(
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::uvec3>& triangleFaces,
+        float radius,
+        size_t subdivisions)
+    {
+        for (size_t i = 0; i < subdivisions; ++i)
+        {
+            std::vector<glm::uvec3> newTriangleFaces;
+
+            for (size_t j = 0; j < triangleFaces.size(); ++j)
+            {
+                //       0         ->         0         ->         0
+                //     /   \       ->       /   \       ->       /   \
+                //    /     \      ->      A     C      ->      A --- C
+                //   /       \     ->     /       \     ->     /  \ /  \
+                //  1 ------- 2    ->    1 -- B -- 2    ->    1 -- B -- 2
+                // 
+                // or
+                // 
+                //  0 ------- 2    ->    0 -- C -- 2    ->    0 -- C -- 2
+                //   \       /     ->     \       /     ->     \  / \  /
+                //    \     /      ->      A     B      ->      A --- B
+                //     \   /       ->       \   /       ->       \   /
+                //       1         ->         1         ->         1
+
+                const glm::uvec3& currentTriangleFace = triangleFaces[j];
+                const unsigned int& index0 = currentTriangleFace.x;
+                const unsigned int& index1 = currentTriangleFace.y;
+                const unsigned int& index2 = currentTriangleFace.z;
+
+                const glm::vec3& position0 = positions[index0];
+                const glm::vec3& position1 = positions[index1];
+                const glm::vec3& position2 = positions[index2];
+
+                glm::vec3 positionA(position0.x + position1.x, position0.y + position1.y, position0.z + position1.z);
+                float scaleA = radius / glm::sqrt(positionA.x * positionA.x + positionA.y * positionA.y + positionA.z * positionA.z);
+                positionA.x *= scaleA;
+                positionA.y *= scaleA;
+                positionA.z *= scaleA;
+
+                glm::vec3 positionB(position1.x + position2.x, position1.y + position2.y, position1.z + position2.z);
+                float scaleB = radius / glm::sqrt(positionB.x * positionB.x + positionB.y * positionB.y + positionB.z * positionB.z);
+                positionB.x *= scaleB;
+                positionB.y *= scaleB;
+                positionB.z *= scaleB;
+
+                glm::vec3 positionC(position2.x + position0.x, position2.y + position0.y, position2.z + position0.z);
+                float scaleC = radius / glm::sqrt(positionC.x * positionC.x + positionC.y * positionC.y + positionC.z * positionC.z);
+                positionC.x *= scaleC;
+                positionC.y *= scaleC;
+                positionC.z *= scaleC;
+
+                unsigned int indexA;
+                bool positionA_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionA.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionA.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionA.z, currentPosition.z))
+                    {
+                        indexA = i;
+                        positionA_is_unique = false;
+                        break;
+                    }
+                }
+
+                if (positionA_is_unique)
+                {
+                    indexA = (unsigned int)positions.size();
+                    positions.push_back(positionA);
+                }
+
+                unsigned int indexB;
+                bool positionB_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionB.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionB.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionB.z, currentPosition.z))
+                    {
+                        indexB = i;
+                        positionB_is_unique = false;
+                        break;
+                    }
+                }
+
+                if (positionB_is_unique)
+                {
+                    indexB = (unsigned int)positions.size();
+                    positions.push_back(positionB);
+                }
+
+                unsigned int indexC;
+                bool positionC_is_unique = true;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const glm::vec3 currentPosition = positions[i];
+                    if (FloatEqualToFloat(positionC.x, currentPosition.x) &&
+                        FloatEqualToFloat(positionC.y, currentPosition.y) &&
+                        FloatEqualToFloat(positionC.z, currentPosition.z))
+                    {
+                        indexC = i;
+                        positionC_is_unique = false;
+                        break;
+                    }
+                }
+
+                if (positionC_is_unique)
+                {
+                    indexC = (unsigned int)positions.size();
+                    positions.push_back(positionC);
+                }
+
+                newTriangleFaces.emplace_back(index0, indexA, indexC);
+                newTriangleFaces.emplace_back(indexA, indexB, indexC);
+                newTriangleFaces.emplace_back(indexA, index1, indexB);
+                newTriangleFaces.emplace_back(indexC, indexB, index2);
+            }
+
+            triangleFaces = std::move(newTriangleFaces);
+        }
+    }
+
+    void MeshLoader::GenerateIcosphereMeshVerticesAndIndices(
+        MeshData& meshData,
+        float radius,
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec2>& textureCoordinates,
+        std::vector<glm::uvec3>& triangleFaces,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+
+        size_t initialVertexCount = meshVertexArray.size();
+
+        if (smoothNormals)
+        {
+            if (triangulate)
+            {
+                std::vector<MeshVertex> tempMeshVertexArray;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = positions[i] / radius;
+                    tempMeshVertexArray.push_back(meshVertex);
+                }
+
+                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+
+                for (size_t i = 0; i < triangleFaces.size(); ++i)
+                {
+                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                    const unsigned int& index0 = currentTriangleFace.x;
+                    const unsigned int& index1 = currentTriangleFace.y;
+                    const unsigned int& index2 = currentTriangleFace.z;
+
+                    meshVertexArray.push_back(tempMeshVertexArray[index0]);
+                    meshVertexArray.push_back(tempMeshVertexArray[index1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[index2]);
+                }
+
+                for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = positions[i] / radius;
+                    meshVertexArray.push_back(meshVertex);
+                }
+
+                for (size_t i = 0; i < triangleFaces.size(); ++i)
+                {
+                    const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.x);
+                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.y);
+                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.z);
+                }
+            }
+        }
+        else
+        {
+            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+
+            for (size_t i = 0; i < triangleFaces.size(); ++i)
+            {
+                const glm::uvec3& currentTriangleFace = triangleFaces[i];
+                const unsigned int& index0 = currentTriangleFace.x;
+                const unsigned int& index1 = currentTriangleFace.y;
+                const unsigned int& index2 = currentTriangleFace.z;
+                const glm::vec3& position0 = positions[index0];
+                const glm::vec3& position1 = positions[index1];
+                const glm::vec3& position2 = positions[index2];
+
+                glm::vec3 position01 = position1 - position0;
+                glm::vec3 position12 = position2 - position1;
+                glm::vec3 normal = glm::normalize(glm::cross(position01, position12));
+
+                MeshVertex meshVertex0;
+                meshVertex0.position = position0;
+                meshVertex0.textureCoordinate = textureCoordinates[index0];
+                meshVertex0.normal = normal;
+
+                MeshVertex meshVertex1;
+                meshVertex1.position = position1;
+                meshVertex1.textureCoordinate = textureCoordinates[index1];
+                meshVertex1.normal = normal;
+
+                MeshVertex meshVertex2;
+                meshVertex2.position = position2;
+                meshVertex2.textureCoordinate = textureCoordinates[index2];
+                meshVertex2.normal = normal;
+
+                meshVertexArray.push_back(meshVertex0);
+                meshVertexArray.push_back(meshVertex1);
+                meshVertexArray.push_back(meshVertex2);
+            }
+
+            for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
+            {
+                meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+            }
         }
     }
 

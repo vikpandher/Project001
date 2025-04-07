@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-07
 
 #include "GLFW_Window.h"
 
@@ -103,6 +103,10 @@ namespace Project001
         s_glfwWindowCount_--;
 
         s_recycledWindowIds_.push_back(windowId_);
+
+        // RemoveCallbacks();
+
+        glfwMakeContextCurrent(glfwWindowPtr_);
 
         glfwDestroyWindow(glfwWindowPtr_);
 
@@ -381,6 +385,19 @@ namespace Project001
                 FrameBufferSizeEvent event(sourceWindow.GetWindowId(), width, height);
                 sourceWindow.EventCallback(event);
             });
+    }
+
+    void GLFW_Window::RemoveCallbacks()
+    {
+        glfwSetKeyCallback(glfwWindowPtr_, nullptr);
+        glfwSetMouseButtonCallback(glfwWindowPtr_, nullptr);
+        glfwSetCursorPosCallback(glfwWindowPtr_, nullptr);
+        glfwSetCursorEnterCallback(glfwWindowPtr_, nullptr);
+        glfwSetScrollCallback(glfwWindowPtr_, nullptr);
+        glfwSetWindowCloseCallback(glfwWindowPtr_, nullptr);
+        glfwSetWindowFocusCallback(glfwWindowPtr_, nullptr);
+        glfwSetWindowSizeCallback(glfwWindowPtr_, nullptr);
+        glfwSetFramebufferSizeCallback(glfwWindowPtr_, nullptr);
     }
 
     int GLFW_Window::s_glfwWindowCount_ = 0;

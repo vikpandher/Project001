@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-31
+// @DATE 2025-04-07
 
 #include "TestScene007.h"
 
@@ -50,6 +50,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Texture Data ------------------------------------------------------------
 
     unsigned int box03_textureId = (unsigned int)-1;
+    unsigned int numbers12x6TextureId = (unsigned int)-1;
 
     {
         Project001::TextureData textureData;
@@ -57,8 +58,16 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         rendererPtr_->CreateTexture(box03_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        rendererPtr_->CreateTexture(numbers12x6TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
     // Creating Entities
     // -------------------------------------------------------------------------
+
+    // Create 2D Shapes --------------------------------------------------------
 
     std::vector<glm::vec2> polygon01_verticies;
     polygon01_verticies.emplace_back(2.0f, 0.0f);
@@ -151,17 +160,29 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
+
+    // left positions
     for (int j = 1; j >= -1; --j)
     {
-        for (int i = -1; i <= 1; ++i)
+        for (int i = -3; i <= -1; ++i)
         {
             meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
         }
     }
 
+    // right positions
+    for (int j = 1; j >= -1; --j)
+    {
+        for (int i = 1; i <= 3; ++i)
+        {
+            meshEntityPositions.emplace_back((float)i, (float)j, -0.4f);
+            meshEntityPositions.emplace_back((float)i, (float)j, 0.4f);
+        }
+    }
+
     size_t positionIndex = 0;
 
-    // row 1 -------------------------------------------------------------------
+    // left row 1 --------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -230,7 +251,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 2 -------------------------------------------------------------------
+    // left row 2 --------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -299,7 +320,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 3 -------------------------------------------------------------------
+    // left row 3 --------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -365,6 +386,395 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_textureId);
+        }
+    }
+
+    std::vector<float> vertexOffsetDistances;
+
+    // right row 1 -------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 0, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 1, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 2, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // right row 2 -------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 0, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 1, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 2, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // right row 3 -------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 0, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 1, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> borderPoints;
+        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 2, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+
+        newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTranslucent(true);
+            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
         }
     }
 

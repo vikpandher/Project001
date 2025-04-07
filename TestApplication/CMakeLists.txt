@@ -1,12 +1,12 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2024-12-22
-
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
-endif()
+# @DATE 2025-04-07
 
 cmake_minimum_required(VERSION 3.22.0)
+
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
+endif()
 
 set(TESTAPP_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Binary" CACHE PATH "")
 set(TESTAPP_PROJECT_NAME "Project001_TestApp" CACHE PATH "") # Name without postfix and extension
@@ -144,7 +144,8 @@ target_include_directories("${PROJECT_NAME}"
 
 target_link_libraries("${PROJECT_NAME}"
     PRIVATE
-    "${VENDOR_GLFW_LIBRARY}"
+    $<$<CONFIG:Debug>:${VENDOR_GLFW_LIBRARY_D}>
+    $<$<CONFIG:Release>:${VENDOR_GLFW_LIBRARY_R}>
     $<$<CONFIG:Debug>:${FRAMEWORK_OUTPUT_DIRECTORY}/${FRAMEWORK_PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}_d.lib>
     $<$<CONFIG:Release>:${FRAMEWORK_OUTPUT_DIRECTORY}/${FRAMEWORK_PROJECT_NAME}${PROJECT001_OUTPUT_NAME_GRAPHICS_SUFFIX}.lib>
 )

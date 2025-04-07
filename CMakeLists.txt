@@ -1,12 +1,12 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2024-12-22
-
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
-endif()
+# @DATE 2025-04-07
 
 cmake_minimum_required(VERSION 3.22.0)
+
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+    message(FATAL_ERROR "Prevented in-tree build. Create a build directory and run \"cmake -S ${CMAKE_SOURCE_DIR} -B .\" from there")
+endif()
 
 # https://github.com/vikpandher/FileToHeaderConverter.git
 set(VENDOR_FILE_TO_HEADER_CONVERTER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/FileToHeaderConverter/Bin/FileToHeaderConverter.exe" CACHE PATH "")
@@ -17,7 +17,8 @@ set(VENDOR_GLAD_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glad/src" CACHE PATH 
 
 # https://github.com/glfw/glfw.git
 set(VENDOR_GLFW_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glfw/include" CACHE PATH "")
-set(VENDOR_GLFW_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
+set(VENDOR_GLFW_LIBRARY_D "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glfw/build/src/Debug/glfw3.lib" CACHE PATH "")
+set(VENDOR_GLFW_LIBRARY_R "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glfw/build/src/Release/glfw3.lib" CACHE PATH "")
 
 # https://github.com/g-truc/glm.git
 set(VENDOR_GLM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/glm" CACHE PATH "")

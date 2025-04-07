@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-31
+// @DATE 2025-04-07
 
 #pragma once
 
@@ -50,6 +50,9 @@ namespace Project001
     bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
     void GetMinMax(float a, float b, float& min, float& max);
+
+    // Returns normalized float [0, 1)
+    float GetRandomFloat(uint32_t seed);
 
     // Miscellaneous Algorithms ------------------------------------------------
 
