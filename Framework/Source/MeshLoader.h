@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-04-10
 
 #pragma once
 
@@ -269,6 +269,23 @@ namespace Project001
             float radius,
             size_t longitudinalSections,
             size_t latitudinalSections,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        // The longitudeAngle goes from 0 to 2pi counter clockwise around the
+        // sphere looking down from the top. 0 starts at the +z axis.
+        // The latitudeAngle goes from 0 to pi from the top of the sphere to the
+        // bottom.
+        // The min/max longitude/latitude angles are bound within these ranges.
+        static bool GenerateSphereSection(
+            MeshData& meshData,
+            float radius,
+            size_t longitudinalSections,
+            size_t latitudinalSections,
+            float minLongitudeAngle,
+            float maxLongitudeAngle,
+            float minLatitudeAngle,
+            float maxLatitudeAngle,
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 

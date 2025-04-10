@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-13
+// @DATE 2025-04-10
 
 #include "TestScene003.h"
 
@@ -178,17 +178,17 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
-    for (int j = 5; j >= -4; --j)
+    for (int j = 2; j >= -3; --j)
     {
-        for (int i = -3; i <= 2; ++i)
+        for (int i = -6; i <= 5; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
+            meshEntityPositions.emplace_back((float)i + 0.5f, (float)j, 0.0f);
         }
     }
 
     size_t positionIndex = 0;
 
-    // row 1 -------------------------------------------------------------------
+    // row 1 ---------------------------------------------------------------- 00
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -210,7 +210,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 01
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -232,7 +232,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 02
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -254,7 +254,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 03
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -276,7 +276,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 04
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -298,7 +298,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 05
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -320,7 +320,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 2 -------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 06
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -343,7 +343,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 07
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -366,7 +366,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 08
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -389,7 +389,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 09
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -412,7 +412,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 10
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -435,7 +435,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 11
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -458,7 +458,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 3 -------------------------------------------------------------------
+    // row 2 ---------------------------------------------------------------- 12
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -479,7 +479,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 13
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -500,7 +500,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 14
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -521,7 +521,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 15
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -542,7 +542,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 16
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -563,7 +563,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 17
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -584,7 +584,171 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 4 -------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 18
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>()));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // ---------------------------------------------------------------------- 19
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+            *newMeshDataPtr,
+            0.32f,
+            4,
+            4,
+            0,
+            glm::two_pi<float>(),
+            1.0f / 3.0f * glm::pi<float>(),
+            2.0f / 3.0f * glm::pi<float>()
+        ));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // ---------------------------------------------------------------------- 20
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+            *newMeshDataPtr,
+            0.32f,
+            4,
+            4,
+            0,
+            glm::quarter_pi<float>(),
+            1.0f / 8.0f * glm::pi<float>(),
+            glm::half_pi<float>()
+        ));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // ---------------------------------------------------------------------- 21
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>(), false));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // ---------------------------------------------------------------------- 22
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+            *newMeshDataPtr,
+            0.32f,
+            4,
+            4,
+            0,
+            glm::two_pi<float>(),
+            1.0f / 3.0f * glm::pi<float>(),
+            2.0f / 3.0f * glm::pi<float>(),
+            false
+        ));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // ---------------------------------------------------------------------- 23
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+            *newMeshDataPtr,
+            0.32f,
+            4,
+            4,
+            0,
+            glm::quarter_pi<float>(),
+            1.0f / 8.0f * glm::pi<float>(),
+            glm::half_pi<float>(),
+            false
+        ));
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+        }
+    }
+
+    // row 3 ---------------------------------------------------------------- 24
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -605,7 +769,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 25
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -626,7 +790,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 26
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -647,7 +811,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 27
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -668,7 +832,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 28
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -689,7 +853,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 29
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -710,7 +874,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 5 -------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 30
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -731,7 +895,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 31
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -752,7 +916,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 32
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -773,7 +937,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 33
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -794,7 +958,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 34
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -815,7 +979,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 35
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -836,7 +1000,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 6 -------------------------------------------------------------------
+    // row 4 ---------------------------------------------------------------- 36
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -857,7 +1021,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 37
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -878,7 +1042,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 38
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -899,7 +1063,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 39
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -920,7 +1084,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 40
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -941,7 +1105,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 41
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -962,7 +1126,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 7 -------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 42
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -983,7 +1147,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 43
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1004,7 +1168,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 44
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1025,7 +1189,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 45
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1046,7 +1210,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 46
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1067,7 +1231,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 47
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1088,7 +1252,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 8 -------------------------------------------------------------------
+    // row 5 ---------------------------------------------------------------- 48
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1109,7 +1273,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 49
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1130,7 +1294,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 50
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1151,7 +1315,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 51
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1172,7 +1336,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 52
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1193,7 +1357,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 53
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1214,7 +1378,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 9 -------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 54
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1235,7 +1399,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 55
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1256,7 +1420,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 56
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1277,7 +1441,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 57
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1298,7 +1462,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 58
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1319,7 +1483,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 59
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1340,7 +1504,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // row 10 ------------------------------------------------------------------
+    // row 6 ---------------------------------------------------------------- 60
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1360,7 +1524,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 61
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1380,7 +1544,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 62
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1400,7 +1564,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 63
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1420,7 +1584,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 64
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -1440,7 +1604,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------- 65
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);

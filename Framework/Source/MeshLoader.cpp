@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-04-10
 
 #include "MeshLoader.h"
 
@@ -4762,6 +4762,292 @@ namespace Project001
             triangulate);
 
         return true;
+    }
+
+    bool MeshLoader::GenerateSphereSection(
+        MeshData& meshData,
+        float radius,
+        size_t longitudinalSections,
+        size_t latitudinalSections,
+        float minLongitudeAngle,
+        float maxLongitudeAngle,
+        float minLatitudeAngle,
+        float maxLatitudeAngle,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius <= 0.0f || longitudinalSections < 3 || latitudinalSections < 2 ||
+            minLongitudeAngle >= maxLongitudeAngle || minLatitudeAngle >= maxLatitudeAngle)
+        {
+            return false;
+        }
+
+        if (minLongitudeAngle < 0.0f)
+        {
+            minLongitudeAngle = 0.0f;
+        }
+
+        if (maxLongitudeAngle > glm::two_pi<float>())
+        {
+            maxLongitudeAngle = glm::two_pi<float>();
+        }
+
+        if (minLatitudeAngle < 0.0f)
+        {
+            minLatitudeAngle = 0.0f;
+        }
+
+        if (maxLatitudeAngle > glm::pi<float>())
+        {
+            maxLatitudeAngle = glm::pi<float>();
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.y < radius) maxVertexPosition.y = radius;
+        if (minVertexPosition.y > -radius) minVertexPosition.y = -radius;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        size_t uniquePositions = (longitudinalSections + 1) * (latitudinalSections + 1);
+        positions.reserve(uniquePositions);
+        textureCoordinates.reserve(uniquePositions);
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        const float totalLongitudeAngle = maxLongitudeAngle - minLongitudeAngle;
+        const float totalLatitudeAngle = maxLatitudeAngle - minLatitudeAngle;
+
+        const float longStep = totalLongitudeAngle / (float)(longitudinalSections);
+        const float latiStep = totalLatitudeAngle / (float)(latitudinalSections);
+
+        for (size_t i = 0; i < latitudinalSections + 1; ++i)
+        {
+            float latiAngle = glm::pi<float>() / 2.0f - minLatitudeAngle - latiStep * (float)i;
+            float xz = radius * glm::cos(latiAngle);
+            float y = radius * glm::sin(latiAngle);
+
+            for (size_t j = 0; j < longitudinalSections + 1; ++j)
+            {
+                float longAngle = glm::pi<float>() / 2.0f - minLongitudeAngle - longStep * (float)j;
+                float x = xz * glm::cos(longAngle);
+                float z = xz * glm::sin(longAngle);
+
+                positions.emplace_back(x, y, z);
+                textureCoordinates.emplace_back(
+                    (float)j / (float)longitudinalSections,
+                    (float)(latitudinalSections - i) / (float)latitudinalSections
+                );
+
+                if (smoothNormals)
+                {
+                    normals.emplace_back(x / radius, y / radius, z / radius);
+                }
+            }
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+
+        size_t initialVertexCount = meshVertexArray.size();
+
+        // ex: longitudinalSections = 3, latitudinalSections = 2
+        // 
+        // ( 0 )---( 1 )---( 2 )---( 3 )
+        //   |       |       |       |
+        //   |       |       |       |
+        // ( 4 )---( 5 )---( 6 )---( 7 )
+        //   |       |       |       |
+        //   |       |       |       |
+        // ( 8 )---( 9 )---( 10)---( 11)
+
+        const size_t firstBottomPosition = (longitudinalSections + 1) * latitudinalSections;
+        const size_t bodyWrapVertexCount = longitudinalSections + 1;
+
+        if (smoothNormals)
+        {
+            if (triangulate)
+            {
+                std::vector<MeshVertex> tempMeshVertexArray;
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    tempMeshVertexArray.push_back(meshVertex);
+                }
+
+                // ( i )---( i3)
+                //   |    /  |
+                //   |  /    |
+                // ( i2)---( i4)
+                for (size_t i = 0; i < firstBottomPosition - 1; ++i)
+                {
+                    if ((i + 1) % bodyWrapVertexCount == 0)
+                    {
+                        continue; // skip wrap section
+                    }
+
+                    size_t i2 = i + bodyWrapVertexCount;
+                    size_t i3 = i + 1;
+                    size_t i4 = i2 + 1;
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i3]);
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i4]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i3]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                }
+
+                for (size_t i = 0; i < longitudinalSections * latitudinalSections * 6; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    meshVertexArray.push_back(meshVertex);
+                }
+
+                // ( i )---( i3)
+                //   |    /  |
+                //   |  /    |
+                // ( i2)---( i4)
+                for (size_t i = 0; i < firstBottomPosition - 1; ++i)
+                {
+                    if ((i + 1) % bodyWrapVertexCount == 0)
+                    {
+                        continue; // skip wrap section
+                    }
+
+                    size_t i2 = i + bodyWrapVertexCount;
+                    size_t i3 = i + 1;
+                    size_t i4 = i2 + 1;
+
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i4));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                }
+            }
+        }
+        else
+        {
+            // ( i )---( i3)
+            //   |    /  |
+            //   |  /    |
+            // ( i2)---( i4)
+            for (size_t i = 0; i < firstBottomPosition - 1; ++i)
+            {
+                if ((i + 1) % bodyWrapVertexCount == 0)
+                {
+                    continue; // skip wrap section
+                }
+
+                size_t i2 = i + bodyWrapVertexCount;
+                size_t i3 = i + 1;
+                size_t i4 = i2 + 1;
+
+                const glm::vec3& p1 = positions[i];
+                const glm::vec3& p2 = positions[i2];
+                const glm::vec3& p3 = positions[i3];
+
+                glm::vec3 p1_to_p2 = p2 - p1;
+                glm::vec3 p2_to_p3 = p3 - p2;
+                glm::vec3 cross123 = glm::cross(p1_to_p2, p2_to_p3);
+                if (FloatEqualToFloat(cross123.x, 0.0f) && FloatEqualToFloat(cross123.y, 0.0f) && FloatEqualToFloat(cross123.z, 0.0f))
+                {
+                    const glm::vec3& p4 = positions[i4];
+
+                    glm::vec3 p4_to_p3 = p3 - p4;
+                    glm::vec3 p3_to_p2 = p2 - p3;
+                    cross123 = glm::cross(p4_to_p3, p3_to_p2);
+                }
+                glm::vec3 normal123 = glm::normalize(cross123);
+
+                MeshVertex v1;
+                v1.position = p1;
+                v1.textureCoordinate = textureCoordinates[i];
+                v1.normal = normal123;
+
+                MeshVertex v2;
+                v2.position = p2;
+                v2.textureCoordinate = textureCoordinates[i2];
+                v2.normal = normal123;
+
+                MeshVertex v3;
+                v3.position = p3;
+                v3.textureCoordinate = textureCoordinates[i3];
+                v3.normal = normal123;
+
+                MeshVertex v4;
+                v4.position = positions[i4];
+                v4.textureCoordinate = textureCoordinates[i4];
+                v4.normal = normal123;
+
+                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                if (triangulate)
+                {
+                    meshVertexArray.push_back(v1);
+                    meshVertexArray.push_back(v2);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v4);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v2);
+
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                }
+                else
+                {
+                    meshVertexArray.push_back(v1);
+                    meshVertexArray.push_back(v2);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v4);
+
+                    meshIndexArray.push_back(currentVertexCount);
+                    meshIndexArray.push_back(currentVertexCount + 1);
+                    meshIndexArray.push_back(currentVertexCount + 2);
+                    meshIndexArray.push_back(currentVertexCount + 3);
+                    meshIndexArray.push_back(currentVertexCount + 2);
+                    meshIndexArray.push_back(currentVertexCount + 1);
+                }
+            }
+        }
     }
 
     bool MeshLoader::GenerateTriangles(
