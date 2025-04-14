@@ -175,8 +175,6 @@ void TestInstructionScene001::Deinitialize()
 {
     LOG_INFO("DEINITIALIZING: TestInstructionScene001: " << GetId());
 
-    componentStoresPtr_ = nullptr;
-
     // Mesh Data ---------------------------------------------------------------
 
     delete hiddenInstructionTextMeshDataPtr_;
@@ -191,6 +189,7 @@ void TestInstructionScene001::Deinitialize()
 
     // Entity Ids --------------------------------------------------------------
 
+    componentStoresPtr_->DeleteEntity(instructionsEntityId_);
     instructionsEntityId_ = (unsigned int)-1;
     hiddenInstructionMeshIndex_ = (unsigned int)-1;
     instructionMeshIndex_ = (unsigned int)-1;
@@ -198,6 +197,8 @@ void TestInstructionScene001::Deinitialize()
     instructionBackgroundMeshIndex_ = (unsigned int)-1;
 
     // -------------------------------------------------------------------------
+
+    componentStoresPtr_ = nullptr;
 
     keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_UNKNOWN;
 }

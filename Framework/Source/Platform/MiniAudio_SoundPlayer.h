@@ -13,6 +13,7 @@
 // Note:
 // I cannot forward declare ma_audio_buffer because it contains flexable
 // array members; I'm just using void.
+struct ma_context;
 struct ma_engine;
 struct ma_sound;
 
@@ -200,6 +201,8 @@ namespace Project001
             unsigned int sizeInBytes,
             unsigned int numberOfChannels,
             unsigned int bitsPerSample);
+
+        ma_context* contextPtr_;
 
         ma_engine* enginePtr_;
 

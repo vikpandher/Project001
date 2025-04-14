@@ -19,14 +19,32 @@ namespace Project001
     // public ------------------------------------------------------------------
 
     MiniAudio_SoundPlayer::MiniAudio_SoundPlayer()
-        : enginePtr_(NULL)
+        : contextPtr_(NULL)
+        , enginePtr_(NULL)
     {
+        ma_context_config contextConfig = ma_context_config_init();
+        contextConfig.threadPriority = ma_thread_priority_realtime;
+
+        contextPtr_ = new (std::nothrow) ma_context;
+
+        ma_result result = ma_context_init(NULL, 0, &contextConfig, contextPtr_);
+        if (result != MA_SUCCESS)
+        {
+            printf("Failed to initialize context.\n");
+            return;
+        }
+
+        ma_engine_config engineConfig = ma_engine_config_init();
+        engineConfig.pContext = contextPtr_;
+
         enginePtr_ = new (std::nothrow) ma_engine;
 
-        ma_result result = ma_engine_init(NULL, enginePtr_);
+        result = ma_engine_init(&engineConfig, enginePtr_);
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to initialize audio engine");
+
+            ma_context_uninit(contextPtr_);
 
             delete enginePtr_;
             enginePtr_ = NULL;
@@ -47,6 +65,16 @@ namespace Project001
             ma_engine_uninit(enginePtr_);
             delete enginePtr_;
             enginePtr_ = NULL;
+        }
+
+        if (contextPtr_ != NULL)
+        {
+            // Commented this out because I don't want to call ma_CoUninitialize
+            // before glfw is uninitialized. If I do I hit an exception in glfw.
+            //
+            // ma_context_uninit(contextPtr_);
+            delete contextPtr_;
+            contextPtr_ = NULL;
         }
     }
 
