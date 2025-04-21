@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-04-20
 
 #include "TestScene007.h"
 
@@ -49,13 +49,13 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int box03_textureId = (unsigned int)-1;
+    unsigned int box03_TextureId = (unsigned int)-1;
     unsigned int numbers12x6TextureId = (unsigned int)-1;
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
-        rendererPtr_->CreateTexture(box03_textureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(box03_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
@@ -201,7 +201,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -224,7 +224,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -247,7 +247,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -270,7 +270,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -293,7 +293,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -316,7 +316,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -339,7 +339,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -362,7 +362,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
@@ -385,7 +385,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_textureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId);
         }
     }
 
