@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-21
 
 #include "TestScene013.h"
 
@@ -43,8 +43,6 @@ void TestScene013::HandleEvent(Project001::Event& event)
     TestSceneBase002::HandleEvent(event);
 
     Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene013::ProcessInitializeEvent, this, std::placeholders::_1));
-
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene013::ProcessRenderEvent, this, std::placeholders::_1));
 
     instructionScene_.HandleEvent(event);
 }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-21
 
 #include "Vulkan_Renderer.h"
 
@@ -11,6 +11,7 @@
 #include "Platform/Vulkan_Shaders/Generated/v_screen_frag_spv.h"
 #include "Platform/Vulkan_Shaders/Generated/v_screen_vert_spv.h"
 
+#include "Logger.h"
 #include "Window.h"
 
 #include <array>
@@ -46,11 +47,11 @@ namespace Project001
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            _LOG_ERROR("Vulkan Error: %s", pCallbackData->pMessage);
+            LOG_ERROR_F("Vulkan Error: " << pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            _LOG_MESSAGE("Vulkan Warning: %s", pCallbackData->pMessage);
+            LOG_WARNING_F("Vulkan Warning: " << pCallbackData->pMessage);
         }
         return VK_FALSE;
     }
@@ -676,7 +677,7 @@ namespace Project001
         AutoIdMap<Vulkan_Mesh>::iterator iter = meshMap_.Find(meshId);
         if (iter == meshMap_.IteratorPastTheEnd())
         {
-            _LOG_ERROR("Mesh Id not found!");
+            LOG_ERROR_F("Mesh Id not found!");
             return false;
         }
 
@@ -711,7 +712,7 @@ namespace Project001
                 }
                 else if (getTextureUnitResult == 2)
                 {
-                    _LOG_ERROR("TextureId %u not found!", textureId);
+                    LOG_ERROR_F("TextureId " << textureId << " not found!");
                     return false;
                 }
             }
@@ -726,7 +727,7 @@ namespace Project001
                 }
                 else if (getTextureUnitResult == 2)
                 {
-                    _LOG_ERROR("SpecularId %u not found!", specularId);
+                    LOG_ERROR_F("SpecularId " << specularId << " not found!");
                     return false;
                 }
             }
@@ -785,7 +786,7 @@ namespace Project001
             if (meshVertexCount > batchedVertexBufferCapacity_ ||
                 meshIndexCount > batchedIndexBufferCapacity_)
             {
-                _LOG_ERROR("Mesh larger then buffer!");
+                LOG_ERROR_F("Mesh larger then buffer!");
                 return false;
             }
 
@@ -804,7 +805,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
-                _LOG_ERROR("TextureId %u not found!", textureId);
+                LOG_ERROR_F("TextureId " << textureId << " not found!");
                 return false;
             }
         }
@@ -819,7 +820,7 @@ namespace Project001
             }
             else if (getTextureUnitResult == 2)
             {
-                _LOG_ERROR("SpecularId %u not found!", specularId);
+                LOG_ERROR_F("SpecularId " << specularId << " not found!");
                 return false;
             }
         }
@@ -1293,7 +1294,7 @@ namespace Project001
             }
             else if (result != VK_SUCCESS)
             {
-                _LOG_ERROR("Vulkan Error: Failed to present swap chain image!");
+                LOG_ERROR_F("Vulkan Error: Failed to present swap chain image!");
             }
         }
         else
@@ -1316,11 +1317,11 @@ namespace Project001
     {
         if (vulkanInstance_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vulkanInstance_ already exists");
+            LOG_ERROR_F("Vulkan Error: vulkanInstance_ already exists");
         }
         else if (debugMessenger_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: debugMessenger_ already exists");
+            LOG_ERROR_F("Vulkan Error: debugMessenger_ already exists");
         }
         else
         {
@@ -1359,7 +1360,7 @@ namespace Project001
 
                 if (validationLayerMissing)
                 {
-                    _LOG_ERROR("Vulkan Error: Validation layers requested, but not available!");
+                    LOG_ERROR_F("Vulkan Error: Validation layers requested, but not available!");
                 }
             }
 
@@ -1420,7 +1421,7 @@ namespace Project001
                 }
                 else
                 {
-                    _LOG_ERROR("Vulkan Error: Failed to find CreateDebugUtilsMessengerEXT funciton!");
+                    LOG_ERROR_F("Vulkan Error: Failed to find CreateDebugUtilsMessengerEXT funciton!");
                 }
             }
         }
@@ -1447,7 +1448,7 @@ namespace Project001
     {
         if (surface_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: surface_ already exists");
+            LOG_ERROR_F("Vulkan Error: surface_ already exists");
         }
         else
         {
@@ -1465,7 +1466,7 @@ namespace Project001
     {
         if (physicalDevice_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: physicalDevice_ already selected");
+            LOG_ERROR_F("Vulkan Error: physicalDevice_ already selected");
         }
         else
         {
@@ -1474,7 +1475,7 @@ namespace Project001
 
             if (deviceCount == 0)
             {
-                _LOG_ERROR("Vulkan Error: Failed to find GPUs with Vulkan support!");
+                LOG_ERROR_F("Vulkan Error: Failed to find GPUs with Vulkan support!");
             }
 
             std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
@@ -1624,7 +1625,7 @@ namespace Project001
 
                 if (!foundDesiredSurfaceFormat)
                 {
-                    _LOG_ERROR("Vulkan Error: Failed to find desired surface format!");
+                    LOG_ERROR_F("Vulkan Error: Failed to find desired surface format!");
                     surfaceFormat_ = surfaceFormats[0];
                 }
 
@@ -1659,7 +1660,7 @@ namespace Project001
 
                 if (!foundDepthFormat)
                 {
-                    _LOG_ERROR("Vulkan Error: Failed to find desired surface depth format!");
+                    LOG_ERROR_F("Vulkan Error: Failed to find desired surface depth format!");
                     depthFormat_ = formatCandidates[0];
                 }
 
@@ -1680,7 +1681,7 @@ namespace Project001
 
                 if (!foundDesiredPresentMode)
                 {
-                    _LOG_ERROR("Vulkan Error: Failed to find desired surface present mode!");
+                    LOG_ERROR_F("Vulkan Error: Failed to find desired surface present mode!");
                     surfacePresentMode_ = presentModes[0];
                 }
 
@@ -1724,7 +1725,7 @@ namespace Project001
 
             if (physicalDevice_ == VK_NULL_HANDLE)
             {
-                _LOG_ERROR("Vulkan Error: Failed to find a suitable GPU!");
+                LOG_ERROR_F("Vulkan Error: Failed to find a suitable GPU!");
             }
         }
     }
@@ -1748,7 +1749,7 @@ namespace Project001
     {
         if (logicalDevice_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: logicalDevice_ already exists");
+            LOG_ERROR_F("Vulkan Error: logicalDevice_ already exists");
         }
         else
         {
@@ -1816,7 +1817,7 @@ namespace Project001
     {
         if (commandPool_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: commandPool_ already exists");
+            LOG_ERROR_F("Vulkan Error: commandPool_ already exists");
         }
         else
         {
@@ -1841,7 +1842,7 @@ namespace Project001
     {
         if (renderingCommandBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: renderingCommandBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: renderingCommandBuffer_ already exists");
         }
         else
         {
@@ -1859,23 +1860,23 @@ namespace Project001
     {
         if (renderingFence_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: renderingFence_ already exists");
+            LOG_ERROR_F("Vulkan Error: renderingFence_ already exists");
         }
         else if (batchedDataTransferFence_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedDataTransferFence_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedDataTransferFence_ already exists");
         }
         else if (instanceDataTransferFence_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: instanceDataTransferFence_ already exists");
+            LOG_ERROR_F("Vulkan Error: instanceDataTransferFence_ already exists");
         }
         else if (imageAvailableSemaphore_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: imageAvailableSemaphore_ already exists");
+            LOG_ERROR_F("Vulkan Error: imageAvailableSemaphore_ already exists");
         }
         else if (readyToPresentSemaphore_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: readyToPresentSemaphore_ already exists");
+            LOG_ERROR_F("Vulkan Error: readyToPresentSemaphore_ already exists");
         }
         else
         {
@@ -1913,11 +1914,11 @@ namespace Project001
     {
         if (surfaceExtent_.width == 0 || surfaceExtent_.height == 0)
         {
-            _LOG_ERROR("Vulkan Error: either surfaceExtent_ width or height is equal to 0");
+            LOG_ERROR_F("Vulkan Error: either surfaceExtent_ width or height is equal to 0");
         }
         else if (swapchain_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: swapchain_ already exists");
+            LOG_ERROR_F("Vulkan Error: swapchain_ already exists");
         }
         else
         {
@@ -1988,19 +1989,19 @@ namespace Project001
     {
         if (instanceStagingBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: instanceStagingBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: instanceStagingBuffer_ already exists");
         }
         else if (instanceStagingBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: instanceStagingBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: instanceStagingBufferMemory_ already exists");
         }
         else if (instanceBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: instanceBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: instanceBuffer_ already exists");
         }
         else if (instanceBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: instanceBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: instanceBufferMemory_ already exists");
         }
         else
         {
@@ -2032,19 +2033,19 @@ namespace Project001
     {
         if (batchedIndexStagingBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedIndexStagingBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedIndexStagingBuffer_ already exists");
         }
         else if (batchedIndexStagingBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedIndexStagingBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedIndexStagingBufferMemory_ already exists");
         }
         else if (batchedIndexBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedIndexBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedIndexBuffer_ already exists");
         }
         else if (batchedIndexBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedIndexBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedIndexBufferMemory_ already exists");
         }
         else
         {
@@ -2076,19 +2077,19 @@ namespace Project001
     {
         if (batchedVertexStagingBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedVertexStagingBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedVertexStagingBuffer_ already exists");
         }
         else if (batchedVertexStagingBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedVertexStagingBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedVertexStagingBufferMemory_ already exists");
         }
         else if (batchedVertexBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedVertexBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedVertexBuffer_ already exists");
         }
         else if (batchedVertexBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: batchedVertexBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: batchedVertexBufferMemory_ already exists");
         }
         else
         {
@@ -2120,27 +2121,27 @@ namespace Project001
     {
         if (vertexShaderUniformBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexShaderUniformBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: vertexShaderUniformBuffer_ already exists");
         }
         else if (vertexShaderUniformBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexShaderUniformBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: vertexShaderUniformBufferMemory_ already exists");
         }
         else if (fragmentShaderUniformBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: fragmentShaderUniformBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: fragmentShaderUniformBuffer_ already exists");
         }
         else if (fragmentShaderUniformBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: fragmentShaderUniformBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: fragmentShaderUniformBufferMemory_ already exists");
         }
         else if (screenVertexBuffer_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: screenVertexBuffer_ already exists");
+            LOG_ERROR_F("Vulkan Error: screenVertexBuffer_ already exists");
         }
         else if (screenVertexBufferMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: screenVertexBufferMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: screenVertexBufferMemory_ already exists");
         }
         else
         {
@@ -2204,7 +2205,7 @@ namespace Project001
     {
         if (defaultTexture_.Initialized())
         {
-            _LOG_ERROR("Vulkan Error: defaultTexture_ already exists");
+            LOG_ERROR_F("Vulkan Error: defaultTexture_ already exists");
         }
         else
         {
@@ -2223,11 +2224,11 @@ namespace Project001
     {
         if (primaryDescriptorSetLayout_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryDescriptorSetLayout_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryDescriptorSetLayout_ already exists");
         }
         else if (secondaryDescriptorSetLayout_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: secondaryDescriptorSetLayout_ already exists");
+            LOG_ERROR_F("Vulkan Error: secondaryDescriptorSetLayout_ already exists");
         }
         else
         {
@@ -2288,7 +2289,7 @@ namespace Project001
     {
         if (descriptorPool_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: descriptorPool_ already exists");
+            LOG_ERROR_F("Vulkan Error: descriptorPool_ already exists");
         }
         else
         {
@@ -2320,11 +2321,11 @@ namespace Project001
     {
         if (primaryDescriptorSet_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryDescriptorSet_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryDescriptorSet_ already exists");
         }
         else if (secondaryDescriptorSet_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: secondaryDescriptorSet_ already exists");
+            LOG_ERROR_F("Vulkan Error: secondaryDescriptorSet_ already exists");
         }
         else
         {
@@ -2400,11 +2401,11 @@ namespace Project001
     {
         if (primaryPipelineLayout_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryPipelineLayout_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryPipelineLayout_ already exists");
         }
         else if (secondaryPipelineLayout_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: secondaryPipelineLayout_ already exists");
+            LOG_ERROR_F("Vulkan Error: secondaryPipelineLayout_ already exists");
         }
         else
         {
@@ -2433,11 +2434,11 @@ namespace Project001
     {
         if (vertexBatchShaderModule_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexBatchShaderModule_ already exists");
+            LOG_ERROR_F("Vulkan Error: vertexBatchShaderModule_ already exists");
         }
         else if (fragmentBatchShaderModule_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: fragmentBatchShaderModule_ already exists");
+            LOG_ERROR_F("Vulkan Error: fragmentBatchShaderModule_ already exists");
         }
         else
         {
@@ -2465,19 +2466,19 @@ namespace Project001
     {
         if (primaryRenderPass1_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryRenderPass1_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryRenderPass1_ already exists");
         }
         else if (primaryRenderPass2_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryRenderPass2_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryRenderPass2_ already exists");
         }
         else if (primaryRenderPass3_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryRenderPass3_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryRenderPass3_ already exists");
         }
         else if (primaryRenderPass4_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryRenderPass4_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryRenderPass4_ already exists");
         }
         else
         {
@@ -2504,19 +2505,19 @@ namespace Project001
     {
         if (primaryGraphicsPipeline1_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryGraphicsPipeline1_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryGraphicsPipeline1_ already exists");
         }
         else if (primaryGraphicsPipeline2_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryGraphicsPipeline2_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryGraphicsPipeline2_ already exists");
         }
         else if (primaryGraphicsPipeline3_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryGraphicsPipeline3_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryGraphicsPipeline3_ already exists");
         }
         else if (primaryGraphicsPipeline4_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: primaryGraphicsPipeline4_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryGraphicsPipeline4_ already exists");
         }
         else
         {
@@ -2690,7 +2691,7 @@ namespace Project001
     {
         if (screenTexture_.Initialized())
         {
-            _LOG_ERROR("Vulkan Error: screenTexture_ already exists");
+            LOG_ERROR_F("Vulkan Error: screenTexture_ already exists");
         }
         else
         {
@@ -2749,15 +2750,15 @@ namespace Project001
 
         if (depthImage_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: depthImage_ already exists");
+            LOG_ERROR_F("Vulkan Error: depthImage_ already exists");
         }
         else if(depthImageMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: depthImageMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: depthImageMemory_ already exists");
         }
         else if (depthImageView_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: depthImageView_ already exists");
+            LOG_ERROR_F("Vulkan Error: depthImageView_ already exists");
         }
         else
         {
@@ -2796,15 +2797,15 @@ namespace Project001
 
         if (msaaImage_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaImage_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaImage_ already exists");
         }
         else if (msaaImageMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaImageMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaImageMemory_ already exists");
         }
         else if (msaaImageView_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaImageView_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaImageView_ already exists");
         }
         else
         {
@@ -2843,15 +2844,15 @@ namespace Project001
 
         if (msaaDepthImage_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaDepthImage_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaDepthImage_ already exists");
         }
         else if (msaaDepthImageMemory_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaDepthImageMemory_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaDepthImageMemory_ already exists");
         }
         else if (msaaDepthImageView_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: msaaDepthImageView_ already exists");
+            LOG_ERROR_F("Vulkan Error: msaaDepthImageView_ already exists");
         }
         else
         {
@@ -2920,7 +2921,7 @@ namespace Project001
     {
         if (primaryFrameBuffer1_)
         {
-            _LOG_ERROR("Vulkan Error: primaryFrameBuffer1_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryFrameBuffer1_ already exists");
         }
         else
         {
@@ -2942,7 +2943,7 @@ namespace Project001
 
         if (primaryFrameBuffer2_)
         {
-            _LOG_ERROR("Vulkan Error: primaryFrameBuffer2_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryFrameBuffer2_ already exists");
         }
         else
         {
@@ -2965,7 +2966,7 @@ namespace Project001
 
         if (primaryFrameBuffer3_)
         {
-            _LOG_ERROR("Vulkan Error: primaryFrameBuffer3_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryFrameBuffer3_ already exists");
         }
         else
         {
@@ -2988,7 +2989,7 @@ namespace Project001
 
         if (primaryFrameBuffer4_)
         {
-            _LOG_ERROR("Vulkan Error: primaryFrameBuffer4_ already exists");
+            LOG_ERROR_F("Vulkan Error: primaryFrameBuffer4_ already exists");
         }
         else
         {
@@ -3027,11 +3028,11 @@ namespace Project001
     {
         if (vertexScreenShaderModule_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: vertexScreenShaderModule_ already exists");
+            LOG_ERROR_F("Vulkan Error: vertexScreenShaderModule_ already exists");
         }
         else if (fragmentScreenShaderModule_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: fragmentScreenShaderModule_ already exists");
+            LOG_ERROR_F("Vulkan Error: fragmentScreenShaderModule_ already exists");
         }
         else
         {
@@ -3059,7 +3060,7 @@ namespace Project001
     {
         if (secondaryRenderPass_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: secondaryRenderPass_ already exists");
+            LOG_ERROR_F("Vulkan Error: secondaryRenderPass_ already exists");
         }
         else
         {
@@ -3113,7 +3114,7 @@ namespace Project001
     {
         if (secondaryGraphicsPipeline_ != VK_NULL_HANDLE)
         {
-            _LOG_ERROR("Vulkan Error: secondaryGraphicsPipeline_ already exists");
+            LOG_ERROR_F("Vulkan Error: secondaryGraphicsPipeline_ already exists");
         }
         else
         {
@@ -3302,7 +3303,7 @@ namespace Project001
 
             if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             {
-                _LOG_ERROR("Vulkan Error: Failed to acquire swap chain image!");
+                LOG_ERROR_F("Vulkan Error: Failed to acquire swap chain image!");
             }
 
             _VK_CHECK(vkQueueWaitIdle(graphicsQueue_));
@@ -3788,7 +3789,7 @@ namespace Project001
             }
         }
 
-        _LOG_ERROR("Vulkan Error: Failed to find suitable memory type!");
+        LOG_ERROR_F("Vulkan Error: Failed to find suitable memory type!");
 
         return (uint32_t)-1;
     }
@@ -4184,7 +4185,7 @@ namespace Project001
         }
         else
         {
-            _LOG_ERROR("Vulkan Error: Unsupported layout transition!");
+            LOG_ERROR_F("Vulkan Error: Unsupported layout transition!");
         }
 
         vkCmdPipelineBarrier(
@@ -4236,7 +4237,7 @@ namespace Project001
     {
         if (!(formatProperties_.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
         {
-            _LOG_ERROR("Vulkan Error: Texture image format does not support linear blitting!");
+            LOG_ERROR_F("Vulkan Error: Texture image format does not support linear blitting!");
         }
 
         VkCommandBuffer commandBuffer = BeginSingleTimeCommands();

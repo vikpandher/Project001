@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-10
+// @DATE 2025-04-21
 
 #include "MeshLoader.h"
 
@@ -5048,6 +5048,8 @@ namespace Project001
                 }
             }
         }
+
+        return true;
     }
 
     bool MeshLoader::GenerateTriangles(

@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-04-07
+# @DATE 2025-04-21
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -210,6 +210,7 @@ endif()
 # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 add_library("${PROJECT_NAME}" STATIC
+	$<$<BOOL:${PROJECT001_VULKAN_BUILD}>:${VENDOR_VULKAN_INCLUDE}>
     ${GENERAL_FILES}
     ${COMPONENTS_FILES}
     ${MATH_FILES}

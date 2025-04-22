@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-04-21
 
 #include "GLFW_Window.h"
 
@@ -249,15 +249,19 @@ namespace Project001
 
     void GLFW_Window::MakeContextCurrent()
     {
+#ifndef GLFW_INCLUDE_VULKAN
         if (glfwWindowPtr_ != glfwGetCurrentContext())
         {
             glfwMakeContextCurrent(glfwWindowPtr_);
         }
+#endif
     }
 
     void GLFW_Window::MakeContextNotCurrent()
     {
+#ifndef GLFW_INCLUDE_VULKAN
         glfwMakeContextCurrent(NULL);
+#endif
     }
 
     void GLFW_Window::SwapBuffers()
