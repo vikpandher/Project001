@@ -1,8 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-21
+// @DATE 2025-04-26
 
 #include "TestScene013.h"
+
+#include "TestApplicationData.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
@@ -27,6 +29,11 @@ TestScene013::TestScene013(Project001::Application* applicationPtr)
     , circleMeshId_((unsigned int)-1)
     , instructionScene_(applicationPtr)
 {
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene013Id = GetId();
+    }
+
     generateCollisionMarkerCollectionMesh_ = false;
     generateEnergyTextMesh_ = false;
 

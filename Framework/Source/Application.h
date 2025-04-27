@@ -1,10 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #pragma once
 
 #include "AutoIdMap.h"
+
+#include <typeinfo>
 
 
 
@@ -42,11 +44,14 @@ namespace Project001
     public:
         friend class Scene;
 
-        Application(const ApplicationCreationInfo& applicationInfo);
+        Application(const ApplicationCreationInfo& applicationCreationInfo);
         virtual ~Application();
 
         Application(Application& other) = delete;
         void operator=(const Application&) = delete;
+
+        template <typename SharedDataType>
+        void SetSharedDataPtr(SharedDataType* sharedDataPtr);
 
         void Run();
 
@@ -62,6 +67,9 @@ namespace Project001
         unsigned long updatesInARowLimit_;
         bool fixedSizeFramebuffer_;
 
+        size_t sharedDataTypeId_;
+        void* sharedDataPtr_;
+
         bool running_;
 
         Window* windowPtr_;
@@ -73,4 +81,13 @@ namespace Project001
         AutoIdMap<Scene*> scenePtrMap_;
         Scene* activeScenePtr_;
     };
+
+    // public ------------------------------------------------------------------
+
+    template <typename SharedDataType>
+    void Application::SetSharedDataPtr(SharedDataType* sharedDataPtr)
+    {
+        sharedDataTypeId_ = typeid(SharedDataType).hash_code();
+        sharedDataPtr_ = sharedDataPtr;
+    }
 }

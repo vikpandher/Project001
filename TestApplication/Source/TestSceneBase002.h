@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #pragma once
 
@@ -12,6 +12,8 @@
 #include <vector>
 
 
+
+struct TestApplicationData;
 
 namespace Project001
 {
@@ -81,6 +83,8 @@ protected:
     void UpdateCollisionBodyTexture();
 
     // -------------------------------------------------------------------------
+
+    TestApplicationData* testApplicationDataPtr_;
 
     Project001::Window* windowPtr_;
     Project001::Renderer* rendererPtr_;

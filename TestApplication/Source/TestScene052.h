@@ -19,14 +19,14 @@ namespace Project001
     struct SoundData;
 }
 
-class TestScene051 : public Project001::Scene
+class TestScene052 : public Project001::Scene
 {
 public:
-    TestScene051(Project001::Application* applicationPtr);
-    ~TestScene051();
+    TestScene052(Project001::Application* applicationPtr);
+    ~TestScene052();
 
-    TestScene051(TestScene051& other) = delete;
-    void operator=(const TestScene051&) = delete;
+    TestScene052(TestScene052& other) = delete;
+    void operator=(const TestScene052&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -53,12 +53,6 @@ protected:
     Project001::SoundPlayer* soundPlayerPtr_;
     Project001::ComponentStores* componentStoresPtr_;
 
-    // SoundData ---------------------------------------------------------------
-
-    Project001::SoundData* sound01_SoundDataPtr_;
-    unsigned int sound01_SoundBufferId_;
-    std::vector<unsigned int> buttonSoundSourceIds_;
-
     // Font Data ---------------------------------------------------------------
 
     Project001::FontData* font01_FontDataPtr_;
@@ -67,13 +61,7 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    Project001::MeshData* rectangleMeshDataPtr_;
-    unsigned int rectangularMeshId_;
-
     Project001::MeshData* circleMeshDataPtr_;
-
-    const float buttonFontPixelSize_ = 0.0048f;
-    std::vector<Project001::MeshData*> buttonTextMeshDataPtrs_;
 
     // Entity Ids --------------------------------------------------------------
 
@@ -91,10 +79,6 @@ protected:
     unsigned int cursorPositionCollisionPointIndex_;
     unsigned int cursorPressCollisionPointIndex_;
     unsigned int cursorReleaseCollisionPointIndex_;
-
-    std::vector<unsigned int> buttonEntityIds_;
-    static const glm::vec4 s_buttonColor_;
-    static const glm::vec4 s_buttonColor2_;
 
     // -------------------------------------------------------------------------
 

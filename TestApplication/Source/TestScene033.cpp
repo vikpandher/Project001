@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene033.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -43,7 +44,12 @@ TestScene033::TestScene033(Project001::Application* applicationPtr)
     , ui_fps_EntityId_((unsigned int)-1)
     , ui_counter_EntityId_((unsigned int)-1)
     , ui_largeText_EntityId_((unsigned int)-1)
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene033Id = GetId();
+    }
+}
 
 TestScene033::~TestScene033()
 {}

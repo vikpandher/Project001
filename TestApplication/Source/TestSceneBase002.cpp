@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestSceneBase002.h"
 
-#include "TestSceneIds.h"
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -30,6 +30,7 @@
 
 TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
+    , testApplicationDataPtr_(nullptr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , componentStoresPtr_(nullptr)
@@ -88,7 +89,9 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , physicsStepsPerUpdate_(1)
     , useCollisionBodyQuadTree_(true)
     , gravity_(0.0f, -1.0f)
-{}
+{
+    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
+}
 
 TestSceneBase002::~TestSceneBase002()
 {}
@@ -603,10 +606,10 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(g_testScene001Id));
-            if (GetActiveScene()->GetId() == g_testScene001Id)
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());

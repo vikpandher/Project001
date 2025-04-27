@@ -1,13 +1,13 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene001.h"
 
+#include "TestApplicationData.h"
 #include "TestButtonData001.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
-#include "TestSceneIds.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
@@ -29,6 +29,7 @@
 TestScene001::TestScene001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
+    , testApplicationDataPtr_(nullptr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , soundPlayerPtr_(nullptr)
@@ -57,7 +58,13 @@ TestScene001::TestScene001(Project001::Application* applicationPtr)
     , previousWorldCursorPress_()
     , previousWorldCursorRelease_()
     , selectedEntityId_((unsigned int)-1)
-{}
+{
+    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene001Id = GetId();
+    }
+}
 
 TestScene001::~TestScene001()
 {}
@@ -206,29 +213,34 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene034");
     buttonStrings.emplace_back("TestScene050");
     buttonStrings.emplace_back("TestScene051");
+    buttonStrings.emplace_back("TestScene052");
     buttonStrings.emplace_back("TestScene060");
 
     std::vector<unsigned int> buttonDestinationSceneIds;
-    buttonDestinationSceneIds.push_back(g_testScene002Id);
-    buttonDestinationSceneIds.push_back(g_testScene003Id);
-    buttonDestinationSceneIds.push_back(g_testScene004Id);
-    buttonDestinationSceneIds.push_back(g_testScene006Id);
-    buttonDestinationSceneIds.push_back(g_testScene007Id);
-    buttonDestinationSceneIds.push_back(g_testScene010Id);
-    buttonDestinationSceneIds.push_back(g_testScene011Id);
-    buttonDestinationSceneIds.push_back(g_testScene012Id);
-    buttonDestinationSceneIds.push_back(g_testScene013Id);
-    buttonDestinationSceneIds.push_back(g_testScene015Id);
-    buttonDestinationSceneIds.push_back(g_testScene016Id);
-    buttonDestinationSceneIds.push_back(g_testScene017Id);
-    buttonDestinationSceneIds.push_back(g_testScene030Id);
-    buttonDestinationSceneIds.push_back(g_testScene031Id);
-    buttonDestinationSceneIds.push_back(g_testScene032Id);
-    buttonDestinationSceneIds.push_back(g_testScene033Id);
-    buttonDestinationSceneIds.push_back(g_testScene034Id);
-    buttonDestinationSceneIds.push_back(g_testScene050Id);
-    buttonDestinationSceneIds.push_back(g_testScene051Id);
-    buttonDestinationSceneIds.push_back(g_testScene060Id);
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene002Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene003Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene004Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene006Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene007Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene010Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene011Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene012Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene013Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene015Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene016Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene017Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene030Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene031Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene032Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene033Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene034Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene050Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene051Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene052Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene060Id);
+    }
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
@@ -386,13 +398,15 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 005 ] [ 006 ] [ 007 ] [ 008 ] [ 009 ]
     // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 014 ]
     // [ 015 ] [ 016 ] [ 017 ] [ 018 ] [ 019 ]
+    // [ 020 ]
     // 
     // Test Scenes:
     // 
     // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 007 ]
     // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 015 ]
     // [ 016 ] [ 017 ] [ 030 ] [ 031 ] [ 032 ]
-    // [ 033 ] [ 034 ] [ 050 ] [ 051 ] [ 060 ]
+    // [ 033 ] [ 034 ] [ 050 ] [ 051 ] [ 052 ]
+    // [ 060 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;

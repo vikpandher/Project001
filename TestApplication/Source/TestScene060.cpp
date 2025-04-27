@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene060.h"
 
-#include "TestSceneIds.h"
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -53,8 +53,14 @@ TestScene060::TestScene060(Project001::Application* applicationPtr)
     , rightStickEntityId_((unsigned int)-1)
     , rightStickTriangleMeshIndex_((unsigned int)-1)
     , rightStickCircleMeshIndex_((unsigned int)-1)
-{}
-   
+{
+    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene060Id = GetId();
+    }
+}
+
 TestScene060::~TestScene060()
 {}
 
@@ -485,10 +491,10 @@ void TestScene060::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(g_testScene001Id));
-            if (GetActiveScene()->GetId() == g_testScene001Id)
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());

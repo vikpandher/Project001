@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #pragma once
 
@@ -11,6 +11,8 @@
 #include <vector>
 
 
+
+struct TestApplicationData;
 
 class TestScene001 : public Project001::Scene
 {
@@ -38,6 +40,8 @@ protected:
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
+
+    TestApplicationData* testApplicationDataPtr_;
 
     Project001::Window* windowPtr_;
     Project001::Renderer* rendererPtr_;

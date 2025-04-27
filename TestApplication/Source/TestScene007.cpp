@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-20
+// @DATE 2025-04-26
 
 #include "TestScene007.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -25,7 +26,12 @@
 TestScene007::TestScene007(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene007Id = GetId();
+    }
+}
 
 TestScene007::~TestScene007()
 {}

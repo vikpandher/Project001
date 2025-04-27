@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene050.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_Bounce_wav.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
@@ -40,6 +41,11 @@ TestScene050::TestScene050(Project001::Application* applicationPtr)
     , soundSourceId02_((unsigned int)-1)
     , playingSound_(false)
 {
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene050Id = GetId();
+    }
+
     // TestSoundPlayer();
     // TestSoundPlayer2();
     // TestSoundPlayer3();

@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestSceneBase001.h"
 
-#include "TestSceneIds.h"
+#include "TestApplicationData.h"
 
 #include "Components/Camera.h"
 #include "Components/LightSource.h"
@@ -22,6 +22,7 @@
 
 TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
+    , testApplicationDataPtr_(nullptr)
     , windowPtr_(nullptr)
     , rendererPtr_(nullptr)
     , soundPlayerPtr_(nullptr)
@@ -33,7 +34,9 @@ TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr)
     , entityIds_()
     , previousCursorDownPosition_()
     , remainingTimeRecordingDuration_ns_(0)
-{}
+{
+    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
+}
 
 TestSceneBase001::~TestSceneBase001()
 {}
@@ -236,10 +239,10 @@ void TestSceneBase001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(g_testScene001Id));
-            if (GetActiveScene()->GetId() == g_testScene001Id)
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());

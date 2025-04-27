@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-13
+// @DATE 2025-04-26
 
 #include "Application.h"
 
@@ -22,11 +22,13 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    Application::Application(const ApplicationCreationInfo& applicationInfo)
-        : desiredFrameDuration_ns_(applicationInfo.desiredFrameDuration_ns)
-        , sleepyRunLoop_(applicationInfo.sleepyRunLoop)
-        , updatesInARowLimit_(applicationInfo.updatesInARowLimit)
-        , fixedSizeFramebuffer_(applicationInfo.fixedSizeFramebuffer)
+    Application::Application(const ApplicationCreationInfo& applicationCreationInfo)
+        : desiredFrameDuration_ns_(applicationCreationInfo.desiredFrameDuration_ns)
+        , sleepyRunLoop_(applicationCreationInfo.sleepyRunLoop)
+        , updatesInARowLimit_(applicationCreationInfo.updatesInARowLimit)
+        , fixedSizeFramebuffer_(applicationCreationInfo.fixedSizeFramebuffer)
+        , sharedDataTypeId_(0)
+        , sharedDataPtr_(nullptr)
         , running_(false)
         , windowPtr_(nullptr)
         , rendererPtr_(nullptr)
@@ -37,25 +39,25 @@ namespace Project001
     {
         Logger::EnableConsole();
 
-        windowPtr_ = Window::Create(applicationInfo.windowTitle, applicationInfo.windowWidth, applicationInfo.windowHeight);
+        windowPtr_ = Window::Create(applicationCreationInfo.windowTitle, applicationCreationInfo.windowWidth, applicationCreationInfo.windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
-        windowPtr_->SetAspectRatio(applicationInfo.windowWidth, applicationInfo.windowHeight);
+        windowPtr_->SetAspectRatio(applicationCreationInfo.windowWidth, applicationCreationInfo.windowHeight);
 
         int screenWidth;
         int screenHeight;
         windowPtr_->GetScreenSize(screenWidth, screenHeight);
-        if (screenWidth > (int)applicationInfo.windowWidth && screenHeight > (int)applicationInfo.windowHeight)
+        if (screenWidth > (int)applicationCreationInfo.windowWidth && screenHeight > (int)applicationCreationInfo.windowHeight)
         {
-            windowPtr_->SetWindowPosition((screenWidth - applicationInfo.windowWidth) / 2, (screenHeight - applicationInfo.windowHeight) / 2);
+            windowPtr_->SetWindowPosition((screenWidth - applicationCreationInfo.windowWidth) / 2, (screenHeight - applicationCreationInfo.windowHeight) / 2);
         }
 
         Project001::RendererInfo rendererInfo = {};
         rendererInfo.windowPtr = windowPtr_;
-        rendererInfo.frameBufferWidth = applicationInfo.frameBufferWidth;
-        rendererInfo.frameBufferHeight = applicationInfo.frameBufferHeight;
-        rendererInfo.instanceBufferCapacity = applicationInfo.instanceBufferCapacity;
-        rendererInfo.batchedIndexBufferCapacity = applicationInfo.batchedIndexBufferCapacity;
-        rendererInfo.batchedVertexBufferCapacity = applicationInfo.batchedVertexBufferCapacity;
+        rendererInfo.frameBufferWidth = applicationCreationInfo.frameBufferWidth;
+        rendererInfo.frameBufferHeight = applicationCreationInfo.frameBufferHeight;
+        rendererInfo.instanceBufferCapacity = applicationCreationInfo.instanceBufferCapacity;
+        rendererInfo.batchedIndexBufferCapacity = applicationCreationInfo.batchedIndexBufferCapacity;
+        rendererInfo.batchedVertexBufferCapacity = applicationCreationInfo.batchedVertexBufferCapacity;
         rendererInfo.multisampleAntiAliasing = false;
         rendererInfo.depthTesting = true;
         rendererPtr_ = Renderer::Create(rendererInfo);

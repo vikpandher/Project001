@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "Scene.h"
 
@@ -255,5 +255,27 @@ namespace Project001
             LOG_ERROR_F("Application pointer is nullptr");
         }
         return false;
+    }
+
+    // private -----------------------------------------------------------------
+
+    void* Scene::GetApplicationSharedDataPtr_H(size_t sharedDataTypeId)
+    {
+        if (applicationPtr_ != nullptr)
+        {
+            if (applicationPtr_->sharedDataTypeId_ == sharedDataTypeId)
+            {
+                return applicationPtr_->sharedDataPtr_;
+            }
+            else
+            {
+                LOG_ERROR_F("Application shared data type: " << applicationPtr_->sharedDataTypeId_ << ", doesn't match requested shared data type: " << sharedDataTypeId);
+            }
+        }
+        else
+        {
+            LOG_ERROR_F("Application pointer is nullptr");
+        }
+        return nullptr;
     }
 }

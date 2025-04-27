@@ -1,12 +1,13 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #pragma once
 
 #include "Event.h"
 
 #include <functional>
+#include <typeinfo>
 
 
 
@@ -34,6 +35,9 @@ namespace Project001
 
     protected:
         Scene(Application* applicationPtr);
+
+        template <typename SharedDataType>
+        SharedDataType* GetApplicationSharedDataPtr();
 
         ComponentStores* GetApplicaitonComponentStoresPtr();
 
@@ -65,13 +69,24 @@ namespace Project001
         bool GetFixedSizeFramebuffer() const;
 
     private:
+        void* GetApplicationSharedDataPtr_H(size_t sharedDataTypeId);
+
         Application* applicationPtr_;
 
         unsigned int id_;
     };
 
+    // protected ---------------------------------------------------------------
+
     inline const unsigned int& Scene::GetId()
     {
         return id_;
+    }
+
+    template <typename SharedDataType>
+    SharedDataType* Scene::GetApplicationSharedDataPtr()
+    {
+        size_t sharedDataTypeId = typeid(SharedDataType).hash_code();
+        return (SharedDataType*)GetApplicationSharedDataPtr_H(sharedDataTypeId);
     }
 }

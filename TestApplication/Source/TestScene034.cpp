@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-01-13
+// @DATE 2025-04-26
 
 #include "TestScene034.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -38,7 +39,12 @@ TestScene034::TestScene034(Project001::Application* applicationPtr)
     , cone001_MeshDataPtr_(nullptr)
     , cone001_MeshId_((unsigned int)-1)
     , cone001_MaxBoundingRadius_(0.0f)
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene034Id = GetId();
+    }
+}
 
 TestScene034::~TestScene034()
 {}

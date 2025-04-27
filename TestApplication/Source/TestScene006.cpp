@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene006.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -29,7 +30,12 @@ TestScene006::TestScene006(Project001::Application* applicationPtr)
     , printableEntityId_((unsigned int)-1)
     , sphinxEntityId_((unsigned int)-1)
     , timestamp_ns_(0ull)
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene006Id = GetId();
+    }
+}
 
 TestScene006::~TestScene006()
 {}

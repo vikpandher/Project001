@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene031.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -32,7 +33,12 @@ TestScene031::TestScene031(Project001::Application* applicationPtr)
     , ui_renderedMeshCount_MeshDataPtr_(nullptr)
     , ui_fps_EntityId_((unsigned int)-1)
     , ui_renderedMeshCount_EntityId_((unsigned int)-1)
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene031Id = GetId();
+    }
+}
 
 TestScene031::~TestScene031()
 {}

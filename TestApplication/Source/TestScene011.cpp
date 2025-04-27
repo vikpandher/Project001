@@ -1,8 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene011.h"
+
+#include "TestApplicationData.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
@@ -22,6 +24,11 @@ TestScene011::TestScene011(Project001::Application* applicationPtr)
     : TestSceneBase002(applicationPtr)
     , instructionScene_(applicationPtr)
 {
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene011Id = GetId();
+    }
+
     generateEnergyTextMesh_ = false;
 }
 

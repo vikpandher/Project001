@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-04-26
 
 #include "TestScene032.h"
 
+#include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
 #include "TestResource_AntonioRegular_ssf.h"
 
@@ -49,7 +50,12 @@ TestScene032::TestScene032(Project001::Application* applicationPtr)
     , arcEntityIds_()
     , coneEntityIds_()
     , starEntityIds_()
-{}
+{
+    if (testApplicationDataPtr_ != nullptr)
+    {
+        testApplicationDataPtr_->testScene032Id = GetId();
+    }
+}
 
 TestScene032::~TestScene032()
 {}
