@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-02
 
 #include "FontLoader.h"
 
@@ -358,6 +358,8 @@ namespace Project001
             GlyphMeshData& glyphMeshData = fontMeshData.glyphMeshDataMap[character];
             GenerateGlpyhMeshDataFromGlyphMetrics_H(glyphMeshData, glyphMetrics, pixelSize, trangulate);
         }
+
+        fontMeshData.lineSpacing = pixelSize * (float)fontData.lineSpacing_px;
 
         return true;
     }

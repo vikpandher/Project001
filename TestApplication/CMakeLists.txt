@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-04-26
+# @DATE 2025-05-02
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -64,6 +64,8 @@ set(TESTAPP_FILES
     "Source/TestScene006.h"
     "Source/TestScene007.cpp"
     "Source/TestScene007.h"
+    "Source/TestScene008.cpp"
+    "Source/TestScene008.h"
     "Source/TestScene010.cpp"
     "Source/TestScene010.h"
     "Source/TestScene011.cpp"

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-02
 
 #include "TestScene001.h"
 
@@ -199,6 +199,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene004");
     buttonStrings.emplace_back("TestScene006");
     buttonStrings.emplace_back("TestScene007");
+    buttonStrings.emplace_back("TestScene008");
     buttonStrings.emplace_back("TestScene010");
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
@@ -224,6 +225,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene004Id);
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene006Id);
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene007Id);
+        buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene008Id);
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene010Id);
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene011Id);
         buttonDestinationSceneIds.push_back(testApplicationDataPtr_->testScene012Id);

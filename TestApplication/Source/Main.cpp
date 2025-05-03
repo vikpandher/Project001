@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-02
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -26,6 +26,7 @@
 #include "TestScene004.h"
 #include "TestScene006.h"
 #include "TestScene007.h"
+#include "TestScene008.h"
 #include "TestScene010.h"
 #include "TestScene011.h"
 #include "TestScene012.h"
@@ -99,6 +100,10 @@ int main(int argc, char** argv)
     // testing shape generation
     // * inherits 001
     TestScene007* testScene007Ptr = new TestScene007(applicationPtr);
+
+    // testing shape generation
+    // * inherits 001
+    TestScene008* testScene008Ptr = new TestScene008(applicationPtr);
 
     // tests 2d shape overlap
     // * inherits 002
@@ -177,6 +182,7 @@ int main(int argc, char** argv)
     delete testScene004Ptr;
     delete testScene006Ptr;
     delete testScene007Ptr;
+    delete testScene008Ptr;
     delete testScene010Ptr;
     delete testScene011Ptr;
     delete testScene012Ptr;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-02
 
 #include "TestScene003.h"
 
@@ -1679,7 +1679,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "This Scene also tests Mesh Generation.\n"
+        "This Scene tests Mesh Generation.\n"
         "Use <WASD> to move the camera up, left, down, and right.\n"
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-21
+// @DATE 2025-05-02
 
 #include "MeshLoader.h"
 
@@ -1694,6 +1694,113 @@ namespace Project001
         return true;
     }
 
+    bool MeshLoader::Generate2DQuads(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& positions,
+        bool triangulate)
+    {
+        if (positions.size() < 3)
+        {
+            return false;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        if (!triangulate)
+        {
+            size_t currentVertexCount = meshVertexArray.size();
+
+            for (size_t i = 0; i < positions.size(); ++i)
+            {
+                MeshVertex meshVertex;
+                meshVertex.position = glm::vec3(positions[i], 0.0f);
+                meshVertex.normal = normal;
+
+                meshVertexArray.push_back(meshVertex);
+            }
+
+            for (size_t i = 0; i < positions.size() - 2; ++i)
+            {
+                if (i % 2 == 0)
+                {
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+                }
+                else
+                {
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
+                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+
+                    i += 2;
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < positions.size() - 2; ++i)
+            {
+                MeshVertex meshVertexA;
+                meshVertexA.position = glm::vec3(positions[i], 0.0f);
+                meshVertexA.normal = normal;
+
+                MeshVertex meshVertexB;
+                meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
+                meshVertexB.normal = normal;
+
+                MeshVertex meshVertexC;
+                meshVertexC.position = glm::vec3(positions[i + 2], 0.0f);
+                meshVertexC.normal = normal;
+
+                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+
+                if (i % 2 == 0)
+                {
+                    meshVertexArray.push_back(meshVertexA);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexC);
+                }
+                else
+                {
+                    meshVertexArray.push_back(meshVertexC);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexA);
+
+                    i += 2;
+                }
+
+                meshIndexArray.push_back(currentVertexCount++);
+                meshIndexArray.push_back(currentVertexCount++);
+                meshIndexArray.push_back(currentVertexCount);
+            }
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+        }
+
+        return true;
+    }
+
     bool MeshLoader::Generate2DRegularPolygon(
         MeshData& meshData,
         float radius,
@@ -1904,6 +2011,175 @@ namespace Project001
         }
 
         return true;
+    }
+
+    bool MeshLoader::Generate2DStarBurst(
+        MeshData& meshData,
+        size_t points,
+        float radius0,
+        float radius1,
+        float radius2,
+        float radius3,
+        float sectionAngle,
+        uint32_t offsetSeed,
+        float maxOffset0,
+        float maxOffset1,
+        float maxOffset2,
+        float maxOffset3,
+        bool triangulate)
+    {
+        if (points < 2)
+        {
+            return false;
+        }
+
+        //       r2
+        //       *
+        //      /|\
+        //     / | \
+        // r0 *  |  * r3
+        //     \ | /
+        //      \|/
+        //       *
+        //       r1
+
+        float segmentRotation = -1.0f * glm::two_pi<float>() / points;
+
+        glm::vec2 radiusVector0(0.0f, 1.0f);
+        radiusVector0 = Rotate2DVector(radiusVector0, sectionAngle * 0.5f);
+
+        glm::vec2 radiusVector1(0.0f, 1.0f);
+
+        glm::vec2 radiusVector2(0.0f, 1.0f);
+
+        glm::vec2 radiusVector3(0.0f, 1.0f);
+        radiusVector3 = Rotate2DVector(radiusVector3, sectionAngle * -0.5f);
+
+        std::vector<glm::vec2> positions;
+
+        for (size_t i = 0; i < points; ++i)
+        {
+            float offsetRadius0 = radius0 + maxOffset0 * (GetRandomFloat(offsetSeed + i) - 1.0f);
+            float offsetRadius1 = radius1 + maxOffset1 * (GetRandomFloat(offsetSeed + i + points) - 1.0f);
+            float offsetRadius2 = radius2 + maxOffset2 * (GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
+            float offsetRadius3 = radius3 + maxOffset3 * (GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
+
+            if (offsetRadius0 < 0.0f)
+            {
+                offsetRadius0 = 0.0f;
+            }
+
+            if (offsetRadius1 < 0.0f)
+            {
+                offsetRadius1 = 0.0f;
+            }
+
+            if (offsetRadius2 < offsetRadius1)
+            {
+                offsetRadius2 = offsetRadius1;
+            }
+
+            if (offsetRadius3 < 0.0f)
+            {
+                offsetRadius3 = 0.0f;
+            }
+
+            positions.push_back(radiusVector0 * offsetRadius0);
+            positions.push_back(radiusVector1 * offsetRadius1);
+            positions.push_back(radiusVector2 * offsetRadius2);
+            positions.push_back(radiusVector3 * offsetRadius3);
+
+            radiusVector0 = Rotate2DVector(radiusVector0, segmentRotation);
+            radiusVector1 = Rotate2DVector(radiusVector1, segmentRotation);
+            radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation);
+            radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation);
+        }
+
+        return Generate2DQuads(meshData, positions, triangulate);
+    }
+
+    bool MeshLoader::Generate2DStarRing(
+        MeshData& meshData,
+        size_t points,
+        float radius0,
+        float radius1,
+        float radius2,
+        float radius3,
+        uint32_t offsetSeed,
+        float maxOffset0,
+        float maxOffset1,
+        float maxOffset2,
+        float maxOffset3,
+        bool triangulate)
+    {
+        if (points < 2)
+        {
+            return false;
+        }
+
+        // r0 r2 r0
+        // *--*--*-
+        // | /| /|
+        // |/ |/ |
+        // *--*--*-
+        // r1 r3 r1
+
+        float segmentRotation = -1.0f * glm::two_pi<float>() / points;
+
+        glm::vec2 radiusVector0(0.0f, 1.0f);
+
+        glm::vec2 radiusVector1(0.0f, 1.0f);
+
+        glm::vec2 radiusVector2(0.0f, 1.0f);
+        radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation * 0.5f);
+
+        glm::vec2 radiusVector3(0.0f, 1.0f);
+        radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation * 0.5f);
+
+        std::vector<glm::vec2> positions;
+
+        for (size_t i = 0; i < points; ++i)
+        {
+            float offsetRadius0 = radius0 + maxOffset0 * (GetRandomFloat(offsetSeed + i) - 1.0f);
+            float offsetRadius1 = radius1 + maxOffset1 * (GetRandomFloat(offsetSeed + i + points) - 1.0f);
+            float offsetRadius2 = radius2 + maxOffset2 * (GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
+            float offsetRadius3 = radius3 + maxOffset3 * (GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
+
+            if (offsetRadius1 < 0.0f)
+            {
+                offsetRadius1 = 0.0f;
+            }
+
+            if (offsetRadius3 < 0.0f)
+            {
+                offsetRadius3 = 0.0f;
+            }
+
+            if (offsetRadius0 < offsetRadius1)
+            {
+                offsetRadius0 = offsetRadius1;
+            }
+
+            if (offsetRadius2 < offsetRadius3)
+            {
+                offsetRadius2 = offsetRadius3;
+            }
+
+            positions.push_back(radiusVector0 * offsetRadius0);
+            positions.push_back(radiusVector1 * offsetRadius1);
+            positions.push_back(radiusVector2 * offsetRadius2);
+            positions.push_back(radiusVector3 * offsetRadius3);
+
+            radiusVector0 = Rotate2DVector(radiusVector0, segmentRotation);
+            radiusVector1 = Rotate2DVector(radiusVector1, segmentRotation);
+            radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation);
+            radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation);
+        }
+
+        positions.push_back(positions[0]);
+        positions.push_back(positions[1]);
+
+        return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
     bool MeshLoader::GenerateBox(

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-02
 
 #include "TestScene006.h"
 
@@ -473,7 +473,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-            renderedModelPtr->SetPosition(0.0f, -1.6f, 0.0f);
+            renderedModelPtr->SetPosition(0.0f, -1.2f, 0.0f);
             float currentOffsetX = 0.0f;
             float colorFade = 0.0f;
             glm::vec3 scale(1.2f, 3.6f, 1.0f);
@@ -489,6 +489,10 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 Project001::MeshLoader::CopyMesh(
                     *newMeshDataPtr,
                     currentGlyphMeshData.meshData
+                );
+                Project001::MeshLoader::TranslateMesh(
+                    *newMeshDataPtr,
+                    glm::vec3(0.0f, -0.25f * font01_fontMeshData.lineSpacing, 0.0f)
                 );
 
                 renderedMeshes.emplace_back();

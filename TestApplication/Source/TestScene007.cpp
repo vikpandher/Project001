@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-02
 
 #include "TestScene007.h"
 
@@ -26,6 +26,8 @@
 TestScene007::TestScene007(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
+    , box03_TextureId_((unsigned int)-1)
+    , numbers12x6_TextureId_((unsigned int)-1)
 {
     if (testApplicationDataPtr_ != nullptr)
     {
@@ -55,23 +57,129 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int box03_TextureId = (unsigned int)-1;
-    unsigned int numbers12x6TextureId = (unsigned int)-1;
-
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
-        rendererPtr_->CreateTexture(box03_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(box03_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
-        rendererPtr_->CreateTexture(numbers12x6TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        rendererPtr_->CreateTexture(numbers12x6_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
+
+    // Font Data ---------------------------------------------------------------
+
+    Project001::FontData font01_FontData;
+    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        font01_FontData,
+        g_AntonioRegular_ssf,
+        sizeof(g_AntonioRegular_ssf)
+    ));
+
+    Project001::TextureData font01_TextureData;
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        font01_TextureData,
+        g_AntonioRegular_png,
+        sizeof(g_AntonioRegular_png)
+    ));
+    unsigned int font01_TextureId = (unsigned int)-1;
+    rendererPtr_->CreateTexture(
+        font01_TextureId,
+        font01_TextureData.data,
+        font01_TextureData.width,
+        font01_TextureData.height,
+        font01_TextureData.bytesPerPixel,
+        true,
+        false
+    );
 
     // Creating Entities
     // -------------------------------------------------------------------------
+
+    //
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            *newMeshDataPtr,
+            font01_FontData,
+            "ear clipping algorithm",
+            0.005f
+        ));
+        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+
+        unsigned int tempEntityId;
+        componentStoresPtr_->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetColor(0.2f, 1.0f, 1.0f, 0.4f);
+            renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font01_TextureId);
+        }
+    }
+
+    CreateEarClippingMeshes();
+
+    CreateAsteroidMeshes();
+
+    // Member Scenes -----------------------------------------------------------
+
+    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
+
+    TestInstructionScene001::InitializationInfo instructionSceneInfo;
+    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
+    instructionSceneInfo.instructionString = std::string(
+        "This Scene tests Mesh Generation.\n"
+        "Use <WASD> to move the camera up, left, down, and right.\n"
+        "Use <Q> to roll left and <E> to roll right.\n"
+        "Use <Scroll> to move forward and back.\n"
+        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "Press <Esc> to return to Main Menu.\n"
+        "Press <Tab> to hide instructions."
+    );
+    instructionSceneInfo.fontDataPtr = &font01_FontData;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
+    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionScene_.Initialize(instructionSceneInfo);
+}
+
+void TestScene007::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+{
+    instructionScene_.Deinitialize();
+
+    LOG_INFO("DEINITIALIZING: TestScene007:            " << GetId());
+
+    box03_TextureId_ = (unsigned int)-1;
+    numbers12x6_TextureId_ = (unsigned int)-1;
+}
+
+void TestScene007::CreateEarClippingMeshes()
+{
+    // Calculating positions ---------------------------------------------------
+
+    std::vector<glm::vec3> meshEntityPositions;
+
+    // positions
+    for (int j = 1; j >= -1; --j)
+    {
+        for (int i = -3; i <= -1; ++i)
+        {
+            meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
+        }
+    }
+
+    size_t positionIndex = 0;
 
     // Create 2D Shapes --------------------------------------------------------
 
@@ -163,32 +271,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         polygon03_verticies[i] *= 0.12f;
     }
 
-    // Calculating positions ---------------------------------------------------
-
-    std::vector<glm::vec3> meshEntityPositions;
-
-    // left positions
-    for (int j = 1; j >= -1; --j)
-    {
-        for (int i = -3; i <= -1; ++i)
-        {
-            meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
-        }
-    }
-
-    // right positions
-    for (int j = 1; j >= -1; --j)
-    {
-        for (int i = 1; i <= 3; ++i)
-        {
-            meshEntityPositions.emplace_back((float)i, (float)j, -0.4f);
-            meshEntityPositions.emplace_back((float)i, (float)j, 0.4f);
-        }
-    }
-
-    size_t positionIndex = 0;
-
-    // left row 1 --------------------------------------------------------------
+    // row 1 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -207,7 +290,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -230,7 +313,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -253,11 +336,11 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
-    // left row 2 --------------------------------------------------------------
+    // row 2 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -276,7 +359,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -299,7 +382,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -322,11 +405,11 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
-    // left row 3 --------------------------------------------------------------
+    // row 3 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -345,7 +428,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -368,7 +451,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
         }
     }
 
@@ -391,13 +474,34 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(box03_TextureId);
+            renderedMeshPtr->SetTextureId(box03_TextureId_);
+        }
+    }
+}
+
+void TestScene007::CreateAsteroidMeshes()
+{
+    // Calculating positions ---------------------------------------------------
+
+    std::vector<glm::vec3> meshEntityPositions;
+
+    // positions
+    for (int j = 1; j >= -1; --j)
+    {
+        for (int i = 1; i <= 3; ++i)
+        {
+            meshEntityPositions.emplace_back((float)i, (float)j, -0.4f);
+            meshEntityPositions.emplace_back((float)i, (float)j, 0.4f);
         }
     }
 
+    size_t positionIndex = 0;
+
     std::vector<float> vertexOffsetDistances;
 
-    // right row 1 -------------------------------------------------------------
+    glm::vec4 borderColor(0.8f, 0.4f, 0.2f, 0.2f);
+
+    // row 1 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -416,7 +520,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -436,7 +540,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -459,7 +563,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -479,7 +583,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -502,7 +606,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -522,11 +626,11 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
-    // right row 2 -------------------------------------------------------------
+    // row 2 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -545,7 +649,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -565,7 +669,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -588,7 +692,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -608,7 +712,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -631,7 +735,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -651,11 +755,11 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
-    // right row 3 -------------------------------------------------------------
+    // row 3 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -674,7 +778,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -694,7 +798,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -717,7 +821,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -737,7 +841,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
 
@@ -760,7 +864,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(numbers12x6TextureId);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
         }
 
         newMeshDataPtr = new Project001::MeshData();
@@ -780,60 +884,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetColor(0.8f, 0.4f, 0.2f, 0.4f);
+            renderedMeshPtr->SetColor(borderColor);
         }
     }
-
-    // Member Scenes -----------------------------------------------------------
-
-    Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
-        font01_FontData,
-        g_AntonioRegular_ssf,
-        sizeof(g_AntonioRegular_ssf)
-    ));
-
-    Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
-        font01_TextureData,
-        g_AntonioRegular_png,
-        sizeof(g_AntonioRegular_png)
-    ));
-    unsigned int font01_TextureId = (unsigned int)-1;
-    rendererPtr_->CreateTexture(
-        font01_TextureId,
-        font01_TextureData.data,
-        font01_TextureData.width,
-        font01_TextureData.height,
-        font01_TextureData.bytesPerPixel,
-        true,
-        false
-    );
-
-    const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
-
-    TestInstructionScene001::InitializationInfo instructionSceneInfo;
-    instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
-    instructionSceneInfo.instructionString = std::string(
-        "This Scene tests polygon Mesh Generation.\n"
-        "Use <WASD> to move the camera up, left, down, and right.\n"
-        "Use <Q> to roll left and <E> to roll right.\n"
-        "Use <Scroll> to move forward and back.\n"
-        "<Left-Click> and drag the <Mouse> to move camera.\n"
-        "Press <Esc> to return to Main Menu.\n"
-        "Press <Tab> to hide instructions."
-    );
-    instructionSceneInfo.fontDataPtr = &font01_FontData;
-    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
-    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
-    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
-    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
-    instructionScene_.Initialize(instructionSceneInfo);
-}
-
-void TestScene007::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
-{
-    instructionScene_.Deinitialize();
-
-    LOG_INFO("DEINITIALIZING: TestScene007:            " << GetId());
 }

@@ -9,14 +9,14 @@
 
 
 
-class TestScene007 : public TestSceneBase001
+class TestScene008 : public TestSceneBase001
 {
 public:
-    TestScene007(Project001::Application* applicationPtr);
-    ~TestScene007();
+    TestScene008(Project001::Application* applicationPtr);
+    ~TestScene008();
 
-    TestScene007(TestScene007& other) = delete;
-    void operator=(const TestScene007&) = delete;
+    TestScene008(TestScene008& other) = delete;
+    void operator=(const TestScene008&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -24,13 +24,12 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    void CreateEarClippingMeshes();
-    void CreateAsteroidMeshes();
+    void Create2DStarMeshes_1();
+    void Create2DStarMeshes_2();
 
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
 
-    unsigned int box03_TextureId_;
-    unsigned int numbers12x6_TextureId_;
+    unsigned int gradiant_TextureId_;
 };

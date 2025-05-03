@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-10
+// @DATE 2025-05-02
 
 #pragma once
 
@@ -123,6 +123,11 @@ namespace Project001
             const std::vector<glm::vec2>& corners,
             bool triangulate = s_triangulate);
 
+        static bool Generate2DQuads(
+            MeshData& meshData,
+            const std::vector<glm::vec2>& positions,
+            bool triangulate = s_triangulate);
+
         static bool Generate2DRegularPolygon(
             MeshData& meshData,
             float radius,
@@ -153,6 +158,35 @@ namespace Project001
             float textureRight,
             float textureBottom,
             float textureTop,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DStarBurst(
+            MeshData& meshData,
+            size_t points,
+            float radius0,
+            float radius1,
+            float radius2,
+            float radius3,
+            float sectionAngle,
+            uint32_t offsetSeed,
+            float maxOffset0, // offsets goes inward
+            float maxOffset1,
+            float maxOffset2,
+            float maxOffset3,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DStarRing(
+            MeshData& meshData,
+            size_t points,
+            float radius0,
+            float radius1,
+            float radius2,
+            float radius3,
+            uint32_t offsetSeed,
+            float maxOffset0, // offsets goes inward
+            float maxOffset1,
+            float maxOffset2,
+            float maxOffset3,
             bool triangulate = s_triangulate);
 
         static bool GenerateBox(
@@ -258,7 +292,7 @@ namespace Project001
             std::vector<glm::vec2>& borderPoints,
             float radius,
             uint32_t offsetSeed,
-            float maxOffsetLength,
+            float maxOffsetLength, // offset goes inward
             size_t subdivisions,
             std::vector<float>& vertexOffsetDistances,
             bool smoothNormals = true,
