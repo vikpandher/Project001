@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene052.h"
 
@@ -29,11 +29,6 @@
 TestScene052::TestScene052(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
-    , testApplicationDataPtr_(nullptr)
-    , windowPtr_(nullptr)
-    , rendererPtr_(nullptr)
-    , soundPlayerPtr_(nullptr)
-    , componentStoresPtr_(nullptr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
@@ -51,11 +46,7 @@ TestScene052::TestScene052(Project001::Application* applicationPtr)
     , previousWorldCursorPress_()
     , previousWorldCursorRelease_()
 {
-    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene052Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene052Id = GetId();
 }
 
 TestScene052::~TestScene052()
@@ -81,11 +72,6 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene052:            " << GetId());
 
-    windowPtr_ = GetApplicationWindowPtr();
-    rendererPtr_ = GetApplicationRendererPtr();
-    soundPlayerPtr_ = GetApplicationSoundPlayerPtr();
-    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
-
     // Font Data ---------------------------------------------------------------
 
     {
@@ -102,7 +88,7 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
         ));
-        rendererPtr_->CreateTexture(
+        GetRendererPtr()->CreateTexture(
             font01_TextureId_,
             font01_TextureDataPtr_->data,
             font01_TextureDataPtr_->width,
@@ -125,16 +111,16 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float mainCameraHalfHeight = 0.0f;
     float mainCameraHalfWidth = 0.0f;
     {
-        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        GetComponentStoresPtr()->CreateEntity(mainCameraEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraEntityId_));
 
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -153,25 +139,25 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->SetDepthTestEnabled(false);
             cameraPtr->TurnOn();
 
-            soundPlayerPtr_->SetListenerPosition(cameraPtr->GetPosition());
-            soundPlayerPtr_->SetListenerForwardDirection(cameraPtr->GetForwardVector());
-            soundPlayerPtr_->SetListenerUpDirection(cameraPtr->GetUpVector());
+            GetSoundPlayerPtr()->SetListenerPosition(cameraPtr->GetPosition());
+            GetSoundPlayerPtr()->SetListenerForwardDirection(cameraPtr->GetForwardVector());
+            GetSoundPlayerPtr()->SetListenerUpDirection(cameraPtr->GetUpVector());
         }
     }
 
     // UI Camera Entity --------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(uiCameraEntityId_);
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        GetComponentStoresPtr()->CreateEntity(uiCameraEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCameraEntityId_));
 
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -198,21 +184,21 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         float cursorX_position;
         float cursorY_position;
-        windowPtr_->GetCursorPosition(cursorX_position, cursorY_position);
+        GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
         UpdatePreviousWorldCursorPosition(cursorX_position, cursorY_position);
 
-        componentStoresPtr_->CreateEntity(cursorEntityId_);
+        GetComponentStoresPtr()->CreateEntity(cursorEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(cursorEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             float xPosition;
             float yPosition;
-            windowPtr_->GetCursorPosition(xPosition, yPosition);
+            GetWindowPtr()->GetCursorPosition(xPosition, yPosition);
 
             cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
@@ -244,9 +230,9 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             circleMesh03.SetVisible(false);
         }
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         if (collisionBody2DPtr != nullptr)
         {
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
@@ -284,16 +270,11 @@ void TestScene052::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // -------------------------------------------------------------------------
 
-    rendererPtr_->DeleteAllTextures();
-    rendererPtr_->DeleteAllMeshes();
-    soundPlayerPtr_->DeleteAllSoundSources();
-    soundPlayerPtr_->DeleteAllSoundBuffers();
-    componentStoresPtr_->DeleteAllEntities();
-
-    windowPtr_ = nullptr;
-    rendererPtr_ = nullptr;
-    soundPlayerPtr_ = nullptr;
-    componentStoresPtr_ = nullptr;
+    GetRendererPtr()->DeleteAllTextures();
+    GetRendererPtr()->DeleteAllMeshes();
+    GetSoundPlayerPtr()->DeleteAllSoundSources();
+    GetSoundPlayerPtr()->DeleteAllSoundBuffers();
+    GetComponentStoresPtr()->DeleteAllEntities();
 
     // Font Data ---------------------------------------------------------------
 
@@ -331,14 +312,14 @@ void TestScene052::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     UpdatePreviousWorldCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
     Project001::RenderedModel* renderedModelPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
     if (renderedModelPtr != nullptr)
     {
         renderedModelPtr->SetVisible(true);
     }
 
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
     if (collisionBody2DPtr != nullptr)
     {
         collisionBody2DPtr->SetTangible(true);
@@ -353,10 +334,11 @@ void TestScene052::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
-            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
+            TestApplicationData* testApplicationDataPtr = GetSharedDataPtr<TestApplicationData>();
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());
@@ -376,7 +358,7 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
         {
             Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
             if (renderedModelPtr != nullptr)
             {
                 renderedModelPtr->SetVisible(true);
@@ -386,7 +368,7 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             }
 
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
             if (collisionBody2DPtr != nullptr)
             {
                 collisionBody2DPtr->SetTangible(true);
@@ -400,7 +382,7 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
             Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
             if (renderedModelPtr != nullptr)
             {
                 renderedModelPtr->SetVisible(true);
@@ -409,7 +391,7 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             }
 
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
             if (collisionBody2DPtr != nullptr)
             {
                 collisionBody2DPtr->SetTangible(true);
@@ -424,7 +406,7 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene052::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
+    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -433,7 +415,7 @@ void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // -------------------------------------------------------------------------
     {
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -452,7 +434,7 @@ void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         if (collisionBody2DPtr != nullptr)
         {
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
@@ -470,16 +452,16 @@ void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     // Calculate collisions
     // -------------------------------------------------------------------------
-    // Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+    // Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
 }
 
 void TestScene052::UpdatePreviousWorldCursorPosition(float xPosition, float yPosition)
 {
     int windowWidth, windowHeight;
-    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+    GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
     unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+    GetRendererPtr()->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
 
     // Convert coordinates from window to viewport
     glm::vec2 viewportCursorPosition(
@@ -490,7 +472,7 @@ void TestScene052::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
     if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
     {
         Project001::Camera* cameraPtr;
-        if (componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
         {
             // Convert coordinates from viewport to world
             glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(

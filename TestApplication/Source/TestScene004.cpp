@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene004.h"
 
@@ -26,10 +26,7 @@ TestScene004::TestScene004(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene004Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene004Id = GetId();
 }
 
 TestScene004::~TestScene004()
@@ -405,7 +402,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
 
@@ -422,7 +419,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
 
@@ -454,12 +451,12 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < 70; ++i)
     {
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[i]);
@@ -484,7 +481,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sizeof(g_AntonioRegular_png)
     ));
     unsigned int font01_TextureId = (unsigned int)-1;
-    rendererPtr_->CreateTexture(
+    GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,

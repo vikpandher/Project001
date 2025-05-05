@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene013.h"
 
@@ -29,10 +29,7 @@ TestScene013::TestScene013(Project001::Application* applicationPtr)
     , circleMeshId_((unsigned int)-1)
     , instructionScene_(applicationPtr)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene013Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene013Id = GetId();
 
     generateCollisionMarkerCollectionMesh_ = false;
     generateEnergyTextMesh_ = false;
@@ -89,7 +86,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             shapePoints.emplace_back(0.32f, -0.24f);
             shapePoints.emplace_back(0.32f, 0.24f);
             FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-            rendererPtr_->CreateMesh(
+            GetRendererPtr()->CreateMesh(
                 rectangleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),
                 (unsigned int)newMeshDataPtr->meshVertexArray.size(),
@@ -110,12 +107,12 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             glm::vec3 currentPosition(distributionX(randomNumberEngine), distributionY(randomNumberEngine), 0.0f);
 
             unsigned int tempEntityId;
-            componentStoresPtr_->CreateEntity(tempEntityId);
+            GetComponentStoresPtr()->CreateEntity(tempEntityId);
             entityIds_.push_back(tempEntityId);
 
-            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetPosition(currentPosition);
@@ -123,9 +120,9 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetLit(false);
             }
 
-            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
             if (collisionBody2DPtr != nullptr)
             {
                 collisionBody2DPtr->SetPosition(currentPosition);
@@ -148,7 +145,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
             FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
-            rendererPtr_->CreateMesh(
+            GetRendererPtr()->CreateMesh(
                 circleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),
                 (unsigned int)newMeshDataPtr->meshVertexArray.size(),
@@ -169,12 +166,12 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             glm::vec3 currentPosition(distributionX(randomNumberEngine), distributionY(randomNumberEngine), 0.0f);
 
             unsigned int tempEntityId;
-            componentStoresPtr_->CreateEntity(tempEntityId);
+            GetComponentStoresPtr()->CreateEntity(tempEntityId);
             entityIds_.push_back(tempEntityId);
 
-            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
             Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetPosition(currentPosition);
@@ -182,9 +179,9 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetLit(false);
             }
 
-            FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
             if (collisionBody2DPtr != nullptr)
             {
                 collisionBody2DPtr->SetPosition(currentPosition);
@@ -205,7 +202,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             uiCameraHalfHeight = cameraPtr->GetTopCutoff();

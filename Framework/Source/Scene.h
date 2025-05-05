@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #pragma once
 
+#include "Application.h"
 #include "Event.h"
 
 #include <functional>
@@ -13,6 +14,7 @@
 
 namespace Project001
 {
+    class Application;
     class ComponentStores;
     class Renderer;
     class ResourceStores;
@@ -22,8 +24,6 @@ namespace Project001
     class Scene
     {
     public:
-        friend class Application;
-
         virtual ~Scene();
 
         Scene(Scene& other) = delete;
@@ -36,18 +36,20 @@ namespace Project001
     protected:
         Scene(Application* applicationPtr);
 
+        Application* GetApplicationPtr();
+
         template <typename SharedDataType>
-        SharedDataType* GetApplicationSharedDataPtr();
+        SharedDataType* GetSharedDataPtr();
 
-        ComponentStores* GetApplicaitonComponentStoresPtr();
+        ComponentStores* GetComponentStoresPtr();
 
-        Renderer* GetApplicationRendererPtr();
+        Renderer* GetRendererPtr();
 
-        ResourceStores* GetApplicationResourceStoresPtr();
+        ResourceStores* GetResourceStoresPtr();
 
-        SoundPlayer* GetApplicationSoundPlayerPtr();
+        SoundPlayer* GetSoundPlayerPtr();
 
-        Window* GetApplicationWindowPtr();
+        Window* GetWindowPtr();
 
         Scene* GetScene(unsigned int sceneId);
 
@@ -55,9 +57,7 @@ namespace Project001
 
         void SendEventToApplication(Event& event);
 
-        void SendEventToScene(unsigned int sceneId, Event& event);
-
-        // ---------------------------------------------------------------------
+        bool SendEventToScene(unsigned int sceneId, Event& event);
 
         void SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns);
         unsigned long long GetDesiredFrameDuration_ns() const;
@@ -69,24 +69,128 @@ namespace Project001
         bool GetFixedSizeFramebuffer() const;
 
     private:
-        void* GetApplicationSharedDataPtr_H(size_t sharedDataTypeId);
-
         Application* applicationPtr_;
 
         unsigned int id_;
     };
 
-    // protected ---------------------------------------------------------------
+    // public ------------------------------------------------------------------
 
     inline const unsigned int& Scene::GetId()
     {
         return id_;
     }
 
+    // protected ---------------------------------------------------------------
+
+    inline Application* Scene::GetApplicationPtr()
+    {
+        return applicationPtr_;
+    }
+
     template <typename SharedDataType>
-    SharedDataType* Scene::GetApplicationSharedDataPtr()
+    inline SharedDataType* Scene::GetSharedDataPtr()
     {
         size_t sharedDataTypeId = typeid(SharedDataType).hash_code();
-        return (SharedDataType*)GetApplicationSharedDataPtr_H(sharedDataTypeId);
+        if (applicationPtr_->sharedDataTypeId_ == sharedDataTypeId)
+        {
+            return (SharedDataType*)applicationPtr_->sharedDataPtr_;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    inline ComponentStores* Scene::GetComponentStoresPtr()
+    {
+        return applicationPtr_->componentStoresPtr_;
+    }
+
+    inline Renderer* Scene::GetRendererPtr()
+    {
+        return applicationPtr_->rendererPtr_;
+    }
+
+    inline ResourceStores* Scene::GetResourceStoresPtr()
+    {
+        return applicationPtr_->resourceStoresPtr_;
+    }
+
+    inline SoundPlayer* Scene::GetSoundPlayerPtr()
+    {
+        return applicationPtr_->soundPlayerPtr_;
+    }
+
+    inline Window* Scene::GetWindowPtr()
+    {
+        return applicationPtr_->windowPtr_;
+    }
+
+    inline Scene* Scene::GetScene(unsigned int sceneId)
+    {
+        AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
+        if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
+        {
+            return iter->second;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    inline Scene* Scene::GetActiveScene()
+    {
+        return applicationPtr_->activeScenePtr_;
+    }
+
+    inline void Scene::SendEventToApplication(Event& event)
+    {
+        applicationPtr_->HandleEvent(event);
+    }
+
+    inline bool Scene::SendEventToScene(unsigned int sceneId, Event& event)
+    {
+        AutoIdMap<Scene*>::iterator iter = applicationPtr_->scenePtrMap_.Find(sceneId);
+        if (iter != applicationPtr_->scenePtrMap_.IteratorPastTheEnd())
+        {
+            iter->second->HandleEvent(event);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    inline void Scene::SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns)
+    {
+        applicationPtr_->desiredFrameDuration_ns_ = frameDuration_ns;
+    }
+
+    inline unsigned long long Scene::GetDesiredFrameDuration_ns() const
+    {
+        return applicationPtr_->desiredFrameDuration_ns_;
+    }
+
+    inline void Scene::SetSleepyRunLoop(bool sleepyRunLoop)
+    {
+        applicationPtr_->sleepyRunLoop_ = sleepyRunLoop;
+    }
+
+    inline bool Scene::GetSleepyRunLoop() const
+    {
+        return applicationPtr_->sleepyRunLoop_;
+    }
+
+    inline void Scene::SetFixedSizeFramebuffer(bool fixedSizeFramebuffer)
+    {
+        applicationPtr_->fixedSizeFramebuffer_ = fixedSizeFramebuffer;
+    }
+
+    inline bool Scene::GetFixedSizeFramebuffer() const
+    {
+        return applicationPtr_->fixedSizeFramebuffer_;
     }
 }

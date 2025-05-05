@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene034.h"
 
@@ -40,10 +40,7 @@ TestScene034::TestScene034(Project001::Application* applicationPtr)
     , cone001_MeshId_((unsigned int)-1)
     , cone001_MaxBoundingRadius_(0.0f)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene034Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene034Id = GetId();
 }
 
 TestScene034::~TestScene034()
@@ -72,13 +69,13 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Thonk.png"));
-        rendererPtr_->CreateTexture(thonk001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(thonk001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/ThonkSpecular.png"));
-        rendererPtr_->CreateTexture(thonkSpecular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(thonkSpecular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     for (size_t i = 0; i < 35; ++i)
@@ -94,7 +91,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
 
@@ -106,7 +103,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(cube001_MeshDataPtr_);
         FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*cube001_MeshDataPtr_, "../Models/Cube.obj"));
 
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             cube001_MeshId_,
             cube001_MeshDataPtr_->meshVertexArray.data(),
             (unsigned int)cube001_MeshDataPtr_->meshVertexArray.size(),
@@ -142,7 +139,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
         Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);
 
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             line001_MeshId_,
             line001_MeshDataPtr_->meshVertexArray.data(),
             (unsigned int)line001_MeshDataPtr_->meshVertexArray.size(),
@@ -158,7 +155,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(cone001_MeshDataPtr_);
         FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
 
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             cone001_MeshId_,
             cone001_MeshDataPtr_->meshVertexArray.data(),
             (unsigned int)cone001_MeshDataPtr_->meshVertexArray.size(),
@@ -198,12 +195,12 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < 15; ++i)
     {
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(tempEntityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
             renderedModelPtr->SetPosition(positions[i]);
@@ -282,7 +279,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sizeof(g_AntonioRegular_png)
     ));
     unsigned int font01_TextureId = (unsigned int)-1;
-    rendererPtr_->CreateTexture(
+    GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,

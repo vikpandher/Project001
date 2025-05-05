@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestSceneBase002.h"
 
@@ -30,10 +30,6 @@
 
 TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
-    , testApplicationDataPtr_(nullptr)
-    , windowPtr_(nullptr)
-    , rendererPtr_(nullptr)
-    , componentStoresPtr_(nullptr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
@@ -89,9 +85,7 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , physicsStepsPerUpdate_(1)
     , useCollisionBodyQuadTree_(true)
     , gravity_(0.0f, -1.0f)
-{
-    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
-}
+{}
 
 TestSceneBase002::~TestSceneBase002()
 {}
@@ -115,10 +109,6 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 {
     LOG_INFO("INITIALIZING:   TestSceneBase002:        " << GetId());
 
-    windowPtr_ = GetApplicationWindowPtr();
-    rendererPtr_ = GetApplicationRendererPtr();
-    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
-
     // Load textures
     // -------------------------------------------------------------------------
 
@@ -136,7 +126,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
         ));
-        rendererPtr_->CreateTexture(
+        GetRendererPtr()->CreateTexture(
             font01_TextureId_,
             font01_TextureDataPtr_->data,
             font01_TextureDataPtr_->width,
@@ -150,31 +140,31 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Dynamic.png"));
-        rendererPtr_->CreateTexture(text_dynamic_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(text_dynamic_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_OverlapOnly.png"));
-        rendererPtr_->CreateTexture(text_overlapOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(text_overlapOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_RotationOnly.png"));
-        rendererPtr_->CreateTexture(text_rotationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(text_rotationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Static.png"));
-        rendererPtr_->CreateTexture(text_static_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(text_static_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_TranslationOnly.png"));
-        rendererPtr_->CreateTexture(text_translationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(text_translationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     // Generate meshes
@@ -204,16 +194,16 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(mainCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -241,16 +231,16 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     float uiCameraHalfWidth = 0.0f;
 
     {
-        componentStoresPtr_->CreateEntity(uiCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(uiCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -277,11 +267,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(cursorEntityId_);
+        GetComponentStoresPtr()->CreateEntity(cursorEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(cursorEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, cursorEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetLit(false);
@@ -290,9 +280,9 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetRenderPriorityOverride(10);
         }
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         if (collisionBody2DPtr != nullptr)
         {
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
@@ -304,11 +294,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(distanceEntityId_);
+        GetComponentStoresPtr()->CreateEntity(distanceEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(distanceEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(distanceEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, distanceEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, distanceEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -325,11 +315,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(massEntityId_);
+        GetComponentStoresPtr()->CreateEntity(massEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(massEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(massEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, massEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, massEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -346,11 +336,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(momentOfInertiaEntityId_);
+        GetComponentStoresPtr()->CreateEntity(momentOfInertiaEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(momentOfInertiaEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(momentOfInertiaEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, momentOfInertiaEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, momentOfInertiaEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -367,11 +357,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(entityIdTextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(entityIdTextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(entityIdTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(entityIdTextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIdTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIdTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -389,11 +379,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(fpsTextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(fpsTextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(fpsTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(fpsTextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, fpsTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, fpsTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -411,11 +401,11 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(energyTextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(energyTextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(energyTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(energyTextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, energyTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, energyTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -433,10 +423,10 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(collisionBodyBorderEntityId_);
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionBodyBorderEntityId_));
+        GetComponentStoresPtr()->CreateEntity(collisionBodyBorderEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(collisionBodyBorderEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyBorderEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyBorderEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetLit(false);
@@ -450,10 +440,10 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // -------------------------------------------------------------------------
 
     {
-        componentStoresPtr_->CreateEntity(collisionBodyQuadTreeEntityId_);
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionBodyQuadTreeEntityId_));
+        GetComponentStoresPtr()->CreateEntity(collisionBodyQuadTreeEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(collisionBodyQuadTreeEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyQuadTreeEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyQuadTreeEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetLit(false);
@@ -466,10 +456,10 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     // Collision Marker Collection Entity
     // -------------------------------------------------------------------------
     {
-        componentStoresPtr_->CreateEntity(collisionMarkerCollectionEntityId_);
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(collisionMarkerCollectionEntityId_));
+        GetComponentStoresPtr()->CreateEntity(collisionMarkerCollectionEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(collisionMarkerCollectionEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionMarkerCollectionEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionMarkerCollectionEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetLit(false);
@@ -484,13 +474,9 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 {
     LOG_INFO("DEINITIALIZING: TestSceneBase002:        " << GetId());
 
-    rendererPtr_->DeleteAllTextures();
-    rendererPtr_->DeleteAllMeshes();
-    componentStoresPtr_->DeleteAllEntities();
-
-    windowPtr_ = nullptr;
-    rendererPtr_ = nullptr;
-    componentStoresPtr_ = nullptr;
+    GetRendererPtr()->DeleteAllTextures();
+    GetRendererPtr()->DeleteAllMeshes();
+    GetComponentStoresPtr()->DeleteAllEntities();
 
     // Texture Data: -----------------------------------------------------------
 
@@ -606,10 +592,11 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
-            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
+            TestApplicationData* testApplicationDataPtr = GetSharedDataPtr<TestApplicationData>();
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());
@@ -645,7 +632,7 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             {
                 const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
                 Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-                bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+                bool collisionBodyFound = GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
                 if (collisionBodyFound)
                 {
                     collisionBodyPtr->SetFixedRotation(!collisionBodyPtr->GetFixedRotation());
@@ -658,7 +645,7 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             {
                 const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
                 Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-                bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+                bool collisionBodyFound = GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
                 if (collisionBodyFound)
                 {
                     collisionBodyPtr->SetFixedTranslation(!collisionBodyPtr->GetFixedTranslation());
@@ -708,10 +695,10 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        Project001::CollisionSystem2D::CalculateOverlapForGivenEntity(cursorEntityId_, componentStoresPtr_);
+        Project001::CollisionSystem2D::CalculateOverlapForGivenEntity(cursorEntityId_, GetComponentStoresPtr());
 
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
         if(cursorCollisionBody2DPtr != nullptr)
         {
             const std::vector<Project001::CollisionData2D>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
@@ -751,7 +738,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         UpdateFpsTextMesh(renderEvent.timestep_ns);
     }
 
-    Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
+    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -762,7 +749,7 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
     float cameraResize = 1.0f + speedConstant * yOffset;
 
     Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
         float newTopCutoff = cameraPtr->GetTopCutoff() * cameraResize;
@@ -781,7 +768,7 @@ void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
     float xPosition = 0.0f;
     float yPosition = 0.0f;
-    windowPtr_->GetCursorPosition(xPosition, yPosition);
+    GetWindowPtr()->GetCursorPosition(xPosition, yPosition);
     UpdateWorldCursor(xPosition, yPosition);
 }
 
@@ -827,16 +814,16 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
-            Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(componentStoresPtr_);
+            Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+            Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
         }
     }
     else
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            Project001::CollisionSystem2D::ApplyMovement(componentStoresPtr_, physicsTimestep_s);
-            Project001::CollisionSystem2D::CalculateCollisions(componentStoresPtr_);
+            Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+            Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
         }
     }
 
@@ -910,10 +897,10 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
 {
     int windowWidth, windowHeight;
-    windowPtr_->GetWindowSize(windowWidth, windowHeight);
+    GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
     unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    rendererPtr_->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+    GetRendererPtr()->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
 
     // Convert coordinates from window to viewport
     glm::vec2 viewportCursorPosition(
@@ -924,9 +911,9 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
     if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
     {
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
         if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
         {
             // Convert coordinates from viewport to world
@@ -943,7 +930,7 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
                 unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
 
                 Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
-                FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
                 if (selectedCollisionBody2DPtr != nullptr)
                 {
                     if (!velocityBasedMovement_)
@@ -962,7 +949,7 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
 void TestSceneBase002::UpdateCameraPosition(unsigned long long timestep_ns)
 {
     Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
         float timestep_s = (float)(timestep_ns / 1000000) / 1000;
@@ -974,12 +961,12 @@ void TestSceneBase002::UpdateCameraPosition(unsigned long long timestep_ns)
         float translationSpeed = speedConstant * 0.8f * timestep_s;
         float rotationSpeed = 1.2f * timestep_s;
 
-        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
-        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
-        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
-        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
-        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
-        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
         if (movingLeft)
         {
@@ -1013,7 +1000,7 @@ void TestSceneBase002::UpdateCameraPosition(unsigned long long timestep_ns)
 
         float xPosition = 0.0f;
         float yPosition = 0.0f;
-        windowPtr_->GetCursorPosition(xPosition, yPosition);
+        GetWindowPtr()->GetCursorPosition(xPosition, yPosition);
         UpdateWorldCursor(xPosition, yPosition);
     }
 }
@@ -1026,7 +1013,7 @@ void TestSceneBase002::UpdateSelectedEntityPosition(unsigned long long timestep_
     }
 
     Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
         float timestep_s = (float)(timestep_ns / 1000000) / 1000;
@@ -1038,17 +1025,17 @@ void TestSceneBase002::UpdateSelectedEntityPosition(unsigned long long timestep_
         float translationSpeed = speedConstant * 0.8f * timestep_s;
         float rotationSpeed = 1.2f * timestep_s;
 
-        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
-        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
-        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
-        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
-        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
-        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
         unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
         if (collisionBodyPtr != nullptr)
         {
             if (movingLeft)
@@ -1096,7 +1083,7 @@ void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_
     }
 
     Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
         float timestep_s = (float)(timestep_ns / 1000000) / 1000;
@@ -1111,17 +1098,17 @@ void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_
         float decelerationSpeed = accelerationSpeed;
         float angularDecelerationSpeed = angularAccelerationSpeed;
 
-        bool movingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
-        bool movingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
-        bool movingUp = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
-        bool movingDown = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
-        bool rollingLeft = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
-        bool rollingRight = windowPtr_->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
+        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        bool rollingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_Q);
+        bool rollingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_E);
 
         unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId));
         if (collisionBodyPtr != nullptr)
         {
             const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
@@ -1244,7 +1231,7 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {
@@ -1256,7 +1243,7 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
         }
 
         unsigned int currentEntityId = (unsigned int)-1;
-        if (componentStoresPtr_->GetComponentEntityId(currentEntityId, &collisionBody2D) &&
+        if (GetComponentStoresPtr()->GetComponentEntityId(currentEntityId, &collisionBody2D) &&
             currentEntityId == selectedEntityId)
         {
             continue;
@@ -1276,7 +1263,7 @@ void TestSceneBase002::CapPositions()
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {
@@ -1326,7 +1313,7 @@ void TestSceneBase002::CapVelocities()
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {
@@ -1367,17 +1354,17 @@ void TestSceneBase002::Sync_RenderedMesh_CollisionBody_Components()
     Project001::CollisionBody2D* collisionBody2DArray = nullptr;
     size_t collisionBodyCount = 0;
 
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
 
     for (unsigned int i = 0; i < collisionBodyCount; ++i)
     {
         Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
 
         unsigned int entityId;
-        FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(entityId, &collisionBody2D));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId(entityId, &collisionBody2D));
 
         Project001::RenderedMesh* renderedMeshPtr;
-        if (componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityId))
+        if (GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityId))
         {
             const float& positionX = collisionBody2D.GetPosition().x;
             const float& positionY = collisionBody2D.GetPosition().y;
@@ -1393,7 +1380,7 @@ void TestSceneBase002::UpdateCollisionBodyColors()
 {
     Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
     size_t collisionBodyCount = 0;
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
     for (size_t i = 0; i < collisionBodyCount; ++i)
     {
         bool collisionBodyColliding = false;
@@ -1411,7 +1398,7 @@ void TestSceneBase002::UpdateCollisionBodyColors()
         }
 
         unsigned int collidingEntityId;
-        FAIL_CHECK(componentStoresPtr_->GetComponentEntityId(collidingEntityId , &currentCollisionBody));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId(collidingEntityId , &currentCollisionBody));
 
         // Don't recolor the cursor
         if (collidingEntityId == cursorEntityId_)
@@ -1420,7 +1407,7 @@ void TestSceneBase002::UpdateCollisionBodyColors()
         }
 
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        bool renderedMeshFound = componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collidingEntityId);
+        bool renderedMeshFound = GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collidingEntityId);
 
         if (renderedMeshFound)
         {
@@ -1489,7 +1476,7 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
     {
         const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        bool collisionBodyFound = GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
         if (collisionBodyFound)
         {
             float distanceSquared = collisionBodyPtr->GetDistanceSquaredToPoint(previousWorldCursorPosition_);
@@ -1522,7 +1509,7 @@ void TestSceneBase002::UpdateMassTextMesh()
     {
         const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        bool collisionBodyFound = GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
         if (collisionBodyFound)
         {
             const float& mass = collisionBodyPtr->GetMass();
@@ -1545,7 +1532,7 @@ void TestSceneBase002::UpdateMomentOfInertiaTextMesh()
     {
         const unsigned int& selectedEntityId = entityIds_[selectedEntityIdIndex_];
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        bool collisionBodyFound = componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
+        bool collisionBodyFound = GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, selectedEntityId);
         if (collisionBodyFound)
         {
             const float& momentOfInertia = collisionBodyPtr->GetMomentOfInertia();
@@ -1565,7 +1552,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
     entityIdTextMeshDataPtr_->Clear();
 
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
     if (collisionBody2DPtr != nullptr)
     {
         std::string entityIdTextString = "entityId:";
@@ -1612,7 +1599,7 @@ void TestSceneBase002::UpdateEnergyTextMesh()
 
     Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
     size_t collisionBodyCount = 0;
-    bool componentFound = componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    bool componentFound = GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
 
     for (size_t i = 0; i < collisionBodyCount; ++i)
     {
@@ -1719,12 +1706,12 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
 
     Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
     size_t collisionBodyCount = 0;
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
     for (size_t i = 0; i < collisionBodyCount; ++i)
     {
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
         unsigned int currentEntityId;
-        componentStoresPtr_->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
+        GetComponentStoresPtr()->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
         const std::vector<Project001::CollisionData2D>& currentCollisions = currentCollisionBody.GetCollisions();
         for (size_t j = 0; j < currentCollisions.size(); ++j)
         {
@@ -1755,7 +1742,7 @@ void TestSceneBase002::UpdateCollisionBodyTexture()
 {
     Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
     size_t collisionBodyCount = 0;
-    componentStoresPtr_->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
     for (size_t i = 0; i < collisionBodyCount; ++i)
     {
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
@@ -1766,10 +1753,10 @@ void TestSceneBase002::UpdateCollisionBodyTexture()
         }
 
         unsigned int currentEntityId;
-        componentStoresPtr_->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
+        GetComponentStoresPtr()->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
 
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, currentEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, currentEntityId));
         if (renderedMeshPtr != nullptr)
         {
             const Project001::CollisionBody2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();

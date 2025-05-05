@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-13
+// @DATE 2025-05-04
 
 #include "TestInstructionScene001.h"
 
@@ -17,7 +17,6 @@
 
 TestInstructionScene001::TestInstructionScene001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
-    , componentStoresPtr_(nullptr)
     , hiddenInstructionTextMeshDataPtr_(nullptr)
     , instructionTextMeshDataPtr_(nullptr)
     , hiddenInstructionBackgroundMeshDataPtr_(nullptr)
@@ -41,8 +40,6 @@ void TestInstructionScene001::HandleEvent(Project001::Event& event)
 void TestInstructionScene001::Initialize(const InitializationInfo& initializationInfo)
 {
     LOG_INFO("INITIALIZING:   TestInstructionScene001: " << GetId());
-
-    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
 
     keyCode_toggleInstructions_ = *initializationInfo.keyCode_toggleInstructionsPtr;
 
@@ -98,7 +95,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     float uiCameraHalfHeight = 0;
     {
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
         if(cameraPtr != nullptr)
         {
             uiCameraHalfWidth = cameraPtr->GetRightCutoff();
@@ -107,11 +104,11 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     }
 
     {
-        componentStoresPtr_->CreateEntity(instructionsEntityId_);
+        GetComponentStoresPtr()->CreateEntity(instructionsEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(instructionsEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -189,7 +186,7 @@ void TestInstructionScene001::Deinitialize()
 
     // Entity Ids --------------------------------------------------------------
 
-    componentStoresPtr_->DeleteEntity(instructionsEntityId_);
+    GetComponentStoresPtr()->DeleteEntity(instructionsEntityId_);
     instructionsEntityId_ = (unsigned int)-1;
     hiddenInstructionMeshIndex_ = (unsigned int)-1;
     instructionMeshIndex_ = (unsigned int)-1;
@@ -197,8 +194,6 @@ void TestInstructionScene001::Deinitialize()
     instructionBackgroundMeshIndex_ = (unsigned int)-1;
 
     // -------------------------------------------------------------------------
-
-    componentStoresPtr_ = nullptr;
 
     keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_UNKNOWN;
 }
@@ -216,7 +211,7 @@ void TestInstructionScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         if (keyCode == keyCode_toggleInstructions_)
         {
             Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, instructionsEntityId_));
             if (renderedModelPtr != nullptr)
             {
                 std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();

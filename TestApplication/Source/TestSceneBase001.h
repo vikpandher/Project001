@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #pragma once
 
@@ -44,15 +44,6 @@ protected:
     void UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns);
 
     void SyncLightSourcePosition();
-
-    // -------------------------------------------------------------------------
-
-    TestApplicationData* testApplicationDataPtr_;
-
-    Project001::Window* windowPtr_;
-    Project001::Renderer* rendererPtr_;
-    Project001::SoundPlayer* soundPlayerPtr_;
-    Project001::ComponentStores* componentStoresPtr_;
 
     // Mesh Data ---------------------------------------------------------------
 

@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-02
+// @DATE 2025-05-04
 
 #pragma once
 
+#include "TestAnimatedSpriteScene001.h"
 #include "TestInstructionScene001.h"
 #include "TestSceneBase001.h"
 
@@ -32,4 +33,8 @@ protected:
     TestInstructionScene001 instructionScene_;
 
     unsigned int gradiant_TextureId_;
+
+    std::vector<std::vector<Project001::MeshData*>> animatedMeshDataPtrArrayArray_;
+    std::vector<std::vector<unsigned long long>> animatedMeshFrameDurationArrayArray_;
+    std::vector<TestAnimatedSpriteScene001*> animatedSpriteSceneArray_;
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-02
+// @DATE 2025-05-04
 
 #include "TestScene008.h"
 
@@ -28,10 +28,7 @@ TestScene008::TestScene008(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , gradiant_TextureId_((unsigned int)-1)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene008Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene008Id = GetId();
 }
 
 TestScene008::~TestScene008()
@@ -40,6 +37,11 @@ TestScene008::~TestScene008()
 void TestScene008::HandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene008::ProcessDeinitializeEvent, this, std::placeholders::_1));
+
+    for (size_t i = 0; i < animatedSpriteSceneArray_.size(); ++i)
+    {
+        animatedSpriteSceneArray_[i]->HandleEvent(event);
+    }
 
     TestSceneBase001::HandleEvent(event);
 
@@ -59,13 +61,13 @@ void TestScene008::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/32x32_gradiant.png"));
-        rendererPtr_->CreateTexture(gradiant_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(gradiant_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     // Creating Entities
     // -------------------------------------------------------------------------
 
-    Create2DStarMeshes_1();
+    // Create2DStarMeshes_1();
 
     Create2DStarMeshes_2();
 
@@ -85,7 +87,7 @@ void TestScene008::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sizeof(g_AntonioRegular_png)
     ));
     unsigned int font01_TextureId = (unsigned int)-1;
-    rendererPtr_->CreateTexture(
+    GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,
@@ -123,6 +125,23 @@ void TestScene008::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     LOG_INFO("DEINITIALIZING: TestScene008:            " << GetId());
 
     gradiant_TextureId_ = (unsigned int)-1;
+
+    for (size_t i = 0; i < animatedMeshDataPtrArrayArray_.size(); ++i)
+    {
+        for (size_t j = 0; j < animatedMeshDataPtrArrayArray_[i].size(); ++j)
+        {
+            delete animatedMeshDataPtrArrayArray_[i][j];
+        }
+    }
+    animatedMeshDataPtrArrayArray_.clear();
+    animatedMeshFrameDurationArrayArray_.clear();
+
+    for (size_t i = 0; i < animatedSpriteSceneArray_.size(); ++i)
+    {
+        animatedSpriteSceneArray_[i]->Deinitialize();
+        delete animatedSpriteSceneArray_[i];
+    }
+    animatedSpriteSceneArray_.clear();
 }
 
 void TestScene008::Create2DStarMeshes_1()
@@ -160,12 +179,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -192,12 +211,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -224,12 +243,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -257,12 +276,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -290,12 +309,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -323,12 +342,12 @@ void TestScene008::Create2DStarMeshes_1()
         Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
@@ -357,5 +376,156 @@ void TestScene008::Create2DStarMeshes_2()
 
     size_t positionIndex = 0;
 
+    glm::vec4 color0(1.0f, 1.0f, 1.0f, 1.0f);
+    unsigned long long frameDuration0 = 100000000;
 
+    animatedMeshDataPtrArrayArray_.resize(9);
+    animatedMeshFrameDurationArrayArray_.resize(9);
+
+    // row 1 -------------------------------------------------------------------
+    for (size_t i = 0; i < 9; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
+        animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+            *newMeshDataPtr, 8,
+            0.3f, 0.0f, 0.2f, 0.0f,
+            i,
+            0.2f, 0.0f, 0.1f, 0.0f
+        ));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(gradiant_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 2 -------------------------------------------------------------------
+    for (size_t i = 0; i < 9; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
+        animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+            *newMeshDataPtr, 10,
+            0.6f, 0.2f, 0.4f, 0.2f,
+            i,
+            0.4f, 0.1f, 0.3f, 0.1f
+        ));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(gradiant_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 3 -------------------------------------------------------------------
+    for (size_t i = 0; i < 9; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
+        animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+            *newMeshDataPtr, 10,
+            0.8f, 0.4f, 0.7f, 0.3f,
+            i,
+            0.2f, 0.1f, 0.3f, 0.1f
+        ));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(gradiant_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 4 -------------------------------------------------------------------
+    for (size_t i = 0; i < 9; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
+        animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DStarBurst(
+            *newMeshDataPtr, 10,
+            0.8f, 0.5f, 1.0f, 0.8f,
+            glm::pi<float>() * 0.1f,
+            i,
+            0.4f, 0.1f, 0.4f, 0.4f
+        ));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(gradiant_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 5 -------------------------------------------------------------------
+    for (size_t i = 0; i < 9; ++i)
+    {
+        TestAnimatedSpriteScene001::InitializationInfo initializationInfo = {};
+        initializationInfo.positionPtr = &meshEntityPositions[positionIndex++];
+        initializationInfo.frameCount = animatedMeshDataPtrArrayArray_[i].size();
+        initializationInfo.frameMeshDataPtrsPtr = animatedMeshDataPtrArrayArray_[i].data();
+        initializationInfo.frameDurations_ns_ptr = animatedMeshFrameDurationArrayArray_[i].data();
+        initializationInfo.textureIdPtr = &gradiant_TextureId_;
+
+        animatedSpriteSceneArray_.emplace_back(new TestAnimatedSpriteScene001(GetApplicationPtr()));
+        animatedSpriteSceneArray_.back()->Initialize(initializationInfo);
+    }
 }

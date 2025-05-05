@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene033.h"
 
@@ -45,10 +45,7 @@ TestScene033::TestScene033(Project001::Application* applicationPtr)
     , ui_counter_EntityId_((unsigned int)-1)
     , ui_largeText_EntityId_((unsigned int)-1)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene033Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene033Id = GetId();
 }
 
 TestScene033::~TestScene033()
@@ -81,16 +78,16 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float secondaryCameraHalfHeight = 0.0f;
 
     {
-        componentStoresPtr_->CreateEntity(secondaryCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(secondaryCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(secondaryCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(secondaryCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, secondaryCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, secondaryCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -116,16 +113,16 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Tertiary camera
     // -------------------------------------------------------------------------
     {
-        componentStoresPtr_->CreateEntity(tertiaryCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(tertiaryCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(tertiaryCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(tertiaryCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, tertiaryCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, tertiaryCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -156,7 +153,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
 
@@ -173,7 +170,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = (unsigned int)-1;
-        rendererPtr_->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+        GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _48x48_TextureIds_.push_back(tempTextureId);
     }
 
@@ -191,7 +188,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
         ));
-        rendererPtr_->CreateTexture(
+        GetRendererPtr()->CreateTexture(
             font01_TextureId_,
             font01_TextureDataPtr_->data,
             font01_TextureDataPtr_->width,
@@ -210,7 +207,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(square_MeshDataPtr_);
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*square_MeshDataPtr_, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
 
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             square_MeshId_,
             square_MeshDataPtr_->meshVertexArray.data(),
             (unsigned int)square_MeshDataPtr_->meshVertexArray.size(),
@@ -260,14 +257,14 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         square_EntityIds_.push_back(tempEntityId);
 
         glm::vec3 currentPosition = meshEntityPositions[i];
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -285,11 +282,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
+        GetComponentStoresPtr()->CreateEntity(ui_fps_EntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
@@ -303,11 +300,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        componentStoresPtr_->CreateEntity(ui_counter_EntityId_);
+        GetComponentStoresPtr()->CreateEntity(ui_counter_EntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_counter_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(ui_counter_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_counter_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_counter_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
@@ -321,11 +318,11 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        componentStoresPtr_->CreateEntity(ui_largeText_EntityId_);
+        GetComponentStoresPtr()->CreateEntity(ui_largeText_EntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_largeText_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(ui_largeText_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_largeText_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_largeText_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);

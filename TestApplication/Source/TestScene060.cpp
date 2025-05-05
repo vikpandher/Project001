@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene060.h"
 
@@ -26,9 +26,6 @@
 TestScene060::TestScene060(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
-    , windowPtr_(nullptr)
-    , rendererPtr_(nullptr)
-    , componentStoresPtr_(nullptr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
@@ -54,11 +51,7 @@ TestScene060::TestScene060(Project001::Application* applicationPtr)
     , rightStickTriangleMeshIndex_((unsigned int)-1)
     , rightStickCircleMeshIndex_((unsigned int)-1)
 {
-    testApplicationDataPtr_ = GetApplicationSharedDataPtr<TestApplicationData>();
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene060Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene060Id = GetId();
 }
 
 TestScene060::~TestScene060()
@@ -82,10 +75,6 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene060:            " << GetId());
 
-    windowPtr_ = GetApplicationWindowPtr();
-    rendererPtr_ = GetApplicationRendererPtr();
-    componentStoresPtr_ = GetApplicaitonComponentStoresPtr();
-
     // Font Data ---------------------------------------------------------------
 
     {
@@ -102,7 +91,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
         ));
-        rendererPtr_->CreateTexture(
+        GetRendererPtr()->CreateTexture(
             font01_TextureId_,
             font01_TextureDataPtr_->data,
             font01_TextureDataPtr_->width,
@@ -123,7 +112,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-4.0f, 2.6f);
         positions.emplace_back(-4.0f, -2.6f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*backgroundRectangleMeshDataPtr_, positions));
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             backgroundEntityId_,
             backgroundRectangleMeshDataPtr_->meshVertexArray.data(),
             (unsigned int)backgroundRectangleMeshDataPtr_->meshVertexArray.size(),
@@ -169,7 +158,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.6f);
         positions.emplace_back(-0.2f, 0.0f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*triangleMeshDataPtr_, positions));
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             triangleMeshId_,
             triangleMeshDataPtr_->meshVertexArray.data(),
             (unsigned int)triangleMeshDataPtr_->meshVertexArray.size(),
@@ -181,7 +170,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         circleMeshDataPtr_ = new Project001::MeshData();
         FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 8));
-        rendererPtr_->CreateMesh(
+        GetRendererPtr()->CreateMesh(
             circleMeshId_,
             circleMeshDataPtr_->meshVertexArray.data(),
             (unsigned int)circleMeshDataPtr_->meshVertexArray.size(),
@@ -197,16 +186,16 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float mainCameraHalfHeight = 0.0f;
     float mainCameraHalfWidth = 0.0f;
     {
-        componentStoresPtr_->CreateEntity(mainCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(mainCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -229,16 +218,16 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // UI Camera Entity
 
     {
-        componentStoresPtr_->CreateEntity(uiCameraEntityId_);
+        GetComponentStoresPtr()->CreateEntity(uiCameraEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::Camera>(uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCameraEntityId_));
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             int aspectRatioNumerator;
             int aspectRatioDenominator;
-            windowPtr_->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+            GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
                 float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
@@ -264,11 +253,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Background Entity
 
     {
-        componentStoresPtr_->CreateEntity(backgroundEntityId_);
+        GetComponentStoresPtr()->CreateEntity(backgroundEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(backgroundEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(backgroundEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
@@ -281,11 +270,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Joystick Axis Text Entity
 
     {
-        componentStoresPtr_->CreateEntity(joystickAxisTextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(joystickAxisTextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickAxisTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(joystickAxisTextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickAxisTextMeshDataPtr_);
@@ -300,11 +289,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Joystick Button Text 01 Entity
 
     {
-        componentStoresPtr_->CreateEntity(joystickButton_01_TextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(joystickButton_01_TextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_01_TextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(joystickButton_01_TextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickButton_01_TextMeshDataPtr_);
@@ -319,11 +308,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Joystick Button Text 02 Entity
 
     {
-        componentStoresPtr_->CreateEntity(joystickButton_02_TextEntityId_);
+        GetComponentStoresPtr()->CreateEntity(joystickButton_02_TextEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(joystickButton_02_TextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(joystickButton_02_TextEntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetMeshDataPtr(joystickButton_02_TextMeshDataPtr_);
@@ -338,11 +327,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Left Stick Entity
 
     {
-        componentStoresPtr_->CreateEntity(leftStickEntityId_);
+        GetComponentStoresPtr()->CreateEntity(leftStickEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(leftStickEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(leftStickEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -369,11 +358,11 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Right Stick Entity
 
     {
-        componentStoresPtr_->CreateEntity(rightStickEntityId_);
+        GetComponentStoresPtr()->CreateEntity(rightStickEntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedModel>(rightStickEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(rightStickEntityId_));
         Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -424,13 +413,9 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // -------------------------------------------------------------------------
 
-    rendererPtr_->DeleteAllTextures();
-    rendererPtr_->DeleteAllMeshes();
-    componentStoresPtr_->DeleteAllEntities();
-
-    windowPtr_ = nullptr;
-    rendererPtr_ = nullptr;
-    componentStoresPtr_ = nullptr;
+    GetRendererPtr()->DeleteAllTextures();
+    GetRendererPtr()->DeleteAllMeshes();
+    GetComponentStoresPtr()->DeleteAllEntities();
 
     // Font Data ---------------------------------------------------------------
 
@@ -491,10 +476,11 @@ void TestScene060::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE && testApplicationDataPtr_ != nullptr)
+        if (keyCode == Project001::KeyCode::KEY_CODE_ESCAPE)
         {
-            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr_->testScene001Id));
-            if (GetActiveScene()->GetId() == testApplicationDataPtr_->testScene001Id)
+            TestApplicationData* testApplicationDataPtr = GetSharedDataPtr<TestApplicationData>();
+            SendEventToApplication(Project001::SwitchSceneEvent(testApplicationDataPtr->testScene001Id));
+            if (GetActiveScene()->GetId() == testApplicationDataPtr->testScene001Id)
             {
                 SendEventToScene(GetId(), Project001::DeinitializeEvent());
                 SendEventToApplication(Project001::InitializeEvent());
@@ -506,15 +492,15 @@ void TestScene060::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
 void TestScene060::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(componentStoresPtr_, rendererPtr_);
+    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    if (windowPtr_->GetJoystickPresent(0))
+    if (GetWindowPtr()->GetJoystickPresent(0))
     {
         std::vector<float> axes;
-        windowPtr_->GetJoystickAxis(0, axes);
+        GetWindowPtr()->GetJoystickAxis(0, axes);
 
         std::string joystickAxisText;
         for (size_t i = 0; i < axes.size(); ++i)
@@ -551,7 +537,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             float leftStickAngle = Project001::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), leftStickVector);
 
             Project001::RenderedModel* renderedModelPtr;
-            if (componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_))
+            if (GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_))
             {
                 renderedModelPtr->ResetOrientation();
                 renderedModelPtr->AddRelativeRotationZ(leftStickAngle);
@@ -576,7 +562,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             float rightStickAngle = Project001::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), rightStickVector);
 
             Project001::RenderedModel* renderedModelPtr;
-            if (componentStoresPtr_->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_))
+            if (GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_))
             {
                 renderedModelPtr->ResetOrientation();
                 renderedModelPtr->AddRelativeRotationZ(rightStickAngle);
@@ -586,7 +572,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         // ---------------------------------------------------------------------
 
         std::vector<bool> buttons;
-        windowPtr_->GetJoystickButtons(0, buttons);
+        GetWindowPtr()->GetJoystickButtons(0, buttons);
 
         std::string joystickButtonText01;
         for (size_t i = 0; i < 7 && i < buttons.size(); ++i)

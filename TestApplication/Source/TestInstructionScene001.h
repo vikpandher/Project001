@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-04
 
 #pragma once
 
@@ -45,10 +45,6 @@ public:
 
 protected:
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
-
-    // -------------------------------------------------------------------------
-
-    Project001::ComponentStores* componentStoresPtr_;
 
     // Mesh Data ---------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-04
 
 #pragma once
 
@@ -10,7 +10,12 @@
 
 struct TestComponent00
 {
-    TestComponent00(int a, int b, int c);
+    TestComponent00::TestComponent00(int a, int b, int c)
+        : a(a)
+        , b(b)
+        , c(c)
+    {}
+
     ~TestComponent00()
     {
         int x = 0;
@@ -29,7 +34,11 @@ struct TestComponent00
 
 struct TestComponent01
 {
-    TestComponent01(float x, float y, float z);
+    TestComponent01::TestComponent01(float x, float y, float z)
+        : x(x)
+        , y(y)
+        , z(z)
+    {}
 
     float x;
     float y;
@@ -38,7 +47,11 @@ struct TestComponent01
 
 struct TestComponent02
 {
-    TestComponent02(unsigned int r, unsigned int g, unsigned int b);
+    TestComponent02::TestComponent02(unsigned int r, unsigned int g, unsigned int b)
+        : r(r)
+        , g(g)
+        , b(b)
+    {}
 
     unsigned int r;
     unsigned int g;

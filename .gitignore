@@ -1,6 +1,7 @@
 # Build Folder
 Binary/*
 Build/*
+Framework/Library/*
 Library/*
 TestApplication/Binary/*
 TestApplication/Build/*

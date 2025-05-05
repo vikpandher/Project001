@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-05-02
+# @DATE 2025-05-04
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -40,9 +40,10 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 
 set(TESTAPP_FILES
     "Source/Main.cpp"
+    "Source/TestAnimatedSpriteScene001.cpp"
+    "Source/TestAnimatedSpriteScene001.h"
     "Source/TestApplicationData.h"
     "Source/TestButtonData001.h"
-    "Source/TestComponents.cpp"
     "Source/TestComponents.h"
     "Source/TestInstructionScene001.cpp"
     "Source/TestInstructionScene001.h"

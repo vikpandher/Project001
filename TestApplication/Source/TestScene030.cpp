@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene030.h"
 
@@ -34,10 +34,7 @@ TestScene030::TestScene030(Project001::Application* applicationPtr)
     , ui_fps_EntityId_((unsigned int)-1)
     , ui_renderedMeshCount_EntityId_((unsigned int)-1)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene030Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene030Id = GetId();
 }
 
 TestScene030::~TestScene030()
@@ -78,7 +75,7 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    rendererPtr_->CreateTexture(
+    GetRendererPtr()->CreateTexture(
         font01_TextureId_,
         font01_TextureDataPtr_->data,
         font01_TextureDataPtr_->width,
@@ -131,14 +128,14 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < meshEntityPositions.size(); i++)
     {
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
         glm::vec3 currentPosition = meshEntityPositions[i];
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(currentPosition);
@@ -158,7 +155,7 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
         if (cameraPtr != nullptr)
         {
             uiCameraHalfHeight = cameraPtr->GetTopCutoff();
@@ -167,11 +164,11 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        componentStoresPtr_->CreateEntity(ui_fps_EntityId_);
+        GetComponentStoresPtr()->CreateEntity(ui_fps_EntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(ui_fps_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_fps_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
@@ -185,11 +182,11 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     }
 
     {
-        componentStoresPtr_->CreateEntity(ui_renderedMeshCount_EntityId_);
+        GetComponentStoresPtr()->CreateEntity(ui_renderedMeshCount_EntityId_);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(ui_renderedMeshCount_EntityId_));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, ui_renderedMeshCount_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);

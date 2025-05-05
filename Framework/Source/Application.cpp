@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "Application.h"
 
@@ -76,15 +76,6 @@ namespace Project001
         delete soundPlayerPtr_;
         delete rendererPtr_;
         delete windowPtr_;
-
-        activeScenePtr_ = nullptr;
-
-        for (AutoIdMap<Scene*>::iterator iter = scenePtrMap_.IteratorAtBeginning();
-            iter != scenePtrMap_.IteratorPastTheEnd(); ++iter)
-        {
-            // So Scenes don't attempt to use a nonexisting Application
-            iter->second->applicationPtr_ = nullptr;
-        }
     }
 
     void Application::Run()
@@ -167,10 +158,7 @@ namespace Project001
 
     void Application::HandleEvent(Event& event)
     {
-        if (activeScenePtr_ != nullptr)
-        {
-            activeScenePtr_->HandleEvent(event);
-        }
+        activeScenePtr_->HandleEvent(event);
 
         DispatchEvent<FrameBufferSizeEvent>(event, std::bind(&Application::ProcessFrameBufferSizeEvent, this, std::placeholders::_1));
         DispatchEvent<SwitchSceneEvent>(event, std::bind(&Application::ProcessSwitchSceneEvent, this, std::placeholders::_1));

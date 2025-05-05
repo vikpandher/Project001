@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-04
 
 #include "TestScene050.h"
 
@@ -41,10 +41,7 @@ TestScene050::TestScene050(Project001::Application* applicationPtr)
     , soundSourceId02_((unsigned int)-1)
     , playingSound_(false)
 {
-    if (testApplicationDataPtr_ != nullptr)
-    {
-        testApplicationDataPtr_->testScene050Id = GetId();
-    }
+    GetSharedDataPtr<TestApplicationData>()->testScene050Id = GetId();
 
     // TestSoundPlayer();
     // TestSoundPlayer2();
@@ -88,7 +85,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     sound01_SoundDataPtr_ = new Project001::SoundData();
     FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
 
-    FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
+    FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundBuffer(
         soundBufferId01_,
         sound01_SoundDataPtr_->data,
         sound01_SoundDataPtr_->sizeInBytes,
@@ -98,7 +95,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sound01_SoundDataPtr_->sizeInFrames
     ));
 
-    FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
+    FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundSource(
         soundSourceId01_,
         soundBufferId01_
     ));
@@ -106,7 +103,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     sound02_SoundDataPtr_ = new Project001::SoundData();
     FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/Bounce.wav"));
 
-    FAIL_CHECK(soundPlayerPtr_->CreateSoundBuffer(
+    FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundBuffer(
         soundBufferId02_,
         sound02_SoundDataPtr_->data,
         sound02_SoundDataPtr_->sizeInBytes,
@@ -116,23 +113,23 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sound02_SoundDataPtr_->sizeInFrames
     ));
 
-    FAIL_CHECK(soundPlayerPtr_->CreateSoundSource(
+    FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundSource(
         soundSourceId02_,
         soundBufferId02_
     ));
 
-    FAIL_CHECK(soundPlayerPtr_->SetSoundSourceLooping(soundSourceId02_, true));
+    FAIL_CHECK(GetSoundPlayerPtr()->SetSoundSourceLooping(soundSourceId02_, true));
 
     // Generated Shape Entity 01
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
-        componentStoresPtr_->CreateEntity(tempEntityId);
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        FAIL_CHECK(componentStoresPtr_->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
@@ -156,7 +153,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sizeof(g_AntonioRegular_png)
     ));
     unsigned int font01_TextureId = (unsigned int)-1;
-    rendererPtr_->CreateTexture(
+    GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
         font01_TextureData.width,
@@ -220,7 +217,7 @@ void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     if (!playingSound_)
     {
-        soundPlayerPtr_->PlaySoundSource(soundSourceId02_);
+        GetSoundPlayerPtr()->PlaySoundSource(soundSourceId02_);
         playingSound_ = true;
     }
 }
@@ -228,16 +225,16 @@ void TestScene050::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 void TestScene050::UpdateCameraListenerPosition()
 {
     Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
         glm::vec3 currentPosition = cameraPtr->GetPosition();
         glm::vec3 currentForward = cameraPtr->GetForwardVector();
         glm::vec3 currentUp = cameraPtr->GetUpVector();
 
-        soundPlayerPtr_->SetListenerPosition(currentPosition);
-        soundPlayerPtr_->SetListenerForwardDirection(currentForward);
-        soundPlayerPtr_->SetListenerUpDirection(currentUp);
+        GetSoundPlayerPtr()->SetListenerPosition(currentPosition);
+        GetSoundPlayerPtr()->SetListenerForwardDirection(currentForward);
+        GetSoundPlayerPtr()->SetListenerUpDirection(currentUp);
     }
 }
 
@@ -246,7 +243,7 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
     float timestep_s = (float)(timestep_ns / 1000000) / 1000;
 
     Project001::RenderedMesh* renderedMeshPtr = nullptr;
-    FAIL_CHECK(componentStoresPtr_->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIds_[0]));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIds_[0]));
     if (renderedMeshPtr != nullptr)
     {
         glm::vec3 currentPosition = renderedMeshPtr->GetPosition();
@@ -264,8 +261,8 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
 
         glm::vec3 velocity((newPosition.x - currentPosition.x) / timestep_s, (newPosition.y - currentPosition.y) / timestep_s, 0.0f);
 
-        FAIL_CHECK(soundPlayerPtr_->SetSoundSourcePosition(soundSourceId02_, renderedMeshPtr->GetPosition()));
-        FAIL_CHECK(soundPlayerPtr_->SetSoundSourceVelocity(soundSourceId02_, velocity));
+        FAIL_CHECK(GetSoundPlayerPtr()->SetSoundSourcePosition(soundSourceId02_, renderedMeshPtr->GetPosition()));
+        FAIL_CHECK(GetSoundPlayerPtr()->SetSoundSourceVelocity(soundSourceId02_, velocity));
     }
 }
 
