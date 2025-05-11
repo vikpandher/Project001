@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-11
 
 #pragma once
 
@@ -1035,5 +1035,3 @@ namespace Project001
         const glm::vec3& c,
         const glm::vec3& d);
 }
-
-#include "Overlap3D.inl"

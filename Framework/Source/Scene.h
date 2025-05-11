@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-05-11
 
 #pragma once
 
@@ -17,7 +17,6 @@ namespace Project001
     class Application;
     class ComponentStores;
     class Renderer;
-    class ResourceStores;
     class SoundPlayer;
     class Window;
 
@@ -44,8 +43,6 @@ namespace Project001
         ComponentStores* GetComponentStoresPtr();
 
         Renderer* GetRendererPtr();
-
-        ResourceStores* GetResourceStoresPtr();
 
         SoundPlayer* GetSoundPlayerPtr();
 
@@ -110,11 +107,6 @@ namespace Project001
     inline Renderer* Scene::GetRendererPtr()
     {
         return applicationPtr_->rendererPtr_;
-    }
-
-    inline ResourceStores* Scene::GetResourceStoresPtr()
-    {
-        return applicationPtr_->resourceStoresPtr_;
     }
 
     inline SoundPlayer* Scene::GetSoundPlayerPtr()

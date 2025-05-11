@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-26
+// @DATE 2025-05-11
 
 #pragma once
 
@@ -14,7 +14,6 @@ namespace Project001
 {
     class ComponentStores;
     class Renderer;
-    class ResourceStores;
     class SoundPlayer;
     class Window;
 
@@ -76,7 +75,6 @@ namespace Project001
         Renderer* rendererPtr_;
         SoundPlayer* soundPlayerPtr_;
         ComponentStores* componentStoresPtr_;
-        ResourceStores* resourceStoresPtr_;
 
         AutoIdMap<Scene*> scenePtrMap_;
         Scene* activeScenePtr_;

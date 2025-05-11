@@ -1,12 +1,16 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-11
+
+#include "Overlap3D_UnitTests.h"
+
+#include "glm/gtc/quaternion.hpp"
 
 
 
 namespace Project001
 {
-    inline int UnitTest_Check3D_Point_Point_Overlap()
+    int UnitTest_Check3D_Point_Point_Overlap()
     {
         // 01: two points at origin
         {
@@ -38,7 +42,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Line_Overlap()
+    int UnitTest_Check3D_Point_Line_Overlap()
     {
         // 01: origin point and line through origin
         {
@@ -83,7 +87,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Ray_Overlap()
+    int UnitTest_Check3D_Point_Ray_Overlap()
     {
         // 01: origin point and ray through origin, same position
         {
@@ -148,7 +152,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_LineSegment_Overlap()
+    int UnitTest_Check3D_Point_LineSegment_Overlap()
     {
         // 01: origin point and lineSegment through origin
         {
@@ -223,7 +227,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Plane_Overlap()
+    int UnitTest_Check3D_Point_Plane_Overlap()
     {
         // 01: origin point origin XY plane
         {
@@ -298,7 +302,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Triangle_Overlap()
+    int UnitTest_Check3D_Point_Triangle_Overlap()
     {
         // 01: origin point and triangle on origin
         {
@@ -435,7 +439,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_AABB_Overlap()
+    int UnitTest_Check3D_Point_AABB_Overlap()
     {
         // 01: point in AABB
         {
@@ -480,7 +484,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_OBB_Overlap()
+    int UnitTest_Check3D_Point_OBB_Overlap()
     {
         // 01: point in OBB
         {
@@ -544,7 +548,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Sphere_Overlap()
+    int UnitTest_Check3D_Point_Sphere_Overlap()
     {
         // 01: point in sphere at origin
         {
@@ -589,7 +593,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Point_Capsule_Overlap()
+    int UnitTest_Check3D_Point_Capsule_Overlap()
     {
         // 01: point in infinitly small capsule at origin
         {
@@ -662,7 +666,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_Line_Line_Overlap()
+    int UnitTest_Check3D_Line_Line_Overlap()
     {
         // 01: 2 lines not on the same plane
         {
@@ -711,7 +715,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_Ray_Overlap()
+    int UnitTest_Check3D_Line_Ray_Overlap()
     {
         // 01: line and ray not on the same plane
         {
@@ -782,7 +786,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_LineSegment_Overlap()
+    int UnitTest_Check3D_Line_LineSegment_Overlap()
     {
         // 01: line and lineSegment not on the same plane
         {
@@ -919,7 +923,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_Plane_Overlap()
+    int UnitTest_Check3D_Line_Plane_Overlap()
     {
         // 01: line is parallel to the plane
         {
@@ -968,7 +972,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_Triangle_Overlap()
+    int UnitTest_Check3D_Line_Triangle_Overlap()
     {
         // 01: line is parallel to the triangle
         {
@@ -1057,7 +1061,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_AABB_Overlap()
+    int UnitTest_Check3D_Line_AABB_Overlap()
     {
         // 01: line passing through a point AABB at origin
         {
@@ -1227,7 +1231,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_OBB_Overlap()
+    int UnitTest_Check3D_Line_OBB_Overlap()
     {
         // 01: line passing through a point OBB at the origin
         {
@@ -1496,7 +1500,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Line_Sphere_Overlap()
+    int UnitTest_Check3D_Line_Sphere_Overlap()
     {
         // 01: line passing through sphere at origin
         {
@@ -1569,7 +1573,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_Ray_Ray_Overlap()
+    int UnitTest_Check3D_Ray_Ray_Overlap()
     {
         // 01: 2 rays not on the same plane
         {
@@ -1706,7 +1710,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_LineSegment_Overlap()
+    int UnitTest_Check3D_Ray_LineSegment_Overlap()
     {
         // 01: ray and lineSegment not on the same plane
         {
@@ -1854,7 +1858,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_OBB_Overlap()
+    int UnitTest_Check3D_Ray_OBB_Overlap()
     {
         // 01: ray passing through a point OBB at the origin
         {
@@ -2178,7 +2182,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_Plane_Overlap()
+    int UnitTest_Check3D_Ray_Plane_Overlap()
     {
         // 01: ray is parallel to the plane
         {
@@ -2249,7 +2253,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_Triangle_Overlap()
+    int UnitTest_Check3D_Ray_Triangle_Overlap()
     {
         // 01: ray is parallel to the triangle
         {
@@ -2350,7 +2354,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_AABB_Overlap()
+    int UnitTest_Check3D_Ray_AABB_Overlap()
     {
         // 01: ray passing through a point AABB at origin
         {
@@ -2498,7 +2502,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Ray_Sphere_Overlap()
+    int UnitTest_Check3D_Ray_Sphere_Overlap()
     {
         // 01: ray passing through sphere at origin
         {
@@ -2571,7 +2575,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_LineSegment_LineSegment_Overlap()
+    int UnitTest_Check3D_LineSegment_LineSegment_Overlap()
     {
         // 01: 2 lineSegments not on the same plane
         {
@@ -2719,7 +2723,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_LineSegment_Plane_Overlap()
+    int UnitTest_Check3D_LineSegment_Plane_Overlap()
     {
         // 01: lineSegment parallel to plane
         {
@@ -2779,7 +2783,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_LineSegment_Triangle_Overlap()
+    int UnitTest_Check3D_LineSegment_Triangle_Overlap()
     {
         // 01: lineSegment parallel to tringle
         {
@@ -2820,7 +2824,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_LineSegment_AABB_Overlap()
+    int UnitTest_Check3D_LineSegment_AABB_Overlap()
     {
         // 01: point lineSegment on point AABB at origin
         {
@@ -2985,7 +2989,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_LineSegment_OBB_Overlap()
+    int UnitTest_Check3D_LineSegment_OBB_Overlap()
     {
         // 01: LineSegment passing through a point OBB at the origin
         {
@@ -3230,7 +3234,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_LineSegment_Sphere_Overlap()
+    int UnitTest_Check3D_LineSegment_Sphere_Overlap()
     {
         // 01: lineSegment inside sphere at origin
         {
@@ -3336,7 +3340,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_Plane_Plane_Overlap()
+    int UnitTest_Check3D_Plane_Plane_Overlap()
     {
         // 01: 2 planes parallel
         {
@@ -3396,7 +3400,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Plane_Triangle_Overlap()
+    int UnitTest_Check3D_Plane_Triangle_Overlap()
     {
         // 01: plane at origin and point triangle at origin
         {
@@ -3521,7 +3525,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Plane_AABB_Overlap()
+    int UnitTest_Check3D_Plane_AABB_Overlap()
     {
         // 01: plane at origin overlaps tiny AABB at origin
         {
@@ -3614,7 +3618,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Plane_OBB_Overlap()
+    int UnitTest_Check3D_Plane_OBB_Overlap()
     {
         // 01: plane at origin overlaps tiny OBB at origin
         {
@@ -3785,7 +3789,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Plane_Sphere_Overlap()
+    int UnitTest_Check3D_Plane_Sphere_Overlap()
     {
         // 01: plane at origin overlaps sphere at origin
         {
@@ -3836,7 +3840,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_Triangle_Triangle_Overlap()
+    int UnitTest_Check3D_Triangle_Triangle_Overlap()
     {
         // 01: point triangle and point triangle at origin
         {
@@ -4010,7 +4014,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Triangle_AABB_Overlap()
+    int UnitTest_Check3D_Triangle_AABB_Overlap()
     {
         // 01: point triangle and point AABB at origin
         {
@@ -4268,7 +4272,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Triangle_OBB_Overlap()
+    int UnitTest_Check3D_Triangle_OBB_Overlap()
     {
         // 01: point triangle and point OBB at origin
         {
@@ -4632,7 +4636,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_Triangle_Sphere_Overlap()
+    int UnitTest_Check3D_Triangle_Sphere_Overlap()
     {
         // 01: triangle inside sphere at origin
         {
@@ -4723,7 +4727,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_AABB_AABB_Overlap()
+    int UnitTest_Check3D_AABB_AABB_Overlap()
     {
         // 01: AABB inside AABB
         {
@@ -4805,7 +4809,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_AABB_OBB_Overlap()
+    int UnitTest_Check3D_AABB_OBB_Overlap()
     {
         // 01: point AABB overlapping point OBB
         {
@@ -5019,7 +5023,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_AABB_Sphere_Overlap()
+    int UnitTest_Check3D_AABB_Sphere_Overlap()
     {
         // 01: point AABB overlapping point Sphere
         {
@@ -5125,7 +5129,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_OBB_OBB_Overlap()
+    int UnitTest_Check3D_OBB_OBB_Overlap()
     {
         // 01: point OBBs at origin
         {
@@ -5344,7 +5348,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Check3D_OBB_Sphere_Overlap()
+    int UnitTest_Check3D_OBB_Sphere_Overlap()
     {
         // 01: point OBB overlapping point Sphere
         {
@@ -5499,7 +5503,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Check3D_Sphere_Sphere_Overlap()
+    int UnitTest_Check3D_Sphere_Sphere_Overlap()
     {
         // 01: point Sphere overlapping point Sphere
         {
@@ -5572,7 +5576,7 @@ namespace Project001
 
     // -------------------------------------------------------------------------
 
-    inline int UnitTest_Get3D_Point_Line_ClosestPoint()
+    int UnitTest_Get3D_Point_Line_ClosestPoint()
     {
         // 01: origin point and x-axis line through origin
         {
@@ -5645,7 +5649,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_Ray_ClosestPoint()
+    int UnitTest_Get3D_Point_Ray_ClosestPoint()
     {
         // 01: origin point and x-axis ray through origin
         {
@@ -5718,7 +5722,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_LineSegment_ClosestPoint()
+    int UnitTest_Get3D_Point_LineSegment_ClosestPoint()
     {
         // 01: origin point and lineSegment through origin
         {
@@ -5791,7 +5795,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_Plane_ClosestPoint()
+    int UnitTest_Get3D_Point_Plane_ClosestPoint()
     {
         // 01: origin point and xy plane on origin
         {
@@ -5847,7 +5851,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_Triangle_ClosestPoint()
+    int UnitTest_Get3D_Point_Triangle_ClosestPoint()
     {
         // 01: origin point and triangle around origin
         {
@@ -5978,7 +5982,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_AABB_ClosestPoint()
+    int UnitTest_Get3D_Point_AABB_ClosestPoint()
     {
         // 01: origin point and AABB around origin
         {
@@ -6034,7 +6038,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_OBB_ClosestPoint()
+    int UnitTest_Get3D_Point_OBB_ClosestPoint()
     {
         // 01: origin point and OBB around origin
         {
@@ -6149,7 +6153,7 @@ namespace Project001
         return 0;
     }
 
-    inline int UnitTest_Get3D_Point_Sphere_ClosestPoint()
+    int UnitTest_Get3D_Point_Sphere_ClosestPoint()
     {
         // 01: origin point and sphere at origin
         {

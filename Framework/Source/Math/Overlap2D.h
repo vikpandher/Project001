@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-11
 
 #pragma once
 
@@ -1642,5 +1642,3 @@ namespace Project001
 
     float Get2D_SlopeFromDirection(const glm::vec2& direction);
 }
-
-#include "Overlap2D.inl"

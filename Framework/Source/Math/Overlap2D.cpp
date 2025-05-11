@@ -1,6 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-05-11
+
+#include "Overlap2D.h"
+
+#include "glm/gtc/constants.hpp"
 
 
 
@@ -8,7 +12,7 @@ namespace Project001
 {
     // Overlap Functions (Point) -----------------------------------------------
 
-    inline bool Check2D_Point_Rectangle_Overlap(
+    bool Check2D_Point_Rectangle_Overlap(
         const glm::vec2& point_position,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight)
@@ -19,7 +23,7 @@ namespace Project001
             point_position.y > rectangle_bottomLeft.y;
     }
 
-    inline bool Check2D_Point_OrientedRectangle_Overlap(
+    bool Check2D_Point_OrientedRectangle_Overlap(
         const glm::vec2& point_position,
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
@@ -31,7 +35,7 @@ namespace Project001
         return Check2D_Point_Rectangle_Overlap(rotatedPointPosition, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
-    inline bool Check2D_Point_Circle_Overlap(
+    bool Check2D_Point_Circle_Overlap(
         const glm::vec2& point_position,
         const glm::vec2& circle_position,
         const float& circle_radius)
@@ -41,7 +45,7 @@ namespace Project001
         return pointToCircleCenterDistanceSquared < circleRadiusSquared;
     }
 
-    inline bool Check2D_Point_Capsule_Overlap(
+    bool Check2D_Point_Capsule_Overlap(
         const glm::vec2& point_position,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -52,7 +56,7 @@ namespace Project001
         return pointLineSegmentDistanceSquared < capsuleRadiusSquared;
     }
 
-    inline bool Check2D_Point_Triangle_Overlap(
+    bool Check2D_Point_Triangle_Overlap(
         const glm::vec2& point_position,
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -107,7 +111,7 @@ namespace Project001
         return (u > 0.0f) && (v > 0.0f) && ((u + v) < 1.0f);
     }
 
-    inline bool Check2D_Point_Polygon_Overlap(
+    bool Check2D_Point_Polygon_Overlap(
         const glm::vec2& point_position,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount)
@@ -151,7 +155,7 @@ namespace Project001
         return intersectionCount % 2 != 0;
     }
 
-    inline bool Check2D_Point_ConvexPolygon_Overlap(
+    bool Check2D_Point_ConvexPolygon_Overlap(
         const glm::vec2& point_position,
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount)
@@ -194,7 +198,7 @@ namespace Project001
 
     // Overlap Functions (Line) ------------------------------------------------
 
-    inline bool Check2D_Line_Line_Overlap(
+    bool Check2D_Line_Line_Overlap(
         const glm::vec2& lineA_position,
         const float& lineA_slope,
         const glm::vec2& lineB_position,
@@ -203,7 +207,7 @@ namespace Project001
         return (!std::isinf(lineA_slope) || !std::isinf(lineB_slope)) && (lineA_slope != lineB_slope);
     }
 
-    inline bool Check2D_Line_Ray_Overlap(
+    bool Check2D_Line_Ray_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& ray_position,
@@ -231,7 +235,7 @@ namespace Project001
         return t > 0.0f;
     }
 
-    inline bool Check2D_Line_LineSegment_Overlap(
+    bool Check2D_Line_LineSegment_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& lineSegment_start,
@@ -261,7 +265,7 @@ namespace Project001
             (lineSegment_start_yInterceptOffset < 0.0f && lineSegment_end_yInterceptOffset > 0.0f);
     }
 
-    inline bool Check2D_Line_Rectangle_Overlap(
+    bool Check2D_Line_Rectangle_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& rectangle_bottomLeft,
@@ -327,7 +331,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check2D_Line_OrientedRectangle_Overlap(
+    bool Check2D_Line_OrientedRectangle_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& orientedRectangle_halfSize,
@@ -346,7 +350,7 @@ namespace Project001
             orientedRectangle_halfSize);
     }
 
-    inline bool Check2D_Line_Circle_Overlap(
+    bool Check2D_Line_Circle_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& circle_position,
@@ -357,7 +361,7 @@ namespace Project001
         return pointLineDistanceSquared < circleRadiusSquared;
     }
 
-    inline bool Check2D_Line_Capsule_Overlap(
+    bool Check2D_Line_Capsule_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& capsule_start,
@@ -383,7 +387,7 @@ namespace Project001
         return capsuleEndDistanceSquared < capsuleRadiusSquared;
     }
 
-    inline bool Check2D_Line_Triangle_Overlap(
+    bool Check2D_Line_Triangle_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& triangle_corner1,
@@ -442,7 +446,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check2D_Line_Polygon_Overlap(
+    bool Check2D_Line_Polygon_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2* const& polygon_corners,
@@ -518,7 +522,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check2D_Line_ConvexPolygon_Overlap(
+    bool Check2D_Line_ConvexPolygon_Overlap(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2* const& convexPolygon_corners,
@@ -529,7 +533,7 @@ namespace Project001
 
     // Overlap Functions (Ray) -------------------------------------------------
 
-    inline bool Check2D_Ray_Line_Overlap(
+    bool Check2D_Ray_Line_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& line_position,
@@ -538,7 +542,7 @@ namespace Project001
         return Check2D_Line_Ray_Overlap(line_position, line_slope, ray_position, ray_direction);
     }
 
-    inline bool Check2D_Ray_Ray_Overlap(
+    bool Check2D_Ray_Ray_Overlap(
         const glm::vec2& rayA_position,
         const glm::vec2& rayA_direction,
         const glm::vec2& rayB_position,
@@ -560,7 +564,7 @@ namespace Project001
         return t2 > 0.0f && t1 > 0.0f;
     }
 
-    inline bool Check2D_Ray_LineSegment_Overlap(
+    bool Check2D_Ray_LineSegment_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& lineSegment_start,
@@ -583,7 +587,7 @@ namespace Project001
         return t2 > 0.0f &&t2 < 1.0f && t1 > 0.0f;
     }
 
-    inline bool Check2D_Ray_Rectangle_Overlap(
+    bool Check2D_Ray_Rectangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& rectangle_bottomLeft,
@@ -603,7 +607,7 @@ namespace Project001
             Check2D_Ray_LineSegment_Overlap(ray_position, ray_direction, rectangle_topLeft, rectangle_bottomLeft);
     }
 
-    inline bool Check2D_Ray_OrientedRectangle_Overlap(
+    bool Check2D_Ray_OrientedRectangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& orientedRectangle_halfSize,
@@ -620,7 +624,7 @@ namespace Project001
             orientedRectangle_halfSize);
     }
 
-    inline bool Check2D_Ray_Circle_Overlap(
+    bool Check2D_Ray_Circle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& circle_position,
@@ -630,7 +634,7 @@ namespace Project001
         return distanceSquared < circle_radius * circle_radius;
     }
 
-    inline bool Check2D_Ray_Capsule_Overlap(
+    bool Check2D_Ray_Capsule_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& capsule_start,
@@ -664,7 +668,7 @@ namespace Project001
         return pointLineSegmentDistanceSquared < capsuleRadiusSquared;
     }
 
-    inline bool Check2D_Ray_Triangle_Overlap(
+    bool Check2D_Ray_Triangle_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2& triangle_corner1,
@@ -676,7 +680,7 @@ namespace Project001
             Check2D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner3, triangle_corner1);
     }
 
-    inline bool Check2D_Ray_Polygon_Overlap(
+    bool Check2D_Ray_Polygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2* const& polygon_corners,
@@ -704,7 +708,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check2D_Ray_ConvexPolygon_Overlap(
+    bool Check2D_Ray_ConvexPolygon_Overlap(
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
         const glm::vec2* const& convexPolygon_corners,
@@ -715,7 +719,7 @@ namespace Project001
 
     // Overlap Functions (LineSegment) -----------------------------------------
 
-    inline bool Check2D_LineSegment_Line_Overlap(
+    bool Check2D_LineSegment_Line_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& line_position,
@@ -724,7 +728,7 @@ namespace Project001
         return Check2D_Line_LineSegment_Overlap(line_position, line_slope, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check2D_LineSegment_Ray_Overlap(
+    bool Check2D_LineSegment_Ray_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& ray_position,
@@ -733,7 +737,7 @@ namespace Project001
         return Check2D_Ray_LineSegment_Overlap(ray_position, ray_direction, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check2D_LineSegment_LineSegment_Overlap(
+    bool Check2D_LineSegment_LineSegment_Overlap(
         const glm::vec2& lineSegmentA_start,
         const glm::vec2& lineSegmentA_end,
         const glm::vec2& lineSegmentB_start,
@@ -776,7 +780,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check2D_LineSegment_Rectangle_Overlap(
+    bool Check2D_LineSegment_Rectangle_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& rectangle_bottomLeft,
@@ -786,7 +790,7 @@ namespace Project001
             Check2D_Point_Rectangle_Overlap(lineSegment_start, rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_LineSegment_OrientedRectangle_Overlap(
+    bool Check2D_LineSegment_OrientedRectangle_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& orientedRectangle_halfSize,
@@ -803,7 +807,7 @@ namespace Project001
             -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
-    inline bool Check2D_LineSegment_Circle_Overlap(
+    bool Check2D_LineSegment_Circle_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& circle_position,
@@ -812,7 +816,7 @@ namespace Project001
         return Check2D_Point_Capsule_Overlap(circle_position, lineSegment_start, lineSegment_end, circle_radius);
     }
 
-    inline bool Check2D_LineSegment_Capsule_Overlap(
+    bool Check2D_LineSegment_Capsule_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& capsule_start,
@@ -853,7 +857,7 @@ namespace Project001
         return pointLineSegmentDistanceSquared4 < capsuleRadiusSquared;
     }
 
-    inline bool Check2D_LineSegment_Triangle_Overlap(
+    bool Check2D_LineSegment_Triangle_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& triangle_corner1,
@@ -866,7 +870,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(lineSegment_start, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_LineSegment_Polygon_Overlap(
+    bool Check2D_LineSegment_Polygon_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2* const& polygon_corners,
@@ -894,7 +898,7 @@ namespace Project001
         return Check2D_Point_Polygon_Overlap(lineSegment_start, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_LineSegment_ConvexPolygon_Overlap(
+    bool Check2D_LineSegment_ConvexPolygon_Overlap(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2* const& convexPolygon_corners,
@@ -905,7 +909,7 @@ namespace Project001
 
     // Overlap Functions (Rectangle) -------------------------------------------
 
-    inline bool Check2D_Rectangle_Point_Overlap(
+    bool Check2D_Rectangle_Point_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& point_position)
@@ -913,7 +917,7 @@ namespace Project001
         return Check2D_Point_Rectangle_Overlap(point_position, rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_Rectangle_Line_Overlap(
+    bool Check2D_Rectangle_Line_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& line_position,
@@ -922,7 +926,7 @@ namespace Project001
         return Check2D_Line_Rectangle_Overlap(line_position, line_slope, rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_Rectangle_Ray_Overlap(
+    bool Check2D_Rectangle_Ray_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& ray_position,
@@ -931,7 +935,7 @@ namespace Project001
         return Check2D_Ray_Rectangle_Overlap(ray_position, ray_direction, rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_Rectangle_LineSegment_Overlap(
+    bool Check2D_Rectangle_LineSegment_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& lineSegment_start,
@@ -940,7 +944,7 @@ namespace Project001
         return Check2D_LineSegment_Rectangle_Overlap(lineSegment_start, lineSegment_end, rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_Rectangle_Rectangle_Overlap(
+    bool Check2D_Rectangle_Rectangle_Overlap(
         const glm::vec2& rectangleA_bottomLeft,
         const glm::vec2& rectangleA_topRight,
         const glm::vec2& rectangleB_bottomLeft,
@@ -953,7 +957,7 @@ namespace Project001
             rectangleA_topRight.y> rectangleB_bottomLeft.y;
     }
 
-    inline bool Check2D_Rectangle_OrientedRectangle_Overlap(
+    bool Check2D_Rectangle_OrientedRectangle_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& orientedRectangle_halfSize,
@@ -1010,7 +1014,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check2D_Rectangle_Circle_Overlap(
+    bool Check2D_Rectangle_Circle_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& circle_position,
@@ -1048,7 +1052,7 @@ namespace Project001
         return distanceSquared < circleRadiusSquared;
     }
 
-    inline bool Check2D_Rectangle_Capsule_Overlap(
+    bool Check2D_Rectangle_Capsule_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& capsule_start,
@@ -1091,7 +1095,7 @@ namespace Project001
         return distanceSquared < capsuleRadiusSquared;
     }
 
-    inline bool Check2D_Rectangle_Triangle_Overlap(
+    bool Check2D_Rectangle_Triangle_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& triangle_corner1,
@@ -1141,7 +1145,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check2D_Rectangle_Polygon_Overlap(
+    bool Check2D_Rectangle_Polygon_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2* const& polygon_corners,
@@ -1170,7 +1174,7 @@ namespace Project001
             Check2D_Point_Rectangle_Overlap(polygon_corners[0], rectangle_bottomLeft, rectangle_topRight);
     }
 
-    inline bool Check2D_Rectangle_ConvexPolygon_Overlap(
+    bool Check2D_Rectangle_ConvexPolygon_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2* const& convexPolygon_corners,
@@ -1189,7 +1193,7 @@ namespace Project001
 
     // Overlap Functions (OrientedRectangle) -----------------------------------
 
-    inline bool Check2D_OrientedRectangle_Point_Overlap(
+    bool Check2D_OrientedRectangle_Point_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1198,7 +1202,7 @@ namespace Project001
         return Check2D_Point_OrientedRectangle_Overlap(point_position, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_Line_Overlap(
+    bool Check2D_OrientedRectangle_Line_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1208,7 +1212,7 @@ namespace Project001
         return Check2D_Line_OrientedRectangle_Overlap(line_position, line_slope, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_Ray_Overlap(
+    bool Check2D_OrientedRectangle_Ray_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1218,7 +1222,7 @@ namespace Project001
         return Check2D_Ray_OrientedRectangle_Overlap(ray_position, ray_direction, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_LineSegment_Overlap(
+    bool Check2D_OrientedRectangle_LineSegment_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1228,7 +1232,7 @@ namespace Project001
         return Check2D_LineSegment_OrientedRectangle_Overlap(lineSegment_start, lineSegment_end, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_Rectangle_Overlap(
+    bool Check2D_OrientedRectangle_Rectangle_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1238,7 +1242,7 @@ namespace Project001
         return Check2D_Rectangle_OrientedRectangle_Overlap(rectangle_bottomLeft, rectangle_topRight, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_OrientedRectangle_Overlap(
+    bool Check2D_OrientedRectangle_OrientedRectangle_Overlap(
         const glm::vec2& orientedRectangleA_halfSize,
         const glm::vec2& orientedRectangleA_position,
         const float& orientedRectangleA_rotation,
@@ -1261,7 +1265,7 @@ namespace Project001
         return Check2D_Rectangle_OrientedRectangle_Overlap(-1.0f * orientedRectangleA_halfSize, orientedRectangleA_halfSize, orientedRectangleB_halfSize, combinedRectangleB_position, combinedRectangleB_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_Circle_Overlap(
+    bool Check2D_OrientedRectangle_Circle_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1274,7 +1278,7 @@ namespace Project001
         return Check2D_Rectangle_Circle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCirclePosition, circle_radius);
     }
 
-    inline bool Check2D_OrientedRectangle_Capsule_Overlap(
+    bool Check2D_OrientedRectangle_Capsule_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1290,7 +1294,7 @@ namespace Project001
         return Check2D_Rectangle_Capsule_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCapsuleStart, transformedCapsuleEnd, capsule_radius);
     }
 
-    inline bool Check2D_OrientedRectangle_Triangle_Overlap(
+    bool Check2D_OrientedRectangle_Triangle_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1308,7 +1312,7 @@ namespace Project001
         return Check2D_Rectangle_Triangle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedTriangleCorner1, transformedTriangleCorner2, transformedTriangleCorner3);
     }
 
-    inline bool Check2D_OrientedRectangle_Polygon_Overlap(
+    bool Check2D_OrientedRectangle_Polygon_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1347,7 +1351,7 @@ namespace Project001
             Check2D_Point_OrientedRectangle_Overlap(polygon_corners[0], orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation);
     }
 
-    inline bool Check2D_OrientedRectangle_ConvexPolygon_Overlap(
+    bool Check2D_OrientedRectangle_ConvexPolygon_Overlap(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -1371,7 +1375,7 @@ namespace Project001
 
     // Overlap Functions (Circle) ----------------------------------------------
 
-    inline bool Check2D_Circle_Point_Overlap(
+    bool Check2D_Circle_Point_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& point_position)
@@ -1379,7 +1383,7 @@ namespace Project001
         return Check2D_Point_Circle_Overlap(point_position, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_Line_Overlap(
+    bool Check2D_Circle_Line_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& line_position,
@@ -1388,7 +1392,7 @@ namespace Project001
         return Check2D_Line_Circle_Overlap(line_position, line_slope, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_Ray_Overlap(
+    bool Check2D_Circle_Ray_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& ray_position,
@@ -1397,7 +1401,7 @@ namespace Project001
         return Check2D_Ray_Circle_Overlap(ray_position, ray_direction, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_LineSegment_Overlap(
+    bool Check2D_Circle_LineSegment_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& lineSegment_start,
@@ -1406,7 +1410,7 @@ namespace Project001
         return Check2D_LineSegment_Circle_Overlap(lineSegment_start, lineSegment_end, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_Rectangle_Overlap(
+    bool Check2D_Circle_Rectangle_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& rectangle_bottomLeft,
@@ -1415,7 +1419,7 @@ namespace Project001
         return Check2D_Rectangle_Circle_Overlap(rectangle_bottomLeft, rectangle_topRight, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_OrientedRectangle_Overlap(
+    bool Check2D_Circle_OrientedRectangle_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& orientedRectangle_halfSize,
@@ -1425,7 +1429,7 @@ namespace Project001
         return Check2D_OrientedRectangle_Circle_Overlap(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, circle_position, circle_radius);
     }
 
-    inline bool Check2D_Circle_Circle_Overlap(
+    bool Check2D_Circle_Circle_Overlap(
         const glm::vec2& circleA_position,
         const float& circleA_radius,
         const glm::vec2& circleB_position,
@@ -1434,7 +1438,7 @@ namespace Project001
         return Check2D_Point_Circle_Overlap(circleA_position, circleB_position, circleA_radius + circleB_radius);
     }
 
-    inline bool Check2D_Circle_Capsule_Overlap(
+    bool Check2D_Circle_Capsule_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& capsule_start,
@@ -1444,7 +1448,7 @@ namespace Project001
         return Check2D_Point_Capsule_Overlap(circle_position, capsule_start, capsule_end, circle_radius + capsule_radius);
     }
 
-    inline bool Check2D_Circle_Triangle_Overlap(
+    bool Check2D_Circle_Triangle_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& triangle_corner1,
@@ -1457,7 +1461,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(circle_position, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Circle_Polygon_Overlap(
+    bool Check2D_Circle_Polygon_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2* const& polygon_corners,
@@ -1485,7 +1489,7 @@ namespace Project001
         return Check2D_Point_Polygon_Overlap(circle_position, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Circle_ConvexPolygon_Overlap(
+    bool Check2D_Circle_ConvexPolygon_Overlap(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2* const& convexPolygon_corners,
@@ -1562,7 +1566,7 @@ namespace Project001
 
     // Overlap Functions (Capsule) ---------------------------------------------
 
-    inline bool Check2D_Capsule_Point_Overlap(
+    bool Check2D_Capsule_Point_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1571,7 +1575,7 @@ namespace Project001
         return Check2D_Point_Capsule_Overlap(point_position, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_Line_Overlap(
+    bool Check2D_Capsule_Line_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1581,7 +1585,7 @@ namespace Project001
         return Check2D_Line_Capsule_Overlap(line_position, line_slope, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_Ray_Overlap(
+    bool Check2D_Capsule_Ray_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1591,7 +1595,7 @@ namespace Project001
         return Check2D_Ray_Capsule_Overlap(ray_position, ray_direction, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_LineSegment_Overlap(
+    bool Check2D_Capsule_LineSegment_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1601,7 +1605,7 @@ namespace Project001
         return Check2D_LineSegment_Capsule_Overlap(lineSegment_start, lineSegment_end, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_Rectangle_Overlap(
+    bool Check2D_Capsule_Rectangle_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1611,7 +1615,7 @@ namespace Project001
         return Check2D_Rectangle_Capsule_Overlap(rectangle_bottomLeft, rectangle_topRight, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_OrientedRectangle_Overlap(
+    bool Check2D_Capsule_OrientedRectangle_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1622,7 +1626,7 @@ namespace Project001
         return Check2D_OrientedRectangle_Capsule_Overlap(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check2D_Capsule_Circle_Overlap(
+    bool Check2D_Capsule_Circle_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1632,7 +1636,7 @@ namespace Project001
         return Check2D_Point_Capsule_Overlap(circle_position, capsule_start, capsule_end, circle_radius + capsule_radius);
     }
 
-    inline bool Check2D_Capsule_Capsule_Overlap(
+    bool Check2D_Capsule_Capsule_Overlap(
         const glm::vec2& capsuleA_start,
         const glm::vec2& capsuleA_end,
         const float& capsuleA_radius,
@@ -1643,7 +1647,7 @@ namespace Project001
         return Check2D_LineSegment_Capsule_Overlap(capsuleA_start, capsuleA_end, capsuleB_start, capsuleB_end, capsuleA_radius + capsuleB_radius);
     }
 
-    inline bool Check2D_Capsule_Triangle_Overlap(
+    bool Check2D_Capsule_Triangle_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1657,7 +1661,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(capsule_start, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Capsule_Polygon_Overlap(
+    bool Check2D_Capsule_Polygon_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1686,7 +1690,7 @@ namespace Project001
         return Check2D_Point_Polygon_Overlap(capsule_start, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Capsule_ConvexPolygon_Overlap(
+    bool Check2D_Capsule_ConvexPolygon_Overlap(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -1823,7 +1827,7 @@ namespace Project001
 
     // Overlap Functions (Triangle) --------------------------------------------
 
-    inline bool Check2D_Triangle_Point_Overlap(
+    bool Check2D_Triangle_Point_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1832,7 +1836,7 @@ namespace Project001
         return Check2D_Point_Triangle_Overlap(point_position, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Line_Overlap(
+    bool Check2D_Triangle_Line_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1842,7 +1846,7 @@ namespace Project001
         return Check2D_Line_Triangle_Overlap(line_position, line_slope, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Ray_Overlap(
+    bool Check2D_Triangle_Ray_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1852,7 +1856,7 @@ namespace Project001
         return Check2D_Ray_Triangle_Overlap(ray_position, ray_direction, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_LineSegment_Overlap(
+    bool Check2D_Triangle_LineSegment_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1862,7 +1866,7 @@ namespace Project001
         return Check2D_LineSegment_Triangle_Overlap(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Rectangle_Overlap(
+    bool Check2D_Triangle_Rectangle_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1872,7 +1876,7 @@ namespace Project001
         return Check2D_Rectangle_Triangle_Overlap(rectangle_bottomLeft, rectangle_topRight, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_OrientedRectangle_Overlap(
+    bool Check2D_Triangle_OrientedRectangle_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1883,7 +1887,7 @@ namespace Project001
         return Check2D_OrientedRectangle_Triangle_Overlap(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Circle_Overlap(
+    bool Check2D_Triangle_Circle_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1893,7 +1897,7 @@ namespace Project001
         return Check2D_Circle_Triangle_Overlap(circle_position, circle_radius, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Capsule_Overlap(
+    bool Check2D_Triangle_Capsule_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1904,7 +1908,7 @@ namespace Project001
         return Check2D_Capsule_Triangle_Overlap(capsule_start, capsule_end, capsule_radius, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_Triangle_Overlap(
+    bool Check2D_Triangle_Triangle_Overlap(
         const glm::vec2& triangleA_corner1,
         const glm::vec2& triangleA_corner2,
         const glm::vec2& triangleA_corner3,
@@ -1917,7 +1921,7 @@ namespace Project001
         return Check2D_ConvexPolygon_ConvexPolygon_Overlap(convexPolygonA_array, 3, convexPolygonB_array, 3);
     }
 
-    inline bool Check2D_Triangle_Polygon_Overlap(
+    bool Check2D_Triangle_Polygon_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1949,7 +1953,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(polygon_corners[0], triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Triangle_ConvexPolygon_Overlap(
+    bool Check2D_Triangle_ConvexPolygon_Overlap(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -1962,7 +1966,7 @@ namespace Project001
 
     // Overlap Functions (Polygon) ---------------------------------------------
 
-    inline bool Check2D_Polygon_Point_Overlap(
+    bool Check2D_Polygon_Point_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& point_position)
@@ -1970,7 +1974,7 @@ namespace Project001
         return Check2D_Point_Polygon_Overlap(point_position, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Line_Overlap(
+    bool Check2D_Polygon_Line_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& line_position,
@@ -1979,7 +1983,7 @@ namespace Project001
         return Check2D_Line_Polygon_Overlap(line_position, line_slope, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Ray_Overlap(
+    bool Check2D_Polygon_Ray_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& ray_position,
@@ -1988,7 +1992,7 @@ namespace Project001
         return Check2D_Ray_Polygon_Overlap(ray_position, ray_direction, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_LineSegment_Overlap(
+    bool Check2D_Polygon_LineSegment_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& lineSegment_start,
@@ -1997,7 +2001,7 @@ namespace Project001
         return Check2D_LineSegment_Polygon_Overlap(lineSegment_start, lineSegment_end, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Rectangle_Overlap(
+    bool Check2D_Polygon_Rectangle_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& rectangle_bottomLeft,
@@ -2006,7 +2010,7 @@ namespace Project001
         return Check2D_Rectangle_Polygon_Overlap(rectangle_bottomLeft, rectangle_topRight, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_OrientedRectangle_Overlap(
+    bool Check2D_Polygon_OrientedRectangle_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& orientedRectangle_halfSize,
@@ -2016,7 +2020,7 @@ namespace Project001
         return Check2D_OrientedRectangle_Polygon_Overlap(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Circle_Overlap(
+    bool Check2D_Polygon_Circle_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& circle_position,
@@ -2025,7 +2029,7 @@ namespace Project001
         return Check2D_Circle_Polygon_Overlap(circle_position, circle_radius, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Capsule_Overlap(
+    bool Check2D_Polygon_Capsule_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& capsule_start,
@@ -2035,7 +2039,7 @@ namespace Project001
         return Check2D_Capsule_Polygon_Overlap(capsule_start, capsule_end, capsule_radius, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Triangle_Overlap(
+    bool Check2D_Polygon_Triangle_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2& triangle_corner1,
@@ -2045,7 +2049,7 @@ namespace Project001
         return Check2D_Triangle_Polygon_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, polygon_corners, polygon_cornerCount);
     }
 
-    inline bool Check2D_Polygon_Polygon_Overlap(
+    bool Check2D_Polygon_Polygon_Overlap(
         const glm::vec2* const& polygonA_corners,
         const size_t& polygonA_cornerCount,
         const glm::vec2* const& polygonB_corners,
@@ -2083,7 +2087,7 @@ namespace Project001
             Check2D_Point_Polygon_Overlap(polygonB_corners[0], polygonA_corners, polygonA_cornerCount);
     }
 
-    inline bool Check2D_Polygon_ConvexPolygon_Overlap(
+    bool Check2D_Polygon_ConvexPolygon_Overlap(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
         const glm::vec2* const& convexPolygon_corners,
@@ -2094,7 +2098,7 @@ namespace Project001
 
     // Overlap Functions (ConvexPolygon) ---------------------------------------
 
-    inline bool Check2D_ConvexPolygon_Point_Overlap(
+    bool Check2D_ConvexPolygon_Point_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& point_position)
@@ -2102,7 +2106,7 @@ namespace Project001
         return Check2D_Point_ConvexPolygon_Overlap(point_position, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Line_Overlap(
+    bool Check2D_ConvexPolygon_Line_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& line_position,
@@ -2111,7 +2115,7 @@ namespace Project001
         return Check2D_Line_ConvexPolygon_Overlap(line_position, line_slope, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Ray_Overlap(
+    bool Check2D_ConvexPolygon_Ray_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& ray_position,
@@ -2120,7 +2124,7 @@ namespace Project001
         return Check2D_Ray_ConvexPolygon_Overlap(ray_position, ray_direction, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_LineSegment_Overlap(
+    bool Check2D_ConvexPolygon_LineSegment_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& lineSegment_start,
@@ -2129,7 +2133,7 @@ namespace Project001
         return Check2D_LineSegment_ConvexPolygon_Overlap(lineSegment_start, lineSegment_end, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Rectangle_Overlap(
+    bool Check2D_ConvexPolygon_Rectangle_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& rectangle_bottomLeft,
@@ -2138,7 +2142,7 @@ namespace Project001
         return Check2D_Rectangle_ConvexPolygon_Overlap(rectangle_bottomLeft, rectangle_topRight, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_OrientedRectangle_Overlap(
+    bool Check2D_ConvexPolygon_OrientedRectangle_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& orientedRectangle_halfSize,
@@ -2148,7 +2152,7 @@ namespace Project001
         return Check2D_OrientedRectangle_ConvexPolygon_Overlap(orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Circle_Overlap(
+    bool Check2D_ConvexPolygon_Circle_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& circle_position,
@@ -2157,7 +2161,7 @@ namespace Project001
         return Check2D_Circle_ConvexPolygon_Overlap(circle_position, circle_radius, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Capsule_Overlap(
+    bool Check2D_ConvexPolygon_Capsule_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& capsule_start,
@@ -2167,7 +2171,7 @@ namespace Project001
         return Check2D_Capsule_ConvexPolygon_Overlap(capsule_start, capsule_end, capsule_radius, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Triangle_Overlap(
+    bool Check2D_ConvexPolygon_Triangle_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& triangle_corner1,
@@ -2177,7 +2181,7 @@ namespace Project001
         return Check2D_Triangle_ConvexPolygon_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_Polygon_Overlap(
+    bool Check2D_ConvexPolygon_Polygon_Overlap(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2* const& polygon_corners,
@@ -2186,7 +2190,7 @@ namespace Project001
         return Check2D_Polygon_ConvexPolygon_Overlap(polygon_corners, polygon_cornerCount, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
-    inline bool Check2D_ConvexPolygon_ConvexPolygon_Overlap(
+    bool Check2D_ConvexPolygon_ConvexPolygon_Overlap(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -2211,7 +2215,7 @@ namespace Project001
 
     // Closest Point Functions -------------------------------------------------
 
-    inline void Get2D_Point_Line_ClosestPoint(
+    void Get2D_Point_Line_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope,
@@ -2232,7 +2236,7 @@ namespace Project001
         closestPoint_position = glm::vec2(point_position.x - normalizedProjection * line_slope, point_position.y + normalizedProjection);
     }
 
-    inline void Get2D_Point_Ray_ClosestPoint(
+    void Get2D_Point_Ray_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
@@ -2251,7 +2255,7 @@ namespace Project001
         closestPoint_position = ray_position + projection * ray_direction;
     }
 
-    inline void Get2D_Point_LineSegment_ClosestPoint(
+    void Get2D_Point_LineSegment_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
@@ -2280,7 +2284,7 @@ namespace Project001
         closestPoint_position = lineSegment_start + projection * lineSegment;
     }
 
-    inline void Get2D_Point_Rectangle_ClosestPoint(
+    void Get2D_Point_Rectangle_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -2294,7 +2298,7 @@ namespace Project001
         closestPoint_position = glm::vec2(closestX, closestY);
     }
 
-    inline void Get2D_Point_OrientedRectangle_ClosestPoint(
+    void Get2D_Point_OrientedRectangle_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
@@ -2316,7 +2320,7 @@ namespace Project001
         closestPoint_position += orientedRectangle_position;
     }
 
-    inline void Get2D_Point_Circle_ClosestPoint(
+    void Get2D_Point_Circle_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& circle_position,
         const float& circle_radius,
@@ -2336,7 +2340,7 @@ namespace Project001
         }
     }
 
-    inline void Get2D_Point_Capsule_ClosestPoint(
+    void Get2D_Point_Capsule_ClosestPoint(
         const glm::vec2& point_position,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -2357,7 +2361,7 @@ namespace Project001
 
     // Distance Squared Functions ----------------------------------------------
 
-    inline float Get2D_Point_Point_DistanceSquared(
+    float Get2D_Point_Point_DistanceSquared(
         const glm::vec2& pointA_position,
         const glm::vec2& pointB_position)
     {
@@ -2365,7 +2369,7 @@ namespace Project001
         return glm::dot(pointA_to_pointB, pointA_to_pointB);
     }
 
-    inline float Get2D_Point_Line_DistanceSquared(
+    float Get2D_Point_Line_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope)
@@ -2383,7 +2387,7 @@ namespace Project001
         return projection * projection / directionLengthSquared;
     }
 
-    inline float Get2D_Point_Ray_DistanceSquared(
+    float Get2D_Point_Ray_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction)
@@ -2400,7 +2404,7 @@ namespace Project001
         return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
     }
 
-    inline float Get2D_Point_LineSegment_DistanceSquared(
+    float Get2D_Point_LineSegment_DistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end)
@@ -2428,7 +2432,7 @@ namespace Project001
 
     // Distance Functions ------------------------------------------------------
 
-    inline float Get2D_Point_Circle_Distance(
+    float Get2D_Point_Circle_Distance(
         const glm::vec2& point_position,
         const glm::vec2& circle_position,
         const float& circle_radius)
@@ -2443,7 +2447,7 @@ namespace Project001
         return 0.0f;
     }
 
-    inline float Get2D_Point_Capsule_Distance(
+    float Get2D_Point_Capsule_Distance(
         const glm::vec2& point_position,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -2461,7 +2465,7 @@ namespace Project001
 
     // Closest Point And Distance Squared Functions ----------------------------
 
-    inline float Get2D_Point_Line_ClosestPointAndDistanceSquared(
+    float Get2D_Point_Line_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& line_position,
         const float& line_slope,
@@ -2483,7 +2487,7 @@ namespace Project001
         return projection * projection / directionLengthSquared;
     }
 
-    inline float Get2D_Point_Ray_ClosestPointAndDistanceSquared(
+    float Get2D_Point_Ray_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& ray_position,
         const glm::vec2& ray_direction,
@@ -2503,7 +2507,7 @@ namespace Project001
         return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
     }
 
-    inline float Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
+    float Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
@@ -2533,7 +2537,7 @@ namespace Project001
         return glm::dot(startToPoint, startToPoint) - dotProduct1 * projection;
     }
 
-    inline float Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
+    float Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
@@ -2549,7 +2553,7 @@ namespace Project001
         return glm::dot(pointToClosestPoint, pointToClosestPoint);
     }
 
-    inline float Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
+    float Get2D_Point_OrientedRectangle_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
@@ -2573,7 +2577,7 @@ namespace Project001
         return distanceSquared;
     }
 
-    inline float Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
+    float Get2D_Point_Triangle_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -2646,7 +2650,7 @@ namespace Project001
         return distanceSquared;
     }
 
-    inline float Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
+    float Get2D_Point_Polygon_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
@@ -2718,7 +2722,7 @@ namespace Project001
 
     // Rectangle Collision Point And Normal And Depth Functions ---------------
 
-    inline bool Get2D_Rectangle_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& rectangleA_bottomLeft,
         const glm::vec2& rectangleA_topRight,
         const glm::vec2& rectangleB_bottomLeft,
@@ -2854,7 +2858,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& orientedRectangle_halfSize,
@@ -2963,7 +2967,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& circle_position,
@@ -3034,7 +3038,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Rectangle_Capsule_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_Capsule_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& capsule_start,
@@ -3125,7 +3129,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& triangle_corner1,
@@ -3218,7 +3222,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2* const& convexPolygon_corners,
@@ -3315,7 +3319,7 @@ namespace Project001
 
     // Oriented Rectangle Collision Point And Normal And Depth Functions -------
 
-    inline bool Get2D_OrientedRectangle_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -3336,7 +3340,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangleA_halfSize,
         const glm::vec2& orientedRectangleA_position,
         const float& orientedRectangleA_rotation,
@@ -3452,7 +3456,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -3528,7 +3532,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_OrientedRectangle_Capsule_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_Capsule_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -3628,7 +3632,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -3728,7 +3732,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& orientedRectangle_halfSize,
         const glm::vec2& orientedRectangle_position,
         const float& orientedRectangle_rotation,
@@ -3832,7 +3836,7 @@ namespace Project001
 
     // Circle Collision Point And Normal And Depth Functions -------------------
 
-    inline bool Get2D_Circle_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_Circle_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& rectangle_bottomLeft,
@@ -3852,7 +3856,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& orientedRectangle_halfSize,
@@ -3873,7 +3877,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Circle_Circle_CollisionPointNormalDepth(
+    bool Get2D_Circle_Circle_CollisionPointNormalDepth(
         const glm::vec2& circleA_position,
         const float& circleA_radius,
         const glm::vec2& circleB_position,
@@ -3920,7 +3924,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Circle_Capsule_CollisionPointNormalDepth(
+    bool Get2D_Circle_Capsule_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& capsule_start,
@@ -3966,7 +3970,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Circle_Triangle_CollisionPointNormalDepth(
+    bool Get2D_Circle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& triangle_corner1,
@@ -3988,7 +3992,7 @@ namespace Project001
             collisionDepth);
     }
 
-    inline bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2* const& convexPolygon_corners,
@@ -4014,7 +4018,7 @@ namespace Project001
 
     // Capsule Collision Point And Normal And Depth Functions ------------------
 
-    inline bool Get2D_Capsule_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_Capsule_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -4035,7 +4039,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -4057,7 +4061,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Capsule_Circle_CollisionPointNormalDepth(
+    bool Get2D_Capsule_Circle_CollisionPointNormalDepth(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -4078,7 +4082,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Capsule_Capsule_CollisionPointNormalDepth(
+    bool Get2D_Capsule_Capsule_CollisionPointNormalDepth(
         const glm::vec2& capsuleA_start,
         const glm::vec2& capsuleA_end,
         const float& capsuleA_radius,
@@ -4215,7 +4219,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Capsule_Triangle_CollisionPointNormalDepth(
+    bool Get2D_Capsule_Triangle_CollisionPointNormalDepth(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -4296,7 +4300,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius,
@@ -4382,7 +4386,7 @@ namespace Project001
 
     // Triangle Collision Point And Normal And Depth Functions -----------------
 
-    inline bool Get2D_Triangle_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_Triangle_Rectangle_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -4403,7 +4407,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Triangle_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_Triangle_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -4425,7 +4429,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Triangle_Circle_CollisionPointNormalDepth(
+    bool Get2D_Triangle_Circle_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -4446,7 +4450,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Triangle_Capsule_CollisionPointNormalDepth(
+    bool Get2D_Triangle_Capsule_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -4468,7 +4472,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Triangle_Triangle_CollisionPointNormalDepth(
+    bool Get2D_Triangle_Triangle_CollisionPointNormalDepth(
         const glm::vec2& triangleA_corner1,
         const glm::vec2& triangleA_corner2,
         const glm::vec2& triangleA_corner3,
@@ -4550,7 +4554,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3,
@@ -4637,7 +4641,7 @@ namespace Project001
 
     // ConvexPolygon Collision Point And Normal And Depth Functions ------------
 
-    inline bool Get2D_ConvexPolygon_Rectangle_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_Rectangle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& rectangle_bottomLeft,
@@ -4657,7 +4661,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_OrientedRectangle_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_OrientedRectangle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& orientedRectangle_halfSize,
@@ -4678,7 +4682,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& circle_position,
@@ -4698,7 +4702,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Capsule_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_Capsule_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& capsule_start,
@@ -4719,7 +4723,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& triangle_corner1,
@@ -4740,7 +4744,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -4825,7 +4829,7 @@ namespace Project001
 
     // Area Functions ----------------------------------------------------------
 
-    inline float Get2D_Rectangle_Area(
+    float Get2D_Rectangle_Area(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight)
     {
@@ -4834,7 +4838,7 @@ namespace Project001
         return width * height;
     }
 
-    inline float Get2D_Rectangle_Area_2(
+    float Get2D_Rectangle_Area_2(
         const glm::vec2& rectangle_halfSize)
     {
         float width = rectangle_halfSize.x * 2.0f;
@@ -4842,13 +4846,13 @@ namespace Project001
         return width * height;
     }
 
-    inline float Get2D_Circle_Area(
+    float Get2D_Circle_Area(
         const float& circle_radius)
     {
         return glm::pi<float>() * circle_radius * circle_radius;
     }
 
-    inline float Get2D_Capsule_Area(
+    float Get2D_Capsule_Area(
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
         const float& capsule_radius)
@@ -4859,7 +4863,7 @@ namespace Project001
         return rectangle_area + circle_area;
     }
 
-    inline float Get2D_Triangle_Area(
+    float Get2D_Triangle_Area(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3)
@@ -4870,7 +4874,7 @@ namespace Project001
             triangle_corner3.x * (triangle_corner1.y - triangle_corner2.y))) * 0.5f;
     }
 
-    inline float Get2D_ConvexPolygon_Area(
+    float Get2D_ConvexPolygon_Area(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount)
     {
@@ -4895,7 +4899,7 @@ namespace Project001
 
     // Moment Of Inertia Functions ---------------------------------------------
 
-    inline float Get2D_Rectangle_MomentOfInertia(
+    float Get2D_Rectangle_MomentOfInertia(
         const float& rectangle_mass,
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight)
@@ -4918,7 +4922,7 @@ namespace Project001
         return inertia_at_origin;
     }
 
-    inline float Get2D_Rectangle_MomentOfInertia_2(
+    float Get2D_Rectangle_MomentOfInertia_2(
         const float& rectangle_mass,
         const glm::vec2& rectangle_position,
         const glm::vec2& rectangle_halfSize)
@@ -4938,7 +4942,7 @@ namespace Project001
         return inertia_at_origin;
     }
 
-    inline float Get2D_Circle_MomentOfInertia(
+    float Get2D_Circle_MomentOfInertia(
         const float& circle_mass,
         const glm::vec2& circle_position,
         const float& circle_radius)
@@ -4955,7 +4959,7 @@ namespace Project001
         return inertia_origin;
     }
 
-    inline float Get2D_Capsule_MomentOfInertia(
+    float Get2D_Capsule_MomentOfInertia(
         const float& capsule_mass,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -5011,7 +5015,7 @@ namespace Project001
         return rectangle_inertia_origin + semicircle_01_inertia_origin + semicircle_02_inertia_origin;
     }
 
-    inline float Get2D_Triangle_MomentOfInertia(
+    float Get2D_Triangle_MomentOfInertia(
         const float& triangle_mass,
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -5044,7 +5048,7 @@ namespace Project001
         return inertia_at_origin;
     }
 
-    inline float Get2D_ConvexPolygon_MomentOfInertia(
+    float Get2D_ConvexPolygon_MomentOfInertia(
         const float& convexPolygon_area,
         const float& convexPolygon_mass,
         const glm::vec2* const& convexPolygon_corners,
@@ -5075,7 +5079,7 @@ namespace Project001
 
     // Intersection Functions --------------------------------------------------
 
-    inline bool Get2D_Line_Line_Intersection(
+    bool Get2D_Line_Line_Intersection(
         const glm::vec2& lineA_position,
         const float& lineA_slope,
         const glm::vec2& lineB_position,
@@ -5115,7 +5119,7 @@ namespace Project001
         return true;
     }
 
-    inline unsigned int Get2D_LineSegment_Circle_Intersections(
+    unsigned int Get2D_LineSegment_Circle_Intersections(
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end,
         const glm::vec2& circle_position,
@@ -5211,7 +5215,7 @@ namespace Project001
 
     // Helper Functions --------------------------------------------------------
 
-    inline bool Check2D_Point_Rectangle_Overlap_H(
+    bool Check2D_Point_Rectangle_Overlap_H(
         const glm::vec2& point_position,
         const glm::vec2& rectangle_oppositeCorner1,
         const glm::vec2& rectangle_oppositeCorner2)
@@ -5224,7 +5228,7 @@ namespace Project001
             (point_position.y < maxY) && (point_position.y > minY);
     }
 
-    inline bool Check2D_Point_Triangle_Overlap_Alt(
+    bool Check2D_Point_Triangle_Overlap_Alt(
         const glm::vec2& point_position,
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
@@ -5239,7 +5243,7 @@ namespace Project001
         return FloatEqualToFloat(triangleArea, areaSum);
     }
 
-    inline bool Check2D_Rectangle_OrientedRectangle_Overlap_Alt(
+    bool Check2D_Rectangle_OrientedRectangle_Overlap_Alt(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& orientedRectangle_halfSize,
@@ -5290,7 +5294,7 @@ namespace Project001
         return Check2D_Point_Rectangle_Overlap(transformedRectangle2_bottomLeft, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
-    inline bool Check2D_Rectangle_Triangle_Overlap_Alt(
+    bool Check2D_Rectangle_Triangle_Overlap_Alt(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& triangle_corner1,
@@ -5304,7 +5308,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(rectangle_bottomLeft, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check2D_Circle_Triangle_Overlap_Alt(
+    bool Check2D_Circle_Triangle_Overlap_Alt(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2& triangle_corner1,
@@ -5346,7 +5350,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check2D_Triangle_Triangle_Overlap_Alt(
+    bool Check2D_Triangle_Triangle_Overlap_Alt(
         const glm::vec2& triangleA_corner1,
         const glm::vec2& triangleA_corner2,
         const glm::vec2& triangleA_corner3,
@@ -5366,7 +5370,7 @@ namespace Project001
             Check2D_Point_Triangle_Overlap(triangleB_corner1, triangleA_corner1, triangleA_corner2, triangleA_corner3);
     }
 
-    inline unsigned int Get2D_Line_Circle_IntersectionDirectionScalars(
+    unsigned int Get2D_Line_Circle_IntersectionDirectionScalars(
         const glm::vec2& line_position,
         const glm::vec2& line_direction,
         const glm::vec2& circle_position,
@@ -5400,7 +5404,7 @@ namespace Project001
         return 0;
     }
 
-    inline unsigned int Get2D_Line_Circle_Intersections_Alt(
+    unsigned int Get2D_Line_Circle_Intersections_Alt(
         const glm::vec2& line_position,
         const float& line_slope,
         const glm::vec2& circle_position,
@@ -5446,7 +5450,7 @@ namespace Project001
         return 0;
     }
 
-    inline bool Check2D_RectangleFrame_LineSegment_Overlap(
+    bool Check2D_RectangleFrame_LineSegment_Overlap(
         const glm::vec2& rectangle_bottomLeft,
         const glm::vec2& rectangle_topRight,
         const glm::vec2& lineSegment_start,
@@ -5466,7 +5470,7 @@ namespace Project001
             Check2D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, rectangle_topLeft, rectangle_bottomLeft);
     }
 
-    inline int Get2D_Triangle_ApparentFacingDirection(
+    int Get2D_Triangle_ApparentFacingDirection(
         const glm::vec2& triangle_corner1,
         const glm::vec2& triangle_corner2,
         const glm::vec2& triangle_corner3)
@@ -5487,7 +5491,7 @@ namespace Project001
         }
     }
 
-    inline bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
+    bool Check2D_ConvexPolygon_ConvexPolygon_HalfSeparateAxisTheorem(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -5521,7 +5525,7 @@ namespace Project001
         return true;
     }
 
-    inline void ProjectPolygonOntoAxis(
+    void ProjectPolygonOntoAxis(
         const glm::vec2& axis,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
@@ -5544,7 +5548,7 @@ namespace Project001
         }
     }
 
-    inline void ProjectPolygonOntoAxis_2(
+    void ProjectPolygonOntoAxis_2(
         const glm::vec2& axis,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
@@ -5571,7 +5575,7 @@ namespace Project001
         }
     }
 
-    inline void ProjectCircleOntoAxis(
+    void ProjectCircleOntoAxis(
         const glm::vec2& axis,
         const glm::vec2& circle_position,
         const float& circle_radius,
@@ -5586,7 +5590,7 @@ namespace Project001
         min = centerProjection - circle_radius;
     }
 
-    inline void ProjectCapsuleOntoAxis(
+    void ProjectCapsuleOntoAxis(
         const glm::vec2& axis,
         const glm::vec2& capsule_start,
         const glm::vec2& capsule_end,
@@ -5618,7 +5622,7 @@ namespace Project001
         min -= capsule_radius;
     }
 
-    inline glm::vec2 GetPolygonCentroid(
+    glm::vec2 GetPolygonCentroid(
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount)
     {
@@ -5631,7 +5635,7 @@ namespace Project001
         return polygon_centeroid;
     }
 
-    inline float Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(
+    float Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(
         const glm::vec2& point_position,
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount,
@@ -5668,7 +5672,7 @@ namespace Project001
         return minDistanceSquared;
     }
 
-    inline bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
+    bool Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth_H1(
         const glm::vec2& circle_position,
         const float& circle_radius,
         const glm::vec2* const& convexPolygon_corners,
@@ -5733,7 +5737,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(
+    bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H1(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2& capsule_start,
@@ -5943,7 +5947,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(
+    bool Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(
         const glm::vec2* const& convexPolygon_corners,
         const size_t& convexPolygon_cornerCount,
         const glm::vec2* const& convexPolygon_axes,
@@ -6148,7 +6152,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H1(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
@@ -6251,7 +6255,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonA_axes,
@@ -6349,7 +6353,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(
+    bool Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(
         const glm::vec2* const& convexPolygonA_corners,
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonA_axes,
@@ -6442,7 +6446,7 @@ namespace Project001
         return true;
     }
 
-    inline float RotateSlope(float slope, float rotationInRadians)
+    float RotateSlope(float slope, float rotationInRadians)
     {
         glm::vec2 normalVector;
         if (std::isinf(slope))
@@ -6460,7 +6464,7 @@ namespace Project001
         // return (sinAngle + cosAngle * slope) / (cosAngle - sinAngle * slope);
     }
 
-    inline glm::vec2 Get2D_DirectionFromSlope(float slope)
+    glm::vec2 Get2D_DirectionFromSlope(float slope)
     {
         if (slope == std::numeric_limits<float>::infinity())
         {
@@ -6476,7 +6480,7 @@ namespace Project001
         }
     }
 
-    inline float Get2D_SlopeFromDirection(const glm::vec2& direction)
+    float Get2D_SlopeFromDirection(const glm::vec2& direction)
     {
         if (direction.x == 0.0f)
         {

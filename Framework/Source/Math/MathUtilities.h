@@ -1,11 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-05-11
 
 #pragma once
 
 #include "glm/glm.hpp"
-#include "glm/gtc/constants.hpp"
 
 #include <vector>
 
@@ -73,5 +72,3 @@ namespace Project001
 
     glm::vec2 Rotate2DVector(const glm::vec2& vector, float rotationInRadians);
 }
-
-#include "MathUtilities.inl"

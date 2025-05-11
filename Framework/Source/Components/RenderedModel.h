@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-24
+
 #pragma once
 
 #include "Components/RenderedMesh.h"

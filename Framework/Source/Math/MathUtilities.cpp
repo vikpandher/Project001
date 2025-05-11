@@ -1,6 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-05-11
+
+#include "MathUtilities.h"
+
+#include "glm/gtc/constants.hpp"
 
 
 
@@ -8,7 +12,7 @@ namespace Project001
 {
     // Coordinate Systems ------------------------------------------------------
 
-    inline glm::vec2 CartesianToPolar(float x, float y)
+    glm::vec2 CartesianToPolar(float x, float y)
     {
         glm::vec2 polar;
         float& r = polar.x;
@@ -32,12 +36,12 @@ namespace Project001
         return polar;
     }
 
-    inline glm::vec2 CartesianToPolar(const glm::vec2& cartesian)
+    glm::vec2 CartesianToPolar(const glm::vec2& cartesian)
     {
         return CartesianToPolar(cartesian.x, cartesian.y);
     }
 
-    inline glm::vec2 PolarToCartesian(float r, float t)
+    glm::vec2 PolarToCartesian(float r, float t)
     {
         glm::vec2 cartesian;
         float& x = cartesian.x;
@@ -49,7 +53,7 @@ namespace Project001
         return cartesian;
     }
 
-    inline glm::vec2 PolarToCartesian(const glm::vec2& polar)
+    glm::vec2 PolarToCartesian(const glm::vec2& polar)
     {
         return PolarToCartesian(polar.x, polar.y);
     }
@@ -57,7 +61,7 @@ namespace Project001
     // Fast Square Root --------------------------------------------------------
 
     // From Quake III Arena
-    inline float FastInverseSquareRoot(float number)
+    float FastInverseSquareRoot(float number)
     {
         return 1.0f / glm::sqrt(number);
 
@@ -78,22 +82,22 @@ namespace Project001
 
     // Float Comparisons -------------------------------------------------------
 
-    inline bool FloatEqualToFloat(float a, float b, float epsilon)
+    bool FloatEqualToFloat(float a, float b, float epsilon)
     {
         return glm::abs(a - b) < epsilon;
     }
 
-    inline bool FloatGreaterThanOrEqualToFloat(float a, float b, float epsilon)
+    bool FloatGreaterThanOrEqualToFloat(float a, float b, float epsilon)
     {
         return (a + epsilon) >= b;
     }
 
-    inline bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon)
+    bool FloatLessThanOrEqualToFloat(float a, float b, float epsilon)
     {
         return (a - epsilon) <= b;
     }
 
-    inline void GetMinMax(float a, float b, float& min, float& max)
+    void GetMinMax(float a, float b, float& min, float& max)
     {
         if (a > b)
         {
@@ -107,7 +111,7 @@ namespace Project001
         }
     }
 
-    inline float GetRandomFloat(uint32_t seed)
+    float GetRandomFloat(uint32_t seed)
     {
         // Scramble the seed
         seed ^= seed >> 17;
@@ -124,7 +128,7 @@ namespace Project001
 
     // Miscellaneous Algorithms ------------------------------------------------
 
-    inline bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
+    bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
     {
         // Ear Clipping Algorithm
         // 
@@ -221,7 +225,7 @@ namespace Project001
         return true;
     }
 
-    inline bool EarClipPolygon_v2(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
+    bool EarClipPolygon_v2(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
     {
         // Ear Clipping Algorithm v2
         // 
@@ -349,14 +353,14 @@ namespace Project001
 
     // Vector Manipulation -----------------------------------------------------
 
-    inline float Get2DVectorAngle(const glm::vec2& vector1, const glm::vec2& vector2)
+    float Get2DVectorAngle(const glm::vec2& vector1, const glm::vec2& vector2)
     {
         float dotProduct = vector1.x * vector2.x + vector1.y * vector2.y;
         float determinant = vector1.x * vector2.y - vector1.y * vector2.x;
         return glm::atan(determinant, dotProduct);
     }
 
-    inline glm::vec2 Get2DVectorProjection(const glm::vec2& vector1, const glm::vec2& vector2)
+    glm::vec2 Get2DVectorProjection(const glm::vec2& vector1, const glm::vec2& vector2)
     {
         // dot product formula
         // dot(a, b) = |a| * |b| * cos(theta) = a.x * b.x + a.y * b.y
@@ -385,7 +389,7 @@ namespace Project001
         return vector2 * dotProduct / magnitudeSquared;
     }
 
-    inline float Get3DVectorAngle(const glm::vec3& vector1, const glm::vec3& vector2)
+    float Get3DVectorAngle(const glm::vec3& vector1, const glm::vec3& vector2)
     {
         // cos(A) = (v1 dot v2) / (|v1| * |v2|)
         // A = arccos((v1 dot v2) / (|v1| * |v2|))
@@ -407,7 +411,7 @@ namespace Project001
         return angle;
     }
 
-    inline glm::vec2 Rotate2DVector(const glm::vec2& vector, float rotationInRadians)
+    glm::vec2 Rotate2DVector(const glm::vec2& vector, float rotationInRadians)
     {
         float cosAngle = glm::cos(rotationInRadians);
         float sinAngle = glm::sin(rotationInRadians);

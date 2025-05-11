@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-02
+// @DATE 2025-05-11
 
 #pragma once
 
@@ -169,7 +169,7 @@ namespace Project001
             float radius3,
             float sectionAngle,
             uint32_t offsetSeed,
-            float maxOffset0, // offsets goes inward
+            float maxOffset0, // offsets go inward
             float maxOffset1,
             float maxOffset2,
             float maxOffset3,
@@ -183,7 +183,7 @@ namespace Project001
             float radius2,
             float radius3,
             uint32_t offsetSeed,
-            float maxOffset0, // offsets goes inward
+            float maxOffset0, // offsets go inward
             float maxOffset1,
             float maxOffset2,
             float maxOffset3,
@@ -295,6 +295,23 @@ namespace Project001
             float maxOffsetLength, // offset goes inward
             size_t subdivisions,
             std::vector<float>& vertexOffsetDistances,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateSpikeyCrown(
+            MeshData& meshData,
+            float radius0, // for spiike 0 & 2
+            float radius1, // for spiike 1 & 3
+            float points,
+            float spikeHeight0, // heights are along +y axis
+            float spikeHeight1,
+            float spikeHeight2,
+            float spikeHeight3,
+            uint32_t offsetSeed,
+            float maxOffset0, // offsets are along +y axis
+            float maxOffset1,
+            float maxOffset2,
+            float maxOffset3,
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
@@ -482,6 +499,17 @@ namespace Project001
             MeshData& meshData,
             size_t longitudinalSections,
             size_t latitudinalSections,
+            std::vector<glm::vec3>& positions,
+            std::vector<glm::vec2>& textureCoordinates,
+            std::vector<glm::vec3>& normals,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        // Used in GenerateSpikeyCrown
+        // sections must be >= 2
+        static void GenerateMeshStripVerticesAndIndices(
+            MeshData& meshData,
+            size_t sections,
             std::vector<glm::vec3>& positions,
             std::vector<glm::vec2>& textureCoordinates,
             std::vector<glm::vec3>& normals,

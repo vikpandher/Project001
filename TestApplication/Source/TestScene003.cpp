@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-05-11
 
 #include "TestScene003.h"
 
@@ -52,7 +52,6 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Texture Data ------------------------------------------------------------
 
     unsigned int earth_TextureId = (unsigned int)-1;
-    unsigned int rgb120x60_TextureId = (unsigned int)-1;
     unsigned int numbers12x6_TextureId = (unsigned int)-1;
     unsigned int box01_TextureId = (unsigned int)-1;
     unsigned int box02_TextureId = (unsigned int)-1;
@@ -62,12 +61,6 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
         GetRendererPtr()->CreateTexture(earth_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
-    }
-
-    {
-        Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/120_60_rgb.png"));
-        GetRendererPtr()->CreateTexture(rgb120x60_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {

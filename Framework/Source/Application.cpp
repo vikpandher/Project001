@@ -1,13 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-05-11
 
 #include "Application.h"
 
 #include "ComponentStores.h"
 #include "Logger.h"
 #include "Renderer.h"
-#include "ResourceStores.h"
 #include "Scene.h"
 #include "SoundPlayer.h"
 #include "Window.h"
@@ -34,7 +33,6 @@ namespace Project001
         , rendererPtr_(nullptr)
         , soundPlayerPtr_(nullptr)
         , componentStoresPtr_(nullptr)
-        , resourceStoresPtr_(nullptr)
         , activeScenePtr_(nullptr)
     {
         Logger::EnableConsole();
@@ -65,13 +63,10 @@ namespace Project001
         soundPlayerPtr_ = SoundPlayer::Create();
 
         componentStoresPtr_ = new ComponentStores();
-
-        resourceStoresPtr_ = new ResourceStores();
     }
 
     Application::~Application()
     {
-        delete resourceStoresPtr_;
         delete componentStoresPtr_;
         delete soundPlayerPtr_;
         delete rendererPtr_;

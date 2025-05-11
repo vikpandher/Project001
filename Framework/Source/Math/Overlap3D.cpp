@@ -1,6 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-05-11
+
+#include "Overlap3d.h"
+
+#include "glm/gtc/quaternion.hpp"
 
 
 
@@ -8,7 +12,7 @@ namespace Project001
 {
     // Checking Point Overlap --------------------------------------------------
 
-    inline bool Check3D_Point_Point_Overlap(
+    bool Check3D_Point_Point_Overlap(
         const glm::vec3& pointA_position,
         const glm::vec3& pointB_position)
     {
@@ -17,7 +21,7 @@ namespace Project001
             FloatEqualToFloat(pointA_position.z, pointB_position.z);
     }
 
-    inline bool Check3D_Point_Line_Overlap(
+    bool Check3D_Point_Line_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& line_position,
         const glm::vec3& line_direction)
@@ -38,7 +42,7 @@ namespace Project001
             FloatEqualToFloat(line_direction.z, point_to_line.z));
     }
 
-    inline bool Check3D_Point_Ray_Overlap(
+    bool Check3D_Point_Ray_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction)
@@ -60,7 +64,7 @@ namespace Project001
         // is 1.0
     }
 
-    inline bool Check3D_Point_LineSegment_Overlap(
+    bool Check3D_Point_LineSegment_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end)
@@ -75,7 +79,7 @@ namespace Project001
         return Check3D_Point_Line_Overlap(point_position, lineSegment_start, lineSegment_direction);
     }
 
-    inline bool Check3D_Point_Plane_Overlap(
+    bool Check3D_Point_Plane_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& plane_normal,
         const float& plane_distance)
@@ -86,7 +90,7 @@ namespace Project001
         return FloatEqualToFloat(dot_product, plane_distance);
     }
 
-    inline bool Check3D_Point_Triangle_Overlap(
+    bool Check3D_Point_Triangle_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
@@ -117,7 +121,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_Point_AABB_Overlap(
+    bool Check3D_Point_AABB_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max)
@@ -130,7 +134,7 @@ namespace Project001
             FloatGreaterThanOrEqualToFloat(point_position.z, aabb_min.z);
     }
 
-    inline bool Check3D_Point_OBB_Overlap(
+    bool Check3D_Point_OBB_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -143,7 +147,7 @@ namespace Project001
         return Check3D_Point_AABB_Overlap(rotated_point_position, -1.0f * obb_halfSize, obb_halfSize);
     }
 
-    inline bool Check3D_Point_Sphere_Overlap(
+    bool Check3D_Point_Sphere_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& sphere_position,
         const float& sphere_radius)
@@ -154,7 +158,7 @@ namespace Project001
         return FloatLessThanOrEqualToFloat(distanceSquared, sphereRadiusSquared);
     }
 
-    inline bool Check3D_Point_Capsule_Overlap(
+    bool Check3D_Point_Capsule_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& capsule_start,
         const glm::vec3& capsule_end,
@@ -168,7 +172,7 @@ namespace Project001
         return FloatLessThanOrEqualToFloat(distanceSquared, capsuleRadiusSquared);
     }
 
-    inline bool Check3D_Point_Frustum_Overlap(
+    bool Check3D_Point_Frustum_Overlap(
         const glm::vec3& point_position,
         const glm::vec3& frustum_leftPlaneNormal,
         const float& frustum_leftPlaneDistance,
@@ -226,7 +230,7 @@ namespace Project001
 
     // Checking Line Overlap ---------------------------------------------------
 
-    inline bool Check3D_Line_Point_Overlap(
+    bool Check3D_Line_Point_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& point_position)
@@ -234,7 +238,7 @@ namespace Project001
         return Check3D_Point_Line_Overlap(point_position, line_position, line_direction);
     }
 
-    inline bool Check3D_Line_Line_Overlap(
+    bool Check3D_Line_Line_Overlap(
         const glm::vec3& lineA_position,
         const glm::vec3& lineA_direction,
         const glm::vec3& lineB_position,
@@ -271,7 +275,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Line_Ray_Overlap(
+    bool Check3D_Line_Ray_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& ray_position,
@@ -316,7 +320,7 @@ namespace Project001
         return FloatGreaterThanOrEqualToFloat(t2, 0.0f);
     }
 
-    inline bool Check3D_Line_LineSegment_Overlap(
+    bool Check3D_Line_LineSegment_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& lineSegment_start,
@@ -363,7 +367,7 @@ namespace Project001
         return Check3D_Point_Box_Overlap_H(p, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check3D_Line_Plane_Overlap(
+    bool Check3D_Line_Plane_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& plane_normal,
@@ -381,7 +385,7 @@ namespace Project001
         return !FloatEqualToFloat(dotProduct, 0.0f);
     }
 
-    inline bool Check3D_Line_Triangle_Overlap(
+    bool Check3D_Line_Triangle_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& triangle_corner1,
@@ -460,7 +464,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_Line_AABB_Overlap(
+    bool Check3D_Line_AABB_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& aabb_min,
@@ -471,7 +475,7 @@ namespace Project001
         return Linecast3D_AABB(line_position, line_direction, aabb_min, aabb_max, hit_scalar_largest_min, hit_scalar_smallest_max);
     }
 
-    inline bool Check3D_Line_OBB_Overlap(
+    bool Check3D_Line_OBB_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& obb_halfSize,
@@ -483,7 +487,7 @@ namespace Project001
         return Linecast3D_OBB(line_position, line_direction, obb_halfSize, obb_position, obb_orientation, hit_scalar_largest_min, hit_scalar_smallest_max);
     }
 
-    inline bool Check3D_Line_Sphere_Overlap(
+    bool Check3D_Line_Sphere_Overlap(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& sphere_position,
@@ -496,7 +500,7 @@ namespace Project001
 
     // Checking Ray Overlap ----------------------------------------------------
 
-    inline bool Check3D_Ray_Point_Overlap(
+    bool Check3D_Ray_Point_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& point_position)
@@ -504,7 +508,7 @@ namespace Project001
         return Check3D_Point_Ray_Overlap(point_position, ray_position, ray_direction);
     }
 
-    inline bool Check3D_Ray_Line_Overlap(
+    bool Check3D_Ray_Line_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& line_position,
@@ -513,7 +517,7 @@ namespace Project001
         return Check3D_Line_Ray_Overlap(line_position, line_direction, ray_position, ray_direction);
     }
 
-    inline bool Check3D_Ray_Ray_Overlap(
+    bool Check3D_Ray_Ray_Overlap(
         const glm::vec3& rayA_position,
         const glm::vec3& rayA_direction,
         const glm::vec3& rayB_position,
@@ -554,7 +558,7 @@ namespace Project001
         return FloatGreaterThanOrEqualToFloat(t1, 0.0f) && FloatGreaterThanOrEqualToFloat(t2, 0.0f);
     }
 
-    inline bool Check3D_Ray_LineSegment_Overlap(
+    bool Check3D_Ray_LineSegment_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& lineSegment_start,
@@ -604,7 +608,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_Ray_Plane_Overlap(
+    bool Check3D_Ray_Plane_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& plane_normal,
@@ -632,7 +636,7 @@ namespace Project001
         return FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f);
     }
 
-    inline bool Check3D_Ray_Triangle_Overlap(
+    bool Check3D_Ray_Triangle_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& triangle_corner1,
@@ -689,7 +693,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check3D_Ray_AABB_Overlap(
+    bool Check3D_Ray_AABB_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& aabb_min,
@@ -705,7 +709,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check3D_Ray_OBB_Overlap(
+    bool Check3D_Ray_OBB_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& obb_halfSize,
@@ -722,7 +726,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check3D_Ray_Sphere_Overlap(
+    bool Check3D_Ray_Sphere_Overlap(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& sphere_position,
@@ -735,7 +739,7 @@ namespace Project001
 
     // Checking LineSegment Overlap --------------------------------------------
 
-    inline bool Check3D_LineSegment_Point_Overlap(
+    bool Check3D_LineSegment_Point_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& point_position)
@@ -743,7 +747,7 @@ namespace Project001
         return Check3D_Point_LineSegment_Overlap(point_position, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check3D_LineSegment_Line_Overlap(
+    bool Check3D_LineSegment_Line_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& line_position,
@@ -752,7 +756,7 @@ namespace Project001
         return Check3D_Line_LineSegment_Overlap(line_position, line_direction, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check3D_LineSegment_Ray_Overlap(
+    bool Check3D_LineSegment_Ray_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& ray_position,
@@ -761,7 +765,7 @@ namespace Project001
         return Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check3D_LineSegment_LineSegment_Overlap(
+    bool Check3D_LineSegment_LineSegment_Overlap(
         const glm::vec3& lineSegmentA_start,
         const glm::vec3& lineSegmentA_end,
         const glm::vec3& lineSegmentB_start,
@@ -807,7 +811,7 @@ namespace Project001
             Check3D_Point_Box_Overlap_H(p, lineSegmentB_start, lineSegmentB_end);
     }
 
-    inline bool Check3D_LineSegment_Plane_Overlap(
+    bool Check3D_LineSegment_Plane_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& plane_normal,
@@ -834,7 +838,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_LineSegment_Triangle_Overlap(
+    bool Check3D_LineSegment_Triangle_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& triangle_corner1,
@@ -864,7 +868,7 @@ namespace Project001
         return Check3D_LineSegment_Triangle_Overlap_H(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_LineSegment_AABB_Overlap(
+    bool Check3D_LineSegment_AABB_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& aabb_min,
@@ -881,7 +885,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check3D_LineSegment_OBB_Overlap(
+    bool Check3D_LineSegment_OBB_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& obb_halfSize,
@@ -899,7 +903,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Check3D_LineSegment_Sphere_Overlap(
+    bool Check3D_LineSegment_Sphere_Overlap(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& sphere_position,
@@ -912,7 +916,7 @@ namespace Project001
 
     // Checking Plane Overlap --------------------------------------------------
 
-    inline bool Check3D_Plane_Point_Overlap(
+    bool Check3D_Plane_Point_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& point_position)
@@ -920,7 +924,7 @@ namespace Project001
         return Check3D_Point_Plane_Overlap(point_position, plane_normal, plane_distance);
     }
 
-    inline bool Check3D_Plane_Line_Overlap(
+    bool Check3D_Plane_Line_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& line_position,
@@ -929,7 +933,7 @@ namespace Project001
         return Check3D_Line_Plane_Overlap(line_position, line_direction, plane_normal, plane_distance);
     }
 
-    inline bool Check3D_Plane_LineSegment_Overlap(
+    bool Check3D_Plane_LineSegment_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& lineSegment_start,
@@ -938,7 +942,7 @@ namespace Project001
         return Check3D_LineSegment_Plane_Overlap(lineSegment_start, lineSegment_end, plane_normal, plane_distance);
     }
 
-    inline bool Check3D_Plane_Plane_Overlap(
+    bool Check3D_Plane_Plane_Overlap(
         const glm::vec3& planeA_normal,
         const float& planeA_distance,
         const glm::vec3& planeB_normal,
@@ -956,7 +960,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Plane_Triangle_Overlap(
+    bool Check3D_Plane_Triangle_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& triangle_corner1,
@@ -980,7 +984,7 @@ namespace Project001
         return FloatEqualToFloat(distance3, 0.0f) || std::signbit(distance1) != std::signbit(distance3);
     }
 
-    inline bool Check3D_Plane_AABB_Overlap(
+    bool Check3D_Plane_AABB_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& aabb_min,
@@ -999,7 +1003,7 @@ namespace Project001
         return FloatLessThanOrEqualToFloat(distance, projection);
     }
 
-    inline bool Check3D_Plane_OBB_Overlap(
+    bool Check3D_Plane_OBB_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& obb_halfSize,
@@ -1025,7 +1029,7 @@ namespace Project001
         return FloatLessThanOrEqualToFloat(distance, projection);
     }
 
-    inline bool Check3D_Plane_Sphere_Overlap(
+    bool Check3D_Plane_Sphere_Overlap(
         const glm::vec3& plane_normal,
         const float& plane_distance,
         const glm::vec3& sphere_position,
@@ -1038,7 +1042,7 @@ namespace Project001
 
     // Checking Triangle Overlap -----------------------------------------------
 
-    inline bool Check3D_Triangle_Point_Overlap(
+    bool Check3D_Triangle_Point_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1047,7 +1051,7 @@ namespace Project001
         return Check3D_Point_Triangle_Overlap(point_position, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_Triangle_Line_Overlap(
+    bool Check3D_Triangle_Line_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1057,7 +1061,7 @@ namespace Project001
         return Check3D_Line_Triangle_Overlap(line_position, line_direction, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_Triangle_Ray_Overlap(
+    bool Check3D_Triangle_Ray_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1067,7 +1071,7 @@ namespace Project001
         return Check3D_Ray_Triangle_Overlap(ray_position, ray_direction, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_Triangle_LineSegment_Overlap(
+    bool Check3D_Triangle_LineSegment_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1077,7 +1081,7 @@ namespace Project001
         return Check3D_LineSegment_Triangle_Overlap(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_Triangle_Plane_Overlap(
+    bool Check3D_Triangle_Plane_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1087,7 +1091,7 @@ namespace Project001
         return Check3D_Plane_Triangle_Overlap(plane_normal, plane_distance, triangle_corner1, triangle_corner2, triangle_corner3);
     }
 
-    inline bool Check3D_Triangle_Triangle_Overlap(
+    bool Check3D_Triangle_Triangle_Overlap(
         const glm::vec3& triangleA_corner1,
         const glm::vec3& triangleA_corner2,
         const glm::vec3& triangleA_corner3,
@@ -1173,7 +1177,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Triangle_AABB_Overlap(
+    bool Check3D_Triangle_AABB_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1247,7 +1251,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Triangle_OBB_Overlap(
+    bool Check3D_Triangle_OBB_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1322,7 +1326,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Triangle_Sphere_Overlap(
+    bool Check3D_Triangle_Sphere_Overlap(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -1336,7 +1340,7 @@ namespace Project001
 
     // Checking Axis Aligned Bounding Box Overlap ------------------------------
 
-    inline bool Check3D_AABB_Point_Overlap(
+    bool Check3D_AABB_Point_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& point_position)
@@ -1344,7 +1348,7 @@ namespace Project001
         return Check3D_Point_AABB_Overlap(point_position, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_Line_Overlap(
+    bool Check3D_AABB_Line_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& line_position,
@@ -1353,7 +1357,7 @@ namespace Project001
         return Check3D_Line_AABB_Overlap(line_position, line_direction, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_Ray_Overlap(
+    bool Check3D_AABB_Ray_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& ray_position,
@@ -1362,7 +1366,7 @@ namespace Project001
         return Check3D_Ray_AABB_Overlap(ray_position, ray_direction, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_LineSegment_Overlap(
+    bool Check3D_AABB_LineSegment_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& lineSegment_start,
@@ -1371,7 +1375,7 @@ namespace Project001
         return Check3D_LineSegment_AABB_Overlap(lineSegment_start, lineSegment_end, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_Plane_Overlap(
+    bool Check3D_AABB_Plane_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& plane_normal,
@@ -1380,7 +1384,7 @@ namespace Project001
         return Check3D_Plane_AABB_Overlap(plane_normal, plane_distance, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_Triangle_Overlap(
+    bool Check3D_AABB_Triangle_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& triangle_corner1,
@@ -1390,7 +1394,7 @@ namespace Project001
         return Check3D_Triangle_AABB_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, aabb_min, aabb_max);
     }
 
-    inline bool Check3D_AABB_AABB_Overlap(
+    bool Check3D_AABB_AABB_Overlap(
         const glm::vec3& aabbA_min,
         const glm::vec3& aabbA_max,
         const glm::vec3& aabbB_min,
@@ -1406,7 +1410,7 @@ namespace Project001
             FloatGreaterThanOrEqualToFloat(aabbA_max.z, aabbB_min.z);
     }
 
-    inline bool Check3D_AABB_OBB_Overlap(
+    bool Check3D_AABB_OBB_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& obb_halfSize,
@@ -1447,7 +1451,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_AABB_Sphere_Overlap(
+    bool Check3D_AABB_Sphere_Overlap(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& sphere_position,
@@ -1460,7 +1464,7 @@ namespace Project001
 
     // Checking Oriented Bounding Box Overlap ----------------------------------
 
-    inline bool Check3D_OBB_Point_Overlap(
+    bool Check3D_OBB_Point_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1469,7 +1473,7 @@ namespace Project001
         return Check3D_Point_OBB_Overlap(point_position, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_Line_Overlap(
+    bool Check3D_OBB_Line_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1479,7 +1483,7 @@ namespace Project001
         return Check3D_Line_OBB_Overlap(line_position, line_direction, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_Ray_Overlap(
+    bool Check3D_OBB_Ray_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1489,7 +1493,7 @@ namespace Project001
         return Check3D_Ray_OBB_Overlap(ray_position, ray_direction, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_LineSegment_Overlap(
+    bool Check3D_OBB_LineSegment_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1499,7 +1503,7 @@ namespace Project001
         return Check3D_LineSegment_OBB_Overlap(lineSegment_start, lineSegment_end, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_Plane_Overlap(
+    bool Check3D_OBB_Plane_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1509,7 +1513,7 @@ namespace Project001
         return Check3D_Plane_OBB_Overlap(plane_normal, plane_distance, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_Triangle_Overlap(
+    bool Check3D_OBB_Triangle_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1520,7 +1524,7 @@ namespace Project001
         return Check3D_Triangle_OBB_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_AABB_Overlap(
+    bool Check3D_OBB_AABB_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1530,7 +1534,7 @@ namespace Project001
         return Check3D_AABB_OBB_Overlap(aabb_min, aabb_max, obb_halfSize, obb_position, obb_orientation);
     }
 
-    inline bool Check3D_OBB_OBB_Overlap(
+    bool Check3D_OBB_OBB_Overlap(
         const glm::vec3& obbA_halfSize,
         const glm::vec3& obbA_position,
         const glm::quat& obbA_orientation,
@@ -1572,7 +1576,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_OBB_Sphere_Overlap(
+    bool Check3D_OBB_Sphere_Overlap(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -1586,7 +1590,7 @@ namespace Project001
 
     // Checking Sphere Overlap -------------------------------------------------
 
-    inline bool Check3D_Sphere_Point_Overlap(
+    bool Check3D_Sphere_Point_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& point_position)
@@ -1594,7 +1598,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(point_position, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_Line_Overlap(
+    bool Check3D_Sphere_Line_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& line_position,
@@ -1603,7 +1607,7 @@ namespace Project001
         return Check3D_Line_Sphere_Overlap(line_position, line_direction, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_Ray_Overlap(
+    bool Check3D_Sphere_Ray_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& ray_position,
@@ -1612,7 +1616,7 @@ namespace Project001
         return Check3D_Ray_Sphere_Overlap(ray_position, ray_direction, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_LineSegment_Overlap(
+    bool Check3D_Sphere_LineSegment_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& lineSegment_start,
@@ -1621,7 +1625,7 @@ namespace Project001
         return Check3D_LineSegment_Sphere_Overlap(lineSegment_start, lineSegment_end, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_Plane_Overlap(
+    bool Check3D_Sphere_Plane_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& plane_normal,
@@ -1630,7 +1634,7 @@ namespace Project001
         return Check3D_Plane_Sphere_Overlap(plane_normal, plane_distance, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_Triangle_Overlap(
+    bool Check3D_Sphere_Triangle_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& triangle_corner1,
@@ -1640,7 +1644,7 @@ namespace Project001
         return Check3D_Triangle_Sphere_Overlap(triangle_corner1, triangle_corner2, triangle_corner3, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_AABB_Overlap(
+    bool Check3D_Sphere_AABB_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& aabb_min,
@@ -1649,7 +1653,7 @@ namespace Project001
         return Check3D_AABB_Sphere_Overlap(aabb_min, aabb_max, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_OBB_Overlap(
+    bool Check3D_Sphere_OBB_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& obb_halfSize,
@@ -1659,7 +1663,7 @@ namespace Project001
         return Check3D_OBB_Sphere_Overlap(obb_halfSize, obb_position, obb_orientation, sphere_position, sphere_radius);
     }
 
-    inline bool Check3D_Sphere_Sphere_Overlap(
+    bool Check3D_Sphere_Sphere_Overlap(
         const glm::vec3& sphereA_position,
         const float& sphereA_radius,
         const glm::vec3& sphereB_position,
@@ -1668,7 +1672,7 @@ namespace Project001
         return Check3D_Point_Sphere_Overlap(sphereA_position, sphereB_position, sphereA_radius + sphereB_radius);
     }
 
-    inline bool Check3D_Sphere_Capsule_Overlap(
+    bool Check3D_Sphere_Capsule_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& capsule_start,
@@ -1678,7 +1682,7 @@ namespace Project001
         return Check3D_LineSegment_Sphere_Overlap(capsule_start, capsule_end, sphere_position, sphere_radius + capsule_radius);
     }
 
-    inline bool Check3D_Sphere_Frustum_Overlap(
+    bool Check3D_Sphere_Frustum_Overlap(
         const glm::vec3& sphere_position,
         const float& sphere_radius,
         const glm::vec3& frustum_leftPlaneNormal,
@@ -1737,7 +1741,7 @@ namespace Project001
 
     // Checking Capsule Overlap -------------------------------------------------
 
-    inline bool Check3D_Capsule_Point_Overlap(
+    bool Check3D_Capsule_Point_Overlap(
         const glm::vec3& capsule_start,
         const glm::vec3& capsule_end,
         const float& capsule_radius,
@@ -1746,7 +1750,7 @@ namespace Project001
         return Check3D_Point_Capsule_Overlap(point_position, capsule_start, capsule_end, capsule_radius);
     }
 
-    inline bool Check3D_Capsule_Sphere_Overlap(
+    bool Check3D_Capsule_Sphere_Overlap(
         const glm::vec3& capsule_start,
         const glm::vec3& capsule_end,
         const float& capsule_radius,
@@ -1758,7 +1762,7 @@ namespace Project001
 
     // Checking Frustum Overlap ------------------------------------------------
 
-    inline bool Check3D_Frustum_Point_Overlap(
+    bool Check3D_Frustum_Point_Overlap(
         const glm::vec3& frustum_leftPlaneNormal,
         const float& frustum_leftPlaneDistance,
         const glm::vec3& frustum_rightPlaneNormal,
@@ -1773,7 +1777,7 @@ namespace Project001
         const float& frustum_farPlaneDistance,
         const glm::vec3& point_position)
     {
-        Check3D_Point_Frustum_Overlap(
+        return Check3D_Point_Frustum_Overlap(
             point_position,
             frustum_leftPlaneNormal,
             frustum_leftPlaneDistance,
@@ -1790,7 +1794,7 @@ namespace Project001
         );
     }
 
-    inline bool Check3D_Frustum_Sphere_Overlap(
+    bool Check3D_Frustum_Sphere_Overlap(
         const glm::vec3& frustum_leftPlaneNormal,
         const float& frustum_leftPlaneDistance,
         const glm::vec3& frustum_rightPlaneNormal,
@@ -1806,7 +1810,7 @@ namespace Project001
         const glm::vec3& sphere_position,
         const float& sphere_radius)
     {
-        Check3D_Sphere_Frustum_Overlap(
+        return Check3D_Sphere_Frustum_Overlap(
             sphere_position,
             sphere_radius,
             frustum_leftPlaneNormal,
@@ -1826,7 +1830,7 @@ namespace Project001
 
     // Getting Closest Point ---------------------------------------------------
 
-    inline void Get3D_Point_Line_ClosestPoint(
+    void Get3D_Point_Line_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
@@ -1840,7 +1844,7 @@ namespace Project001
         closestPoint_position = line_position + line_direction * t;
     }
 
-    inline void Get3D_Point_Ray_ClosestPoint(
+    void Get3D_Point_Ray_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
@@ -1855,7 +1859,7 @@ namespace Project001
         closestPoint_position = ray_position + ray_direction * t;
     }
 
-    inline void Get3D_Point_LineSegment_ClosestPoint(
+    void Get3D_Point_LineSegment_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
@@ -1877,7 +1881,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Point_Plane_ClosestPoint(
+    void Get3D_Point_Plane_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& plane_normal,
         const float& plane_distance,
@@ -1888,7 +1892,7 @@ namespace Project001
         closestPoint_position = point_position - plane_normal * distance;
     }
 
-    inline void Get3D_Point_Triangle_ClosestPoint(
+    void Get3D_Point_Triangle_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
@@ -2000,7 +2004,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Point_AABB_ClosestPoint(
+    void Get3D_Point_AABB_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
@@ -2017,7 +2021,7 @@ namespace Project001
         closestPoint_position.z = (closestPoint_position.z > aabb_max.z) ? aabb_max.z : closestPoint_position.z;
     }
 
-    inline void Get3D_Point_OBB_ClosestPoint(
+    void Get3D_Point_OBB_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -2045,7 +2049,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Point_Sphere_ClosestPoint(
+    void Get3D_Point_Sphere_ClosestPoint(
         const glm::vec3& point_position,
         const glm::vec3& sphere_position,
         const float& sphere_radius,
@@ -2067,7 +2071,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Point_Sphere_ClosestSurfacePoint(
+    void Get3D_Point_Sphere_ClosestSurfacePoint(
         const glm::vec3& point_position,
         const glm::vec3& sphere_position,
         const float& sphere_radius,
@@ -2081,7 +2085,7 @@ namespace Project001
 
     // Raycast Functions -------------------------------------------------------
 
-    inline bool Raycast3D_Plane(
+    bool Raycast3D_Plane(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& plane_normal,
@@ -2118,7 +2122,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Raycast3D_Triangle(
+    bool Raycast3D_Triangle(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& triangle_corner1,
@@ -2149,7 +2153,7 @@ namespace Project001
         return false;
     }
 
-    inline bool Raycast3D_AABB(
+    bool Raycast3D_AABB(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& aabb_min,
@@ -2210,7 +2214,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Raycast3D_OBB(
+    bool Raycast3D_OBB(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& obb_halfSize,
@@ -2289,7 +2293,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Raycast3D_Sphere(
+    bool Raycast3D_Sphere(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& sphere_position,
@@ -2327,7 +2331,7 @@ namespace Project001
 
     // Helper Functions --------------------------------------------------------
 
-    inline bool Get3D_Plane_Plane_Plane_Intersection_H(
+    bool Get3D_Plane_Plane_Plane_Intersection_H(
         const glm::vec3& planeA_normal,
         const float& planeA_distance,
         const glm::vec3& planeB_normal,
@@ -2355,7 +2359,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Point_Box_Overlap_H(
+    bool Check3D_Point_Box_Overlap_H(
         const glm::vec3& point_position,
         const glm::vec3& box_oppositeCorner1,
         const glm::vec3& box_oppositeCorner2)
@@ -2373,7 +2377,7 @@ namespace Project001
             FloatGreaterThanOrEqualToFloat(point_position.z, minZ);
     }
 
-    inline void Get3D_Point_Plane_Distance(
+    void Get3D_Point_Plane_Distance(
         const glm::vec3& point_position,
         const glm::vec3& plane_normal,
         const float& plane_distance,
@@ -2383,7 +2387,7 @@ namespace Project001
         distance = dotProduct - plane_distance;
     }
 
-    inline bool Check3D_Point_Plane_Overlap_Alt(
+    bool Check3D_Point_Plane_Overlap_Alt(
         const glm::vec3& point_position,
         const glm::vec3& plane_position,
         const glm::vec3& plane_normal)
@@ -2394,7 +2398,7 @@ namespace Project001
         return FloatEqualToFloat(dotProduct, 0.0f);
     }
 
-    inline bool Check3D_Point_OBB_Overlap_Alt(
+    bool Check3D_Point_OBB_Overlap_Alt(
         const glm::vec3& point_position,
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -2418,7 +2422,7 @@ namespace Project001
         return true;
     }
 
-    inline void Get3D_Point_OBB_ClosestPoint_Alt(
+    void Get3D_Point_OBB_ClosestPoint_Alt(
         const glm::vec3& point_position,
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
@@ -2435,7 +2439,7 @@ namespace Project001
         closestPoint_position += obb_position;
     }
 
-    inline bool Check3D_Line_Plane_Overlap_Alt(
+    bool Check3D_Line_Plane_Overlap_Alt(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& plane_position,
@@ -2453,7 +2457,7 @@ namespace Project001
         return !FloatEqualToFloat(dotProduct, 0.0f);
     }
 
-    inline bool Get3D_Line_Line_ClosestPoints_H(
+    bool Get3D_Line_Line_ClosestPoints_H(
         const glm::vec3& lineA_position,
         const glm::vec3& lineA_direction,
         const glm::vec3& lineB_position,
@@ -2493,7 +2497,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Check3D_Point_LineSegment_Overlap_Alt(
+    bool Check3D_Point_LineSegment_Overlap_Alt(
         const glm::vec3& point_position,
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end)
@@ -2506,7 +2510,7 @@ namespace Project001
         return FloatEqualToFloat(distanceSquared, 0.0f);
     }
 
-    inline bool Get3D_Line_Plane_Intersection_Alt(
+    bool Get3D_Line_Plane_Intersection_Alt(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& plane_position,
@@ -2549,7 +2553,7 @@ namespace Project001
         return true;
     }
 
-    inline bool Get3D_Ray_Plane_Intersection_Alt(
+    bool Get3D_Ray_Plane_Intersection_Alt(
         const glm::vec3& ray_position,
         const glm::vec3& ray_direction,
         const glm::vec3& plane_position,
@@ -2578,7 +2582,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_LineSegment_Plane_Overlap_Alt(
+    bool Check3D_LineSegment_Plane_Overlap_Alt(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& plane_position,
@@ -2596,7 +2600,7 @@ namespace Project001
         return Check3D_Point_Box_Overlap_H(intersection_position, lineSegment_start, lineSegment_end);
     }
 
-    inline bool Check3D_Plane_Plane_Overlap_Alt(
+    bool Check3D_Plane_Plane_Overlap_Alt(
         const glm::vec3& planeA_position,
         const glm::vec3& planeA_normal,
         const glm::vec3& planeB_position,
@@ -2616,7 +2620,7 @@ namespace Project001
             FloatEqualToFloat(normal_ratio.x, normal_ratio.z));
     }
 
-    inline bool Check3D_Point_Triangle_Overlap_H(
+    bool Check3D_Point_Triangle_Overlap_H(
         const glm::vec3& point_position,
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
@@ -2638,7 +2642,7 @@ namespace Project001
             FloatGreaterThanOrEqualToFloat(dotUW, 0.0f);
     }
 
-    inline bool Check3D_LineSegment_Triangle_Overlap_H(
+    bool Check3D_LineSegment_Triangle_Overlap_H(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& triangle_corner1,
@@ -2673,7 +2677,7 @@ namespace Project001
         }
     }
 
-    inline bool Check3D_LineSegment_Triangle_Overlap_H_Alt(
+    bool Check3D_LineSegment_Triangle_Overlap_H_Alt(
         const glm::vec3& lineSegment_start,
         const glm::vec3& lineSegment_end,
         const glm::vec3& triangle_corner1,
@@ -2704,7 +2708,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Triangle_ContainingPlane_H(
+    void Get3D_Triangle_ContainingPlane_H(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -2736,7 +2740,7 @@ namespace Project001
         plane_distance = d / magnitudeOfNormal;
     }
 
-    inline void Get3D_Triangle_ContainingPlane_S(
+    void Get3D_Triangle_ContainingPlane_S(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -2773,7 +2777,7 @@ namespace Project001
         }
     }
 
-    inline void Get3D_Triangle_AxisInterval(
+    void Get3D_Triangle_AxisInterval(
         const glm::vec3& triangle_corner1,
         const glm::vec3& triangle_corner2,
         const glm::vec3& triangle_corner3,
@@ -2793,7 +2797,7 @@ namespace Project001
         interval_max = std::max(interval_max, scalarProjection);
     }
 
-    inline void Get3D_AABB_AxisInterval(
+    void Get3D_AABB_AxisInterval(
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max,
         const glm::vec3& axis,
@@ -2822,7 +2826,7 @@ for (size_t i = 1; i < 8; ++i)
 }
     }
 
-    inline void Get3D_OBB_AxisInterval(
+    void Get3D_OBB_AxisInterval(
         const glm::vec3& obb_halfSize,
         const glm::vec3& obb_position,
         const glm::quat& obb_orientation,
@@ -2857,7 +2861,7 @@ for (size_t i = 1; i < 8; ++i)
         }
     }
 
-    inline bool Linecast3D_AABB(
+    bool Linecast3D_AABB(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& aabb_min,
@@ -2887,7 +2891,7 @@ for (size_t i = 1; i < 8; ++i)
         return true;
     }
 
-    inline bool Linecast3D_OBB(
+    bool Linecast3D_OBB(
         const glm::vec3& line_position,
         const glm::vec3& line_direction,
         const glm::vec3& obb_halfSize,
@@ -2934,7 +2938,7 @@ for (size_t i = 1; i < 8; ++i)
         return true;
     }
 
-    inline glm::vec3 SAT_Cross(
+    glm::vec3 SAT_Cross(
         const glm::vec3& a,
         const glm::vec3& b,
         const glm::vec3& c,

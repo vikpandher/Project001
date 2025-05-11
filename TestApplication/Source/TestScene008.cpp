@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-05-11
 
 #include "TestScene008.h"
 
@@ -27,6 +27,7 @@ TestScene008::TestScene008(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
     , gradiant_TextureId_((unsigned int)-1)
+    , numbers12x6_TextureId_((unsigned int)-1)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene008Id = GetId();
 }
@@ -64,12 +65,31 @@ void TestScene008::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateTexture(gradiant_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        GetRendererPtr()->CreateTexture(numbers12x6_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    // Move Main Camera Entity
+    // -------------------------------------------------------------------------
+    {
+        Project001::Camera* cameraPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+        if (cameraPtr)
+        {
+            cameraPtr->SetPosition(0.0f, 0.0f, 15.0f);
+        }
+    }
+
     // Creating Entities
     // -------------------------------------------------------------------------
 
-    // Create2DStarMeshes_1();
+    Create2DStarMeshes_1();
 
     Create2DStarMeshes_2();
+
+    CreateCrownMeshes_1();
 
     // Member Scenes -----------------------------------------------------------
 
@@ -125,6 +145,7 @@ void TestScene008::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     LOG_INFO("DEINITIALIZING: TestScene008:            " << GetId());
 
     gradiant_TextureId_ = (unsigned int)-1;
+    numbers12x6_TextureId_ = (unsigned int)-1;
 
     for (size_t i = 0; i < animatedMeshDataPtrArrayArray_.size(); ++i)
     {
@@ -151,11 +172,11 @@ void TestScene008::Create2DStarMeshes_1()
     std::vector<glm::vec3> meshEntityPositions;
 
     // positions
-    for (int j = 3; j >= -2; --j)
+    for (int j = 9; j >= 4; --j)
     {
         for (int i = -4; i <= 4; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, -1.0f);
+            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, 0.0f);
         }
     }
 
@@ -527,5 +548,226 @@ void TestScene008::Create2DStarMeshes_2()
 
         animatedSpriteSceneArray_.emplace_back(new TestAnimatedSpriteScene001(GetApplicationPtr()));
         animatedSpriteSceneArray_.back()->Initialize(initializationInfo);
+    }
+}
+
+void TestScene008::CreateCrownMeshes_1()
+{
+    // Calculating positions ---------------------------------------------------
+
+    std::vector<glm::vec3> meshEntityPositions;
+
+    // positions
+    for (int j = 3; j >= -2; --j)
+    {
+        for (int i = 5; i <= 13; ++i)
+        {
+            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, 0.0f);
+        }
+    }
+
+    size_t positionIndex = 0;
+
+    glm::vec4 color0(1.0f, 1.0f, 1.0f, 1.0f);
+
+    // row 1 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.0f, 0.0f, 0.0f, 0.0f
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 2 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.25f, -0.125f, 0.25f, -0.125f
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 3 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.5f, -0.25f, 0.5f, -0.25f
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 4 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.0f, 0.0f, 0.0f, 0.0f,
+            false
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 5 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.25f, -0.125f, 0.25f, -0.125f,
+            false
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // row 6 -------------------------------------------------------------------
+    for (size_t i = 2; i < 11; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+            *newMeshDataPtr,
+            0.5f,
+            1.0f,
+            i,
+            1.0f, 0.0f, 0.75f, -0.25f,
+            0,
+            0.5f, -0.25f, 0.5f, -0.25f,
+            false
+        ));
+        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
+            renderedMeshPtr->SetColor(color0);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 }

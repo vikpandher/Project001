@@ -1,3 +1,7 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-24
+
 #include "Components/Camera.h"
 
 #include "Math/MathUtilities.h"

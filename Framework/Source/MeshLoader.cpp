@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-02
+// @DATE 2025-05-11
 
 #include "MeshLoader.h"
 
@@ -2056,6 +2056,7 @@ namespace Project001
         radiusVector3 = Rotate2DVector(radiusVector3, sectionAngle * -0.5f);
 
         std::vector<glm::vec2> positions;
+        positions.reserve(points * 4);
 
         for (size_t i = 0; i < points; ++i)
         {
@@ -2137,6 +2138,7 @@ namespace Project001
         radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation * 0.5f);
 
         std::vector<glm::vec2> positions;
+        positions.reserve(points * 4 + 2);
 
         for (size_t i = 0; i < points; ++i)
         {
@@ -4932,6 +4934,139 @@ namespace Project001
         return true;
     }
 
+    bool MeshLoader::GenerateSpikeyCrown(
+        MeshData& meshData,
+        float radius0,
+        float radius1,
+        float points,
+        float spikeHeight0,
+        float spikeHeight1,
+        float spikeHeight2,
+        float spikeHeight3,
+        uint32_t offsetSeed,
+        float maxOffset0,
+        float maxOffset1,
+        float maxOffset2,
+        float maxOffset3,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (points < 2)
+        {
+            return false;
+        }
+
+        // s0 s2 s0
+        // *--*--*- <--- r0
+        // | /| /|
+        // |/ |/ |
+        // *--*--*- <--- r1
+        // s1 s3 s1
+
+        size_t uniquePositions = points * 4 + 2;
+
+        std::vector<glm::vec3> positions;
+        positions.reserve(uniquePositions);
+
+        std::vector<glm::vec2> textureCoordinates;
+        textureCoordinates.reserve(uniquePositions);
+
+        float segmentRotation = -1.0f * glm::pi<float>() / points;
+        glm::vec2 radiusVector(0.0f, 1.0f);
+
+        float textureSegmentSize = 0.5f / (float)points;
+        float textureOffset = 0.0f;
+
+        std::vector<glm::vec3> normals;
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        for (size_t i = 0; i < points; ++i)
+        {
+            glm::vec2 radiusVector0 = radiusVector * radius0;
+            float adjustedHeight0 = spikeHeight0 + maxOffset0 * GetRandomFloat(offsetSeed + i);
+            positions.emplace_back(radiusVector0.x, adjustedHeight0, radiusVector0.y);
+            textureCoordinates.emplace_back(textureOffset, 1.0f);
+
+            glm::vec2 radiusVector1 = radiusVector * radius1;
+            float adjustedHeight1 = spikeHeight1 + maxOffset1 * GetRandomFloat(offsetSeed + i + points);
+            positions.emplace_back(radiusVector1.x, adjustedHeight1, radiusVector1.y);
+            textureCoordinates.emplace_back(textureOffset, 0.0f);
+
+            if (smoothNormals)
+            {
+                normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
+                normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
+            }
+
+            radiusVector = Rotate2DVector(radiusVector, segmentRotation);
+            textureOffset += textureSegmentSize;
+
+            glm::vec2 radiusVector2 = radiusVector * radius0;
+            float adjustedHeight2 = spikeHeight2 + maxOffset2 * GetRandomFloat(offsetSeed + i + points * 2);
+            positions.emplace_back(radiusVector2.x, adjustedHeight2, radiusVector2.y);
+            textureCoordinates.emplace_back(textureOffset, 1.0f);
+
+            glm::vec2 radiusVector3 = radiusVector * radius1;
+            float adjustedHeight3 = spikeHeight3 + maxOffset3 * GetRandomFloat(offsetSeed + i + points * 3);
+            positions.emplace_back(radiusVector3.x, adjustedHeight3, radiusVector3.y);
+            textureCoordinates.emplace_back(textureOffset, 0.0f);
+
+            if (smoothNormals)
+            {
+                normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
+                normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
+            }
+
+            radiusVector = Rotate2DVector(radiusVector, segmentRotation);
+            textureOffset += textureSegmentSize;
+        }
+
+        positions.push_back(positions[0]);
+        positions.push_back(positions[1]);
+
+        textureCoordinates.emplace_back(textureOffset, 1.0f);
+        textureCoordinates.emplace_back(textureOffset, 0.0f);
+
+        if (smoothNormals)
+        {
+            normals.push_back(normals[0]);
+            normals.push_back(normals[1]);
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        GenerateMeshStripVerticesAndIndices(
+            meshData,
+            points,
+            positions,
+            textureCoordinates,
+            normals,
+            smoothNormals,
+            triangulate);
+
+        return true;
+    }
+
     bool MeshLoader::GenerateSphere(
         MeshData& meshData,
         float radius,
@@ -6876,6 +7011,7 @@ namespace Project001
             if (triangulate)
             {
                 std::vector<MeshVertex> tempMeshVertexArray;
+                tempMeshVertexArray.reserve(positions.size());
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     MeshVertex meshVertex;
@@ -7185,6 +7321,173 @@ namespace Project001
                 meshIndexArray.push_back(currentVertexCount);
                 meshIndexArray.push_back(currentVertexCount + 1);
                 meshIndexArray.push_back(currentVertexCount + 2);
+            }
+        }
+    }
+
+    void MeshLoader::GenerateMeshStripVerticesAndIndices(
+        MeshData& meshData,
+        size_t sections,
+        std::vector<glm::vec3>& positions,
+        std::vector<glm::vec2>& textureCoordinates,
+        std::vector<glm::vec3>& normals,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+
+        size_t initialVertexCount = meshVertexArray.size();
+
+        // ex: sections = 3
+        // indicies:
+        // 
+        // ( 0 )---( 2 )---( 4 )---( 6 )
+        //   |    /  |    /  |    /  |
+        //   |  /    |  /    |  /    |
+        // ( 1 )---( 3 )---( 5 )---( 7)
+
+        if (smoothNormals)
+        {
+            if (triangulate)
+            {
+                std::vector<MeshVertex> tempMeshVertexArray;
+                tempMeshVertexArray.reserve(positions.size());
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    tempMeshVertexArray.push_back(meshVertex);
+                }
+
+                // ( i1)---( i3)
+                //   |    /  |
+                //   |  /    |
+                // ( i2)---( i4)
+                for (size_t i4 = 3; i4 < positions.size(); i4 += 2)
+                {
+                    size_t i3 = i4 - 1;
+                    size_t i2 = i3 - 1;
+                    size_t i1 = i2 - 1;
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i1]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i3]);
+
+                    meshVertexArray.push_back(tempMeshVertexArray[i4]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i3]);
+                    meshVertexArray.push_back(tempMeshVertexArray[i2]);
+                }
+
+                for (size_t i = 0; i < sections * 12; ++i)
+                {
+                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    MeshVertex meshVertex;
+                    meshVertex.position = positions[i];
+                    meshVertex.textureCoordinate = textureCoordinates[i];
+                    meshVertex.normal = normals[i];
+                    meshVertexArray.push_back(meshVertex);
+                }
+
+                // ( i1 )---( i3)
+                //   |    /  |
+                //   |  /    |
+                // ( i2)---( i4)
+                for (size_t i4 = 3; i4 < positions.size(); i4 += 2)
+                {
+                    size_t i3 = i4 - 1;
+                    size_t i2 = i3 - 1;
+                    size_t i1 = i2 - 1;
+
+                    meshIndexArray.push_back(initialVertexCount + i1);
+                    meshIndexArray.push_back(initialVertexCount + i2);
+                    meshIndexArray.push_back(initialVertexCount + i3);
+
+                    meshIndexArray.push_back(initialVertexCount + i4);
+                    meshIndexArray.push_back(initialVertexCount + i3);
+                    meshIndexArray.push_back(initialVertexCount + i2);
+                }
+            }
+        }
+        else
+        {
+            // ( i1)---( i3)
+            //   |    /  |
+            //   |  /    |
+            // ( i2)---( i4)
+            for (size_t i4 = 3; i4 < positions.size(); i4 += 2)
+            {
+                size_t i3 = i4 - 1;
+                size_t i2 = i3 - 1;
+                size_t i1 = i2 - 1;
+
+                const glm::vec3& p1 = positions[i1];
+                const glm::vec3& p2 = positions[i2];
+                const glm::vec3& p3 = positions[i3];
+
+                glm::vec3 p1_to_p2 = p2 - p1;
+                glm::vec3 p2_to_p3 = p3 - p2;
+                glm::vec3 normal123 = glm::normalize(glm::cross(p1_to_p2, p2_to_p3));
+
+                MeshVertex v1;
+                v1.position = p1;
+                v1.textureCoordinate = textureCoordinates[i1];
+                v1.normal = normal123;
+
+                MeshVertex v2;
+                v2.position = p2;
+                v2.textureCoordinate = textureCoordinates[i2];
+                v2.normal = normal123;
+
+                MeshVertex v3;
+                v3.position = p3;
+                v3.textureCoordinate = textureCoordinates[i3];
+                v3.normal = normal123;
+
+                MeshVertex v4;
+                v4.position = positions[i4];
+                v4.textureCoordinate = textureCoordinates[i4];
+                v4.normal = normal123;
+
+                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                if (triangulate)
+                {
+                    meshVertexArray.push_back(v1);
+                    meshVertexArray.push_back(v2);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v4);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v2);
+
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                    meshIndexArray.push_back(currentVertexCount++);
+                }
+                else
+                {
+                    meshVertexArray.push_back(v1);
+                    meshVertexArray.push_back(v2);
+                    meshVertexArray.push_back(v3);
+                    meshVertexArray.push_back(v4);
+
+                    meshIndexArray.push_back(currentVertexCount);
+                    meshIndexArray.push_back(currentVertexCount + 1);
+                    meshIndexArray.push_back(currentVertexCount + 2);
+                    meshIndexArray.push_back(currentVertexCount + 3);
+                    meshIndexArray.push_back(currentVertexCount + 2);
+                    meshIndexArray.push_back(currentVertexCount + 1);
+                }
             }
         }
     }

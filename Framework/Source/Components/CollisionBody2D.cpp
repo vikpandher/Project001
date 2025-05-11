@@ -1,6 +1,12 @@
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2025-05-11
+
 #include "CollisionBody2D.h"
 
 #include "Math/Overlap2D.h"
+
+#include "glm/gtc/constants.hpp"
 
 #include <limits>
 
