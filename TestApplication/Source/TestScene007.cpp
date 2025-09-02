@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene007.h"
 
@@ -117,6 +117,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColor(0.2f, 1.0f, 1.0f, 0.4f);
             renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
@@ -285,6 +286,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -308,6 +310,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -331,6 +334,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -354,6 +358,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -377,6 +382,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -400,6 +406,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -423,6 +430,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -446,6 +454,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -469,6 +478,7 @@ void TestScene007::CreateEarClippingMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(box03_TextureId_);
@@ -515,6 +525,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -534,6 +545,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -558,6 +570,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -577,6 +590,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -601,6 +615,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -620,6 +635,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -644,6 +660,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -663,6 +680,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -687,6 +705,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -706,6 +725,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -730,6 +750,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -749,6 +770,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -773,6 +795,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -792,6 +815,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -816,6 +840,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -835,6 +860,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
@@ -859,6 +885,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -878,6 +905,7 @@ void TestScene007::CreateAsteroidMeshes()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);

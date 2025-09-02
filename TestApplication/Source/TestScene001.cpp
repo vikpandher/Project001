@@ -201,6 +201,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene034");
     buttonStrings.emplace_back("TestScene050");
     buttonStrings.emplace_back("TestScene051");
+    buttonStrings.emplace_back("TestScene052");
     buttonStrings.emplace_back("TestScene060");
     buttonStrings.emplace_back("TestScene102");
 
@@ -228,6 +229,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene034Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene050Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene051Id);
+    buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene052Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene060Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene102Id);
 
@@ -275,6 +277,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
             cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
 
@@ -327,6 +330,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursorEntityId_));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             float xPosition;
@@ -395,7 +399,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 008 ] [ 009 ] [ 010 ] [ 011 ] [ 012 ]
     // [ 013 ] [ 015 ] [ 016 ] [ 017 ] [ 030 ]
     // [ 031 ] [ 032 ] [ 033 ] [ 034 ] [ 050 ]
-    // [ 051 ] [ 060 ] [ 102 ]
+    // [ 051 ] [ 052 ] [ 060 ] [ 102 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -427,6 +431,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, buttonEntityId));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             renderedModelPtr->SetPosition(buttonPositions[i]);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
@@ -573,6 +578,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, selectorEntityId_));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             cursorPositionRenderedMeshIndex_ = renderedMeshes.size();

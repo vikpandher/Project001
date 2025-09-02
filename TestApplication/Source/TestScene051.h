@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -70,6 +70,7 @@ protected:
 
     // Entity Ids --------------------------------------------------------------
 
+    static const uint32_t s_mainCameraMask_ = 0b00000000000000000000000000000001;
     unsigned int mainCameraEntityId_;
     static const uint32_t s_uiCameraMask_ = 0b10000000000000000000000000000000;
     unsigned int uiCameraEntityId_;

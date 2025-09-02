@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene060.h"
 
@@ -212,6 +212,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
 
@@ -260,6 +261,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, backgroundEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
             renderedMeshPtr->SetPositionZ(-0.2f);
             renderedMeshPtr->SetColor(0.1f, 0.1f, 0.2f, 1.0f);
@@ -277,6 +279,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickAxisTextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(joystickAxisTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 0.5f, 0.0f, 0.0f);
@@ -296,6 +299,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_01_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(joystickButton_01_TextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 2.5f, 0.0f, 0.0f);
@@ -315,6 +319,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, joystickButton_02_TextEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(joystickButton_02_TextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 4.5f, 0.0f, 0.0f);
@@ -334,6 +339,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             leftStickTriangleMeshIndex_ = renderedMeshes.size();
@@ -365,6 +371,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             rightStickTriangleMeshIndex_ = renderedMeshes.size();

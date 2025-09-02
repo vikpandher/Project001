@@ -14,14 +14,19 @@
 
 struct TestApplicationData;
 
-class TestScene060 : public Project001::Scene
+namespace Project001
+{
+    struct SoundData;
+}
+
+class TestScene052 : public Project001::Scene
 {
 public:
-    TestScene060(Project001::Application* applicationPtr);
-    ~TestScene060();
+    TestScene052(Project001::Application* applicationPtr);
+    ~TestScene052();
 
-    TestScene060(TestScene060& other) = delete;
-    void operator=(const TestScene060&) = delete;
+    TestScene052(TestScene052& other) = delete;
+    void operator=(const TestScene052&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -29,9 +34,14 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
+    void ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent);
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
+
+    void UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns);
+    void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
 
     // -------------------------------------------------------------------------
 
@@ -45,19 +55,8 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    Project001::MeshData* backgroundRectangleMeshDataPtr_;
-    unsigned int backgroundRectangleMeshId_;
-
-    const float joystickAxisAndButtonText_pixelSize = 0.005f;
-    Project001::MeshData* joystickAxisTextMeshDataPtr_;
-    Project001::MeshData* joystickButton_01_TextMeshDataPtr_;
-    Project001::MeshData* joystickButton_02_TextMeshDataPtr_;
-
-    Project001::MeshData* triangleMeshDataPtr_;
-    unsigned int triangleMeshId_;
-
     Project001::MeshData* circleMeshDataPtr_;
-    unsigned int circleMeshId_;
+    Project001::MeshData* floorBackgroundMeshDataPtr_;
 
     // Entity Ids --------------------------------------------------------------
 
@@ -66,21 +65,25 @@ protected:
     static const uint32_t s_uiCameraMask_ = 0b10000000000000000000000000000000;
     unsigned int uiCameraEntityId_;
 
-    unsigned int backgroundEntityId_;
+    unsigned int cursorEntityId_;
+    unsigned int cursorPositionRenderedMeshIndex_;
+    unsigned int cursorPressRenderedMeshIndex_;
+    unsigned int cursorReleaseRenderedMeshIndex_;
+    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
+    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
+    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
+    unsigned int cursorPositionCollisionPointIndex_;
+    unsigned int cursorPressCollisionPointIndex_;
+    unsigned int cursorReleaseCollisionPointIndex_;
 
-    unsigned int joystickAxisTextEntityId_;
-    unsigned int joystickButton_01_TextEntityId_;
-    unsigned int joystickButton_02_TextEntityId_;
-
-    unsigned int leftStickEntityId_;
-    unsigned int leftStickTriangleMeshIndex_;
-    unsigned int leftStickCircleMeshIndex_;
-
-    unsigned int rightStickEntityId_;
-    unsigned int rightStickTriangleMeshIndex_;
-    unsigned int rightStickCircleMeshIndex_;
+    unsigned int floorEntityId_;
+    unsigned int floorBackgroundMeshIndex_;
 
     // -------------------------------------------------------------------------
+
+    glm::vec2 previousWorldCursorPosition_;
+    glm::vec2 previousWorldCursorPress_;
+    glm::vec2 previousWorldCursorRelease_;
 
     static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
 };

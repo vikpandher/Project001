@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -18,6 +18,10 @@ namespace Project001
         // Gets applied to RenderedMeshes
         const bool& GetVisible() const;
         void SetVisible(bool visible);
+
+        // Gets applied to RenderedMeshes (via OR operator)
+        void SetCameraMask(uint32_t cameraMask);
+        const uint32_t& GetCameraMask() const;
 
         // Gets applied to the RenderedMeshes
         const glm::vec3& GetScale() const;
@@ -87,6 +91,7 @@ namespace Project001
         // glm::quat orientation_;
 
         bool visible_;
+        uint32_t cameraMask_;
         glm::vec3 scale_;
 
         std::vector<RenderedMesh> renderedMeshes_;
@@ -98,6 +103,7 @@ namespace Project001
 
     inline RenderedModel::RenderedModel()
         : visible_(true)
+        , cameraMask_(0b11111111111111111111111111111111)
         , scale_(1.0f, 1.0f, 1.0f)
         , transformedMeshesUpToDate_(false)
     {}
@@ -110,6 +116,16 @@ namespace Project001
     inline void RenderedModel::SetVisible(bool visible)
     {
         visible_ = visible;
+    }
+
+    inline void RenderedModel::SetCameraMask(uint32_t cameraMask)
+    {
+        cameraMask_ = cameraMask;
+    }
+
+    inline const uint32_t& RenderedModel::GetCameraMask() const
+    {
+        return cameraMask_;
     }
 
     inline const glm::vec3& RenderedModel::GetScale() const

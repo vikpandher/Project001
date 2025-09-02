@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -107,7 +107,7 @@ namespace Project001
 
     inline RenderedMesh::RenderedMesh()
         : visible_(true)
-        , cameraMask_(0b00000000000000000000000000000001)
+        , cameraMask_(0b11111111111111111111111111111111)
         , renderedMeshType_(RenderedMeshType::RENDERED_MESH_TYPE_NOT_LOADED)
         , meshDataPtr_(nullptr)
         , meshId_((unsigned int)-1)

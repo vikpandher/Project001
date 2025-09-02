@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-01
 
 #include "TestScene102.h"
 
@@ -116,6 +116,7 @@ void TestScene102::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
 

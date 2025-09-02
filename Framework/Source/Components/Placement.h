@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -84,7 +84,7 @@ namespace Project001
     };
 
     inline Placement::Placement()
-        : orientation_(1.0f, 0.0f, 0.0f, 0.0f)
+        : orientation_(1.0f, 0.0f, 0.0f, 0.0f) // looking down +z with +y going up and -x to the right
     {}
 
     inline void Placement::MoveForward(float translation)

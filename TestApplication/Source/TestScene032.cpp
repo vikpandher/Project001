@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene032.h"
 
@@ -206,6 +206,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerIcosphereEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MaxBoundingRadius_);
             renderedMeshPtr->SetColor(1.0f, 1.0f, 0.0f, 0.5f);
             renderedMeshPtr->SetTranslucent(true);
@@ -220,6 +221,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar001_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
             renderedMeshPtr->SetPosition(0.0f, 1.0f, 1.0f);
             renderedMeshPtr->SetColor(0.2f, 0.8f, 0.8f, 0.5f);
@@ -235,6 +237,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, centerStar002_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(line001_MeshDataPtr_);
             renderedMeshPtr->SetPosition(0.0f, -1.0f, -1.0f);
             renderedMeshPtr->SetColor(0.2f, 0.2f, 0.8f, 1.0f);
@@ -249,6 +252,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, psudoStencil001_EntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
             renderedMeshPtr->SetPosition(1.0f, 1.0f, 5.0f);
             renderedMeshPtr->SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
@@ -289,6 +293,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(icosphere001_MeshId_, icosphere001_MaxBoundingRadius_);
                 renderedMeshPtr->SetTextureId(earth001_TextureId_);
                 renderedMeshPtr->SetSpecularId(specular001_TextureId_);
@@ -330,6 +335,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetMeshDataPtr(arc001_MeshDataPtr_);
                 renderedMeshPtr->SetColor(0.8f, 0.2f, 0.2f, 1.0f);
                 renderedMeshPtr->SetPosition(positions[i]);
@@ -368,6 +374,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(arc001_MeshId_, arc001_MaxBoundingRadius_);
                 renderedMeshPtr->SetColor(0.0f, 0.0f, 1.0f, 0.5f);
                 renderedMeshPtr->SetTranslucent(true);
@@ -407,6 +414,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(cone001_MeshId_, cone001_MaxBoundingRadius_);
                 renderedMeshPtr->SetPosition(positions[i]);
             }
@@ -438,6 +446,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, newEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(line001_MeshId_, line001_MaxBoundingRadius_);
                 renderedMeshPtr->SetTextureId(_32x32_TextureIds_[i]);
                 renderedMeshPtr->SetScale(0.5f, 0.5f, 0.5f);

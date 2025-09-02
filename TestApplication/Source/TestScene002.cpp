@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene002.h"
 
@@ -162,6 +162,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(thonk_TextureId);
@@ -185,6 +186,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(dice01_TextureId);
@@ -207,6 +209,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(dice02_TextureId);
@@ -229,6 +232,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(dice03_TextureId);
@@ -253,6 +257,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
@@ -275,6 +280,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 0.25f);
@@ -297,6 +303,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetSpecularId(patternSpecular01_TextureId);
@@ -321,6 +328,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetSpecularId(patternSpecular02_TextureId);
@@ -371,6 +379,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -417,6 +426,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -459,6 +469,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -505,6 +516,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -556,6 +568,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -603,6 +616,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -637,6 +651,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -681,6 +696,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -706,6 +722,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -733,6 +750,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -758,6 +776,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -783,6 +802,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -808,6 +828,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -833,6 +854,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -858,6 +880,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -883,6 +906,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -913,6 +937,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -952,6 +977,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -976,6 +1002,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1000,6 +1027,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1024,6 +1052,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1048,6 +1077,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1072,6 +1102,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1096,6 +1127,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1135,6 +1167,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1159,6 +1192,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1183,6 +1217,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1207,6 +1242,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1245,6 +1281,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1274,6 +1311,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1298,6 +1336,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1327,6 +1366,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1351,6 +1391,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1375,6 +1416,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1399,6 +1441,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1423,6 +1466,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1447,6 +1491,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1491,6 +1536,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1515,6 +1561,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1539,6 +1586,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1563,6 +1611,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
@@ -1592,6 +1641,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers16x4_TextureId);
@@ -1617,6 +1667,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers16x4_TextureId);

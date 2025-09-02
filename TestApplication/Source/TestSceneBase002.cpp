@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestSceneBase002.h"
 
@@ -221,6 +221,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
             cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
 
@@ -274,6 +275,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, cursorEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetLit(false);
             renderedMeshPtr->SetMeshDataPtr(cursorLineMeshDataPtr_);
             renderedMeshPtr->SetColor(0.4f, 0.4f, 0.4f, 1.0f);
@@ -429,6 +431,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyBorderEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetLit(false);
             renderedMeshPtr->SetMeshDataPtr(collisionBodyBorderMeshDataPtr_);
             renderedMeshPtr->SetColor(0.1f, 0.2f, 0.2f, 1.0f);
@@ -446,6 +449,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionBodyQuadTreeEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetLit(false);
             renderedMeshPtr->SetMeshDataPtr(collisionBodyQuadTreeMeshDataPtr_);
             renderedMeshPtr->SetColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -462,6 +466,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, collisionMarkerCollectionEntityId_));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetLit(false);
             renderedMeshPtr->SetMeshDataPtr(collisionMarkerCollectionMeshDataPtr_);
             renderedMeshPtr->SetColor(0.2f, 0.8f, 0.6f, 0.4f);

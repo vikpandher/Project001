@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene033.h"
 
@@ -231,7 +231,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         ui_largeText_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(ui_largeText_MeshDataPtr_);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "SSS", fontPixelSize_));
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "S S S", fontPixelSize_));
         Project001::MeshLoader::RecenterMesh(*ui_largeText_MeshDataPtr_);
     }
 
@@ -267,6 +267,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(square_MeshId_, square_MaxBoundingRadius_);
 

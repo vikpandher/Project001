@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene013.h"
 
@@ -115,6 +115,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetPosition(currentPosition);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(rectangleMeshId_, rectangleBoundingRadius);
                 renderedMeshPtr->SetLit(false);
@@ -174,6 +175,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetPosition(currentPosition);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(circleMeshId_, circleBoundingRadius);
                 renderedMeshPtr->SetLit(false);

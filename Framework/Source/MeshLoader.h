@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -126,6 +126,12 @@ namespace Project001
         static bool Generate2DQuads(
             MeshData& meshData,
             const std::vector<glm::vec2>& positions,
+            bool triangulate = s_triangulate);
+
+        static bool Generate2DRectangle(
+            MeshData& meshData,
+            float width,
+            float height,
             bool triangulate = s_triangulate);
 
         static bool Generate2DRegularPolygon(

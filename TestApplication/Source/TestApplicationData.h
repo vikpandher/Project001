@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -29,6 +29,7 @@ struct TestApplicationData
     unsigned int testScene034Id = (unsigned int)-1;
     unsigned int testScene050Id = (unsigned int)-1;
     unsigned int testScene051Id = (unsigned int)-1;
+    unsigned int testScene052Id = (unsigned int)-1;
     unsigned int testScene060Id = (unsigned int)-1;
     unsigned int testScene102Id = (unsigned int)-1;
 };

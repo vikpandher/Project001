@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-01
 
 #include "TestScene008.h"
 
@@ -208,6 +208,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -240,6 +241,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -272,6 +274,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -305,6 +308,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -338,6 +342,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -371,6 +376,7 @@ void TestScene008::Create2DStarMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -428,6 +434,7 @@ void TestScene008::Create2DStarMeshes_2()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -461,6 +468,7 @@ void TestScene008::Create2DStarMeshes_2()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -494,6 +502,7 @@ void TestScene008::Create2DStarMeshes_2()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -528,6 +537,7 @@ void TestScene008::Create2DStarMeshes_2()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(gradiant_TextureId_);
@@ -540,10 +550,11 @@ void TestScene008::Create2DStarMeshes_2()
     for (size_t i = 0; i < 9; ++i)
     {
         TestAnimatedSpriteScene001::InitializationInfo initializationInfo = {};
-        initializationInfo.positionPtr = &meshEntityPositions[positionIndex++];
         initializationInfo.frameCount = animatedMeshDataPtrArrayArray_[i].size();
         initializationInfo.frameMeshDataPtrsPtr = animatedMeshDataPtrArrayArray_[i].data();
         initializationInfo.frameDurations_ns_ptr = animatedMeshFrameDurationArrayArray_[i].data();
+        initializationInfo.cameraMaskPtr = &s_mainCameraMask_;
+        initializationInfo.positionPtr = &meshEntityPositions[positionIndex++];
         initializationInfo.textureIdPtr = &gradiant_TextureId_;
 
         animatedSpriteSceneArray_.emplace_back(new TestAnimatedSpriteScene001(GetApplicationPtr()));
@@ -595,6 +606,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -628,6 +640,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -661,6 +674,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -695,6 +709,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -729,6 +744,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);
@@ -763,6 +779,7 @@ void TestScene008::CreateCrownMeshes_1()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(numbers12x6_TextureId_);

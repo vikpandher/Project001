@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-01
 
 #include "MeshLoader.h"
 
@@ -1796,6 +1796,92 @@ namespace Project001
 
             if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
             if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+        }
+
+        return true;
+    }
+
+    bool MeshLoader::Generate2DRectangle(
+        MeshData& meshData,
+        float width,
+        float height,
+        bool triangulate)
+    {
+        if (width <= 0.0f || height <= 0.0f)
+        {
+            return false;
+        }
+
+        float halfWidth = width / 2.0f;
+        float halfHeight = height / 2.0f;
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        float vertexRadius = glm::length(glm::vec2(halfWidth, halfHeight));
+        if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+        if (maxVertexPosition.x < halfWidth) maxVertexPosition.x = halfWidth;
+        if (maxVertexPosition.y < halfHeight) maxVertexPosition.y = halfHeight;
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+
+        if (minVertexPosition.x > -halfWidth) minVertexPosition.x = -halfWidth;
+        if (minVertexPosition.y > -halfHeight) minVertexPosition.y = -halfHeight;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
+
+        MeshVertex topLeftVertex;
+        topLeftVertex.position.x = -halfWidth;
+        topLeftVertex.position.y = halfHeight;
+        topLeftVertex.normal.z = 1.0f;
+
+        MeshVertex topRightVertex;
+        topRightVertex.position.x = halfWidth;
+        topRightVertex.position.y = halfHeight;
+        topRightVertex.normal.z = 1.0f;
+
+        MeshVertex bottomLeftVertex;
+        bottomLeftVertex.position.x = -halfWidth;
+        bottomLeftVertex.position.y = -halfHeight;
+        bottomLeftVertex.normal.z = 1.0f;
+
+        MeshVertex bottomRightVertex;
+        bottomRightVertex.position.x = halfWidth;
+        bottomRightVertex.position.y = -halfHeight;
+        bottomRightVertex.normal.z = 1.0f;
+
+        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        if (triangulate)
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount);
+        }
+        else
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+
+            meshIndexArray.push_back(currentVertexCount);
+            meshIndexArray.push_back(currentVertexCount + 1);
+            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount + 2);
+            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount + 1);
         }
 
         return true;

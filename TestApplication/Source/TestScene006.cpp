@@ -1,7 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
-
+// @DATE 2025-09-01
 #include "TestScene006.h"
 
 #include "TestApplicationData.h"
@@ -164,6 +163,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(0.0f, 2.5f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -197,6 +197,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font01_TextureId);
@@ -235,6 +236,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
@@ -264,6 +266,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
@@ -294,6 +297,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
@@ -323,6 +327,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(0.0f, 0.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
@@ -355,6 +360,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             renderedModelPtr->SetPosition(-3.2f, -1.6f, 0.0f);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             renderedMeshes.reserve(5);
@@ -424,6 +430,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             float currentOffsetX = 0.0f;
             float colorFade = 0.0f;
@@ -469,8 +476,9 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             renderedModelPtr->SetPosition(0.0f, -1.2f, 0.0f);
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
             float currentOffsetX = 0.0f;
             float colorFade = 0.0f;
             glm::vec3 scale(1.2f, 3.6f, 1.0f);

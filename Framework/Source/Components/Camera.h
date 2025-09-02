@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-09-01
 
 #pragma once
 
@@ -68,8 +68,8 @@ namespace Project001
         const bool& GetDepthTestEnabled() const;
         void SetDepthTestEnabled(bool depthTestEnabled);
 
-        const float& GetFieldOfVision() const;
-        void SetFieldOfVision(float angleInRadians);
+        const float& GetFieldOfView() const;
+        void SetFieldOfView(float angleInRadians);
 
         const float& GetAspectRatio() const;
         void SetAspectRatio(float aspectRatio);
@@ -110,6 +110,8 @@ namespace Project001
 
         glm::mat4 GetProjectionMatrix() const;
 
+        void GetProjectionFrustumCorners(glm::vec3(&corners)[8]) const;
+
         void GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const;
 
         glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, const glm::vec2& viewportPoint) const;
@@ -129,7 +131,7 @@ namespace Project001
 
         bool depthTestEnabled_;
 
-        float fieldOfVision_; // only used in perspective projection
+        float fieldOfView_; // only used in perspective projection
         float aspectRatio_; // (width/height) only used in perspective projection
         float leftCutoff_;  // only used in othographic projection
         float rightCutoff_; // only used in othographic projection
@@ -199,14 +201,14 @@ namespace Project001
         depthTestEnabled_ = depthTestEnabled;
     }
 
-    inline const float& Camera::GetFieldOfVision() const
+    inline const float& Camera::GetFieldOfView() const
     {
-        return fieldOfVision_;
+        return fieldOfView_;
     }
 
-    inline void Camera::SetFieldOfVision(float angleInRadians)
+    inline void Camera::SetFieldOfView(float angleInRadians)
     {
-        fieldOfVision_ = angleInRadians;
+        fieldOfView_ = angleInRadians;
     }
 
     inline const float& Camera::GetAspectRatio() const

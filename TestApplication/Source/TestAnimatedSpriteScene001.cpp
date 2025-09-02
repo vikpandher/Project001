@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestAnimatedSpriteScene001.h"
 
@@ -52,8 +52,9 @@ void TestAnimatedSpriteScene001::Initialize(const InitializationInfo& initializa
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, spriteEntityId_));
     if (renderedMeshPtr != nullptr)
     {
-        renderedMeshPtr->SetPosition(*initializationInfo.positionPtr);
         renderedMeshPtr->SetMeshDataPtr(frameMeshDataPtrsPtr_[currentFrame_]);
+        renderedMeshPtr->SetCameraMask(*initializationInfo.cameraMaskPtr);
+        renderedMeshPtr->SetPosition(*initializationInfo.positionPtr);
         renderedMeshPtr->SetTextureId(*initializationInfo.textureIdPtr);
     }
 }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-09-01
 
 #include "Components/Camera.h"
 
@@ -16,7 +16,7 @@ namespace Project001
         , priorityValue_(0)
         , cameraProjection_(CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
         , depthTestEnabled_(true)
-        , fieldOfVision_(glm::radians(45.0f))
+        , fieldOfView_(glm::radians(45.0f))
         , aspectRatio_(1.0f)
         , leftCutoff_(-5.0f)
         , rightCutoff_(5.0f)
@@ -61,7 +61,7 @@ namespace Project001
     {
         if (cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
         {
-            return glm::perspective(fieldOfVision_, aspectRatio_, nearCutoff_, farCutoff_);
+            return glm::perspective(fieldOfView_, aspectRatio_, nearCutoff_, farCutoff_);
         }
         else
         {
@@ -69,11 +69,30 @@ namespace Project001
         }
     }
 
+    void Camera::GetProjectionFrustumCorners(glm::vec3(&corners)[8]) const
+    {
+        float tan_half = std::tan(fieldOfView_ * 0.5f);
+
+        float nh = tan_half * nearCutoff_;
+        float nw = nh * aspectRatio_;
+        float fh = tan_half * farCutoff_;
+        float fw = fh * aspectRatio_;
+
+        corners[0] = glm::vec3(-nw, nh, nearCutoff_);
+        corners[1] = glm::vec3(nw, nh, nearCutoff_);
+        corners[2] = glm::vec3(nw, -nh, nearCutoff_);
+        corners[3] = glm::vec3(-nw, -nh, nearCutoff_);
+        corners[4] = glm::vec3(-fw, fh, farCutoff_);
+        corners[5] = glm::vec3(fw, fh, farCutoff_);
+        corners[6] = glm::vec3(fw, -fh, farCutoff_);
+        corners[7] = glm::vec3(-fw, -fh, farCutoff_);
+    }
+
     void Camera::GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const
     {
         if (cameraProjection_ == CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
         {
-            float tanHalfFov = glm::tan(fieldOfVision_ / 2.0f);
+            float tanHalfFov = glm::tan(fieldOfView_ / 2.0f);
             float nearHalfHeight = tanHalfFov * nearCutoff_;
             float nearHalfWidth = nearHalfHeight * aspectRatio_;
             float farHalfHeight = tanHalfFov * farCutoff_;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-09-01
 
 #include "RenderSystem.h"
 
@@ -179,6 +179,12 @@ namespace Project001
                     for (size_t i = 0; i < renderedModelCount; ++i)
                     {
                         RenderedModel& currentRenderedModel = renderedModelArrayPtr[i];
+
+                        if (!currentRenderedModel.GetVisible() ||
+                            !(currentCamera.GetCameraMask() & currentRenderedModel.GetCameraMask()))
+                        {
+                            continue;
+                        }
 
                         if (!currentRenderedModel.TransformedMeshesUpToDate())
                         {

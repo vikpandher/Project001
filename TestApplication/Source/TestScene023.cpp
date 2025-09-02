@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene023.h"
 
@@ -75,6 +75,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);
@@ -120,6 +121,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
                 renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
                 renderedMeshPtr->SetLit(false);
@@ -141,6 +143,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
             if (renderedMeshPtr != nullptr)
             {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
                 renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
                 renderedMeshPtr->SetLit(false);
@@ -182,6 +185,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);
@@ -204,6 +208,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);
@@ -234,6 +239,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);
@@ -260,6 +266,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);
@@ -288,6 +295,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
         if (renderedMeshPtr != nullptr)
         {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetLit(false);

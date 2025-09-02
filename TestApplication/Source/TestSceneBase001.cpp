@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestSceneBase001.h"
 
@@ -74,6 +74,7 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
             cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->TurnOn();
+            cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
 

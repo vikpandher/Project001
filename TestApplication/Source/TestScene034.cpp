@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-09-01
 
 #include "TestScene034.h"
 
@@ -203,6 +203,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, tempEntityId));
         if (renderedModelPtr != nullptr)
         {
+            renderedModelPtr->SetCameraMask(s_mainCameraMask_);
             renderedModelPtr->SetPosition(positions[i]);
             renderedModelPtr->SetOrientation(orientations[i]);
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
