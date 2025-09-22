@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "RenderSystem.h"
 
@@ -113,9 +113,9 @@ namespace Project001
                     size_t lightSourceCount = 0;
                     componentStoresPtr->GetAllComponents<LightSource>(lightSourceArray, lightSourceCount);
 
-                    for (unsigned int i = 0; i < lightSourceCount; ++i)
+                    for (size_t j = 0; j < lightSourceCount; ++j)
                     {
-                        LightSource& currentLightSource = lightSourceArray[i];
+                        LightSource& currentLightSource = lightSourceArray[j];
                         if (currentLightSource.IsTurnedOn() &&
                             (currentCamera.GetCameraMask() & currentLightSource.GetCameraMask()))
                         {
@@ -167,18 +167,18 @@ namespace Project001
                     size_t renderedMeshCount = 0;
                     componentStoresPtr->GetAllComponents<RenderedMesh>(renderedMeshArrayPtr, renderedMeshCount);
 
-                    for (size_t i = 0; i < renderedMeshCount; ++i)
+                    for (size_t j = 0; j < renderedMeshCount; ++j)
                     {
-                        GroupMeshPtr(&renderedMeshArrayPtr[i], &currentCamera, &currentCameraFrustumPlanes);
+                        GroupMeshPtr(&renderedMeshArrayPtr[j], &currentCamera, &currentCameraFrustumPlanes);
                     }
 
                     RenderedModel* renderedModelArrayPtr = nullptr;
                     size_t renderedModelCount = 0;
                     componentStoresPtr->GetAllComponents<RenderedModel>(renderedModelArrayPtr, renderedModelCount);
 
-                    for (size_t i = 0; i < renderedModelCount; ++i)
+                    for (size_t j = 0; j < renderedModelCount; ++j)
                     {
-                        RenderedModel& currentRenderedModel = renderedModelArrayPtr[i];
+                        RenderedModel& currentRenderedModel = renderedModelArrayPtr[j];
 
                         if (!currentRenderedModel.GetVisible() ||
                             !(currentCamera.GetCameraMask() & currentRenderedModel.GetCameraMask()))
@@ -192,9 +192,9 @@ namespace Project001
                         }
 
                         const std::vector<RenderedMesh>& transformedMeshes = currentRenderedModel.GetTransformedRenderedMeshes();
-                        for (size_t j = 0; j < transformedMeshes.size(); ++j)
+                        for (size_t k = 0; k < transformedMeshes.size(); ++k)
                         {
-                            GroupMeshPtr(&transformedMeshes[j], &currentCamera, &currentCameraFrustumPlanes);
+                            GroupMeshPtr(&transformedMeshes[k], &currentCamera, &currentCameraFrustumPlanes);
                         }
                     }
 
@@ -381,9 +381,9 @@ namespace Project001
                         const RenderedMesh* previousRenderedMeshPtr = s_renderedMeshPtrs_[0];
                         RenderedMesh::RenderedMeshType previousRenderedMeshType = previousRenderedMeshPtr->GetRenderedMeshType();
 
-                        for (unsigned int i = 0; i < s_renderedMeshPtrs_.size(); ++i)
+                        for (unsigned int j = 0; j < s_renderedMeshPtrs_.size(); ++j)
                         {
-                            const RenderedMesh*& currentRenderedMeshPtr = s_renderedMeshPtrs_[i];
+                            const RenderedMesh*& currentRenderedMeshPtr = s_renderedMeshPtrs_[j];
                             const RenderedMesh::RenderedMeshType& currentRenderedMeshType = currentRenderedMeshPtr->GetRenderedMeshType();
 
                             if (currentRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // current mesh is instanced

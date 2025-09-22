@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -14,14 +14,14 @@
 
 struct TestApplicationData;
 
-class TestScene102 : public Project001::Scene
+class TestScene101 : public Project001::Scene
 {
 public:
-    TestScene102(Project001::Application* applicationPtr);
-    ~TestScene102();
+    TestScene101(Project001::Application* applicationPtr);
+    ~TestScene101();
 
-    TestScene102(TestScene102& other) = delete;
-    void operator=(const TestScene102&) = delete;
+    TestScene101(TestScene101& other) = delete;
+    void operator=(const TestScene101&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 

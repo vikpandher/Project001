@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-04-21
+# @DATE 2025-09-21
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -30,7 +30,8 @@ set(VENDOR_MINIAUDIO_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/miniaudio" CACH
 set(VENDOR_STB_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/Vendor/stb" CACHE PATH "")
 
 # https://vulkan.lunarg.com/
-set(VENDOR_VULKAN_INCLUDE "C:/VulkanSDK/1.3.261.1/Include" CACHE PATH "")
+set(VENDOR_VULKAN_DIRECTORY "C:/VulkanSDK/1.3.261.1" CACHE PATH "")
+set(VENDOR_VULKAN_INCLUDE "${VENDOR_VULKAN_DIRECTORY}/Include" CACHE PATH "")
 set(VENDOR_VULKAN_LIBRARY "${VENDOR_VULKAN_DIRECTORY}/Lib/vulkan-1.lib" CACHE PATH "")
 
 # If TRUE, sets renderer to Vulkan
@@ -88,6 +89,7 @@ if(${PROJECT001_SANITY_CHECK_DEBUG_OUTPUT})
 
     message("VENDOR_STB_INCLUDE: ${VENDOR_STB_INCLUDE}")
 
+    message("VENDOR_VULKAN_DIRECTORY: ${VENDOR_VULKAN_DIRECTORY}")
     message("VENDOR_VULKAN_INCLUDE: ${VENDOR_VULKAN_INCLUDE}")
     message("VENDOR_VULKAN_LIBRARY: ${VENDOR_VULKAN_LIBRARY}")
 

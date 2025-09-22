@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -77,7 +77,7 @@ namespace Project001
         uint8_t* componentMemoryPtr_;
 
         // A pointer to the memory holding the components' entity Ids.
-        // The indicies of the compoent entity Ids correspond with the order of
+        // The indices of the component entity Ids correspond with the order of
         // the components stored in compoenentMemory.
         unsigned int* componentEntityIdMemoryPtr_;
 

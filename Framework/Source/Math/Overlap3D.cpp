@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-21
 
 #include "Overlap3d.h"
 
@@ -2804,7 +2804,7 @@ namespace Project001
         float& interval_min,
         float& interval_max)
     {
-        glm::vec3 verticies[8] = {
+        glm::vec3 vertices[8] = {
             glm::vec3(aabb_min.x, aabb_min.y, aabb_min.z),
             glm::vec3(aabb_min.x, aabb_min.y, aabb_max.z),
             glm::vec3(aabb_min.x, aabb_max.y, aabb_min.z),
@@ -2815,12 +2815,12 @@ namespace Project001
             glm::vec3(aabb_max.x, aabb_max.y, aabb_max.z)
         };
 
-        interval_min = glm::dot(axis, verticies[0]);
+        interval_min = glm::dot(axis, vertices[0]);
 interval_max = interval_min;
 
 for (size_t i = 1; i < 8; ++i)
 {
-    float scalarProjection = glm::dot(axis, verticies[i]);
+    float scalarProjection = glm::dot(axis, vertices[i]);
     interval_min = std::min(interval_min, scalarProjection);
     interval_max = std::max(interval_max, scalarProjection);
 }
@@ -2834,7 +2834,7 @@ for (size_t i = 1; i < 8; ++i)
         float& interval_min,
         float& interval_max)
     {
-        glm::vec3 verticies[8] = {
+        glm::vec3 vertices[8] = {
             glm::vec3(obb_halfSize.x, obb_halfSize.y, obb_halfSize.z),
             glm::vec3(obb_halfSize.x, obb_halfSize.y, -obb_halfSize.z),
             glm::vec3(obb_halfSize.x, -obb_halfSize.y, obb_halfSize.z),
@@ -2847,15 +2847,15 @@ for (size_t i = 1; i < 8; ++i)
 
         for (size_t i = 0; i < 8; ++i)
         {
-            verticies[i] = obb_position + obb_orientation * verticies[i];
+            vertices[i] = obb_position + obb_orientation * vertices[i];
         }
 
-        interval_min = glm::dot(axis, verticies[0]);
+        interval_min = glm::dot(axis, vertices[0]);
         interval_max = interval_min;
 
         for (size_t i = 1; i < 8; ++i)
         {
-            float scalarProjection = glm::dot(axis, verticies[i]);
+            float scalarProjection = glm::dot(axis, vertices[i]);
             interval_min = std::min(interval_min, scalarProjection);
             interval_max = std::max(interval_max, scalarProjection);
         }

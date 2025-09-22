@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -47,13 +47,21 @@ namespace Project001
             unsigned int& x,
             unsigned int& y,
             unsigned int& width,
-            unsigned int& height) override;
+            unsigned int& height) const override;
 
         void SetViewport(
             unsigned int x,
             unsigned int y,
             unsigned int width,
             unsigned int height) override;
+
+        glm::vec2 ConvertPointFromWindowToViewport(
+            glm::vec2 windowPoint,
+            float windowHeight) const override;
+
+        glm::vec2 ConvertPointFromWindowToViewportNormalized(
+            glm::vec2 windowPoint,
+            float windowHeight) const override;
 
         void GetCameraViewport(
             float& x,
@@ -305,7 +313,7 @@ namespace Project001
         unsigned int& x,
         unsigned int& y,
         unsigned int& width,
-        unsigned int& height)
+        unsigned int& height) const
     {
         x = viewportX_;
         y = viewportY_;
@@ -323,6 +331,24 @@ namespace Project001
         viewportY_ = y;
         viewportWidth_ = width;
         viewportHeight_ = height;
+    }
+
+    inline glm::vec2 OpenGL_Renderer::ConvertPointFromWindowToViewport(
+        glm::vec2 windowPoint,
+        float windowHeight) const
+    {
+        return glm::vec2(
+            windowPoint.x - (float)viewportX_,
+            windowHeight - windowPoint.y - (float)viewportY_);
+    }
+
+    inline glm::vec2 OpenGL_Renderer::ConvertPointFromWindowToViewportNormalized(
+        glm::vec2 windowPoint,
+        float windowHeight) const
+    {
+        return glm::vec2(
+            (windowPoint.x - (float)viewportX_) / (float)viewportWidth_,
+            (windowHeight - windowPoint.y - (float)viewportY_) / (float)viewportHeight_);
     }
 
     inline void OpenGL_Renderer::GetCameraViewport(

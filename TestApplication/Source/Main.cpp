@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -45,7 +45,7 @@
 #include "TestScene051.h"
 #include "TestScene052.h"
 #include "TestScene060.h"
-#include "TestScene102.h"
+#include "TestScene101.h"
 
 
 
@@ -146,11 +146,11 @@ int main(int argc, char** argv)
     // * has "unit" tests
     TestScene023* testScene023Ptr = new TestScene023(applicationPtr);
 
-    // tests framerate with many verticies batched rendering
+    // tests framerate with many vertices batched rendering
     // * inherits 001
     TestScene030* testScene030Ptr = new TestScene030(applicationPtr);
 
-    // tests framerate with many verticies instanced rendering
+    // tests framerate with many vertices instanced rendering
     // * inherits 001
     TestScene031* testScene031Ptr = new TestScene031(applicationPtr);
 
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
     TestScene060* testScene060Ptr = new TestScene060(applicationPtr);
 
     // (TODO)
-    TestScene102* testScene102Ptr = new TestScene102(applicationPtr);
+    TestScene101* testScene101Ptr = new TestScene101(applicationPtr);
 
     applicationPtr->Run();
 
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
     delete testScene051Ptr;
     delete testScene052Ptr;
     delete testScene060Ptr;
-    delete testScene102Ptr;
+    delete testScene101Ptr;
     delete applicationPtr;
 
     return 0;

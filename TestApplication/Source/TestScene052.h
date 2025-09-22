@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -40,6 +40,15 @@ protected:
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
+    void LoadFontData();
+    void LoadMeshData();
+    void LoadTextureData();
+
+    void CreateCameraEntities();
+    void CreateCursorEntity();
+    void CreateFloorEntity();
+    void CreatePlayerEntity();
+
     void UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns);
     void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
 
@@ -55,17 +64,26 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    Project001::MeshData* circleMeshDataPtr_;
-    Project001::MeshData* floorBackgroundMeshDataPtr_;
+    Project001::MeshData* circle_MeshDataPtr_;
+    Project001::MeshData* floorBackground_MeshDataPtr_;
+    Project001::MeshData* mainCameraNearFrustum_MeshDataPtr_;
+    Project001::MeshData* mainCameraFarFrustum_MeshDataPtr_;
+    Project001::MeshData* ship_MeshDataPtr_;
 
-    // Entity Ids --------------------------------------------------------------
+    // Texture Data ------------------------------------------------------------
+
+    unsigned int box01_TextureId_;
+    unsigned int border96x64_TextureId_;
+    unsigned int numbers16x4_TextureId_;
+
+    // Entities ----------------------------------------------------------------
 
     static const uint32_t s_mainCameraMask_ = 0b00000000000000000000000000000001;
-    unsigned int mainCameraEntityId_;
+    unsigned int mainCamera_EntityId_;
     static const uint32_t s_uiCameraMask_ = 0b10000000000000000000000000000000;
-    unsigned int uiCameraEntityId_;
+    unsigned int uiCamera_EntityId_;
 
-    unsigned int cursorEntityId_;
+    unsigned int cursor_EntityId_;
     unsigned int cursorPositionRenderedMeshIndex_;
     unsigned int cursorPressRenderedMeshIndex_;
     unsigned int cursorReleaseRenderedMeshIndex_;
@@ -76,10 +94,13 @@ protected:
     unsigned int cursorPressCollisionPointIndex_;
     unsigned int cursorReleaseCollisionPointIndex_;
 
-    unsigned int floorEntityId_;
-    unsigned int floorBackgroundMeshIndex_;
+    unsigned int floor_EntityId_;
+
+    unsigned int player_EntityId_;
 
     // -------------------------------------------------------------------------
+
+    glm::vec3 cameraDisplacement_;
 
     glm::vec2 previousWorldCursorPosition_;
     glm::vec2 previousWorldCursorPress_;

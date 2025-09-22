@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "MeshLoader.h"
 
@@ -1102,7 +1102,7 @@ namespace Project001
 
         size_t initialVertexCount = meshVertexArray.size();
 
-        // these indicies represent a quad section of the line
+        // these indices represent a quad section of the line
         // +----(A)---(C)----+-----+-----+-----+
         // |    /|    /|    /|    /|    /|    /|
         // |   / |   / |   / |   / |   / |   / |
@@ -2060,6 +2060,97 @@ namespace Project001
         MeshVertex bottomRightVertex;
         bottomRightVertex.position.x = halfWidth;
         bottomRightVertex.position.y = -halfHeight;
+        bottomRightVertex.textureCoordinate.x = textureRight;
+        bottomRightVertex.textureCoordinate.y = textureBottom;
+        bottomRightVertex.normal.z = 1.0f;
+
+        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        if (triangulate)
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount++);
+            meshIndexArray.push_back(currentVertexCount);
+        }
+        else
+        {
+            meshVertexArray.push_back(topLeftVertex);
+            meshVertexArray.push_back(bottomLeftVertex);
+            meshVertexArray.push_back(bottomRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+
+            meshIndexArray.push_back(currentVertexCount);
+            meshIndexArray.push_back(currentVertexCount + 1);
+            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount + 2);
+            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount + 1);
+        }
+
+        return true;
+    }
+
+    bool MeshLoader::Generate2DSprite(
+        MeshData& meshData,
+        const glm::vec3& topLeft,
+        const glm::vec3& topRight,
+        const glm::vec3& bottomRight,
+        const glm::vec3& bottomLeft,
+        float textureLeft,
+        float textureRight,
+        float textureBottom,
+        float textureTop,
+        bool triangulate)
+    {
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (topLeft.x > maxVertexPosition.x) maxVertexPosition.x = topLeft.x;
+        if (topLeft.y > maxVertexPosition.y) maxVertexPosition.y = topLeft.y;
+        if (topLeft.z > maxVertexPosition.z) maxVertexPosition.z = topLeft.z;
+
+        if (topLeft.x < minVertexPosition.x) minVertexPosition.x = topLeft.x;
+        if (topLeft.y < minVertexPosition.y) minVertexPosition.y = topLeft.y;
+        if (topLeft.z < minVertexPosition.z) minVertexPosition.z = topLeft.z;
+
+        float maxVertexRadius = glm::length(maxVertexPosition);
+        if (maxBoundingRadius < maxVertexRadius) maxBoundingRadius = maxVertexRadius;
+
+        float minVertexRadius = glm::length(minVertexPosition);
+        if (maxBoundingRadius < minVertexRadius) maxBoundingRadius = minVertexRadius;
+
+        MeshVertex topLeftVertex;
+        topLeftVertex.position = topLeft;
+        topLeftVertex.textureCoordinate.x = textureLeft;
+        topLeftVertex.textureCoordinate.y = textureTop;
+        topLeftVertex.normal.z = 1.0f;
+
+        MeshVertex topRightVertex;
+        topRightVertex.position = topRight;
+        topRightVertex.textureCoordinate.x = textureRight;
+        topRightVertex.textureCoordinate.y = textureTop;
+        topRightVertex.normal.z = 1.0f;
+
+        MeshVertex bottomLeftVertex;
+        bottomLeftVertex.position = bottomLeft;
+        bottomLeftVertex.textureCoordinate.x = textureLeft;
+        bottomLeftVertex.textureCoordinate.y = textureBottom;
+        bottomLeftVertex.normal.z = 1.0f;
+
+        MeshVertex bottomRightVertex;
+        bottomRightVertex.position = bottomRight;
         bottomRightVertex.textureCoordinate.x = textureRight;
         bottomRightVertex.textureCoordinate.y = textureBottom;
         bottomRightVertex.normal.z = 1.0f;
@@ -4607,7 +4698,7 @@ namespace Project001
         positions.reserve(22);
         textureCoordinates.reserve(22);
 
-        // initial verticies
+        // initial vertices
         // ---------------------------------------------------------------------
         //    00    01    02    03    04       <- top
         //   /  \  /  \  /  \  /  \  /  \
@@ -4709,7 +4800,7 @@ namespace Project001
             radius,
             subdivisions);
 
-        // generate meshVerticies
+        // generate meshVertices
         // ---------------------------------------------------------------------
         GenerateIcosphereMeshVerticesAndIndices(
             meshData,
@@ -4748,7 +4839,7 @@ namespace Project001
         positions.reserve(10);
         textureCoordinates.reserve(10);
 
-        // initial verticies
+        // initial vertices
         // ---------------------------------------------------------------------
         //    00    01    02    <- top
         //   /  \  /  \  /  \
@@ -4825,7 +4916,7 @@ namespace Project001
             radius,
             subdivisions);
 
-        // generate meshVerticies
+        // generate meshVertices
         // ---------------------------------------------------------------------
         GenerateIcosphereMeshVerticesAndIndices(
             meshData,
@@ -4870,7 +4961,7 @@ namespace Project001
         textureCoordinates.reserve(10);
         offsetSeeds.reserve(10);
 
-        // initial verticies
+        // initial vertices
         // ---------------------------------------------------------------------
         //    00    01    02    <- top
         //   /  \  /  \  /  \
@@ -5006,7 +5097,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        // generate meshVerticies
+        // generate meshVertices
         // ---------------------------------------------------------------------
         GenerateIcosphereMeshVerticesAndIndices(
             meshData,
@@ -6280,24 +6371,24 @@ namespace Project001
                 {
                     std::string& indexGroup = splitValues[i];
 
-                    std::vector<size_t> slashIndicies;
+                    std::vector<size_t> slashIndices;
                     for (size_t j = 0; j < indexGroup.size(); ++j)
                     {
                         if (indexGroup[j] == '/')
                         {
-                            slashIndicies.push_back(j);
+                            slashIndices.push_back(j);
                         }
                     }
 
-                    if (slashIndicies.size() == 0)
+                    if (slashIndices.size() == 0)
                     {
                         int positionIndex = std::stoi(indexGroup);
 
                         face.emplace_back(positionIndex, 0, 0);
                     }
-                    else if (slashIndicies.size() == 1)
+                    else if (slashIndices.size() == 1)
                     {
-                        const size_t& slashIndex = slashIndicies[0];
+                        const size_t& slashIndex = slashIndices[0];
 
                         int positionIndex = 0;
                         int textureCoordinateIndex = 0;
@@ -6316,10 +6407,10 @@ namespace Project001
 
                         face.emplace_back(positionIndex, textureCoordinateIndex, 0);
                     }
-                    else if (slashIndicies.size() == 2)
+                    else if (slashIndices.size() == 2)
                     {
-                        const size_t& firstSlashIndex = slashIndicies[0];
-                        const size_t& secondSlashIndex = slashIndicies[1];
+                        const size_t& firstSlashIndex = slashIndices[0];
+                        const size_t& secondSlashIndex = slashIndices[1];
 
                         int positionIndex = 0;
                         int textureCoordinateIndex = 0;
@@ -7069,7 +7160,7 @@ namespace Project001
         size_t initialVertexCount = meshVertexArray.size();
 
         // ex: longitudinalSections = 3, latitudinalSections = 4
-        // indicies:
+        // indices:
         // 
         //     ( 0 )   ( 1 )   ( 2 )     --------
         //      / \     / \     / \       top
@@ -7426,7 +7517,7 @@ namespace Project001
         size_t initialVertexCount = meshVertexArray.size();
 
         // ex: sections = 3
-        // indicies:
+        // indices:
         // 
         // ( 0 )---( 2 )---( 4 )---( 6 )
         //   |    /  |    /  |    /  |

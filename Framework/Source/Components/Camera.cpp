@@ -1,10 +1,11 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "Components/Camera.h"
 
 #include "Math/MathUtilities.h"
+#include "Math/Overlap3D.h"
 
 
 
@@ -78,14 +79,14 @@ namespace Project001
         float fh = tan_half * farCutoff_;
         float fw = fh * aspectRatio_;
 
-        corners[0] = glm::vec3(-nw, nh, nearCutoff_);
-        corners[1] = glm::vec3(nw, nh, nearCutoff_);
-        corners[2] = glm::vec3(nw, -nh, nearCutoff_);
-        corners[3] = glm::vec3(-nw, -nh, nearCutoff_);
-        corners[4] = glm::vec3(-fw, fh, farCutoff_);
-        corners[5] = glm::vec3(fw, fh, farCutoff_);
-        corners[6] = glm::vec3(fw, -fh, farCutoff_);
-        corners[7] = glm::vec3(-fw, -fh, farCutoff_);
+        corners[0] = glm::vec3(-nw, nh, nearCutoff_);  // top left
+        corners[1] = glm::vec3(nw, nh, nearCutoff_);   // top right
+        corners[2] = glm::vec3(nw, -nh, nearCutoff_);  // bottom right
+        corners[3] = glm::vec3(-nw, -nh, nearCutoff_); // bottom left
+        corners[4] = glm::vec3(-fw, fh, farCutoff_);   // top left
+        corners[5] = glm::vec3(fw, fh, farCutoff_);    // top right
+        corners[6] = glm::vec3(fw, -fh, farCutoff_);   // bottom right
+        corners[7] = glm::vec3(-fw, -fh, farCutoff_);  // bottom left
     }
 
     void Camera::GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const
@@ -161,7 +162,82 @@ namespace Project001
         }
     }
 
-    glm::vec2 Camera::ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, const glm::vec2& viewportPoint) const
+    glm::vec3 Camera::ConvertPointFromNormalizedViewportToNearPlane(const glm::vec2& normalizedViewportPoint) const
+    {
+        glm::vec2 normalizedCameraViewportPoint;
+        normalizedCameraViewportPoint.x = (normalizedViewportPoint.x - cameraViewportX_) / cameraViewportWidth_;
+        normalizedCameraViewportPoint.y = (normalizedViewportPoint.y - cameraViewportY_) / cameraViewportHeight_;
+
+        // This bounds the point inside the camera viewport; it's commented out
+        // normalizedCameraViewportPoint = glm::clamp(normalizedCameraViewportPoint, glm::vec2(0.0f), glm::vec2(1.0f));
+
+        glm::vec2 ndc;
+        ndc.x = 1.0f - normalizedCameraViewportPoint.x * 2.0f;
+        ndc.y = normalizedCameraViewportPoint.y * 2.0f - 1.0f;
+
+        glm::vec3 cameraPoint;
+
+        if (cameraProjection_ == CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC)
+        {
+            // glm::mix does linear interpolation
+            cameraPoint.x = glm::mix(leftCutoff_, rightCutoff_, (ndc.x + 1.0f) * 0.5f);
+            cameraPoint.y = glm::mix(bottomCutoff_, topCutoff_, (ndc.y + 1.0f) * 0.5f);
+            cameraPoint.z = nearCutoff_;
+        }
+        else // Perspective Projection
+        {
+            float tanHalfFov = tanf(fieldOfView_ * 0.5f);
+            float nh = nearCutoff_ * tanHalfFov; // half height at near plane
+            float nw = nh * aspectRatio_;        // half width at near plane
+
+            cameraPoint.x = ndc.x * nw;
+            cameraPoint.y = ndc.y * nh;
+            cameraPoint.z = nearCutoff_;
+        }
+
+        return position_ + orientation_ * cameraPoint;
+    }
+
+    bool Camera::RaycastPointFromNormalizedViewportToPane(
+        const glm::vec2& normalizedViewportPoint,
+        const glm::vec3& planeNormal,
+        const float& planeDistance,
+        glm::vec3& hitPoint,
+        glm::vec3& hitNormal) const
+    {
+        glm::vec3 nearPlaneCursorPosition = ConvertPointFromNormalizedViewportToNearPlane(normalizedViewportPoint);
+
+        glm::vec3 cameraPosition;
+        glm::vec3 cursorDirection;
+        if (cameraProjection_ == Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
+        {
+            cameraPosition = position_;
+            cursorDirection = nearPlaneCursorPosition - cameraPosition;
+        }
+        else
+        {
+            cameraPosition = nearPlaneCursorPosition;
+            cursorDirection = GetForwardVector();
+        }
+
+        float hitScalar;
+        bool intersected = Project001::Raycast3D_Plane(
+            cameraPosition,
+            cursorDirection,
+            glm::vec3(0.0f, 0.0f, 1.0f),
+            0.0f,
+            hitScalar,
+            hitNormal);
+
+        hitPoint = cameraPosition + cursorDirection * hitScalar;
+
+        return intersected;
+    }
+
+    glm::vec2 Camera::ConvertPointFromViewportToOrthographicTopDownPoint(
+        int viewportWidth,
+        int viewportHeight,
+        const glm::vec2& viewportPoint) const
     {
         float cutoffWidth = rightCutoff_ - leftCutoff_;
         float cutoffHeight = topCutoff_ - bottomCutoff_;

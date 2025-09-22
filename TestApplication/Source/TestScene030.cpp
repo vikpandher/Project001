@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "TestScene030.h"
 
@@ -209,7 +209,7 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     instructionSceneInfo.instructionString = std::string(
         "This Scene tests the fps when rendering many Batched Meshes.\n"
         "Meshes are sent to the Renderer every frame.\n"
-        "24 Verticies per Mesh, 36 Indicies per Mesh.\n"
+        "24 Vertices per Mesh, 36 Indices per Mesh.\n"
         "Use <WASD> to move the camera up, left, down, and right.\n"
         "Use <Q> to roll left and <E> to roll right.\n"
         "Use <Scroll> to move forward and back.\n"

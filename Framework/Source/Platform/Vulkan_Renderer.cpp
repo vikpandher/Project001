@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-21
+// @DATE 2025-09-21
 
 #include "Vulkan_Renderer.h"
 
@@ -1485,7 +1485,7 @@ namespace Project001
             {
                 const VkPhysicalDevice& physicalDevice = physicalDevices[i];
 
-                // Find Required Queue Family Indicies
+                // Find Required Queue Family Indices
                 // -----------------------------------------------------------------
 
                 bool valid_graphicsQueueFamilyIndex = false;
@@ -2160,21 +2160,21 @@ namespace Project001
                  1.0f,  1.0f,  1.0f, 0.0f
             };
 
-            size_t screenVerticiesSize = sizeof(screenQuadVertices);
+            size_t screenVerticesSize = sizeof(screenQuadVertices);
             VkBuffer screenVertexStagingBuffer;
             VkDeviceMemory screenVertexStagingBufferMemory;
-            CreateBuffer(screenVerticiesSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, screenVertexStagingBuffer, screenVertexStagingBufferMemory);
+            CreateBuffer(screenVerticesSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, screenVertexStagingBuffer, screenVertexStagingBufferMemory);
 
             void* screenVertexStagingBufferDataPtr;
-            _VK_CHECK(vkMapMemory(logicalDevice_, screenVertexStagingBufferMemory, 0, screenVerticiesSize, 0, &screenVertexStagingBufferDataPtr));
-            memcpy(screenVertexStagingBufferDataPtr, screenQuadVertices, screenVerticiesSize);
+            _VK_CHECK(vkMapMemory(logicalDevice_, screenVertexStagingBufferMemory, 0, screenVerticesSize, 0, &screenVertexStagingBufferDataPtr));
+            memcpy(screenVertexStagingBufferDataPtr, screenQuadVertices, screenVerticesSize);
 
-            CreateBuffer(screenVerticiesSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, screenVertexBuffer_, screenVertexBufferMemory_);
+            CreateBuffer(screenVerticesSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, screenVertexBuffer_, screenVertexBufferMemory_);
 
             VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
             VkBufferCopy vertexCopyRegion = {};
-            vertexCopyRegion.size = screenVerticiesSize;
+            vertexCopyRegion.size = screenVerticesSize;
             vkCmdCopyBuffer(commandBuffer, screenVertexStagingBuffer, screenVertexBuffer_, 1, &vertexCopyRegion);
 
             EndSingleTimeCommands(commandBuffer);

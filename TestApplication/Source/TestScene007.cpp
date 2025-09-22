@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "TestScene007.h"
 
@@ -181,99 +181,99 @@ void TestScene007::CreateEarClippingMeshes()
 
     // Create 2D Shapes --------------------------------------------------------
 
-    std::vector<glm::vec2> polygon01_verticies;
-    polygon01_verticies.emplace_back(2.0f, 0.0f);
-    polygon01_verticies.emplace_back(4.0f, 2.0f);
-    polygon01_verticies.emplace_back(0.0f, 2.0f);
-    polygon01_verticies.emplace_back(-2.0f, 4.0f);
-    polygon01_verticies.emplace_back(-2.0f, 0.0f);
-    polygon01_verticies.emplace_back(-4.0f, -2.0f);
-    polygon01_verticies.emplace_back(0.0f, -2.0f);
-    polygon01_verticies.emplace_back(2.0f, -4.0f);
-    for (size_t i = 0; i < polygon01_verticies.size(); ++i)
+    std::vector<glm::vec2> polygon01_vertices;
+    polygon01_vertices.emplace_back(2.0f, 0.0f);
+    polygon01_vertices.emplace_back(4.0f, 2.0f);
+    polygon01_vertices.emplace_back(0.0f, 2.0f);
+    polygon01_vertices.emplace_back(-2.0f, 4.0f);
+    polygon01_vertices.emplace_back(-2.0f, 0.0f);
+    polygon01_vertices.emplace_back(-4.0f, -2.0f);
+    polygon01_vertices.emplace_back(0.0f, -2.0f);
+    polygon01_vertices.emplace_back(2.0f, -4.0f);
+    for (size_t i = 0; i < polygon01_vertices.size(); ++i)
     {
-        polygon01_verticies[i] *= 0.12f;
+        polygon01_vertices[i] *= 0.12f;
     }
 
-    std::vector<glm::vec2> polygon02_verticies;
-    polygon02_verticies.emplace_back(5.0f, 1.0f);
-    polygon02_verticies.emplace_back(5.0f, 2.0f);
-    polygon02_verticies.emplace_back(4.0f, 1.0f);
-    polygon02_verticies.emplace_back(3.0f, 1.0f);
-    polygon02_verticies.emplace_back(3.0f, 3.0f);
-    polygon02_verticies.emplace_back(2.0f, 1.0f);
-    polygon02_verticies.emplace_back(0.0f, 2.0f);
-    polygon02_verticies.emplace_back(2.0f, 0.0f);
-    polygon02_verticies.emplace_back(0.0f, 1.0f);
-    polygon02_verticies.emplace_back(-1.0f, 1.0f);
-    polygon02_verticies.emplace_back(-5.0f, -1.0f);
-    polygon02_verticies.emplace_back(-3.0f, -1.0f);
-    polygon02_verticies.emplace_back(-2.0f, -2.0f);
-    polygon02_verticies.emplace_back(-2.0f, -3.0f);
-    polygon02_verticies.emplace_back(-1.0f, -2.0f);
-    polygon02_verticies.emplace_back(-1.0f, -3.0f);
-    polygon02_verticies.emplace_back(0.0f, -2.0f);
-    polygon02_verticies.emplace_back(1.0f, -2.0f);
-    polygon02_verticies.emplace_back(2.0f, -3.0f);
-    polygon02_verticies.emplace_back(2.0f, -2.0f);
-    polygon02_verticies.emplace_back(3.0f, -3.0f);
-    polygon02_verticies.emplace_back(3.0f, -1.0f);
-    for (size_t i = 0; i < polygon02_verticies.size(); ++i)
+    std::vector<glm::vec2> polygon02_vertices;
+    polygon02_vertices.emplace_back(5.0f, 1.0f);
+    polygon02_vertices.emplace_back(5.0f, 2.0f);
+    polygon02_vertices.emplace_back(4.0f, 1.0f);
+    polygon02_vertices.emplace_back(3.0f, 1.0f);
+    polygon02_vertices.emplace_back(3.0f, 3.0f);
+    polygon02_vertices.emplace_back(2.0f, 1.0f);
+    polygon02_vertices.emplace_back(0.0f, 2.0f);
+    polygon02_vertices.emplace_back(2.0f, 0.0f);
+    polygon02_vertices.emplace_back(0.0f, 1.0f);
+    polygon02_vertices.emplace_back(-1.0f, 1.0f);
+    polygon02_vertices.emplace_back(-5.0f, -1.0f);
+    polygon02_vertices.emplace_back(-3.0f, -1.0f);
+    polygon02_vertices.emplace_back(-2.0f, -2.0f);
+    polygon02_vertices.emplace_back(-2.0f, -3.0f);
+    polygon02_vertices.emplace_back(-1.0f, -2.0f);
+    polygon02_vertices.emplace_back(-1.0f, -3.0f);
+    polygon02_vertices.emplace_back(0.0f, -2.0f);
+    polygon02_vertices.emplace_back(1.0f, -2.0f);
+    polygon02_vertices.emplace_back(2.0f, -3.0f);
+    polygon02_vertices.emplace_back(2.0f, -2.0f);
+    polygon02_vertices.emplace_back(3.0f, -3.0f);
+    polygon02_vertices.emplace_back(3.0f, -1.0f);
+    for (size_t i = 0; i < polygon02_vertices.size(); ++i)
     {
-        polygon02_verticies[i] *= 0.12f;
+        polygon02_vertices[i] *= 0.12f;
     }
 
-    std::vector<glm::vec2> polygon03_verticies;
-    polygon03_verticies.emplace_back(5.0f, -1.0f);
-    polygon03_verticies.emplace_back(4.0f, 0.0f);
-    polygon03_verticies.emplace_back(3.0f, -1.0f);
-    polygon03_verticies.emplace_back(2.0f, 0.0f);
-    polygon03_verticies.emplace_back(3.0f, 0.0f);
-    polygon03_verticies.emplace_back(3.0f, 1.0f);
-    polygon03_verticies.emplace_back(2.0f, 1.0f);
-    polygon03_verticies.emplace_back(2.0f, 0.0f);
-    polygon03_verticies.emplace_back(1.0f, 1.0f);
-    polygon03_verticies.emplace_back(2.0f, 1.0f);
-    polygon03_verticies.emplace_back(2.0f, 2.0f);
-    polygon03_verticies.emplace_back(1.0f, 2.0f);
-    polygon03_verticies.emplace_back(1.0f, 1.0f);
-    polygon03_verticies.emplace_back(0.0f, 1.0f);
-    polygon03_verticies.emplace_back(1.0f, 2.0f);
-    polygon03_verticies.emplace_back(0.0f, 3.0f);
-    polygon03_verticies.emplace_back(-1.0f, 2.0f);
-    polygon03_verticies.emplace_back(0.0f, 1.0f);
-    polygon03_verticies.emplace_back(-1.0f, 1.0f);
-    polygon03_verticies.emplace_back(-1.0f, 2.0f);
-    polygon03_verticies.emplace_back(-2.0f, 3.0f);
-    polygon03_verticies.emplace_back(-2.0f, 2.0f);
-    polygon03_verticies.emplace_back(-1.0f, 1.0f);
-    polygon03_verticies.emplace_back(-2.0f, 1.0f);
-    polygon03_verticies.emplace_back(-2.0f, 2.0f);
-    polygon03_verticies.emplace_back(-3.0f, 2.0f);
-    polygon03_verticies.emplace_back(-2.0f, 1.0f);
-    polygon03_verticies.emplace_back(-5.0f, 1.0f);
-    polygon03_verticies.emplace_back(-3.0f, -0.0f);
-    polygon03_verticies.emplace_back(-2.0f, -1.0f);
-    polygon03_verticies.emplace_back(-2.0f, -3.0f);
-    polygon03_verticies.emplace_back(-1.0f, -2.0f);
-    polygon03_verticies.emplace_back(-1.0f, -3.0f);
-    polygon03_verticies.emplace_back(0.0f, -2.0f);
-    polygon03_verticies.emplace_back(1.0f, -2.0f);
-    polygon03_verticies.emplace_back(2.0f, -3.0f);
-    polygon03_verticies.emplace_back(2.0f, -2.0f);
-    polygon03_verticies.emplace_back(3.0f, -3.0f);
-    polygon03_verticies.emplace_back(3.0f, -2.0f);
-    polygon03_verticies.emplace_back(4.0f, -1.0f);
-    for (size_t i = 0; i < polygon03_verticies.size(); ++i)
+    std::vector<glm::vec2> polygon03_vertices;
+    polygon03_vertices.emplace_back(5.0f, -1.0f);
+    polygon03_vertices.emplace_back(4.0f, 0.0f);
+    polygon03_vertices.emplace_back(3.0f, -1.0f);
+    polygon03_vertices.emplace_back(2.0f, 0.0f);
+    polygon03_vertices.emplace_back(3.0f, 0.0f);
+    polygon03_vertices.emplace_back(3.0f, 1.0f);
+    polygon03_vertices.emplace_back(2.0f, 1.0f);
+    polygon03_vertices.emplace_back(2.0f, 0.0f);
+    polygon03_vertices.emplace_back(1.0f, 1.0f);
+    polygon03_vertices.emplace_back(2.0f, 1.0f);
+    polygon03_vertices.emplace_back(2.0f, 2.0f);
+    polygon03_vertices.emplace_back(1.0f, 2.0f);
+    polygon03_vertices.emplace_back(1.0f, 1.0f);
+    polygon03_vertices.emplace_back(0.0f, 1.0f);
+    polygon03_vertices.emplace_back(1.0f, 2.0f);
+    polygon03_vertices.emplace_back(0.0f, 3.0f);
+    polygon03_vertices.emplace_back(-1.0f, 2.0f);
+    polygon03_vertices.emplace_back(0.0f, 1.0f);
+    polygon03_vertices.emplace_back(-1.0f, 1.0f);
+    polygon03_vertices.emplace_back(-1.0f, 2.0f);
+    polygon03_vertices.emplace_back(-2.0f, 3.0f);
+    polygon03_vertices.emplace_back(-2.0f, 2.0f);
+    polygon03_vertices.emplace_back(-1.0f, 1.0f);
+    polygon03_vertices.emplace_back(-2.0f, 1.0f);
+    polygon03_vertices.emplace_back(-2.0f, 2.0f);
+    polygon03_vertices.emplace_back(-3.0f, 2.0f);
+    polygon03_vertices.emplace_back(-2.0f, 1.0f);
+    polygon03_vertices.emplace_back(-5.0f, 1.0f);
+    polygon03_vertices.emplace_back(-3.0f, -0.0f);
+    polygon03_vertices.emplace_back(-2.0f, -1.0f);
+    polygon03_vertices.emplace_back(-2.0f, -3.0f);
+    polygon03_vertices.emplace_back(-1.0f, -2.0f);
+    polygon03_vertices.emplace_back(-1.0f, -3.0f);
+    polygon03_vertices.emplace_back(0.0f, -2.0f);
+    polygon03_vertices.emplace_back(1.0f, -2.0f);
+    polygon03_vertices.emplace_back(2.0f, -3.0f);
+    polygon03_vertices.emplace_back(2.0f, -2.0f);
+    polygon03_vertices.emplace_back(3.0f, -3.0f);
+    polygon03_vertices.emplace_back(3.0f, -2.0f);
+    polygon03_vertices.emplace_back(4.0f, -1.0f);
+    for (size_t i = 0; i < polygon03_vertices.size(); ++i)
     {
-        polygon03_verticies[i] *= 0.12f;
+        polygon03_vertices[i] *= 0.12f;
     }
 
     // row 1 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon01_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon01_vertices, 0.01f, true));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -297,7 +297,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon01_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon01_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -321,7 +321,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon01_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon01_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -345,7 +345,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon02_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon02_vertices, 0.01f, true));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -369,7 +369,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon02_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon02_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -393,7 +393,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon02_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon02_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -417,7 +417,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon03_verticies, 0.01f, true));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon03_vertices, 0.01f, true));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -441,7 +441,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon03_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon03_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -465,7 +465,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon03_verticies));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon03_vertices));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 

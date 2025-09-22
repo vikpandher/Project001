@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -114,7 +114,20 @@ namespace Project001
 
         void GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const;
 
-        glm::vec2 ConvertPointFromViewportToOrthoWorld(int viewportWidth, int viewportHeight, const glm::vec2& viewportPoint) const;
+        glm::vec3 ConvertPointFromNormalizedViewportToNearPlane(const glm::vec2& normalizedViewportPoint) const;
+
+        bool RaycastPointFromNormalizedViewportToPane(
+            const glm::vec2& normalizedViewportPoint,
+            const glm::vec3& planeNormal,
+            const float& planeDistance,
+            glm::vec3& hitPoint,
+            glm::vec3& hitNormal) const;
+
+        // this function is deprecated
+        glm::vec2 ConvertPointFromViewportToOrthographicTopDownPoint(
+            int viewportWidth,
+            int viewportHeight,
+            const glm::vec2& viewportPoint) const;
 
     protected:
         // Inherited:

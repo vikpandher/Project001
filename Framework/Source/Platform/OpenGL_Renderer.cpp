@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-09-21
 
 #include "OpenGL_Renderer.h"
 
@@ -723,7 +723,7 @@ namespace Project001
             glm::vec3 position;
             glm::vec4 color;
         };
-        std::vector<GridVertexData> gridVerticies;
+        std::vector<GridVertexData> gridVertices;
 
         for (float i = s_gridHalfExtents_; i > 0; i -= s_minorGridIncement_)
         {
@@ -742,284 +742,284 @@ namespace Project001
             }
 
             // xy plane +x lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, -s_gridHalfExtents_, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, -0.00001, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, 0.00001, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, s_gridHalfExtents_, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
 
             // xy plane -x lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, -s_gridHalfExtents_, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, -0.00001, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, 0.00001, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, s_gridHalfExtents_, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
 
             // xy plane +y lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-s_gridHalfExtents_, i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-0.00001, i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.00001, i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(s_gridHalfExtents_, i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
 
             // xy plane -y lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-s_gridHalfExtents_, -i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-0.00001, -i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.00001, -i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(s_gridHalfExtents_, -i, 0.0f),
                 glm::vec4(1.0f, 1.0f, 0.0f, alpha)
                 });
 
             // xz plane +x lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, 0.0f, -s_gridHalfExtents_),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, 0.0f, -0.00001),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, 0.0f, 0.00001),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(i, 0.0f, s_gridHalfExtents_),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
 
             // xz plane -x lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, 0.0f, -s_gridHalfExtents_),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, 0.0f, -0.00001),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, 0.0f, 0.00001),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-i, 0.0f, s_gridHalfExtents_),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
 
             // xz plane +z lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-s_gridHalfExtents_, 0.0f, i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-0.00001, 0.0f, i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.00001, 0.0f, i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(s_gridHalfExtents_, 0.0f, i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
 
             // xz plane -x lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-s_gridHalfExtents_, 0.0f, -i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(-0.00001, 0.0f, -i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.00001, 0.0f, -i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(s_gridHalfExtents_, 0.0f, -i),
                 glm::vec4(1.0f, 0.0f, 1.0f, alpha)
                 });
 
             // yz plane +y lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, i, -s_gridHalfExtents_),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, i, -0.00001),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, i, 0.00001),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, i, s_gridHalfExtents_),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
 
             // yz plane -y lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -i, -s_gridHalfExtents_),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -i, -0.00001),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -i, 0.00001),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -i, s_gridHalfExtents_),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
 
             // yz plane +z lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -s_gridHalfExtents_, i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -0.00001, i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, 0.00001, i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, s_gridHalfExtents_, i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
 
             // yz plane -z lines
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -s_gridHalfExtents_, -i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, -0.00001, -i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, 0.00001, -i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
-            gridVerticies.push_back({
+            gridVertices.push_back({
                 glm::vec3(0.0f, s_gridHalfExtents_, -i),
                 glm::vec4(0.0f, 1.0f, 1.0f, alpha)
                 });
         }
 
         // x axis
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(-s_gridHalfExtents_, 0.0f, 0.0f),
                 glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(-0.00001, 0.0f, 0.0f),
                 glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.00001, 0.0f, 0.0f),
                 glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(s_gridHalfExtents_, 0.0f, 0.0f),
                 glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
             });
 
         // y axis
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, -s_gridHalfExtents_, 0.0f),
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, -0.00001, 0.0f),
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, 0.00001, 0.0f),
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, s_gridHalfExtents_, 0.0f),
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             });
 
         // z axis
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, 0.0f, -s_gridHalfExtents_),
                 glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, 0.0f, -0.00001),
                 glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
                 glm::vec3(0.0f, 0.0f, 0.00001),
                 glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
             });
-        gridVerticies.push_back({
+        gridVertices.push_back({
             glm::vec3(0.0f, 0.0f, s_gridHalfExtents_),
             glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
             });
 
-        gridVertexCount_ = (unsigned int)gridVerticies.size();
+        gridVertexCount_ = (unsigned int)gridVertices.size();
 
         glGenVertexArrays(1, &gridVertexArrayId_);
         glBindVertexArray(gridVertexArrayId_);
 
         glGenBuffers(1, &gridVertexBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, gridVertexBufferId_);
-        glBufferData(GL_ARRAY_BUFFER, gridVertexCount_ * sizeof(GridVertexData), &gridVerticies.front(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, gridVertexCount_ * sizeof(GridVertexData), &gridVertices.front(), GL_STATIC_DRAW);
 
         const GLuint positionAttributeIndex = 0;
         const GLuint colorCoordinateAttributeIndex = 1;

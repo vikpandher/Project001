@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -103,13 +103,21 @@ namespace Project001
             unsigned int& x,
             unsigned int& y,
             unsigned int& width,
-            unsigned int& height) = 0;
+            unsigned int& height) const = 0;
 
         virtual void SetViewport(
             unsigned int x,
             unsigned int y,
             unsigned int width,
             unsigned int height) = 0;
+
+        virtual glm::vec2 ConvertPointFromWindowToViewport(
+            glm::vec2 windowPoint,
+            float windowHeight) const = 0;
+
+        virtual glm::vec2 ConvertPointFromWindowToViewportNormalized(
+            glm::vec2 windowPoint,
+            float windowHeight) const = 0;
 
         // measurements are relative to the viewport
         // x = 0.0 and y = 0.0 is the bottom left

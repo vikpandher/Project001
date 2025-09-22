@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #pragma once
 
@@ -160,6 +160,19 @@ namespace Project001
             MeshData& meshData,
             float width,
             float height,
+            float textureLeft,
+            float textureRight,
+            float textureBottom,
+            float textureTop,
+            bool triangulate = s_triangulate);
+
+        // texture origin is bottom left
+        static bool Generate2DSprite(
+            MeshData& meshData,
+            const glm::vec3& topLeft,
+            const glm::vec3& topRight,
+            const glm::vec3& bottomRight,
+            const glm::vec3& bottomLeft,
             float textureLeft,
             float textureRight,
             float textureBottom,
@@ -401,7 +414,7 @@ namespace Project001
             MeshData& meshData,
             bool wasTriangulated = s_triangulate);
 
-        // number of verticies depends on if mesh was triangulated
+        // number of vertices depends on if mesh was triangulated
         static void ApplyTextureCoordinates(
             MeshData& meshData,
             const std::vector<glm::vec2>& textureCoordinates);
@@ -420,7 +433,7 @@ namespace Project001
             MeshData& meshData,
             glm::vec2 translation);
 
-        // This makes it so verticies aren't reused by multiple indicies.
+        // This makes it so vertices aren't reused by multiple indices.
         // One vertex has one associated index.
         static bool s_triangulate;
 

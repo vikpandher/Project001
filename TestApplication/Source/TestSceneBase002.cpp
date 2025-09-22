@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "TestSceneBase002.h"
 
@@ -10,11 +10,10 @@
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
-#include "CollisionSystem2D.h"
 #include "Components/RenderedMesh.h"
 #include "Math/Overlap2D.h"
-#include "CollisionSystem2D.h"
 #include "ComponentStores.h"
+#include "CollisionSystem2D.h"
 #include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
@@ -904,48 +903,43 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    GetRendererPtr()->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
 
-    // Convert coordinates from window to viewport
-    glm::vec2 viewportCursorPosition(
-        xPosition - xOffset,
-        windowHeight - yOffset - yPosition
-    );
-
-    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
+    Project001::Camera* cameraPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
+    Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
+    if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
     {
-        Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
-        Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
-        if (cameraPtr != nullptr && cursorCollisionBody2DPtr != nullptr)
+        glm::vec3 worldCursorPosition;
+        glm::vec3 worldCursorNormal;
+        bool cursorRayIntersected = cameraPtr->RaycastPointFromNormalizedViewportToPane(
+            viewportNormalizedCursorPosition,
+            glm::vec3(0.0f, 0.0f, 1.0f),
+            0.0f,
+            worldCursorPosition,
+            worldCursorNormal);
+
+        cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
+
+        if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
         {
-            // Convert coordinates from viewport to world
-            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
-                viewportWidth,
-                viewportHeight,
-                viewportCursorPosition
-            );
+            unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
 
-            cursorCollisionBody2DPtr->SetPosition(worldCursorPosition);
-
-            if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
+            Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
+            if (selectedCollisionBody2DPtr != nullptr)
             {
-                unsigned int selectedEntityId = entityIds_[selectedEntityIdIndex_];
-
-                Project001::CollisionBody2D* selectedCollisionBody2DPtr = nullptr;
-                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(selectedCollisionBody2DPtr, selectedEntityId));
-                if (selectedCollisionBody2DPtr != nullptr)
+                if (!velocityBasedMovement_)
                 {
-                    if (!velocityBasedMovement_)
-                    {
-                        glm::vec2 translation = worldCursorPosition - previousWorldCursorPosition_;
-                        selectedCollisionBody2DPtr->AddTranslation(translation);
-                    }
+                    glm::vec2 translation = glm::vec2(worldCursorPosition) - previousWorldCursorPosition_;
+                    selectedCollisionBody2DPtr->AddTranslation(translation);
                 }
             }
+        }
 
+        if (cursorRayIntersected)
+        {
             previousWorldCursorPosition_ = worldCursorPosition;
         }
     }
@@ -1097,11 +1091,11 @@ void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_
         glm::vec2 cameraUp = cameraPtr->GetUpVector();
         glm::vec2 cameraLeft = cameraPtr->GetLeftVector();
 
-        float accelerationSpeed = 1.6f * timestep_s;
-        float angularAccelerationSpeed = 1.6f * timestep_s;
+        float accelerationSpeed = 2.0f * timestep_s;
+        float angularAccelerationSpeed = 2.0f * timestep_s;
 
-        float decelerationSpeed = accelerationSpeed;
-        float angularDecelerationSpeed = angularAccelerationSpeed;
+        float decelerationSpeed = accelerationSpeed * 5.0f;
+        float angularDecelerationSpeed = angularAccelerationSpeed * 5.0f;
 
         bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
         bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);

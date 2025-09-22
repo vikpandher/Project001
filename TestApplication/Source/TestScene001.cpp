@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-09-21
 
 #include "TestScene001.h"
 
@@ -186,7 +186,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene006");
     buttonStrings.emplace_back("TestScene007");
     buttonStrings.emplace_back("TestScene008");
-    buttonStrings.emplace_back("TestScene009");
     buttonStrings.emplace_back("TestScene010");
     buttonStrings.emplace_back("TestScene011");
     buttonStrings.emplace_back("TestScene012");
@@ -203,7 +202,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene051");
     buttonStrings.emplace_back("TestScene052");
     buttonStrings.emplace_back("TestScene060");
-    buttonStrings.emplace_back("TestScene102");
 
     std::vector<unsigned int> buttonDestinationSceneIds;
 
@@ -214,7 +212,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene006Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene007Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene008Id);
-    buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene009Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene010Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene011Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene012Id);
@@ -231,7 +228,6 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene051Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene052Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene060Id);
-    buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene102Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
@@ -385,7 +381,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Button Entities
     // -------------------------------------------------------------------------
 
-    // Button Indicies:
+    // Button Indices:
     // 
     // [ 000 ] [ 001 ] [ 002 ] [ 003 ] [ 004 ]
     // [ 005 ] [ 006 ] [ 007 ] [ 008 ] [ 009 ]
@@ -396,10 +392,10 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Test Scenes:
     // 
     // [ 002 ] [ 003 ] [ 004 ] [ 006 ] [ 007 ]
-    // [ 008 ] [ 009 ] [ 010 ] [ 011 ] [ 012 ]
-    // [ 013 ] [ 015 ] [ 016 ] [ 017 ] [ 030 ]
-    // [ 031 ] [ 032 ] [ 033 ] [ 034 ] [ 050 ]
-    // [ 051 ] [ 052 ] [ 060 ] [ 102 ]
+    // [ 008 ] [ 010 ] [ 011 ] [ 012 ] [ 013 ]
+    // [ 015 ] [ 016 ] [ 017 ] [ 030 ] [ 031 ]
+    // [ 032 ] [ 033 ] [ 034 ] [ 050 ] [ 051 ]
+    // [ 052 ] [ 060 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -1008,27 +1004,22 @@ void TestScene001::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    GetRendererPtr()->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
 
-    // Convert coordinates from window to viewport
-    glm::vec2 viewportCursorPosition(
-        xPosition - xOffset,
-        windowHeight - yOffset - yPosition
-    );
-
-    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
+    Project001::Camera* cameraPtr;
+    if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
     {
-        Project001::Camera* cameraPtr;
-        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
-        {
-            // Convert coordinates from viewport to world
-            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
-                viewportWidth,
-                viewportHeight,
-                viewportCursorPosition
-            );
+        glm::vec3 worldCursorPosition;
+        glm::vec3 worldCursorNormal;
+        bool cursorRayIntersected = cameraPtr->RaycastPointFromNormalizedViewportToPane(
+            viewportNormalizedCursorPosition,
+            glm::vec3(0.0f, 0.0f, 1.0f),
+            0.0f,
+            worldCursorPosition,
+            worldCursorNormal);
 
+        if (cursorRayIntersected)
+        {
             previousWorldCursorPosition_ = worldCursorPosition;
         }
     }

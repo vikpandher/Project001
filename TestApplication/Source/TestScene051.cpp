@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-09-21
 
 #include "TestScene051.h"
 
@@ -722,27 +722,22 @@ void TestScene051::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    unsigned int xOffset, yOffset, viewportWidth, viewportHeight;
-    GetRendererPtr()->GetViewport(xOffset, yOffset, viewportWidth, viewportHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
 
-    // Convert coordinates from window to viewport
-    glm::vec2 viewportCursorPosition(
-        xPosition - xOffset,
-        windowHeight - yOffset - yPosition
-    );
-
-    if (viewportCursorPosition.x < viewportWidth || viewportCursorPosition.y < viewportHeight)
+    Project001::Camera* cameraPtr;
+    if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
     {
-        Project001::Camera* cameraPtr;
-        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))
-        {
-            // Convert coordinates from viewport to world
-            glm::vec2 worldCursorPosition = cameraPtr->ConvertPointFromViewportToOrthoWorld(
-                viewportWidth,
-                viewportHeight,
-                viewportCursorPosition
-            );
+        glm::vec3 worldCursorPosition;
+        glm::vec3 worldCursorNormal;
+        bool cursorRayIntersected = cameraPtr->RaycastPointFromNormalizedViewportToPane(
+            viewportNormalizedCursorPosition,
+            glm::vec3(0.0f, 0.0f, 1.0f),
+            0.0f,
+            worldCursorPosition,
+            worldCursorNormal);
 
+        if (cursorRayIntersected)
+        {
             previousWorldCursorPosition_ = worldCursorPosition;
         }
     }
