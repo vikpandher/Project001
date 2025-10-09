@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -15,6 +15,9 @@ namespace Project001
         TextureData();
 
         ~TextureData();
+
+        TextureData(TextureData&&) = delete;
+        TextureData& operator=(TextureData&&) = delete;
 
         void Clear();
         

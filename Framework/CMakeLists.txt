@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-05-11
+# @DATE 2025-10-08
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -198,6 +198,13 @@ set(PLATFORM_VULKAN_GENERATED_SHADER_FILES
 
 source_group("Source/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VULKAN_GENERATED_SHADER_FILES})
 
+set (RESOURCE_FILES
+    "Source/Resources/PixelFont5x6.cpp"
+    "Source/Resources/PixelFont5x6.h"
+)
+
+source_group("Source/Resources" FILES ${RESOURCE_FILES})
+
 # The following makes it so the unused graphics platform files doesn't get
 # compiled, but the files are still listed in the visual studio project
 if(${PROJECT001_VULKAN_BUILD})
@@ -222,6 +229,7 @@ add_library("${PROJECT_NAME}" STATIC
     ${PLATFORM_VULKAN_FILES}
     ${PLATFORM_VULKAN_SHADER_FILES}
     ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
+    ${RESOURCE_FILES}
 )
 
 # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")

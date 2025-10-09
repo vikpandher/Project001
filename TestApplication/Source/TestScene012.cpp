@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 
 #include "TestScene012.h"
 
@@ -68,7 +68,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
-    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     // Point 1
     {
@@ -711,7 +711,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
 
-        int sides = 5;
+        size_t sides = 5;
         float radius = 0.24f;
         float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
 
@@ -762,7 +762,7 @@ void TestScene012::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
 
-        int sides = 6;
+        size_t sides = 6;
         float radius = 0.32f;
         float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
 
@@ -1176,7 +1176,7 @@ void TestScene012::GenerateCombinationShape(glm::vec3& position)
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
-    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;

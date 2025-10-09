@@ -4188,7 +4188,7 @@ namespace Project001
 
             // -----------------------------------------------------------------
 
-            // TODO add contact damping factor or maybe air resistance damping
+            // TODO: add contact damping factor or maybe air resistance damping
 
             collisionBodyA.SetVelocity(newVelocityA);
             collisionBodyB.SetVelocity(newVelocityB);

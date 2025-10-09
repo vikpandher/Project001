@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -37,6 +37,18 @@ namespace Project001
     class CollisionBody2D : public Placement2D
     {
     public:
+
+        // PHYSICS_TYPE_OVERLAP_ONLY
+        // * when calculating collisions, does not calculate the point, normal,
+        //   and depth (they remain NAN)
+        // PHYSICS_TYPE_DETAILED_OVERLAP_ONLY
+        // * when calculating collisions, the point, normal, and depth are
+        //   calculated, but the position, velocity, and angular velocity are
+        //   not affected
+        // PHYSICS_TYPE_DETAILED_OVERLAP_ONLY
+        // * when calculating collisions, the point, normal, and depth are
+        //   calculated, and the position, velocity, and angular velocity are
+        //   affected
         enum class PhysicsType
         {
             PHYSICS_TYPE_OVERLAP_ONLY,
@@ -310,7 +322,7 @@ namespace Project001
         , massFromDensityUpToDate_(false)
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
-        , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+        , physicsType_(PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY)
         , fixedTranslation_(false)
         , fixedRotation_(false)
         , massCalculatedFromDensity_(true)

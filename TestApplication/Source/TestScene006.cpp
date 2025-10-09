@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 #include "TestScene006.h"
 
 #include "TestApplicationData.h"
@@ -9,6 +9,7 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
+#include "Resources/PixelFont5x6.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "FontLoader.h"
@@ -98,6 +99,21 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         false
     );
 
+    Project001::GlyphMeshData font01_Z_GlyphMeshData;
+    FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
+        font01_Z_GlyphMeshData,
+        font01_FontData,
+        'Z',
+        font01_pixelSize
+    ));
+
+    Project001::FontMeshData font01_FontMeshData;
+    FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
+        font01_FontMeshData,
+        font01_FontData,
+        font01_pixelSize
+    ));
+
     float font02_pixelSize = 0.005f;
     Project001::FontData font02_FontData;
     FAIL_CHECK(Project001::FontLoader::LoadFontData(
@@ -121,22 +137,21 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         false
     );
 
-    Project001::GlyphMeshData font01_Z_glyphMeshData;
-    FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
-        font01_Z_glyphMeshData,
-        font01_FontData,
-        'Z',
-        font01_pixelSize
-    ));
+    float font03_pixelSize = 0.005f;
+    const Project001::FontData& font03_FontData = Project001::Get_PixelFont5x6_FontData();
+    const Project001::TextureData& font03_TextureData = Project001::Get_PixelFont5x6_TextureData();
+    unsigned int font03_TextureId = (unsigned int)-1;
+    GetRendererPtr()->CreateTexture(
+        font03_TextureId,
+        font03_TextureData.data,
+        font03_TextureData.width,
+        font03_TextureData.height,
+        font03_TextureData.bytesPerPixel,
+        false,
+        false
+    );
 
-    Project001::FontMeshData font01_fontMeshData;
-    FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
-        font01_fontMeshData,
-        font01_FontData,
-        font01_pixelSize
-    ));
-
-    // Generated Shape Entity 00
+    // Generated Shape Entity (font01 32-126 ascii white)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -170,7 +185,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity 01
+    // Generated Shape Entity (font02 32-126 ascii yellow)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -200,19 +215,84 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(0.0f, 2.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(font01_TextureId);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(0.8f, 0.7f, 0.3f);
         }
     }
 
-    // Generated Shape Entity 02
+    // Generated Shape Entity (font03 32-126 ascii red)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        const Project001::GlyphMetrics& currentGlyph = font01_FontData.glyphMetricsMap['A'];
-        float width = 4.0f * font01_pixelSize * currentGlyph.width_px;
-        float height = 4.0f * font01_pixelSize * currentGlyph.height_px;
+        std::vector<glm::vec2> positions;
+        float width = font03_pixelSize * font03_TextureData.width;
+        float height = font03_pixelSize * font03_TextureData.height;
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            *newMeshDataPtr,
+            width,
+            height,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(-1.0f, 1.7f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font03_TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+        }
+    }
+
+    // Generated Shape Entity (font03 lines red)
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            *newMeshDataPtr,
+            font03_FontData,
+            "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
+            font03_pixelSize
+        ));
+        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(0.0f, 1.7f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font03_TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+        }
+    }
+
+    // Generated Shape Entity (font02 red 'A')
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        const Project001::GlyphMetrics& currentGlyph = font02_FontData.glyphMetricsMap['A'];
+        float width = 4.0f * font02_pixelSize * currentGlyph.width_px;
+        float height = 4.0f * font02_pixelSize * currentGlyph.height_px;
         const float& textureBottom = currentGlyph.textureBottomLeft.y;
         const float& textureLeft = currentGlyph.textureBottomLeft.x;
         const float& textureTop = currentGlyph.textureTopRight.y;
@@ -241,19 +321,20 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+            renderedMeshPtr->SetVisible(true);
         }
     }
 
-    // Generated Shape Entity 03
+    // Generated Shape Entity (font02 green 3 lines not centered)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
-            font01_FontData,
+            font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
-            font01_pixelSize
+            font02_pixelSize
         ));
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -274,16 +355,16 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity 04
+    // Generated Shape Entity (font02 blue 3 lines centered)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
-            font01_FontData,
+            font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
-            font01_pixelSize,
+            font02_pixelSize,
             true
         ));
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
@@ -305,16 +386,16 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity 05
+    // Generated Shape Entity (font02 white sphinx text)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
-            font01_FontData,
+            font02_FontData,
             "Sphinx of black quartz, judge my vow!",
-            font01_pixelSize * 2.0f
+            font02_pixelSize * 2.0f
         ));
         Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
@@ -334,14 +415,14 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity 06 (zzzEntityId_)
+    // Generated Shape Entity (font01 Z's animated)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         Project001::MeshLoader::CopyMesh(
             *newMeshDataPtr,
-            font01_Z_glyphMeshData.meshData
+            font01_Z_GlyphMeshData.meshData
         );
         // Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
         float meshScale = 4.0f;
@@ -368,16 +449,16 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh1 = renderedMeshes.back();
             character_Z_Mesh1.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh1.SetTextureId(font02_TextureId);
+            character_Z_Mesh1.SetTextureId(font01_TextureId);
             character_Z_Mesh1.SetColorRGB(1.0f, 0.8f, 0.8f);
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh2 = renderedMeshes.back();
             character_Z_Mesh2.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh2.SetTextureId(font02_TextureId);
+            character_Z_Mesh2.SetTextureId(font01_TextureId);
             character_Z_Mesh2.SetColorRGB(1.0f, 0.6f, 0.6f);
             character_Z_Mesh2.SetPosition(
-                character_Z_Mesh1.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh1.GetPosition().x + meshScale * font01_Z_GlyphMeshData.horiAdvance,
                 character_Z_Mesh1.GetPosition().y,
                 character_Z_Mesh1.GetPosition().z
             );
@@ -385,10 +466,10 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh3 = renderedMeshes.back();
             character_Z_Mesh3.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh3.SetTextureId(font02_TextureId);
+            character_Z_Mesh3.SetTextureId(font01_TextureId);
             character_Z_Mesh3.SetColorRGB(1.0f, 0.4f, 0.4f);
             character_Z_Mesh3.SetPosition(
-                character_Z_Mesh2.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh2.GetPosition().x + meshScale * font01_Z_GlyphMeshData.horiAdvance,
                 character_Z_Mesh2.GetPosition().y,
                 character_Z_Mesh2.GetPosition().z
             );
@@ -396,10 +477,10 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh4 = renderedMeshes.back();
             character_Z_Mesh4.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh4.SetTextureId(font02_TextureId);
+            character_Z_Mesh4.SetTextureId(font01_TextureId);
             character_Z_Mesh4.SetColorRGB(1.0f, 0.2f, 0.2f);
             character_Z_Mesh4.SetPosition(
-                character_Z_Mesh3.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh3.GetPosition().x + meshScale * font01_Z_GlyphMeshData.horiAdvance,
                 character_Z_Mesh3.GetPosition().y,
                 character_Z_Mesh3.GetPosition().z
             );
@@ -407,17 +488,17 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& character_Z_Mesh5 = renderedMeshes.back();
             character_Z_Mesh5.SetMeshDataPtr(newMeshDataPtr);
-            character_Z_Mesh5.SetTextureId(font02_TextureId);
+            character_Z_Mesh5.SetTextureId(font01_TextureId);
             character_Z_Mesh5.SetColorRGB(1.0f, 0.0f, 0.0f);
             character_Z_Mesh5.SetPosition(
-                character_Z_Mesh4.GetPosition().x + meshScale * font01_Z_glyphMeshData.horiAdvance,
+                character_Z_Mesh4.GetPosition().x + meshScale * font01_Z_GlyphMeshData.horiAdvance,
                 character_Z_Mesh4.GetPosition().y,
                 character_Z_Mesh4.GetPosition().z
             );
         }
     }
 
-    // Generated Shape Entity 07 (printableEntityId_)
+    // Generated Shape Entity (font01 green 32-126 ascii animated)
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -436,8 +517,8 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             float colorFade = 0.0f;
             float scale = 0.8f;
             std::unordered_map<unsigned char, Project001::GlyphMeshData>::const_iterator iter =
-                font01_fontMeshData.glyphMeshDataMap.begin();
-            for (; iter != font01_fontMeshData.glyphMeshDataMap.end(); ++iter)
+                font01_FontMeshData.glyphMeshDataMap.begin();
+            for (; iter != font01_FontMeshData.glyphMeshDataMap.end(); ++iter)
             {
                 const Project001::MeshData currentMeshData = iter->second.meshData;
 
@@ -451,7 +532,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshes.emplace_back();
                 Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
                 currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-                currentRenderedMesh.SetTextureId(font02_TextureId);
+                currentRenderedMesh.SetTextureId(font01_TextureId);
                 currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f, 1.0f - colorFade);
                 currentRenderedMesh.SetScale(glm::vec3(scale));
                 currentRenderedMesh.SetPositionX(currentOffsetX * scale);
@@ -463,7 +544,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity 08 (sphinxEntityId_)
+    // Generated Shape Entity (font01 sphinx text animated)
     // -------------------------------------------------------------------------
     {
         unsigned int tempEntityId;
@@ -487,7 +568,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             for (size_t i = 0; i < text.length(); ++i)
             {
                 const char& c = text[i];
-                const Project001::GlyphMeshData& currentGlyphMeshData = font01_fontMeshData.glyphMeshDataMap[c];
+                const Project001::GlyphMeshData& currentGlyphMeshData = font01_FontMeshData.glyphMeshDataMap[c];
 
                 Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
                 meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -497,13 +578,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 );
                 Project001::MeshLoader::TranslateMesh(
                     *newMeshDataPtr,
-                    glm::vec3(0.0f, -0.25f * font01_fontMeshData.lineSpacing, 0.0f)
+                    glm::vec3(0.0f, -0.25f * font01_FontMeshData.lineSpacing, 0.0f)
                 );
 
                 renderedMeshes.emplace_back();
                 Project001::RenderedMesh& currentRenderedMesh = renderedMeshes.back();
                 currentRenderedMesh.SetMeshDataPtr(newMeshDataPtr);
-                currentRenderedMesh.SetTextureId(font02_TextureId);
+                currentRenderedMesh.SetTextureId(font01_TextureId);
                 currentRenderedMesh.SetColorRGB(1.0f - colorFade, 1.0f - colorFade, 1.0f);
                 currentRenderedMesh.SetScale(scale);
                 currentRenderedMesh.SetPositionX(currentOffsetX * scale.x);

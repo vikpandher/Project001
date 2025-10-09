@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -202,15 +202,16 @@ namespace Project001
 
         void UsePrimaryShaderAndUpdateItsUniforms();
 
-        static const bool s_cullBackface;
-        static const bool s_drawWireframe;
-        static const bool s_drawNormals;
-        static const bool s_drawGrid;
-
         static const unsigned int s_numberOfTextureUnits_;
 
         static const unsigned int s_numberOfPointLights_;
         static const unsigned int s_numberOfSpotLights_;
+
+        static const bool s_cullBackface;
+        static const bool s_drawWireframe;
+        static const bool s_drawNormals;
+        static const bool s_drawGrid;
+        static const float s_normalMagnitude;
 
         static const float s_minorGridIncement_;
         static const float s_majorGridIncement_;

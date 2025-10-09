@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
-#include "TestScene052.h"
+#include "TestScene102.h"
 
 #include "TestApplicationData.h"
 #include "TestResource_AntonioRegular_png.h"
@@ -11,6 +11,7 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
+#include "Resources/PixelFont5x6.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "FontLoader.h"
@@ -26,18 +27,27 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene052::TestScene052(Project001::Application* applicationPtr)
+TestScene102::TestScene102(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
     , font01_TextureId_((unsigned int)-1)
+    , pixelFont_FontDataPtr_(nullptr)
+    , pixelFont_TextureDataPtr_(nullptr)
+    , pixelFont_TextureId_((unsigned int)-1)
     , circle_MeshDataPtr_(nullptr)
-    , floorBackground_MeshDataPtr_(nullptr)
+    , floorGrid_MeshDataPtr_(nullptr)
+    , floorGrid_MeshId_((unsigned int)-1)
+    , floorGrid_MaxBoundingRadius_(0.0f)
+    , floorGridLabels_MeshDataPtr_(nullptr)
+    , floorGridLabels_MeshId_((unsigned int)-1)
+    , floorGridLabels_MaxBoundingRadius_(0.0f)
     , mainCameraNearFrustum_MeshDataPtr_(nullptr)
     , mainCameraFarFrustum_MeshDataPtr_(nullptr)
     , ship_MeshDataPtr_(nullptr)
-    , box01_TextureId_((unsigned int)-1)
+    , shipBeamSight_MeshDataPtr_(nullptr)
+    , shipCollisionBody_MeshDataPtr_(nullptr)
     , border96x64_TextureId_((unsigned int)-1)
     , numbers16x4_TextureId_((unsigned int)-1)
     , mainCamera_EntityId_((unsigned int)-1)
@@ -56,31 +66,31 @@ TestScene052::TestScene052(Project001::Application* applicationPtr)
     , previousWorldCursorPress_()
     , previousWorldCursorRelease_()
 {
-    GetSharedDataPtr<TestApplicationData>()->testScene052Id = GetId();
+    GetSharedDataPtr<TestApplicationData>()->testScene102Id = GetId();
 }
 
-TestScene052::~TestScene052()
+TestScene102::~TestScene102()
 {}
 
-void TestScene052::HandleEvent(Project001::Event& event)
+void TestScene102::HandleEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene052::ProcessInitializeEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene052::ProcessDeinitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene102::ProcessInitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene102::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
-    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene052::ProcessCursorPositionEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene052::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene052::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene052::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene052::ProcessUpdateEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene102::ProcessCursorPositionEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene102::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene102::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene102::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene102::ProcessUpdateEvent, this, std::placeholders::_1));
 
     instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
+void TestScene102::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    LOG_INFO("INITIALIZING:   TestScene052:            " << GetId());
+    LOG_INFO("INITIALIZING:   TestScene102:            " << GetId());
 
     LoadFontData();
 
@@ -103,7 +113,7 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "(TODO)\n"
+        "TODO:\n"
         "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
@@ -115,11 +125,11 @@ void TestScene052::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     instructionScene_.Initialize(instructionSceneInfo);
 }
 
-void TestScene052::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
     instructionScene_.Deinitialize();
 
-    LOG_INFO("DEINITIALIZING: TestScene052:            " << GetId());
+    LOG_INFO("DEINITIALIZING: TestScene102:            " << GetId());
 
     // -------------------------------------------------------------------------
 
@@ -137,13 +147,24 @@ void TestScene052::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_TextureDataPtr_ = nullptr;
     font01_TextureId_ = (unsigned int)-1;
 
+    pixelFont_FontDataPtr_ = nullptr;
+    pixelFont_TextureDataPtr_ = nullptr;
+    pixelFont_TextureId_ = (unsigned int)-1;
+
     // Mesh Data ---------------------------------------------------------------
 
     delete circle_MeshDataPtr_;
     circle_MeshDataPtr_ = nullptr;
 
-    delete floorBackground_MeshDataPtr_;
-    floorBackground_MeshDataPtr_ = nullptr;
+    delete floorGrid_MeshDataPtr_;
+    floorGrid_MeshDataPtr_ = nullptr;
+    floorGrid_MeshId_ = (unsigned int)-1;
+    floorGrid_MaxBoundingRadius_ = 0.0f;
+
+    delete floorGridLabels_MeshDataPtr_;
+    floorGridLabels_MeshDataPtr_ = nullptr;
+    floorGridLabels_MeshId_ = (unsigned int)-1;
+    floorGridLabels_MaxBoundingRadius_ = 0.0f;
 
     delete mainCameraNearFrustum_MeshDataPtr_;
     mainCameraNearFrustum_MeshDataPtr_ = nullptr;
@@ -154,9 +175,14 @@ void TestScene052::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     delete ship_MeshDataPtr_;
     ship_MeshDataPtr_ = nullptr;
 
+    delete shipBeamSight_MeshDataPtr_;
+    shipBeamSight_MeshDataPtr_ = nullptr;
+
+    delete shipCollisionBody_MeshDataPtr_;
+    shipCollisionBody_MeshDataPtr_ = nullptr;
+
     // Texture Data ------------------------------------------------------------
 
-    box01_TextureId_ = (unsigned int)-1;
     border96x64_TextureId_ = (unsigned int)-1;
     numbers16x4_TextureId_ = (unsigned int)-1;
 
@@ -186,7 +212,7 @@ void TestScene052::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     previousWorldCursorRelease_ = glm::vec2(0.0f, 0.0f);
 }
 
-void TestScene052::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
+void TestScene102::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
 {
     UpdatePreviousWorldCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
@@ -205,7 +231,7 @@ void TestScene052::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     }
 }
 
-void TestScene052::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+void TestScene102::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     Project001::KeyCode& keyCode = keyEvent.keyCode;
     Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
@@ -242,7 +268,7 @@ void TestScene052::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     }
 }
 
-void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
     Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
@@ -298,17 +324,13 @@ void TestScene052::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     }
 }
 
-void TestScene052::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
+void TestScene102::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
-void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    // Calculate collisions
-    // -------------------------------------------------------------------------
-    // Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
-
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
     // Update entities
@@ -376,9 +398,13 @@ void TestScene052::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             collisionPoints[cursorReleaseCollisionPointIndex_].position.y = previousWorldCursorRelease_.y;
         }
     }
+
+    // Calculate collisions
+    // -------------------------------------------------------------------------
+    Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
 }
 
-void TestScene052::LoadFontData()
+void TestScene102::LoadFontData()
 {
     font01_FontDataPtr_ = new Project001::FontData;
     FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
@@ -402,15 +428,197 @@ void TestScene052::LoadFontData()
         true,
         false
     );
+
+    pixelFont_FontDataPtr_ = &Project001::Get_PixelFont5x6_FontData();
+    pixelFont_TextureDataPtr_ = &Project001::Get_PixelFont5x6_TextureData();
+    GetRendererPtr()->CreateTexture(
+        pixelFont_TextureId_,
+        pixelFont_TextureDataPtr_->data,
+        pixelFont_TextureDataPtr_->width,
+        pixelFont_TextureDataPtr_->height,
+        pixelFont_TextureDataPtr_->bytesPerPixel,
+        false,
+        false
+    );
 }
 
-void TestScene052::LoadMeshData()
+void TestScene102::LoadMeshData()
 {
     circle_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circle_MeshDataPtr_, 4.0f, 12));
 
-    floorBackground_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*floorBackground_MeshDataPtr_, 960.0f, 640.0f, 0.0f, 1.0f, 0.0f, 1.0f));
+    {
+        floorGrid_MeshDataPtr_ = new Project001::MeshData();
+        const float gridSpacing = 64.0f;
+        const float gridSize = 16.0f * gridSpacing;
+        const float lineWidth = 8.0f;
+
+        for (float f = -gridSize; f < gridSize + 1.0f; f += gridSpacing)
+        {
+            FAIL_CHECK(Project001::MeshLoader::Generate2DLine(
+                *floorGrid_MeshDataPtr_,
+                glm::vec2(-gridSize - 0.5f * lineWidth, f),
+                glm::vec2(gridSize + 0.5f * lineWidth, f),
+                lineWidth));
+        }
+        for (float f = -gridSize; f < gridSize + 1.0f; f += gridSpacing)
+        {
+            for (float g = -gridSize; g < gridSize - 1.0f; g += gridSpacing)
+            {
+                FAIL_CHECK(Project001::MeshLoader::Generate2DLine(
+                    *floorGrid_MeshDataPtr_,
+                    glm::vec2(f, g + 0.5f * lineWidth),
+                    glm::vec2(f, g - 0.5f * lineWidth + gridSpacing),
+                    lineWidth));
+            }
+        }
+
+        GetRendererPtr()->CreateMesh(
+            floorGrid_MeshId_,
+            floorGrid_MeshDataPtr_->meshVertexArray.data(),
+            (unsigned int)floorGrid_MeshDataPtr_->meshVertexArray.size(),
+            floorGrid_MeshDataPtr_->meshIndexArray.data(),
+            (unsigned int)floorGrid_MeshDataPtr_->meshIndexArray.size()
+        );
+        floorGrid_MaxBoundingRadius_ = floorGrid_MeshDataPtr_->maxBoundingRadius;
+
+        floorGridLabels_MeshDataPtr_ = new Project001::MeshData();
+
+        std::vector<std::string> gridLabels;
+        gridLabels.push_back("0");
+        gridLabels.push_back("1");
+        gridLabels.push_back("2");
+        gridLabels.push_back("3");
+        gridLabels.push_back("4");
+        gridLabels.push_back("5");
+        gridLabels.push_back("6");
+        gridLabels.push_back("7");
+        gridLabels.push_back("8");
+        gridLabels.push_back("9");
+        gridLabels.push_back("10");
+        gridLabels.push_back("11");
+        gridLabels.push_back("12");
+        gridLabels.push_back("13");
+        gridLabels.push_back("14");
+        gridLabels.push_back("15");
+
+        // positive x-axis -----------------------------------------------------
+
+        float gridLabel_offsetY = pixelFont_pixelSize_ * 7.0f + 0.5f * lineWidth;
+        float gridLabel_offsetX = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth;
+
+        for (size_t i = 0; i < gridLabels.size(); ++i)
+        {
+            const std::string& currentLabel = gridLabels[i];
+
+            Project001::MeshData currentLabelMeshData;
+            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+                currentLabelMeshData,
+                *pixelFont_FontDataPtr_,
+                currentLabel,
+                pixelFont_pixelSize_
+            ));
+            Project001::MeshLoader::TranslateMesh(
+                currentLabelMeshData,
+                glm::vec3(gridLabel_offsetX, gridLabel_offsetY, 0.0f)
+            );
+
+            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+
+            gridLabel_offsetX += gridSpacing;
+        }
+
+        // positive y-axis -----------------------------------------------------
+
+        gridLabel_offsetY = pixelFont_pixelSize_ * 7.0f + 0.5f * lineWidth + gridSpacing;
+        gridLabel_offsetX = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth;
+
+        for (size_t i = 1; i < gridLabels.size(); ++i)
+        {
+            const std::string& currentLabel = gridLabels[i];
+
+            Project001::MeshData currentLabelMeshData;
+            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+                currentLabelMeshData,
+                *pixelFont_FontDataPtr_,
+                currentLabel,
+                pixelFont_pixelSize_
+            ));
+            Project001::MeshLoader::TranslateMesh(
+                currentLabelMeshData,
+                glm::vec3(gridLabel_offsetX, gridLabel_offsetY, 0.0f)
+            );
+
+            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+
+            gridLabel_offsetY += gridSpacing;
+        }
+
+        // negative x-axis -----------------------------------------------------
+
+        gridLabel_offsetY = pixelFont_pixelSize_ * -1.0f - 0.5f * lineWidth;
+        gridLabel_offsetX = pixelFont_pixelSize_ * -6.0f - 0.5f * lineWidth;
+
+        for (size_t i = 0; i < gridLabels.size(); ++i)
+        {
+            const std::string& currentLabel = gridLabels[i];
+
+            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * (float)(currentLabel.length() - 1);
+
+            Project001::MeshData currentLabelMeshData;
+            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+                currentLabelMeshData,
+                *pixelFont_FontDataPtr_,
+                currentLabel,
+                pixelFont_pixelSize_
+            ));
+            Project001::MeshLoader::TranslateMesh(
+                currentLabelMeshData,
+                glm::vec3(gridLabel_offsetX + addition_offsetX , gridLabel_offsetY, 0.0f)
+            );
+
+            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+
+            gridLabel_offsetX -= gridSpacing;
+        }
+
+        // negative y-axis -----------------------------------------------------
+
+        gridLabel_offsetY = pixelFont_pixelSize_ * -1.0f - 0.5f * lineWidth - gridSpacing;
+        gridLabel_offsetX = pixelFont_pixelSize_ * -6.0f - 0.5f * lineWidth;
+
+        for (size_t i = 1; i < gridLabels.size(); ++i)
+        {
+            const std::string& currentLabel = gridLabels[i];
+
+            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * (float)(currentLabel.length() - 1);
+
+            Project001::MeshData currentLabelMeshData;
+            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+                currentLabelMeshData,
+                *pixelFont_FontDataPtr_,
+                currentLabel,
+                pixelFont_pixelSize_
+            ));
+            Project001::MeshLoader::TranslateMesh(
+                currentLabelMeshData,
+                glm::vec3(gridLabel_offsetX + addition_offsetX, gridLabel_offsetY, 0.0f)
+            );
+
+            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+
+            gridLabel_offsetY -= gridSpacing;
+        }
+
+        GetRendererPtr()->CreateMesh(
+            floorGridLabels_MeshId_,
+            floorGridLabels_MeshDataPtr_->meshVertexArray.data(),
+            (unsigned int)floorGridLabels_MeshDataPtr_->meshVertexArray.size(),
+            floorGridLabels_MeshDataPtr_->meshIndexArray.data(),
+            (unsigned int)floorGridLabels_MeshDataPtr_->meshIndexArray.size()
+        );
+        floorGridLabels_MaxBoundingRadius_ = floorGridLabels_MeshDataPtr_->maxBoundingRadius;
+    }
 
     mainCameraNearFrustum_MeshDataPtr_ = new Project001::MeshData();
     // Generated when Main Camera Entity created
@@ -420,16 +628,21 @@ void TestScene052::LoadMeshData()
 
     ship_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*ship_MeshDataPtr_, "../Models/Ship.obj"));
+
+    shipCollisionBody_MeshDataPtr_ = new Project001::MeshData();
+    std::vector<glm::vec2> corners;
+    corners.emplace_back(0.0f, 0.0f);
+    corners.emplace_back(32.0f, -32.0f);
+    corners.emplace_back(0.0f, 64.0f);
+    corners.emplace_back(-32.0f, -32.0f);
+    FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*shipCollisionBody_MeshDataPtr_, corners));
+
+    shipBeamSight_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*shipBeamSight_MeshDataPtr_, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 10000.0f), 2.0f));
 }
 
-void TestScene052::LoadTextureData()
+void TestScene102::LoadTextureData()
 {
-    {
-        Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_01.png"));
-        GetRendererPtr()->CreateTexture(box01_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
-    }
-
     {
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/border_96x64.png"));
@@ -443,7 +656,7 @@ void TestScene052::LoadTextureData()
     }
 }
 
-void TestScene052::CreateCameraEntities()
+void TestScene102::CreateCameraEntities()
 {
     // Main Camera -------------------------------------------------------------
     {
@@ -474,7 +687,7 @@ void TestScene052::CreateCameraEntities()
                 cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
                 cameraPtr->SetRightCutoff(mainCameraHalfWidth);
                 cameraPtr->SetNearCutoff(mainCameraHalfHeight * 0.1f);
-                cameraPtr->SetFarCutoff(mainCameraHalfHeight * 4.0f);
+                cameraPtr->SetFarCutoff(mainCameraHalfHeight * 10.0f);
                 // cameraPtr->SetCameraViewport(0.1f, 0.1f, 0.8f, 0.8f);
             }
 
@@ -568,7 +781,7 @@ void TestScene052::CreateCameraEntities()
     }
 }
 
-void TestScene052::CreateCursorEntity()
+void TestScene102::CreateCursorEntity()
 {
     float cursorX_position;
     float cursorY_position;
@@ -630,7 +843,7 @@ void TestScene052::CreateCursorEntity()
     }
 }
 
-void TestScene052::CreateFloorEntity()
+void TestScene102::CreateFloorEntity()
 {
     GetComponentStoresPtr()->CreateEntity(floor_EntityId_);
 
@@ -644,16 +857,32 @@ void TestScene052::CreateFloorEntity()
 
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& mesh01 = renderedMeshes.back();
-        mesh01.SetMeshDataPtr(floorBackground_MeshDataPtr_);
-        mesh01.SetColor(1.0f, 1.0f, 1.0f, 0.2f);
+        mesh01.SetMeshIdAndMaxBoundingRadius(floorGrid_MeshId_, floorGrid_MaxBoundingRadius_);
+        mesh01.SetPositionZ(-0.1f);
+        mesh01.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
         mesh01.SetTranslucent(true);
         mesh01.SetLit(false);
-        mesh01.SetTextureId(box01_TextureId_);
+
+        renderedMeshes.emplace_back();
+        Project001::RenderedMesh& mesh02 = renderedMeshes.back();
+        mesh02.SetMeshIdAndMaxBoundingRadius(floorGridLabels_MeshId_, floorGridLabels_MaxBoundingRadius_);
+        mesh02.SetPositionZ(-0.1f);
+        mesh02.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
+        mesh02.SetTranslucent(true);
+        mesh02.SetLit(false);
+        mesh02.SetTextureId(pixelFont_TextureId_);
     }
 }
 
-void TestScene052::CreatePlayerEntity()
+void TestScene102::CreatePlayerEntity()
 {
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
+    collisionBody2DCreationInfo.friction = 1.0f;
+    collisionBody2DCreationInfo.restitution = 0.4f;
+    collisionBody2DCreationInfo.mass = 1.0f;
+
     GetComponentStoresPtr()->CreateEntity(player_EntityId_);
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(player_EntityId_));
@@ -668,23 +897,33 @@ void TestScene052::CreatePlayerEntity()
         Project001::RenderedMesh& mesh01 = renderedMeshes.back();
         mesh01.SetMeshDataPtr(ship_MeshDataPtr_);
         mesh01.LookAt(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        // mesh01.AddRelativeRotationX(glm::half_pi<float>());
         mesh01.SetScale(32.0f, 32.0f, 32.0f);
         mesh01.SetTextureId(numbers16x4_TextureId_);
         mesh01.SetLit(false);
+
+        // renderedMeshes.emplace_back();
+        // Project001::RenderedMesh& mesh02 = renderedMeshes.back();
+        // mesh02.SetMeshDataPtr(shipCollisionBody_MeshDataPtr_);
+        // mesh02.SetLit(false);
+
+        // renderedMeshes.emplace_back();
+        // Project001::RenderedMesh& mesh03 = renderedMeshes.back();
+        // mesh03.SetMeshDataPtr(shipBeamSight_MeshDataPtr_);
+        // mesh03.SetLit(false);
     }
 
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, player_EntityId_));
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
-        // collisionTriangles.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
+        collisionTriangles.emplace_back(glm::vec2(0.0f, 64.0f), glm::vec2(-32.0f, -32.0f), glm::vec2(0.0f, 0.0f));
+        collisionTriangles.emplace_back(glm::vec2(0.0f, 0.0f), glm::vec2(32.0f, -32.0f), glm::vec2(0.0f, 64.0f));
     }
 }
 
-void TestScene052::UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns)
+void TestScene102::UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns)
 {
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_));
@@ -736,7 +975,7 @@ void TestScene052::UpdateMainCameraEntityPositionAndRoll(unsigned long long time
     }
 }
 
-void TestScene052::UpdatePreviousWorldCursorPosition(float xPosition, float yPosition)
+void TestScene102::UpdatePreviousWorldCursorPosition(float xPosition, float yPosition)
 {
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);

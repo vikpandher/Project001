@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 
 #include "TestScene017.h"
 
@@ -108,7 +108,7 @@ void TestScene017::CreateCollisionBodyEntities()
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.friction = 1.0f;
     collisionBody2DCreationInfo.restitution = 0.4f;
-    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
     collisionBody2DCreationInfo.mass = 1.0f;
 
     { // Left Floor

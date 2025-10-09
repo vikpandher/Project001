@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 
 #include "TestScene015.h"
 
@@ -106,7 +106,7 @@ void TestScene015::CreateEntitiesForTest01()
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.friction = 1.0f;
     collisionBody2DCreationInfo.restitution = 1.0f;
-    collisionBody2DCreationInfo.collisionGroupMask = mainCollisionGroupMask_;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     float yPos01 = 4.0f;
 

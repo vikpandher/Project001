@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -19,14 +19,14 @@ namespace Project001
     struct SoundData;
 }
 
-class TestScene052 : public Project001::Scene
+class TestScene102 : public Project001::Scene
 {
 public:
-    TestScene052(Project001::Application* applicationPtr);
-    ~TestScene052();
+    TestScene102(Project001::Application* applicationPtr);
+    ~TestScene102();
 
-    TestScene052(TestScene052& other) = delete;
-    void operator=(const TestScene052&) = delete;
+    TestScene102(TestScene102& other) = delete;
+    void operator=(const TestScene102&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -62,17 +62,28 @@ protected:
     Project001::TextureData* font01_TextureDataPtr_;
     unsigned int font01_TextureId_;
 
+    const float pixelFont_pixelSize_ = 2.0f;
+    const Project001::FontData* pixelFont_FontDataPtr_;
+    const Project001::TextureData* pixelFont_TextureDataPtr_;
+    unsigned int pixelFont_TextureId_;
+
     // Mesh Data ---------------------------------------------------------------
 
     Project001::MeshData* circle_MeshDataPtr_;
-    Project001::MeshData* floorBackground_MeshDataPtr_;
+    Project001::MeshData* floorGrid_MeshDataPtr_;
+    unsigned int floorGrid_MeshId_;
+    float floorGrid_MaxBoundingRadius_;
+    Project001::MeshData* floorGridLabels_MeshDataPtr_;
+    unsigned int floorGridLabels_MeshId_;
+    float floorGridLabels_MaxBoundingRadius_;
     Project001::MeshData* mainCameraNearFrustum_MeshDataPtr_;
     Project001::MeshData* mainCameraFarFrustum_MeshDataPtr_;
     Project001::MeshData* ship_MeshDataPtr_;
+    Project001::MeshData* shipBeamSight_MeshDataPtr_;
+    Project001::MeshData* shipCollisionBody_MeshDataPtr_;
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int box01_TextureId_;
     unsigned int border96x64_TextureId_;
     unsigned int numbers16x4_TextureId_;
 
@@ -105,6 +116,8 @@ protected:
     glm::vec2 previousWorldCursorPosition_;
     glm::vec2 previousWorldCursorPress_;
     glm::vec2 previousWorldCursorRelease_;
+
+    static const uint32_t s_mainCollisionGroupMask_ = 0b00000000000000000000000000000010;
 
     static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
 #include "OpenGL_Renderer.h"
 
@@ -131,7 +131,7 @@ namespace Project001
         );
         normalShaderPtr_->Use();
 
-        normalShaderPtr_->SetFloat("u_Magnitude", 0.16f);
+        normalShaderPtr_->SetFloat("u_Magnitude", s_normalMagnitude);
         normalShaderPtr_->SetVec4("u_StartColor", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         normalShaderPtr_->SetVec4("u_EndColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
@@ -1464,15 +1464,16 @@ namespace Project001
         }
     }
 
-    const bool OpenGL_Renderer::s_cullBackface = true;
-    const bool OpenGL_Renderer::s_drawWireframe = false;
-    const bool OpenGL_Renderer::s_drawNormals = false;
-    const bool OpenGL_Renderer::s_drawGrid = false;
-
     const unsigned int OpenGL_Renderer::s_numberOfTextureUnits_ = 16;
 
     const unsigned int OpenGL_Renderer::s_numberOfPointLights_ = 8;
     const unsigned int OpenGL_Renderer::s_numberOfSpotLights_ = 4;
+
+    const bool OpenGL_Renderer::s_cullBackface = true;
+    const bool OpenGL_Renderer::s_drawWireframe = false;
+    const bool OpenGL_Renderer::s_drawNormals = false;
+    const bool OpenGL_Renderer::s_drawGrid = false;
+    const float OpenGL_Renderer::s_normalMagnitude = 0.16f;
 
     const float OpenGL_Renderer::s_minorGridIncement_ = 0.1f;
     const float OpenGL_Renderer::s_majorGridIncement_ = 1.0f;

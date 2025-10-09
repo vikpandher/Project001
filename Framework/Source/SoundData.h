@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -15,6 +15,9 @@ namespace Project001
         SoundData();
 
         ~SoundData();
+
+        SoundData(SoundData&&) = delete;
+        SoundData& operator=(SoundData&&) = delete;
 
         void Clear();
     

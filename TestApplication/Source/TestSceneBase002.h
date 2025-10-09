@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -165,6 +165,6 @@ protected:
     size_t physicsStepsPerUpdate_;
     bool useCollisionBodyQuadTree_;
 
-    static const uint32_t mainCollisionGroupMask_ = 0b00000000000000000000000000000010;
+    static const uint32_t s_mainCollisionGroupMask_ = 0b00000000000000000000000000000010;
     glm::vec2 gravity_;
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
 #include "TestScene101.h"
 
@@ -32,7 +32,7 @@ TestScene101::TestScene101(Project001::Application* applicationPtr)
     , mainCameraEntityId_((unsigned int)-1)
     , uiCameraEntityId_((unsigned int)-1)
 {
-    GetSharedDataPtr<TestApplicationData>()->TestScene101Id = GetId();
+    GetSharedDataPtr<TestApplicationData>()->testScene101Id = GetId();
 }
 
 TestScene101::~TestScene101()

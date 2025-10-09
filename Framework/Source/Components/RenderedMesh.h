@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-08
 
 #pragma once
 
@@ -18,7 +18,9 @@ namespace Project001
         {
             RENDERED_MESH_TYPE_NOT_LOADED,
             RENDERED_MESH_TYPE_LOADED_CPU_SIDE,
-            RENDERED_MESH_TYPE_LOADED_GPU_SIDE
+            RENDERED_MESH_TYPE_LOADED_GPU_SIDE //, TODO: Add stenciling
+            // RENDERED_MESH_TYPE_STENCIL_LOADED_CPU_SIDE,
+            // RENDERED_MESH_TYPE_STENCIL_LOADED_GPU_SIDE
         };
 
         RenderedMesh();

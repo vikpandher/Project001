@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-08
 
 #include "TestSceneBase002.h"
 
@@ -1236,7 +1236,7 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
     {
         Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
 
-        if (!(collisionBody2D.GetCollisionGroupMask() & mainCollisionGroupMask_))
+        if (!(collisionBody2D.GetCollisionGroupMask() & s_mainCollisionGroupMask_))
         {
             continue;
         }
@@ -1270,7 +1270,7 @@ void TestSceneBase002::CapPositions()
 
         const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
 
-        if (!(collisionGroupMask & mainCollisionGroupMask_))
+        if (!(collisionGroupMask & s_mainCollisionGroupMask_))
         {
             continue;
         }
@@ -1320,7 +1320,7 @@ void TestSceneBase002::CapVelocities()
 
         const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
 
-        if (!(collisionGroupMask & mainCollisionGroupMask_))
+        if (!(collisionGroupMask & s_mainCollisionGroupMask_))
         {
             continue;
         }
@@ -1746,7 +1746,7 @@ void TestSceneBase002::UpdateCollisionBodyTexture()
     {
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
         const uint32_t& collisionGroupMask = currentCollisionBody.GetCollisionGroupMask();
-        if (!(collisionGroupMask & mainCollisionGroupMask_))
+        if (!(collisionGroupMask & s_mainCollisionGroupMask_))
         {
             continue;
         }
