@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-10-18
 
 #include "MathUtilities.h"
 
@@ -360,6 +360,11 @@ namespace Project001
         return glm::atan(determinant, dotProduct);
     }
 
+    float Get2DVectorAngle(const glm::vec2& vector)
+    {
+        return glm::atan(vector.y, vector.x);
+    }
+
     glm::vec2 Get2DVectorProjection(const glm::vec2& vector1, const glm::vec2& vector2)
     {
         // dot product formula
@@ -416,5 +421,11 @@ namespace Project001
         float cosAngle = glm::cos(rotationInRadians);
         float sinAngle = glm::sin(rotationInRadians);
         return glm::vec2(cosAngle * vector.x - sinAngle * vector.y, sinAngle * vector.x + cosAngle * vector.y);
+    }
+
+    float WrapAngleToPiRange(float angle)
+    {
+        float wrapped = glm::mod(angle + glm::pi<float>(), glm::two_pi<float>());
+        return wrapped - glm::pi<float>();
     }
 }

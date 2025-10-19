@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -14,7 +14,7 @@ namespace Project001
     class UniqueIdGenerator
     {
     public:
-        UniqueIdGenerator();
+        UniqueIdGenerator(unsigned int minimumId = 1);
 
         void GetNewId(unsigned int& id);
 
@@ -22,11 +22,12 @@ namespace Project001
 
         void ReturnAllIds();
 
-        bool IdIsTaken(const unsigned int& id);
+        bool IdIsAvailable(const unsigned int& id);
 
     protected:
-        bool returnedIdQueueSorted_;
-        std::deque<unsigned int> returnedIds_;
-        std::vector<bool> returnedIdFlags_;
+        unsigned int minimumId_;
+        bool availableIdQueueSorted_;
+        std::deque<unsigned int> availableIds_;
+        std::vector<bool> availableIdFlags_;
     };
 }

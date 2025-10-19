@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-02
+// @DATE 2025-10-18
 
 #include "FontLoader.h"
 
@@ -175,6 +175,7 @@ namespace Project001
     {
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
         glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = meshData.minVertexPosition;
 
@@ -303,11 +304,16 @@ namespace Project001
 
         for (size_t i = 0; i < meshVertexArray.size(); ++i)
         {
-            maxVertexPosition.x = std::max(maxVertexPosition.x, meshVertexArray[i].position.x);
-            maxVertexPosition.y = std::max(maxVertexPosition.y, meshVertexArray[i].position.y);
+            const glm::vec3& currentPosition = meshVertexArray[i].position;
 
-            minVertexPosition.y = std::min(minVertexPosition.y, meshVertexArray[i].position.y);
-            minVertexPosition.x = std::min(minVertexPosition.x, meshVertexArray[i].position.x);
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            maxVertexPosition.x = std::max(maxVertexPosition.x, currentPosition.x);
+            maxVertexPosition.y = std::max(maxVertexPosition.y, currentPosition.y);
+
+            minVertexPosition.y = std::min(minVertexPosition.y, currentPosition.y);
+            minVertexPosition.x = std::min(minVertexPosition.x, currentPosition.x);
         }
 
         return true;
@@ -384,6 +390,7 @@ namespace Project001
 
         std::vector<MeshVertex>& meshVertexArray = glyphMeshData.meshData.meshVertexArray;
         std::vector<unsigned int>& meshIndexArray = glyphMeshData.meshData.meshIndexArray;
+        float& maxBoundingRadius = glyphMeshData.meshData.maxBoundingRadius;
         glm::vec3& maxVertexPosition = glyphMeshData.meshData.maxVertexPosition;
         glm::vec3& minVertexPosition = glyphMeshData.meshData.minVertexPosition;
 
@@ -465,8 +472,6 @@ namespace Project001
 
             // currentVertexCount += 4;
         }
-
-        float& maxBoundingRadius = glyphMeshData.meshData.maxBoundingRadius;
 
         for (size_t i = 0; i < meshVertexArray.size(); ++i)
         {

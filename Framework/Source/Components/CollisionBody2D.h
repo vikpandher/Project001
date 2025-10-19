@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -39,16 +39,21 @@ namespace Project001
     public:
 
         // PHYSICS_TYPE_OVERLAP_ONLY
-        // * when calculating collisions, does not calculate the point, normal,
-        //   and depth (they remain NAN)
+        // * overlap is detected but NOT resolved
+        // * the collision point, normal, and depth are NOT collected
+        //   (they remain NAN)
+        // 
         // PHYSICS_TYPE_DETAILED_OVERLAP_ONLY
-        // * when calculating collisions, the point, normal, and depth are
-        //   calculated, but the position, velocity, and angular velocity are
-        //   not affected
-        // PHYSICS_TYPE_DETAILED_OVERLAP_ONLY
-        // * when calculating collisions, the point, normal, and depth are
-        //   calculated, and the position, velocity, and angular velocity are
-        //   affected
+        // * overlap is detected but NOT resovled
+        // * the collision point, normal, and depth are collected
+        // * the collision is NOT resolved
+        //   (position, veloicty, and angular velocity are not updated)
+        // 
+        // PHYSICS_TYPE_REGULAR_PHYSICS
+        // * overlap is detected and resolved
+        // * the collision point, normal, and depth are collected
+        // * the collision is resolved
+        //   (position, veloicty, and angular velocity are updated)
         enum class PhysicsType
         {
             PHYSICS_TYPE_OVERLAP_ONLY,
@@ -169,6 +174,12 @@ namespace Project001
         const float& GetFriction() const;
         void SetFriction(float friction);
 
+        const float& GetVelocityDamping() const;
+        void SetVelocityDamping(float velocityDamping);
+
+        const float& GetAngularVelocityDamping() const;
+        void SetAngularVelocityDamping(float angularVelocityDamping);
+
         const glm::vec2& GetVelocity() const;
         void SetVelocity(const glm::vec2& velocity);
 
@@ -278,6 +289,8 @@ namespace Project001
         float mass_; // used when massCalculatedFromDensity_ is false;
         float restitution_; // from 0.0f to 1.0f; 1.0f means no loss
         float friction_; // from 0.0f to 1.0f; 0.0f means no friction
+        float velocityDamping_; // exponential so 0.0f means no decay, 5.0 means 99.3f decay
+        float angularVelocityDamping_; // exponential so 0.0f means no decay, 5.0 means 99.3f decay
 
         glm::vec2 velocity_;
         float angularVelocity_;
@@ -302,6 +315,8 @@ namespace Project001
         float mass = 1.0f;
         float restitution = 1.0f;
         float friction = 0.0f;
+        float velocityDamping = 0.0f;
+        float angularVelocityDamping = 0.0f;
         glm::vec2 velocity = glm::vec2(0.0f, 0.0f);
         float angularVelocity = 0.0f;
         glm::vec2 acceleration = glm::vec2(0.0f, 0.0f);
@@ -322,7 +337,7 @@ namespace Project001
         , massFromDensityUpToDate_(false)
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
-        , physicsType_(PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY)
+        , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
         , fixedTranslation_(false)
         , fixedRotation_(false)
         , massCalculatedFromDensity_(true)
@@ -330,6 +345,8 @@ namespace Project001
         , mass_(1.0f) //(std::numeric_limits<float>::infinity())
         , restitution_(1.0f)
         , friction_(0.0f)
+        , velocityDamping_(0.0f)
+        , angularVelocityDamping_(0.0f)
         , velocity_(0.0f, 0.0f)
         , angularVelocity_(0.0f)
         , acceleration_(0.0f, 0.0f)
@@ -356,6 +373,8 @@ namespace Project001
         , mass_(collisionBody2DCreationInfo.mass)
         , restitution_(collisionBody2DCreationInfo.restitution)
         , friction_(collisionBody2DCreationInfo.friction)
+        , velocityDamping_(collisionBody2DCreationInfo.velocityDamping)
+        , angularVelocityDamping_(collisionBody2DCreationInfo.angularVelocityDamping)
         , velocity_(collisionBody2DCreationInfo.velocity)
         , angularVelocity_(collisionBody2DCreationInfo.angularVelocity)
         , acceleration_(collisionBody2DCreationInfo.acceleration)
@@ -834,6 +853,34 @@ namespace Project001
         if (friction_ < 0.0f)
         {
             friction_ = 0.0f;
+        }
+    }
+
+    inline const float& CollisionBody2D::GetVelocityDamping() const
+    {
+        return velocityDamping_;
+    }
+
+    inline void CollisionBody2D::SetVelocityDamping(float velocityDamping)
+    {
+        velocityDamping_ = velocityDamping;
+        if (velocityDamping_ < 0.0f)
+        {
+            velocityDamping_ = 0.0f;
+        }
+    }
+
+    inline const float& CollisionBody2D::GetAngularVelocityDamping() const
+    {
+        return angularVelocityDamping_;
+    }
+
+    inline void CollisionBody2D::SetAngularVelocityDamping(float angularVelocityDamping)
+    {
+        angularVelocityDamping_ = angularVelocityDamping;
+        if (angularVelocityDamping_ < 0.0f)
+        {
+            angularVelocityDamping_ = 0.0f;
         }
     }
 

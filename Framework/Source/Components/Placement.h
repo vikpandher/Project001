@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -27,7 +27,7 @@ namespace Project001
         void MoveUp(float translation);
         void MoveDown(float translation);
 
-        void RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal);
+        void RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& axis);
         void RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians);
 
         // Orientation Controls
@@ -68,6 +68,8 @@ namespace Project001
         void AddWorldRotationX(float rotationInRadians);
         void AddWorldRotationY(float rotationInRadians);
         void AddWorldRotationZ(float rotationInRadians);
+
+        void FollowFocalPoint(const glm::vec3& focalPoint, float distanceFromFocalPoint);
 
         void LookAt(const glm::vec3& direction, const glm::vec3& up);
         void LookAt(const glm::vec3& direction);
@@ -117,13 +119,12 @@ namespace Project001
         AddTranslation(-1.0f * translation * GetUpVector());
     }
 
-    inline void Placement::RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& normal)
+    inline void Placement::RevolveAround(const glm::vec3& focalPoint, float angleInRadians, const glm::vec3& axis)
     {
         glm::vec3 focalPointToPosition = position_ - focalPoint;
-        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), angleInRadians, normal);
+        glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), angleInRadians, axis);
         glm::vec3 focalPointToNewPosition = rotation * focalPointToPosition;
-        glm::vec3 positionToNewPosition = focalPointToNewPosition - focalPointToPosition;
-        position_ += positionToNewPosition;
+        position_ = focalPoint + focalPointToNewPosition;
     }
 
     inline void Placement::RevolveAroundHorizontally(const glm::vec3& focalPoint, float angleInRadians)
@@ -227,6 +228,11 @@ namespace Project001
     inline void Placement::AddWorldRotationZ(float rotationInRadians)
     {
         orientation_ = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f)) * orientation_;
+    }
+
+    inline void Placement::FollowFocalPoint(const glm::vec3& focalPoint, float distanceFromFocalPoint)
+    {
+        position_ = focalPoint - GetForwardVector() * distanceFromFocalPoint;
     }
 
     inline void Placement::LookAt(const glm::vec3& direction, const glm::vec3& up)

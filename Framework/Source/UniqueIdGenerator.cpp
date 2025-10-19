@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-18
 
 #include "UniqueIdGenerator.h"
 
@@ -12,55 +12,67 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    UniqueIdGenerator::UniqueIdGenerator()
-        : returnedIdQueueSorted_(true)
+    UniqueIdGenerator::UniqueIdGenerator(unsigned int minimumId)
+        : minimumId_(minimumId)
+        , availableIdQueueSorted_(true)
     {}
 
     void UniqueIdGenerator::GetNewId(unsigned int& id)
     {
-        if (returnedIds_.empty())
+        unsigned int internalId;
+
+        if (availableIds_.empty())
         {
-            id = (unsigned int)returnedIdFlags_.size();
-            returnedIdFlags_.push_back(false);
+            internalId = (unsigned int)availableIdFlags_.size();
+            availableIdFlags_.push_back(false);
         }
         else
         {
-            if (!returnedIdQueueSorted_)
+            if (!availableIdQueueSorted_)
             {
-                std::sort(returnedIds_.begin(), returnedIds_.end());
-                returnedIdQueueSorted_ = true;
+                std::sort(availableIds_.begin(), availableIds_.end());
+                availableIdQueueSorted_ = true;
             }
-            id = returnedIds_.front();
-            returnedIds_.pop_front();
-
-            returnedIdFlags_[id] = false;
+            internalId = availableIds_.front();
+            availableIds_.pop_front();
+            availableIdFlags_[internalId] = false;
         }
+
+        id = internalId + minimumId_;
     }
 
     bool UniqueIdGenerator::ReturnId(const unsigned int& id)
     {
-        if (!IdIsTaken(id))
+        if (IdIsAvailable(id))
         {
             return false;
         }
 
-        returnedIdQueueSorted_ = false;
-        returnedIds_.push_back(id);
+        unsigned int internalId = id - minimumId_;
 
-        returnedIdFlags_[id] = true;
+        availableIdQueueSorted_ = false;
+        availableIds_.push_back(internalId);
+        availableIdFlags_[internalId] = true;
 
         return true;
     }
 
     void UniqueIdGenerator::ReturnAllIds()
     {
-        returnedIdQueueSorted_ = true;
-        returnedIds_.clear();
-        returnedIdFlags_.clear();
+        availableIdQueueSorted_ = true;
+        availableIds_.clear();
+        availableIdFlags_.clear();
     }
 
-    bool UniqueIdGenerator::IdIsTaken(const unsigned int& id)
+    bool UniqueIdGenerator::IdIsAvailable(const unsigned int& id)
     {
-        return id < returnedIdFlags_.size() && !returnedIdFlags_[id];
+        if (id < minimumId_)
+        {
+            return false;
+        }
+
+        unsigned int internalId = id - minimumId_;
+
+        return internalId >= availableIdFlags_.size() || availableIdFlags_[internalId];
     }
 }

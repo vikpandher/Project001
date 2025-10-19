@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-18
 
 #include "TestScene102.h"
 
@@ -61,10 +61,9 @@ TestScene102::TestScene102(Project001::Application* applicationPtr)
     , cursorReleaseCollisionPointIndex_((unsigned int)-1)
     , floor_EntityId_((unsigned int)-1)
     , player_EntityId_((unsigned int)-1)
-    , cameraDisplacement_()
-    , previousWorldCursorPosition_()
-    , previousWorldCursorPress_()
-    , previousWorldCursorRelease_()
+    , cameraDistanceFromPlayer_()
+    , maxCollisionBodyVelocity_()
+    , physicsStepsPerUpdate_()
 {
     GetSharedDataPtr<TestApplicationData>()->testScene102Id = GetId();
 }
@@ -107,6 +106,10 @@ void TestScene102::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     CreateFloorEntity();
 
     CreatePlayerEntity();
+
+    cameraDistanceFromPlayer_ = 800.0f;
+    maxCollisionBodyVelocity_ = 5120.0f;
+    physicsStepsPerUpdate_ = 1;
 
     // Member Scenes -----------------------------------------------------------
 
@@ -205,11 +208,9 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // -------------------------------------------------------------------------
 
-    cameraDisplacement_ = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    previousWorldCursorPosition_ = glm::vec2(0.0f, 0.0f);
-    previousWorldCursorPress_ = glm::vec2(0.0f, 0.0f);
-    previousWorldCursorRelease_ = glm::vec2(0.0f, 0.0f);
+    cameraDistanceFromPlayer_ = 0.0f;
+    maxCollisionBodyVelocity_ = 0.0f;
+    physicsStepsPerUpdate_ = 0;
 }
 
 void TestScene102::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -293,11 +294,10 @@ void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
                 collisionPoints[cursorReleaseCollisionPointIndex_].tangible = false;
             }
-
-            previousWorldCursorPress_ = previousWorldCursorPosition_;
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
@@ -316,10 +316,9 @@ void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
             }
-
-            previousWorldCursorRelease_ = previousWorldCursorPosition_;
         }
     }
 }
@@ -333,9 +332,6 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
-    // Update entities
-    UpdateMainCameraEntityPositionAndRoll(timestep_ns);
-
     // Update cursor because camera update
     // -------------------------------------------------------------------------
     float cursorX_position;
@@ -343,7 +339,20 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
     UpdatePreviousWorldCursorPosition(cursorX_position, cursorY_position);
 
-    // Sync main camera rendered model
+    // Move and Calculate collisions
+    // -------------------------------------------------------------------------
+    float timestep_s = (float)timestep_ns / 1e9f;
+    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate_;
+    for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
+    {
+        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+        Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
+    }
+
+    UpdatePlayerEntityVelocity(timestep_s);
+    UpdateMainCameraEntityPosition(timestep_s);
+
+    // Sync main camera to its rendered model
     // -------------------------------------------------------------------------
     {
         Project001::Camera* cameraPtr = nullptr;
@@ -360,48 +369,53 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
     }
 
-    // Sync cursor rendered model and collision body
+    // Sync player collision body and rendered model
     // -------------------------------------------------------------------------
     {
-        Project001::RenderedModel* renderedModelPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-        if (renderedModelPtr != nullptr)
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, player_EntityId_));
+        if (collisionBodyPtr != nullptr)
         {
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
-            circleMesh01.SetPositionX(previousWorldCursorPosition_.x);
-            circleMesh01.SetPositionY(previousWorldCursorPosition_.y);
-
-            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
-            circleMesh02.SetPositionX(previousWorldCursorPress_.x);
-            circleMesh02.SetPositionY(previousWorldCursorPress_.y);
-
-            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
-            circleMesh03.SetPositionX(previousWorldCursorRelease_.x);
-            circleMesh03.SetPositionY(previousWorldCursorRelease_.y);
+            Project001::RenderedModel* renderedModelPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, player_EntityId_));
+            if (renderedModelPtr != nullptr)
+            {
+                renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));
+                renderedModelPtr->ResetOrientation();
+                renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
+            }
         }
+    }
 
+    // Sync cursor collision body and rendered model
+    // -------------------------------------------------------------------------
+    {
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
         if (collisionBody2DPtr != nullptr)
         {
             std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
 
-            collisionPoints[cursorPositionCollisionPointIndex_].position.x = previousWorldCursorPosition_.x;
-            collisionPoints[cursorPositionCollisionPointIndex_].position.y = previousWorldCursorPosition_.y;
+            Project001::RenderedModel* renderedModelPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
+            if (renderedModelPtr != nullptr)
+            {
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            collisionPoints[cursorPressCollisionPointIndex_].position.x = previousWorldCursorPress_.x;
-            collisionPoints[cursorPressCollisionPointIndex_].position.y = previousWorldCursorPress_.y;
+                Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
+                circleMesh01.SetPositionX(collisionPoints[cursorPositionCollisionPointIndex_].position.x);
+                circleMesh01.SetPositionY(collisionPoints[cursorPositionCollisionPointIndex_].position.y);
 
-            collisionPoints[cursorReleaseCollisionPointIndex_].position.x = previousWorldCursorRelease_.x;
-            collisionPoints[cursorReleaseCollisionPointIndex_].position.y = previousWorldCursorRelease_.y;
+                Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
+                circleMesh02.SetPositionX(collisionPoints[cursorPressCollisionPointIndex_].position.x);
+                circleMesh02.SetPositionY(collisionPoints[cursorPressCollisionPointIndex_].position.y);
+
+                Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
+                circleMesh03.SetPositionX(collisionPoints[cursorReleaseCollisionPointIndex_].position.x);
+                circleMesh03.SetPositionY(collisionPoints[cursorReleaseCollisionPointIndex_].position.y);
+            }
         }
     }
-
-    // Calculate collisions
-    // -------------------------------------------------------------------------
-    Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
 }
 
 void TestScene102::LoadFontData()
@@ -663,9 +677,6 @@ void TestScene102::CreateCameraEntities()
         float mainCameraHalfHeight = 0.0f;
         float mainCameraHalfWidth = 0.0f;
 
-        cameraDisplacement_.y = -640.0f;
-        cameraDisplacement_.z = 640.0f;
-
         GetComponentStoresPtr()->CreateEntity(mainCamera_EntityId_);
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCamera_EntityId_));
 
@@ -706,7 +717,6 @@ void TestScene102::CreateCameraEntities()
             ));
             Project001::MeshLoader::TranslateMesh(*mainCameraFarFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, -1.0f));
 
-            cameraPtr->SetPosition(cameraDisplacement_);
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->AddPitch(-glm::quarter_pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
@@ -906,10 +916,12 @@ void TestScene102::CreatePlayerEntity()
         // mesh02.SetMeshDataPtr(shipCollisionBody_MeshDataPtr_);
         // mesh02.SetLit(false);
 
-        // renderedMeshes.emplace_back();
-        // Project001::RenderedMesh& mesh03 = renderedMeshes.back();
-        // mesh03.SetMeshDataPtr(shipBeamSight_MeshDataPtr_);
-        // mesh03.SetLit(false);
+        renderedMeshes.emplace_back();
+        Project001::RenderedMesh& mesh03 = renderedMeshes.back();
+        mesh03.SetMeshDataPtr(shipBeamSight_MeshDataPtr_);
+        mesh03.SetColor(1.0f, 0.0f, 0.0f, 0.2f);
+        mesh03.SetTranslucent(true);
+        mesh03.SetLit(false);
     }
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_, collisionBody2DCreationInfo));
@@ -917,60 +929,181 @@ void TestScene102::CreatePlayerEntity()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, player_EntityId_));
     if (collisionBody2DPtr != nullptr)
     {
+        // collisionBody2DPtr->SetVelocityDamping(10.0f);
+        // collisionBody2DPtr->SetAngularVelocityDamping(10.0f);
+
         std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
         collisionTriangles.emplace_back(glm::vec2(0.0f, 64.0f), glm::vec2(-32.0f, -32.0f), glm::vec2(0.0f, 0.0f));
         collisionTriangles.emplace_back(glm::vec2(0.0f, 0.0f), glm::vec2(32.0f, -32.0f), glm::vec2(0.0f, 64.0f));
     }
 }
 
-void TestScene102::UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns)
+void TestScene102::UpdateMainCameraEntityPosition(float timestep_s)
 {
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_));
     if (cameraPtr != nullptr)
     {
-        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+        constexpr float orbitSpeed = 0.05f * glm::pi<float>();
+        float cameraPitchDelta = orbitSpeed * timestep_s;
 
-        constexpr float translationSpeed_s = 128.0f;
-        float cameraTranslationDelta = translationSpeed_s * timestep_s;
-        constexpr float pitchSpeed_s = 0.05f * glm::pi<float>();
-        float cameraPitchDelta = pitchSpeed_s * timestep_s;
-
-        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_LEFT);
-        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_RIGHT);
-        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_UP);
-        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_DOWN);
-        bool pitchingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_PAGE_UP);
-        bool pitchingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_PAGE_DOWN);
-
-        if (movingLeft)
-        {
-            cameraPtr->AddTranslationX(-cameraTranslationDelta);
-        }
-
-        if (movingRight)
-        {
-            cameraPtr->AddTranslationX(cameraTranslationDelta);
-        }
-
-        if (movingUp)
-        {
-            cameraPtr->AddTranslationY(cameraTranslationDelta);
-        }
-
-        if (movingDown)
-        {
-            cameraPtr->AddTranslationY(-cameraTranslationDelta);
-        }
+        bool pitchingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_DOWN);
+        bool pitchingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_UP);
 
         if (pitchingUp)
         {
-            cameraPtr->AddRelativeRotationX(cameraPitchDelta);
+            cameraPtr->AddRelativeRotationX(-cameraPitchDelta);
         }
 
         if (pitchingDown)
         {
-            cameraPtr->AddRelativeRotationX(-cameraPitchDelta);
+            cameraPtr->AddRelativeRotationX(cameraPitchDelta);
+        }
+
+        Project001::CollisionBody2D* collisionBodyPtr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, player_EntityId_));
+        if (collisionBodyPtr != nullptr)
+        {
+            glm::vec3 playerPosition(collisionBodyPtr->GetPosition(), 0.0f);
+            cameraPtr->FollowFocalPoint(playerPosition, cameraDistanceFromPlayer_);
+        }
+    }
+}
+
+void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
+{
+    Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_EntityId_));
+    if (playerCollisionBodyPtr != nullptr)
+    {
+        constexpr float maxSpeed = 256.0f;
+        constexpr float acceleration = 1024.0f;
+        constexpr float friction = 768.0f;
+
+        const bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        const bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        const bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        const bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+
+        const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
+        float velocityMagnitude = glm::length(velocity);
+
+        glm::vec2 accelerationDirection(0.0f, 0.0);
+        if (movingLeft)
+        {
+            accelerationDirection.x -= 1.0f;
+        }
+        if (movingRight)
+        {
+            accelerationDirection.x += 1.0f;
+        }
+        if (movingUp)
+        {
+            accelerationDirection.y += 1.0f;
+        }
+        if (movingDown)
+        {
+            accelerationDirection.y -= 1.0f;
+        }
+
+        float accelerationMagnitude = glm::length(accelerationDirection);
+        if (accelerationMagnitude > 0.0f)
+        {
+            accelerationDirection /= accelerationMagnitude;
+        }
+
+        if (accelerationMagnitude > 0.0f) // apply acceleration
+        {
+            glm::vec2 targetVelocity = accelerationDirection * maxSpeed;
+            glm::vec2 neededVelocity = targetVelocity - velocity;
+
+            float neededVelocityMagnitude = glm::length(neededVelocity);
+            if (neededVelocityMagnitude > 0.0f)
+            {
+                glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
+                glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
+
+                float accelerationStepMagnitude = glm::length(accelerationStep);
+                if (accelerationStepMagnitude > neededVelocityMagnitude)
+                {
+                    accelerationStep = neededVelocity; // prevent acceleration from overshooting max speed
+                }
+
+                playerCollisionBodyPtr->SetVelocity(velocity + accelerationStep);
+            }
+        }
+        else // apply deceleration
+        {
+            if (velocityMagnitude > 0.0f)
+            {
+                float decelerationStepMagnitude = friction * timestep_s;
+                if (velocityMagnitude < decelerationStepMagnitude)
+                {
+                    playerCollisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
+                }
+                else
+                {
+                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
+                    playerCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStepMagnitude);
+                }
+            }
+        }
+
+        Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
+        if (cursorCollisionBodyPtr != nullptr)
+        {
+            constexpr float maxAngularSpeed = glm::pi<float>() * 8.0f;
+            constexpr float angularAcceleration = glm::pi<float>() * 12.0f;
+            constexpr float angularFriction = glm::pi<float>() * 64.0f;
+
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
+            const glm::vec2& cursorPosition = collisionPoints[cursorPositionCollisionPointIndex_].position;
+            glm::vec2 collisionBodyDirection = playerCollisionBodyPtr->GetForwardVector();
+            glm::vec2 collisionBodyToCursor = cursorPosition - playerCollisionBodyPtr->GetPosition();
+
+            const float& angularVelocity = playerCollisionBodyPtr->GetAngularVelocity();
+
+            float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+            if (glm::sign(angleToCursor) == glm::sign(angularVelocity) || glm::sign(angularVelocity) == 0.0f) // apply angular acceleration
+            {
+                float angularDifference = angleToCursor - angularVelocity * timestep_s;
+                float angularDifferenceMagnitude = glm::abs(angularDifference);
+
+                float angularAccelerationStep = angularAcceleration * timestep_s;
+                if (angularAccelerationStep > angularDifferenceMagnitude)
+                {
+                    angularAccelerationStep = angularDifferenceMagnitude; // prevent angular acceleration from overshooting angular max speed
+                }
+
+                float newAngularVelocity = angularVelocity;
+
+                if (angleToCursor > 0.0f)
+                {
+                    newAngularVelocity += angularAccelerationStep;
+                }
+                else
+                {
+                    newAngularVelocity -= angularAccelerationStep;
+                }
+
+                playerCollisionBodyPtr->SetAngularVelocity(newAngularVelocity);
+            }
+            else // apply angular deceleration
+            {
+                float newAngularVelocity;
+                float frictionStep = angularFriction * timestep_s;
+                if (angularVelocity > 0.0f)
+                {
+                    newAngularVelocity = glm::max(angularVelocity - frictionStep, 0.0f);
+                }
+                else
+                {
+                    newAngularVelocity = glm::min(angularVelocity + frictionStep, 0.0f);
+                }
+
+                playerCollisionBodyPtr->SetAngularVelocity(newAngularVelocity);
+            }
         }
     }
 }
@@ -996,7 +1129,44 @@ void TestScene102::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
 
         if (cursorRayIntersected)
         {
-            previousWorldCursorPosition_ = worldCursorPosition;
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
+            if (collisionBody2DPtr != nullptr)
+            {
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+
+                collisionPoints[cursorPositionCollisionPointIndex_].position = worldCursorPosition;
+            }
+        }
+    }
+}
+
+void TestScene102::CapVelocities()
+{
+    Project001::CollisionBody2D* collisionBody2DArray = nullptr;
+    size_t collisionBodyCount = 0;
+
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBody2DArray, collisionBodyCount);
+
+    for (unsigned int i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& collisionBody2D = collisionBody2DArray[i];
+
+        const uint32_t& collisionGroupMask = collisionBody2D.GetCollisionGroupMask();
+
+        if (!(collisionGroupMask & s_mainCollisionGroupMask_))
+        {
+            continue;
+        }
+
+        const glm::vec2& velocity = collisionBody2D.GetVelocity();
+
+        float velocityMagnitude = glm::length(velocity);
+
+        if (velocityMagnitude > maxCollisionBodyVelocity_)
+        {
+            glm::vec2 newVelocity = velocity * maxCollisionBodyVelocity_ / velocityMagnitude;
+            collisionBody2D.SetVelocity(newVelocity);
         }
     }
 }

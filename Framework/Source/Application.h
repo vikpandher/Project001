@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -50,6 +50,9 @@ namespace Project001
         void operator=(const Application&) = delete;
 
         template <typename SharedDataType>
+        SharedDataType* GetSharedDataPtr();
+
+        template <typename SharedDataType>
         void SetSharedDataPtr(SharedDataType* sharedDataPtr);
 
         void Run();
@@ -81,6 +84,20 @@ namespace Project001
     };
 
     // public ------------------------------------------------------------------
+
+    template <typename SharedDataType>
+    inline SharedDataType* Application::GetSharedDataPtr()
+    {
+        size_t sharedDataTypeId = typeid(SharedDataType).hash_code();
+        if (sharedDataTypeId_ == sharedDataTypeId)
+        {
+            return (SharedDataType*)sharedDataPtr_;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
 
     template <typename SharedDataType>
     void Application::SetSharedDataPtr(SharedDataType* sharedDataPtr)

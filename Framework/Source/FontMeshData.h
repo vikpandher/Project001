@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -14,9 +14,15 @@ namespace Project001
 {
     struct GlyphMeshData
     {
+        GlyphMeshData();
+
         float horiAdvance;
         MeshData meshData;
     };
+
+    inline GlyphMeshData::GlyphMeshData()
+        : horiAdvance(0.0f)
+    {}
 
     struct FontMeshData
     {

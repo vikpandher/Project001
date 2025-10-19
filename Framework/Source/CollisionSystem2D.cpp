@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-18
 
 #include "CollisionSystem2D.h"
 
@@ -36,12 +36,32 @@ namespace Project001
 
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
-            CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+            CollisionBody2D& collisionBody = collisionBodyPtrs[i];
+            const glm::vec2& acceleration = collisionBody.GetAcceleration();
+            glm::vec2 velocity = collisionBody.GetVelocity();
+            glm::vec2 position = collisionBody.GetPosition();
+            float rotation = collisionBody.GetRotation();
+            const float& velocityDamping = collisionBody.GetVelocityDamping();
+            const float& angularAcceleration = collisionBody.GetAngularAcceleration();
+            float angularVelocity = collisionBody.GetAngularVelocity();
+            const float& angularVelocityDamping = collisionBody.GetAngularVelocityDamping();
 
-            currentCollisionBody.SetVelocity(currentCollisionBody.GetVelocity() + currentCollisionBody.GetAcceleration() * timestep_s);
-            currentCollisionBody.SetPosition(currentCollisionBody.GetPosition() + currentCollisionBody.GetVelocity() * timestep_s);
-            currentCollisionBody.SetAngularVelocity(currentCollisionBody.GetAngularVelocity() + currentCollisionBody.GetAngularAcceleration() * timestep_s);
-            currentCollisionBody.SetRotation(currentCollisionBody.GetRotation() + currentCollisionBody.GetAngularVelocity() * timestep_s);
+            // Integrate acceleration
+            velocity += acceleration * timestep_s;
+            angularVelocity += angularAcceleration * timestep_s;
+
+            // Apply exponential damping (frame-rate independent)
+            velocity *= glm::exp(-velocityDamping * timestep_s);
+            angularVelocity *= glm::exp(-angularVelocityDamping * timestep_s);
+
+            // Integrate velocity
+            position += velocity * timestep_s;
+            rotation += angularVelocity * timestep_s;
+
+            collisionBody.SetVelocity(velocity);
+            collisionBody.SetPosition(position);
+            collisionBody.SetAngularVelocity(angularVelocity);
+            collisionBody.SetRotation(rotation);
         }
     }
 
@@ -3931,35 +3951,17 @@ namespace Project001
             const float& angularVelocityA = collisionBodyA.GetAngularVelocity();
             const float& angularVelocityB = collisionBodyB.GetAngularVelocity();
 
-            float massA = collisionBodyA.GetMass();
-            if (fixedTranslationA)
-            {
-                massA = std::numeric_limits<float>::infinity();
-            }
-
-            float massB = collisionBodyB.GetMass();
-            if (fixedTranslationB)
-            {
-                massB = std::numeric_limits<float>::infinity();
-            }
-
-            float momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
-            if (fixedRotationA)
-            {
-                momentOfInertiaA = std::numeric_limits<float>::infinity();
-            }
-
-            float momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
-            if (fixedRotationB)
-            {
-                momentOfInertiaB = std::numeric_limits<float>::infinity();
-            }
-
             const float& restitutionA = collisionBodyA.GetRestitution();
             const float& restitutionB = collisionBodyB.GetRestitution();
 
             const float& frictionA = collisionBodyA.GetFriction();
             const float& frictionB = collisionBodyB.GetFriction();
+
+            float massA = collisionBodyA.GetMass();
+            float massB = collisionBodyB.GetMass();
+
+            float momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
+            float momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
 
             // CollisionBody should ensure that its mass is never less than or
             // equal to 0.0f. Same goes for momentOfInertia.
@@ -3972,20 +3974,45 @@ namespace Project001
             // Unsink bodies from eachother
             // -----------------------------------------------------------------
 
-            bool bodyA_notMoving = std::isinf(massA); // || fixedTranslationA; // || fixedRotationA;
-            bool bodyB_notMoving = std::isinf(massB); // || fixedTranslationB; // || fixedRotationB;
+            bool bodyA_notMoving = std::isinf(massA) || std::isinf(momentOfInertiaA) || fixedTranslationA || fixedRotationA;
+            bool bodyB_notMoving = std::isinf(massB) || std::isinf(momentOfInertiaB) || fixedTranslationB || fixedRotationB;
 
             if (bodyA_notMoving)
             {
                 if (bodyB_notMoving)
                 {
-                    // If both bodies are not moving, they will just seperate.
-                    collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
-                    collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+                    if (std::isinf(massA) || std::isinf(massB))
+                    {
+                        if (massA > massB)
+                        {
+                            // A is more immovable
+                            collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth);
+                        }
+                        else if (massB > massA)
+                        {
+                            // B is more immovable
+                            collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f);
+                        }
+                        else
+                        {
+                            // equally immovable
+                            collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
+                            collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+                        }
+                    }
+                    else
+                    {
+                        float combinedMass = massA + massB;
+                        float massRatioA = massA / combinedMass;
+                        float massRatioB = massB / combinedMass;
 
-                    continue;
+                        collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f * massRatioA);
+                        collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
+                    }
+
+                    continue; // skip velocity resolution
                 }
-                else
+                else // if (bodyA_notMoving)
                 {
                     collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth);
                 }
@@ -4004,22 +4031,38 @@ namespace Project001
                 collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
             }
 
-            // float velocityMagnitudeA = glm::length(velocityA);
-            // float velocityMagnitudeB = glm::length(velocityB);
-            // float angularVelocityMagnitudeA = std::abs(angularVelocityA);
-            // float angularVelocityMagnitudeB = std::abs(angularVelocityB);
+            // !bodyA_notMoving && !bodyB_notMoving
 
-            // if (velocityMagnitudeA < 0.01f && velocityMagnitudeB < 0.01f &&
-            //     angularVelocityMagnitudeA < 0.01f && angularVelocityMagnitudeB < 0.01f)
-            // {
-            //     collisionBodyA.SetVelocity(glm::vec2(0.0f, 0.0f));
-            //     collisionBodyB.SetVelocity(glm::vec2(0.0f, 0.0f));
-            // 
-            //     collisionBodyA.SetAngularVelocity(0.0f);
-            //     collisionBodyB.SetAngularVelocity(0.0f);
-            // 
-            //     continue;
-            // }
+            if (fixedTranslationA)
+            {
+                massA = std::numeric_limits<float>::infinity();
+            }
+
+            if (fixedTranslationB)
+            {
+                massB = std::numeric_limits<float>::infinity();
+            }
+
+            if (fixedRotationA)
+            {
+                momentOfInertiaA = std::numeric_limits<float>::infinity();
+            }
+
+            if (fixedRotationB)
+            {
+                momentOfInertiaB = std::numeric_limits<float>::infinity();
+            }
+
+            const Project001::CollisionBody2D::PhysicsType& physicsTypeA = collisionBodyA.GetPhysicsType();
+            const Project001::CollisionBody2D::PhysicsType& physicsTypeB = collisionBodyB.GetPhysicsType();
+
+            if (physicsTypeA != Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS ||
+                physicsTypeB != Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+            {
+                // Getting here means a collision body is PHYSICS_TYPE_OVERLAP_RESOLUTION so only
+                // overlap resolution is applyed
+                continue;
+            }
 
             // Apply collision impulses
             // -----------------------------------------------------------------
@@ -4129,11 +4172,6 @@ namespace Project001
             // Use minimum friction value
             float friction = std::min(frictionA, frictionB);
 
-            // recalculate with updated velocity and angular velocity ?
-            // vA = newVelocityA + newAngularVelocityA * rA_p;
-            // vB = newVelocityB + newAngularVelocityB * rB_p;
-            // relativeVelocity = vB - vA;
-
             float relativeVelocity_t_length = glm::dot(relativeVelocity, collisionTangent);
 
             float frictionImpulseScalar = -relativeVelocity_t_length / frictionImpulseScalar_denominator;
@@ -4187,8 +4225,6 @@ namespace Project001
             }
 
             // -----------------------------------------------------------------
-
-            // TODO: add contact damping factor or maybe air resistance damping
 
             collisionBodyA.SetVelocity(newVelocityA);
             collisionBodyB.SetVelocity(newVelocityB);

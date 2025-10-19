@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-10-08
+# @DATE 2025-10-18
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -46,6 +46,8 @@ set(GENERAL_FILES
     "Source/FontLoader.cpp"
     "Source/FontLoader.h"
     "Source/FontMeshData.h"
+    "Source/IniReaderWriter.cpp"
+    "Source/IniReaderWriter.h"
     "Source/Logger.cpp"
     "Source/Logger.h"
     "Source/MeshData.h"

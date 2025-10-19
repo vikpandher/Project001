@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -87,7 +87,7 @@ namespace Project001
     template <typename Component, typename... Args>
     inline bool ComponentStores::CreateComponent(unsigned int entityId, Args... args)
     {
-        if (!entityIdGenerator_.IdIsTaken(entityId))
+        if (entityIdGenerator_.IdIsAvailable(entityId))
         {
             return false; // Entity doesn't exist
         }
@@ -105,7 +105,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::DeleteComponent(unsigned int entityId)
     {
-        if (!entityIdGenerator_.IdIsTaken(entityId))
+        if (entityIdGenerator_.IdIsAvailable(entityId))
         {
             return false; // Entity doesn't exist
         }
@@ -138,7 +138,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::GetComponent(Component*& componentPtr, unsigned int entityId)
     {
-        if (!entityIdGenerator_.IdIsTaken(entityId))
+        if (entityIdGenerator_.IdIsAvailable(entityId))
         {
             return false; // Entity doesn't exist
         }

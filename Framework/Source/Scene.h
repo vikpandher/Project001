@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -28,7 +28,7 @@ namespace Project001
         Scene(Scene& other) = delete;
         void operator=(const Scene&) = delete;
 
-        const unsigned int& GetId();
+        const unsigned int& GetId() const;
 
         virtual void HandleEvent(Event& event) = 0;
 
@@ -39,6 +39,9 @@ namespace Project001
 
         template <typename SharedDataType>
         SharedDataType* GetSharedDataPtr();
+
+        template <typename SharedDataType>
+        void SetSharedDataPtr(SharedDataType* sharedDataPtr);
 
         ComponentStores* GetComponentStoresPtr();
 
@@ -59,11 +62,11 @@ namespace Project001
         void SetDesiredFrameDuration_ns(unsigned long long frameDuration_ns);
         unsigned long long GetDesiredFrameDuration_ns() const;
 
-        void SetSleepyRunLoop(bool sleepyRunLoop);
         bool GetSleepyRunLoop() const;
+        void SetSleepyRunLoop(bool sleepyRunLoop);
 
-        void SetFixedSizeFramebuffer(bool fixedSizeFramebuffer);
         bool GetFixedSizeFramebuffer() const;
+        void SetFixedSizeFramebuffer(bool fixedSizeFramebuffer);
 
     private:
         Application* applicationPtr_;
@@ -73,7 +76,7 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
-    inline const unsigned int& Scene::GetId()
+    inline const unsigned int& Scene::GetId() const
     {
         return id_;
     }
@@ -97,6 +100,13 @@ namespace Project001
         {
             return nullptr;
         }
+    }
+
+    template <typename SharedDataType>
+    void Scene::SetSharedDataPtr(SharedDataType* sharedDataPtr)
+    {
+        applicationPtr_->sharedDataTypeId_ = typeid(SharedDataType).hash_code();
+        applicationPtr_->sharedDataPtr_ = sharedDataPtr;
     }
 
     inline ComponentStores* Scene::GetComponentStoresPtr()
@@ -166,23 +176,23 @@ namespace Project001
         return applicationPtr_->desiredFrameDuration_ns_;
     }
 
-    inline void Scene::SetSleepyRunLoop(bool sleepyRunLoop)
-    {
-        applicationPtr_->sleepyRunLoop_ = sleepyRunLoop;
-    }
-
     inline bool Scene::GetSleepyRunLoop() const
     {
         return applicationPtr_->sleepyRunLoop_;
     }
 
-    inline void Scene::SetFixedSizeFramebuffer(bool fixedSizeFramebuffer)
+    inline void Scene::SetSleepyRunLoop(bool sleepyRunLoop)
     {
-        applicationPtr_->fixedSizeFramebuffer_ = fixedSizeFramebuffer;
+        applicationPtr_->sleepyRunLoop_ = sleepyRunLoop;
     }
 
     inline bool Scene::GetFixedSizeFramebuffer() const
     {
         return applicationPtr_->fixedSizeFramebuffer_;
+    }
+
+    inline void Scene::SetFixedSizeFramebuffer(bool fixedSizeFramebuffer)
+    {
+        applicationPtr_->fixedSizeFramebuffer_ = fixedSizeFramebuffer;
     }
 }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -23,6 +23,8 @@ namespace Project001
         void AddRotation(float angleInRadians);
         const float& GetRotation() const;
         void SetRotation(float angleInRadians);
+
+        glm::vec2 GetForwardVector() const;
 
     protected:
         // Inherited:
@@ -48,15 +50,7 @@ namespace Project001
 
     inline void Placement2D::AddRotation(float angleInRadians)
     {
-        rotation_ += angleInRadians;
-        if (rotation_ < 0.0f)
-        {
-            rotation_ += glm::two_pi<float>();
-        }
-        else if (rotation_ >= glm::two_pi<float>())
-        {
-            rotation_ -= glm::two_pi<float>();
-        }
+        rotation_ = glm::mod(rotation_ + angleInRadians, glm::two_pi<float>());
     }
 
     inline const float& Placement2D::GetRotation() const
@@ -66,14 +60,11 @@ namespace Project001
 
     inline void Placement2D::SetRotation(float angleInRadians)
     {
-        rotation_ = angleInRadians;
-        if (rotation_ < 0.0f)
-        {
-            rotation_ += glm::two_pi<float>();
-        }
-        else if (rotation_ >= glm::two_pi<float>())
-        {
-            rotation_ -= glm::two_pi<float>();
-        }
+        rotation_ = glm::mod(angleInRadians, glm::two_pi<float>());
+    }
+
+    inline glm::vec2 Placement2D::GetForwardVector() const
+    {
+        return Rotate2DVector(glm::vec2(0.0f, 1.0f), rotation_);
     }
 }

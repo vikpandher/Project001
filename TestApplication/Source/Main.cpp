@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-18
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -44,6 +44,7 @@
 #include "TestScene050.h"
 #include "TestScene051.h"
 #include "TestScene060.h"
+#include "TestScene070.h"
 #include "TestScene101.h"
 #include "TestScene102.h"
 
@@ -177,6 +178,9 @@ int main(int argc, char** argv)
     // tests joystick input
     TestScene060* testScene060Ptr = new TestScene060(applicationPtr);
 
+    // tests the ".ini" reader and writer
+    TestScene070* testScene070Ptr = new TestScene070(applicationPtr);
+
     // (TODO)
     TestScene101* testScene101Ptr = new TestScene101(applicationPtr);
 
@@ -209,6 +213,7 @@ int main(int argc, char** argv)
     delete testScene050Ptr;
     delete testScene051Ptr;
     delete testScene060Ptr;
+    delete testScene070Ptr;
     delete testScene101Ptr;
     delete testScene102Ptr;
     delete applicationPtr;

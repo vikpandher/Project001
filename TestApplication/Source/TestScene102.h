@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-18
 
 #pragma once
 
@@ -49,8 +49,11 @@ protected:
     void CreateFloorEntity();
     void CreatePlayerEntity();
 
-    void UpdateMainCameraEntityPositionAndRoll(unsigned long long timestep_ns);
+    void UpdateMainCameraEntityPosition(float timestep_s);
+    void UpdatePlayerEntityVelocity(float timestep_s);
     void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
+
+    void CapVelocities();
 
     // -------------------------------------------------------------------------
 
@@ -111,11 +114,9 @@ protected:
 
     // -------------------------------------------------------------------------
 
-    glm::vec3 cameraDisplacement_;
-
-    glm::vec2 previousWorldCursorPosition_;
-    glm::vec2 previousWorldCursorPress_;
-    glm::vec2 previousWorldCursorRelease_;
+    float cameraDistanceFromPlayer_;
+    float maxCollisionBodyVelocity_;
+    size_t physicsStepsPerUpdate_;
 
     static const uint32_t s_mainCollisionGroupMask_ = 0b00000000000000000000000000000010;
 
