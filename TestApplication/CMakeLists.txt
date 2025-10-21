@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-10-18
+# @DATE 2025-10-20
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -43,7 +43,6 @@ set(TESTAPP_FILES
     "Source/TestAnimatedSpriteScene001.cpp"
     "Source/TestAnimatedSpriteScene001.h"
     "Source/TestApplicationData.h"
-    "Source/TestButtonData001.h"
     "Source/TestComponents.h"
     "Source/TestInstructionScene001.cpp"
     "Source/TestInstructionScene001.h"
@@ -107,6 +106,8 @@ set(TESTAPP_FILES
     "Source/TestScene101.h"
     "Source/TestScene102.cpp"
     "Source/TestScene102.h"
+    "Source/TestScene103.cpp"
+    "Source/TestScene103.h"
     "Source/TestSceneBase001.cpp"
     "Source/TestSceneBase001.h"
     "Source/TestSceneBase002.cpp"

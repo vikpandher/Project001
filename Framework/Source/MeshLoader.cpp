@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-20
 
 #include "MeshLoader.h"
 
@@ -5105,6 +5105,128 @@ namespace Project001
             positions,
             textureCoordinates,
             triangleFaces,
+            smoothNormals,
+            triangulate);
+
+        return true;
+    }
+
+    bool MeshLoader::GenerateTruncatedCone(
+        MeshData& meshData,
+        float height,
+        float radius0,
+        float radius1,
+        size_t faces,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (radius0 <= 0.0f || radius1 <= 0.0f || height <= 0.0f || faces < 3)
+        {
+            return false;
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.y < 0.5f * height) maxVertexPosition.y = 0.5f * height;
+        if (minVertexPosition.y > -0.5f * height) minVertexPosition.y = -0.5f * height;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        size_t uniquePositions = (faces + 1) * 4 - 2;
+        positions.reserve(uniquePositions);
+        textureCoordinates.reserve(uniquePositions);
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+
+        float halfHeight = height * 0.5f;
+        float halfBoarder = radius0 + height + radius1;
+
+        // top
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, halfHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, 1.0f, 0.0f);
+            }
+        }
+
+        // body top
+        for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
+        {
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float x = radius0 * glm::cos(longAngle);
+            float z = radius0 * glm::sin(longAngle);
+
+            positions.emplace_back(x, halfHeight, z);
+            textureCoordinates.emplace_back(
+                (float)j / (float)faces,
+                (halfBoarder - radius0) / halfBoarder
+            );
+            if (smoothNormals)
+            {
+                normals.emplace_back(x / radius0, 0.0f, z / radius0);
+            }
+        }
+
+        // body bottom
+        for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
+        {
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float x = radius1 * glm::cos(longAngle);
+            float z = radius1 * glm::sin(longAngle);
+
+            positions.emplace_back(x, -1.0f * halfHeight, z);
+            textureCoordinates.emplace_back(
+                (float)j / (float)faces,
+                radius1 / halfBoarder
+            );
+            if (smoothNormals)
+            {
+                normals.emplace_back(x / radius1, 0.0f, z / radius1);
+            }
+        }
+
+        // bottom
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, -1.0f * halfHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, -1.0f, 0.0f);
+            }
+        }
+
+        for (size_t i = faces; i < positions.size() - faces; ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        GenerateSphereMeshVerticesAndIndices(
+            meshData,
+            faces,
+            3,
+            positions,
+            textureCoordinates,
+            normals,
             smoothNormals,
             triangulate);
 

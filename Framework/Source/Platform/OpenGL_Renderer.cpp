@@ -56,6 +56,10 @@ namespace Project001
     {
         windowPtr_->MakeContextCurrent();
 
+        // GLint maxTextureSize;
+        // glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+        // LOG_INFO_F("OpenGL Max Texture Size: " << maxTextureSize);
+
         SetInstanceBufferCapacity(instanceBufferCapacity_);
 
         SetBatchedIndexBufferCapacity(batchedIndexBufferCapacity_);

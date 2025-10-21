@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-10-20
 
 #include "TestScene102.h"
 
@@ -36,13 +36,11 @@ TestScene102::TestScene102(Project001::Application* applicationPtr)
     , pixelFont_FontDataPtr_(nullptr)
     , pixelFont_TextureDataPtr_(nullptr)
     , pixelFont_TextureId_((unsigned int)-1)
-    , circle_MeshDataPtr_(nullptr)
+    , cursorCircle_MeshDataPtr_(nullptr)
     , floorGrid_MeshDataPtr_(nullptr)
     , floorGrid_MeshId_((unsigned int)-1)
-    , floorGrid_MaxBoundingRadius_(0.0f)
     , floorGridLabels_MeshDataPtr_(nullptr)
     , floorGridLabels_MeshId_((unsigned int)-1)
-    , floorGridLabels_MaxBoundingRadius_(0.0f)
     , mainCameraNearFrustum_MeshDataPtr_(nullptr)
     , mainCameraFarFrustum_MeshDataPtr_(nullptr)
     , ship_MeshDataPtr_(nullptr)
@@ -156,18 +154,16 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Mesh Data ---------------------------------------------------------------
 
-    delete circle_MeshDataPtr_;
-    circle_MeshDataPtr_ = nullptr;
+    delete cursorCircle_MeshDataPtr_;
+    cursorCircle_MeshDataPtr_ = nullptr;
 
     delete floorGrid_MeshDataPtr_;
     floorGrid_MeshDataPtr_ = nullptr;
     floorGrid_MeshId_ = (unsigned int)-1;
-    floorGrid_MaxBoundingRadius_ = 0.0f;
 
     delete floorGridLabels_MeshDataPtr_;
     floorGridLabels_MeshDataPtr_ = nullptr;
     floorGridLabels_MeshId_ = (unsigned int)-1;
-    floorGridLabels_MaxBoundingRadius_ = 0.0f;
 
     delete mainCameraNearFrustum_MeshDataPtr_;
     mainCameraNearFrustum_MeshDataPtr_ = nullptr;
@@ -215,20 +211,14 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
 void TestScene102::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
 {
-    UpdatePreviousWorldCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
-
-    Project001::RenderedModel* renderedModelPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-    if (renderedModelPtr != nullptr)
-    {
-        renderedModelPtr->SetVisible(true);
-    }
+    UpdateCursorPosition(cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
 
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
     if (collisionBody2DPtr != nullptr)
     {
-        collisionBody2DPtr->SetTangible(true);
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+        collisionPoints[cursorPositionCollisionPointIndex_].tangible = true;
     }
 }
 
@@ -253,7 +243,7 @@ void TestScene102::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         }
         else if (keyCode == Project001::KeyCode::KEY_CODE_P)
         {
-            Project001::Camera* cameraPtr;
+            Project001::Camera* cameraPtr = nullptr;
             if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_))
             {
                 if (cameraPtr->GetProjection() == Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
@@ -278,21 +268,10 @@ void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
         {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetVisible(true);
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-                renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(true);
-                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
-            }
-
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
             if (collisionBody2DPtr != nullptr)
             {
-                collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
@@ -301,20 +280,10 @@ void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetVisible(true);
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(true);
-            }
-
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
             if (collisionBody2DPtr != nullptr)
             {
-                collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
@@ -332,13 +301,6 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     unsigned long long timestep_ns = updateEvent.timestep_ns;
 
-    // Update cursor because camera update
-    // -------------------------------------------------------------------------
-    float cursorX_position;
-    float cursorY_position;
-    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
-    UpdatePreviousWorldCursorPosition(cursorX_position, cursorY_position);
-
     // Move and Calculate collisions
     // -------------------------------------------------------------------------
     float timestep_s = (float)timestep_ns / 1e9f;
@@ -352,70 +314,18 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     UpdatePlayerEntityVelocity(timestep_s);
     UpdateMainCameraEntityPosition(timestep_s);
 
-    // Sync main camera to its rendered model
+    // Update cursor because camera updates
     // -------------------------------------------------------------------------
-    {
-        Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_));
-        if (cameraPtr != nullptr)
-        {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, mainCamera_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetPosition(cameraPtr->GetPosition());
-                renderedModelPtr->SetOrientation(cameraPtr->GetOrientation());
-            }
-        }
-    }
+    float cursorX_position;
+    float cursorY_position;
+    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
+    UpdateCursorPosition(cursorX_position, cursorY_position);
 
-    // Sync player collision body and rendered model
+    // Sync rendered models
     // -------------------------------------------------------------------------
-    {
-        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, player_EntityId_));
-        if (collisionBodyPtr != nullptr)
-        {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, player_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));
-                renderedModelPtr->ResetOrientation();
-                renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
-            }
-        }
-    }
-
-    // Sync cursor collision body and rendered model
-    // -------------------------------------------------------------------------
-    {
-        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
-        if (collisionBody2DPtr != nullptr)
-        {
-            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-                Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
-                circleMesh01.SetPositionX(collisionPoints[cursorPositionCollisionPointIndex_].position.x);
-                circleMesh01.SetPositionY(collisionPoints[cursorPositionCollisionPointIndex_].position.y);
-
-                Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
-                circleMesh02.SetPositionX(collisionPoints[cursorPressCollisionPointIndex_].position.x);
-                circleMesh02.SetPositionY(collisionPoints[cursorPressCollisionPointIndex_].position.y);
-
-                Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
-                circleMesh03.SetPositionX(collisionPoints[cursorReleaseCollisionPointIndex_].position.x);
-                circleMesh03.SetPositionY(collisionPoints[cursorReleaseCollisionPointIndex_].position.y);
-            }
-        }
-    }
+    SyncMainCameraRenderedModel();
+    SyncCursorRenderedModel();
+    SyncPlayerRenderedModel();
 }
 
 void TestScene102::LoadFontData()
@@ -458,8 +368,8 @@ void TestScene102::LoadFontData()
 
 void TestScene102::LoadMeshData()
 {
-    circle_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circle_MeshDataPtr_, 4.0f, 12));
+    cursorCircle_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*cursorCircle_MeshDataPtr_, 4.0f, 12));
 
     {
         floorGrid_MeshDataPtr_ = new Project001::MeshData();
@@ -494,7 +404,6 @@ void TestScene102::LoadMeshData()
             floorGrid_MeshDataPtr_->meshIndexArray.data(),
             (unsigned int)floorGrid_MeshDataPtr_->meshIndexArray.size()
         );
-        floorGrid_MaxBoundingRadius_ = floorGrid_MeshDataPtr_->maxBoundingRadius;
 
         floorGridLabels_MeshDataPtr_ = new Project001::MeshData();
 
@@ -631,7 +540,6 @@ void TestScene102::LoadMeshData()
             floorGridLabels_MeshDataPtr_->meshIndexArray.data(),
             (unsigned int)floorGridLabels_MeshDataPtr_->meshIndexArray.size()
         );
-        floorGridLabels_MaxBoundingRadius_ = floorGridLabels_MeshDataPtr_->maxBoundingRadius;
     }
 
     mainCameraNearFrustum_MeshDataPtr_ = new Project001::MeshData();
@@ -793,11 +701,6 @@ void TestScene102::CreateCameraEntities()
 
 void TestScene102::CreateCursorEntity()
 {
-    float cursorX_position;
-    float cursorY_position;
-    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
-    UpdatePreviousWorldCursorPosition(cursorX_position, cursorY_position);
-
     GetComponentStoresPtr()->CreateEntity(cursor_EntityId_);
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(cursor_EntityId_));
@@ -811,7 +714,7 @@ void TestScene102::CreateCursorEntity()
         cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& circleMesh01 = renderedMeshes.back();
-        circleMesh01.SetMeshDataPtr(circle_MeshDataPtr_);
+        circleMesh01.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
         circleMesh01.SetPositionZ(0.53f);
         circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
         circleMesh01.SetTranslucent(true);
@@ -820,7 +723,7 @@ void TestScene102::CreateCursorEntity()
         cursorPressRenderedMeshIndex_ = renderedMeshes.size();
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& circleMesh02 = renderedMeshes.back();
-        circleMesh02.SetMeshDataPtr(circle_MeshDataPtr_);
+        circleMesh02.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
         circleMesh02.SetPositionZ(0.52f);
         circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
         circleMesh02.SetTranslucent(true);
@@ -830,7 +733,7 @@ void TestScene102::CreateCursorEntity()
         cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& circleMesh03 = renderedMeshes.back();
-        circleMesh03.SetMeshDataPtr(circle_MeshDataPtr_);
+        circleMesh03.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
         circleMesh03.SetPositionZ(0.51f);
         circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
         circleMesh03.SetTranslucent(true);
@@ -851,6 +754,11 @@ void TestScene102::CreateCursorEntity()
         cursorReleaseCollisionPointIndex_ = collisionPoints.size();
         collisionPoints.emplace_back(glm::vec2(), s_cursorReleaseCollisionShapeId_, false);
     }
+
+    float cursorX_position;
+    float cursorY_position;
+    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
+    UpdateCursorPosition(cursorX_position, cursorY_position);
 }
 
 void TestScene102::CreateFloorEntity()
@@ -867,7 +775,7 @@ void TestScene102::CreateFloorEntity()
 
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& mesh01 = renderedMeshes.back();
-        mesh01.SetMeshIdAndMaxBoundingRadius(floorGrid_MeshId_, floorGrid_MaxBoundingRadius_);
+        mesh01.SetMeshIdAndMaxBoundingRadius(floorGrid_MeshId_, floorGrid_MeshDataPtr_->maxBoundingRadius);
         mesh01.SetPositionZ(-0.1f);
         mesh01.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
         mesh01.SetTranslucent(true);
@@ -875,7 +783,7 @@ void TestScene102::CreateFloorEntity()
 
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& mesh02 = renderedMeshes.back();
-        mesh02.SetMeshIdAndMaxBoundingRadius(floorGridLabels_MeshId_, floorGridLabels_MaxBoundingRadius_);
+        mesh02.SetMeshIdAndMaxBoundingRadius(floorGridLabels_MeshId_, floorGridLabels_MeshDataPtr_->maxBoundingRadius);
         mesh02.SetPositionZ(-0.1f);
         mesh02.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
         mesh02.SetTranslucent(true);
@@ -1108,7 +1016,7 @@ void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
     }
 }
 
-void TestScene102::UpdatePreviousWorldCursorPosition(float xPosition, float yPosition)
+void TestScene102::UpdateCursorPosition(float xPosition, float yPosition)
 {
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
@@ -1137,6 +1045,76 @@ void TestScene102::UpdatePreviousWorldCursorPosition(float xPosition, float yPos
 
                 collisionPoints[cursorPositionCollisionPointIndex_].position = worldCursorPosition;
             }
+        }
+    }
+}
+
+void TestScene102::SyncMainCameraRenderedModel()
+{
+    Project001::Camera* cameraPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_));
+    if (cameraPtr != nullptr)
+    {
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, mainCamera_EntityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(cameraPtr->GetPosition());
+            renderedModelPtr->SetOrientation(cameraPtr->GetOrientation());
+        }
+    }
+}
+
+void TestScene102::SyncCursorRenderedModel()
+{
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
+    if (collisionBody2DPtr != nullptr)
+    {
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+        Project001::CollisionPoint2D collisionPoint01 = collisionPoints[cursorPositionCollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint02 = collisionPoints[cursorPressCollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint03 = collisionPoints[cursorReleaseCollisionPointIndex_];
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
+
+            circleMesh01.SetPositionX(collisionPoint01.position.x);
+            circleMesh01.SetPositionY(collisionPoint01.position.y);
+            circleMesh01.SetVisible(collisionPoint01.tangible);
+
+
+            circleMesh02.SetPositionX(collisionPoint02.position.x);
+            circleMesh02.SetPositionY(collisionPoint02.position.y);
+            circleMesh02.SetVisible(collisionPoint02.tangible);
+
+            circleMesh03.SetPositionX(collisionPoint03.position.x);
+            circleMesh03.SetPositionY(collisionPoint03.position.y);
+            circleMesh03.SetVisible(collisionPoint03.tangible);
+        }
+    }
+}
+
+void TestScene102::SyncPlayerRenderedModel()
+{
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, player_EntityId_));
+    if (collisionBodyPtr != nullptr)
+    {
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, player_EntityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));
+            renderedModelPtr->ResetOrientation();
+            renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
         }
     }
 }

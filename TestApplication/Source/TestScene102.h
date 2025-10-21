@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-10-20
 
 #pragma once
 
@@ -8,11 +8,7 @@
 
 #include "glm/glm.hpp"
 
-#include <vector>
 
-
-
-struct TestApplicationData;
 
 namespace Project001
 {
@@ -51,8 +47,14 @@ protected:
 
     void UpdateMainCameraEntityPosition(float timestep_s);
     void UpdatePlayerEntityVelocity(float timestep_s);
-    void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
 
+    void UpdateCursorPosition(float xPosition, float yPosition);
+
+    void SyncMainCameraRenderedModel();
+    void SyncCursorRenderedModel();
+    void SyncPlayerRenderedModel();
+
+    // Unused
     void CapVelocities();
 
     // -------------------------------------------------------------------------
@@ -72,13 +74,11 @@ protected:
 
     // Mesh Data ---------------------------------------------------------------
 
-    Project001::MeshData* circle_MeshDataPtr_;
+    Project001::MeshData* cursorCircle_MeshDataPtr_;
     Project001::MeshData* floorGrid_MeshDataPtr_;
     unsigned int floorGrid_MeshId_;
-    float floorGrid_MaxBoundingRadius_;
     Project001::MeshData* floorGridLabels_MeshDataPtr_;
     unsigned int floorGridLabels_MeshId_;
-    float floorGridLabels_MaxBoundingRadius_;
     Project001::MeshData* mainCameraNearFrustum_MeshDataPtr_;
     Project001::MeshData* mainCameraFarFrustum_MeshDataPtr_;
     Project001::MeshData* ship_MeshDataPtr_;
@@ -101,12 +101,12 @@ protected:
     unsigned int cursorPositionRenderedMeshIndex_;
     unsigned int cursorPressRenderedMeshIndex_;
     unsigned int cursorReleaseRenderedMeshIndex_;
-    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
-    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
-    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
     unsigned int cursorPositionCollisionPointIndex_;
     unsigned int cursorPressCollisionPointIndex_;
     unsigned int cursorReleaseCollisionPointIndex_;
+    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
+    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
+    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
 
     unsigned int floor_EntityId_;
 

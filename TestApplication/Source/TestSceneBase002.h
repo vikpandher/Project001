@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-20
 
 #pragma once
 
@@ -12,8 +12,6 @@
 #include <vector>
 
 
-
-struct TestApplicationData;
 
 namespace Project001
 {

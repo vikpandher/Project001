@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-20
 
 #pragma once
 
@@ -314,6 +314,15 @@ namespace Project001
             float maxOffsetLength, // offset goes inward
             size_t subdivisions,
             std::vector<float>& vertexOffsetDistances,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateTruncatedCone(
+            MeshData& meshData,
+            float height,
+            float radius0,
+            float radius1,
+            size_t faces,
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 

@@ -71,6 +71,7 @@ namespace Project001
 
         void FollowFocalPoint(const glm::vec3& focalPoint, float distanceFromFocalPoint);
 
+        // These functions expect normalized parameters
         void LookAt(const glm::vec3& direction, const glm::vec3& up);
         void LookAt(const glm::vec3& direction);
 

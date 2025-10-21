@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-20
 
 #pragma once
 
@@ -11,8 +11,6 @@
 #include <vector>
 
 
-
-struct TestApplicationData;
 
 namespace Project001
 {
@@ -40,7 +38,7 @@ protected:
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void UpdatePreviousWorldCursorPosition(float xPosition, float yPosition);
+    void UpdateCursorPosition(float xPosition, float yPosition);
 
     // -------------------------------------------------------------------------
 
@@ -63,7 +61,7 @@ protected:
     Project001::MeshData* rectangleMeshDataPtr_;
     unsigned int rectangularMeshId_;
 
-    Project001::MeshData* circleMeshDataPtr_;
+    Project001::MeshData* cursorCircleMeshDataPtr_;
 
     const float buttonFontPixelSize_ = 0.0048f;
     std::vector<Project001::MeshData*> buttonTextMeshDataPtrs_;
@@ -79,22 +77,18 @@ protected:
     unsigned int cursorPositionRenderedMeshIndex_;
     unsigned int cursorPressRenderedMeshIndex_;
     unsigned int cursorReleaseRenderedMeshIndex_;
-    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
-    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
-    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
     unsigned int cursorPositionCollisionPointIndex_;
     unsigned int cursorPressCollisionPointIndex_;
     unsigned int cursorReleaseCollisionPointIndex_;
+    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
+    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
+    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
 
     std::vector<unsigned int> buttonEntityIds_;
     static const glm::vec4 s_buttonColor_;
     static const glm::vec4 s_buttonColor2_;
 
     // -------------------------------------------------------------------------
-
-    glm::vec2 previousWorldCursorPosition_;
-    glm::vec2 previousWorldCursorPress_;
-    glm::vec2 previousWorldCursorRelease_;
 
     static const Project001::KeyCode s_keyCode_toggleInstructions_ = Project001::KeyCode::KEY_CODE_TAB;
 };

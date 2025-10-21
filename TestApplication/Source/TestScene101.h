@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-20
 
 #pragma once
 
@@ -11,8 +11,6 @@
 #include <vector>
 
 
-
-struct TestApplicationData;
 
 class TestScene101 : public Project001::Scene
 {
