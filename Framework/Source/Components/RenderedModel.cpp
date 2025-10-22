@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-10-22
 
 #include "Components/RenderedModel.h"
 
@@ -22,7 +22,7 @@ namespace Project001
             transformedRenderedMesh.SetPosition(position_ + orientation_ * renderedMesh.GetPosition());
             transformedRenderedMesh.SetOrientation(orientation_ * renderedMesh.GetOrientation());
             transformedRenderedMesh.SetVisible(visible_ && renderedMesh.GetVisible());
-            transformedRenderedMesh.SetCameraMask(renderedMesh.GetCameraMask());
+            transformedRenderedMesh.SetCameraMask(cameraMask_ & renderedMesh.GetCameraMask());
             if (renderedMesh.GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)
             {
                 transformedRenderedMesh.SetMeshDataPtr(renderedMesh.GetMeshDataPtr());
@@ -38,7 +38,7 @@ namespace Project001
             transformedRenderedMesh.SetColor(renderedMesh.GetColor());
             transformedRenderedMesh.SetShininess(renderedMesh.GetShininess());
             transformedRenderedMesh.SetTranslucent(renderedMesh.GetTranslucent());
-            transformedRenderedMesh.SetLit(renderedMesh.GetLit());
+            transformedRenderedMesh.SetUseLighting(renderedMesh.GetUseLighting());
         }
     }
 }

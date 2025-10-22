@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-22
 
 #include "TestScene051.h"
 
@@ -174,7 +174,6 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
 
             GetSoundPlayerPtr()->SetListenerPosition(cameraPtr->GetPosition());
@@ -212,7 +211,6 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }
@@ -241,7 +239,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             circleMesh01.SetPositionZ(0.53f);
             circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
             circleMesh01.SetTranslucent(true);
-            circleMesh01.SetLit(false);
+            circleMesh01.SetUseLighting(false);
 
             cursorPressRenderedMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
@@ -250,7 +248,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             circleMesh02.SetPositionZ(0.52f);
             circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
             circleMesh02.SetTranslucent(true);
-            circleMesh02.SetLit(false);
+            circleMesh02.SetUseLighting(false);
             circleMesh02.SetVisible(false);
 
             cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
@@ -260,7 +258,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             circleMesh03.SetPositionZ(0.51f);
             circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
             circleMesh03.SetTranslucent(true);
-            circleMesh03.SetLit(false);
+            circleMesh03.SetUseLighting(false);
             circleMesh03.SetVisible(false);
         }
 
@@ -386,14 +384,14 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             Project001::RenderedMesh& buttonMesh = renderedMeshes.back();
             buttonMesh.SetMeshIdAndMaxBoundingRadius(rectangularMeshId_, rectangleMeshDataPtr_->maxBoundingRadius);
             buttonMesh.SetColor(s_buttonColor_);
-            buttonMesh.SetLit(false);
+            buttonMesh.SetUseLighting(false);
 
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& textMesh = renderedMeshes.back();
             textMesh.SetMeshDataPtr(buttonTextMeshDataPtrs_[i]);
             textMesh.SetTextureId(font01_TextureId_);
             textMesh.SetPositionZ(0.01f);
-            textMesh.SetLit(false);
+            textMesh.SetUseLighting(false);
         }
 
         // ---------------------------------------------------------------------

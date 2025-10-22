@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-22
 
 #include "Components/Camera.h"
 
@@ -12,7 +12,7 @@
 namespace Project001
 {
     Camera::Camera()
-        : turnedOn_(false)
+        : turnedOn_(true)
         , cameraMask_(0b00000000000000000000000000000001)
         , priorityValue_(0)
         , cameraProjection_(CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)

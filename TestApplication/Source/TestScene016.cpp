@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestScene016.h"
 
@@ -137,7 +137,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -183,7 +183,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -223,7 +223,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -263,7 +263,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -310,7 +310,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -360,7 +360,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -402,7 +402,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
 
@@ -446,7 +446,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
 
@@ -490,7 +490,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
 
@@ -546,7 +546,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
 
@@ -598,7 +598,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
 
@@ -637,7 +637,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -768,7 +768,7 @@ void TestScene016::GenerateCombinationShape(Project001::CollisionBody2DCreationI
         renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
         renderedMeshPtr->SetPosition(position);
         renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetUseLighting(false);
         renderedMeshPtr->SetTranslucent(true);
     }
 

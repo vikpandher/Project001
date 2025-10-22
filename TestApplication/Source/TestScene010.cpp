@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestScene010.h"
 
@@ -106,7 +106,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -143,7 +143,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -180,7 +180,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -224,7 +224,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -269,7 +269,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -309,7 +309,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -348,7 +348,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -392,7 +392,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -430,7 +430,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -467,7 +467,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -504,7 +504,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -548,7 +548,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -593,7 +593,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -633,7 +633,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -673,7 +673,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -717,7 +717,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -755,7 +755,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -792,7 +792,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -829,7 +829,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -873,7 +873,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -918,7 +918,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -958,7 +958,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -997,7 +997,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -1041,7 +1041,7 @@ void TestScene010::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));

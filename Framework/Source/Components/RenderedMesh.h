@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #pragma once
 
@@ -83,8 +83,8 @@ namespace Project001
         const bool& GetTranslucent() const;
         void SetTranslucent(bool translucent);
 
-        const bool& GetLit() const;
-        void SetLit(bool lit);
+        const bool& GetUseLighting() const;
+        void SetUseLighting(bool useLighting);
 
     protected:
         // Inherited:
@@ -104,7 +104,7 @@ namespace Project001
         float shininess_; // 32.0f looks good
         glm::vec4 color_;
         bool translucent_;
-        bool lit_;
+        bool useLighting_;
     };
 
     inline RenderedMesh::RenderedMesh()
@@ -121,7 +121,7 @@ namespace Project001
         , color_(1.0f, 1.0f, 1.0f, 1.0f)
         , shininess_(0.0f)
         , translucent_(false)
-        , lit_(true)
+        , useLighting_(true)
     {}
 
     inline const bool& RenderedMesh::GetVisible() const
@@ -284,13 +284,13 @@ namespace Project001
         translucent_ = translucent;
     }
 
-    inline const bool& RenderedMesh::GetLit() const
+    inline const bool& RenderedMesh::GetUseLighting() const
     {
-        return lit_;
+        return useLighting_;
     }
 
-    inline void RenderedMesh::SetLit(bool lit)
+    inline void RenderedMesh::SetUseLighting(bool useLighting)
     {
-        lit_ = lit;
+        useLighting_ = useLighting;
     }
 }

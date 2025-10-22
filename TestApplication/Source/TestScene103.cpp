@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-22
 
 #include "TestScene103.h"
 
@@ -13,6 +13,7 @@
 #include "Components/RenderedModel.h"
 #include "Math/MathUtilities.h"
 #include "Resources/PixelFont5x6.h"
+#include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "FontLoader.h"
 #include "Logger.h"
@@ -23,6 +24,19 @@
 #include "Window.h"
 
 
+
+struct Character
+{
+    enum class CharacterState
+    {
+        CHARACTER_STATE_STANDING,
+        CHARACTER_STATE_WALKING,
+        CHARACTER_STATE_RUNNING,
+        CHARACTER_STATE_STUNNED
+    };
+
+    CharacterState state = CharacterState::CHARACTER_STATE_STANDING;
+};
 
 // public ----------------------------------------------------------------------
 
@@ -49,9 +63,11 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , playerLight_MeshDataPtr_(nullptr)
     , playerLight_TextureDataPtr_(nullptr)
     , playerLight_TextureId_((unsigned int)-1)
+    , playerCollision_MeshDataPtr_(nullptr)
     , light01_MeshDataPtr_(nullptr)
     , mainCameraDark_EntityId_((unsigned int)-1)
     , mainCameraLight_EntityId_((unsigned int)-1)
+    , mainCameraDebug_EntityId_((unsigned int)-1)
     , mainCamera_LookAtPoint_()
     , mainCamera_DistanceAway_(0.0f)
     , uiCamera_EntityId_((unsigned int)-1)
@@ -81,6 +97,7 @@ void TestScene103::HandleEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene103::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene103::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene103::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&TestScene103::ProcessScrollEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene103::ProcessUpdateEvent, this, std::placeholders::_1));
 
     instructionScene_.HandleEvent(event);
@@ -167,6 +184,9 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     playerLight_TextureDataPtr_ = nullptr;
     playerLight_TextureId_ = (unsigned int)-1;
 
+    delete playerCollision_MeshDataPtr_;
+    playerCollision_MeshDataPtr_ = nullptr;
+
     delete light01_MeshDataPtr_;
     light01_MeshDataPtr_ = nullptr;
 
@@ -174,6 +194,7 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     mainCameraDark_EntityId_ = (unsigned int)-1;
     mainCameraLight_EntityId_ = (unsigned int)-1;
+    mainCameraDebug_EntityId_ = (unsigned int)-1;
     mainCamera_LookAtPoint_ = glm::vec3();
     mainCamera_DistanceAway_ = 0.0f;
 
@@ -227,7 +248,22 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             return;
         }
     }
-    else if (keyCode == Project001::KeyCode::KEY_CODE_P)
+    else if (keyCode == Project001::KeyCode::KEY_CODE_1)
+    {
+        Project001::Camera* cameraPtr = nullptr;
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_))
+        {
+            if (cameraPtr->IsTurnedOn())
+            {
+                cameraPtr->TurnOff();
+            }
+            else
+            {
+                cameraPtr->TurnOn();
+            }
+        }
+    }
+    else if (keyCode == Project001::KeyCode::KEY_CODE_2)
     {
         Project001::Camera* cameraPtr = nullptr;
         if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark_EntityId_))
@@ -254,6 +290,42 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
                 cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
             }
         }
+
+        cameraPtr = nullptr;
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_))
+        {
+            if (cameraPtr->GetProjection() == Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
+            {
+                cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
+            }
+            else
+            {
+                cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
+            }
+        }
+    }
+    else if (keyCode == Project001::KeyCode::KEY_CODE_3)
+    {
+        mainCamera_DistanceAway_ = 800.0f;
+
+        Project001::Camera* cameraPtr = nullptr;
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark_EntityId_))
+        {
+            cameraPtr->ResetOrientation();
+            cameraPtr->AddPitch(glm::quarter_pi<float>());
+            cameraPtr->AddYaw(glm::pi<float>());
+        }
+    }
+    else if (keyCode == Project001::KeyCode::KEY_CODE_4)
+    {
+        mainCamera_DistanceAway_ = 800.0f;
+
+        Project001::Camera* cameraPtr = nullptr;
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark_EntityId_))
+        {
+            cameraPtr->ResetOrientation();
+            cameraPtr->AddYaw(glm::pi<float>());
+        }
     }
 }
 
@@ -266,21 +338,10 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
         {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetVisible(true);
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-                renderedMeshes[cursorPressRenderedMeshIndex_].SetVisible(true);
-                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(false);
-            }
-
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
             if (collisionBody2DPtr != nullptr)
             {
-                collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
@@ -289,20 +350,10 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
         {
-            Project001::RenderedModel* renderedModelPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
-            if (renderedModelPtr != nullptr)
-            {
-                renderedModelPtr->SetVisible(true);
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-                renderedMeshes[cursorReleaseRenderedMeshIndex_].SetVisible(true);
-            }
-
             Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
             if (collisionBody2DPtr != nullptr)
             {
-                collisionBody2DPtr->SetTangible(true);
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
                 collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
@@ -316,11 +367,31 @@ void TestScene103::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
+void TestScene103::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
+{
+    float& yOffset = scrollEvent.yOffset;
+
+    constexpr float speedConstant = 20.0f;
+
+    mainCamera_DistanceAway_ += yOffset * speedConstant;
+}
+
 void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     unsigned long long timestep_ns = updateEvent.timestep_ns;
     float timestep_s = (float)timestep_ns / 1e9f;
 
+    // Move and Calculate collisions
+    // -------------------------------------------------------------------------
+    constexpr size_t physicsStepsPerUpdate = 1;
+    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate;
+    for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
+    {
+        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), timestep_s);
+        Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
+    }
+
+    UpdatePlayerEntityVelocity();
     UpdateMainCameraEntityPosition(timestep_s);
 
     // Update cursor because camera updates
@@ -333,6 +404,7 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // Sync rendered models
     // -------------------------------------------------------------------------
     SyncCursorRenderedModel();
+    SyncPlayerRenderedModel();
 }
 
 void TestScene103::InitializeInstructionScene()
@@ -390,7 +462,6 @@ void TestScene103::InitializeInstructionScene()
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
         cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
         cameraPtr->SetCameraMask(uiCamera_Mask);
         cameraPtr->SetPriorityValue(1000000);
     }
@@ -639,9 +710,14 @@ void TestScene103::LoadGroundGridResources()
 
 void TestScene103::LoadPlayerResources()
 {
+    constexpr float spriteWidth = 32.0f;
+    constexpr float spriteHeight = 48.0f;
+    constexpr float spriteRotation = -0.25 * glm::pi<float>(); // = -0.125f * glm::pi<float>();
+
     playerDark_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerDark_MeshDataPtr_, 32.0f, 48.0f, 0.0f, 1.0f, 0.0f, 1.0f));
-    Project001::MeshLoader::TranslateMesh(*playerDark_MeshDataPtr_, glm::vec3(0.0f, 24.0f, 0.0f));
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerDark_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
+    Project001::MeshLoader::TranslateMesh(*playerDark_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*playerDark_MeshDataPtr_, spriteRotation);
 
     playerDark_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerDark_TextureDataPtr_, "../Textures/dark_32x48.png"));
@@ -655,8 +731,9 @@ void TestScene103::LoadPlayerResources()
     );
 
     playerLight_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerLight_MeshDataPtr_, 32.0f, 48.0f, 0.0f, 1.0f, 0.0f, 1.0f));
-    Project001::MeshLoader::TranslateMesh(*playerLight_MeshDataPtr_, glm::vec3(0.0f, 24.0f, 0.0f));
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerLight_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
+    Project001::MeshLoader::TranslateMesh(*playerLight_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*playerLight_MeshDataPtr_, spriteRotation);
 
     playerLight_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerLight_TextureDataPtr_, "../Textures/light_32x48.png"));
@@ -668,18 +745,43 @@ void TestScene103::LoadPlayerResources()
         playerLight_TextureDataPtr_->bytesPerPixel,
         false, false
     );
+
+    playerCollision_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*playerCollision_MeshDataPtr_, 12.0f, 12));
 }
 
 void TestScene103::LoadLightResources()
 {
     light01_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*light01_MeshDataPtr_, 120.0f, 8.0f, 64.0f, 16, false));
-    Project001::MeshLoader::TranslateMesh(*light01_MeshDataPtr_, glm::vec3(0.0f, -68.0f, 0.0f));
+    FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*light01_MeshDataPtr_, 64.0f, 16, 8, false));
+    Project001::MeshLoader::RotateMesh(*light01_MeshDataPtr_, glm::angleAxis(glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f)));
+    Project001::MeshLoader::TranslateMesh(*light01_MeshDataPtr_, glm::vec3(0.0f, -88.0f, 0.0f));
+    FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*light01_MeshDataPtr_, 112.0f, 8.0f, 64.0f, 16, false));
+    Project001::MeshLoader::TranslateMesh(*light01_MeshDataPtr_, glm::vec3(0.0f, -72.0f, 0.0f));
     Project001::MeshLoader::RotateMesh(*light01_MeshDataPtr_, glm::angleAxis(glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f)));
 }
 
 void TestScene103::CreateMainCameraEntities()
 {
+    int aspectRatioNumerator;
+    int aspectRatioDenominator;
+    GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
+
+    float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+    constexpr float mainCameraHalfHeight = 320.0f;
+    float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
+
+    constexpr float mainCameraNearCutoff = mainCameraHalfHeight * 0.1f;
+    constexpr float mainCameraFarCutoff = mainCameraHalfHeight * 10.0f;
+
+    constexpr float mainCameraPitch = glm::quarter_pi<float>();
+    constexpr float mainCameraYaw = glm::pi<float>();
+
+    constexpr Project001::Camera::CameraProjection mainCameraProjection =
+        Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
+
+    mainCamera_DistanceAway_ = 800.0f;
+
     GetComponentStoresPtr()->CreateEntity(mainCameraDark_EntityId_);
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraDark_EntityId_));
 
@@ -687,28 +789,21 @@ void TestScene103::CreateMainCameraEntities()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark_EntityId_));
     if (cameraPtr != nullptr)
     {
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float mainCameraHalfHeight = 320.0f;
-            float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
             cameraPtr->SetTopCutoff(mainCameraHalfHeight);
             cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
             cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
             cameraPtr->SetRightCutoff(mainCameraHalfWidth);
-            cameraPtr->SetNearCutoff(mainCameraHalfHeight * 0.1f);
-            cameraPtr->SetFarCutoff(mainCameraHalfHeight * 10.0f);
+            cameraPtr->SetNearCutoff(mainCameraNearCutoff);
+            cameraPtr->SetFarCutoff(mainCameraFarCutoff);
         }
 
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->AddPitch(-glm::quarter_pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
-        cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(s_mainCameraDark_Mask_ | s_mainCameraDebug_Mask_);
+        cameraPtr->AddPitch(mainCameraPitch);
+        cameraPtr->AddYaw(mainCameraYaw);
+        cameraPtr->SetProjection(mainCameraProjection);
+        cameraPtr->SetCameraMask(s_mainCameraDark_Mask_);
 
         GetSoundPlayerPtr()->SetListenerPosition(cameraPtr->GetPosition());
         GetSoundPlayerPtr()->SetListenerForwardDirection(cameraPtr->GetForwardVector());
@@ -722,36 +817,48 @@ void TestScene103::CreateMainCameraEntities()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight_EntityId_));
     if (cameraPtr != nullptr)
     {
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
-            float mainCameraHalfHeight = 320.0f;
-            float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
             cameraPtr->SetTopCutoff(mainCameraHalfHeight);
             cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
             cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
             cameraPtr->SetRightCutoff(mainCameraHalfWidth);
-            cameraPtr->SetNearCutoff(mainCameraHalfHeight * 0.1f);
-            cameraPtr->SetFarCutoff(mainCameraHalfHeight * 10.0f);
+            cameraPtr->SetNearCutoff(mainCameraNearCutoff);
+            cameraPtr->SetFarCutoff(mainCameraFarCutoff);
         }
 
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->AddPitch(-glm::quarter_pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
-        cameraPtr->TurnOn();
-        cameraPtr->SetCameraMask(s_mainCameraLight_Mask_ | s_mainCameraDebug_Mask_);
+        cameraPtr->AddPitch(mainCameraPitch);
+        cameraPtr->AddYaw(mainCameraYaw);
+        cameraPtr->SetProjection(mainCameraProjection);
+        cameraPtr->SetCameraMask(s_mainCameraLight_Mask_);
         cameraPtr->SetPriorityValue(-100);
-
-        GetSoundPlayerPtr()->SetListenerPosition(cameraPtr->GetPosition());
-        GetSoundPlayerPtr()->SetListenerForwardDirection(cameraPtr->GetForwardVector());
-        GetSoundPlayerPtr()->SetListenerUpDirection(cameraPtr->GetUpVector());
     }
 
-    mainCamera_DistanceAway_ = 800.0f;
+    GetComponentStoresPtr()->CreateEntity(mainCameraDebug_EntityId_);
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraDebug_EntityId_));
+
+    cameraPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_));
+    if (cameraPtr != nullptr)
+    {
+        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
+        {
+            cameraPtr->SetAspectRatio(aspectRatio);
+            cameraPtr->SetTopCutoff(mainCameraHalfHeight);
+            cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
+            cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
+            cameraPtr->SetRightCutoff(mainCameraHalfWidth);
+            cameraPtr->SetNearCutoff(mainCameraNearCutoff);
+            cameraPtr->SetFarCutoff(mainCameraFarCutoff);
+        }
+
+        cameraPtr->AddPitch(mainCameraPitch);
+        cameraPtr->AddYaw(mainCameraYaw);
+        cameraPtr->SetProjection(mainCameraProjection);
+        cameraPtr->SetCameraMask(s_mainCameraDebug_Mask_);
+        cameraPtr->SetPriorityValue(1000);
+    }
 }
 
 void TestScene103::CreateUiCameraEntity()
@@ -782,7 +889,6 @@ void TestScene103::CreateUiCameraEntity()
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
         cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->TurnOn();
         cameraPtr->SetCameraMask(s_uiCamera_Mask_);
         cameraPtr->SetPriorityValue(100);
     }
@@ -800,37 +906,43 @@ void TestScene103::CreateCursorEntity()
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-        cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh01 = renderedMeshes.back();
-        circleMesh01.SetCameraMask(s_mainCameraDebug_Mask_);
-        circleMesh01.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
-        circleMesh01.SetPositionZ(0.53f);
-        circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
-        circleMesh01.SetTranslucent(true);
-        circleMesh01.SetLit(false);
+        {
+            cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDebug_Mask_);
+            mesh.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
+            mesh.SetPositionZ(0.53f);
+            mesh.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
 
-        cursorPressRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh02 = renderedMeshes.back();
-        circleMesh01.SetCameraMask(s_mainCameraDebug_Mask_);
-        circleMesh02.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
-        circleMesh02.SetPositionZ(0.52f);
-        circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
-        circleMesh02.SetTranslucent(true);
-        circleMesh02.SetLit(false);
-        circleMesh02.SetVisible(false);
+        {
+            cursorPressRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDebug_Mask_);
+            mesh.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
+            mesh.SetPositionZ(0.52f);
+            mesh.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
 
-        cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
-        renderedMeshes.emplace_back();
-        Project001::RenderedMesh& circleMesh03 = renderedMeshes.back();
-        circleMesh01.SetCameraMask(s_mainCameraDebug_Mask_);
-        circleMesh03.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
-        circleMesh03.SetPositionZ(0.51f);
-        circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
-        circleMesh03.SetTranslucent(true);
-        circleMesh03.SetLit(false);
-        circleMesh03.SetVisible(false);
+        {
+            cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDebug_Mask_);
+            mesh.SetMeshDataPtr(cursorCircle_MeshDataPtr_);
+            mesh.SetPositionZ(0.51f);
+            mesh.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
     }
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursor_EntityId_));
@@ -866,7 +978,7 @@ void TestScene103::CreateGroundEntity()
             mesh.SetCameraMask(s_mainCameraLight_Mask_);
             mesh.SetMeshDataPtr(groundLight_MeshDataPtr_);
             mesh.SetTextureId(groundLight_TextureId_);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -875,7 +987,7 @@ void TestScene103::CreateGroundEntity()
             mesh.SetCameraMask(s_mainCameraDark_Mask_);
             mesh.SetMeshDataPtr(groundDark_MeshDataPtr_);
             mesh.SetTextureId(groundDark_TextureId_);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -883,10 +995,10 @@ void TestScene103::CreateGroundEntity()
             Project001::RenderedMesh& mesh = renderedMeshes.back();
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
             mesh.SetMeshIdAndMaxBoundingRadius(groundGrid_MeshId_, groundGrid_MeshDataPtr_->maxBoundingRadius);
-            mesh.SetPositionZ(0.1f);
+            mesh.SetPositionZ(-0.1f);
             mesh.SetColor(0.2f, 0.2f, 1.0f, 0.2f);
             mesh.SetTranslucent(true);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -895,10 +1007,10 @@ void TestScene103::CreateGroundEntity()
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
             mesh.SetMeshIdAndMaxBoundingRadius(groundGridLabels_MeshId_, groundGridLabels_MeshDataPtr_->maxBoundingRadius);
             mesh.SetTextureId(pixelFont_TextureId_);
-            mesh.SetPositionZ(0.1f);
+            mesh.SetPositionZ(-0.1f);
             mesh.SetColor(0.2f, 0.2f, 1.0f, 0.2f);
             mesh.SetTranslucent(true);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
     }
 }
@@ -921,9 +1033,9 @@ void TestScene103::CreatePlayerEntity()
             mesh.SetCameraMask(s_mainCameraLight_Mask_);
             mesh.SetMeshDataPtr(playerLight_MeshDataPtr_);
             mesh.SetTextureId(playerLight_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.5f)), glm::vec3(0.0f, 0.0f, 1.0f));
+            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetPositionY(-8.0f);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -932,10 +1044,33 @@ void TestScene103::CreatePlayerEntity()
             mesh.SetCameraMask(s_mainCameraDark_Mask_);
             mesh.SetMeshDataPtr(playerDark_MeshDataPtr_);
             mesh.SetTextureId(playerDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.5f)), glm::vec3(0.0f, 0.0f, 1.0f));
+            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetPositionY(-8.0f);
-            mesh.SetLit(false);
+            mesh.SetUseLighting(false);
         }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDebug_Mask_);
+            mesh.SetMeshDataPtr(playerCollision_MeshDataPtr_);
+            mesh.SetColor(0.2f, 1.0f, 0.2f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+    }
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.fixedTranslation = true;
+    collisionBody2DCreationInfo.fixedRotation = true;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, player_EntityId_));
+    if (collisionBody2DPtr != nullptr)
+    {
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        collisionCircles.emplace_back(glm::vec2(0.0f, 0.0f), 12.0f);
     }
 }
 
@@ -959,7 +1094,7 @@ void TestScene103::CreateLightEntities()
         mesh.SetPosition(0.0f, 0.0f, 16.0f);
         mesh.SetTranslucent(true);
         mesh.SetRenderPriorityOverride(-100);
-        mesh.SetLit(false);
+        mesh.SetUseLighting(false);
     }
 }
 
@@ -1022,6 +1157,14 @@ void TestScene103::UpdateMainCameraEntityPosition(float timestep_s)
             otherCameraPtr->SetPosition(cameraPtr->GetPosition());
             otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
         }
+
+        otherCameraPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraDebug_EntityId_));
+        if (cameraPtr != nullptr)
+        {
+            otherCameraPtr->SetPosition(cameraPtr->GetPosition());
+            otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
+        }
     }
 }
 
@@ -1033,7 +1176,7 @@ void TestScene103::UpdateCursorPosition(float xPosition, float yPosition)
     glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
 
     Project001::Camera* cameraPtr;
-    if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight_EntityId_))
+    if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark_EntityId_))
     {
         glm::vec3 worldCursorPosition;
         glm::vec3 worldCursorNormal;
@@ -1054,6 +1197,59 @@ void TestScene103::UpdateCursorPosition(float xPosition, float yPosition)
 
                 collisionPoints[cursorPositionCollisionPointIndex_].position = worldCursorPosition;
             }
+        }
+    }
+}
+
+void TestScene103::UpdatePlayerEntityVelocity()
+{
+    Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_EntityId_));
+    if (playerCollisionBodyPtr != nullptr)
+    {
+        constexpr float walkSpeed = 64.0f;
+        constexpr float runSpeed = 128.0f;
+
+        const bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        const bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        const bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        const bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+        const bool running = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_SPACE);
+
+        const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
+        float velocityMagnitude = glm::length(velocity);
+
+        glm::vec2 velocityDirection(0.0f, 0.0);
+        if (movingLeft)
+        {
+            velocityDirection.x -= 1.0f;
+        }
+        if (movingRight)
+        {
+            velocityDirection.x += 1.0f;
+        }
+        if (movingUp)
+        {
+            velocityDirection.y += 1.0f;
+        }
+        if (movingDown)
+        {
+            velocityDirection.y -= 1.0f;
+        }
+
+        float accelerationMagnitude = glm::length(velocityDirection);
+        if (accelerationMagnitude > 0.0f)
+        {
+            velocityDirection /= accelerationMagnitude;
+        }
+
+        if (running)
+        {
+            playerCollisionBodyPtr->SetVelocity(velocityDirection * runSpeed);
+        }
+        else
+        {
+            playerCollisionBodyPtr->SetVelocity(velocityDirection * walkSpeed);
         }
     }
 }
@@ -1091,6 +1287,23 @@ void TestScene103::SyncCursorRenderedModel()
             circleMesh03.SetPositionX(collisionPoint03.position.x);
             circleMesh03.SetPositionY(collisionPoint03.position.y);
             circleMesh03.SetVisible(collisionPoint03.tangible);
+        }
+    }
+}
+
+void TestScene103::SyncPlayerRenderedModel()
+{
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, player_EntityId_));
+    if (collisionBodyPtr != nullptr)
+    {
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, player_EntityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));
+            renderedModelPtr->ResetOrientation();
+            renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
         }
     }
 }

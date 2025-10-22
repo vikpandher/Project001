@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-22
 
 #include "TestScene102.h"
 
@@ -628,7 +628,6 @@ void TestScene102::CreateCameraEntities()
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->AddPitch(-glm::quarter_pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
 
             GetSoundPlayerPtr()->SetListenerPosition(cameraPtr->GetPosition());
@@ -650,7 +649,7 @@ void TestScene102::CreateCameraEntities()
             mesh01.SetTextureId(border96x64_TextureId_);
             mesh01.SetColor(1.0f, 0.0f, 0.0f, 0.2f);
             mesh01.SetTranslucent(true);
-            mesh01.SetLit(false);
+            mesh01.SetUseLighting(false);
             mesh01.SetVisible(false);
 
             renderedMeshes.emplace_back();
@@ -659,7 +658,7 @@ void TestScene102::CreateCameraEntities()
             mesh02.SetTextureId(border96x64_TextureId_);
             mesh02.SetColor(0.0f, 1.0f, 0.0f, 0.2f);
             mesh02.SetTranslucent(true);
-            mesh02.SetLit(false);
+            mesh02.SetUseLighting(false);
             mesh02.SetRenderPriorityOverride(-100);
         }
     }
@@ -692,7 +691,6 @@ void TestScene102::CreateCameraEntities()
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }
@@ -718,7 +716,7 @@ void TestScene102::CreateCursorEntity()
         circleMesh01.SetPositionZ(0.53f);
         circleMesh01.SetColor(0.8f, 0.8f, 0.8f, 0.4f);
         circleMesh01.SetTranslucent(true);
-        circleMesh01.SetLit(false);
+        circleMesh01.SetUseLighting(false);
 
         cursorPressRenderedMeshIndex_ = renderedMeshes.size();
         renderedMeshes.emplace_back();
@@ -727,7 +725,7 @@ void TestScene102::CreateCursorEntity()
         circleMesh02.SetPositionZ(0.52f);
         circleMesh02.SetColor(0.8f, 0.2f, 0.2f, 0.4f);
         circleMesh02.SetTranslucent(true);
-        circleMesh02.SetLit(false);
+        circleMesh02.SetUseLighting(false);
         circleMesh02.SetVisible(false);
 
         cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
@@ -737,7 +735,7 @@ void TestScene102::CreateCursorEntity()
         circleMesh03.SetPositionZ(0.51f);
         circleMesh03.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
         circleMesh03.SetTranslucent(true);
-        circleMesh03.SetLit(false);
+        circleMesh03.SetUseLighting(false);
         circleMesh03.SetVisible(false);
     }
 
@@ -779,7 +777,7 @@ void TestScene102::CreateFloorEntity()
         mesh01.SetPositionZ(-0.1f);
         mesh01.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
         mesh01.SetTranslucent(true);
-        mesh01.SetLit(false);
+        mesh01.SetUseLighting(false);
 
         renderedMeshes.emplace_back();
         Project001::RenderedMesh& mesh02 = renderedMeshes.back();
@@ -787,7 +785,7 @@ void TestScene102::CreateFloorEntity()
         mesh02.SetPositionZ(-0.1f);
         mesh02.SetColor(1.0f, 1.0f, 1.0f, 0.1f);
         mesh02.SetTranslucent(true);
-        mesh02.SetLit(false);
+        mesh02.SetUseLighting(false);
         mesh02.SetTextureId(pixelFont_TextureId_);
     }
 }
@@ -817,7 +815,7 @@ void TestScene102::CreatePlayerEntity()
         mesh01.LookAt(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mesh01.SetScale(32.0f, 32.0f, 32.0f);
         mesh01.SetTextureId(numbers16x4_TextureId_);
-        mesh01.SetLit(false);
+        mesh01.SetUseLighting(false);
 
         // renderedMeshes.emplace_back();
         // Project001::RenderedMesh& mesh02 = renderedMeshes.back();
@@ -829,7 +827,7 @@ void TestScene102::CreatePlayerEntity()
         mesh03.SetMeshDataPtr(shipBeamSight_MeshDataPtr_);
         mesh03.SetColor(1.0f, 0.0f, 0.0f, 0.2f);
         mesh03.SetTranslucent(true);
-        mesh03.SetLit(false);
+        mesh03.SetUseLighting(false);
     }
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_, collisionBody2DCreationInfo));

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestScene013.h"
 
@@ -118,7 +118,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetPosition(currentPosition);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(rectangleMeshId_, rectangleBoundingRadius);
-                renderedMeshPtr->SetLit(false);
+                renderedMeshPtr->SetUseLighting(false);
             }
 
             FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -178,7 +178,7 @@ void TestScene013::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetPosition(currentPosition);
                 renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(circleMeshId_, circleBoundingRadius);
-                renderedMeshPtr->SetLit(false);
+                renderedMeshPtr->SetUseLighting(false);
             }
 
             FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));

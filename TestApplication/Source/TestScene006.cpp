@@ -1,6 +1,7 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
+
 #include "TestScene006.h"
 
 #include "TestApplicationData.h"
@@ -321,7 +322,6 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
             renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
-            renderedMeshPtr->SetVisible(true);
         }
     }
 

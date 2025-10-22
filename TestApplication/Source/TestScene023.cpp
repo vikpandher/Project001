@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-22
 
 #include "TestScene023.h"
 
@@ -78,7 +78,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -124,7 +124,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
                 renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-                renderedMeshPtr->SetLit(false);
+                renderedMeshPtr->SetUseLighting(false);
             }
         }
 
@@ -146,7 +146,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
                 renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
                 renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
                 renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-                renderedMeshPtr->SetLit(false);
+                renderedMeshPtr->SetUseLighting(false);
             }
         }
     }
@@ -188,7 +188,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -211,7 +211,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -242,7 +242,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -269,7 +269,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -298,7 +298,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 

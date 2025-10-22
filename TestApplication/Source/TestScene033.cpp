@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-22
 
 #include "TestScene033.h"
 
@@ -104,7 +104,6 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_secondaryCameraMask_);
             cameraPtr->SetPriorityValue(100);
         }
@@ -132,7 +131,6 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->SetCameraViewport(0.75f, 0.0f, 0.25f, 0.25f);
             cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
             cameraPtr->AddYaw(glm::pi<float>());
-            cameraPtr->TurnOn();
             cameraPtr->SetPriorityValue(101);
         }
     }
@@ -291,7 +289,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(ui_fps_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -309,7 +307,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(ui_counter_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -327,7 +325,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_secondaryCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(ui_largeText_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);

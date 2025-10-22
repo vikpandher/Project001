@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-13
+// @DATE 2025-10-22
 
 #include "MiniAudio_SoundPlayer.h"
 
@@ -30,7 +30,11 @@ namespace Project001
         ma_result result = ma_context_init(NULL, 0, &contextConfig, contextPtr_);
         if (result != MA_SUCCESS)
         {
-            printf("Failed to initialize context.\n");
+            LOG_ERROR_F("Failed to initialize context.\n");
+
+            delete contextPtr_;
+            contextPtr_ = NULL;
+
             return;
         }
 
@@ -45,6 +49,9 @@ namespace Project001
             LOG_ERROR_F("Failed to initialize audio engine");
 
             ma_context_uninit(contextPtr_);
+
+            delete contextPtr_;
+            contextPtr_ = NULL;
 
             delete enginePtr_;
             enginePtr_ = NULL;
@@ -124,6 +131,9 @@ namespace Project001
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to create sound buffer (ma_audio_buffer)");
+
+            delete audioBufferPtr;
+
             return false;
         }
 
@@ -203,6 +213,10 @@ namespace Project001
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to create sound buffer (ma_audio_buffer)");
+
+            delete newSoundSource.audioBufferPtr;
+            delete newSoundSource.soundPtr;
+
             return false;
         }
 
@@ -210,6 +224,10 @@ namespace Project001
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to create sound source (ma_sound)");
+
+            delete newSoundSource.audioBufferPtr;
+            delete newSoundSource.soundPtr;
+
             return false;
         }
 

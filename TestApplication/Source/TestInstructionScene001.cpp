@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-10-22
 
 #include "TestInstructionScene001.h"
 
@@ -130,7 +130,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionTextMeshDataPtr_);
             hiddenInstructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
             hiddenInstructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
-            hiddenInstructionMesh.SetLit(false);
+            hiddenInstructionMesh.SetUseLighting(false);
             hiddenInstructionMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
 
             instructionMeshIndex_ = renderedMeshes.size();
@@ -140,7 +140,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             instructionMesh.SetMeshDataPtr(instructionTextMeshDataPtr_);
             instructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
             instructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
-            instructionMesh.SetLit(false);
+            instructionMesh.SetUseLighting(false);
             instructionMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
             instructionMesh.SetVisible(false);
 
@@ -150,7 +150,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             hiddenInstructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
             hiddenInstructionBackgroundMesh.SetMeshDataPtr(hiddenInstructionBackgroundMeshDataPtr_);
             hiddenInstructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
-            hiddenInstructionBackgroundMesh.SetLit(false);
+            hiddenInstructionBackgroundMesh.SetUseLighting(false);
             hiddenInstructionBackgroundMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
             hiddenInstructionBackgroundMesh.SetRenderPriorityOverride(-100);
 
@@ -160,7 +160,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             instructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
             instructionBackgroundMesh.SetMeshDataPtr(instructionBackgroundMeshDataPtr_);
             instructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
-            instructionBackgroundMesh.SetLit(false);
+            instructionBackgroundMesh.SetUseLighting(false);
             instructionBackgroundMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
             instructionBackgroundMesh.SetRenderPriorityOverride(-100);
             instructionBackgroundMesh.SetVisible(false);

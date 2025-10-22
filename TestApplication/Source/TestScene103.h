@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-22
 
 #pragma once
 
@@ -29,6 +29,7 @@ protected:
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
+    void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
     void InitializeInstructionScene();
@@ -48,10 +49,12 @@ protected:
     void CreateLightEntities();
 
     void UpdateMainCameraEntityPosition(float timestep_s);
+    void UpdatePlayerEntityVelocity();
 
     void UpdateCursorPosition(float xPosition, float yPosition);
 
     void SyncCursorRenderedModel();
+    void SyncPlayerRenderedModel();
 
     // -------------------------------------------------------------------------
 
@@ -84,12 +87,15 @@ protected:
     Project001::TextureData* playerLight_TextureDataPtr_;
     unsigned int playerLight_TextureId_;
 
+    Project001::MeshData* playerCollision_MeshDataPtr_;
+
     Project001::MeshData* light01_MeshDataPtr_;
 
     // Entities ----------------------------------------------------------------
 
     unsigned int mainCameraDark_EntityId_;
     unsigned int mainCameraLight_EntityId_;
+    unsigned int mainCameraDebug_EntityId_;
     static const uint32_t s_mainCameraDark_Mask_ = 0b00000000000000000000000000000001;
     static const uint32_t s_mainCameraLight_Mask_ = 0b00000000000000000000000000000010;
     static const uint32_t s_mainCameraDebug_Mask_ = 0b00000000000000000000000000000100;

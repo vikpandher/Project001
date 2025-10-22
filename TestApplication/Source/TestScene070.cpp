@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestScene070.h"
 
@@ -122,7 +122,6 @@ void TestScene070::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
@@ -156,7 +155,6 @@ void TestScene070::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }
@@ -332,7 +330,7 @@ void TestScene070::CreateText01()
         renderedMeshPtr->SetMeshDataPtr(text01_MeshDataPtr_);
         renderedMeshPtr->SetTextureId(pixel_TextureId_);
         renderedMeshPtr->SetPosition(-2.0f, 2.0f, 0.0f);
-        renderedMeshPtr->SetLit(false);
+        renderedMeshPtr->SetUseLighting(false);
     }
 }
 

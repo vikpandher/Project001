@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestScene101.h"
 
@@ -115,7 +115,6 @@ void TestScene101::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
@@ -149,7 +148,6 @@ void TestScene101::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }

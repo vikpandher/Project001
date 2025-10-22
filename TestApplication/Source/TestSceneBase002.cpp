@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-10-22
 
 #include "TestSceneBase002.h"
 
@@ -219,7 +219,6 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
@@ -257,7 +256,6 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }
@@ -275,7 +273,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(cursorLineMeshDataPtr_);
             renderedMeshPtr->SetColor(0.4f, 0.4f, 0.4f, 1.0f);
             renderedMeshPtr->SetRenderPriorityOverride(10);
@@ -303,7 +301,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(distanceTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -324,7 +322,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(massTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -345,7 +343,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(momentOfInertiaTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -366,7 +364,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(entityIdTextMeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -388,7 +386,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(fps_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -410,7 +408,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_uiCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(energy_MeshDataPtr_);
             renderedMeshPtr->SetTextureId(font01_TextureId_);
             renderedMeshPtr->SetTranslucent(true);
@@ -431,7 +429,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(collisionBodyBorderMeshDataPtr_);
             renderedMeshPtr->SetColor(0.1f, 0.2f, 0.2f, 1.0f);
             renderedMeshPtr->SetRenderPriorityOverride(-99);
@@ -449,7 +447,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(collisionBodyQuadTreeMeshDataPtr_);
             renderedMeshPtr->SetColor(0.2f, 0.2f, 0.2f, 1.0f);
             renderedMeshPtr->SetRenderPriorityOverride(-100);
@@ -466,7 +464,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(collisionMarkerCollectionMeshDataPtr_);
             renderedMeshPtr->SetColor(0.2f, 0.8f, 0.6f, 0.4f);
             renderedMeshPtr->SetRenderPriorityOverride(2);

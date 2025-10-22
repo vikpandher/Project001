@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-10-22
 
 #include "TestScene060.h"
 
@@ -211,7 +211,6 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             }
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_mainCameraMask_);
         }
     }
@@ -245,7 +244,6 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
             cameraPtr->SetDepthTestEnabled(false);
-            cameraPtr->TurnOn();
             cameraPtr->SetCameraMask(s_uiCameraMask_);
             cameraPtr->SetPriorityValue(1000000);
         }
@@ -265,7 +263,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetMeshDataPtr(backgroundRectangleMeshDataPtr_);
             renderedMeshPtr->SetPositionZ(-0.2f);
             renderedMeshPtr->SetColor(0.1f, 0.1f, 0.2f, 1.0f);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -285,7 +283,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 0.5f, 0.0f, 0.0f);
             renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -305,7 +303,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 2.5f, 0.0f, 0.0f);
             renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -325,7 +323,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetPosition(-mainCameraHalfWidth + 4.5f, 0.0f, 0.0f);
             renderedMeshPtr->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
             renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetLit(false);
+            renderedMeshPtr->SetUseLighting(false);
         }
     }
 
@@ -347,14 +345,14 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
             polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
             polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
-            polygonShadowMesh.SetLit(false);
+            polygonShadowMesh.SetUseLighting(false);
 
             leftStickCircleMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& circleMesh = renderedMeshes.back();
             circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
             circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
-            circleMesh.SetLit(false);
+            circleMesh.SetUseLighting(false);
             circleMesh.SetPositionZ(0.02f);
 
             renderedModelPtr->SetPosition(-1.0f, 1.5f, 0.0f);
@@ -379,14 +377,14 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             Project001::RenderedMesh& polygonShadowMesh = renderedMeshes.back();
             polygonShadowMesh.SetMeshDataPtr(triangleMeshDataPtr_);
             polygonShadowMesh.SetColor(0.8f, 0.4f, 0.2f, 1.0f);
-            polygonShadowMesh.SetLit(false);
+            polygonShadowMesh.SetUseLighting(false);
 
             rightStickCircleMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& circleMesh = renderedMeshes.back();
             circleMesh.SetMeshDataPtr(circleMeshDataPtr_);
             circleMesh.SetColor(0.6f, 0.2f, 0.2f, 1.0f);
-            circleMesh.SetLit(false);
+            circleMesh.SetUseLighting(false);
             circleMesh.SetPositionZ(0.02f);
 
             renderedModelPtr->SetPosition(1.0f, 1.5f, 0.0f);

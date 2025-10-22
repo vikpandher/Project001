@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-10-22
 
 #include "RenderSystem.h"
 
@@ -411,7 +411,7 @@ namespace Project001
                                     currentRenderedMeshPtr->GetScale(),
                                     currentRenderedMeshPtr->GetColor(),
                                     currentRenderedMeshPtr->GetShininess(),
-                                    currentRenderedMeshPtr->GetLit()
+                                    currentRenderedMeshPtr->GetUseLighting()
                                 );
                             }
                             else // current mesh is batched
@@ -440,7 +440,7 @@ namespace Project001
                                     currentRenderedMeshPtr->GetScale(),
                                     currentRenderedMeshPtr->GetColor(),
                                     currentRenderedMeshPtr->GetShininess(),
-                                    currentRenderedMeshPtr->GetLit()
+                                    currentRenderedMeshPtr->GetUseLighting()
                                 ));
                             }
 
