@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-23
 
 #pragma once
 
@@ -39,6 +39,7 @@ protected:
     void LoadGroundResources();
     void LoadGroundGridResources();
     void LoadPlayerResources();
+    void LoadPlayerLightResources();
     void LoadLightResources();
 
     void CreateMainCameraEntities();
@@ -46,6 +47,7 @@ protected:
     void CreateCursorEntity();
     void CreateGroundEntity();
     void CreatePlayerEntity();
+    void CreatePlayerLightEntity();
     void CreateLightEntities();
 
     void UpdateMainCameraEntityPosition(float timestep_s);
@@ -55,6 +57,7 @@ protected:
 
     void SyncCursorRenderedModel();
     void SyncPlayerRenderedModel();
+    void SyncPlayerLightRenderedModel();
 
     // -------------------------------------------------------------------------
 
@@ -68,38 +71,39 @@ protected:
     const Project001::TextureData* pixelFont_TextureDataPtr_;
     unsigned int pixelFont_TextureId_;
 
+    Project001::MeshData* groundDark_MeshDataPtr_;
+    Project001::TextureData* groundDark_TextureDataPtr_;
+    unsigned int groundDark_TextureId_;
+    Project001::MeshData* groundLit_MeshDataPtr_;
+    Project001::TextureData* groundLit_TextureDataPtr_;
+    unsigned int groundLit_TextureId_;
     Project001::MeshData* groundGrid_MeshDataPtr_;
     unsigned int groundGrid_MeshId_;
     Project001::MeshData* groundGridLabels_MeshDataPtr_;
     unsigned int groundGridLabels_MeshId_;
 
-    Project001::MeshData* groundDark_MeshDataPtr_;
-    Project001::TextureData* groundDark_TextureDataPtr_;
-    unsigned int groundDark_TextureId_;
-    Project001::MeshData* groundLight_MeshDataPtr_;
-    Project001::TextureData* groundLight_TextureDataPtr_;
-    unsigned int groundLight_TextureId_;
-
     Project001::MeshData* playerDark_MeshDataPtr_;
     Project001::TextureData* playerDark_TextureDataPtr_;
     unsigned int playerDark_TextureId_;
-    Project001::MeshData* playerLight_MeshDataPtr_;
-    Project001::TextureData* playerLight_TextureDataPtr_;
-    unsigned int playerLight_TextureId_;
-
+    Project001::MeshData* playerLit_MeshDataPtr_;
+    Project001::TextureData* playerLit_TextureDataPtr_;
+    unsigned int playerLit_TextureId_;
     Project001::MeshData* playerCollision_MeshDataPtr_;
+
+    Project001::MeshData* playerLight_MeshDataPtr_;
+    Project001::MeshData* playerLightCollision_MeshDataPtr_;
 
     Project001::MeshData* light01_MeshDataPtr_;
 
     // Entities ----------------------------------------------------------------
 
     unsigned int mainCameraDark_EntityId_;
-    unsigned int mainCameraLight_EntityId_;
+    unsigned int mainCameraLit_EntityId_;
     unsigned int mainCameraDebug_EntityId_;
     static const uint32_t s_mainCameraDark_Mask_ = 0b00000000000000000000000000000001;
-    static const uint32_t s_mainCameraLight_Mask_ = 0b00000000000000000000000000000010;
+    static const uint32_t s_mainCameraLit_Mask_ = 0b00000000000000000000000000000010;
     static const uint32_t s_mainCameraDebug_Mask_ = 0b00000000000000000000000000000100;
-    static const uint32_t s_mainCameraGroup_Mask_ = s_mainCameraDark_Mask_ | s_mainCameraLight_Mask_ | s_mainCameraDebug_Mask_;
+    static const uint32_t s_mainCameraGroup_Mask_ = s_mainCameraDark_Mask_ | s_mainCameraLit_Mask_ | s_mainCameraDebug_Mask_;
     glm::vec3 mainCamera_LookAtPoint_;
     float mainCamera_DistanceAway_;
 
@@ -119,7 +123,11 @@ protected:
 
     unsigned int ground_EntityId_;
 
+    unsigned int playerCollisionCircleIndex_;
     unsigned int player_EntityId_;
+
+    unsigned int playerLightCollisionConvexPolygonIndex_;
+    unsigned int playerLight_EntityId_;
 
     unsigned int light01_EntityId_;
 };

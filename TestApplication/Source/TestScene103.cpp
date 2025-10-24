@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-23
 
 #include "TestScene103.h"
 
@@ -36,6 +36,7 @@ struct Character
     };
 
     CharacterState state = CharacterState::CHARACTER_STATE_STANDING;
+    CharacterState animationState = CharacterState::CHARACTER_STATE_STANDING; // the change in state will be delayed
 };
 
 // public ----------------------------------------------------------------------
@@ -47,26 +48,28 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , pixelFont_FontDataPtr_(nullptr)
     , pixelFont_TextureDataPtr_(nullptr)
     , pixelFont_TextureId_((unsigned int)-1)
+    , groundDark_MeshDataPtr_(nullptr)
+    , groundDark_TextureDataPtr_(nullptr)
+    , groundDark_TextureId_((unsigned int)-1)
+    , groundLit_MeshDataPtr_(nullptr)
+    , groundLit_TextureDataPtr_(nullptr)
+    , groundLit_TextureId_((unsigned int)-1)
     , groundGrid_MeshDataPtr_(nullptr)
     , groundGrid_MeshId_((unsigned int)-1)
     , groundGridLabels_MeshDataPtr_(nullptr)
     , groundGridLabels_MeshId_((unsigned int)-1)
-    , groundDark_MeshDataPtr_(nullptr)
-    , groundDark_TextureDataPtr_(nullptr)
-    , groundDark_TextureId_((unsigned int)-1)
-    , groundLight_MeshDataPtr_(nullptr)
-    , groundLight_TextureDataPtr_(nullptr)
-    , groundLight_TextureId_((unsigned int)-1)
     , playerDark_MeshDataPtr_(nullptr)
     , playerDark_TextureDataPtr_(nullptr)
     , playerDark_TextureId_((unsigned int)-1)
+    , playerLit_MeshDataPtr_(nullptr)
+    , playerLit_TextureDataPtr_(nullptr)
+    , playerLit_TextureId_((unsigned int)-1)
     , playerLight_MeshDataPtr_(nullptr)
-    , playerLight_TextureDataPtr_(nullptr)
-    , playerLight_TextureId_((unsigned int)-1)
     , playerCollision_MeshDataPtr_(nullptr)
+    , playerLightCollision_MeshDataPtr_(nullptr)
     , light01_MeshDataPtr_(nullptr)
     , mainCameraDark_EntityId_((unsigned int)-1)
-    , mainCameraLight_EntityId_((unsigned int)-1)
+    , mainCameraLit_EntityId_((unsigned int)-1)
     , mainCameraDebug_EntityId_((unsigned int)-1)
     , mainCamera_LookAtPoint_()
     , mainCamera_DistanceAway_(0.0f)
@@ -79,7 +82,10 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , cursorPressCollisionPointIndex_((unsigned int)-1)
     , cursorReleaseCollisionPointIndex_((unsigned int)-1)
     , ground_EntityId_((unsigned int)-1)
+    , playerCollisionCircleIndex_((unsigned int)-1)
     , player_EntityId_((unsigned int)-1)
+    , playerLightCollisionConvexPolygonIndex_((unsigned int)-1)
+    , playerLight_EntityId_((unsigned int)-1)
     , light01_EntityId_((unsigned int)-1)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene103Id = GetId();
@@ -116,6 +122,7 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     LoadGroundResources();
     LoadGroundGridResources();
     LoadPlayerResources();
+    LoadPlayerLightResources();
     LoadLightResources();
 
     // Entities ----------------------------------------------------------------
@@ -125,6 +132,7 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     CreateCursorEntity();
     CreateGroundEntity();
     CreatePlayerEntity();
+    CreatePlayerLightEntity();
     CreateLightEntities();
 
     // Member Scenes -----------------------------------------------------------
@@ -153,6 +161,16 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     pixelFont_TextureDataPtr_ = nullptr;
     pixelFont_TextureId_ = (unsigned int)-1;
 
+    delete groundDark_MeshDataPtr_;
+    groundDark_MeshDataPtr_ = nullptr;
+    delete groundDark_TextureDataPtr_;
+    groundDark_TextureDataPtr_ = nullptr;
+    groundDark_TextureId_ = (unsigned int)-1;
+    delete groundLit_MeshDataPtr_;
+    groundLit_MeshDataPtr_ = nullptr;
+    delete groundLit_TextureDataPtr_;
+    groundLit_TextureDataPtr_ = nullptr;
+    groundLit_TextureId_ = (unsigned int)-1;
     delete groundGrid_MeshDataPtr_;
     groundGrid_MeshDataPtr_ = nullptr;
     groundGrid_MeshId_ = (unsigned int)-1;
@@ -160,32 +178,24 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     groundGridLabels_MeshDataPtr_ = nullptr;
     groundGridLabels_MeshId_ = (unsigned int)-1;
 
-    delete groundDark_MeshDataPtr_;
-    groundDark_MeshDataPtr_ = nullptr;
-    delete groundDark_TextureDataPtr_;
-    groundDark_TextureDataPtr_ = nullptr;
-    groundDark_TextureId_ = (unsigned int)-1;
-
-    delete groundLight_MeshDataPtr_;
-    groundLight_MeshDataPtr_ = nullptr;
-    delete groundLight_TextureDataPtr_;
-    groundLight_TextureDataPtr_ = nullptr;
-    groundLight_TextureId_ = (unsigned int)-1;
-
     delete playerDark_MeshDataPtr_;
     playerDark_MeshDataPtr_ = nullptr;
     delete playerDark_TextureDataPtr_;
     playerDark_TextureDataPtr_ = nullptr;
     playerDark_TextureId_ = (unsigned int)-1;
 
-    delete playerLight_MeshDataPtr_;
-    playerLight_MeshDataPtr_ = nullptr;
-    delete playerLight_TextureDataPtr_;
-    playerLight_TextureDataPtr_ = nullptr;
-    playerLight_TextureId_ = (unsigned int)-1;
-
+    delete playerLit_MeshDataPtr_;
+    playerLit_MeshDataPtr_ = nullptr;
+    delete playerLit_TextureDataPtr_;
+    playerLit_TextureDataPtr_ = nullptr;
+    playerLit_TextureId_ = (unsigned int)-1;
     delete playerCollision_MeshDataPtr_;
     playerCollision_MeshDataPtr_ = nullptr;
+
+    delete playerLight_MeshDataPtr_;
+    playerLight_MeshDataPtr_ = nullptr;
+    delete playerLightCollision_MeshDataPtr_;
+    playerLightCollision_MeshDataPtr_ = nullptr;
 
     delete light01_MeshDataPtr_;
     light01_MeshDataPtr_ = nullptr;
@@ -193,7 +203,7 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     // Entities ----------------------------------------------------------------
 
     mainCameraDark_EntityId_ = (unsigned int)-1;
-    mainCameraLight_EntityId_ = (unsigned int)-1;
+    mainCameraLit_EntityId_ = (unsigned int)-1;
     mainCameraDebug_EntityId_ = (unsigned int)-1;
     mainCamera_LookAtPoint_ = glm::vec3();
     mainCamera_DistanceAway_ = 0.0f;
@@ -210,7 +220,11 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     ground_EntityId_ = (unsigned int)-1;
 
+    playerCollisionCircleIndex_ = (unsigned int)-1;
     player_EntityId_ = (unsigned int)-1;
+
+    playerLightCollisionConvexPolygonIndex_ = (unsigned int)-1;
+    playerLight_EntityId_ = (unsigned int)-1;
 
     light01_EntityId_ = (unsigned int)-1;
 }
@@ -279,7 +293,7 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         }
 
         cameraPtr = nullptr;
-        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight_EntityId_))
+        if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLit_EntityId_))
         {
             if (cameraPtr->GetProjection() == Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
             {
@@ -405,6 +419,7 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // -------------------------------------------------------------------------
     SyncCursorRenderedModel();
     SyncPlayerRenderedModel();
+    SyncPlayerLightRenderedModel();
 }
 
 void TestScene103::InitializeInstructionScene()
@@ -520,17 +535,17 @@ void TestScene103::LoadGroundResources()
         false, false
     );
 
-    groundLight_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*groundLight_MeshDataPtr_, 2048.0f, 2048.0f, 0.0f, 1.0f, 0.0f, 1.0f));
+    groundLit_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*groundLit_MeshDataPtr_, 2048.0f, 2048.0f, 0.0f, 1.0f, 0.0f, 1.0f));
 
-    groundLight_TextureDataPtr_ = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*groundLight_TextureDataPtr_, "../Textures/gridLight_2048x2048.png"));
+    groundLit_TextureDataPtr_ = new Project001::TextureData();
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*groundLit_TextureDataPtr_, "../Textures/gridLit_2048x2048.png"));
     GetRendererPtr()->CreateTexture(
-        groundLight_TextureId_,
-        groundLight_TextureDataPtr_->data,
-        groundLight_TextureDataPtr_->width,
-        groundLight_TextureDataPtr_->height,
-        groundLight_TextureDataPtr_->bytesPerPixel,
+        groundLit_TextureId_,
+        groundLit_TextureDataPtr_->data,
+        groundLit_TextureDataPtr_->width,
+        groundLit_TextureDataPtr_->height,
+        groundLit_TextureDataPtr_->bytesPerPixel,
         false, false
     );
 }
@@ -712,12 +727,12 @@ void TestScene103::LoadPlayerResources()
 {
     constexpr float spriteWidth = 32.0f;
     constexpr float spriteHeight = 48.0f;
-    constexpr float spriteRotation = -0.25 * glm::pi<float>(); // = -0.125f * glm::pi<float>();
+    // constexpr float spriteRotation = -0.25 * glm::pi<float>(); // = -0.125f * glm::pi<float>();
 
     playerDark_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerDark_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*playerDark_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
-    Project001::MeshLoader::RotateMeshX(*playerDark_MeshDataPtr_, spriteRotation);
+    // Project001::MeshLoader::RotateMeshX(*playerDark_MeshDataPtr_, spriteRotation);
 
     playerDark_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerDark_TextureDataPtr_, "../Textures/dark_32x48.png"));
@@ -730,24 +745,56 @@ void TestScene103::LoadPlayerResources()
         false, false
     );
 
-    playerLight_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerLight_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
-    Project001::MeshLoader::TranslateMesh(*playerLight_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
-    Project001::MeshLoader::RotateMeshX(*playerLight_MeshDataPtr_, spriteRotation);
+    playerLit_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerLit_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
+    Project001::MeshLoader::TranslateMesh(*playerLit_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    // Project001::MeshLoader::RotateMeshX(*playerLit_MeshDataPtr_, spriteRotation);
 
-    playerLight_TextureDataPtr_ = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerLight_TextureDataPtr_, "../Textures/light_32x48.png"));
+    playerLit_TextureDataPtr_ = new Project001::TextureData();
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerLit_TextureDataPtr_, "../Textures/lit_32x48.png"));
     GetRendererPtr()->CreateTexture(
-        playerLight_TextureId_,
-        playerLight_TextureDataPtr_->data,
-        playerLight_TextureDataPtr_->width,
-        playerLight_TextureDataPtr_->height,
-        playerLight_TextureDataPtr_->bytesPerPixel,
+        playerLit_TextureId_,
+        playerLit_TextureDataPtr_->data,
+        playerLit_TextureDataPtr_->width,
+        playerLit_TextureDataPtr_->height,
+        playerLit_TextureDataPtr_->bytesPerPixel,
         false, false
     );
 
     playerCollision_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*playerCollision_MeshDataPtr_, 12.0f, 12));
+}
+
+void TestScene103::LoadPlayerLightResources()
+{
+    playerLight_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*playerLight_MeshDataPtr_, 64.0f, 16, 8, false));
+    Project001::MeshLoader::RotateMesh(*playerLight_MeshDataPtr_, glm::angleAxis(glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f)));
+    Project001::MeshLoader::TranslateMesh(*playerLight_MeshDataPtr_, glm::vec3(0.0f, -88.0f, 0.0f));
+    FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*playerLight_MeshDataPtr_, 112.0f, 8.0f, 64.0f, 16, false));
+    Project001::MeshLoader::TranslateMesh(*playerLight_MeshDataPtr_, glm::vec3(0.0f, -72.0f, 0.0f));
+    Project001::MeshLoader::RotateMesh(*playerLight_MeshDataPtr_, glm::angleAxis(glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+    playerLightCollision_MeshDataPtr_ = new Project001::MeshData();
+    {
+        std::vector<glm::vec2> corners;
+        constexpr float radius = 60.0f;
+        constexpr size_t subdivisions = 8;
+        constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+        for (size_t i = 0; i <= subdivisions; ++i)
+        {
+            glm::vec2 radiusVector(radius, 0.0f);
+            radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+            corners.emplace_back(radiusVector);
+        }
+        corners.emplace_back(-4.0f, -112.0f);
+        corners.emplace_back(4.0f, -112.0f);
+        for (size_t i = 0; i < corners.size(); ++i)
+        {
+            corners[i].y += 128.0f;
+        }
+        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*playerLightCollision_MeshDataPtr_, corners));
+    }
 }
 
 void TestScene103::LoadLightResources()
@@ -810,11 +857,11 @@ void TestScene103::CreateMainCameraEntities()
         GetSoundPlayerPtr()->SetListenerUpDirection(cameraPtr->GetUpVector());
     }
 
-    GetComponentStoresPtr()->CreateEntity(mainCameraLight_EntityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraLight_EntityId_));
+    GetComponentStoresPtr()->CreateEntity(mainCameraLit_EntityId_);
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(mainCameraLit_EntityId_));
 
     cameraPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight_EntityId_));
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLit_EntityId_));
     if (cameraPtr != nullptr)
     {
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
@@ -831,7 +878,7 @@ void TestScene103::CreateMainCameraEntities()
         cameraPtr->AddPitch(mainCameraPitch);
         cameraPtr->AddYaw(mainCameraYaw);
         cameraPtr->SetProjection(mainCameraProjection);
-        cameraPtr->SetCameraMask(s_mainCameraLight_Mask_);
+        cameraPtr->SetCameraMask(s_mainCameraLit_Mask_);
         cameraPtr->SetPriorityValue(-100);
     }
 
@@ -975,9 +1022,9 @@ void TestScene103::CreateGroundEntity()
         {
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetCameraMask(s_mainCameraLight_Mask_);
-            mesh.SetMeshDataPtr(groundLight_MeshDataPtr_);
-            mesh.SetTextureId(groundLight_TextureId_);
+            mesh.SetCameraMask(s_mainCameraLit_Mask_);
+            mesh.SetMeshDataPtr(groundLit_MeshDataPtr_);
+            mesh.SetTextureId(groundLit_TextureId_);
             mesh.SetUseLighting(false);
         }
 
@@ -1030,9 +1077,9 @@ void TestScene103::CreatePlayerEntity()
         {
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetCameraMask(s_mainCameraLight_Mask_);
-            mesh.SetMeshDataPtr(playerLight_MeshDataPtr_);
-            mesh.SetTextureId(playerLight_TextureId_);
+            mesh.SetCameraMask(s_mainCameraLit_Mask_);
+            mesh.SetMeshDataPtr(playerLit_MeshDataPtr_);
+            mesh.SetTextureId(playerLit_TextureId_);
             mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetPositionY(-8.0f);
             mesh.SetUseLighting(false);
@@ -1070,7 +1117,75 @@ void TestScene103::CreatePlayerEntity()
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+        playerCollisionCircleIndex_ = collisionCircles.size();
         collisionCircles.emplace_back(glm::vec2(0.0f, 0.0f), 12.0f);
+    }
+}
+
+void TestScene103::CreatePlayerLightEntity()
+{
+    GetComponentStoresPtr()->CreateEntity(playerLight_EntityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(playerLight_EntityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, playerLight_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDark_Mask_);
+            mesh.SetMeshDataPtr(playerLight_MeshDataPtr_);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.0f);
+            mesh.SetPosition(0.0f, 0.0f, 24.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(-100);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDebug_Mask_);
+            mesh.SetMeshDataPtr(playerLightCollision_MeshDataPtr_);
+            mesh.SetColor(1.0f, 1.0f, 0.2f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+    }
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.fixedTranslation = true;
+    collisionBody2DCreationInfo.fixedRotation = true;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(playerLight_EntityId_, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, playerLight_EntityId_));
+    if (collisionBody2DPtr != nullptr)
+    {
+        std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
+        playerLightCollisionConvexPolygonIndex_ = collisionConvexPolygons.size();
+        std::vector<glm::vec2> corners;
+        constexpr float radius = 60.0f;
+        constexpr size_t subdivisions = 8;
+        constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+        for (size_t i = 0; i <= subdivisions; ++i)
+        {
+            glm::vec2 radiusVector(radius, 0.0f);
+            radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+            corners.emplace_back(radiusVector);
+        }
+        corners.emplace_back(-4.0f, -112.0f);
+        corners.emplace_back(4.0f, -112.0f);
+        for (size_t i = 0; i < corners.size(); ++i)
+        {
+            corners[i].y += 128.0f;
+        }
+        collisionConvexPolygons.emplace_back(corners);
     }
 }
 
@@ -1151,7 +1266,7 @@ void TestScene103::UpdateMainCameraEntityPosition(float timestep_s)
         cameraPtr->FollowFocalPoint(mainCamera_LookAtPoint_, mainCamera_DistanceAway_);
 
         Project001::Camera* otherCameraPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraLight_EntityId_));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraLit_EntityId_));
         if (cameraPtr != nullptr)
         {
             otherCameraPtr->SetPosition(cameraPtr->GetPosition());
@@ -1252,6 +1367,29 @@ void TestScene103::UpdatePlayerEntityVelocity()
             playerCollisionBodyPtr->SetVelocity(velocityDirection * walkSpeed);
         }
     }
+
+    Project001::CollisionBody2D* playerLightCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerLightCollisionBodyPtr, playerLight_EntityId_));
+    if (playerLightCollisionBodyPtr != nullptr)
+    {
+        Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
+        if (cursorCollisionBodyPtr != nullptr)
+        {
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
+            const glm::vec2& cursorPosition = collisionPoints[cursorPositionCollisionPointIndex_].position;
+            glm::vec2 collisionBodyDirection = playerCollisionBodyPtr->GetForwardVector();
+            glm::vec2 collisionBodyToCursor = cursorPosition - playerCollisionBodyPtr->GetPosition();
+
+            float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+            playerLightCollisionBodyPtr->SetRotation(angleToCursor);
+        }
+    }
+
+    if (playerCollisionBodyPtr != nullptr && playerLightCollisionBodyPtr != nullptr)
+    {
+        playerLightCollisionBodyPtr->SetPosition(playerCollisionBodyPtr->GetPosition());
+    }
 }
 
 void TestScene103::SyncCursorRenderedModel()
@@ -1299,6 +1437,23 @@ void TestScene103::SyncPlayerRenderedModel()
     {
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, player_EntityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));
+            renderedModelPtr->ResetOrientation();
+            renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
+        }
+    }
+}
+
+void TestScene103::SyncPlayerLightRenderedModel()
+{
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, playerLight_EntityId_));
+    if (collisionBodyPtr != nullptr)
+    {
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, playerLight_EntityId_));
         if (renderedModelPtr != nullptr)
         {
             renderedModelPtr->SetPosition(glm::vec3(collisionBodyPtr->GetPosition(), 0.0f));

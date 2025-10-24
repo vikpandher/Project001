@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-23
 
 #include "TestScene102.h"
 
@@ -114,7 +114,11 @@ void TestScene102::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "TODO:\n"
+        "This Scene tests cursor aim and movemnt.\n"
+        "Use <WASD> to move player.\n"
+        "Use the <Mouse> to rotate player.\n"
+        "Use <Arrow Up> & <Arrow Down> to tilt camera.\n"
+        "Press <P> to change the camera projection type.\n"
         "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
