@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-30
 
 #include "MeshLoader.h"
 
@@ -140,6 +140,93 @@ namespace Project001
         if (meshVertexArray.size() == 0 || meshIndexArray.size() == 0)
         {
             return false;
+        }
+
+        return true;
+    }
+
+    bool MeshLoader::WriteMeshOBJ(
+        MeshData& meshData,
+        const std::string& filePath)
+    {
+        std::ofstream outputFileStream(filePath);
+        if (!outputFileStream.is_open())
+        {
+            return false;
+        }
+
+        const std::vector<MeshVertex>& vertices = meshData.meshVertexArray;
+        const std::vector<unsigned int>& indices = meshData.meshIndexArray;
+
+        bool hasTextureCoordinates = false;
+        bool hasNormals = false;
+
+        for (size_t i = 0; i < vertices.size(); ++i)
+        {
+            if (vertices[i].textureCoordinate != glm::vec2(0.0f, 0.0f))
+            {
+                hasTextureCoordinates = true;
+            }
+            if (vertices[i].normal != glm::vec3(0.0f, 0.0f, 0.0f))
+            {
+                hasNormals = true;
+            }
+        }
+
+        for (size_t i = 0; i < vertices.size(); ++i)
+        {
+            const glm::vec3& p = vertices[i].position;
+            outputFileStream << "v " << p.x << " " << p.y << " " << p.z << "\n";
+        }
+
+        if (hasTextureCoordinates)
+        {
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                const glm::vec2& uv = vertices[i].textureCoordinate;
+                outputFileStream << "vt " << uv.x << " " << uv.y << "\n";
+            }
+        }
+
+        if (hasNormals)
+        {
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                const glm::vec3& n = vertices[i].normal;
+                outputFileStream << "vn " << n.x << " " << n.y << " " << n.z << "\n";
+            }
+        }
+
+        for (size_t i = 0; i + 2 < indices.size(); i += 3)
+        {
+            unsigned int i0 = indices[i] + 1;
+            unsigned int i1 = indices[i + 1] + 1;
+            unsigned int i2 = indices[i + 2] + 1;
+
+            outputFileStream << "f ";
+
+            if (hasTextureCoordinates && hasNormals)
+            {
+                outputFileStream << i0 << "/" << i0 << "/" << i0 << " "
+                    << i1 << "/" << i1 << "/" << i1 << " "
+                    << i2 << "/" << i2 << "/" << i2 << "\n";
+            }
+            else if (hasTextureCoordinates && !hasNormals)
+            {
+                outputFileStream << i0 << "/" << i0 << " "
+                    << i1 << "/" << i1 << " "
+                    << i2 << "/" << i2 << "\n";
+            }
+            else if (!hasTextureCoordinates && hasNormals)
+            {
+                outputFileStream << i0 << "//" << i0 << " "
+                    << i1 << "//" << i1 << " "
+                    << i2 << "//" << i2 << "\n";
+            }
+            else
+            {
+                outputFileStream << i0 << " " << i1 << " " << i2 << "\n";
+            }
         }
 
         return true;
@@ -3178,8 +3265,8 @@ namespace Project001
         const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
 
         float halfCylindricalHeight = cylindricalHeight * 0.5f;
-        float quarterCircleRadius = radius * glm::half_pi<float>();
-        float capsuleHalfBoarder = quarterCircleRadius * 2.0f + cylindricalHeight;
+        float quarterCircleCircumference = radius * glm::half_pi<float>();
+        float capsuleHalfBoarder = quarterCircleCircumference * 2.0f + cylindricalHeight;
 
         // top
         for (size_t i = 0; i < faces; ++i)
@@ -3208,7 +3295,7 @@ namespace Project001
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
                     (float)j / (float)faces,
-                    (capsuleHalfBoarder - (float)i / (float)stacks * quarterCircleRadius) / capsuleHalfBoarder
+                    (capsuleHalfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / capsuleHalfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -3233,7 +3320,7 @@ namespace Project001
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
                     (float)j / (float)faces,
-                    (quarterCircleRadius - ((float)i - stacks) / (float)stacks * quarterCircleRadius) / capsuleHalfBoarder
+                    (quarterCircleCircumference - ((float)i - stacks) / (float)stacks * quarterCircleCircumference) / capsuleHalfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -4655,6 +4742,257 @@ namespace Project001
             meshData,
             longitudinalSections,
             latitudinalSections + 1,
+            positions,
+            textureCoordinates,
+            normals,
+            smoothNormals,
+            triangulate);
+
+        return true;
+    }
+
+    bool MeshLoader::GenerateIceCreamCone(
+        MeshData& meshData,
+        float coneHeight,
+        float radius,
+        size_t faces,
+        size_t stacks,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (coneHeight <= 0.0f || radius <= 0.0f || faces < 3 || stacks < 1)
+        {
+            return false;
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        float halfTotalHeight = (coneHeight + radius) / 2.0f;
+
+        if (maxVertexPosition.y < halfTotalHeight) maxVertexPosition.y = halfTotalHeight;
+        if (minVertexPosition.y > -halfTotalHeight) minVertexPosition.y = -halfTotalHeight;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        size_t uniquePositions = (faces + 1) * (stacks + 2) - 2;
+        positions.reserve(uniquePositions);
+        textureCoordinates.reserve(uniquePositions);
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+
+        float coneStartHeight = halfTotalHeight - radius;
+        float quarterCircleCircumference = radius * glm::half_pi<float>();
+        float coneHypotinuse = glm::sqrt(radius * radius + coneHeight * coneHeight);
+        float halfBoarder = quarterCircleCircumference + coneHypotinuse;
+
+        // top
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, halfTotalHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, 1.0f, 0.0f);
+            }
+        }
+
+        // body top
+        for (size_t i = 1; i <= stacks; ++i)
+        {
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float xz = radius * glm::cos(latiAngle);
+            float y = radius * glm::sin(latiAngle) + coneStartHeight;
+
+            for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
+            {
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float x = xz * glm::cos(longAngle);
+                float z = xz * glm::sin(longAngle);
+
+                positions.emplace_back(x, y, z);
+                textureCoordinates.emplace_back(
+                    (float)j / (float)faces,
+                    (halfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / halfBoarder
+                );
+                if (smoothNormals)
+                {
+                    normals.emplace_back(x / radius, y / radius, z / radius);
+                }
+            }
+        }
+
+        // bottom
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, -1.0f * halfTotalHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, -1.0f, 0.0f);
+            }
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        GenerateSphereMeshVerticesAndIndices(
+            meshData,
+            faces,
+            stacks + 1,
+            positions,
+            textureCoordinates,
+            normals,
+            smoothNormals,
+            triangulate);
+
+        return true;
+    }
+
+    bool MeshLoader::GenerateIceCreamCup(
+        MeshData& meshData,
+        float cupHeight,
+        float radius0,
+        float radius1,
+        size_t faces,
+        size_t stacks,
+        bool smoothNormals,
+        bool triangulate)
+    {
+        if (cupHeight <= 0.0f || radius0 <= 0.0f || radius1 <= 0.0f || faces < 3 || stacks < 1)
+        {
+            return false;
+        }
+
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        float halfTotalHeight = (cupHeight + radius0) / 2.0f;
+
+        if (maxVertexPosition.y < halfTotalHeight) maxVertexPosition.y = halfTotalHeight;
+        if (minVertexPosition.y > -halfTotalHeight) minVertexPosition.y = -halfTotalHeight;
+
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> textureCoordinates;
+        std::vector<glm::vec3> normals;
+
+        size_t uniquePositions = (faces + 1) * (stacks + 3) - 2;
+        positions.reserve(uniquePositions);
+        textureCoordinates.reserve(uniquePositions);
+        if (smoothNormals)
+        {
+            normals.reserve(uniquePositions);
+        }
+
+        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+
+        float cupStartHeight = halfTotalHeight - radius0;
+        float quarterCircleCircumference = radius0 * glm::half_pi<float>();
+        float cupHypotinuse = glm::sqrt(radius0 * radius0 + cupHeight * cupHeight);
+        float halfBoarder = quarterCircleCircumference + cupHypotinuse + radius1;
+
+        // top
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, halfTotalHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, 1.0f, 0.0f);
+            }
+        }
+
+        // body top
+        for (size_t i = 1; i <= stacks; ++i)
+        {
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float xz = radius0 * glm::cos(latiAngle);
+            float y = radius0 * glm::sin(latiAngle) + cupStartHeight;
+
+            for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
+            {
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float x = xz * glm::cos(longAngle);
+                float z = xz * glm::sin(longAngle);
+
+                positions.emplace_back(x, y, z);
+                textureCoordinates.emplace_back(
+                    (float)j / (float)faces,
+                    (halfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / halfBoarder
+                );
+                if (smoothNormals)
+                {
+                    normals.emplace_back(x / radius0, y / radius0, z / radius0);
+                }
+            }
+        }
+
+        // body bottom
+        for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
+        {
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float x = radius1 * glm::cos(longAngle);
+            float z = radius1 * glm::sin(longAngle);
+
+            positions.emplace_back(x, -1.0f * halfTotalHeight, z);
+            textureCoordinates.emplace_back(
+                (float)j / (float)faces,
+                radius1 / halfBoarder
+            );
+            if (smoothNormals)
+            {
+                normals.emplace_back(x / radius1, 0.0f, z / radius1);
+            }
+        }
+
+        // bottom
+        for (size_t i = 0; i < faces; ++i)
+        {
+            positions.emplace_back(0.0f, -1.0f * halfTotalHeight, 0.0f);
+            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            if (smoothNormals)
+            {
+                normals.emplace_back(0.0f, -1.0f, 0.0f);
+            }
+        }
+
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec3& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+        }
+
+        GenerateSphereMeshVerticesAndIndices(
+            meshData,
+            faces,
+            stacks + 2,
             positions,
             textureCoordinates,
             normals,
@@ -6325,6 +6663,222 @@ namespace Project001
         {
             glm::vec2& textureCoordinate = meshData.meshVertexArray[i].textureCoordinate;
             textureCoordinate *= scale;
+        }
+    }
+
+    void MeshLoader::SliceMeshWithAPlane(
+        MeshData& outputMeshData0,
+        MeshData& outputMeshData1,
+        std::vector<glm::vec3>& capCorners,
+        const MeshData& inputMeshData,
+        const glm::vec3& plane_normal,
+        const float& plane_distance,
+        float mergeEpsilon)
+    {
+        const std::vector<MeshVertex>& meshVertexArray = inputMeshData.meshVertexArray;
+        const std::vector<unsigned int>& meshIndexArray = inputMeshData.meshIndexArray;
+
+        for (size_t i = 0; i + 2 < meshIndexArray.size(); i += 3)
+        {
+            const MeshVertex& vertex0 = meshVertexArray[meshIndexArray[i]];
+            const MeshVertex& vertex1 = meshVertexArray[meshIndexArray[i + 1]];
+            const MeshVertex& vertex2 = meshVertexArray[meshIndexArray[i + 2]];
+
+            const glm::vec3& position0 = vertex0.position;
+            const glm::vec3& position1 = vertex1.position;
+            const glm::vec3& position2 = vertex2.position;
+
+            float dist0 = glm::dot(plane_normal, position0) - plane_distance;
+            float dist1 = glm::dot(plane_normal, position1) - plane_distance;
+            float dist2 = glm::dot(plane_normal, position2) - plane_distance;
+
+            auto DetermineSide = [&](float dist) -> int
+                {
+                    return (dist > mergeEpsilon) ? 1 :
+                        (dist < -mergeEpsilon) ? -1 :
+                        0;
+                };
+
+            int side0 = DetermineSide(dist0);
+            int side1 = DetermineSide(dist1);
+            int side2 = DetermineSide(dist2);
+
+            int sideSum = (side0 >= 0) + (side1 >= 0) + (side2 >= 0);
+
+            if (sideSum == 3) // no splitting, whole triangle to side 1
+            {
+                unsigned int baseIndex = (unsigned int)outputMeshData0.meshVertexArray.size();
+                outputMeshData0.meshVertexArray.push_back(vertex0);
+                outputMeshData0.meshVertexArray.push_back(vertex1);
+                outputMeshData0.meshVertexArray.push_back(vertex2);
+                outputMeshData0.meshIndexArray.push_back(baseIndex);
+                outputMeshData0.meshIndexArray.push_back(baseIndex + 1);
+                outputMeshData0.meshIndexArray.push_back(baseIndex + 2);
+                continue;
+            }
+            else if (sideSum == 0) // no splitting, whole triangle to side 2
+            {
+                unsigned int baseIndex = (unsigned int)outputMeshData1.meshVertexArray.size();
+                outputMeshData1.meshVertexArray.push_back(vertex0);
+                outputMeshData1.meshVertexArray.push_back(vertex1);
+                outputMeshData1.meshVertexArray.push_back(vertex2);
+                outputMeshData1.meshIndexArray.push_back(baseIndex);
+                outputMeshData1.meshIndexArray.push_back(baseIndex + 1);
+                outputMeshData1.meshIndexArray.push_back(baseIndex + 2);
+                continue;
+            }
+            else // triangle gets split
+            {
+                auto InterpolateVertex = [&](const MeshVertex& a, const MeshVertex& b, float distA, float distB) -> MeshVertex
+                    {
+                        float t = distA / (distA - distB);
+
+                        MeshVertex c;
+                        c.position = a.position + t * (b.position - a.position);
+                        c.textureCoordinate = a.textureCoordinate + t * (b.textureCoordinate - a.textureCoordinate);
+                        c.normal = glm::normalize(a.normal + t * (b.normal - a.normal));
+
+                        // Store raw corner point for cap later
+                        capCorners.push_back(c.position);
+                        return c;
+                    };
+
+                auto EmitMeshData = [&](MeshData& out, const MeshVertex* poly, int count)
+                    {
+                        if (count < 3) return;
+
+                        unsigned int baseIndex = (unsigned int)out.meshVertexArray.size();
+                        for (int i = 0; i < count; ++i)
+                        {
+                            out.meshVertexArray.push_back(poly[i]);
+                        }
+
+                        if (count == 3)
+                        {
+                            out.meshIndexArray.push_back(baseIndex + 0);
+                            out.meshIndexArray.push_back(baseIndex + 1);
+                            out.meshIndexArray.push_back(baseIndex + 2);
+                        }
+                        else // count == 4 -> triangulate quad (fan)
+                        {
+                            out.meshIndexArray.push_back(baseIndex + 0);
+                            out.meshIndexArray.push_back(baseIndex + 1);
+                            out.meshIndexArray.push_back(baseIndex + 2);
+
+                            out.meshIndexArray.push_back(baseIndex + 0);
+                            out.meshIndexArray.push_back(baseIndex + 2);
+                            out.meshIndexArray.push_back(baseIndex + 3);
+                        }
+                    };
+
+                // ----- clip to positive side (side >= 0) -----
+                {
+                    MeshVertex poly[4];
+                    int count = 0;
+
+                    if (side0 >= 0)
+                    {
+                        poly[count++] = vertex0;
+                    }
+                    if ((side0 >= 0) != (side1 >= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex0, vertex1, dist0, dist1);
+                    }
+                    if (side1 >= 0)
+                    {
+                        poly[count++] = vertex1;
+                    }
+                    if ((side1 >= 0) != (side2 >= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex1, vertex2, dist1, dist2);
+                    }
+                    if (side2 >= 0)
+                    {
+                        poly[count++] = vertex2;
+                    }
+                    if ((side2 >= 0) != (side0 >= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex2, vertex0, dist2, dist0);
+                    }
+
+                    EmitMeshData(outputMeshData0, poly, count);
+                }
+
+                // ----- clip to negative side (side < 0) -----
+                {
+                    MeshVertex poly[4];
+                    int count = 0;
+
+                    if (side0 <= 0)
+                    {
+                        poly[count++] = vertex0;
+                    }
+                    if ((side0 <= 0) != (side1 <= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex0, vertex1, dist0, dist1);
+                    }
+                    if (side1 <= 0)
+                    {
+                        poly[count++] = vertex1;
+                    }
+                    if ((side1 <= 0) != (side2 <= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex1, vertex2, dist1, dist2);
+                    }
+                    if (side2 <= 0)
+                    {
+                        poly[count++] = vertex2;
+                    }
+                    if ((side2 <= 0) != (side0 <= 0))
+                    {
+                        poly[count++] = InterpolateVertex(vertex2, vertex0, dist2, dist0);
+                    }
+
+                    EmitMeshData(outputMeshData1, poly, count);
+                }
+            }
+        }
+
+        {
+            float& maxBoundingRadius = outputMeshData0.maxBoundingRadius;
+            glm::vec3& maxVertexPosition = outputMeshData0.maxVertexPosition;
+            glm::vec3& minVertexPosition = outputMeshData0.minVertexPosition;
+
+            for (size_t i = 0; i < outputMeshData0.meshVertexArray.size(); ++i)
+            {
+                const glm::vec3& currentPosition = outputMeshData0.meshVertexArray[i].position;
+                float vertexRadius = glm::length(currentPosition);
+                if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+                if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+                if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+                if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+                if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+                if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+                if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+            }
+        }
+
+        {
+            float& maxBoundingRadius = outputMeshData1.maxBoundingRadius;
+            glm::vec3& maxVertexPosition = outputMeshData1.maxVertexPosition;
+            glm::vec3& minVertexPosition = outputMeshData1.minVertexPosition;
+
+            for (size_t i = 0; i < outputMeshData1.meshVertexArray.size(); ++i)
+            {
+                const glm::vec3& currentPosition = outputMeshData1.meshVertexArray[i].position;
+                float vertexRadius = glm::length(currentPosition);
+                if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+                if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+                if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+                if (maxVertexPosition.z < currentPosition.z) maxVertexPosition.z = currentPosition.z;
+
+                if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+                if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+                if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
+            }
         }
     }
 

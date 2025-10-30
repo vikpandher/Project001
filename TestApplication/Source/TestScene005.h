@@ -1,35 +1,28 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-30
 
 #pragma once
 
 #include "TestInstructionScene001.h"
-#include "TestSceneBase002.h"
+#include "TestSceneBase001.h"
 
 
 
-namespace Project001
-{
-    struct CollisionBody2DCreationInfo;
-}
-
-class TestScene017 : public TestSceneBase002
+class TestScene005 : public TestSceneBase001
 {
 public:
-    TestScene017(Project001::Application* applicationPtr);
-    ~TestScene017();
+    TestScene005(Project001::Application* applicationPtr);
+    ~TestScene005();
 
-    TestScene017(TestScene017& other) = delete;
-    void operator=(const TestScene017&) = delete;
+    TestScene005(TestScene005& other) = delete;
+    void operator=(const TestScene005&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
 protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
-
-    void CreateCollisionBodyEntities();
 
     // -------------------------------------------------------------------------
 

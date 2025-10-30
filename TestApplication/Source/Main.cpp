@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-30
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -24,18 +24,18 @@
 #include "TestScene002.h"
 #include "TestScene003.h"
 #include "TestScene004.h"
+#include "TestScene005.h"
 #include "TestScene006.h"
 #include "TestScene007.h"
-#include "TestScene008.h"
 #include "TestScene009.h"
-#include "TestScene010.h"
-#include "TestScene011.h"
-#include "TestScene012.h"
-#include "TestScene013.h"
-#include "TestScene015.h"
-#include "TestScene016.h"
-#include "TestScene017.h"
+#include "TestScene020.h"
+#include "TestScene021.h"
+#include "TestScene022.h"
 #include "TestScene023.h"
+#include "TestScene025.h"
+#include "TestScene026.h"
+#include "TestScene027.h"
+#include "TestScene028.h"
 #include "TestScene030.h"
 #include "TestScene031.h"
 #include "TestScene032.h"
@@ -97,6 +97,10 @@ int main(int argc, char** argv)
     // * inherits 001
     TestScene004* testScene004Ptr = new TestScene004(applicationPtr);
 
+    // (TODO)
+    // * inherits 001
+    TestScene005* testScene005Ptr = new TestScene005(applicationPtr);
+
     // testing text generation
     // * inherits 001
     TestScene006* testScene006Ptr = new TestScene006(applicationPtr);
@@ -107,46 +111,42 @@ int main(int argc, char** argv)
 
     // testing shape generation
     // * inherits 001
-    TestScene008* testScene008Ptr = new TestScene008(applicationPtr);
-
-    // (TODO)
-    // * inherits 001
-    TestScene009* testScene009Ptr = new TestScene009(applicationPtr);
+    TestScene009* TestScene009Ptr = new TestScene009(applicationPtr);
 
     // tests 2d shape overlap
     // * inherits 002
     // * has "unit" tests
-    TestScene010* testScene010Ptr = new TestScene010(applicationPtr);
+    TestScene020* TestScene020Ptr = new TestScene020(applicationPtr);
 
     // tests 2d shape overlap
     // * inherits 002
-    TestScene011* testScene011Ptr = new TestScene011(applicationPtr);
+    TestScene021* TestScene021Ptr = new TestScene021(applicationPtr);
 
     // tests 2d shape overlap
     // * inherits 002
-    TestScene012* testScene012Ptr = new TestScene012(applicationPtr);
+    TestScene022* TestScene022Ptr = new TestScene022(applicationPtr);
 
     // tests 2d shape overlap with many shapes
     // * inherits 002
-    TestScene013* testScene013Ptr = new TestScene013(applicationPtr);
+    TestScene023* TestScene023Ptr = new TestScene023(applicationPtr);
 
     // tests 2d physics interactions
     // * inherits 002
-    TestScene015* testScene015Ptr = new TestScene015(applicationPtr);
+    TestScene025* TestScene025Ptr = new TestScene025(applicationPtr);
 
     // tests 2d physics interactions
     // * inherits 002
-    TestScene016* testScene016Ptr = new TestScene016(applicationPtr);
+    TestScene026* TestScene026Ptr = new TestScene026(applicationPtr);
 
     // tests 2d physics interactions
     // * inherits 002
-    TestScene017* testScene017Ptr = new TestScene017(applicationPtr);
+    TestScene027* TestScene027Ptr = new TestScene027(applicationPtr);
 
     // (TODO)
     // tests 3d shape overlap tests
     // * inherits 001
     // * has "unit" tests
-    TestScene023* testScene023Ptr = new TestScene023(applicationPtr);
+    TestScene028* TestScene028Ptr = new TestScene028(applicationPtr);
 
     // tests framerate with many vertices batched rendering
     // * inherits 001
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
     // (TODO)
     TestScene101* testScene101Ptr = new TestScene101(applicationPtr);
 
-    // (TODO)
+    // test mouse picking
     TestScene102* testScene102Ptr = new TestScene102(applicationPtr);
 
     // (TODO)
@@ -197,18 +197,18 @@ int main(int argc, char** argv)
     delete testScene002Ptr;
     delete testScene003Ptr;
     delete testScene004Ptr;
+    delete testScene005Ptr;
     delete testScene006Ptr;
     delete testScene007Ptr;
-    delete testScene008Ptr;
-    delete testScene009Ptr;
-    delete testScene010Ptr;
-    delete testScene011Ptr;
-    delete testScene012Ptr;
-    delete testScene013Ptr;
-    delete testScene015Ptr;
-    delete testScene016Ptr;
-    delete testScene017Ptr;
-    delete testScene023Ptr;
+    delete TestScene009Ptr;
+    delete TestScene020Ptr;
+    delete TestScene021Ptr;
+    delete TestScene022Ptr;
+    delete TestScene023Ptr;
+    delete TestScene025Ptr;
+    delete TestScene026Ptr;
+    delete TestScene027Ptr;
+    delete TestScene028Ptr;
     delete testScene030Ptr;
     delete testScene031Ptr;
     delete testScene032Ptr;

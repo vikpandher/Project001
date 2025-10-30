@@ -1,0 +1,23 @@
+THIRD-PARTY LIBRARIES AND LICENSES
+==================================
+
+This software uses several open-source libraries. The following information
+is provided in accordance with their respective licenses.
+
+---
+
+GLFW — zlib/libpng License
+https://www.glfw.org/license.html
+
+GLAD — Public Domain (CC0)
+https://glad.dav1d.de/
+
+GLM — MIT License
+https://github.com/g-truc/glm/blob/master/copying.txt
+
+miniaudio — Public Domain or MIT License (your choice)
+https://github.com/mackron/miniaudio
+
+stb libraries (stb_image, stb_truetype, stb_vorbis, etc.)
+Public Domain or MIT License (varies by file)
+https://github.com/nothings/stb

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-10-30
 
 #pragma once
 
@@ -9,19 +9,14 @@
 
 
 
-namespace Project001
-{
-    struct CollisionBody2DCreationInfo;
-}
-
-class TestScene016 : public TestSceneBase002
+class TestScene025 : public TestSceneBase002
 {
 public:
-    TestScene016(Project001::Application* applicationPtr);
-    ~TestScene016();
+    TestScene025(Project001::Application* applicationPtr);
+    ~TestScene025();
 
-    TestScene016(TestScene016& other) = delete;
-    void operator=(const TestScene016&) = delete;
+    TestScene025(TestScene025& other) = delete;
+    void operator=(const TestScene025&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -29,9 +24,7 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    void CreateEntitiesForGravityTest01();
-
-    void GenerateCombinationShape(Project001::CollisionBody2DCreationInfo& collisionBody2DCreationInfo, glm::vec3& position);
+    void CreateEntitiesForTest01();
 
     // -------------------------------------------------------------------------
 

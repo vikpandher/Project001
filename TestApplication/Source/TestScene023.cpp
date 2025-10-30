@@ -1,36 +1,40 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-30
 
 #include "TestScene023.h"
 
 #include "TestApplicationData.h"
-#include "TestResource_AntonioRegular_png.h"
-#include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
+#include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap3D_UnitTests.h"
+#include "Math/Overlap2D.h"
 #include "Application.h"
+#include "CollisionBodyQuadTree2D.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
 #include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
-#include "Window.h"
+
+#include <random>
 
 
 
 // public ----------------------------------------------------------------------
 
 TestScene023::TestScene023(Project001::Application* applicationPtr)
-    : TestSceneBase001(applicationPtr)
+    : TestSceneBase002(applicationPtr)
+    , rectangleMeshId_((unsigned int)-1)
+    , circleMeshId_((unsigned int)-1)
     , instructionScene_(applicationPtr)
 {
-    GetSharedDataPtr<TestApplicationData>()->testScene023Id = GetId();
+    GetSharedDataPtr<TestApplicationData>()->TestScene028Id = GetId();
 
-    Run_UnitTests();
+    generateCollisionMarkerCollectionMesh_ = false;
+    generateEnergyTextMesh_ = false;
+
+    TestCollisionBodyQuadTree2D();
 }
 
 TestScene023::~TestScene023()
@@ -40,7 +44,7 @@ void TestScene023::HandleEvent(Project001::Event& event)
 {
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene023::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
-    TestSceneBase001::HandleEvent(event);
+    TestSceneBase002::HandleEvent(event);
 
     Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene023::ProcessInitializeEvent, this, std::placeholders::_1));
 
@@ -56,61 +60,111 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Creating Entities
     // -------------------------------------------------------------------------
 
-    // OBB Box
+    // std::random_device randomDevice;
+    // std::mt19937 randomNumberEngine(randomDevice());
+    std::mt19937 randomNumberEngine(777);
+    std::uniform_real_distribution<float> distributionX(-8.0f, 8.0f);
+    std::uniform_real_distribution<float> distributionY(-6.0f, 6.0f);
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
+
+    // Rectangles
+    // -------------------------------------------------------------------------
+    if (false)
+    {
+        glm::vec2 rectangleMin(-0.32f, -0.24f);
+        glm::vec2 rectangleMax(0.32f, 0.24f);
+        float rectangleBoundingRadius;
+        {
+            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+            meshDataPtrArray_.push_back(newMeshDataPtr);
+            std::vector<glm::vec2> shapePoints;
+            shapePoints.emplace_back(-0.32f, 0.24f);
+            shapePoints.emplace_back(-0.32f, -0.24f);
+            shapePoints.emplace_back(0.32f, -0.24f);
+            shapePoints.emplace_back(0.32f, 0.24f);
+            FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+            GetRendererPtr()->CreateMesh(
+                rectangleMeshId_,
+                newMeshDataPtr->meshVertexArray.data(),
+                (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+                newMeshDataPtr->meshIndexArray.data(),
+                (unsigned int)newMeshDataPtr->meshIndexArray.size()
+            );
+            rectangleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
+        }
+
+        size_t count;
+#ifndef NDEBUG
+        count = 500;
+#else
+        count = 1500;
+#endif
+        for (size_t i = 0; i < count; ++i)
+        {
+            glm::vec3 currentPosition(distributionX(randomNumberEngine), distributionY(randomNumberEngine), 0.0f);
+
+            unsigned int tempEntityId;
+            GetComponentStoresPtr()->CreateEntity(tempEntityId);
+            entityIds_.push_back(tempEntityId);
+
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+            Project001::RenderedMesh* renderedMeshPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+            if (renderedMeshPtr != nullptr)
+            {
+                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+                renderedMeshPtr->SetPosition(currentPosition);
+                renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(rectangleMeshId_, rectangleBoundingRadius);
+                renderedMeshPtr->SetUseLighting(false);
+            }
+
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+            if (collisionBody2DPtr != nullptr)
+            {
+                collisionBody2DPtr->SetPosition(currentPosition);
+                std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+                collisionRectangles.emplace_back(
+                    glm::vec2(-0.32f, -0.24f),
+                    glm::vec2(0.32f, 0.24f)
+                );
+            }
+        }
+    }
+
+    // Circles
+    // -------------------------------------------------------------------------
     if (true)
     {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() +  glm::quarter_pi<float>());
-        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
-        }
-    }
-
-    // Line
-    if (false)
-    {
-        glm::vec3 position00(0.1f, 0.2f, 0.3f);
-        glm::vec3 direction00(-1.0f, 0.0f, 0.0f);
-
-        glm::quat rotation1 = glm::rotate(
-            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-            glm::quarter_pi<float>(),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::quat rotation2 = glm::rotate(
-            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-            glm::half_pi<float>() + glm::quarter_pi<float>(),
-            glm::vec3(0.0f, 1.0f, 0.0f));
-
-        position00 = rotation2 * rotation1 * position00;
-        direction00 = rotation2 * rotation1 * direction00;
-
-        position00 += glm::vec3(0.3f, 0.2f, 0.1f);
-
-        position00 = glm::vec3(0.0f, 0.4f, 0.0f);
-        direction00 = glm::normalize(glm::vec3(-1.0f, 1.0f, -1.0f));
-
-        // shape 2
+        float circleRadius = 0.08f;
+        float circleBoundingRadius;
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
+            FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
+            GetRendererPtr()->CreateMesh(
+                circleMeshId_,
+                newMeshDataPtr->meshVertexArray.data(),
+                (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+                newMeshDataPtr->meshIndexArray.data(),
+                (unsigned int)newMeshDataPtr->meshIndexArray.size()
+            );
+            circleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
+        }
+
+        size_t count;
+#ifndef NDEBUG
+        count = 1000;
+#else
+        count = 5000;
+#endif
+        for (size_t i = 0; i < count; ++i)
+        {
+            glm::vec3 currentPosition(distributionX(randomNumberEngine), distributionY(randomNumberEngine), 0.0f);
 
             unsigned int tempEntityId;
             GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -122,227 +176,66 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             if (renderedMeshPtr != nullptr)
             {
                 renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-                renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-                renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+                renderedMeshPtr->SetPosition(currentPosition);
+                renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(circleMeshId_, circleBoundingRadius);
                 renderedMeshPtr->SetUseLighting(false);
             }
-        }
 
-        // shape 2
-        {
-            Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-            meshDataPtrArray_.push_back(newMeshDataPtr);
-            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
-
-            unsigned int tempEntityId;
-            GetComponentStoresPtr()->CreateEntity(tempEntityId);
-            entityIds_.push_back(tempEntityId);
-
-            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-            Project001::RenderedMesh* renderedMeshPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-            if (renderedMeshPtr != nullptr)
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+            if (collisionBody2DPtr != nullptr)
             {
-                renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-                renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-                renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-                renderedMeshPtr->SetUseLighting(false);
+                collisionBody2DPtr->SetPosition(currentPosition);
+                std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+                collisionCircles.emplace_back(
+                    glm::vec2(),
+                    circleRadius
+                );
+                // Testing removing in-group collision
+                // collisionBody2DPtr->SetCollisionGroupMask(collisionBody2DPtr->GetCollisionGroupMask() << 1);
+                // collisionBody2DPtr->SetAllowedCollisionFilterMask(~collisionBody2DPtr->GetCollisionGroupMask());
             }
         }
     }
 
-    // LineSegment
-    if (false)
+    float uiCameraHalfHeight = 0.0f;
+    float uiCameraHalfWidth = 0.0f;
+
     {
-        glm::vec3 position00(-0.8f, 0.2f, 0.3f);
-        glm::vec3 position01(0.8f, 0.2f, 0.3f);
-
-        glm::quat rotation1 = glm::rotate(
-            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-            glm::quarter_pi<float>(),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::quat rotation2 = glm::rotate(
-            glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-            glm::half_pi<float>() + glm::quarter_pi<float>(),
-            glm::vec3(0.0f, 1.0f, 0.0f));
-
-        position00 = rotation2 * rotation1 * position00;
-        position01 = rotation2 * rotation1 * position01;
-
-        position00 += glm::vec3(0.3f, 0.2f, 0.1f);
-        position01 += glm::vec3(0.3f, 0.2f, 0.1f);
-
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
+        Project001::Camera* cameraPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCameraEntityId_));
+        if (cameraPtr != nullptr)
         {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColorRGB(0.4f, 0.4f, 0.8f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-    }
-
-    // Box 2
-    if (false)
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 0.6f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
-        }
-    }
-
-    // Triangle
-    if (false)
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        std::vector<glm::vec3> positions;
-        positions.emplace_back(-0.2f, -0.1f, 0.0f);
-        positions.emplace_back(-0.3f, 0.0f, 0.0f);
-        positions.emplace_back(-0.1f, 0.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
-        // Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        // Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() + glm::quarter_pi<float>());
-        // Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColorRGB(0.8f, 0.4f, 0.4f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-    }
-
-    // Triangle 2
-    if (false)
-    {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        std::vector<glm::vec3> positions;
-        positions.emplace_back(0.2f, 0.1f, 0.0f);
-        positions.emplace_back(-0.3f, 0.0f, 0.0f);
-        positions.emplace_back(0.1f, 0.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColorRGB(0.4f, 0.8f, 0.4f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-    }
-
-    // Point
-    if (false)
-    {
-
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        std::vector<glm::vec3> positions;
-        positions.emplace_back(1.0f, 0.0f, 0.0f);
-        positions.emplace_back(0.0f, 1.0f, 0.0f);
-        positions.emplace_back(0.0f, 0.0f, 1.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
-        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr,glm::vec3(1.0f, 1.0f, 1.0f) / 3.0f);
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetColorRGB(0.8f, 0.8f, 0.8f);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
+            uiCameraHalfHeight = cameraPtr->GetTopCutoff();
+            uiCameraHalfWidth = cameraPtr->GetRightCutoff();
         }
     }
 
     // Member Scenes -----------------------------------------------------------
-
-    Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
-        font01_FontData,
-        g_AntonioRegular_ssf,
-        sizeof(g_AntonioRegular_ssf)
-    ));
-
-    Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
-        font01_TextureData,
-        g_AntonioRegular_png,
-        sizeof(g_AntonioRegular_png)
-    ));
-    unsigned int font01_TextureId = (unsigned int)-1;
-    GetRendererPtr()->CreateTexture(
-        font01_TextureId,
-        font01_TextureData.data,
-        font01_TextureData.width,
-        font01_TextureData.height,
-        font01_TextureData.bytesPerPixel,
-        true,
-        false
-    );
 
     const Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_TAB;
 
     TestInstructionScene001::InitializationInfo instructionSceneInfo;
     instructionSceneInfo.hiddenInstructionString = std::string("Press <Tab> to show instructions.");
     instructionSceneInfo.instructionString = std::string(
-        "This Scene runs unit tests for 3d Shape Overlaps.\n"
-        "Use <WASD> to move the camera up, left, down, and right.\n"
-        "Use <Q> to roll left and <E> to roll right.\n"
-        "Use <Scroll> to move forward and back.\n"
-        "<Left-Click> and drag the <Mouse> to move camera.\n"
+        "This Scene tests overlap for many 2d Shapes at once.\n"
+        "<Left-Click> on a shape to select it.\n"
+        "<Left-Click> and drag to move it.\n"
+        "<Left-Click> on the background to de-select it.\n"
+        "When no shape is selected:\n"
+        "   Use <WASD> to move the camera up, left, down, and right.\n"
+        "   Use <Q> to roll camera left and <E> to roll camera right.\n"
+        "When a shape is selected:\n"
+        "   Use <WASD> to move the shape up, left, down, and right.\n"
+        "   Use <Q> to roll shape left and <E> to roll shape right.\n"
+        "Press <B> and <N> to cycle between shapes.\n"
+        "Use <Scroll> to zoom in and out.\n"
         "Press <Esc> to return to Main Menu.\n"
         "Press <Tab> to hide instructions."
     );
-    instructionSceneInfo.fontDataPtr = &font01_FontData;
-    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
+    instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
+    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
     instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
     instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
     instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
@@ -354,353 +247,243 @@ void TestScene023::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     instructionScene_.Deinitialize();
 
     LOG_INFO("DEINITIALIZING: TestScene023:            " << GetId());
+
+    // Mesh Data ---------------------------------------------------------------
+
+    // dont need to delete these here since they are added to meshDataPtrArray_
+
+    rectangleMeshId_ = (unsigned int)-1;
+
+    circleMeshId_ = (unsigned int)-1;
 }
 
 // private ---------------------------------------------------------------------
 
-void TestScene023::Run_UnitTests() const
+void TestScene023::TestCollisionBodyQuadTree2D()
 {
-    int result;
+    Project001::CollisionBodyQuadTree2D collisionBodyQuadTree2D(glm::vec2(-1.6f, -0.8f), glm::vec2(1.6f, 0.8f), 3, 4);
 
-    result = Project001::UnitTest_Check3D_Point_Point_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Point_Overlap FAILED " << result);
-    }
+    std::vector<Project001::CollisionBody2D*> collisionBodyPtrs;
 
-    result = Project001::UnitTest_Check3D_Point_Line_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Line_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_Ray_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Ray_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_LineSegment_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_LineSegment_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_Plane_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Plane_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_Triangle_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Triangle_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_AABB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_AABB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Sphere_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Point_Capsule_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Point_Capsule_Overlap FAILED " << result);
-    }
+    std::vector<glm::vec3> positions;
 
     // -------------------------------------------------------------------------
+    // Adding rectangles and seeing how they populate the quad tree.
 
-    result = Project001::UnitTest_Check3D_Line_Line_Overlap();
-    if (result != 0)
+    positions.emplace_back(0.0f, -1.1f, 0.0f);  // [00] Goes out of bounds
+    positions.emplace_back(0.0f, -1.0f, 0.0f);  // [01] Goes in because radius ~= 0.224
+    positions.emplace_back(0.8f, 1.6f, 0.0f);   // [02] Goes out of bounds
+    positions.emplace_back(1.6f, 0.8f, 0.0f);   // [03] Goes in
+    positions.emplace_back(-0.8f, -0.4f, 0.0f); // [04] Goes in
+    positions.emplace_back(0.2f, 0.1f, 0.0f);   // [05] Goes in
+    positions.emplace_back(1.4f, 0.1f, 0.0f);   // [06] Goes in
+    positions.emplace_back(1.8f, 0.3f, 0.0f);   // [07] Goes in
+    positions.emplace_back(0.3f, 1.0f, 0.0f);   // [08] Goes in
+    positions.emplace_back(1.1f, 0.6f, 0.0f);   // [09] Goes in
+    positions.emplace_back(1.0f, 0.2f, 0.0f);   // [10] Goes in
+    positions.emplace_back(1.8f, 0.5f, 0.0f);   // [11] Goes in
+
+    for (size_t i = 0; i < positions.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Line_Line_Overlap FAILED " << result);
+        const glm::vec3& currentPosition = positions[i];
+
+        Project001::CollisionBody2D* collisionBody2DPtr = new Project001::CollisionBody2D();
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+            collisionRectangles.emplace_back(
+                glm::vec2(-0.2f, -0.1f), 
+                glm::vec2(0.2f, 0.1f)
+            );
+        }
+        collisionBodyPtrs.push_back(collisionBody2DPtr);
+
+        collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
     }
 
-    result = Project001::UnitTest_Check3D_Line_Ray_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_Ray_Overlap FAILED " << result);
-    }
+    positions.clear();
 
-    result = Project001::UnitTest_Check3D_Line_LineSegment_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_LineSegment_Overlap FAILED " << result);
-    }
+    collisionBodyQuadTree2D.Clear();
 
-    result = Project001::UnitTest_Check3D_Line_Plane_Overlap();
-    if (result != 0)
+    for (size_t i = 0; i < collisionBodyPtrs.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Line_Plane_Overlap FAILED " << result);
+        delete collisionBodyPtrs[i];
     }
-
-    result = Project001::UnitTest_Check3D_Line_Triangle_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_Triangle_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Line_AABB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_AABB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Line_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Line_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Line_Sphere_Overlap FAILED " << result);
-    }
+    collisionBodyPtrs.clear();
 
     // -------------------------------------------------------------------------
+    // When the collision bodies are cleared, the allocated nodes should remain,
+    // they just won't be used until they are needed.
 
-    result = Project001::UnitTest_Check3D_Ray_Ray_Overlap();
-    if (result != 0)
+    positions.emplace_back(0.1f, 0.1f, 0.0f);   // [00] Goes in
+    positions.emplace_back(1.5f, 0.1f, 0.0f);   // [01] Goes in
+    positions.emplace_back(0.1f, 0.7f, 0.0f);   // [02] Goes in
+    positions.emplace_back(1.6f, 0.8f, 0.0f);   // [03] Goes in
+    positions.emplace_back(1.8f, 0.9f, 0.0f);   // [04] Goes out
+    positions.emplace_back(1.8f, 0.7f, 0.0f);   // [05] Goes out
+    positions.emplace_back(1.8f, 0.5f, 0.0f);   // [06] Goes out
+    positions.emplace_back(1.8f, 0.0f, 0.0f);   // [07] Goes out
+    positions.emplace_back(0.0f, 0.9f, 0.0f);   // [08] Goes in
+    positions.emplace_back(0.2f, 0.9f, 0.0f);   // [09] Goes in
+    positions.emplace_back(0.7f, 0.7f, 0.0f);   // [10] Goes in
+    positions.emplace_back(-0.1f, 0.4f, 0.0f);  // [11] Goes in
+    positions.emplace_back(-0.2f, 0.6f, 0.0f);  // [12] Goes in
+    positions.emplace_back(1.2f, -0.2f, 0.0f);  // [13] Goes in
+    positions.emplace_back(0.4f, -0.2f, 0.0f);  // [14] Goes in
+    positions.emplace_back(0.4f, -0.6f, 0.0f);  // [15] Goes in
+
+    for (size_t i = 0; i < positions.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Ray_Ray_Overlap FAILED " << result);
+        const glm::vec3& currentPosition = positions[i];
+
+        Project001::CollisionBody2D* collisionBody2DPtr = new Project001::CollisionBody2D();;
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(0.0f, 0.0f),
+                0.1f
+            );
+        }
+        collisionBodyPtrs.push_back(collisionBody2DPtr);
+
+        collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
     }
 
-    result = Project001::UnitTest_Check3D_Ray_LineSegment_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Ray_LineSegment_Overlap FAILED " << result);
-    }
+    positions.clear();
 
-    result = Project001::UnitTest_Check3D_Ray_Plane_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Ray_Plane_Overlap FAILED " << result);
-    }
+    collisionBodyQuadTree2D.Clear();
 
-    result = Project001::UnitTest_Check3D_Ray_Triangle_Overlap();
-    if (result != 0)
+    for (size_t i = 0; i < collisionBodyPtrs.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Ray_Triangle_Overlap FAILED " << result);
+        delete collisionBodyPtrs[i];
     }
-
-    result = Project001::UnitTest_Check3D_Ray_AABB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Ray_AABB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Ray_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Ray_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Ray_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Ray_Sphere_Overlap FAILED " << result);
-    }
+    collisionBodyPtrs.clear();
 
     // -------------------------------------------------------------------------
+    // Resetting the tree should recreate everything.
 
-    result = Project001::UnitTest_Check3D_LineSegment_LineSegment_Overlap();
-    if (result != 0)
+    collisionBodyQuadTree2D.Reset(glm::vec2(-0.8f, -1.6f), glm::vec2(0.8f, 1.6f), 4, 1);
+
+    positions.emplace_back(0.0f, 0.0f, 0.0f);   // [00] Goes in
+    positions.emplace_back(0.0f, 0.0f, 0.0f);   // [01] Goes in
+
+    for (size_t i = 0; i < positions.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_LineSegment_LineSegment_Overlap FAILED " << result);
+        const glm::vec3& currentPosition = positions[i];
+
+        Project001::CollisionBody2D* collisionBody2DPtr = new Project001::CollisionBody2D();;
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+            collisionPoints.emplace_back(
+                glm::vec2(0.0f, 0.0f)
+            );
+        }
+        collisionBodyPtrs.push_back(collisionBody2DPtr);
+
+        collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
     }
 
-    result = Project001::UnitTest_Check3D_LineSegment_Plane_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_LineSegment_Plane_Overlap FAILED " << result);
-    }
+    positions.clear();
 
-    result = Project001::UnitTest_Check3D_LineSegment_Triangle_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_LineSegment_Triangle_Overlap FAILED " << result);
-    }
+    collisionBodyQuadTree2D.Clear();
 
-    result = Project001::UnitTest_Check3D_LineSegment_AABB_Overlap();
-    if (result != 0)
+    for (size_t i = 0; i < collisionBodyPtrs.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_LineSegment_AABB_Overlap FAILED " << result);
+        delete collisionBodyPtrs[i];
     }
-
-    result = Project001::UnitTest_Check3D_LineSegment_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_LineSegment_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_LineSegment_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_LineSegment_Sphere_Overlap FAILED " << result);
-    }
+    collisionBodyPtrs.clear();
 
     // -------------------------------------------------------------------------
+    // Testing weird case where the bounds of the quad tree area are
+    // min = 0,0 and max = 0.0.
 
-    result = Project001::UnitTest_Check3D_Plane_Plane_Overlap();
-    if (result != 0)
+    collisionBodyQuadTree2D.Reset(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 3, 1);
+
+    positions.emplace_back(0.0f, 0.0f, 0.0f);   // [00] Goes in
+    positions.emplace_back(0.0f, 0.0f, 0.0f);   // [01] Goes in
+
+    for (size_t i = 0; i < positions.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Plane_Plane_Overlap FAILED " << result);
+        const glm::vec3& currentPosition = positions[i];
+
+        Project001::CollisionBody2D* collisionBody2DPtr = new Project001::CollisionBody2D();;
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+            collisionPoints.emplace_back(
+                glm::vec2(0.0f, 0.0f)
+            );
+        }
+        collisionBodyPtrs.push_back(collisionBody2DPtr);
+
+        collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
     }
 
-    result = Project001::UnitTest_Check3D_Plane_Triangle_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Plane_Triangle_Ovelap FAILED " << result);
-    }
+    positions.clear();
 
-    result = Project001::UnitTest_Check3D_Plane_AABB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Plane_AABB_Overlap FAILED " << result);
-    }
+    collisionBodyQuadTree2D.Clear();
 
-    result = Project001::UnitTest_Check3D_Plane_OBB_Overlap();
-    if (result != 0)
+    for (size_t i = 0; i < collisionBodyPtrs.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Plane_OBB_Overlap FAILED " << result);
+        delete collisionBodyPtrs[i];
     }
-
-    result = Project001::UnitTest_Check3D_Plane_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Plane_Sphere_Overlap FAILED " << result);
-    }
+    collisionBodyPtrs.clear();
 
     // -------------------------------------------------------------------------
+    // Testing a depth of 1 and max nodes of 1.
+    // (input of 0 should be interperted as 1)
 
-    result = Project001::UnitTest_Check3D_Triangle_Triangle_Overlap();
-    if (result != 0)
+    collisionBodyQuadTree2D.Reset(glm::vec2(-1.6f, -0.8f), glm::vec2(1.6f, 0.8f), 0, 0);
+
+    positions.emplace_back(0.1f, 0.1f, 0.0f);   // [00] Goes in
+    positions.emplace_back(1.5f, 0.1f, 0.0f);   // [01] Goes in
+    positions.emplace_back(0.1f, 0.7f, 0.0f);   // [02] Goes in
+    positions.emplace_back(1.6f, 0.8f, 0.0f);   // [03] Goes in
+    positions.emplace_back(1.8f, 0.9f, 0.0f);   // [04] Goes out
+    positions.emplace_back(1.8f, 0.7f, 0.0f);   // [05] Goes out
+    positions.emplace_back(1.8f, 0.5f, 0.0f);   // [06] Goes out
+    positions.emplace_back(1.8f, 0.0f, 0.0f);   // [07] Goes out
+    positions.emplace_back(0.0f, 0.9f, 0.0f);   // [08] Goes in
+    positions.emplace_back(0.2f, 0.9f, 0.0f);   // [09] Goes in
+    positions.emplace_back(0.7f, 0.7f, 0.0f);   // [10] Goes in
+    positions.emplace_back(-0.1f, 0.4f, 0.0f);  // [11] Goes in
+    positions.emplace_back(-0.2f, 0.6f, 0.0f);  // [12] Goes in
+    positions.emplace_back(1.2f, -0.2f, 0.0f);  // [13] Goes in
+    positions.emplace_back(0.4f, -0.2f, 0.0f);  // [14] Goes in
+    positions.emplace_back(0.4f, -0.6f, 0.0f);  // [15] Goes in
+
+    for (size_t i = 0; i < positions.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Triangle_Triangle_Overlap FAILED " << result);
+        const glm::vec3& currentPosition = positions[i];
+
+        Project001::CollisionBody2D* collisionBody2DPtr = new Project001::CollisionBody2D();;
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(0.0f, 0.0f),
+                0.1f
+            );
+        }
+        collisionBodyPtrs.push_back(collisionBody2DPtr);
+
+        collisionBodyQuadTree2D.Insert(collisionBody2DPtr);
     }
 
-    result = Project001::UnitTest_Check3D_Triangle_AABB_Overlap();
-    if (result != 0)
+    positions.clear();
+
+    collisionBodyQuadTree2D.Clear();
+
+    for (size_t i = 0; i < collisionBodyPtrs.size(); ++i)
     {
-        LOG_INFO("UnitTest_Check3D_Triangle_AABB_Overlap FAILED " << result);
+        delete collisionBodyPtrs[i];
     }
-
-    result = Project001::UnitTest_Check3D_Triangle_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Triangle_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_Triangle_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Triangle_Sphere_Overlap FAILED " << result);
-    }
-
-    // -------------------------------------------------------------------------
-
-    result = Project001::UnitTest_Check3D_AABB_AABB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_AABB_AABB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_AABB_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_AABB_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_AABB_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_AABB_Sphere_Overlap FAILED " << result);
-    }
-
-    // -------------------------------------------------------------------------
-
-    result = Project001::UnitTest_Check3D_OBB_OBB_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_OBB_OBB_Overlap FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Check3D_OBB_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_OBB_Sphere_Overlap FAILED " << result);
-    }
-
-    // -------------------------------------------------------------------------
-
-    result = Project001::UnitTest_Check3D_Sphere_Sphere_Overlap();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Check3D_Sphere_Sphere_Overlap FAILED " << result);
-    }
-
-    // -------------------------------------------------------------------------
-
-    result = Project001::UnitTest_Get3D_Point_Line_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_Line_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_Ray_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_Ray_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_LineSegment_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_LineSegment_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_Plane_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_Plane_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_Triangle_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_Triangle_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_AABB_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_AABB_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_OBB_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_OBB_ClosestPoint FAILED " << result);
-    }
-
-    result = Project001::UnitTest_Get3D_Point_Sphere_ClosestPoint();
-    if (result != 0)
-    {
-        LOG_INFO("UnitTest_Get3D_Point_Sphere_ClosestPoint FAILED " << result);
-    }
+    collisionBodyPtrs.clear();
 }

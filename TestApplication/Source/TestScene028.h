@@ -5,18 +5,18 @@
 #pragma once
 
 #include "TestInstructionScene001.h"
-#include "TestSceneBase002.h"
+#include "TestSceneBase001.h"
 
 
 
-class TestScene023 : public TestSceneBase002
+class TestScene028 : public TestSceneBase001
 {
 public:
-    TestScene023(Project001::Application* applicationPtr);
-    ~TestScene023();
+    TestScene028(Project001::Application* applicationPtr);
+    ~TestScene028();
 
-    TestScene023(TestScene023& other) = delete;
-    void operator=(const TestScene023&) = delete;
+    TestScene028(TestScene028& other) = delete;
+    void operator=(const TestScene028&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 
@@ -24,16 +24,10 @@ protected:
     void ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent);
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
-    // Mesh Data ---------------------------------------------------------------
-
-    unsigned int rectangleMeshId_;
-
-    unsigned int circleMeshId_;
-
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
 
 private:
-    void TestCollisionBodyQuadTree2D();
+    void Run_UnitTests() const;
 };

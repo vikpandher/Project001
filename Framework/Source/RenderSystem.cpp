@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-30
 
 #include "RenderSystem.h"
 
@@ -248,32 +248,21 @@ namespace Project001
                                 {
                                     if (b->GetTranslucent()) // both are translucent
                                     {
-                                        if (cameraProjection == Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
-                                        {
-                                            glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                                            glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                                            float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                                            float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                            return disatanceSquaredA > disatanceSquaredB; // the farther one is drawn first
-                                        }
-                                        else
-                                        {
-                                            float distanceA;
-                                            Get3D_Point_Plane_Distance(
-                                                a->GetPosition(),
-                                                currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                distanceA
-                                            );
-                                            float distanceB;
-                                            Get3D_Point_Plane_Distance(
-                                                b->GetPosition(),
-                                                currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                distanceB
-                                            );
-                                            return distanceA > distanceB; // the farthest one is drawn first
-                                        }
+                                        float distanceA;
+                                        Get3D_Point_Plane_Distance(
+                                            a->GetPosition(),
+                                            currentCameraFrustumPlanes.nearPlaneNormal_,
+                                            currentCameraFrustumPlanes.nearPlaneDistance_,
+                                            distanceA
+                                        );
+                                        float distanceB;
+                                        Get3D_Point_Plane_Distance(
+                                            b->GetPosition(),
+                                            currentCameraFrustumPlanes.nearPlaneNormal_,
+                                            currentCameraFrustumPlanes.nearPlaneDistance_,
+                                            distanceB
+                                        );
+                                        return distanceA > distanceB; // the farthest one is drawn first
                                     }
                                     else // only "a" is translucent
                                     {
@@ -290,32 +279,21 @@ namespace Project001
                                     {
                                         if (b->GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE) // both are batched
                                         {
-                                            if (cameraProjection == Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
-                                            {
-                                                glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                                                glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                                                float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                                                float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                                return disatanceSquaredA < disatanceSquaredB; // the closest one is drawn first
-                                            }
-                                            else
-                                            {
-                                                float distanceA;
-                                                Get3D_Point_Plane_Distance(
-                                                    a->GetPosition(),
-                                                    currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                    currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                    distanceA
-                                                );
-                                                float distanceB;
-                                                Get3D_Point_Plane_Distance(
-                                                    b->GetPosition(),
-                                                    currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                    currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                    distanceB
-                                                );
-                                                return distanceA < distanceB; // the closest one is drawn first
-                                            }
+                                            float distanceA;
+                                            Get3D_Point_Plane_Distance(
+                                                a->GetPosition(),
+                                                currentCameraFrustumPlanes.nearPlaneNormal_,
+                                                currentCameraFrustumPlanes.nearPlaneDistance_,
+                                                distanceA
+                                            );
+                                            float distanceB;
+                                            Get3D_Point_Plane_Distance(
+                                                b->GetPosition(),
+                                                currentCameraFrustumPlanes.nearPlaneNormal_,
+                                                currentCameraFrustumPlanes.nearPlaneDistance_,
+                                                distanceB
+                                            );
+                                            return distanceA < distanceB; // the closest one is drawn first
                                         }
                                         else // only "a" is batched
                                         {
@@ -337,32 +315,21 @@ namespace Project001
                                         }
                                         else // both have the same id
                                         {
-                                            if (cameraProjection == Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE)
-                                            {
-                                                glm::vec3 distanceA = cameraPosition - a->GetPosition();
-                                                glm::vec3 distanceB = cameraPosition - b->GetPosition();
-                                                float disatanceSquaredA = glm::dot(distanceA, distanceA);
-                                                float disatanceSquaredB = glm::dot(distanceB, distanceB);
-                                                return disatanceSquaredA < disatanceSquaredB; // the closest one is drawn first
-                                            }
-                                            else
-                                            {
-                                                float distanceA;
-                                                Get3D_Point_Plane_Distance(
-                                                    a->GetPosition(),
-                                                    currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                    currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                    distanceA
-                                                );
-                                                float distanceB;
-                                                Get3D_Point_Plane_Distance(
-                                                    b->GetPosition(),
-                                                    currentCameraFrustumPlanes.nearPlaneNormal_,
-                                                    currentCameraFrustumPlanes.nearPlaneDistance_,
-                                                    distanceB
-                                                );
-                                                return distanceA < distanceB; // the closest one is drawn first
-                                            }
+                                            float distanceA;
+                                            Get3D_Point_Plane_Distance(
+                                                a->GetPosition(),
+                                                currentCameraFrustumPlanes.nearPlaneNormal_,
+                                                currentCameraFrustumPlanes.nearPlaneDistance_,
+                                                distanceA
+                                            );
+                                            float distanceB;
+                                            Get3D_Point_Plane_Distance(
+                                                b->GetPosition(),
+                                                currentCameraFrustumPlanes.nearPlaneNormal_,
+                                                currentCameraFrustumPlanes.nearPlaneDistance_,
+                                                distanceB
+                                            );
+                                            return distanceA < distanceB; // the closest one is drawn first
                                         }
                                     }
                                 }

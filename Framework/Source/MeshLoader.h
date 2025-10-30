@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2025-10-30
 
 #pragma once
 
@@ -32,6 +32,10 @@ namespace Project001
             const std::vector<glm::vec3>& positions,
             const std::vector<glm::vec3>& normals,
             const std::vector<glm::ivec2>& faces);
+
+        static bool WriteMeshOBJ(
+            MeshData& meshData,
+            const std::string& filePath);
 
         static bool Generate2DTriangleFan(
             MeshData& meshData,
@@ -292,6 +296,25 @@ namespace Project001
             bool smoothNormals = true,
             bool triangulate = s_triangulate);
 
+        static bool GenerateIceCreamCone(
+            MeshData& meshData,
+            float coneHeight, // without scoop
+            float radius,
+            size_t faces,
+            size_t stacks,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
+        static bool GenerateIceCreamCup(
+            MeshData& meshData,
+            float cupHeight, // without scoop
+            float radius0,
+            float radius1,
+            size_t faces,
+            size_t stacks,
+            bool smoothNormals = true,
+            bool triangulate = s_triangulate);
+
         static bool GenerateIcosphere(
             MeshData& meshData,
             float radius,
@@ -438,12 +461,21 @@ namespace Project001
             MeshData& meshData,
             glm::vec2 scale);
 
+        static void SliceMeshWithAPlane(
+            MeshData& outputMeshData0, // dot(N,p)-d >= 0
+            MeshData& outputMeshData1, // dot(N,p)-d < 0
+            std::vector<glm::vec3>& capCorners, // raw independent intersection points (unordered)
+            const MeshData& inputMeshData,
+            const glm::vec3& plane_normal, // expected normalized
+            const float& plane_distance,
+            float mergeEpsilon = 1e-6f);
+
         static void TranslateTextureCoordinates(
             MeshData& meshData,
             glm::vec2 translation);
 
         // This makes it so vertices aren't reused by multiple indices.
-        // One vertex has one associated index.
+        // Each vertex has only one associated index. Vertices will repeat.
         static bool s_triangulate;
 
     protected:

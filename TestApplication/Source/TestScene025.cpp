@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-10-30
 
-#include "TestScene016.h"
+#include "TestScene025.h"
 
 #include "TestApplicationData.h"
 
@@ -21,11 +21,11 @@
 
 // public ----------------------------------------------------------------------
 
-TestScene016::TestScene016(Project001::Application* applicationPtr)
+TestScene025::TestScene025(Project001::Application* applicationPtr)
     : TestSceneBase002(applicationPtr)
     , instructionScene_(applicationPtr)
 {
-    GetSharedDataPtr<TestApplicationData>()->testScene016Id = GetId();
+    GetSharedDataPtr<TestApplicationData>()->testScene025Id = GetId();
 
     recolorOverlappingCollisionBodies_ = false;
 
@@ -36,32 +36,30 @@ TestScene016::TestScene016(Project001::Application* applicationPtr)
     velocityBasedMovement_ = true;
 }
 
-TestScene016::~TestScene016()
+TestScene025::~TestScene025()
 {}
 
-void TestScene016::HandleEvent(Project001::Event& event)
+void TestScene025::HandleEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene016::ProcessDeinitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene025::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
     TestSceneBase002::HandleEvent(event);
 
-    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene016::ProcessInitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene025::ProcessInitializeEvent, this, std::placeholders::_1));
 
     instructionScene_.HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
 
-void TestScene016::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
+void TestScene025::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    LOG_INFO("INITIALIZING:   TestScene016:            " << GetId());
+    LOG_INFO("INITIALIZING:   TestScene025:            " << GetId());
 
     // Creating Entities
     // -------------------------------------------------------------------------
 
-    applyGravity_ = true;
-
-    CreateEntitiesForGravityTest01();
+    CreateEntitiesForTest01();
 
     // Member Scenes -----------------------------------------------------------
 
@@ -96,72 +94,24 @@ void TestScene016::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     instructionScene_.Initialize(instructionSceneInfo);
 }
 
-void TestScene016::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+void TestScene025::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
     instructionScene_.Deinitialize();
 
-    LOG_INFO("DEINITIALIZING: TestScene016:            " << GetId());
+    LOG_INFO("DEINITIALIZING: TestScene025:            " << GetId());
 }
 
-void TestScene016::CreateEntitiesForGravityTest01()
+void TestScene025::CreateEntitiesForTest01()
 {
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.friction = 1.0f;
-    collisionBody2DCreationInfo.restitution = 0.4f;
+    collisionBody2DCreationInfo.restitution = 1.0f;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
-    collisionBody2DCreationInfo.mass = 1.0f;
 
-    { // Floor
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        std::vector<glm::vec2> shapePoints;
-        shapePoints.emplace_back(-5.0f, 1.0f);
-        shapePoints.emplace_back(-5.0f, -1.0f);
-        shapePoints.emplace_back(5.0f, -1.0f);
-        shapePoints.emplace_back(5.0f, 1.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    float yPos01 = 4.0f;
 
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        glm::vec3 currentPosition(0.0f, -4.0f, 0.0f);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
-        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
-        if (collisionBody2DPtr != nullptr)
-        {
-            collisionBody2DPtr->SetPosition(currentPosition);
-
-            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
-            collisionRectangles.emplace_back(
-                glm::vec2(-5.0f, -1.0f),
-                glm::vec2(5.0f, 1.0f)
-            );
-
-            // std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
-            // collisionConvexPolygons.emplace_back(shapePoints);
-
-            collisionBody2DPtr->SetFixedTranslation(true);
-            collisionBody2DPtr->SetFixedRotation(true);
-        }
-    }
-
-    { // Circle 1
+    for (int i = 0; i < 7; ++i)
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
@@ -172,7 +122,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(0.0f, -2.84f, 0.0f);
+        glm::vec3 currentPosition((float)i, yPos01, 0.0f);
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -192,105 +142,40 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-
             std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
             collisionCircles.emplace_back(
                 glm::vec2(),
                 0.32f
             );
+
+            if (i == 0 || i == 1)
+            {
+                collisionBody2DPtr->SetVelocity(glm::vec2(1.0f, 0.0));
+            }
         }
     }
 
-    { // Circle 2
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    // -------------------------------------------------------------------------
 
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        glm::vec3 currentPosition(0.0f, -2.36f, 0.0f);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
+    std::vector<glm::vec3> meshEntityPositions;
+    for (int y = 0; y >= -2; --y)
+    {
+        for (int x = -2; x <= 2; ++x)
         {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
-        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
-        if (collisionBody2DPtr != nullptr)
-        {
-            collisionBody2DPtr->SetPosition(currentPosition);
-
-            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
-            collisionCircles.emplace_back(
-                glm::vec2(),
-                0.24f
-            );
+            meshEntityPositions.emplace_back((float)x * 2.5f, (float)y * 1.5f + 0.5f, 0.0f);
         }
     }
+    size_t positionPosition = 0;
 
-    { // Circle 3
+    // Rectangle 1
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        glm::vec3 currentPosition(0.0f, -2.04f, 0.0f);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTranslucent(true);
-            renderedMeshPtr->SetUseLighting(false);
-        }
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
-        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
-        if (collisionBody2DPtr != nullptr)
-        {
-            collisionBody2DPtr->SetPosition(currentPosition);
-
-            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
-            collisionCircles.emplace_back(
-                glm::vec2(),
-                0.16f
-            );
-        }
-    }
-
-    for (size_t i = 0; i < 8; i++)
-    { // Rectangle
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-
         std::vector<glm::vec2> shapePoints;
-        shapePoints.emplace_back(-0.5f, 0.25f);
-        shapePoints.emplace_back(-0.5f, -0.25f);
-        shapePoints.emplace_back(0.5f, -0.25f);
-        shapePoints.emplace_back(0.5f, 0.25f);
+        shapePoints.emplace_back(-0.48f, 0.24f);
+        shapePoints.emplace_back(-0.48f, -0.24f);
+        shapePoints.emplace_back(0.48f, -0.24f);
+        shapePoints.emplace_back(0.48f, 0.24f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -299,7 +184,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(-2.0f, -2.75f + 0.5f * (float)i, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -309,7 +194,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTranslucent(true);
             renderedMeshPtr->SetUseLighting(false);
         }
 
@@ -319,29 +203,25 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-
             std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
             collisionRectangles.emplace_back(
-                glm::vec2(-0.5f, -0.25f),
-                glm::vec2(0.5f, 0.25f)
+                glm::vec2(-0.48f, -0.24f),
+                glm::vec2(0.48f, 0.24f)
             );
-
-            // std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
-            // collisionConvexPolygons.emplace_back(shapePoints);
-
-            collisionBody2DPtr->SetVelocity(glm::vec2(0.1f, 0.0f));
         }
     }
 
-    for (size_t i = 0; i < 8; i++)
-    { // Capsule
+    // OrientedRectangle 1
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-
-        glm::vec2 capsuleStart(-0.5f, 0.0f);
-        glm::vec2 capsuleEnd(0.5f, 0.0f);
-        float capsuleRadius = 0.25f;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, capsuleStart, capsuleEnd, capsuleRadius, 6));
+        std::vector<glm::vec2> shapePoints;
+        shapePoints.emplace_back(-0.48f, 0.32f);
+        shapePoints.emplace_back(-0.48f, -0.32f);
+        shapePoints.emplace_back(0.48f, -0.32f);
+        shapePoints.emplace_back(0.48f, 0.32f);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -349,7 +229,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(2.0f, -2.75f + 0.5f * (float)i, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -359,7 +239,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTranslucent(true);
             renderedMeshPtr->SetUseLighting(false);
         }
 
@@ -369,19 +248,100 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-
-            std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
-            collisionCapsules.emplace_back(capsuleStart, capsuleEnd, capsuleRadius);
-
-            collisionBody2DPtr->SetVelocity(glm::vec2(0.1f, 0.0f));
+            std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+            collisionOrientedRectangles.emplace_back(
+                glm::vec2(0.48f, 0.32f),
+                glm::vec2(),
+                glm::quarter_pi<float>()
+            );
         }
     }
 
-    { // Triangle 1
+    // Circle 1
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(),
+                0.32f
+            );
+        }
+    }
+
+    // Capsule 1
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+            collisionCapsules.emplace_back(
+                glm::vec2(0.0f, -0.40f),
+                glm::vec2(0.0f, 0.40f),
+                0.12f
+            );
+        }
+    }
+
+    // Triangle 1
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
-        shapePoints.emplace_back(-0.48f, -0.48f);
+        shapePoints.emplace_back(-0.60f, -0.60f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
@@ -392,7 +352,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(-3.5f, -2.5f, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -403,7 +363,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -414,14 +373,185 @@ void TestScene016::CreateEntitiesForGravityTest01()
             collisionBody2DPtr->SetPosition(currentPosition);
             std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
             collisionTriangles.emplace_back(
-                glm::vec2(-0.48f, -0.48f),
+                glm::vec2(-0.60f, -0.60f),
                 glm::vec2(0.48f, 0.0f),
                 glm::vec2(0.0f, 0.48f)
             );
         }
     }
 
-    { // Triangle 2
+    // Rectangle 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> shapePoints;
+        shapePoints.emplace_back(-0.96f, 0.24f);
+        shapePoints.emplace_back(-0.96f, -0.24f);
+        shapePoints.emplace_back(0.96f, -0.24f);
+        shapePoints.emplace_back(0.96f, 0.24f);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+            collisionRectangles.emplace_back(
+                glm::vec2(-0.96f, -0.24f),
+                glm::vec2(0.96f, 0.24f)
+            );
+        }
+    }
+
+    // OrientedRectangle 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> shapePoints;
+        shapePoints.emplace_back(-1.92f, 0.08f);
+        shapePoints.emplace_back(-1.92f, -0.08f);
+        shapePoints.emplace_back(1.92f, -0.08f);
+        shapePoints.emplace_back(1.92f, 0.08f);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, -1.0f * glm::quarter_pi<float>());
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+            collisionOrientedRectangles.emplace_back(
+                glm::vec2(1.92f, 0.08f),
+                glm::vec2(),
+                -1.0f * glm::quarter_pi<float>()
+            );
+        }
+    }
+
+    // Circle 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.96f, 24));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+            collisionCircles.emplace_back(
+                glm::vec2(),
+                0.96f
+            );
+        }
+    }
+
+    // Capsule 2
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.96f, 0.96f, 8));
+        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+            collisionCapsules.emplace_back(
+                glm::vec2(-0.48f, 0.0f),
+                glm::vec2(0.48f, 0.0f),
+                0.48f
+            );
+        }
+    }
+
+    // Triangle 2
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
@@ -436,7 +566,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(-3.5f, -2.0f, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -447,7 +577,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -465,13 +594,15 @@ void TestScene016::CreateEntitiesForGravityTest01()
         }
     }
 
-    { // Triangle 3
+    // Rectangle 3
+    {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
-        shapePoints.emplace_back(-0.32f, -0.32f);
-        shapePoints.emplace_back(0.32f, 0.0f);
-        shapePoints.emplace_back(0.0f, 0.32f);
+        shapePoints.emplace_back(-0.24f, 0.16f);
+        shapePoints.emplace_back(-0.24f, -0.16f);
+        shapePoints.emplace_back(0.24f, -0.16f);
+        shapePoints.emplace_back(0.24f, 0.16f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
@@ -480,7 +611,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(-3.5f, -1.5f, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -491,7 +622,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -500,35 +630,25 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-            std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
-            collisionTriangles.emplace_back(
-                glm::vec2(-0.32f, -0.32f),
-                glm::vec2(0.32f, 0.0f),
-                glm::vec2(0.0f, 0.32f)
+            std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+            collisionRectangles.emplace_back(
+                glm::vec2(-0.24f, -0.16f),
+                glm::vec2(0.24f, 0.16f)
             );
         }
     }
 
-    // ConvexPolygon 1 (pentagon)
+    // OrientedRectangle 3
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> shapePoints;
-
-        int sides = 6;
-        float radius = 0.36f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
-
-        glm::vec2 radialVector(0.0f, radius);
-        shapePoints.push_back(radialVector);
-
-        for (size_t i = 0; i < sides - 1; ++i)
-        {
-            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
-            shapePoints.push_back(radialVector);
-        }
-
+        shapePoints.emplace_back(-0.24f, 0.16f);
+        shapePoints.emplace_back(-0.24f, -0.16f);
+        shapePoints.emplace_back(0.24f, -0.16f);
+        shapePoints.emplace_back(0.24f, 0.16f);
         FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
         Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
@@ -536,7 +656,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(3.5f, -3.0f + 0.36f, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -547,7 +667,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
         }
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
@@ -556,66 +675,17 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-            std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
-            collisionConvexPolygons.emplace_back(shapePoints);
+            std::vector<Project001::CollisionOrientedRectangle2D>& collisionOrientedRectangles = collisionBody2DPtr->GetCollisionOrientedRectangles();
+            collisionOrientedRectangles.emplace_back(
+                glm::vec2(0.24f, 0.16f),
+                glm::vec2(),
+                glm::quarter_pi<float>()
+            );
         }
     }
 
-    // ConvexPolygon 2 (hexagon)
+    // Circle 3
     {
-        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-        meshDataPtrArray_.push_back(newMeshDataPtr);
-        std::vector<glm::vec2> shapePoints;
-
-        int sides = 5;
-        float radius = 0.36f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
-
-        glm::vec2 radialVector(0.0f, radius);
-        shapePoints.push_back(radialVector);
-
-        for (size_t i = 0; i < sides - 1; ++i)
-        {
-            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
-            shapePoints.push_back(radialVector);
-        }
-
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-
-        unsigned int tempEntityId;
-        GetComponentStoresPtr()->CreateEntity(tempEntityId);
-        entityIds_.push_back(tempEntityId);
-
-        glm::vec3 currentPosition(3.5f, -3.0f + 0.72f, 0.0f);
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-        Project001::RenderedMesh* renderedMeshPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-        if (renderedMeshPtr != nullptr)
-        {
-            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetUseLighting(false);
-            renderedMeshPtr->SetTranslucent(true);
-        }
-
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
-        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
-        if (collisionBody2DPtr != nullptr)
-        {
-            collisionBody2DPtr->SetPosition(currentPosition);
-            std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
-            collisionConvexPolygons.emplace_back(shapePoints);
-        }
-    }
-
-    GenerateCombinationShape(collisionBody2DCreationInfo, glm::vec3(0.0f, 0.0f, 0.0f));
-
-    { // Circle 4
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
@@ -626,7 +696,7 @@ void TestScene016::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(0.0f, 0.0f, 0.0f);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -636,7 +706,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTranslucent(true);
             renderedMeshPtr->SetUseLighting(false);
         }
 
@@ -646,7 +715,6 @@ void TestScene016::CreateEntitiesForGravityTest01()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-
             std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
             collisionCircles.emplace_back(
                 glm::vec2(),
@@ -654,144 +722,88 @@ void TestScene016::CreateEntitiesForGravityTest01()
             );
         }
     }
-}
 
-void TestScene016::GenerateCombinationShape(Project001::CollisionBody2DCreationInfo& collisionBody2DCreationInfo, glm::vec3& position)
-{
-    Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
-    meshDataPtrArray_.push_back(newMeshDataPtr);
-
-    Project001::MeshData tempMeshData;
-
-    // Center Triangle
-    const glm::vec2 centerTriangleCorner1(0.0f, 0.96f);
-    const glm::vec2 centerTriangleCorner2(-0.32f, 0.32f);
-    const glm::vec2 centerTriangleCorner3(0.32f, 0.32f);
-
-    tempMeshData.Clear();
-    std::vector<glm::vec2> centerTriangleCorners;
-    centerTriangleCorners.push_back(centerTriangleCorner1);
-    centerTriangleCorners.push_back(centerTriangleCorner2);
-    centerTriangleCorners.push_back(centerTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Center Rectangle
-    const glm::vec2 centerRectangleBottomLeft(-0.32f, -0.64f);
-    const glm::vec2 centerRectangleTopRight(0.32f, -0.32f);
-
-    tempMeshData.Clear();
-    std::vector<glm::vec2> centerRectangleCorners;
-    centerRectangleCorners.emplace_back(centerRectangleBottomLeft.x, centerRectangleTopRight.y);
-    centerRectangleCorners.push_back(centerRectangleBottomLeft);
-    centerRectangleCorners.emplace_back(centerRectangleTopRight.x, centerRectangleBottomLeft.y);
-    centerRectangleCorners.push_back(centerRectangleTopRight);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerRectangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Center Convex Polygon
-    tempMeshData.Clear();
-    std::vector<glm::vec2> centerConvexPolygonCorners;
-    centerConvexPolygonCorners.emplace_back(0.0f, -0.64f);
-    centerConvexPolygonCorners.emplace_back(-0.22f, -0.68f);
-    centerConvexPolygonCorners.emplace_back(0.0f, -0.96f);
-    centerConvexPolygonCorners.emplace_back(0.22f, -0.68f);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerConvexPolygonCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Left Capsule
-    const glm::vec2 leftCapsuleStart(-0.44f, 0.32f);
-    const glm::vec2 leftCapsuleEnd(-0.44f, -0.32f);
-    const float leftCapsuleRadius = 0.12f;
-
-    tempMeshData.Clear();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
-        tempMeshData,
-        leftCapsuleStart,
-        leftCapsuleEnd,
-        leftCapsuleRadius,
-        8));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Right Capsule
-    const glm::vec2 rightCapsuleStart(0.44f, 0.32f);
-    const glm::vec2 rightCapsuleEnd(0.44f, -0.32f);
-    const float rightCapsuleRadius = 0.12f;
-
-    tempMeshData.Clear();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
-        tempMeshData,
-        rightCapsuleStart,
-        rightCapsuleEnd,
-        rightCapsuleRadius,
-        8));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Left Triangle
-    const glm::vec2 leftTriangleCorner1(-0.56f, 0.32f);
-    const glm::vec2 leftTriangleCorner2(-0.88f, -0.32f);
-    const glm::vec2 leftTriangleCorner3(-0.56f, -0.32f);
-
-    tempMeshData.Clear();
-    std::vector<glm::vec2> leftTriangleCorners;
-    leftTriangleCorners.push_back(leftTriangleCorner1);
-    leftTriangleCorners.push_back(leftTriangleCorner2);
-    leftTriangleCorners.push_back(leftTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, leftTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    // Right Triangle
-    const glm::vec2 rightTriangleCorner1(0.56f, 0.32f);
-    const glm::vec2 rightTriangleCorner2(0.56f, -0.32f);
-    const glm::vec2 rightTriangleCorner3(0.88f, -0.32f);
-
-    tempMeshData.Clear();
-    std::vector<glm::vec2> rightTriangleCorners;
-    rightTriangleCorners.push_back(rightTriangleCorner1);
-    rightTriangleCorners.push_back(rightTriangleCorner2);
-    rightTriangleCorners.push_back(rightTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, rightTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
-
-    Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-    Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-
-    unsigned int tempEntityId;
-    GetComponentStoresPtr()->CreateEntity(tempEntityId);
-    entityIds_.push_back(tempEntityId);
-
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
-    Project001::RenderedMesh* renderedMeshPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
-    if (renderedMeshPtr != nullptr)
+    // Capsule 3
     {
-        renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-        renderedMeshPtr->SetPosition(position);
-        renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-        renderedMeshPtr->SetUseLighting(false);
-        renderedMeshPtr->SetTranslucent(true);
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.48f, 0.16f, 8));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
+            collisionCapsules.emplace_back(
+                glm::vec2(0.0f, -0.24f),
+                glm::vec2(0.0f, 0.24f),
+                0.08f
+            );
+        }
     }
 
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
-    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
-    if (collisionBody2DPtr != nullptr)
+    // Triangle 3
     {
-        collisionBody2DPtr->SetPosition(position);
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> shapePoints;
+        shapePoints.emplace_back(-1.28f, -1.28f);
+        shapePoints.emplace_back(0.32f, 0.0f);
+        shapePoints.emplace_back(0.0f, 0.32f);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
-        std::vector<Project001::CollisionTriangle2D>& collisionTrangles = collisionBody2DPtr->GetCollisionTriangles();
-        collisionTrangles.emplace_back(centerTriangleCorner1, centerTriangleCorner2, centerTriangleCorner3);
-        collisionTrangles.emplace_back(leftTriangleCorner1, leftTriangleCorner2, leftTriangleCorner3);
-        collisionTrangles.emplace_back(rightTriangleCorner1, rightTriangleCorner2, rightTriangleCorner3);
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
 
-        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
-        collisionRectangles.emplace_back(centerRectangleBottomLeft, centerRectangleTopRight);
+        glm::vec3 currentPosition = meshEntityPositions[positionPosition++];
 
-        std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBody2DPtr->GetCollisionConvexPolygons();
-        collisionConvexPolygons.emplace_back(centerConvexPolygonCorners);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(currentPosition);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetUseLighting(false);
+        }
 
-        std::vector<Project001::CollisionCapsule2D>& collisionCapsules = collisionBody2DPtr->GetCollisionCapsules();
-        collisionCapsules.emplace_back(leftCapsuleStart, leftCapsuleEnd, leftCapsuleRadius);
-        collisionCapsules.emplace_back(rightCapsuleStart, rightCapsuleEnd, rightCapsuleRadius);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, tempEntityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            collisionBody2DPtr->SetPosition(currentPosition);
+            std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBody2DPtr->GetCollisionTriangles();
+            collisionTriangles.emplace_back(
+                glm::vec2(-1.28f, -1.28f),
+                glm::vec2(0.32f, 0.0f),
+                glm::vec2(0.0f, 0.32f)
+            );
+        }
     }
 }
