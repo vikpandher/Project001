@@ -79,8 +79,8 @@ namespace Project001
         const uint32_t& GetAllowedCollisionFilterMask() const;
         void SetAllowedCollisionFilterMask(uint32_t allowedCollisionFilterMask);
 
-        const bool& GetTangible() const;
-        void SetTangible(bool tangible);
+        const bool& GetEnabled() const;
+        void SetEnabled(bool enabled);
 
         // Note: Use std::swap to swap vectors of CollisionShape2D
 
@@ -134,7 +134,7 @@ namespace Project001
 
         const float& GetMomentOfInertia();
 
-        // Only tangible_ shapes will be included in the bounding radius
+        // Only enabled_ shapes will be included in the bounding radius
         // calucation and in the transformed collision shape vectors
 
         void AddCollision(const CollisionData2D& collision);
@@ -264,7 +264,7 @@ namespace Project001
         uint32_t collisionGroupMask_;
         uint32_t allowedCollisionFilterMask_;
 
-        bool tangible_;
+        bool enabled_;
 
         float boundingRadius_;
         float area_;
@@ -306,7 +306,7 @@ namespace Project001
     {
         uint32_t collisionGroupMask = 0b00000000000000000000000000000001;
         uint32_t allowedCollisionFilterMask = 0b11111111111111111111111111111111;
-        bool tangible = true;
+        bool enabled = true;
         CollisionBody2D::PhysicsType physicsType = CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
         bool fixedTranslation = false;
         bool fixedRotation = false;
@@ -328,7 +328,7 @@ namespace Project001
     inline CollisionBody2D::CollisionBody2D()
         : collisionGroupMask_(0b00000000000000000000000000000001)
         , allowedCollisionFilterMask_(0b11111111111111111111111111111111)
-        , tangible_(true)
+        , enabled_(true)
         , boundingRadius_(0.0f)
         , area_(0.0f)
         , momentOfInertia_(0.0f)
@@ -356,7 +356,7 @@ namespace Project001
     inline CollisionBody2D::CollisionBody2D(const CollisionBody2DCreationInfo& collisionBody2DCreationInfo)
         : collisionGroupMask_(collisionBody2DCreationInfo.collisionGroupMask)
         , allowedCollisionFilterMask_(collisionBody2DCreationInfo.allowedCollisionFilterMask)
-        , tangible_(collisionBody2DCreationInfo.tangible)
+        , enabled_(collisionBody2DCreationInfo.enabled)
         , boundingRadius_(0.0f)
         , area_(0.0f)
         , momentOfInertia_(0.0f)
@@ -401,14 +401,14 @@ namespace Project001
         allowedCollisionFilterMask_ = allowedCollisionFilterMask;
     }
 
-    inline const bool& CollisionBody2D::GetTangible() const
+    inline const bool& CollisionBody2D::GetEnabled() const
     {
-        return tangible_;
+        return enabled_;
     }
 
-    inline void CollisionBody2D::SetTangible(bool tangible)
+    inline void CollisionBody2D::SetEnabled(bool enabled)
     {
-        tangible_ = tangible;
+        enabled_ = enabled;
     }
 
     inline std::vector<CollisionPoint2D>& CollisionBody2D::GetCollisionPoints()

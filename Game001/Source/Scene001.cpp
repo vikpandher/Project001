@@ -1282,7 +1282,7 @@ void Scene001::CreateIntroTextEntity()
         "\n"
         "Trick or Treat on Spooky Street\n"
         "\n"
-        "version 0.1.0\n"
+        "version 0.1.x\n"
         "\n"
         "\n"
         "Knock on the doors of lit-up houses\n"

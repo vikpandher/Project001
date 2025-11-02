@@ -108,6 +108,13 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 {
     LOG_INFO("INITIALIZING:   TestSceneBase002:        " << GetId());
 
+    Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
+        glm::vec2(-8.0f, -6.0f),
+        glm::vec2(8.0f, 6.0f),
+        4,
+        16
+    );
+
     // Load textures
     // -------------------------------------------------------------------------
 

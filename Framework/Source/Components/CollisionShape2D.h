@@ -29,329 +29,229 @@ namespace Project001
         COLLISION_SHAPE_2D_TYPE_CONVEX_POLYGON
     };
 
-    struct CollisionShape2D
-    {
-        unsigned int tag;
-        bool tangible;
-
-    protected:
-        CollisionShape2D();
-        CollisionShape2D(unsigned int tag, bool tangible);
-    };
-
-    inline CollisionShape2D::CollisionShape2D()
-        : tag(0)
-        , tangible(true)
-    {}
-
-    inline CollisionShape2D::CollisionShape2D(unsigned int tag, bool tangible)
-        : tag(tag)
-        , tangible(tangible)
-    {}
-
     // -------------------------------------------------------------------------
 
-    struct CollisionPoint2D : CollisionShape2D
+    namespace CollisionShape2D
     {
-        CollisionPoint2D();
-        CollisionPoint2D(const glm::vec2& position);
-        CollisionPoint2D(const glm::vec2& position, unsigned int tag, bool tangible);
+        static const glm::vec2 s_defaultPosition(0.0f, 0.0f);
+        static const glm::vec2 s_defaultDirection(1.0f, 0.0f);
+    };
+
+    struct CollisionPoint2D
+    {
+        CollisionPoint2D(const glm::vec2& position = CollisionShape2D::s_defaultPosition, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 position;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionPoint2D::CollisionPoint2D()
-        : position(0.0f, 0.0f)
-    {}
-
-    inline CollisionPoint2D::CollisionPoint2D(const glm::vec2& position)
+    inline CollisionPoint2D::CollisionPoint2D(const glm::vec2& position, unsigned int tag, bool enabled)
         : position(position)
-    {}
-
-    inline CollisionPoint2D::CollisionPoint2D(const glm::vec2& position, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , position(position)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionLine2D : CollisionShape2D
+    struct CollisionLine2D
     {
-        CollisionLine2D();
-        CollisionLine2D(const glm::vec2& position, const float& slope);
-        CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int tag, bool tangible);
+        CollisionLine2D(const glm::vec2& position = CollisionShape2D::s_defaultPosition, const float& slope = 0.0f, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 position;
         float slope;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionLine2D::CollisionLine2D()
-        : position(0.0f, 0.0f)
-        , slope(0.0f)
-    {}
-
-    inline CollisionLine2D::CollisionLine2D(const glm::vec2& position, const float& slope)
+    inline CollisionLine2D::CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int tag, bool enabled)
         : position(position)
         , slope(slope)
-    {}
-
-    inline CollisionLine2D::CollisionLine2D(const glm::vec2& position, const float& slope, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , position(position)
-        , slope(slope)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionRay2D : CollisionShape2D
+    struct CollisionRay2D
     {
-        CollisionRay2D();
-        CollisionRay2D(const glm::vec2& position, const glm::vec2& direction);
-        CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool tangible);
+        CollisionRay2D(const glm::vec2& position = CollisionShape2D::s_defaultPosition, const glm::vec2& direction = CollisionShape2D::s_defaultDirection, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 position;
         glm::vec2 direction; // keep this normalized (a unit vector)
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionRay2D::CollisionRay2D()
-        : position(0.0f, 0.0f)
-        , direction(1.0f, 0.0f)
-    {}
-
-    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction)
+    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool enabled)
         : position(position)
         , direction(direction)
-    {}
-
-    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , position(position)
-        , direction(direction)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionLineSegment2D : CollisionShape2D
+    struct CollisionLineSegment2D
     {
-        CollisionLineSegment2D();
-        CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end);
-        CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int tag, bool tangible);
+        CollisionLineSegment2D(const glm::vec2& start = CollisionShape2D::s_defaultPosition, const glm::vec2& end = CollisionShape2D::s_defaultPosition, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 start;
         glm::vec2 end;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionLineSegment2D::CollisionLineSegment2D()
-        : start(0.0f, 0.0f)
-        , end(0.0f, 0.0f)
-    {}
-
-    inline CollisionLineSegment2D::CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end)
+    inline CollisionLineSegment2D::CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int tag, bool enabled)
         : start(start)
         , end(end)
-    {}
-
-    inline CollisionLineSegment2D::CollisionLineSegment2D(const glm::vec2& start, const glm::vec2& end, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , start(start)
-        , end(end)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionRectangle2D : CollisionShape2D
+    struct CollisionRectangle2D
     {
-        CollisionRectangle2D();
-        CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight);
-        CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int tag, bool tangible);
+        CollisionRectangle2D(const glm::vec2& bottomLeft = CollisionShape2D::s_defaultPosition, const glm::vec2& topRight = CollisionShape2D::s_defaultPosition, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 bottomLeft;
         glm::vec2 topRight;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionRectangle2D::CollisionRectangle2D()
-        : bottomLeft(0.0f, 0.0f)
-        , topRight(0.0f, 0.0f)
-    {}
-
-    inline CollisionRectangle2D::CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight)
+    inline CollisionRectangle2D::CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int tag, bool enabled)
         : bottomLeft(bottomLeft)
         , topRight(topRight)
-    {}
-
-    inline CollisionRectangle2D::CollisionRectangle2D(const glm::vec2& bottomLeft, const glm::vec2& topRight, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , bottomLeft(bottomLeft)
-        , topRight(topRight)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionOrientedRectangle2D : CollisionShape2D
+    struct CollisionOrientedRectangle2D
     {
-        CollisionOrientedRectangle2D();
-        CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation);
-        CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int tag, bool tangible);
+        CollisionOrientedRectangle2D(const glm::vec2& halfSize = CollisionShape2D::s_defaultPosition, const glm::vec2& position = CollisionShape2D::s_defaultPosition, const float& rotation = 0.0f, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 halfSize;
         glm::vec2 position;
         float rotation;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D()
-        : halfSize(0.0f, 0.0f)
-        , position(0.0f, 0.0f)
-        , rotation(0.0f)
-    {}
-
-    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation)
+    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int tag, bool enabled)
         : halfSize(halfSize)
         , position(position)
         , rotation(rotation)
-    {}
-
-    inline CollisionOrientedRectangle2D::CollisionOrientedRectangle2D(const glm::vec2& halfSize, const glm::vec2& position, const float& rotation, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , halfSize(halfSize)
-        , position(position)
-        , rotation(rotation)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionCircle2D : CollisionShape2D
+    struct CollisionCircle2D
     {
-        CollisionCircle2D();
-        CollisionCircle2D(const glm::vec2& position, const float& radius);
-        CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int tag, bool tangible);
+        CollisionCircle2D(const glm::vec2& position = CollisionShape2D::s_defaultPosition, const float& radius = 0.0f, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 position;
         float radius;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionCircle2D::CollisionCircle2D()
-        : position(0.0f, 0.0f)
-        , radius(0.0f)
-    {}
-
-    inline CollisionCircle2D::CollisionCircle2D(const glm::vec2& position, const float& radius)
+    inline CollisionCircle2D::CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int tag, bool enabled)
         : position(position)
         , radius(radius)
-    {}
-
-    inline CollisionCircle2D::CollisionCircle2D(const glm::vec2& position, const float& radius, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , position(position)
-        , radius(radius)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionCapsule2D : CollisionShape2D
+    struct CollisionCapsule2D
     {
-        CollisionCapsule2D();
-        CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius);
-        CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int tag, bool tangible);
+        CollisionCapsule2D(const glm::vec2& start = CollisionShape2D::s_defaultPosition, const glm::vec2& end = CollisionShape2D::s_defaultPosition, const float& radius = 0.0f, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 start;
         glm::vec2 end;
         float radius;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionCapsule2D::CollisionCapsule2D()
-        : start(0.0f, 0.0f)
-        , end(0.0f, 0.0f)
-        , radius(0.0f)
-    {}
-
-    inline CollisionCapsule2D::CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius)
+    inline CollisionCapsule2D::CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int tag, bool enabled)
         : start(start)
         , end(end)
         , radius(radius)
-    {}
-
-    inline CollisionCapsule2D::CollisionCapsule2D(const glm::vec2& start, const glm::vec2& end, const float& radius, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , start(start)
-        , end(end)
-        , radius(radius)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionTriangle2D : CollisionShape2D
+    struct CollisionTriangle2D
     {
-        CollisionTriangle2D();
-        CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3);
-        CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int tag, bool tangible);
+        CollisionTriangle2D(const glm::vec2& corner1 = CollisionShape2D::s_defaultPosition, const glm::vec2& corner2 = CollisionShape2D::s_defaultPosition, const glm::vec2& corner3 = CollisionShape2D::s_defaultPosition, unsigned int tag = 0, bool enabled = true);
 
         glm::vec2 corner1;
         glm::vec2 corner2;
         glm::vec2 corner3;
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionTriangle2D::CollisionTriangle2D()
-        : corner1(0.0f, 0.0f)
-        , corner2(0.0f, 0.0f)
-        , corner3(0.0f, 0.0f)
-    {}
-
-    inline CollisionTriangle2D::CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3)
+    inline CollisionTriangle2D::CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int tag, bool enabled)
         : corner1(corner1)
         , corner2(corner2)
         , corner3(corner3)
-    {}
-
-    inline CollisionTriangle2D::CollisionTriangle2D(const glm::vec2& corner1, const glm::vec2& corner2, const glm::vec2& corner3, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , corner1(corner1)
-        , corner2(corner2)
-        , corner3(corner3)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionPolygon2D : CollisionShape2D
+    struct CollisionPolygon2D
     {
-        CollisionPolygon2D();
-        CollisionPolygon2D(const std::vector<glm::vec2>& corners);
-        CollisionPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible);
+        CollisionPolygon2D(const std::vector<glm::vec2>& corners = std::vector<glm::vec2>(), unsigned int tag = 0, bool enabled = true);
 
         std::vector<glm::vec2> corners; // corners go around counterclockwise
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionPolygon2D::CollisionPolygon2D()
-    {}
-
-    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& corners)
+    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool enabled)
         : corners(corners)
-    {}
-
-    inline CollisionPolygon2D::CollisionPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , corners(corners)
+        , tag(tag)
+        , enabled(enabled)
     {}
 
     // -------------------------------------------------------------------------
 
-    struct CollisionConvexPolygon2D : CollisionShape2D
+    struct CollisionConvexPolygon2D
     {
-        CollisionConvexPolygon2D();
-        CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners);
-        CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible);
+        CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners = std::vector<glm::vec2>(), unsigned int tag = 0, bool enabled = true);
 
         std::vector<glm::vec2> corners; // corners go around counterclockwise
+
+        unsigned int tag;
+        bool enabled;
     };
 
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D()
-    {}
-
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners)
+    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool enabled)
         : corners(corners)
-    {}
-
-    inline CollisionConvexPolygon2D::CollisionConvexPolygon2D(const std::vector<glm::vec2>& corners, unsigned int tag, bool tangible)
-        : CollisionShape2D(tag, tangible)
-        , corners(corners)
+        , tag(tag)
+        , enabled(enabled)
     {}
 }

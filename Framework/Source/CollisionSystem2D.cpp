@@ -90,8 +90,8 @@ namespace Project001
             currentCollisionBody.ClearCollisions();
         }
 
-        // Gather together all tangible collision bodies
-        s_tangibleCollisionBodyPtrs_.clear();
+        // Gather together all enabled collision bodies
+        s_enabledCollisionBodyPtrs_.clear();
         s_collisionBodyPairPtrs_.clear();
         s_collisionManifolds_.clear();
 
@@ -99,26 +99,26 @@ namespace Project001
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
-            if (currentCollisionBody.GetTangible())
+            if (currentCollisionBody.GetEnabled())
             {
-                s_tangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                s_enabledCollisionBodyPtrs_.push_back(&currentCollisionBody);
             }
         }
 
-        if (s_tangibleCollisionBodyPtrs_.size() == 0)
+        if (s_enabledCollisionBodyPtrs_.size() == 0)
         {
             return;
         }
 
         // Calculate collisions
-        for (unsigned int i = 0; i < s_tangibleCollisionBodyPtrs_.size() - 1; ++i)
+        for (unsigned int i = 0; i < s_enabledCollisionBodyPtrs_.size() - 1; ++i)
         {
-            Project001::CollisionBody2D*& collisionBodyA_ptr = s_tangibleCollisionBodyPtrs_[i];
+            Project001::CollisionBody2D*& collisionBodyA_ptr = s_enabledCollisionBodyPtrs_[i];
             unsigned int entityIdA;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdA, collisionBodyA_ptr);
-            for (unsigned int j = i + 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
+            for (unsigned int j = i + 1; j < s_enabledCollisionBodyPtrs_.size(); ++j)
             {
-                Project001::CollisionBody2D*& collisionBodyB_ptr = s_tangibleCollisionBodyPtrs_[j];
+                Project001::CollisionBody2D*& collisionBodyB_ptr = s_enabledCollisionBodyPtrs_[j];
                 unsigned int entityIdB;
                 componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
 
@@ -152,7 +152,7 @@ namespace Project001
         CollisionBody2D* primaryCollisionBodyPtr = nullptr;
         bool primaryComponentFound = componentStoresPtr->GetComponent<CollisionBody2D>(primaryCollisionBodyPtr, entityId);
 
-        if (!primaryComponentFound || !primaryCollisionBodyPtr->GetTangible())
+        if (!primaryComponentFound || !primaryCollisionBodyPtr->GetEnabled())
         {
             return;
         }
@@ -170,28 +170,28 @@ namespace Project001
         // Clear primary entity's collisions
         primaryCollisionBodyPtr->ClearCollisions();
 
-        // Sort out all tangible collision bodies
-        s_tangibleCollisionBodyPtrs_.clear();
+        // Gather together all enabled collision bodies
+        s_enabledCollisionBodyPtrs_.clear();
 
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
-            if (currentCollisionBody.GetTangible())
+            if (currentCollisionBody.GetEnabled())
             {
-                s_tangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                s_enabledCollisionBodyPtrs_.push_back(&currentCollisionBody);
             }
         }
 
-        if (s_tangibleCollisionBodyPtrs_.empty())
+        if (s_enabledCollisionBodyPtrs_.empty())
         {
             return;
         }
 
         // Calculate collisions (only for primary entity)
-        for (unsigned int j = 1; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
+        for (unsigned int j = 1; j < s_enabledCollisionBodyPtrs_.size(); ++j)
         {
-            Project001::CollisionBody2D*& currentCollisionBodyPtr = s_tangibleCollisionBodyPtrs_[j];
+            Project001::CollisionBody2D*& currentCollisionBodyPtr = s_enabledCollisionBodyPtrs_[j];
             unsigned int currentEntityId;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(currentEntityId, currentCollisionBodyPtr);
 
@@ -234,8 +234,8 @@ namespace Project001
             currentCollisionBody.ClearCollisions();
         }
 
-        // Gather together all tangible collision bodies
-        s_tangibleCollisionBodyPtrs_.clear();
+        // Gather together all enabled collision bodies
+        s_enabledCollisionBodyPtrs_.clear();
         s_outOfBoundsTangibleCollisionBodyPtrs_.clear();
         s_tangibleCollisionBodyQuadTree2D_.Clear();
         s_collisionBodyPairPtrs_.clear();
@@ -245,11 +245,11 @@ namespace Project001
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
-            if (currentCollisionBody.GetTangible())
+            if (currentCollisionBody.GetEnabled())
             {
                 if (s_tangibleCollisionBodyQuadTree2D_.Insert(&currentCollisionBody))
                 {
-                    s_tangibleCollisionBodyPtrs_.push_back(&currentCollisionBody);
+                    s_enabledCollisionBodyPtrs_.push_back(&currentCollisionBody);
                 }
                 else
                 {
@@ -290,9 +290,9 @@ namespace Project001
         {
             Project001::CollisionBody2D*& collisionBodyA_ptr = s_outOfBoundsTangibleCollisionBodyPtrs_[i];
 
-            for (unsigned int j = 0; j < s_tangibleCollisionBodyPtrs_.size(); ++j)
+            for (unsigned int j = 0; j < s_enabledCollisionBodyPtrs_.size(); ++j)
             {
-                Project001::CollisionBody2D*& collisionBodyB_ptr = s_tangibleCollisionBodyPtrs_[j];
+                Project001::CollisionBody2D*& collisionBodyB_ptr = s_enabledCollisionBodyPtrs_[j];
 
                 if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
                     (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
@@ -4234,7 +4234,7 @@ namespace Project001
         }
     }
 
-    std::vector<CollisionBody2D*> CollisionSystem2D::s_tangibleCollisionBodyPtrs_;
+    std::vector<CollisionBody2D*> CollisionSystem2D::s_enabledCollisionBodyPtrs_;
 
     std::vector<CollisionBody2D*> CollisionSystem2D::s_outOfBoundsTangibleCollisionBodyPtrs_;
 

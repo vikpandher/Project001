@@ -691,7 +691,7 @@ void TestScene001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        collisionPoints[cursorPositionCollisionPointIndex_].tangible = true;
+        collisionPoints[cursorPositionCollisionPointIndex_].enabled = true;
     }
 }
 
@@ -715,9 +715,9 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             if (collisionBody2DPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-                collisionPoints[cursorPositionCollisionPointIndex_].tangible = false;
-                collisionPoints[cursorPressCollisionPointIndex_].tangible = false;
-                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = false;
+                collisionPoints[cursorPositionCollisionPointIndex_].enabled = false;
+                collisionPoints[cursorPressCollisionPointIndex_].enabled = false;
+                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = false;
             }
         }
 
@@ -789,8 +789,8 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
-                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = false;
+                collisionPoints[cursorPressCollisionPointIndex_].enabled = true;
+                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = false;
             }
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
@@ -801,7 +801,7 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
+                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = true;
             }
         }
     }
@@ -838,16 +838,16 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
                 circleMesh01.SetPositionX(collisionPoint01.position.x);
                 circleMesh01.SetPositionY(collisionPoint01.position.y);
-                circleMesh01.SetVisible(collisionPoint01.tangible);
+                circleMesh01.SetVisible(collisionPoint01.enabled);
 
 
                 circleMesh02.SetPositionX(collisionPoint02.position.x);
                 circleMesh02.SetPositionY(collisionPoint02.position.y);
-                circleMesh02.SetVisible(collisionPoint02.tangible);
+                circleMesh02.SetVisible(collisionPoint02.enabled);
 
                 circleMesh03.SetPositionX(collisionPoint03.position.x);
                 circleMesh03.SetPositionY(collisionPoint03.position.y);
-                circleMesh03.SetVisible(collisionPoint03.tangible);
+                circleMesh03.SetVisible(collisionPoint03.enabled);
             }
         }
     }

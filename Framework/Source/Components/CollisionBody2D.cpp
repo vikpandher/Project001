@@ -530,7 +530,7 @@ namespace Project001
         for (size_t i = 0; i < collisionLines_.size(); ++i)
         {
             const CollisionLine2D& currentLine = collisionLines_[i];
-            if (currentLine.tangible)
+            if (currentLine.enabled)
             {
                 boundingRadius_ = std::numeric_limits<float>::infinity();
                 return;
@@ -540,7 +540,7 @@ namespace Project001
         for (size_t i = 0; i < collisionRays_.size(); ++i)
         {
             const CollisionRay2D& current = collisionRays_[i];
-            if (current.tangible)
+            if (current.enabled)
             {
                 boundingRadius_ = std::numeric_limits<float>::infinity();
                 return;
@@ -557,7 +557,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {
             const CollisionPoint2D& currentPoint = collisionPoints_[i];
-            if (!currentPoint.tangible)
+            if (!currentPoint.enabled)
             {
                 continue;
             }
@@ -573,7 +573,7 @@ namespace Project001
         for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
         {
             const CollisionLineSegment2D& currentLineSegment = collisionLineSegments_[i];
-            if (!currentLineSegment.tangible)
+            if (!currentLineSegment.enabled)
             {
                 continue;
             }
@@ -595,7 +595,7 @@ namespace Project001
         for (size_t i = 0; i < collisionRectangles_.size(); ++i)
         {
             const CollisionRectangle2D& currentRectangle = collisionRectangles_[i];
-            if (!currentRectangle.tangible)
+            if (!currentRectangle.enabled)
             {
                 continue;
             }
@@ -627,7 +627,7 @@ namespace Project001
         for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
         {
             const CollisionOrientedRectangle2D& currentOrientedRectangle = collisionOrientedRectangles_[i];
-            if (!currentOrientedRectangle.tangible)
+            if (!currentOrientedRectangle.enabled)
             {
                 continue;
             }
@@ -672,7 +672,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCircles_.size(); ++i)
         {
             const CollisionCircle2D& currentCircle = collisionCircles_[i];
-            if (!currentCircle.tangible)
+            if (!currentCircle.enabled)
             {
                 continue;
             }
@@ -689,7 +689,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCapsules_.size(); ++i)
         {
             const CollisionCapsule2D& currentCapsule = collisionCapsules_[i];
-            if (!currentCapsule.tangible)
+            if (!currentCapsule.enabled)
             {
                 continue;
             }
@@ -713,7 +713,7 @@ namespace Project001
         for (size_t i = 0; i < collisionTriangles_.size(); ++i)
         {
             const CollisionTriangle2D& currentTriangle = collisionTriangles_[i];
-            if (!currentTriangle.tangible)
+            if (!currentTriangle.enabled)
             {
                 continue;
             }
@@ -741,7 +741,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPolygons_.size(); ++i)
         {
             const CollisionPolygon2D& currentPolygon = collisionPolygons_[i];
-            if (!currentPolygon.tangible)
+            if (!currentPolygon.enabled)
             {
                 continue;
             }
@@ -760,7 +760,7 @@ namespace Project001
         for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
         {
             const CollisionConvexPolygon2D& currentConvexPolygon = collisionConvexPolygons_[i];
-            if (!currentConvexPolygon.tangible)
+            if (!currentConvexPolygon.enabled)
             {
                 continue;
             }
@@ -1033,7 +1033,7 @@ namespace Project001
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {
             const CollisionPoint2D& currentCollisionPoint = collisionPoints_[i];
-            if (!currentCollisionPoint.tangible)
+            if (!currentCollisionPoint.enabled)
             {
                 continue;
             }
@@ -1042,14 +1042,14 @@ namespace Project001
             transformedCollisionPoints_.emplace_back(
                 newPosition,
                 currentCollisionPoint.tag,
-                currentCollisionPoint.tangible
+                currentCollisionPoint.enabled
             );
         }
 
         for (size_t i = 0; i < collisionLines_.size(); ++i)
         {
             const CollisionLine2D& currentCollisionLine = collisionLines_[i];
-            if (!currentCollisionLine.tangible)
+            if (!currentCollisionLine.enabled)
             {
                 continue;
             }
@@ -1060,14 +1060,14 @@ namespace Project001
                 newPosition,
                 newSlope,
                 currentCollisionLine.tag,
-                currentCollisionLine.tangible
+                currentCollisionLine.enabled
             );
         }
 
         for (size_t i = 0; i < collisionRays_.size(); ++i)
         {
             const CollisionRay2D& currentCollisionRay = collisionRays_[i];
-            if (!currentCollisionRay.tangible)
+            if (!currentCollisionRay.enabled)
             {
                 continue;
             }
@@ -1078,14 +1078,14 @@ namespace Project001
                 newPosition,
                 newDirectoin,
                 currentCollisionRay.tag,
-                currentCollisionRay.tangible
+                currentCollisionRay.enabled
             );
         }
 
         for (size_t i = 0; i < collisionLineSegments_.size(); ++i)
         {
             const CollisionLineSegment2D& currentCollisionLineSegment = collisionLineSegments_[i];
-            if (!currentCollisionLineSegment.tangible)
+            if (!currentCollisionLineSegment.enabled)
             {
                 continue;
             }
@@ -1096,14 +1096,14 @@ namespace Project001
                 newStart,
                 newEnd,
                 currentCollisionLineSegment.tag,
-                currentCollisionLineSegment.tangible
+                currentCollisionLineSegment.enabled
             );
         }
 
         for (size_t i = 0; i < collisionRectangles_.size(); ++i)
         {
             const CollisionRectangle2D& currentCollisionRectangle = collisionRectangles_[i];
-            if (!currentCollisionRectangle.tangible)
+            if (!currentCollisionRectangle.enabled)
             {
                 continue;
             }
@@ -1116,7 +1116,7 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.tangible
+                    currentCollisionRectangle.enabled
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::half_pi<float>()))
@@ -1128,7 +1128,7 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.tangible
+                    currentCollisionRectangle.enabled
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::pi<float>()))
@@ -1139,7 +1139,7 @@ namespace Project001
                     newTopRight,
                     newBottomLeft,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.tangible
+                    currentCollisionRectangle.enabled
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
@@ -1151,7 +1151,7 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.tangible
+                    currentCollisionRectangle.enabled
                 );
             }
             else
@@ -1164,7 +1164,7 @@ namespace Project001
                     newPosition,
                     rotation_,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.tangible
+                    currentCollisionRectangle.enabled
                 );
             }
         }
@@ -1172,7 +1172,7 @@ namespace Project001
         for (size_t i = 0; i < collisionOrientedRectangles_.size(); ++i)
         {
             const CollisionOrientedRectangle2D& currentCollisionOrientedRectangle = collisionOrientedRectangles_[i];
-            if (!currentCollisionOrientedRectangle.tangible)
+            if (!currentCollisionOrientedRectangle.enabled)
             {
                 continue;
             }
@@ -1187,7 +1187,7 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.tangible
+                    currentCollisionOrientedRectangle.enabled
                 );
             }
             else if (FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
@@ -1201,7 +1201,7 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.tangible
+                    currentCollisionOrientedRectangle.enabled
                 );
             }
             else
@@ -1211,7 +1211,7 @@ namespace Project001
                     newPosition,
                     newRotation,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.tangible
+                    currentCollisionOrientedRectangle.enabled
                 );
             }
         }
@@ -1219,7 +1219,7 @@ namespace Project001
         for (size_t i = 0; i < collisionCircles_.size(); ++i)
         {
             const CollisionCircle2D& currentCollisionCircle = collisionCircles_[i];
-            if (!currentCollisionCircle.tangible)
+            if (!currentCollisionCircle.enabled)
             {
                 continue;
             }
@@ -1229,14 +1229,14 @@ namespace Project001
                 newPosition,
                 currentCollisionCircle.radius,
                 currentCollisionCircle.tag,
-                currentCollisionCircle.tangible
+                currentCollisionCircle.enabled
             );
         }
 
         for (size_t i = 0; i < collisionCapsules_.size(); ++i)
         {
             const CollisionCapsule2D& currentCollisionCapsule = collisionCapsules_[i];
-            if (!currentCollisionCapsule.tangible)
+            if (!currentCollisionCapsule.enabled)
             {
                 continue;
             }
@@ -1248,14 +1248,14 @@ namespace Project001
                 newEnd,
                 currentCollisionCapsule.radius,
                 currentCollisionCapsule.tag,
-                currentCollisionCapsule.tangible
+                currentCollisionCapsule.enabled
             );
         }
 
         for (size_t i = 0; i < collisionTriangles_.size(); ++i)
         {
             const CollisionTriangle2D& currentCollisionTriangle = collisionTriangles_[i];
-            if (!currentCollisionTriangle.tangible)
+            if (!currentCollisionTriangle.enabled)
             {
                 continue;
             }
@@ -1268,14 +1268,14 @@ namespace Project001
                 newCorner2,
                 newCorner3,
                 currentCollisionTriangle.tag,
-                currentCollisionTriangle.tangible
+                currentCollisionTriangle.enabled
             );
         }
 
         for (size_t i = 0; i < collisionPolygons_.size(); ++i)
         {
             const CollisionPolygon2D& currentCollisionPolygon = collisionPolygons_[i];
-            if (!currentCollisionPolygon.tangible)
+            if (!currentCollisionPolygon.enabled)
             {
                 continue;
             }
@@ -1292,7 +1292,7 @@ namespace Project001
                     transformedCollisionPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
-                transformedCollisionPolygon.tangible = currentCollisionPolygon.tangible;
+                transformedCollisionPolygon.enabled = currentCollisionPolygon.enabled;
             }
             else if (currentCollisionPolygon.corners.size() == 2)
             {
@@ -1303,7 +1303,7 @@ namespace Project001
                     newStart,
                     newEnd,
                     currentCollisionPolygon.tag,
-                    currentCollisionPolygon.tangible
+                    currentCollisionPolygon.enabled
                 );
             }
             else if (currentCollisionPolygon.corners.size() == 1)
@@ -1312,7 +1312,7 @@ namespace Project001
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionPolygon.tag,
-                    currentCollisionPolygon.tangible
+                    currentCollisionPolygon.enabled
                 );
             }
         }
@@ -1320,7 +1320,7 @@ namespace Project001
         for (size_t i = 0; i < collisionConvexPolygons_.size(); ++i)
         {
             const CollisionConvexPolygon2D& currentCollisionConvexPolygon = collisionConvexPolygons_[i];
-            if (!currentCollisionConvexPolygon.tangible)
+            if (!currentCollisionConvexPolygon.enabled)
             {
                 continue;
             }
@@ -1337,7 +1337,7 @@ namespace Project001
                     transformedCollisionConvexPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
-                transformedCollisionConvexPolygon.tangible = currentCollisionConvexPolygon.tangible;
+                transformedCollisionConvexPolygon.enabled = currentCollisionConvexPolygon.enabled;
             }
             else if (currentCollisionConvexPolygon.corners.size() == 2)
             {
@@ -1348,7 +1348,7 @@ namespace Project001
                     newStart,
                     newEnd,
                     currentCollisionConvexPolygon.tag,
-                    currentCollisionConvexPolygon.tangible
+                    currentCollisionConvexPolygon.enabled
                 );
             }
             else if (currentCollisionConvexPolygon.corners.size() == 1)
@@ -1357,7 +1357,7 @@ namespace Project001
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionConvexPolygon.tag,
-                    currentCollisionConvexPolygon.tangible
+                    currentCollisionConvexPolygon.enabled
                 );
             }
         }

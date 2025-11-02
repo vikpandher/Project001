@@ -74,7 +74,7 @@ namespace Project001
 
         static void ResolveCollisions();
 
-        static std::vector<CollisionBody2D*> s_tangibleCollisionBodyPtrs_;
+        static std::vector<CollisionBody2D*> s_enabledCollisionBodyPtrs_;
 
         static std::vector< CollisionBody2D*> s_outOfBoundsTangibleCollisionBodyPtrs_;
 

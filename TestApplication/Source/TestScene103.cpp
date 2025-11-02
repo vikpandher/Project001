@@ -444,7 +444,7 @@ void TestScene103::ProcessCursorPositionEvent(Project001::CursorPositionEvent& c
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        collisionPoints[cursorPositionCollisionPointIndex_].tangible = true;
+        collisionPoints[cursorPositionCollisionPointIndex_].enabled = true;
     }
 }
 
@@ -544,14 +544,14 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, testLampLight_EntityId_));
         if (collisionBody2DPtr != nullptr)
         {
-            collisionBody2DPtr->SetTangible(!collisionBody2DPtr->GetTangible());
+            collisionBody2DPtr->SetEnabled(!collisionBody2DPtr->GetEnabled());
         }
 
         collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, testHouseLight_EntityId_));
         if (collisionBody2DPtr != nullptr)
         {
-            collisionBody2DPtr->SetTangible(!collisionBody2DPtr->GetTangible());
+            collisionBody2DPtr->SetEnabled(!collisionBody2DPtr->GetEnabled());
         }
     }
 }
@@ -571,8 +571,8 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorPressCollisionPointIndex_].tangible = true;
-                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = false;
+                collisionPoints[cursorPressCollisionPointIndex_].enabled = true;
+                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = false;
             }
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
@@ -583,7 +583,7 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
                 collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorReleaseCollisionPointIndex_].tangible = true;
+                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = true;
             }
         }
     }
@@ -2525,7 +2525,7 @@ void TestScene103::UpdatePlayerEntityVelocity()
     {
         const bool lightOn = GetWindowPtr()->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_LEFT);
 
-        playerLightCollisionBodyPtr->SetTangible(lightOn);
+        playerLightCollisionBodyPtr->SetEnabled(lightOn);
 
         Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
@@ -2570,16 +2570,16 @@ void TestScene103::SyncCursorRenderedModel()
 
             circleMesh01.SetPositionX(collisionPoint01.position.x);
             circleMesh01.SetPositionY(collisionPoint01.position.y);
-            circleMesh01.SetVisible(collisionPoint01.tangible);
+            circleMesh01.SetVisible(collisionPoint01.enabled);
 
 
             circleMesh02.SetPositionX(collisionPoint02.position.x);
             circleMesh02.SetPositionY(collisionPoint02.position.y);
-            circleMesh02.SetVisible(collisionPoint02.tangible);
+            circleMesh02.SetVisible(collisionPoint02.enabled);
 
             circleMesh03.SetPositionX(collisionPoint03.position.x);
             circleMesh03.SetPositionY(collisionPoint03.position.y);
-            circleMesh03.SetVisible(collisionPoint03.tangible);
+            circleMesh03.SetVisible(collisionPoint03.enabled);
         }
     }
 }
@@ -2616,7 +2616,7 @@ void TestScene103::SyncPlayerLightRenderedModel()
             renderedModelPtr->SetPositionY(collisionBodyPtr->GetPosition().y);
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
-            renderedModelPtr->SetVisible(collisionBodyPtr->GetTangible());
+            renderedModelPtr->SetVisible(collisionBodyPtr->GetEnabled());
         }
     }
 }
@@ -2678,7 +2678,7 @@ void TestScene103::SyncTestMonsterVisionRenderedModel()
             renderedModelPtr->SetPositionY(collisionBodyPtr->GetPosition().y);
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
-            renderedModelPtr->SetVisible(collisionBodyPtr->GetTangible());
+            renderedModelPtr->SetVisible(collisionBodyPtr->GetEnabled());
         }
     }
 }
@@ -2722,7 +2722,7 @@ void TestScene103::SyncTestLampLightRenderedModel()
             renderedModelPtr->SetPositionY(collisionBodyPtr->GetPosition().y);
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
-            renderedModelPtr->SetVisible(collisionBodyPtr->GetTangible());
+            renderedModelPtr->SetVisible(collisionBodyPtr->GetEnabled());
         }
     }
 }
@@ -2766,7 +2766,7 @@ void TestScene103::SyncTestHouseLightRenderedModel()
             renderedModelPtr->SetPositionY(collisionBodyPtr->GetPosition().y);
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
-            renderedModelPtr->SetVisible(collisionBodyPtr->GetTangible());
+            renderedModelPtr->SetVisible(collisionBodyPtr->GetEnabled());
         }
     }
 }
