@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene001.h"
 
@@ -370,7 +370,10 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             circleMesh03.SetVisible(false);
         }
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_));
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo = {};
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR;
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursorEntityId_, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursorEntityId_));
         if (collisionBody2DPtr != nullptr)
@@ -459,7 +462,10 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         // ---------------------------------------------------------------------
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(buttonEntityId));
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo = {};
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR;
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(buttonEntityId, collisionBody2DCreationInfo));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, buttonEntityId));
         if (collisionBody2DPtr != nullptr)

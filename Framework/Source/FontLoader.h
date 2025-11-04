@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2024-11-03
 
 #pragma once
 
@@ -26,12 +26,16 @@ namespace Project001
             const unsigned char* dataPtr,
             size_t dataSize);
 
+        // alignment values:
+        // 0 = left aligned lines (regular)
+        // 1 = center aligned lines
+        // 2 = right aligned lines
         static bool GenerateMeshDataFromFontDataAndString(
             MeshData& meshData,
             const FontData& fontData,
             const std::string& text,
             float pixelSize = 0.01f,
-            bool centeredLines = false,
+            size_t alignemnt = 0,
             bool trangulate = s_triangulate);
 
         static bool GenerateGlpyhMeshDataFromFontDataAndCharacter(

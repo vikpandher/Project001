@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-23
+// @DATE 2025-11-03
 
 #include "TestScene102.h"
 
@@ -61,7 +61,7 @@ TestScene102::TestScene102(Project001::Application* applicationPtr)
     , player_EntityId_((unsigned int)-1)
     , cameraDistanceFromPlayer_()
     , maxCollisionBodyVelocity_()
-    , physicsStepsPerUpdate_()
+    , physicsStepsPerUpdate_(1)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene102Id = GetId();
 }
@@ -210,7 +210,7 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     cameraDistanceFromPlayer_ = 0.0f;
     maxCollisionBodyVelocity_ = 0.0f;
-    physicsStepsPerUpdate_ = 0;
+    physicsStepsPerUpdate_ = 1;
 }
 
 void TestScene102::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -313,17 +313,17 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
+
+        UpdatePlayerEntityVelocity(physicsTimestep_s);
+        UpdateMainCameraEntityPosition(physicsTimestep_s);
+
+        // Update cursor because camera updates
+        // -------------------------------------------------------------------------
+        float cursorX_position;
+        float cursorY_position;
+        GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
+        UpdateCursorPosition(cursorX_position, cursorY_position);
     }
-
-    UpdatePlayerEntityVelocity(timestep_s);
-    UpdateMainCameraEntityPosition(timestep_s);
-
-    // Update cursor because camera updates
-    // -------------------------------------------------------------------------
-    float cursorX_position;
-    float cursorY_position;
-    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
-    UpdateCursorPosition(cursorX_position, cursorY_position);
 
     // Sync rendered models
     // -------------------------------------------------------------------------
@@ -798,7 +798,7 @@ void TestScene102::CreatePlayerEntity()
 {
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY;
     collisionBody2DCreationInfo.friction = 1.0f;
     collisionBody2DCreationInfo.restitution = 0.4f;
     collisionBody2DCreationInfo.mass = 1.0f;

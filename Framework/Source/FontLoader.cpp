@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-11-03
 
 #include "FontLoader.h"
 
@@ -170,7 +170,7 @@ namespace Project001
         const FontData& fontData,
         const std::string& text,
         float pixelSize,
-        bool centeredLines,
+        size_t alignemnt,
         bool trangulate)
     {
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
@@ -182,6 +182,7 @@ namespace Project001
         maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
         minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
 
+        unsigned int initialVertexCount = (unsigned int)meshVertexArray.size();
         unsigned int lineStartVertexCount = (unsigned int)meshVertexArray.size();
         unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
 
@@ -204,14 +205,22 @@ namespace Project001
             const char& c = text[i];
             if (c == '\n')
             {
-                if (centeredLines)
+                if (alignemnt > 0)
                 {
-                    glm::vec2 halfShift = (currentPenPosition - lineStartPenPosition) * 0.5f;
+                    glm::vec2 shift(0.0f, 0.0f);
+                    if (alignemnt == 1)
+                    {
+                        shift = (currentPenPosition - lineStartPenPosition) * 0.5f;
+                    }
+                    else if (alignemnt == 2)
+                    {
+                        shift = (currentPenPosition - lineStartPenPosition);
+                    }
                     for (size_t i = lineStartVertexCount; i < currentVertexCount; ++i)
                     {
                         MeshVertex& currentMeshVertex = meshVertexArray[i];
-                        currentMeshVertex.position.x -= halfShift.x;
-                        currentMeshVertex.position.y -= halfShift.y;
+                        currentMeshVertex.position.x -= shift.x;
+                        currentMeshVertex.position.y -= shift.y;
                     }
                 }
                 lineStartVertexCount = currentVertexCount;
@@ -291,18 +300,26 @@ namespace Project001
                 }
             }
         }
-        if (centeredLines)
+        if (alignemnt > 0)
         {
-            glm::vec2 halfShift = (currentPenPosition - lineStartPenPosition) * 0.5f;
+            glm::vec2 shift(0.0f, 0.0f);
+            if (alignemnt == 1)
+            {
+                shift = (currentPenPosition - lineStartPenPosition) * 0.5f;
+            }
+            else if (alignemnt == 2)
+            {
+                shift = (currentPenPosition - lineStartPenPosition);
+            }
             for (size_t i = lineStartVertexCount; i < currentVertexCount; ++i)
             {
                 MeshVertex& currentMeshVertex = meshVertexArray[i];
-                currentMeshVertex.position.x -= halfShift.x;
-                currentMeshVertex.position.y -= halfShift.y;
+                currentMeshVertex.position.x -= shift.x;
+                currentMeshVertex.position.y -= shift.y;
             }
         }
 
-        for (size_t i = 0; i < meshVertexArray.size(); ++i)
+        for (size_t i = (size_t)initialVertexCount; i < meshVertexArray.size(); ++i)
         {
             const glm::vec3& currentPosition = meshVertexArray[i].position;
 

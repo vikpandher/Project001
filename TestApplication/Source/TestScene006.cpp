@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-11-03
 
 #include "TestScene006.h"
 
@@ -286,7 +286,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity (font02 red 'A')
+    // Generated Shape Entity (font02 yellow 'A')
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -318,14 +318,65 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         if (renderedMeshPtr != nullptr)
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
-            renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetPosition(-4.0f, 1.0f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetTextureId(font02_TextureId);
-            renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+            renderedMeshPtr->SetColorRGB(1.0f, 1.0f, 0.6f);
         }
     }
 
-    // Generated Shape Entity (font02 green 3 lines not centered)
+    // Generate Circle Shape Entities
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.02f, 12));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.6f);
+        }
+
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(0.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.6f);
+        }
+
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.6f);
+        }
+    }
+
+    // Generated Shape Entity (font02 green 3 lines right-aligned)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -334,9 +385,39 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             *newMeshDataPtr,
             font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
-            font02_pixelSize
+            font02_pixelSize,
+            2
         ));
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(-2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font02_TextureId);
+            renderedMeshPtr->SetColorRGB(1.0f, 0.6f, 0.6f);
+        }
+    }
+
+    // Generated Shape Entity (font02 red 3 lines centered)
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            *newMeshDataPtr,
+            font02_FontData,
+            "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
+            font02_pixelSize,
+            1
+        ));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -355,7 +436,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Generated Shape Entity (font02 blue 3 lines centered)
+    // Generated Shape Entity (font02 blue 3 lines left-aligned)
     // -------------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -364,10 +445,8 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             *newMeshDataPtr,
             font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
-            font02_pixelSize,
-            true
+            font02_pixelSize
         ));
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);

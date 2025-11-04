@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene022.h"
 
@@ -67,7 +67,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     // Point 1
@@ -1175,7 +1175,7 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(tempEntityId, collisionBody2DCreationInfo));

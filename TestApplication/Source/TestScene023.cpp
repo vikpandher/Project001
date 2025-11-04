@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene023.h"
 
@@ -67,7 +67,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::uniform_real_distribution<float> distributionY(-6.0f, 6.0f);
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     // Rectangles

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene026.h"
 
@@ -29,7 +29,7 @@ TestScene026::TestScene026(Project001::Application* applicationPtr)
 
     recolorOverlappingCollisionBodies_ = false;
 
-    physicsStepsPerUpdate_ = 8;
+    physicsStepsPerUpdate_ = 12;
 
     useCollisionBodyQuadTree_ = false;
 

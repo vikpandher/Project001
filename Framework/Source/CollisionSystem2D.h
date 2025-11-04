@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-11-03
 
 #pragma once
 
@@ -24,7 +24,7 @@ namespace Project001
 
         static void CalculateCollisions(ComponentStores* componentStoresPtr);
 
-        static void CalculateOverlapForGivenEntity(
+        static void CalculateCollisionsForGivenEntity(
             unsigned int entityId,
             ComponentStores* componentStoresPtr);
 
@@ -63,14 +63,12 @@ namespace Project001
 
         static void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
 
-        static void CalculateCollisionsBetweenTwoBodies(
+        static void CalculateCollisionsBetweenTwoBodiesAndAddManifold(
             unsigned int entityIdA,
             CollisionBody2D& collisionBodyA,
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
-            bool recordInBodyB,
-            bool collectDetailedCollisionData,
-            bool resolvePhysics);
+            bool recordInBodyB);
 
         static void ResolveCollisions();
 

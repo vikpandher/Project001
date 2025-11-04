@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-11-03
 
 #include "CollisionBody2D.h"
 
@@ -204,7 +204,7 @@ namespace Project001
         const glm::vec2& point_position,
         glm::vec2& closestPoint_position) const
     {
-        CollisionShape2D_Type collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_NONE;
+        CollisionShape2D::ShapeType collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_NONE;
         size_t collisionShapeIndex = -1;
         float minDistanceSquared = std::numeric_limits<float>::infinity();
 
@@ -224,7 +224,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POINT;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_POINT;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -241,7 +241,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_LINE;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -258,7 +258,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RAY;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_RAY;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -275,7 +275,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE_SEGMENT;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_LINE_SEGMENT;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -294,7 +294,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RECTANGLE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_RECTANGLE;
                 collisionShapeIndex = i;
                 closestPoint_position = currentClosestPointPosition;
                 minDistanceSquared = distanceSquared;
@@ -315,7 +315,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_ORIENTED_RECTANGLE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_ORIENTED_RECTANGLE;
                 collisionShapeIndex = i;
                 closestPoint_position = currentClosestPointPosition;
                 minDistanceSquared = distanceSquared;
@@ -334,7 +334,7 @@ namespace Project001
             float distanceSquared = distance * distance;
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CIRCLE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_CIRCLE;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -353,7 +353,7 @@ namespace Project001
             float distanceSquared = distance * distance;
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CAPSULE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_CAPSULE;
                 collisionShapeIndex = i;
                 minDistanceSquared = distanceSquared;
             }
@@ -373,7 +373,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_TRIANGLE;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_TRIANGLE;
                 collisionShapeIndex = i;
                 closestPoint_position = currentClosestPointPosition;
                 minDistanceSquared = distanceSquared;
@@ -393,7 +393,7 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POLYGON;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_POLYGON;
                 collisionShapeIndex = i;
                 closestPoint_position = currentClosestPointPosition;
                 minDistanceSquared = distanceSquared;
@@ -413,22 +413,22 @@ namespace Project001
 
             if (distanceSquared < minDistanceSquared)
             {
-                collisionShape2D_Type = CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CONVEX_POLYGON;
+                collisionShapeType = CollisionShape2D::ShapeType::SHAPE_TYPE_CONVEX_POLYGON;
                 collisionShapeIndex = i;
                 closestPoint_position = currentClosestPointPosition;
                 minDistanceSquared = distanceSquared;
             }
         }
 
-        switch (collisionShape2D_Type)
+        switch (collisionShapeType)
         {
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POINT:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_POINT:
         {
             const CollisionPoint2D& collisionPoint = collisionPoints_[collisionShapeIndex];
             closestPoint_position = collisionPoint.position;
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_LINE:
         {
             const CollisionLine2D& collisionLine = collisionLines_[collisionShapeIndex];
             Get2D_Point_Line_ClosestPoint(
@@ -438,7 +438,7 @@ namespace Project001
                 closestPoint_position);
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RAY:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_RAY:
         {
             const CollisionRay2D& collisionRay = collisionRays_[collisionShapeIndex];
             Get2D_Point_Ray_ClosestPoint(
@@ -448,7 +448,7 @@ namespace Project001
                 closestPoint_position);
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_LINE_SEGMENT:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_LINE_SEGMENT:
         {
             const CollisionLineSegment2D& collisionLineSegment = collisionLineSegments_[collisionShapeIndex];
             Get2D_Point_LineSegment_ClosestPoint(
@@ -458,17 +458,17 @@ namespace Project001
                 closestPoint_position);
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_RECTANGLE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_RECTANGLE:
         {
             // Already calculated
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_ORIENTED_RECTANGLE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_ORIENTED_RECTANGLE:
         {
             // Already calculated
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CIRCLE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_CIRCLE:
         {
             const CollisionCircle2D& collisionCircle = collisionCircles_[collisionShapeIndex];
             Get2D_Point_Circle_ClosestPoint(
@@ -478,7 +478,7 @@ namespace Project001
                 closestPoint_position);
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CAPSULE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_CAPSULE:
         {
             closestPoint_position = rotatedPointPosition;
             const CollisionCapsule2D& collisionCapsule = collisionCapsules_[collisionShapeIndex];
@@ -490,17 +490,17 @@ namespace Project001
                 closestPoint_position);
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_TRIANGLE:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_TRIANGLE:
         {
             // Already calculated
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_POLYGON:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_POLYGON:
         {
             // Already calculated
             break;
         }
-        case CollisionShape2D_Type::COLLISION_SHAPE_2D_TYPE_CONVEX_POLYGON:
+        case CollisionShape2D::ShapeType::SHAPE_TYPE_CONVEX_POLYGON:
         {
             // Already calculated
             break;
@@ -793,7 +793,12 @@ namespace Project001
         {
             const CollisionRectangle2D& collisionRectangle = collisionRectangles_[i];
 
-            float area = Get2D_Rectangle_Area(collisionRectangle.bottomLeft, collisionRectangle.topRight);
+            float area = 0.0f;
+            if (collisionRectangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionRectangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_Rectangle_Area(collisionRectangle.bottomLeft, collisionRectangle.topRight);
+            }
 
             collisionRectangleAreas_.push_back(area);
 
@@ -804,7 +809,12 @@ namespace Project001
         {
             const CollisionOrientedRectangle2D& collisionOrientedRectangle = collisionOrientedRectangles_[i];
 
-            float area = Get2D_Rectangle_Area_2(collisionOrientedRectangle.halfSize);
+            float area = 0.0f;
+            if (collisionOrientedRectangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionOrientedRectangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_Rectangle_Area_2(collisionOrientedRectangle.halfSize);
+            }
 
             collisionOrientedRectangleAreas_.push_back(area);
 
@@ -815,7 +825,12 @@ namespace Project001
         {
             const CollisionCircle2D& collisionCircle = collisionCircles_[i];
 
-            float area = Get2D_Circle_Area(collisionCircle.radius);
+            float area = 0.0f;
+            if (collisionCircle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionCircle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_Circle_Area(collisionCircle.radius);
+            }
 
             collisionCircleAreas_.push_back(area);
 
@@ -826,7 +841,12 @@ namespace Project001
         {
             const CollisionCapsule2D& collisionCapsule = collisionCapsules_[i];
 
-            float area = Get2D_Capsule_Area(collisionCapsule.start, collisionCapsule.end, collisionCapsule.radius);
+            float area = 0.0f;
+            if (collisionCapsule.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionCapsule.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_Capsule_Area(collisionCapsule.start, collisionCapsule.end, collisionCapsule.radius);
+            }
 
             collisionCapsuleAreas_.push_back(area);
 
@@ -837,7 +857,12 @@ namespace Project001
         {
             const CollisionTriangle2D& collisionTriangle = collisionTriangles_[i];
 
-            float area = Get2D_Triangle_Area(collisionTriangle.corner1, collisionTriangle.corner2, collisionTriangle.corner3);
+            float area = 0.0f;
+            if (collisionTriangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionTriangle.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_Triangle_Area(collisionTriangle.corner1, collisionTriangle.corner2, collisionTriangle.corner3);
+            }
 
             collisionTriangleAreas_.push_back(area);
 
@@ -848,7 +873,12 @@ namespace Project001
         {
             const CollisionConvexPolygon2D& collisionConvexPolygon = collisionConvexPolygons_[i];
 
-            float area = Get2D_ConvexPolygon_Area(collisionConvexPolygon.corners.data(), collisionConvexPolygon.corners.size());
+            float area = 0.0f;
+            if (collisionConvexPolygon.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR &&
+                collisionConvexPolygon.physicsType != CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+            {
+                area = Get2D_ConvexPolygon_Area(collisionConvexPolygon.corners.data(), collisionConvexPolygon.corners.size());
+            }
 
             collisionConvexPolygonAreas_.push_back(area);
 
@@ -1108,6 +1138,12 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionRectangle.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             if (FloatEqualToFloat(rotation_, 0.0f))
             {
                 glm::vec2 newBottomLeft = currentCollisionRectangle.bottomLeft + position_;
@@ -1116,7 +1152,8 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.enabled
+                    currentCollisionRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::half_pi<float>()))
@@ -1128,7 +1165,8 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.enabled
+                    currentCollisionRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::pi<float>()))
@@ -1139,7 +1177,8 @@ namespace Project001
                     newTopRight,
                     newBottomLeft,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.enabled
+                    currentCollisionRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else if (FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
@@ -1151,7 +1190,8 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.enabled
+                    currentCollisionRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else
@@ -1164,7 +1204,8 @@ namespace Project001
                     newPosition,
                     rotation_,
                     currentCollisionRectangle.tag,
-                    currentCollisionRectangle.enabled
+                    currentCollisionRectangle.enabled,
+                    currentPhysicsType
                 );
             }
         }
@@ -1177,6 +1218,12 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionOrientedRectangle.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             glm::vec2 newPosition = Rotate2DVector(currentCollisionOrientedRectangle.position, rotation_) + position_;
             float newRotation = currentCollisionOrientedRectangle.rotation + rotation_;
             if (FloatEqualToFloat(newRotation, 0.0f) || FloatEqualToFloat(newRotation, glm::pi<float>()))
@@ -1187,7 +1234,8 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.enabled
+                    currentCollisionOrientedRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else if (FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
@@ -1201,7 +1249,8 @@ namespace Project001
                     newBottomLeft,
                     newTopRight,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.enabled
+                    currentCollisionOrientedRectangle.enabled,
+                    currentPhysicsType
                 );
             }
             else
@@ -1211,7 +1260,8 @@ namespace Project001
                     newPosition,
                     newRotation,
                     currentCollisionOrientedRectangle.tag,
-                    currentCollisionOrientedRectangle.enabled
+                    currentCollisionOrientedRectangle.enabled,
+                    currentPhysicsType
                 );
             }
         }
@@ -1224,12 +1274,19 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionCircle.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             glm::vec2 newPosition = Rotate2DVector(currentCollisionCircle.position, rotation_) + position_;
             transformedCollisionCircles_.emplace_back(
                 newPosition,
                 currentCollisionCircle.radius,
                 currentCollisionCircle.tag,
-                currentCollisionCircle.enabled
+                currentCollisionCircle.enabled,
+                currentPhysicsType
             );
         }
 
@@ -1241,6 +1298,12 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionCapsule.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             glm::vec2 newStart = Rotate2DVector(currentCollisionCapsule.start, rotation_) + position_;
             glm::vec2 newEnd = Rotate2DVector(currentCollisionCapsule.end, rotation_) + position_;
             transformedCollisionCapsules_.emplace_back(
@@ -1248,7 +1311,8 @@ namespace Project001
                 newEnd,
                 currentCollisionCapsule.radius,
                 currentCollisionCapsule.tag,
-                currentCollisionCapsule.enabled
+                currentCollisionCapsule.enabled,
+                currentPhysicsType
             );
         }
 
@@ -1260,6 +1324,12 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionTriangle.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             glm::vec2 newCorner1 = Rotate2DVector(currentCollisionTriangle.corner1, rotation_) + position_;
             glm::vec2 newCorner2 = Rotate2DVector(currentCollisionTriangle.corner2, rotation_) + position_;
             glm::vec2 newCorner3 = Rotate2DVector(currentCollisionTriangle.corner3, rotation_) + position_;
@@ -1268,7 +1338,8 @@ namespace Project001
                 newCorner2,
                 newCorner3,
                 currentCollisionTriangle.tag,
-                currentCollisionTriangle.enabled
+                currentCollisionTriangle.enabled,
+                currentPhysicsType
             );
         }
 
@@ -1325,6 +1396,12 @@ namespace Project001
                 continue;
             }
 
+            CollisionShape2D::PhysicsType currentPhysicsType = currentCollisionConvexPolygon.physicsType;
+            if (currentPhysicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_NONE)
+            {
+                currentPhysicsType = physicsType_;
+            }
+
             if (currentCollisionConvexPolygon.corners.size() > 2)
             {
                 transformedCollisionConvexPolygons_.emplace_back();
@@ -1338,6 +1415,7 @@ namespace Project001
                 }
                 transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
                 transformedCollisionConvexPolygon.enabled = currentCollisionConvexPolygon.enabled;
+                transformedCollisionConvexPolygon.physicsType = currentPhysicsType;
             }
             else if (currentCollisionConvexPolygon.corners.size() == 2)
             {

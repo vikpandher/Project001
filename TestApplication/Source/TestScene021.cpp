@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene021.h"
 
@@ -53,7 +53,7 @@ void TestScene021::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // -------------------------------------------------------------------------
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
 
     // Point 1

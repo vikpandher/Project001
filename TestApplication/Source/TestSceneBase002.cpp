@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-11-03
 
 #include "TestSceneBase002.h"
 
@@ -704,7 +704,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
 
-        Project001::CollisionSystem2D::CalculateOverlapForGivenEntity(cursorEntityId_, GetComponentStoresPtr());
+        Project001::CollisionSystem2D::CalculateCollisionsForGivenEntity(cursorEntityId_, GetComponentStoresPtr());
 
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
@@ -1434,14 +1434,14 @@ void TestSceneBase002::UpdateCollisionBodyColors()
                 }
                 else
                 {
-                    const Project001::CollisionBody2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
+                    const Project001::CollisionShape2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
 
-                    if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY ||
-                        physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY)
+                    if (physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                        physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR)
                     {
                         renderedMeshPtr->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
                     }
-                    else if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+                    else if (physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                     {
                         const bool& fixedTranslation = currentCollisionBody.GetFixedTranslation();
                         const bool& fixedRotation = currentCollisionBody.GetFixedRotation();
@@ -1763,14 +1763,14 @@ void TestSceneBase002::UpdateCollisionBodyTexture()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, currentEntityId));
         if (renderedMeshPtr != nullptr)
         {
-            const Project001::CollisionBody2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
+            const Project001::CollisionShape2D::PhysicsType& physicsType = currentCollisionBody.GetPhysicsType();
 
-            if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY ||
-                physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY)
+            if (physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR)
             {
                 renderedMeshPtr->SetTextureId(text_overlapOnly_TextureId_);
             }
-            else if (physicsType == Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+            else if (physicsType == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
             {
                 const bool& fixedTranslation = currentCollisionBody.GetFixedTranslation();
                 const bool& fixedRotation = currentCollisionBody.GetFixedRotation();

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-11-03
 
 #include "CollisionSystem2D.h"
 
@@ -110,7 +110,7 @@ namespace Project001
             return;
         }
 
-        // Calculate collisions
+        // Find collision pairs
         for (unsigned int i = 0; i < s_enabledCollisionBodyPtrs_.size() - 1; ++i)
         {
             Project001::CollisionBody2D*& collisionBodyA_ptr = s_enabledCollisionBodyPtrs_[i];
@@ -139,7 +139,7 @@ namespace Project001
         ResolveCollisions();
     }
 
-    void CollisionSystem2D::CalculateOverlapForGivenEntity(
+    void CollisionSystem2D::CalculateCollisionsForGivenEntity(
         unsigned int entityId,
         ComponentStores* componentStoresPtr)
     {
@@ -188,7 +188,7 @@ namespace Project001
             return;
         }
 
-        // Calculate collisions (only for primary entity)
+        // Calculate collisions (only for the given entity)
         for (unsigned int j = 1; j < s_enabledCollisionBodyPtrs_.size(); ++j)
         {
             Project001::CollisionBody2D*& currentCollisionBodyPtr = s_enabledCollisionBodyPtrs_[j];
@@ -204,7 +204,7 @@ namespace Project001
                 currentCollisionBodyPtr->GetPosition(),
                 currentCollisionBodyPtr->GetBoundingRadius()))
             {
-                CalculateCollisionsBetweenTwoBodies(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false, false, false);
+                CalculateCollisionsBetweenTwoBodiesAndAddManifold(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
             }
         }
     }
@@ -258,7 +258,7 @@ namespace Project001
             }
         }
 
-        // Calculate out-of-bounds body with out-of-bounds body collisions
+        // Find collision pairs for out-of-bounds body with out-of-bounds body collisions
 
         if (!s_outOfBoundsTangibleCollisionBodyPtrs_.empty())
         {
@@ -284,7 +284,7 @@ namespace Project001
             }
         }
 
-        // Calculate out-of-bounds body with in-tree body collisions
+        // Find collision pairs for out-of-bounds body with in-tree body collisions
 
         for (unsigned int i = 0; i < s_outOfBoundsTangibleCollisionBodyPtrs_.size(); ++i)
         {
@@ -307,7 +307,7 @@ namespace Project001
             }
         }
 
-        // Calculate in-tree body with in-tree body collisions
+        // Find collision pairs for in-tree body with in-tree body collisions
 
         CollisionBodyQuadTreeNode2D* rootNodePtr = s_tangibleCollisionBodyQuadTree2D_.GetRootNode();
         if (!(rootNodePtr->leafNode && rootNodePtr->bodyPtrs.empty()))
@@ -398,29 +398,16 @@ namespace Project001
             unsigned int entityIdB;
             componentStoresPtr->GetComponentEntityId<CollisionBody2D>(entityIdB, collisionBodyB_ptr);
 
-            const CollisionBody2D::PhysicsType& physicsTypeA = collisionBodyA_ptr->GetPhysicsType();
-            const CollisionBody2D::PhysicsType& physicsTypeB = collisionBodyB_ptr->GetPhysicsType();
-
-            bool collectDetailedCollisionData =
-                physicsTypeA != CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY &&
-                physicsTypeB != CollisionBody2D::PhysicsType::PHYSICS_TYPE_OVERLAP_ONLY;
-
-            bool resolvePhysics =
-                physicsTypeA == CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS &&
-                physicsTypeB == CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
-
-            CalculateCollisionsBetweenTwoBodies(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true, collectDetailedCollisionData, resolvePhysics);
+            CalculateCollisionsBetweenTwoBodiesAndAddManifold(entityIdA, *collisionBodyA_ptr, entityIdB, *collisionBodyB_ptr, true);
         }
     }
 
-    void CollisionSystem2D::CalculateCollisionsBetweenTwoBodies(
+    void CollisionSystem2D::CalculateCollisionsBetweenTwoBodiesAndAddManifold(
         unsigned int entityIdA,
         CollisionBody2D& collisionBodyA,
         unsigned int entityIdB,
         CollisionBody2D& collisionBodyB,
-        bool recordInBodyB,
-        bool collectDetailedCollisionData,
-        bool resolvePhysics)
+        bool recordInBodyB)
     {
         const std::vector<CollisionPoint2D>& transformedCollisionPointsA = collisionBodyA.GetTransformedCollisionPoints();
         const std::vector<CollisionLine2D>& transformedCollisionLinesA = collisionBodyA.GetTransformedCollisionLines();
@@ -445,8 +432,6 @@ namespace Project001
         const std::vector<CollisionTriangle2D>& transformedCollisionTrianglesB = collisionBodyB.GetTransformedCollisionTriangles();
         const std::vector<CollisionPolygon2D>& transformedCollisionPolygonsB = collisionBodyB.GetTransformedCollisionPolygons();
         const std::vector<CollisionConvexPolygon2D>& transformedCollisionConvexPolygonsB = collisionBodyB.GetTransformedCollisionConvexPolygons();
-
-        collectDetailedCollisionData |= resolvePhysics;
 
         CollisionManifold2D newCollisionManifold =
         {
@@ -480,33 +465,26 @@ namespace Project001
 
         std::function<void(CollisionData2D& collisionA, unsigned int tagA, unsigned int tagB)> AddCollisionData2 =
             [&](CollisionData2D& collisionA, unsigned int tagA, unsigned int tagB)
-        {
-            collisionA.otherEntityId = entityIdB;
-            collisionA.myShapeTag = tagA;
-            collisionA.otherShapeTag = tagB;
-
-            collisionBodyA.AddCollision(collisionA);
-
-            if (collisionA.depth > newCollisionManifold.collisionDepth)
             {
-                newCollisionManifold.collisionPoint = collisionA.point;
-                newCollisionManifold.collisionNormal = collisionA.normal;
-                newCollisionManifold.collisionDepth = collisionA.depth;
-            }
+                collisionA.otherEntityId = entityIdB;
+                collisionA.myShapeTag = tagA;
+                collisionA.otherShapeTag = tagB;
 
-            if (recordInBodyB)
-            {
-                CollisionData2D collisionB;
-                collisionB.otherEntityId = entityIdA;
-                collisionB.myShapeTag = collisionA.otherShapeTag;
-                collisionB.otherShapeTag = collisionA.myShapeTag;
-                collisionB.point = collisionA.point;
-                collisionB.normal = -collisionA.normal;
-                collisionB.depth = collisionA.depth;
+                collisionBodyA.AddCollision(collisionA);
 
-                collisionBodyB.AddCollision(collisionB);
-            }
-        };
+                if (recordInBodyB)
+                {
+                    CollisionData2D collisionB;
+                    collisionB.otherEntityId = entityIdA;
+                    collisionB.myShapeTag = collisionA.otherShapeTag;
+                    collisionB.otherShapeTag = collisionA.myShapeTag;
+                    collisionB.point = collisionA.point;
+                    collisionB.normal = -collisionA.normal;
+                    collisionB.depth = collisionA.depth;
+
+                    collisionBodyB.AddCollision(collisionB);
+                }
+            };
 
         // ---------------------------------------------------------------------
         // point A & rectangle B
@@ -1359,15 +1337,29 @@ namespace Project001
         }
 
         // rectangle A & rectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_Rectangle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_Rectangle_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1381,43 +1373,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_Rectangle_Rectangle_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, rectangleB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // rectangle A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_OrientedRectangle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_OrientedRectangle_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1432,44 +1428,46 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_Rectangle_OrientedRectangle_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, orientedRectangleB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // rectangle A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_Circle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_Circle_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1483,43 +1481,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_Rectangle_Circle_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, circleB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // rectangle A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_Capsule_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_Capsule_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1534,44 +1536,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_Rectangle_Capsule_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, capsuleB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // rectangle A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_Triangle_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_Triangle_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1586,29 +1591,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_Rectangle_Triangle_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, triangleB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -1636,15 +1629,29 @@ namespace Project001
         }
 
         // rectangle A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Rectangle_ConvexPolygon_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(rectangleA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Rectangle_ConvexPolygon_CollisionPointNormalDepth(
                         rectangleA.bottomLeft,
@@ -1658,28 +1665,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, rectangleA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
-            {
-                const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_Rectangle_ConvexPolygon_Overlap(
-                        rectangleA.bottomLeft,
-                        rectangleA.topRight,
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(rectangleA.tag, convexPolygonB.tag);
+                        if (rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -1753,15 +1749,30 @@ namespace Project001
         }
 
         // orientedRectangle A & rectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_Rectangle_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_Rectangle_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -1776,44 +1787,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_Rectangle_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, rectangleB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // orientedRectangle A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_OrientedRectangle_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_OrientedRectangle_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -1829,45 +1844,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_OrientedRectangle_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, orientedRectangleB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // orientedRectangle A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_Circle_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_Circle_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -1882,44 +1899,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_Circle_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, circleB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // orientedRectangle A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_Capsule_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_Capsule_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -1935,45 +1956,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_Capsule_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, capsuleB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // orientedRectangle A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_Triangle_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_Triangle_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -1989,30 +2013,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_Triangle_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, triangleB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2041,15 +2052,30 @@ namespace Project001
         }
 
         // orientedRectangle A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_OrientedRectangle_ConvexPolygon_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(orientedRectangleA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_OrientedRectangle_ConvexPolygon_CollisionPointNormalDepth(
                         orientedRectangleA.halfSize,
@@ -2064,29 +2090,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, orientedRectangleA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
-            {
-                const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_OrientedRectangle_ConvexPolygon_Overlap(
-                        orientedRectangleA.halfSize,
-                        orientedRectangleA.position,
-                        orientedRectangleA.rotation,
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(orientedRectangleA.tag, convexPolygonB.tag);
+                        if (orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2157,15 +2171,29 @@ namespace Project001
         }
 
         // circle A & rectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Circle_Rectangle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_Rectangle_CollisionPointNormalDepth(
                         circleA.position,
@@ -2179,43 +2207,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_Circle_Rectangle_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, rectangleB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // circle A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Circle_OrientedRectangle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_OrientedRectangle_CollisionPointNormalDepth(
                         circleA.position,
@@ -2230,44 +2262,46 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_Circle_OrientedRectangle_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, orientedRectangleB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // circle A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Circle_Circle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_Circle_CollisionPointNormalDepth(
                         circleA.position,
@@ -2281,43 +2315,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_Circle_Circle_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, circleB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // circle A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
                 {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
- 
+                    bool collisionFound = Check2D_Circle_Capsule_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_Capsule_CollisionPointNormalDepth(
                         circleA.position,
@@ -2332,44 +2370,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_Circle_Capsule_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, capsuleB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // circle A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Circle_Triangle_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_Triangle_CollisionPointNormalDepth(
                         circleA.position,
@@ -2384,29 +2425,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_Circle_Triangle_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, triangleB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2434,15 +2463,29 @@ namespace Project001
         }
 
         // circle A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Circle_ConvexPolygon_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(circleA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Circle_ConvexPolygon_CollisionPointNormalDepth(
                         circleA.position,
@@ -2456,28 +2499,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, circleA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
-            {
-                const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_Circle_ConvexPolygon_Overlap(
-                        circleA.position,
-                        circleA.radius,
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(circleA.tag, convexPolygonB.tag);
+                        if (circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2551,15 +2583,30 @@ namespace Project001
         }
 
         // capsule & other rectangle
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_Rectangle_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_Rectangle_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2574,44 +2621,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_Capsule_Rectangle_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, rectangleB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // capsule A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_OrientedRectangle_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_OrientedRectangle_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2627,45 +2678,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_Capsule_OrientedRectangle_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, orientedRectangleB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // capsule A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_Circle_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_Circle_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2680,44 +2733,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_Capsule_Circle_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, circleB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // capsule A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_Capsule_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_Capsule_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2733,45 +2790,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_Capsule_Capsule_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, capsuleB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // capsule A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_Triangle_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_Triangle_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2787,30 +2847,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_Capsule_Triangle_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, triangleB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2839,15 +2886,30 @@ namespace Project001
         }
 
         // capsule A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Capsule_ConvexPolygon_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(capsuleA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Capsule_ConvexPolygon_CollisionPointNormalDepth(
                         capsuleA.start,
@@ -2862,29 +2924,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, capsuleA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
-            {
-                const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_Capsule_ConvexPolygon_Overlap(
-                        capsuleA.start,
-                        capsuleA.end,
-                        capsuleA.radius,
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(capsuleA.tag, convexPolygonB.tag);
+                        if (capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -2958,15 +3008,30 @@ namespace Project001
         }
 
         // triangle A & rectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_Rectangle_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_Rectangle_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -2981,44 +3046,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_Triangle_Rectangle_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, rectangleB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // triangle A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_OrientedRectangle_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_OrientedRectangle_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -3034,45 +3103,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_Triangle_OrientedRectangle_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, orientedRectangleB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // triangle A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_Circle_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_Circle_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -3087,44 +3158,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_Triangle_Circle_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, circleB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // triangle A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_Capsule_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_Capsule_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -3140,45 +3215,48 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_Triangle_Capsule_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, capsuleB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // triangle A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_Triangle_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_Triangle_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -3194,30 +3272,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_Triangle_Triangle_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, triangleB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -3246,15 +3311,30 @@ namespace Project001
         }
 
         // triangle A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(triangleA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_Triangle_ConvexPolygon_CollisionPointNormalDepth(
                         triangleA.corner1,
@@ -3269,29 +3349,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, triangleA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
-            {
-                const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_Triangle_ConvexPolygon_Overlap(
-                        triangleA.corner1,
-                        triangleA.corner2,
-                        triangleA.corner3,
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(triangleA.tag, convexPolygonB.tag);
+                        if (triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -3576,15 +3644,29 @@ namespace Project001
         }
 
         // convexPolygon A & rectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
+                const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_Rectangle_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_Rectangle_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3598,43 +3680,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, rectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionRectanglesB.size(); ++j)
-                {
-                    const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_Rectangle_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        rectangleB.bottomLeft,
-                        rectangleB.topRight);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, rectangleB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // convexPolygon A & orientedRectangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
+                const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_OrientedRectangle_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_OrientedRectangle_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3649,44 +3735,46 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, orientedRectangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionOrientedRectanglesB.size(); ++j)
-                {
-                    const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_OrientedRectangle_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        orientedRectangleB.halfSize,
-                        orientedRectangleB.position,
-                        orientedRectangleB.rotation);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, orientedRectangleB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // convexPolygon A & circle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
+                const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_Circle_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_Circle_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3700,43 +3788,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, circleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionCirclesB.size(); ++j)
-                {
-                    const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_Circle_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        circleB.position,
-                        circleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, circleB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // convexPolygon A & capsule B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
+                const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_Capsule_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_Capsule_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3751,44 +3843,47 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, capsuleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionCapsulesB.size(); ++j)
-                {
-                    const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_Capsule_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        capsuleB.start,
-                        capsuleB.end,
-                        capsuleB.radius);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, capsuleB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
         // convexPolygon A & triangle B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
+                const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_Triangle_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3803,29 +3898,17 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, triangleB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionTrianglesB.size(); ++j)
-                {
-                    const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_Triangle_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        triangleB.corner1,
-                        triangleB.corner2,
-                        triangleB.corner3);
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, triangleB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
@@ -3853,15 +3936,29 @@ namespace Project001
         }
 
         // convexPolygon A & convexPolygon B
-        if (collectDetailedCollisionData)
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
             {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
+                const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
+                if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR ||
+                    convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR)
+                {
+                    bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionData(convexPolygonA.tag, convexPolygonB.tag);
+                    }
+                }
+                else
+                {
                     CollisionData2D collisionA;
                     bool collisionFound = Get2D_ConvexPolygon_ConvexPolygon_CollisionPointNormalDepth(
                         convexPolygonA.corners.data(),
@@ -3875,34 +3972,23 @@ namespace Project001
                     if (collisionFound)
                     {
                         AddCollisionData2(collisionA, convexPolygonA.tag, convexPolygonB.tag);
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
-            {
-                const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
-                for (size_t j = 0; j < transformedCollisionConvexPolygonsB.size(); ++j)
-                {
-                    const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                    bool collisionFound = Check2D_ConvexPolygon_ConvexPolygon_Overlap(
-                        convexPolygonA.corners.data(),
-                        convexPolygonA.corners.size(),
-                        convexPolygonB.corners.data(),
-                        convexPolygonB.corners.size());
-
-                    if (collisionFound)
-                    {
-                        AddCollisionData(convexPolygonA.tag, convexPolygonB.tag);
+                        if (convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
+                            convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
+                        {
+                            if (collisionA.depth > newCollisionManifold.collisionDepth)
+                            {
+                                newCollisionManifold.collisionPoint = collisionA.point;
+                                newCollisionManifold.collisionNormal = collisionA.normal;
+                                newCollisionManifold.collisionDepth = collisionA.depth;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (resolvePhysics && newCollisionManifold.collisionDepth != 0.0f &&
+        if (newCollisionManifold.collisionDepth != 0.0f &&
             !(newCollisionManifold.collisionNormal.x == 0.0f && newCollisionManifold.collisionNormal.y == 0.0f))
         {
             if (!std::isnan(newCollisionManifold.collisionPoint.x) &&
@@ -4051,17 +4137,6 @@ namespace Project001
             if (fixedRotationB)
             {
                 momentOfInertiaB = std::numeric_limits<float>::infinity();
-            }
-
-            const Project001::CollisionBody2D::PhysicsType& physicsTypeA = collisionBodyA.GetPhysicsType();
-            const Project001::CollisionBody2D::PhysicsType& physicsTypeB = collisionBodyB.GetPhysicsType();
-
-            if (physicsTypeA != Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS ||
-                physicsTypeB != Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
-            {
-                // Getting here means a collision body is PHYSICS_TYPE_OVERLAP_RESOLUTION so only
-                // overlap resolution is applyed
-                continue;
             }
 
             // Apply collision impulses

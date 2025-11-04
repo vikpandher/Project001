@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "TestScene103.h"
 
@@ -619,22 +619,22 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate;
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), timestep_s);
+        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+
+        UpdatePersonLogic(physicsTimestep_s);
+        UpdatePlayerEntityVelocity();
+        UpdateMainCameraEntityPosition(physicsTimestep_s);
+
+        AnimatePlayerRenderedModel(physicsTimestep_s);
+
+        // Update cursor because camera updates
+        // -------------------------------------------------------------------------
+        float cursorX_position;
+        float cursorY_position;
+        GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
+        UpdateCursorPosition(cursorX_position, cursorY_position);
     }
-
-    UpdatePersonLogic(timestep_s);
-    UpdatePlayerEntityVelocity();
-    UpdateMainCameraEntityPosition(timestep_s);
-
-    AnimatePlayerRenderedModel(timestep_s);
-
-    // Update cursor because camera updates
-    // -------------------------------------------------------------------------
-    float cursorX_position;
-    float cursorY_position;
-    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
-    UpdateCursorPosition(cursorX_position, cursorY_position);
 
     // Sync rendered models
     // -------------------------------------------------------------------------
@@ -1864,7 +1864,7 @@ void TestScene103::CreatePlayerLightEntity()
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -2042,7 +2042,7 @@ void TestScene103::CreateTestMonsterVisionEntity()
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -2163,7 +2163,7 @@ void TestScene103::CreateTestLampLightEntity()
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -2310,7 +2310,7 @@ void TestScene103::CreateTestHouseLightEntity()
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
 

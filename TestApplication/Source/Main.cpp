@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     applicationCreationInfo.batchedIndexBufferCapacity = 1024 * 8;
     applicationCreationInfo.batchedVertexBufferCapacity = 1024 * 8;
     applicationCreationInfo.desiredFrameDuration_ns = 1000000000ull / 60ull;
-    applicationCreationInfo.sleepyRunLoop = false;
+    applicationCreationInfo.sleepyRunLoop = true;
     applicationCreationInfo.updatesInARowLimit = 100;
     applicationCreationInfo.fixedSizeFramebuffer = false;
     Project001::Application* applicationPtr = new Project001::Application(applicationCreationInfo);

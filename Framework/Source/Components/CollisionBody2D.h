@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-11-03
 
 #pragma once
 
@@ -37,34 +37,6 @@ namespace Project001
     class CollisionBody2D : public Placement2D
     {
     public:
-
-        // PHYSICS_TYPE_OVERLAP_ONLY
-        // * overlap is detected but NOT resolved
-        // * the collision point, normal, and depth are NOT collected
-        //   (they remain NAN)
-        // 
-        // PHYSICS_TYPE_DETAILED_OVERLAP_ONLY
-        // * overlap is detected but NOT resovled
-        // * the collision point, normal, and depth are collected
-        // * the collision is NOT resolved
-        //   (position, veloicty, and angular velocity are not updated)
-        // 
-        // PHYSICS_TYPE_REGULAR_PHYSICS
-        // * overlap is detected and resolved
-        // * the collision point, normal, and depth are collected
-        // * the collision is resolved
-        //   (position, veloicty, and angular velocity are updated)
-        enum class PhysicsType
-        {
-            PHYSICS_TYPE_OVERLAP_ONLY,
-            PHYSICS_TYPE_DETAILED_OVERLAP_ONLY,
-            PHYSICS_TYPE_REGULAR_PHYSICS
-        };
-
-        // Note that Points, Lines, Rays, LineSegments, and Polygons
-        // (not ConvexPolygons) do not have regular phusics interactions. They
-        // only have overlap detection.
-
         CollisionBody2D();
 
         CollisionBody2D(const CollisionBody2DCreationInfo& collisionBody2DCreationInfo);
@@ -150,8 +122,8 @@ namespace Project001
         float GetLinearKeneticEnergy() const;
         float GetRotationalKeneticEnergy();
 
-        const PhysicsType& GetPhysicsType() const;
-        void SetPhysicsType(PhysicsType physicsType);
+        const CollisionShape2D::PhysicsType& GetPhysicsType() const;
+        void SetPhysicsType(CollisionShape2D::PhysicsType physicsType);
 
         const bool& GetFixedTranslation() const;
         void SetFixedTranslation(bool fixedTranslation);
@@ -214,7 +186,7 @@ namespace Project001
 
     protected:
         void CalculateBoundingRadius();
-        void CalculateArea();
+        void CalculateArea(); // Ignores shapes that are sensors or simple-sensors
         void CalculateMassUsingDensity();
         void CalculateMomentOfInertiaUsingDensity();
         void CalculateMomentOfInertiaUsingMass();
@@ -279,7 +251,7 @@ namespace Project001
 
         std::vector<CollisionData2D> collisions_;
 
-        PhysicsType physicsType_;
+        CollisionShape2D::PhysicsType physicsType_;
 
         bool fixedTranslation_;
         bool fixedRotation_;
@@ -307,7 +279,7 @@ namespace Project001
         uint32_t collisionGroupMask = 0b00000000000000000000000000000001;
         uint32_t allowedCollisionFilterMask = 0b11111111111111111111111111111111;
         bool enabled = true;
-        CollisionBody2D::PhysicsType physicsType = CollisionBody2D::PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS;
+        CollisionShape2D::PhysicsType physicsType = CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY;
         bool fixedTranslation = false;
         bool fixedRotation = false;
         float massCalculatedFromDensity_ = true;
@@ -337,7 +309,7 @@ namespace Project001
         , massFromDensityUpToDate_(false)
         , momentOfInertiaUpToDate_(false)
         , transformedCollisionShapesUpToDate_(false)
-        , physicsType_(PhysicsType::PHYSICS_TYPE_REGULAR_PHYSICS)
+        , physicsType_(CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
         , fixedTranslation_(false)
         , fixedRotation_(false)
         , massCalculatedFromDensity_(true)
@@ -738,12 +710,12 @@ namespace Project001
         return 0.5f * GetMomentOfInertia() * angularVelocity_ * angularVelocity_;
     }
 
-    inline const CollisionBody2D::PhysicsType& CollisionBody2D::GetPhysicsType() const
+    inline const CollisionShape2D::PhysicsType& CollisionBody2D::GetPhysicsType() const
     {
         return physicsType_;
     }
 
-    inline void CollisionBody2D::SetPhysicsType(PhysicsType physicsType)
+    inline void CollisionBody2D::SetPhysicsType(CollisionShape2D::PhysicsType physicsType)
     {
         physicsType_ = physicsType;
     }

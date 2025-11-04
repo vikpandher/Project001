@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-03
 
 #include "Scene002.h"
 
@@ -420,23 +420,23 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate;
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), timestep_s);
+        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+
+        UpdateMainCameraEntity(timestep_s);
+
+        float cursorX_position;
+        float cursorY_position;
+        GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
+        UpdateCursorPosition(cursorX_position, cursorY_position); // because camera updated
+
+        UpdateGroundCollisionBodyQuadTreeMesh();
+        UpdateHouseEntities(timestep_s);
+        UpdatePersonEntities(timestep_s);
+        UpdatePlayerEntity(timestep_s);
+        UpdateMonsterEntities(timestep_s);
+        UpdateWorld(timestep_s);
     }
-
-    UpdateMainCameraEntity(timestep_s);
-
-    float cursorX_position;
-    float cursorY_position;
-    GetWindowPtr()->GetCursorPosition(cursorX_position, cursorY_position);
-    UpdateCursorPosition(cursorX_position, cursorY_position); // because camera updated
-
-    UpdateGroundCollisionBodyQuadTreeMesh();
-    UpdateHouseEntities(timestep_s);
-    UpdatePersonEntities(timestep_s);
-    UpdatePlayerEntity(timestep_s);
-    UpdateMonsterEntities(timestep_s);
-    UpdateWorld(timestep_s);
 
     // Sync rendered models
     // -------------------------------------------------------------------------
@@ -824,7 +824,7 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
         }
 
         Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
         collisionBody2DCreationInfo.fixedTranslation = true;
         collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -1105,7 +1105,7 @@ void Scene002::CreateHouseEntity(unsigned int& entityId, const glm::vec2& positi
         }
 
         Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
         collisionBody2DCreationInfo.fixedTranslation = true;
         collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -1325,7 +1325,7 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
         }
 
         Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
         collisionBody2DCreationInfo.fixedTranslation = true;
         collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -1454,7 +1454,7 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
         }
 
         Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionBody2D::PhysicsType::PHYSICS_TYPE_DETAILED_OVERLAP_ONLY;
+        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
         collisionBody2DCreationInfo.fixedTranslation = true;
         collisionBody2DCreationInfo.fixedRotation = true;
 
@@ -1606,7 +1606,7 @@ void Scene002::UpdateUiTextEntity()
         *sharedDataPtr_->pixelFont_FontDataPtr,
         middleString,
         pixelSize,
-        true
+        1
     ));
     // Project001::MeshLoader::TranslateMesh(
     //     *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
@@ -1624,12 +1624,17 @@ void Scene002::UpdateUiTextEntity()
         *sharedDataPtr_->uiTopRightText_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
         rightString,
-        pixelSize
+        pixelSize,
+        2
     ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->uiTopRightText_MeshDataPtr,
-        glm::vec3((rightString.length() - 1) * pixelSize * -6.0f, 0.0f, 0.0f)
+        glm::vec3(pixelSize, 0.0f, 0.0f)
     );
+    // Project001::MeshLoader::TranslateMesh(
+    //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
+    //     glm::vec3((rightString.length() - 1) * pixelSize * -6.0f, 0.0f, 0.0f)
+    // );
 }
 
 void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
