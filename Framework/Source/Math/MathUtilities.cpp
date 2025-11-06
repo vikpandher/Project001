@@ -1,10 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-11-06
 
 #include "MathUtilities.h"
 
 #include "glm/gtc/constants.hpp"
+
+#include <algorithm> // for std::sort
 
 
 
@@ -349,6 +351,170 @@ namespace Project001
         indices.push_back(polygon[2]);
 
         return true;
+    }
+
+    void OrderPointsCCW(std::vector<glm::vec2>& points, float startAngle)
+    {
+        if (points.empty())
+        {
+            return;
+        }
+
+        glm::vec2 center(0.0f, 0.0f);
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            center += points[i];
+        }
+        center /= (float)points.size();
+
+        struct PointAngle
+        {
+            glm::vec2 point;
+            float angle;
+        };
+
+        std::vector<PointAngle> pointAngles;
+        pointAngles.reserve(points.size());
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            glm::vec2 dir = points[i] - center;
+            float angle = glm::atan(dir.y, dir.x); // CCW from startAngle, (-pi, pi]
+            if (angle < 0.0f)
+            {
+                angle += glm::two_pi<float>();
+            }
+            angle = glm::mod(angle - startAngle, glm::two_pi<float>());
+            pointAngles.push_back({ points[i], angle });
+        }
+
+        std::sort(
+            pointAngles.begin(), pointAngles.end(),
+            [](const PointAngle& a, const PointAngle& b)
+            {
+                return a.angle < b.angle;
+            }
+        );
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            points[i] = pointAngles[i].point;
+        }
+    }
+
+    void OrderPointsCCW(std::vector<glm::vec3>& points, const glm::vec3& axis, const glm::vec3& startDir)
+    {
+        if (points.empty())
+        {
+            return;
+        }
+
+        glm::vec3 center(0.0f, 0.0f, 0.0f);
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            center += points[i];
+        }
+        center /= (float)points.size();
+
+        glm::vec3 normal = glm::normalize(axis);
+        glm::vec3 right = glm::normalize(startDir - normal * glm::dot(startDir, normal)); // project startDir onto the plane
+        glm::vec3 up = glm::normalize(glm::cross(normal, right)); // 90 degrees CCW from right
+
+        struct PointAngle
+        {
+            glm::vec3 point;
+            float angle;
+        };
+
+        std::vector<PointAngle> pointAngles;
+        pointAngles.reserve(points.size());
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            glm::vec3 v = points[i] - center;
+            float x = glm::dot(v, right);
+            float y = glm::dot(v, up);
+            float angle = glm::atan(y, x); // CCW from startDir, (-pi, pi]
+            if (angle < 0.0f)
+            {
+                angle += glm::two_pi<float>();
+            }
+            pointAngles.push_back({ points[i], angle});
+        }
+
+        std::sort(
+            pointAngles.begin(), pointAngles.end(),
+            [](const PointAngle& a, const PointAngle& b)
+            {
+                return a.angle < b.angle;
+            }
+        );
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            points[i] = pointAngles[i].point;
+        }
+    }
+
+    void RemoveDuplicates(std::vector<glm::vec2>& dst, const std::vector<glm::vec2>& src, float epsilon)
+    {
+        // O(n^2)
+
+        size_t oldDstSize = dst.size();
+
+        for (size_t i = 0; i < src.size(); ++i)
+        {
+            const glm::vec2& current = src[i];
+
+            bool duplicate = false;
+            for (size_t j = oldDstSize; j < dst.size(); ++j)
+            {
+                const glm::vec2& other = dst[j];
+
+                if (FloatEqualToFloat(current.x, other.x) &&
+                    FloatEqualToFloat(current.y, other.y))
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate)
+            {
+                dst.push_back(current);
+            }
+        }
+    }
+
+    void RemoveDuplicates(std::vector<glm::vec3>& dst, const std::vector<glm::vec3>& src, float epsilon)
+    {
+        // O(n^2)
+
+        size_t oldDstSize = dst.size();
+
+        for (size_t i = 0; i < src.size(); ++i)
+        {
+            const glm::vec3& current = src[i];
+
+            bool duplicate = false;
+            for (size_t j = oldDstSize; j < dst.size(); ++j)
+            {
+                const glm::vec3& other = dst[j];
+
+                if (FloatEqualToFloat(current.x, other.x) &&
+                    FloatEqualToFloat(current.y, other.y) &&
+                    FloatEqualToFloat(current.z, other.z))
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate)
+            {
+                dst.push_back(current);
+            }
+        }
     }
 
     // Vector Manipulation -----------------------------------------------------

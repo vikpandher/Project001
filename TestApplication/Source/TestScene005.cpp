@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-06
 
 #include "TestScene005.h"
 
@@ -9,6 +9,7 @@
 #include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/RenderedMesh.h"
+#include "Math/MathUtilities.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "FontLoader.h"
@@ -27,6 +28,9 @@ TestScene005::TestScene005(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene005Id = GetId();
+
+    TestOrderPointsCCW();
+    TestRemoveDuplicates();
 }
 
 TestScene005::~TestScene005()
@@ -460,4 +464,151 @@ void TestScene005::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     instructionScene_.Deinitialize();
 
     LOG_INFO("DEINITIALIZING: TestScene005:            " << GetId());
+}
+
+// private ---------------------------------------------------------------------
+
+void TestScene005::TestOrderPointsCCW()
+{
+    std::vector<glm::vec3> test0_points =
+    {
+        {1, 0, 0},   // +X
+        {0, -1, 0},  // -Y
+        {-1, 0, 0},  // -X
+        {0, 1, 0}    // +Y
+    };
+
+    glm::vec3 test0_axis(0, 0, 1); // Counterclockwise when viewed from above (+Z)
+    glm::vec3 test0_startDir(1, 0, 0); // Start from +X direction
+
+    // Expected output:
+    // (1, 0, 0)
+    // (0, 1, 0)
+    // (-1, 0, 0)
+    // (0, -1, 0)
+    Project001::OrderPointsCCW(test0_points, test0_axis, test0_startDir);
+
+    std::vector<glm::vec3> test1_points =
+    {
+        {1, 0, 0},
+        {0, 1, 0},
+        {-1, 0, 0},
+        {0, -1, 0}
+    };
+
+    glm::vec3 test1_axis(0, 0, 1);
+    glm::vec3 test1_startDir(0, 1, 0); // Start from +Y instead of +X
+
+    // Expected output:
+    // (0, 1, 0)
+    // (-1, 0, 0)
+    // (0, -1, 0)
+    // (1, 0, 0)
+    Project001::OrderPointsCCW(test1_points, test1_axis, test1_startDir);
+
+    std::vector<glm::vec3> test2_points =
+    {
+        {0, 1, 0},   // +Y
+        {1, 0, 0},   // +X
+        {-1, 0, 0}   // -X
+    };
+
+    glm::vec3 test2_axis(0, 0, 1);
+    glm::vec3 test2_startDir(1, 0, 0);
+
+    // Expected output:
+    // (0, 1, 0)
+    // (-1, 0, 0)
+    // (1, 0, 0)
+    // Note that the first point is not (1, 0, 0) becasue the startDir
+    // is the direction from the center of all the points not the origin,
+    // so the (1, 0, 0) point ends up "below" the startDir.
+    Project001::OrderPointsCCW(test2_points, test2_axis, test2_startDir);
+
+    std::vector<glm::vec2> test3_points =
+    {
+        {1, 0},
+        {0, 1},
+        {-1, 0},
+        {0, -1}
+    };
+
+    // Expected output:
+    // (1, 0)
+    // (0, 1)
+    // (-1, 0)
+    // (0, -1)
+    Project001::OrderPointsCCW(test3_points, 0.0f);
+
+    // Expected output:
+    // (0, 1)
+    // (-1, 0)
+    // (0, -1)
+    // (1, 0)
+    Project001::OrderPointsCCW(test3_points, glm::half_pi<float>());
+
+    std::vector<glm::vec2> test4_points =
+    {
+        {1, 0}, {0, 1}, {-1, -1}
+    };
+
+    // Expected output:
+    // (-1, -1) -> (1, 0) -> (0, 1)
+    Project001::OrderPointsCCW(test4_points, glm::pi<float>());
+
+    int z = 0;
+}
+
+void TestScene005::TestRemoveDuplicates()
+{
+    std::vector<glm::vec3> test0_input;
+    std::vector<glm::vec3> test0_output;
+    Project001::RemoveDuplicates(test0_output, test0_input);
+
+    test0_input.emplace_back(0.0f, 0.0f, 0.0f);
+    test0_input.emplace_back(1.0f, 0.0f, 0.0f);
+    test0_input.emplace_back(1.0f, 1.0f, 0.0f);
+    test0_input.emplace_back(1.0f, 1.0f, 1.0f);
+    test0_input.emplace_back(2.0f, 1.0f, 1.0f);
+    test0_input.emplace_back(2.0f, 2.0f, 1.0f);
+    test0_input.emplace_back(2.0f, 2.0f, 2.0f);
+    Project001::RemoveDuplicates(test0_output, test0_input);
+
+    std::vector<glm::vec3> test1_input;
+    std::vector<glm::vec3> test1_output;
+    test1_input.emplace_back(0.0f, 0.0f, 0.0f);
+    test1_input.emplace_back(0.0f, 0.0f, 0.0f);
+    test1_input.emplace_back(1.0f, 0.0f, 0.0f);
+    test1_input.emplace_back(1.0f, 0.0f, 0.0f);
+    test1_input.emplace_back(1.0f, 1.0f, 0.0f);
+    test1_input.emplace_back(1.0f, 1.0f, 0.0f);
+    test1_input.emplace_back(1.0f, 1.0f, 1.0f);
+    test1_input.emplace_back(1.0f, 1.0f, 1.0f);
+    test1_input.emplace_back(2.0f, 1.0f, 1.0f);
+    test1_input.emplace_back(2.0f, 1.0f, 1.0f);
+    test1_input.emplace_back(2.0f, 2.0f, 1.0f);
+    test1_input.emplace_back(2.0f, 2.0f, 1.0f);
+    test1_input.emplace_back(2.0f, 2.0f, 2.0f);
+    test1_input.emplace_back(2.0f, 2.0f, 2.0f);
+    Project001::RemoveDuplicates(test1_output, test1_input);
+
+    std::vector<glm::vec2> test2_input;
+    std::vector<glm::vec2> test2_output;
+    test2_input.emplace_back(0.0f, 0.0f);
+    test2_input.emplace_back(0.0f, 0.0f);
+    test2_input.emplace_back(1.0f, 0.0f);
+    test2_input.emplace_back(1.0f, 0.0f);
+    test2_input.emplace_back(1.0f, 1.0f);
+    test2_input.emplace_back(1.0f, 1.0f);
+    test2_input.emplace_back(1.0f, 1.0f);
+    test2_input.emplace_back(1.0f, 1.0f);
+    test2_input.emplace_back(2.0f, 1.0f);
+    test2_input.emplace_back(2.0f, 1.0f);
+    test2_input.emplace_back(2.0f, 2.0f);
+    test2_input.emplace_back(2.0f, 2.0f);
+    test2_input.emplace_back(2.0f, 2.0f);
+    test2_input.emplace_back(2.0f, 2.0f);
+    Project001::RemoveDuplicates(test2_output, test2_input);
+
+    int z = 0;
 }

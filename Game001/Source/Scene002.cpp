@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-06
 
 #include "Scene002.h"
 
@@ -1349,7 +1349,7 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             corners.emplace_back(4.0f, -112.0f);
             for (size_t i = 0; i < corners.size(); ++i)
             {
-                corners[i].y += 128.0f;
+                corners[i].y += 112.0f;
             }
             collisionConvexPolygons.emplace_back(corners, s_light_collisionShapeTag_, true);
         }

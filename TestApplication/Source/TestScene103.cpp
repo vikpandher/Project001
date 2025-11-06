@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-06
 
 #include "TestScene103.h"
 
@@ -1034,16 +1034,30 @@ void TestScene103::LoadPlayerLightResources()
 {
     {
         Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData1;
         playerLightBottom_MeshDataPtr_ = new Project001::MeshData();
         playerLightTop_MeshDataPtr_ = new Project001::MeshData();
         std::vector<glm::vec3> capCorners;
 
         FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(tempMeshData0, 112.0f, 64.0f, 8.0f, 16, 8, false));
         Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 104.0f, 24.0f));
+        // Project001::MeshLoader::SliceMeshWithAPlane(
+        //     *playerLightTop_MeshDataPtr_, *playerLightBottom_MeshDataPtr_, capCorners, tempMeshData0, glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
+        // Project001::MeshLoader::ScaleMesh(*playerLightBottom_MeshDataPtr_, glm::vec3(1.0f, 1.0f, -1.0f));
+        // Project001::MeshLoader::TurnInsideOut(*playerLightBottom_MeshDataPtr_);
         Project001::MeshLoader::SliceMeshWithAPlane(
-            *playerLightTop_MeshDataPtr_, *playerLightBottom_MeshDataPtr_, capCorners, tempMeshData0, glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
-        Project001::MeshLoader::ScaleMesh(*playerLightBottom_MeshDataPtr_, glm::vec3(1.0f, 1.0f, -1.0f));
-        Project001::MeshLoader::TurnInsideOut(*playerLightBottom_MeshDataPtr_);
+            *playerLightTop_MeshDataPtr_, tempMeshData1, capCorners, tempMeshData0, glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
+        
+        std::vector<glm::vec2> corners;
+        for (size_t i = 0; i < capCorners.size(); ++i)
+        {
+            corners.emplace_back(capCorners[i].x, capCorners[i].y);
+        }
+        std::vector<glm::vec2> noDupCorners;
+        Project001::RemoveDuplicates(noDupCorners, corners);
+        Project001::OrderPointsCCW(noDupCorners, 0.0f);
+        Project001::MeshLoader::Generate2DPolygon(*playerLightBottom_MeshDataPtr_, noDupCorners);
+        Project001::MeshLoader::TranslateMesh(*playerLightBottom_MeshDataPtr_, glm::vec3(0.0f, -16.0f, 1.0f));
 
         playerLightStrong_MeshDataPtr_ = new Project001::MeshData();
         // FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*playerLightStrong_MeshDataPtr_, 320.0f, 32, 32, false));
@@ -1067,7 +1081,7 @@ void TestScene103::LoadPlayerLightResources()
         corners.emplace_back(4.0f, -112.0f);
         for (size_t i = 0; i < corners.size(); ++i)
         {
-            corners[i].y += 128.0f;
+            corners[i].y += 112.0f;
         }
         FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*playerLightCollision_MeshDataPtr_, corners));
     }

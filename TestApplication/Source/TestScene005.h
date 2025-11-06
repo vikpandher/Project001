@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-06
 
 #pragma once
 
@@ -27,4 +27,8 @@ protected:
     // -------------------------------------------------------------------------
 
     TestInstructionScene001 instructionScene_;
+
+private:
+    void TestOrderPointsCCW();
+    void TestRemoveDuplicates();
 };

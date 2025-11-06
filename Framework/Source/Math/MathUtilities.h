@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-11-06
 
 #pragma once
 
@@ -58,6 +58,15 @@ namespace Project001
     bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
 
     bool EarClipPolygon_v2(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
+
+    void OrderPointsCCW(std::vector<glm::vec2>& points, float startAngle);
+
+    // startDir is the start direction from the center of all the points, not the origin
+    void OrderPointsCCW(std::vector<glm::vec3>& points, const glm::vec3& axis, const glm::vec3& startDir);
+
+    void RemoveDuplicates(std::vector<glm::vec2>& dst, const std::vector<glm::vec2>& src, float epsilon = g_floatMarginOfError);
+
+    void RemoveDuplicates(std::vector<glm::vec3>& dst, const std::vector<glm::vec3>& src, float epsilon = g_floatMarginOfError);
 
     // Vector Manipulation -----------------------------------------------------
 

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-06
 
 #include "Scene001.h"
 
@@ -801,6 +801,7 @@ void Scene001::LoadPlayerLightResources()
 {
     {
         Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData1;
         sharedDataPtr_->playerLightBottom_MeshDataPtr = new Project001::MeshData();
         sharedDataPtr_->playerLightTop_MeshDataPtr = new Project001::MeshData();
         std::vector<glm::vec3> capCorners;
@@ -812,13 +813,23 @@ void Scene001::LoadPlayerLightResources()
             tempMeshData0, glm::vec3(0.0f, 104.0f, 24.0f)
         );
         Project001::MeshLoader::SliceMeshWithAPlane(
-            *sharedDataPtr_->playerLightTop_MeshDataPtr, *sharedDataPtr_->playerLightBottom_MeshDataPtr, capCorners, tempMeshData0, glm::vec3(0.0f, 0.0f, 1.0f), 0.0f
+            *sharedDataPtr_->playerLightTop_MeshDataPtr, tempMeshData1, capCorners, tempMeshData0, glm::vec3(0.0f, 0.0f, 1.0f), 0.0f
         );
-        Project001::MeshLoader::ScaleMesh(
-            *sharedDataPtr_->playerLightBottom_MeshDataPtr, glm::vec3(1.0f, 1.0f, -1.0f)
+
+        std::vector<glm::vec2> corners;
+        for (size_t i = 0; i < capCorners.size(); ++i)
+        {
+            corners.emplace_back(capCorners[i].x, capCorners[i].y);
+        }
+        std::vector<glm::vec2> noDupCorners;
+        Project001::RemoveDuplicates(noDupCorners, corners);
+        Project001::OrderPointsCCW(noDupCorners, 0.0f);
+
+        Project001::MeshLoader::Generate2DPolygon(
+            *sharedDataPtr_->playerLightBottom_MeshDataPtr, noDupCorners
         );
-        Project001::MeshLoader::TurnInsideOut(
-            *sharedDataPtr_->playerLightBottom_MeshDataPtr
+        Project001::MeshLoader::TranslateMesh(
+            *sharedDataPtr_->playerLightBottom_MeshDataPtr, glm::vec3(0.0f, -16.0f, 1.0f)
         );
 
         sharedDataPtr_->playerLightStrong_MeshDataPtr = new Project001::MeshData();
