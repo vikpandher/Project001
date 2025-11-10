@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-11-10
 
 #include "TestInstructionScene001.h"
 
@@ -41,7 +41,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
 {
     LOG_INFO("INITIALIZING:   TestInstructionScene001: " << GetId());
 
-    keyCode_toggleInstructions_ = *initializationInfo.keyCode_toggleInstructionsPtr;
+    keyCode_toggleInstructions_ = initializationInfo.keyCode_toggleInstructions;
 
     // Create Meshes -----------------------------------------------------------
 
@@ -95,7 +95,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     float uiCameraHalfHeight = 0;
     {
         Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, *initializationInfo.cameraEntityIdPtr));
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, initializationInfo.cameraEntityId));
         if(cameraPtr != nullptr)
         {
             uiCameraHalfWidth = cameraPtr->GetRightCutoff();
@@ -126,9 +126,9 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             hiddenInstructionMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& hiddenInstructionMesh = renderedMeshes.back();
-            hiddenInstructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            hiddenInstructionMesh.SetCameraMask(initializationInfo.cameraMask);
             hiddenInstructionMesh.SetMeshDataPtr(hiddenInstructionTextMeshDataPtr_);
-            hiddenInstructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
+            hiddenInstructionMesh.SetTextureId(initializationInfo.fontTextureId);
             hiddenInstructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
             hiddenInstructionMesh.SetUseLighting(false);
             hiddenInstructionMesh.SetPosition(hiddenInstructionMeshPosition.x, hiddenInstructionMeshPosition.y, 0.0f);
@@ -136,9 +136,9 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             instructionMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& instructionMesh = renderedMeshes.back();
-            instructionMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            instructionMesh.SetCameraMask(initializationInfo.cameraMask);
             instructionMesh.SetMeshDataPtr(instructionTextMeshDataPtr_);
-            instructionMesh.SetTextureId(*initializationInfo.fontTextureIdPtr);
+            instructionMesh.SetTextureId(initializationInfo.fontTextureId);
             instructionMesh.SetColor(0.8f, 0.7f, 0.3f, 1.0f);
             instructionMesh.SetUseLighting(false);
             instructionMesh.SetPosition(instructionMeshPosition.x, instructionMeshPosition.y, 0.0f);
@@ -147,7 +147,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             hiddenInstructionBackgroundMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& hiddenInstructionBackgroundMesh = renderedMeshes.back();
-            hiddenInstructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            hiddenInstructionBackgroundMesh.SetCameraMask(initializationInfo.cameraMask);
             hiddenInstructionBackgroundMesh.SetMeshDataPtr(hiddenInstructionBackgroundMeshDataPtr_);
             hiddenInstructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
             hiddenInstructionBackgroundMesh.SetUseLighting(false);
@@ -157,7 +157,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
             instructionBackgroundMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& instructionBackgroundMesh = renderedMeshes.back();
-            instructionBackgroundMesh.SetCameraMask(*initializationInfo.cameraMaskPtr);
+            instructionBackgroundMesh.SetCameraMask(initializationInfo.cameraMask);
             instructionBackgroundMesh.SetMeshDataPtr(instructionBackgroundMeshDataPtr_);
             instructionBackgroundMesh.SetColor(0.1f, 0.1f, 0.1f, 0.9f);
             instructionBackgroundMesh.SetUseLighting(false);

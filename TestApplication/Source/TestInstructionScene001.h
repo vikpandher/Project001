@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-11-10
 
 #pragma once
 
@@ -24,12 +24,12 @@ public:
         std::string instructionString;
 
         const Project001::FontData* fontDataPtr = nullptr;
-        const unsigned int* fontTextureIdPtr = nullptr;
+        unsigned int fontTextureId = (unsigned int)-1;
 
-        const unsigned int* cameraEntityIdPtr = nullptr;
-        const uint32_t* cameraMaskPtr = nullptr;
+        unsigned int cameraEntityId = (unsigned int)-1;
+        uint32_t cameraMask = 0b00000000000000000000000000000000;
 
-        const Project001::KeyCode* keyCode_toggleInstructionsPtr = nullptr;
+        Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_UNKNOWN;
     };
 
     TestInstructionScene001(Project001::Application* applicationPtr);

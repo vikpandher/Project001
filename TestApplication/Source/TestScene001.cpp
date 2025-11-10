@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-10
 
 #include "TestScene001.h"
 
@@ -213,6 +213,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonStrings.emplace_back("TestScene070");
     buttonStrings.emplace_back("TestScene102");
     buttonStrings.emplace_back("TestScene103");
+    buttonStrings.emplace_back("TestScene104");
 
     std::vector<unsigned int> buttonDestinationSceneIds;
 
@@ -242,6 +243,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene070Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene102Id);
     buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene103Id);
+    buttonDestinationSceneIds.push_back(testApplicationDataPtr->testScene104Id);
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
@@ -403,6 +405,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 010 ] [ 011 ] [ 012 ] [ 013 ] [ 014 ]
     // [ 015 ] [ 016 ] [ 017 ] [ 018 ] [ 019 ]
     // [ 020 ] [ 021 ] [ 022 ] [ 023 ] [ 024 ]
+    // [ 025 ]
     // 
     // Test Scenes:
     // 
@@ -411,6 +414,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // [ 013 ] [ 015 ] [ 016 ] [ 017 ] [ 030 ]
     // [ 031 ] [ 032 ] [ 033 ] [ 034 ] [ 050 ]
     // [ 051 ] [ 060 ] [ 070 ] [ 102 ] [ 103 ]
+    // [ 104 ]
 
     size_t columns = 5;
     size_t rows = buttonStrings.size() / columns + 1;
@@ -619,10 +623,10 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = font01_FontDataPtr_;
-    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId_;
-    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
-    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
-    instructionSceneInfo.keyCode_toggleInstructionsPtr = &s_keyCode_toggleInstructions_;
+    instructionSceneInfo.fontTextureId = font01_TextureId_;
+    instructionSceneInfo.cameraEntityId = uiCameraEntityId_;
+    instructionSceneInfo.cameraMask = s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructions = s_keyCode_toggleInstructions_;
     instructionScene_.Initialize(instructionSceneInfo);
 }
 

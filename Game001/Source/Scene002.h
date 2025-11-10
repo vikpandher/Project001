@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-10
 
 #pragma once
 
@@ -85,8 +85,8 @@ protected:
     static const uint32_t s_mainCameraDebug_Mask_ = 0b00000000000000000000000000010000;
     static const uint32_t s_mainCameraGroup_Mask_ = s_mainCameraLight1_Mask_ | s_mainCameraLight2_Mask_ | s_mainCameraDark1_Mask_ | s_mainCameraDark2_Mask_ | s_mainCameraDebug_Mask_;
 
-    static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
     unsigned int uiCamera_EntityId_;
+    static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
 
     unsigned int uiText_EntityId_;
 

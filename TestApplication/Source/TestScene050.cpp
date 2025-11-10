@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-11-10
 
 #include "TestScene050.h"
 
@@ -179,10 +179,10 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         "Press <Tab> to hide instructions."
     );
     instructionSceneInfo.fontDataPtr = &font01_FontData;
-    instructionSceneInfo.fontTextureIdPtr = &font01_TextureId;
-    instructionSceneInfo.cameraEntityIdPtr = &uiCameraEntityId_;
-    instructionSceneInfo.cameraMaskPtr = &s_uiCameraMask_;
-    instructionSceneInfo.keyCode_toggleInstructionsPtr = &keyCode_toggleInstructions;
+    instructionSceneInfo.fontTextureId = font01_TextureId;
+    instructionSceneInfo.cameraEntityId = uiCameraEntityId_;
+    instructionSceneInfo.cameraMask = s_uiCameraMask_;
+    instructionSceneInfo.keyCode_toggleInstructions = keyCode_toggleInstructions;
     instructionScene_.Initialize(instructionSceneInfo);
 }
 
