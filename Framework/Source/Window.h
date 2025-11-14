@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-11-14
 
 #pragma once
 
@@ -52,6 +52,9 @@ namespace Project001
 
         virtual void SetVSync(bool enabled) = 0;
         virtual bool IsVSync() const = 0;
+
+        virtual void SetCursorVisible(bool visible) = 0;
+        virtual bool GetCursorVisible() const = 0;
 
         virtual void GetFramebufferSize(int& width, int& height) const = 0;
 

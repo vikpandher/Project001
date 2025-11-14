@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-21
+// @DATE 2025-11-14
 
 #include "GLFW_Window.h"
 
@@ -190,6 +190,34 @@ namespace Project001
         glfwMakeContextCurrent(oldContext);
 
         vSyncEnabled_ = enabled;
+    }
+
+    void GLFW_Window::SetCursorVisible(bool visible)
+    {
+        if (visible)
+        {
+            glfwSetInputMode(glfwWindowPtr_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+        else
+        {
+            glfwSetInputMode(glfwWindowPtr_, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        }
+    }
+
+    bool GLFW_Window::GetCursorVisible() const
+    {
+        int cursorMode = glfwGetInputMode(glfwWindowPtr_, GLFW_CURSOR);
+
+        if (cursorMode == GLFW_CURSOR_NORMAL)
+        {
+            return true;
+        }
+        else if (cursorMode != GLFW_CURSOR_HIDDEN)
+        {
+            LOG_ERROR_F("Cursor's in a strange mode.");
+        }
+
+        return false;
     }
 
     void GLFW_Window::GetFramebufferSize(int& width, int& height) const

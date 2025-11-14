@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-14
 
 #include "TestScene104.h"
 
@@ -9,8 +9,10 @@
 #include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/Camera.h"
+#include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
 #include "Math/MathUtilities.h"
+#include "Resources/PixelFont5x6.h"
 #include "ComponentStores.h"
 #include "FontLoader.h"
 #include "Logger.h"
@@ -21,12 +23,23 @@
 
 
 
+struct CursorInfo
+{
+    enum class State
+    {
+        STATE_OPEN,
+        STATE_POINTER,
+        STATE_GRAB
+    };
+
+    State state = State::STATE_OPEN;
+};
+
 // public ----------------------------------------------------------------------
 
 TestScene104::TestScene104(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
-    , mainCamera_EntityId_((unsigned int)-1)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene104Id = GetId();
 }
@@ -39,7 +52,9 @@ void TestScene104::HandleEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&TestScene104::ProcessInitializeEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&TestScene104::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
+    Project001::DispatchEvent<Project001::CursorPositionEvent>(event, std::bind(&TestScene104::ProcessCursorPositionEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&TestScene104::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&TestScene104::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&TestScene104::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&TestScene104::ProcessUpdateEvent, this, std::placeholders::_1));
 
@@ -54,7 +69,13 @@ void TestScene104::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // -------------------------------------------------------------------------
 
+    GetWindowPtr()->SetCursorVisible(false);
+
+    LoadPixelFontResources();
+    LoadCursorResources();
+
     CreateMainCameraEntity();
+    CreateCursorEntity(cursor_EntityId_);
 
     InitializeInstructionScene();
 }
@@ -67,13 +88,48 @@ void TestScene104::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // -------------------------------------------------------------------------
 
+    GetWindowPtr()->SetCursorVisible(true);
+
     GetRendererPtr()->DeleteAllTextures();
     GetRendererPtr()->DeleteAllMeshes();
     GetComponentStoresPtr()->DeleteAllEntities();
 
+    // Resources ---------------------------------------------------------------
+
+    pixelFont_FontDataPtr_ = nullptr;
+    pixelFont_TextureDataPtr_ = nullptr;
+    pixelFont_TextureId_ = (unsigned int)-1;
+
+    delete cursorHandOpen_MeshDataPtr_;
+    cursorHandOpen_MeshDataPtr_ = nullptr;
+    delete cursorHandPointer_MeshDataPtr_;
+    cursorHandPointer_MeshDataPtr_ = nullptr;
+    delete cursorHandGrab_MeshDataPtr_;
+    cursorHandGrab_MeshDataPtr_ = nullptr;
+    delete cursor_TextureDataPtr_;
+    cursor_TextureDataPtr_ = nullptr;
+    cursor_TextureId_ = (unsigned int)-1;
+    delete cursorCollision_MeshDataPtr_;
+    cursorCollision_MeshDataPtr_ = nullptr;
+
     // Entities ----------------------------------------------------------------
 
     mainCamera_EntityId_ = (unsigned int)-1;
+
+    cursor_EntityId_ = (unsigned int)-1;
+}
+
+void TestScene104::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
+{
+    UpdateCursorPositionUsingWindowCoordinates(cursor_EntityId_, cursorPositionEvent.xPosition, cursorPositionEvent.yPosition);
+
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
+    if (collisionBody2DPtr != nullptr)
+    {
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+        collisionPoints[s_cursorPosition_CollisionPointIndex_].enabled = true;
+    }
 }
 
 void TestScene104::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -98,6 +154,39 @@ void TestScene104::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     }
 }
 
+void TestScene104::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+{
+    Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
+    Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
+
+    if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
+        {
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
+            if (collisionBody2DPtr != nullptr)
+            {
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[s_cursorPress_CollisionPointIndex_].position = collisionPoints[s_cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[s_cursorPress_CollisionPointIndex_].enabled = true;
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].enabled = false;
+            }
+        }
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+        {
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
+            if (collisionBody2DPtr != nullptr)
+            {
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].position = collisionPoints[s_cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].enabled = true;
+            }
+        }
+    }
+}
+
 void TestScene104::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
@@ -105,7 +194,9 @@ void TestScene104::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
 void TestScene104::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    
+    UpdateCursor(cursor_EntityId_);
+
+    SyncCursorRenderedModels();
 }
 
 void TestScene104::InitializeInstructionScene()
@@ -184,6 +275,58 @@ void TestScene104::InitializeInstructionScene()
     instructionScene_.Initialize(instructionSceneInfo);
 }
 
+void TestScene104::LoadPixelFontResources()
+{
+    pixelFont_FontDataPtr_ = &Project001::Get_PixelFont5x6_FontData();
+    pixelFont_TextureDataPtr_ = &Project001::Get_PixelFont5x6_TextureData();
+    GetRendererPtr()->CreateTexture(
+        pixelFont_TextureId_,
+        pixelFont_TextureDataPtr_->data,
+        pixelFont_TextureDataPtr_->width,
+        pixelFont_TextureDataPtr_->height,
+        pixelFont_TextureDataPtr_->bytesPerPixel,
+        false,
+        false
+    );
+}
+
+void TestScene104::LoadCursorResources()
+{
+    cursorHandOpen_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        *cursorHandOpen_MeshDataPtr_, 24.0f, 32.0f, 0.0f, 1.0f / 3.0f, 0.0f, 1.0f
+    ));
+
+    cursorHandPointer_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        *cursorHandPointer_MeshDataPtr_, 24.0f, 32.0f, 1.0f / 3.0f, 2.0f / 3.0f, 0.0f, 1.0f
+    ));
+
+    cursorHandGrab_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        *cursorHandGrab_MeshDataPtr_, 24.0f, 32.0f, 2.0f / 3.0f, 1.0f, 0.0f, 1.0f
+    ));
+
+    cursor_TextureDataPtr_ = new Project001::TextureData();
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(
+        *cursor_TextureDataPtr_, "../Textures/handCursor_01.png"
+    ));
+
+    GetRendererPtr()->CreateTexture(
+        cursor_TextureId_,
+        cursor_TextureDataPtr_->data,
+        cursor_TextureDataPtr_->width,
+        cursor_TextureDataPtr_->height,
+        cursor_TextureDataPtr_->bytesPerPixel,
+        false, false
+    );
+
+    cursorCollision_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DArc(
+        *cursorCollision_MeshDataPtr_, 2.0f, 4.0f, 8, 0.0f, 0.0f
+    ));
+}
+
 void TestScene104::CreateMainCameraEntity()
 {
     GetComponentStoresPtr()->CreateEntity(mainCamera_EntityId_);
@@ -213,5 +356,215 @@ void TestScene104::CreateMainCameraEntity()
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
         cameraPtr->SetDepthTestEnabled(false);
         cameraPtr->SetCameraMask(s_mainCamera_Mask_);
+    }
+}
+
+void TestScene104::CreateCursorEntity(unsigned int& entityId)
+{
+    GetComponentStoresPtr()->CreateEntity(entityId);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_mainCamera_Mask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        renderedMeshes.resize(5);
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorPosition_RenderedMeshIndex_];
+            mesh.SetCameraMask(s_mainCamera_Mask_);
+            mesh.SetMeshDataPtr(cursorCollision_MeshDataPtr_);
+            mesh.SetPositionZ(0.53f);
+            mesh.SetColor(0.2f, 0.8f, 0.8f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorPress_RenderedMeshIndex_];
+            mesh.SetCameraMask(s_mainCamera_Mask_);
+            mesh.SetMeshDataPtr(cursorCollision_MeshDataPtr_);
+            mesh.SetPositionZ(0.52f);
+            mesh.SetColor(0.8f, 0.2f, 0.8f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorRelease_RenderedMeshIndex_];
+            mesh.SetCameraMask(s_mainCamera_Mask_);
+            mesh.SetMeshDataPtr(cursorCollision_MeshDataPtr_);
+            mesh.SetPositionZ(0.51f);
+            mesh.SetColor(0.8f, 0.8f, 0.2f, 0.4f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorHandOpen_RenderedMeshIndex_];
+            mesh.SetCameraMask(s_mainCamera_Mask_);
+            mesh.SetMeshDataPtr(cursorHandOpen_MeshDataPtr_);
+            mesh.SetTextureId(cursor_TextureId_);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorHandGrab_RenderedMeshIndex_];
+            mesh.SetCameraMask(s_mainCamera_Mask_);
+            mesh.SetMeshDataPtr(cursorHandGrab_MeshDataPtr_);
+            mesh.SetTextureId(cursor_TextureId_);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetVisible(false);
+        }
+    }
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId));
+    Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, entityId));
+    if (collisionBody2DPtr != nullptr)
+    {
+        collisionBody2DPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR);
+
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+
+        collisionPoints.resize(3);
+
+        collisionPoints[s_cursorPosition_CollisionPointIndex_].tag = s_cursorPosition_CollisionShapeId_;
+
+        collisionPoints[s_cursorPress_CollisionPointIndex_].tag = s_cursorPress_CollisionShapeId_;
+        collisionPoints[s_cursorPress_CollisionPointIndex_].enabled = false;
+
+        collisionPoints[s_cursorRelease_CollisionPointIndex_].tag = s_cursorRelease_CollisionShapeId_;
+        collisionPoints[s_cursorRelease_CollisionPointIndex_].enabled = false;
+    }
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<CursorInfo>(entityId));
+}
+
+void TestScene104::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition)
+{
+    int windowWidth, windowHeight;
+    GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
+
+    glm::vec2 viewportNormalizedCursorPosition =
+        GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+
+    Project001::Camera* cameraPtr;
+    if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_))
+    {
+        glm::vec3 worldCursorPosition;
+        glm::vec3 worldCursorNormal;
+        bool cursorRayIntersected = cameraPtr->RaycastPointFromNormalizedViewportToPane(
+            viewportNormalizedCursorPosition,
+            glm::vec3(0.0f, 0.0f, 1.0f),
+            0.0f,
+            worldCursorPosition,
+            worldCursorNormal);
+
+        if (cursorRayIntersected)
+        {
+            Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, entityId));
+            if (collisionBody2DPtr != nullptr)
+            {
+                std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+
+                collisionPoints[s_cursorPosition_CollisionPointIndex_].position = worldCursorPosition;
+            }
+        }
+    }
+}
+
+void TestScene104::UpdateCursor(unsigned int entityId)
+{
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<CursorInfo>(entityId));
+    CursorInfo* cursorInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<CursorInfo>(cursorInfoPtr, entityId));
+    if (cursorInfoPtr != nullptr)
+    {
+        const bool mouseLeftPressed = GetWindowPtr()->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_LEFT);
+
+        if (mouseLeftPressed)
+        {
+            cursorInfoPtr->state = CursorInfo::State::STATE_GRAB;
+        }
+        else
+        {
+            cursorInfoPtr->state = CursorInfo::State::STATE_OPEN;
+        }
+    }
+}
+
+void TestScene104::SyncCursorRenderedModels()
+{
+    CursorInfo* cursorInfoPtrs = nullptr;
+    size_t cursorInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<CursorInfo>(cursorInfoPtrs, cursorInfoCount);
+    for (size_t i = 0; i < cursorInfoCount; ++i)
+    {
+        CursorInfo& cursorInfo = cursorInfoPtrs[i];
+
+        unsigned int entityId = (unsigned int)-1;
+        GetComponentStoresPtr()->GetComponentEntityId<CursorInfo>(entityId, &cursorInfo);
+
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, entityId));
+        if (collisionBody2DPtr != nullptr)
+        {
+            std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
+            Project001::CollisionPoint2D collisionPoint01 = collisionPoints[s_cursorPosition_CollisionPointIndex_];
+            Project001::CollisionPoint2D collisionPoint02 = collisionPoints[s_cursorPress_CollisionPointIndex_];
+            Project001::CollisionPoint2D collisionPoint03 = collisionPoints[s_cursorRelease_CollisionPointIndex_];
+
+            Project001::RenderedModel* renderedModelPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+            if (renderedModelPtr != nullptr)
+            {
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+                Project001::RenderedMesh& circleMesh01 = renderedMeshes[s_cursorPosition_RenderedMeshIndex_];
+                Project001::RenderedMesh& circleMesh02 = renderedMeshes[s_cursorPress_RenderedMeshIndex_];
+                Project001::RenderedMesh& circleMesh03 = renderedMeshes[s_cursorRelease_RenderedMeshIndex_];
+                Project001::RenderedMesh& handOpenMesh = renderedMeshes[s_cursorHandOpen_RenderedMeshIndex_];
+                Project001::RenderedMesh& handGrabMesh = renderedMeshes[s_cursorHandGrab_RenderedMeshIndex_];
+
+                circleMesh01.SetPositionX(collisionPoint01.position.x);
+                circleMesh01.SetPositionY(collisionPoint01.position.y);
+                circleMesh01.SetVisible(collisionPoint01.enabled);
+
+                circleMesh02.SetPositionX(collisionPoint02.position.x);
+                circleMesh02.SetPositionY(collisionPoint02.position.y);
+                circleMesh02.SetVisible(collisionPoint02.enabled);
+
+                circleMesh03.SetPositionX(collisionPoint03.position.x);
+                circleMesh03.SetPositionY(collisionPoint03.position.y);
+                circleMesh03.SetVisible(collisionPoint03.enabled);
+
+                handOpenMesh.SetPositionX(collisionPoint01.position.x);
+                handOpenMesh.SetPositionY(collisionPoint01.position.y);
+
+                handGrabMesh.SetPositionX(collisionPoint01.position.x);
+                handGrabMesh.SetPositionY(collisionPoint01.position.y);
+
+                if (cursorInfo.state == CursorInfo::State::STATE_OPEN)
+                {
+                    handOpenMesh.SetVisible(true);
+                    handGrabMesh.SetVisible(false);
+                }
+                else if (cursorInfo.state == CursorInfo::State::STATE_GRAB)
+                {
+                    handOpenMesh.SetVisible(false);
+                    handGrabMesh.SetVisible(true);
+                }
+            }
+        }
     }
 }

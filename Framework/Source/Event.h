@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-11-14
 
 #pragma once
 
@@ -259,7 +259,7 @@ namespace Project001
         KEY_CODE_RIGHT_CONTROL = 345,
         KEY_CODE_RIGHT_ALT = 346,
         KEY_CODE_RIGHT_SUPER = 347,
-        KEY_CODE_MENU = 348,
+        KEY_CODE_MENU = 348
     };
 
     static std::string KeyCodeToString(KeyCode keyCode)
@@ -754,6 +754,501 @@ namespace Project001
         return std::string("UNKNOWN");
     }
 
+    static KeyCode StringToKeyCode(std::string keyString)
+    {
+        const std::string prefix = "KEY_CODE_";
+        if (keyString.length() < prefix.length() ||
+            keyString.rfind(prefix, 0) == 0)
+        {
+            return KeyCode::KEY_CODE_UNKNOWN;
+        }
+
+        std::string value = keyString.substr(prefix.length());
+
+        if (value == "SPACE")
+        {
+            return KeyCode::KEY_CODE_SPACE;
+        }
+        else if (value == "APOSTROPHE")
+        {
+            return KeyCode::KEY_CODE_APOSTROPHE;
+        }
+        else if (value == "COMMA")
+        {
+            return KeyCode::KEY_CODE_COMMA;
+        }
+        else if (value == "MINUS")
+        {
+            return KeyCode::KEY_CODE_MINUS;
+        }
+        else if (value == "PERIOD")
+        {
+            return KeyCode::KEY_CODE_PERIOD;
+        }
+        else if (value == "SLASH")
+        {
+            return KeyCode::KEY_CODE_SLASH;
+        }
+        else if (value == "0")
+        {
+            return KeyCode::KEY_CODE_0;
+        }
+        else if (value == "1")
+        {
+            return KeyCode::KEY_CODE_1;
+        }
+        else if (value == "2")
+        {
+            return KeyCode::KEY_CODE_2;
+        }
+        else if (value == "3")
+        {
+            return KeyCode::KEY_CODE_3;
+        }
+        else if (value == "4")
+        {
+            return KeyCode::KEY_CODE_4;
+        }
+        else if (value == "5")
+        {
+            return KeyCode::KEY_CODE_5;
+        }
+        else if (value == "6")
+        {
+            return KeyCode::KEY_CODE_6;
+        }
+        else if (value == "7")
+        {
+            return KeyCode::KEY_CODE_7;
+        }
+        else if (value == "8")
+        {
+            return KeyCode::KEY_CODE_8;
+        }
+        else if (value == "9")
+        {
+            return KeyCode::KEY_CODE_9;
+        }
+        else if (value == "SEMICOLON")
+        {
+            return KeyCode::KEY_CODE_SEMICOLON;
+        }
+        else if (value == "EQUAL")
+        {
+            return KeyCode::KEY_CODE_EQUAL;
+        }
+        else if (value == "A")
+        {
+            return KeyCode::KEY_CODE_A;
+        }
+        else if (value == "B")
+        {
+            return KeyCode::KEY_CODE_B;
+        }
+        else if (value == "C")
+        {
+            return KeyCode::KEY_CODE_C;
+        }
+        else if (value == "D")
+        {
+            return KeyCode::KEY_CODE_D;
+        }
+        else if (value == "E")
+        {
+            return KeyCode::KEY_CODE_E;
+        }
+        else if (value == "F")
+        {
+            return KeyCode::KEY_CODE_F;
+        }
+        else if (value == "G")
+        {
+            return KeyCode::KEY_CODE_G;
+        }
+        else if (value == "H")
+        {
+            return KeyCode::KEY_CODE_H;
+        }
+        else if (value == "I")
+        {
+            return KeyCode::KEY_CODE_I;
+        }
+        else if (value == "J")
+        {
+            return KeyCode::KEY_CODE_J;
+        }
+        else if (value == "K")
+        {
+            return KeyCode::KEY_CODE_K;
+        }
+        else if (value == "L")
+        {
+            return KeyCode::KEY_CODE_L;
+        }
+        else if (value == "M")
+        {
+            return KeyCode::KEY_CODE_M;
+        }
+        else if (value == "N")
+        {
+            return KeyCode::KEY_CODE_N;
+        }
+        else if (value == "O")
+        {
+            return KeyCode::KEY_CODE_O;
+        }
+        else if (value == "P")
+        {
+            return KeyCode::KEY_CODE_P;
+        }
+        else if (value == "Q")
+        {
+            return KeyCode::KEY_CODE_Q;
+        }
+        else if (value == "R")
+        {
+            return KeyCode::KEY_CODE_R;
+        }
+        else if (value == "S")
+        {
+            return KeyCode::KEY_CODE_S;
+        }
+        else if (value == "T")
+        {
+            return KeyCode::KEY_CODE_T;
+        }
+        else if (value == "U")
+        {
+            return KeyCode::KEY_CODE_U;
+        }
+        else if (value == "V")
+        {
+            return KeyCode::KEY_CODE_V;
+        }
+        else if (value == "W")
+        {
+            return KeyCode::KEY_CODE_W;
+        }
+        else if (value == "X")
+        {
+            return KeyCode::KEY_CODE_X;
+        }
+        else if (value == "Y")
+        {
+            return KeyCode::KEY_CODE_Y;
+        }
+        else if (value == "Z")
+        {
+            return KeyCode::KEY_CODE_Z;
+        }
+        else if (value == "LEFT_BRACKET")
+        {
+            return KeyCode::KEY_CODE_LEFT_BRACKET;
+        }
+        else if (value == "BACKSLASH")
+        {
+            return KeyCode::KEY_CODE_BACKSLASH;
+        }
+        else if (value == "RIGHT_BRACKET")
+        {
+            return KeyCode::KEY_CODE_RIGHT_BRACKET;
+        }
+        else if (value == "GRAVE_ACCENT")
+        {
+            return KeyCode::KEY_CODE_GRAVE_ACCENT;
+        }
+        else if (value == "WORLD_1")
+        {
+            return KeyCode::KEY_CODE_WORLD_1;
+        }
+        else if (value == "WORLD_2")
+        {
+            return KeyCode::KEY_CODE_WORLD_2;
+        }
+        else if (value == "ESCAPE")
+        {
+            return KeyCode::KEY_CODE_ESCAPE;
+        }
+        else if (value == "ENTER")
+        {
+            return KeyCode::KEY_CODE_ENTER;
+        }
+        else if (value == "TAB")
+        {
+            return KeyCode::KEY_CODE_TAB;
+        }
+        else if (value == "BACKSPACE")
+        {
+            return KeyCode::KEY_CODE_BACKSPACE;
+        }
+        else if (value == "INSERT")
+        {
+            return KeyCode::KEY_CODE_INSERT;
+        }
+        else if (value == "DELETE")
+        {
+            return KeyCode::KEY_CODE_DELETE;
+        }
+        else if (value == "RIGHT")
+        {
+            return KeyCode::KEY_CODE_RIGHT;
+        }
+        else if (value == "LEFT")
+        {
+            return KeyCode::KEY_CODE_LEFT;
+        }
+        else if (value == "DOWN")
+        {
+            return KeyCode::KEY_CODE_DOWN;
+        }
+        else if (value == "UP")
+        {
+            return KeyCode::KEY_CODE_UP;
+        }
+        else if (value == "PAGE_UP")
+        {
+            return KeyCode::KEY_CODE_PAGE_UP;
+        }
+        else if (value == "PAGE_DOWN")
+        {
+            return KeyCode::KEY_CODE_PAGE_DOWN;
+        }
+        else if (value == "HOME")
+        {
+            return KeyCode::KEY_CODE_HOME;
+        }
+        else if (value == "END")
+        {
+            return KeyCode::KEY_CODE_END;
+        }
+        else if (value == "CAPS_LOCK")
+        {
+            return KeyCode::KEY_CODE_CAPS_LOCK;
+        }
+        else if (value == "SCROLL_LOCK")
+        {
+            return KeyCode::KEY_CODE_SCROLL_LOCK;
+        }
+        else if (value == "NUM_LOCK")
+        {
+            return KeyCode::KEY_CODE_NUM_LOCK;
+        }
+        else if (value == "PRINT_SCREEN")
+        {
+            return KeyCode::KEY_CODE_PRINT_SCREEN;
+        }
+        else if (value == "PAUSE")
+        {
+            return KeyCode::KEY_CODE_PAUSE;
+        }
+        else if (value == "F1")
+        {
+            return KeyCode::KEY_CODE_F1;
+        }
+        else if (value == "F2")
+        {
+            return KeyCode::KEY_CODE_F2;
+        }
+        else if (value == "F3")
+        {
+            return KeyCode::KEY_CODE_F3;
+        }
+        else if (value == "F4")
+        {
+            return KeyCode::KEY_CODE_F4;
+        }
+        else if (value == "F5")
+        {
+            return KeyCode::KEY_CODE_F5;
+        }
+        else if (value == "F6")
+        {
+            return KeyCode::KEY_CODE_F6;
+        }
+        else if (value == "F7")
+        {
+            return KeyCode::KEY_CODE_F7;
+        }
+        else if (value == "F8")
+        {
+            return KeyCode::KEY_CODE_F8;
+        }
+        else if (value == "F9")
+        {
+            return KeyCode::KEY_CODE_F9;
+        }
+        else if (value == "F10")
+        {
+            return KeyCode::KEY_CODE_F10;
+        }
+        else if (value == "F11")
+        {
+            return KeyCode::KEY_CODE_F11;
+        }
+        else if (value == "F12")
+        {
+            return KeyCode::KEY_CODE_F12;
+        }
+        else if (value == "F13")
+        {
+            return KeyCode::KEY_CODE_F13;
+        }
+        else if (value == "F14")
+        {
+            return KeyCode::KEY_CODE_F14;
+        }
+        else if (value == "F15")
+        {
+            return KeyCode::KEY_CODE_F15;
+        }
+        else if (value == "F16")
+        {
+            return KeyCode::KEY_CODE_F16;
+        }
+        else if (value == "F17")
+        {
+            return KeyCode::KEY_CODE_F17;
+        }
+        else if (value == "F18")
+        {
+            return KeyCode::KEY_CODE_F18;
+        }
+        else if (value == "F19")
+        {
+            return KeyCode::KEY_CODE_F19;
+        }
+        else if (value == "F20")
+        {
+            return KeyCode::KEY_CODE_F20;
+        }
+        else if (value == "F21")
+        {
+            return KeyCode::KEY_CODE_F21;
+        }
+        else if (value == "F22")
+        {
+            return KeyCode::KEY_CODE_F22;
+        }
+        else if (value == "F23")
+        {
+            return KeyCode::KEY_CODE_F23;
+        }
+        else if (value == "F24")
+        {
+            return KeyCode::KEY_CODE_F24;
+        }
+        else if (value == "F25")
+        {
+            return KeyCode::KEY_CODE_F25;
+        }
+        else if (value == "KP_0")
+        {
+            return KeyCode::KEY_CODE_KP_0;
+        }
+        else if (value == "KP_1")
+        {
+            return KeyCode::KEY_CODE_KP_1;
+        }
+        else if (value == "KP_2")
+        {
+            return KeyCode::KEY_CODE_KP_2;
+        }
+        else if (value == "KP_3")
+        {
+            return KeyCode::KEY_CODE_KP_3;
+        }
+        else if (value == "KP_4")
+        {
+            return KeyCode::KEY_CODE_KP_4;
+        }
+        else if (value == "KP_5")
+        {
+            return KeyCode::KEY_CODE_KP_5;
+        }
+        else if (value == "KP_6")
+        {
+            return KeyCode::KEY_CODE_KP_6;
+        }
+        else if (value == "KP_7")
+        {
+            return KeyCode::KEY_CODE_KP_7;
+        }
+        else if (value == "KP_8")
+        {
+            return KeyCode::KEY_CODE_KP_8;
+        }
+        else if (value == "KP_9")
+        {
+            return KeyCode::KEY_CODE_KP_9;
+        }
+        else if (value == "KP_DECIMAL")
+        {
+            return KeyCode::KEY_CODE_KP_DECIMAL;
+        }
+        else if (value == "KP_DIVIDE")
+        {
+            return KeyCode::KEY_CODE_KP_DIVIDE;
+        }
+        else if (value == "KP_MULTIPLY")
+        {
+            return KeyCode::KEY_CODE_KP_MULTIPLY;
+        }
+        else if (value == "KP_SUBTRACT")
+        {
+            return KeyCode::KEY_CODE_KP_SUBTRACT;
+        }
+        else if (value == "KP_ADD")
+        {
+            return KeyCode::KEY_CODE_KP_ADD;
+        }
+        else if (value == "KP_ENTER")
+        {
+            return KeyCode::KEY_CODE_KP_ENTER;
+        }
+        else if (value == "KP_EQUAL")
+        {
+            return KeyCode::KEY_CODE_KP_EQUAL;
+        }
+        else if (value == "LEFT_SHIFT")
+        {
+            return KeyCode::KEY_CODE_LEFT_SHIFT;
+        }
+        else if (value == "LEFT_CONTROL")
+        {
+            return KeyCode::KEY_CODE_LEFT_CONTROL;
+        }
+        else if (value == "LEFT_ALT")
+        {
+            return KeyCode::KEY_CODE_LEFT_ALT;
+        }
+        else if (value == "LEFT_SUPER")
+        {
+            return KeyCode::KEY_CODE_LEFT_SUPER;
+        }
+        else if (value == "RIGHT_SHIFT")
+        {
+            return KeyCode::KEY_CODE_RIGHT_SHIFT;
+        }
+        else if (value == "RIGHT_CONTROL")
+        {
+            return KeyCode::KEY_CODE_RIGHT_CONTROL;
+        }
+        else if (value == "RIGHT_ALT")
+        {
+            return KeyCode::KEY_CODE_RIGHT_ALT;
+        }
+        else if (value == "RIGHT_SUPER")
+        {
+            return KeyCode::KEY_CODE_RIGHT_SUPER;
+        }
+        else if (value == "MENU")
+        {
+            return KeyCode::KEY_CODE_MENU;
+        }
+
+        return KeyCode::KEY_CODE_UNKNOWN;
+    }
+
     // same as the GLFW keyboard modifiers
     typedef unsigned int KeyModifier;
     const KeyModifier MASK_KEY_MODIFIER_SHIFT = (1 << 0);
@@ -800,6 +1295,8 @@ namespace Project001
     // same as the GLFW mouse button inputs
     enum class MouseButton
     {
+        MOUSE_BUTTON_UNKNOWN = -1,
+
         MOUSE_BUTTON_1 = 0,
         MOUSE_BUTTON_2 = 1,
         MOUSE_BUTTON_3 = 2,
@@ -852,6 +1349,69 @@ namespace Project001
         }
         }
         return std::string("UNKNOWN");
+    }
+
+    static MouseButton StringToMouseButton(std::string buttonString)
+    {
+        const std::string prefix = "MOUSE_BUTTON_";
+        if (buttonString.length() < prefix.length() ||
+            buttonString.rfind(prefix, 0) == 0)
+        {
+            return MouseButton::MOUSE_BUTTON_UNKNOWN;
+        }
+
+        std::string value = buttonString.substr(prefix.length());
+
+        if (value == "1")
+        {
+            return MouseButton::MOUSE_BUTTON_1;
+        }
+        else if (value == "2")
+        {
+            return MouseButton::MOUSE_BUTTON_2;
+        }
+        else if (value == "3")
+        {
+            return MouseButton::MOUSE_BUTTON_3;
+        }
+        else if (value == "4")
+        {
+            return MouseButton::MOUSE_BUTTON_4;
+        }
+        else if (value == "5")
+        {
+            return MouseButton::MOUSE_BUTTON_5;
+        }
+        else if (value == "6")
+        {
+            return MouseButton::MOUSE_BUTTON_6;
+        }
+        else if (value == "7")
+        {
+            return MouseButton::MOUSE_BUTTON_7;
+        }
+        else if (value == "8")
+        {
+            return MouseButton::MOUSE_BUTTON_8;
+        }
+        else if (value == "LAST")
+        {
+            return MouseButton::MOUSE_BUTTON_LAST;
+        }
+        else if (value == "LEFT")
+        {
+            return MouseButton::MOUSE_BUTTON_LEFT;
+        }
+        else if (value == "RIGHT")
+        {
+            return MouseButton::MOUSE_BUTTON_RIGHT;
+        }
+        else if (value == "MIDDLE")
+        {
+            return MouseButton::MOUSE_BUTTON_MIDDLE;
+        }
+
+        return MouseButton::MOUSE_BUTTON_UNKNOWN;
     }
 
     struct Event

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-04-07
+// @DATE 2025-11-14
 
 #pragma once
 
@@ -50,6 +50,9 @@ namespace Project001
 
         void SetVSync(bool enabled) override;
         bool IsVSync() const override;
+
+        void SetCursorVisible(bool visible) override;
+        bool GetCursorVisible() const override;
 
         void GetFramebufferSize(int& width, int& height) const override;
 

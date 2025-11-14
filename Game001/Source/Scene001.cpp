@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-06
+// @DATE 2025-11-14
 
 #include "Scene001.h"
 
@@ -167,8 +167,7 @@ void Scene001::LoadCursorResources()
 {
     sharedDataPtr_->cursorCircle_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
-        *sharedDataPtr_->cursorCircle_MeshDataPtr,
-        4.0f, 12
+        *sharedDataPtr_->cursorCircle_MeshDataPtr, 4.0f, 12
     ));
 }
 
@@ -450,8 +449,8 @@ void Scene001::LoadHouseLightResources()
 
     sharedDataPtr_->houseLightCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
-        *sharedDataPtr_->houseLightCollision_MeshDataPtr, radius, 16)
-    );
+        *sharedDataPtr_->houseLightCollision_MeshDataPtr, radius, 16
+    ));
 
     sharedDataPtr_->houseDoorCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
@@ -611,16 +610,16 @@ void Scene001::LoadLampLightResources()
 
     sharedDataPtr_->lampLightBottom_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
-        *sharedDataPtr_->lampLightBottom_MeshDataPtr, radius, 16)
-    );
+        *sharedDataPtr_->lampLightBottom_MeshDataPtr, radius, 16
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->lampLightBottom_MeshDataPtr, glm::vec3(0.0f, -16.0f, 1.0f)
     );
 
     sharedDataPtr_->lampLightCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
-        *sharedDataPtr_->lampLightCollision_MeshDataPtr, radius, 16)
-    );
+        *sharedDataPtr_->lampLightCollision_MeshDataPtr, radius, 16
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->lampLightCollision_MeshDataPtr, glm::vec3(0.0f, -16.0f, 0.0f)
     );
@@ -630,11 +629,15 @@ void Scene001::LoadLampResources()
 {
     {
         Project001::MeshData tempMeshData0;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData0, 32.0f, 128.0f, 0.0f, 1.0f, 0.0f, 0.8f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            tempMeshData0, 32.0f, 128.0f, 0.0f, 1.0f, 0.0f, 0.8f
+        ));
         Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 0.0f));
 
         Project001::MeshData tempMeshData1;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData1, 32.0f, 32.0f, 0.0f, 1.0f, 0.8f, 1.0f));
+        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            tempMeshData1, 32.0f, 32.0f, 0.0f, 1.0f, 0.8f, 1.0f
+        ));
         Project001::MeshLoader::RotateMeshX(tempMeshData1, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 128.0f, 16.0f));
 
@@ -691,8 +694,8 @@ void Scene001::LoadPersonResources()
 
     sharedDataPtr_->monsterLit_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->monsterLit_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f)
-    );
+        *sharedDataPtr_->monsterLit_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->monsterLit_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
@@ -714,8 +717,8 @@ void Scene001::LoadPersonResources()
 
     sharedDataPtr_->monsterDark_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->monsterDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f)
-    );
+        *sharedDataPtr_->monsterDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->monsterDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
@@ -742,13 +745,13 @@ void Scene001::LoadPersonResources()
 
     sharedDataPtr_->monsterVisionCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
-        *sharedDataPtr_->monsterVisionCollision_MeshDataPtr, sharedDataPtr_->monsterVision_radius, 16)
-    );
+        *sharedDataPtr_->monsterVisionCollision_MeshDataPtr, sharedDataPtr_->monsterVision_radius, 16
+    ));
 
     sharedDataPtr_->personLit_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->personLit_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f)
-    );
+        *sharedDataPtr_->personLit_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->personLit_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
@@ -770,8 +773,8 @@ void Scene001::LoadPersonResources()
 
     sharedDataPtr_->personDark_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->personDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f)
-    );
+        *sharedDataPtr_->personDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
+    ));
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->personDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
