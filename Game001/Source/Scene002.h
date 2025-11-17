@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-17
 
 #pragma once
 
@@ -40,6 +40,8 @@ protected:
     void CreateMainCameraEntities();
     void CreateUiCameraEntity();
     void CreateUiTextEntity();
+    void CreateUiPauseTextEntity();
+    void CreateUiMiniMapEntity();
     void CreateCursorEntity();
 
     void CreateBaseEntity(unsigned int& entityId, const glm::vec2& position);
@@ -51,6 +53,8 @@ protected:
 
     void UpdateMainCameraEntity(float timestep_s);
     void UpdateUiTextEntity();
+    void UpdateUiPauseTextEntity();
+    void UpdateUiMiniMapEntity();
     void UpdateCursorPosition(float xPosition, float yPosition);
 
     void UpdateGroundCollisionBodyQuadTreeMesh();
@@ -69,15 +73,15 @@ protected:
 
     // -------------------------------------------------------------------------
 
-    SharedApplicationData* sharedDataPtr_;
+    SharedApplicationData* sharedDataPtr_ = nullptr;
 
     // Entity Ids --------------------------------------------------------------
 
-    unsigned int mainCameraLight1_EntityId_;
-    unsigned int mainCameraLight2_EntityId_;
-    unsigned int mainCameraDark1_EntityId_;
-    unsigned int mainCameraDark2_EntityId_;
-    unsigned int mainCameraDebug_EntityId_;
+    unsigned int mainCameraLight1_EntityId_ = (unsigned int)-1;
+    unsigned int mainCameraLight2_EntityId_ = (unsigned int)-1;
+    unsigned int mainCameraDark1_EntityId_ = (unsigned int)-1;
+    unsigned int mainCameraDark2_EntityId_ = (unsigned int)-1;
+    unsigned int mainCameraDebug_EntityId_ = (unsigned int)-1;
     static const uint32_t s_mainCameraLight1_Mask_ = 0b00000000000000000000000000000001;
     static const uint32_t s_mainCameraLight2_Mask_ = 0b00000000000000000000000000000010;
     static const uint32_t s_mainCameraDark1_Mask_ = 0b00000000000000000000000000000100;
@@ -85,41 +89,48 @@ protected:
     static const uint32_t s_mainCameraDebug_Mask_ = 0b00000000000000000000000000010000;
     static const uint32_t s_mainCameraGroup_Mask_ = s_mainCameraLight1_Mask_ | s_mainCameraLight2_Mask_ | s_mainCameraDark1_Mask_ | s_mainCameraDark2_Mask_ | s_mainCameraDebug_Mask_;
 
-    unsigned int uiCamera_EntityId_;
+    unsigned int uiCamera_EntityId_ = (unsigned int)-1;
     static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
 
-    unsigned int uiText_EntityId_;
+    unsigned int uiText_EntityId_ = (unsigned int)-1;
+    unsigned int uiPauseText_EntityId_ = (unsigned int)-1;
 
-    unsigned int cursor_EntityId_;
-    unsigned int cursorPositionRenderedMeshIndex_;
-    unsigned int cursorPressRenderedMeshIndex_;
-    unsigned int cursorReleaseRenderedMeshIndex_;
-    unsigned int cursorPositionCollisionPointIndex_;
-    unsigned int cursorPressCollisionPointIndex_;
-    unsigned int cursorReleaseCollisionPointIndex_;
-    static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
-    static const unsigned int s_cursorPressCollisionShapeId_ = 101;
-    static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;
+    std::vector<unsigned int> uiMiniMaphouse_RenderedMeshIndies;
+    unsigned int uiMiniMapPlayer_RenderedMeshIndex_ = (unsigned int)-1;
+    unsigned int uiMiniMap_EntityId_ = (unsigned int)-1;
 
-    unsigned int base_EntityId_;
+    unsigned int cursor_EntityId_ = (unsigned int)-1;
+    unsigned int cursorPosition_RenderedMeshIndex_ = (unsigned int)-1;
+    unsigned int cursorPress_RenderedMeshIndex_ = (unsigned int)-1;
+    unsigned int cursorRelease_RenderedMeshIndex_ = (unsigned int)-1;
+    unsigned int cursorPosition_CollisionPointIndex_ = (unsigned int)-1;
+    unsigned int cursorPress_CollisionPointIndex_ = (unsigned int)-1;
+    unsigned int cursorRelease_CollisionPointIndex_ = (unsigned int)-1;
+    static const unsigned int s_cursorPosition_CollisionShapeId_ = 100;
+    static const unsigned int s_cursorPress_CollisionShapeId_ = 101;
+    static const unsigned int s_cursorRelease_CollisionShapeId_ = 102;
+
+    unsigned int base_EntityId_ = (unsigned int)-1;
 
     std::vector<unsigned int> house_EntityIds_;
 
-    unsigned int ground_EntityId_;
+    unsigned int ground_EntityId_ = (unsigned int)-1;
 
     std::vector<unsigned int> person_EntityIds_;
 
-    unsigned int player_EntityId_;
+    unsigned int player_EntityId_ = (unsigned int)-1;
 
     std::vector<unsigned int> monster_EntityIds_;
 
     // -------------------------------------------------------------------------
 
     glm::vec3 mainCamera_LookAtPoint_;
-    float mainCamera_DistanceAway_;
-    bool mainCamera_Locked_;
+    float mainCamera_DistanceAway_ = 0.0f;
+    bool mainCamera_Locked_ = true;
 
-    bool paused_;
+    glm::vec2 miniMapLocation_;
+
+    bool paused_ = false;
 
     std::mt19937 randomNumberEngine_;
 

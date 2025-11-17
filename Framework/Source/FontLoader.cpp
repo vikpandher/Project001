@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-17
 
 #include "FontLoader.h"
 
@@ -171,6 +171,8 @@ namespace Project001
         const std::string& text,
         float pixelSize,
         size_t alignemnt,
+        bool useAltLineSpacing,
+        float altLineSpacing_px,
         bool trangulate)
     {
         std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
@@ -224,7 +226,16 @@ namespace Project001
                     }
                 }
                 lineStartVertexCount = currentVertexCount;
-                lineStartPenPosition.y -= (float)fontData.lineSpacing_px * pixelSize;
+
+                if (useAltLineSpacing)
+                {
+                    lineStartPenPosition.y -= altLineSpacing_px * pixelSize;
+                }
+                else
+                {
+                    lineStartPenPosition.y -= (float)fontData.lineSpacing_px * pixelSize;
+                }
+
                 currentPenPosition = lineStartPenPosition;
             }
             else

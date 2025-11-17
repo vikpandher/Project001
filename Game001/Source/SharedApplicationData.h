@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-29
+// @DATE 2025-11-20
 
 #pragma once
 
@@ -27,16 +27,41 @@ struct SharedApplicationData
     float nextHouseTurnOnWait_s = 0.0f;
     float remainingTime_s = 0.0f;
 
-    // Game Constants ----------------------------------------------------------
+    // Player Controls ---------------------------------------------------------
 
-    static const Project001::KeyCode keyCode_sprint = Project001::KeyCode::KEY_CODE_SPACE;
-    static const Project001::MouseButton mouseButton_shine = Project001::MouseButton::MOUSE_BUTTON_LEFT;
-    static const Project001::KeyCode keyCode_pause = Project001::KeyCode::KEY_CODE_ENTER;
-    static const Project001::KeyCode keyCode_pauseReturn = Project001::KeyCode::KEY_CODE_ESCAPE;
-    static const Project001::KeyCode keyCode_up = Project001::KeyCode::KEY_CODE_W;
-    static const Project001::KeyCode keyCode_left = Project001::KeyCode::KEY_CODE_A;
-    static const Project001::KeyCode keyCode_down = Project001::KeyCode::KEY_CODE_S;
-    static const Project001::KeyCode keyCode_right = Project001::KeyCode::KEY_CODE_D;
+    bool sprint_usesKeyboard = true;
+    Project001::KeyCode sprint_KeyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    Project001::MouseButton sprint_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool shine_usesKeyboard = false;
+    Project001::KeyCode shine_KeyCode = Project001::KeyCode::KEY_CODE_UNKNOWN;
+    Project001::MouseButton shine_MouseButton = Project001::MouseButton::MOUSE_BUTTON_LEFT;
+
+    bool pause_usesKeyboard = true;
+    Project001::KeyCode pause_KeyCode = Project001::KeyCode::KEY_CODE_ENTER;
+    Project001::MouseButton pause_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool quit_usesKeyboard = true;
+    Project001::KeyCode quit_KeyCode = Project001::KeyCode::KEY_CODE_ESCAPE;
+    Project001::MouseButton quit_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool up_usesKeyboard = true;
+    Project001::KeyCode up_KeyCode = Project001::KeyCode::KEY_CODE_W;
+    Project001::MouseButton up_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool left_usesKeyboard = true;
+    Project001::KeyCode left_KeyCode = Project001::KeyCode::KEY_CODE_A;
+    Project001::MouseButton left_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool down_usesKeyboard = true;
+    Project001::KeyCode down_KeyCode = Project001::KeyCode::KEY_CODE_S;
+    Project001::MouseButton down_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    bool right_usesKeyboard = true;
+    Project001::KeyCode right_KeyCode = Project001::KeyCode::KEY_CODE_D;
+    Project001::MouseButton right_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+
+    // Game Constants ----------------------------------------------------------
 
     unsigned int randomNumberSeed = 777;
 
@@ -44,7 +69,7 @@ struct SharedApplicationData
 
     float mainCamera_initialDistanceAway = 600.0f;
 
-    float houseLight_radius = 152.0f;
+    float houseLight_radius = 136.0f;
     float lampLight_radius = 64.0f;
     float monsterVision_radius = 116.0f;
     float playerVision_radius = 320.0f;
@@ -53,7 +78,7 @@ struct SharedApplicationData
     size_t person_initalCount = 128;
     size_t monster_initialCount = 64;
 
-    float house_randomTurnOnWait_s = 12.0f;
+    float house_randomTurnOnWait_s = 10.0f;
     float house_turnOffWait_s = 1.0f;
 
     float person_walkSpeed = 64.0f;
@@ -147,9 +172,22 @@ struct SharedApplicationData
     Project001::MeshData* playerLightStrong_MeshDataPtr = nullptr;
     Project001::MeshData* playerLightCollision_MeshDataPtr = nullptr;
 
-    Project001::MeshData* uiTopLeftText_MeshDataPtr = nullptr;
-    Project001::MeshData* uiTopMiddleText_MeshDataPtr = nullptr;
-    Project001::MeshData* uiTopRightText_MeshDataPtr = nullptr;
+    Project001::MeshData* uiLeftBackground_MeshDataPtr = nullptr;
+    Project001::MeshData* uiLeftText01_MeshDataPtr = nullptr;
+    Project001::MeshData* uiLeftText02_MeshDataPtr = nullptr;
+    Project001::MeshData* uiLeftText03_MeshDataPtr = nullptr;
+
+    Project001::MeshData* uiMiddleBackground_MeshDataPtr = nullptr;
+    Project001::MeshData* uiMiddleText01_MeshDataPtr = nullptr;
+
+    Project001::MeshData* uiMiniMapBackground_MeshDataPtr = nullptr;
+    Project001::MeshData* uiMiniMapHouse_MeshDataPtr = nullptr;
+    Project001::MeshData* uiMiniMapPlayer_MeshDataPtr = nullptr;
+
+    Project001::MeshData* uiPauseBackground_MeshDataPtr = nullptr;
+    Project001::MeshData* uiPauseText01_MeshDataPtr = nullptr;
+    Project001::MeshData* uiPauseText02_MeshDataPtr = nullptr;
+    Project001::MeshData* uiPauseText03_MeshDataPtr = nullptr;
 
     Project001::SoundData* hitHurt_SoundDataPtr = nullptr;
     unsigned int hitHurt_SoundBufferId = (unsigned int)-1;

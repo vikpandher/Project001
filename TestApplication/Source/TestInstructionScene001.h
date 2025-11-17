@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-17
 
 #pragma once
 
@@ -28,6 +28,8 @@ public:
 
         unsigned int cameraEntityId = (unsigned int)-1;
         uint32_t cameraMask = 0b00000000000000000000000000000000;
+
+        bool locatedOnBottom = false;
 
         Project001::KeyCode keyCode_toggleInstructions = Project001::KeyCode::KEY_CODE_UNKNOWN;
     };

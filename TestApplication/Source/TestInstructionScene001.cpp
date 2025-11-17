@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-17
 
 #include "TestInstructionScene001.h"
 
@@ -113,15 +113,32 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            glm::vec2 hiddenInstructionMeshPosition(
-                -uiCameraHalfWidth + hiddenInstructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
-                uiCameraHalfHeight - hiddenInstructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
-            );
+            glm::vec2 hiddenInstructionMeshPosition;
+            glm::vec2 instructionMeshPosition;
+            if (initializationInfo.locatedOnBottom)
+            {
+                hiddenInstructionMeshPosition = glm::vec2(
+                    -uiCameraHalfWidth + hiddenInstructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                    -uiCameraHalfHeight + hiddenInstructionTextMeshDataPtr_->maxVertexPosition.y + 0.2f
+                );
 
-            glm::vec2 instructionMeshPosition(
-                -uiCameraHalfWidth + instructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
-                uiCameraHalfHeight - instructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
-            );
+                instructionMeshPosition = glm::vec2(
+                    -uiCameraHalfWidth + instructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                    -uiCameraHalfHeight + instructionTextMeshDataPtr_->maxVertexPosition.y + 0.2f
+                );
+            }
+            else
+            {
+                hiddenInstructionMeshPosition = glm::vec2(
+                    -uiCameraHalfWidth + hiddenInstructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                    uiCameraHalfHeight - hiddenInstructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
+                );
+
+                instructionMeshPosition = glm::vec2(
+                    -uiCameraHalfWidth + instructionTextMeshDataPtr_->maxVertexPosition.x + 0.2f,
+                    uiCameraHalfHeight - instructionTextMeshDataPtr_->maxVertexPosition.y - 0.2f
+                );
+            }
 
             hiddenInstructionMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-14
+// @DATE 2025-11-20
 
 #include "Scene001.h"
 
@@ -8,8 +8,8 @@
 #include "Resources/gridDark_64x64_png.h"
 #include "Resources/gridLit_64x64_png.h"
 #include "Resources/hitHurt_wav.h"
-#include "Resources/houseDark_384x272_png.h"
-#include "Resources/houseLit_384x272_png.h"
+#include "Resources/houseDark_384x256_png.h"
+#include "Resources/houseLit_384x256_png.h"
 #include "Resources/lampDark_32x160_png.h"
 #include "Resources/lampLit_32x160_png.h"
 #include "Resources/monsterLit_32x56_png.h"
@@ -40,13 +40,11 @@
 
 Scene001::Scene001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
-    , configFileFound_(false)
-    , uiCamera_EntityId_((unsigned int)-1)
-    , introText_EntityId_((unsigned int)-1)
-    , autorText_EntityId_((unsigned int)-1)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene001Id = GetId();
+
+    ReadConfigFile();
 
     LoadPixelFontResources();
 
@@ -75,6 +73,7 @@ void Scene001::HandleEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&Scene001::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene001::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene001::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene001::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene001::ProcessUpdateEvent, this, std::placeholders::_1));
 }
@@ -87,7 +86,6 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     // -------------------------------------------------------------------------
 
-    ReadConfigFile();
     CreateUiCameraEntity();
     CreateIntroTextEntity();
 }
@@ -118,7 +116,27 @@ void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == sharedDataPtr_->keyCode_pause)
+        if (sharedDataPtr_->pause_usesKeyboard && keyCode == sharedDataPtr_->pause_KeyCode)
+        {
+            SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+            if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+            {
+                SendEventToScene(GetId(), Project001::DeinitializeEvent());
+                SendEventToApplication(Project001::InitializeEvent());
+            }
+            return;
+        }
+    }
+}
+
+void Scene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+{
+    Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
+    Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
+
+    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    {
+        if (!sharedDataPtr_->pause_usesKeyboard && mouseButton == sharedDataPtr_->pause_MouseButton)
         {
             SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
             if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
@@ -138,7 +156,7 @@ void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
 void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
-    
+
 }
 
 void Scene001::LoadPixelFontResources()
@@ -174,7 +192,7 @@ void Scene001::LoadCursorResources()
 void Scene001::LoadGroundGridResources()
 {
     sharedDataPtr_->groundGrid_MeshDataPtr = new Project001::MeshData();
-    
+
     constexpr float gridSpacing = 64.0f;
     constexpr float gridSize = 16.0f * gridSpacing;
     constexpr float lineWidth = 2.0f;
@@ -464,74 +482,74 @@ void Scene001::LoadHouseLightResources()
 void Scene001::LoadHouseResources()
 {
     {
-        Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData0; // front face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData0, 128.0f, 128.0f,
+            tempMeshData0, 128.0f, 112.0f,
             128.0f / 384.0f,
             256.0f / 384.0f,
             0.0f,
-            128.0f / 272.0f
+            112.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 56.0f, 64.0f));
 
-        Project001::MeshData tempMeshData1;
+        Project001::MeshData tempMeshData1; // left face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData1, 128.0f, 96.0f,
+            tempMeshData1, 128.0f, 80.0f,
             0.0f,
             128.0f / 384.0f,
             0.0f,
-            96.0f / 272.0f
+            80.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 48.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 40.0f, 64.0f));
         Project001::MeshLoader::RotateMeshY(tempMeshData1, -glm::half_pi<float>());
 
-        Project001::MeshData tempMeshData2;
+        Project001::MeshData tempMeshData2; // right face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData2, 128.0f, 96.0f,
+            tempMeshData2, 128.0f, 80.0f,
             256.0f / 384.0f,
             1.0f,
             0.0f,
-            96.0f / 272.0f
+            80.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData2, glm::vec3(0.0f, 48.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData2, glm::vec3(0.0f, 40.0f, 64.0f));
         Project001::MeshLoader::RotateMeshY(tempMeshData2, glm::half_pi<float>());
 
-        Project001::MeshData tempMeshData3;
+        Project001::MeshData tempMeshData3; // left roof
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData3, 80.0f, 144.0f,
             112.0f / 384.0f,
             192.0f / 384.0f,
-            128.0f / 272.0f,
+            112.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData3, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(-40.0f, 0.0f, 0.0f));
         Project001::MeshLoader::RotateMeshZ(tempMeshData3, glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(0.0f, 129.0f, 0.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(0.0f, 114.0f, 0.0f));
 
-        Project001::MeshData tempMeshData4;
+        Project001::MeshData tempMeshData4; // right roof
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData4, 80.0f, 144.0f,
             192.0f / 384.0f,
             272.0f / 384.0f,
-            128.0f / 272.0f,
+            112.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData4, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(40.0f, 0.0f, 0.0f));
         Project001::MeshLoader::RotateMeshZ(tempMeshData4, -glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(0.0f, 129.0f, 0.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(0.0f, 114.0f, 0.0f));
 
-        Project001::MeshData tempMeshData5;
+        Project001::MeshData tempMeshData5; // door mat
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData5, 48.0f, 32.0f,
             0.0f,
             48.0f / 384.0f,
-            240.0f / 272.0f,
+            224.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData5, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData5, glm::vec3(0.0f, 1.0f, 80.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData5, glm::vec3(0.0f, 0.4f, 80.0f));
 
         sharedDataPtr_->houseLit_MeshDataPtr = new Project001::MeshData();
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->houseLit_MeshDataPtr, tempMeshData3);
@@ -540,13 +558,14 @@ void Scene001::LoadHouseResources()
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->houseLit_MeshDataPtr, tempMeshData1);
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->houseLit_MeshDataPtr, tempMeshData2);
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->houseLit_MeshDataPtr, tempMeshData5);
+        Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->houseLit_MeshDataPtr, glm::half_pi<float>());
     }
 
     sharedDataPtr_->houseLit_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         *sharedDataPtr_->houseLit_TextureDataPtr,
-        g_houseLit_384x272_png,
-        sizeof(g_houseLit_384x272_png) / sizeof(unsigned char)
+        g_houseLit_384x256_png,
+        sizeof(g_houseLit_384x256_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
         sharedDataPtr_->houseLit_TextureId,
@@ -565,8 +584,8 @@ void Scene001::LoadHouseResources()
     sharedDataPtr_->houseDark_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
         *sharedDataPtr_->houseDark_TextureDataPtr,
-        g_houseDark_384x272_png,
-        sizeof(g_houseDark_384x272_png) / sizeof(unsigned char)
+        g_houseDark_384x256_png,
+        sizeof(g_houseDark_384x256_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
         sharedDataPtr_->houseDark_TextureId,
@@ -585,6 +604,7 @@ void Scene001::LoadHouseResources()
         2.0f
     ));
     Project001::MeshLoader::RecenterMesh(*sharedDataPtr_->houseText_MeshDataPtr);
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->houseText_MeshDataPtr, glm::half_pi<float>());
 
     sharedDataPtr_->houseCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
@@ -628,13 +648,13 @@ void Scene001::LoadLampLightResources()
 void Scene001::LoadLampResources()
 {
     {
-        Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData0; // lamp neck
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData0, 32.0f, 128.0f, 0.0f, 1.0f, 0.0f, 0.8f
         ));
         Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 0.0f));
 
-        Project001::MeshData tempMeshData1;
+        Project001::MeshData tempMeshData1; // lamp head
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData1, 32.0f, 32.0f, 0.0f, 1.0f, 0.8f, 1.0f
         ));
@@ -644,6 +664,7 @@ void Scene001::LoadLampResources()
         sharedDataPtr_->lampLit_MeshDataPtr = new Project001::MeshData();
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->lampLit_MeshDataPtr, tempMeshData0);
         Project001::MeshLoader::CopyMesh(*sharedDataPtr_->lampLit_MeshDataPtr, tempMeshData1);
+        Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->lampLit_MeshDataPtr, glm::half_pi<float>());
     }
 
     sharedDataPtr_->lampLit_TextureDataPtr = new Project001::TextureData();
@@ -699,6 +720,7 @@ void Scene001::LoadPersonResources()
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->monsterLit_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->monsterLit_MeshDataPtr, glm::half_pi<float>());
 
     sharedDataPtr_->monsterLit_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
@@ -722,6 +744,7 @@ void Scene001::LoadPersonResources()
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->monsterDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->monsterDark_MeshDataPtr, glm::half_pi<float>());
 
     sharedDataPtr_->monsterDark_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
@@ -755,6 +778,7 @@ void Scene001::LoadPersonResources()
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->personLit_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->personLit_MeshDataPtr, glm::half_pi<float>());
 
     sharedDataPtr_->personLit_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
@@ -778,6 +802,7 @@ void Scene001::LoadPersonResources()
     Project001::MeshLoader::TranslateMesh(
         *sharedDataPtr_->personDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
     );
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->personDark_MeshDataPtr, glm::half_pi<float>());
 
     sharedDataPtr_->personDark_TextureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
@@ -870,11 +895,83 @@ void Scene001::LoadPlayerLightResources()
 
 void Scene001::LoadUiTextResources()
 {
-    sharedDataPtr_->uiTopLeftText_MeshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiLeftBackground_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiLeftBackground_MeshDataPtr, 96.0f, 48.0f
+    ));
 
-    sharedDataPtr_->uiTopMiddleText_MeshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiLeftText01_MeshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiLeftText02_MeshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiLeftText03_MeshDataPtr = new Project001::MeshData();
 
-    sharedDataPtr_->uiTopRightText_MeshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMiddleBackground_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiMiddleBackground_MeshDataPtr, 74.0f, 16.0f
+    ));
+
+    sharedDataPtr_->uiMiddleText01_MeshDataPtr = new Project001::MeshData();
+
+    sharedDataPtr_->uiPauseBackground_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiPauseBackground_MeshDataPtr, 134.0f, 50.0f
+    ));
+
+    std::string pauseString01 = "* PAUSED *\n";
+    std::string pauseString02 = "Press <ESC>\n";
+    std::string pauseString03 = "to quit.";
+
+    constexpr float pixelSize = 2.0f;
+
+    sharedDataPtr_->uiPauseText01_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseText01_MeshDataPtr,
+        *sharedDataPtr_->pixelFont_FontDataPtr,
+        pauseString01,
+        pixelSize
+    ));
+    Project001::MeshLoader::TranslateMesh(
+        *sharedDataPtr_->uiPauseText01_MeshDataPtr,
+        glm::vec3(sharedDataPtr_->uiPauseText01_MeshDataPtr->GetSize().x * -0.5f, 0.0f, 0.0f)
+    );
+
+    sharedDataPtr_->uiPauseText02_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseText02_MeshDataPtr,
+        *sharedDataPtr_->pixelFont_FontDataPtr,
+        pauseString02,
+        pixelSize
+    ));
+    Project001::MeshLoader::TranslateMesh(
+        *sharedDataPtr_->uiPauseText02_MeshDataPtr,
+        glm::vec3(sharedDataPtr_->uiPauseText02_MeshDataPtr->GetSize().x * -0.5f, 0.0f, 0.0f)
+    );
+
+    sharedDataPtr_->uiPauseText03_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseText03_MeshDataPtr,
+        *sharedDataPtr_->pixelFont_FontDataPtr,
+        pauseString03,
+        pixelSize
+    ));
+    Project001::MeshLoader::TranslateMesh(
+        *sharedDataPtr_->uiPauseText03_MeshDataPtr,
+        glm::vec3(sharedDataPtr_->uiPauseText03_MeshDataPtr->GetSize().x * -0.5f, 0.0f, 0.0f)
+    );
+
+    sharedDataPtr_->uiMiniMapBackground_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiMiniMapBackground_MeshDataPtr, 64.0f, 64.0f
+    ));
+
+    sharedDataPtr_->uiMiniMapHouse_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiMiniMapHouse_MeshDataPtr, 4.0f, 4.0f
+    ));
+
+    sharedDataPtr_->uiMiniMapPlayer_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(
+        *sharedDataPtr_->uiMiniMapPlayer_MeshDataPtr, 2.0f, 2.0f
+    ));
 }
 
 void Scene001::LoadSoundResources()
@@ -1066,12 +1163,32 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->playerLightCollision_MeshDataPtr;
     sharedDataPtr_->playerLightCollision_MeshDataPtr = nullptr;
 
-    delete sharedDataPtr_->uiTopLeftText_MeshDataPtr;
-    sharedDataPtr_->uiTopLeftText_MeshDataPtr = nullptr;
-    delete sharedDataPtr_->uiTopMiddleText_MeshDataPtr;
-    sharedDataPtr_->uiTopMiddleText_MeshDataPtr = nullptr;
-    delete sharedDataPtr_->uiTopRightText_MeshDataPtr;
-    sharedDataPtr_->uiTopRightText_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiLeftBackground_MeshDataPtr;
+    sharedDataPtr_->uiLeftBackground_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiLeftText01_MeshDataPtr;
+    sharedDataPtr_->uiLeftText01_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiLeftText02_MeshDataPtr;
+    sharedDataPtr_->uiLeftText02_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiLeftText03_MeshDataPtr;
+    sharedDataPtr_->uiLeftText03_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMiddleBackground_MeshDataPtr;
+    sharedDataPtr_->uiMiddleBackground_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMiddleText01_MeshDataPtr;
+    sharedDataPtr_->uiMiddleText01_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMiniMapBackground_MeshDataPtr;
+    sharedDataPtr_->uiMiniMapBackground_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMiniMapHouse_MeshDataPtr;
+    sharedDataPtr_->uiMiniMapHouse_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMiniMapPlayer_MeshDataPtr;
+    sharedDataPtr_->uiMiniMapPlayer_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseBackground_MeshDataPtr;
+    sharedDataPtr_->uiPauseBackground_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseText01_MeshDataPtr;
+    sharedDataPtr_->uiPauseText01_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseText02_MeshDataPtr;
+    sharedDataPtr_->uiPauseText02_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseText03_MeshDataPtr;
+    sharedDataPtr_->uiPauseText03_MeshDataPtr = nullptr;
 
     delete sharedDataPtr_->hitHurt_SoundDataPtr;
     sharedDataPtr_->hitHurt_SoundDataPtr = nullptr;
@@ -1092,7 +1209,83 @@ void Scene001::ReadConfigFile()
         std::map<std::string, std::map<std::string, std::string>> sections;
         Project001::ReadIniStream(sections, inputStream);
 
-        std::map<std::string, std::map<std::string, std::string>>::const_iterator iter = sections.find("");
+        std::map<std::string, std::map<std::string, std::string>>::const_iterator iter = sections.find("Player_Controls");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("sprint");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->sprint_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->sprint_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->sprint_usesKeyboard = sharedDataPtr_->sprint_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("shine");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->shine_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->shine_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->shine_usesKeyboard = sharedDataPtr_->shine_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("pause");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->pause_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->pause_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->pause_usesKeyboard = sharedDataPtr_->pause_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("quit");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->quit_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->quit_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->quit_usesKeyboard = sharedDataPtr_->quit_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("up");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->up_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->up_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->up_usesKeyboard = sharedDataPtr_->up_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("left");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->left_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->left_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->left_usesKeyboard = sharedDataPtr_->left_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->down_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->down_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->down_usesKeyboard = sharedDataPtr_->down_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+
+            iter2 = iter->second.find("right");
+            if (iter2 != iter->second.end())
+            {
+                const std::string& value = iter2->second;
+                sharedDataPtr_->right_KeyCode = Project001::StringToKeyCode(value);
+                sharedDataPtr_->right_MouseButton = Project001::StringToMouseButton(value);
+                sharedDataPtr_->right_usesKeyboard = sharedDataPtr_->right_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
+            }
+        }
+
+        iter = sections.find("Game_Constants");
         if (iter != sections.end())
         {
             std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("randomNumberSeed");
@@ -1299,9 +1492,10 @@ void Scene001::CreateIntroTextEntity()
         "version 0.1.x\n"
         "\n"
         "\n"
-        "Knock on the doors of lit-up houses\n"
-        "to collect candy and return it to your\n"
-        "home base. Watch out for monsters!\n"
+        "Knock on the doors of lit-up houses to\n"
+        "collect candy. Return it home to score\n"
+        "points and charge your flashlight.\n"
+        "Watch out for monsters!\n"
         "\n"
         "\n"
         "Press <WASD> to move.\n"

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-18
 
 #include "RenderSystem.h"
 
@@ -44,7 +44,7 @@ namespace Project001
             {
                 Camera& currentCamera = cameraPtrs[i];
 
-                if (currentCamera.IsTurnedOn())
+                if (currentCamera.GetTurnedOn())
                 {
                     s_cameraPtrs_.push_back(&currentCamera);
                 }
@@ -66,7 +66,7 @@ namespace Project001
             for (size_t i = 0; i < s_cameraPtrs_.size(); ++i)
             {
                 Camera& currentCamera = *s_cameraPtrs_[i];
-                if (currentCamera.IsTurnedOn())
+                if (currentCamera.GetTurnedOn())
                 {
                     const Project001::Camera::CameraProjection& cameraProjection = currentCamera.GetProjection();
 

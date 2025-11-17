@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-06
+// @DATE 2025-11-20
 
 #include "Scene002.h"
 
@@ -100,40 +100,16 @@ struct VisionInfo
 
 Scene002::Scene002(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
-    // Entity Ids --------------------------------------------------------------
-    , mainCameraLight1_EntityId_((unsigned int)-1)
-    , mainCameraLight2_EntityId_((unsigned int)-1)
-    , mainCameraDark1_EntityId_((unsigned int)-1)
-    , mainCameraDark2_EntityId_((unsigned int)-1)
-    , mainCameraDebug_EntityId_((unsigned int)-1)
-    , uiCamera_EntityId_((unsigned int)-1)
-    , uiText_EntityId_((unsigned int)-1)
-    , cursor_EntityId_((unsigned int)-1)
-    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
-    , cursorPressRenderedMeshIndex_((unsigned int)-1)
-    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
-    , cursorPositionCollisionPointIndex_((unsigned int)-1)
-    , cursorPressCollisionPointIndex_((unsigned int)-1)
-    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
-    , base_EntityId_((unsigned int)-1)
-    , house_EntityIds_()
-    , ground_EntityId_((unsigned int)-1)
-    , person_EntityIds_()
-    , player_EntityId_((unsigned int)-1)
-    , monster_EntityIds_()
-    // -------------------------------------------------------------------------
     , mainCamera_LookAtPoint_(0.0f, 0.0f, 0.0f)
-    , mainCamera_DistanceAway_(0.0f)
-    , mainCamera_Locked_(true)
-    , paused_(false)
-    , randomNumberEngine_(777)
+    , miniMapLocation_(0.0f, 0.0f)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene002Id = GetId();
 }
 
 Scene002::~Scene002()
-{}
+{
+}
 
 void Scene002::HandleEvent(Project001::Event& event)
 {
@@ -163,6 +139,8 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     CreateMainCameraEntities();
     CreateUiCameraEntity();
     CreateUiTextEntity();
+    CreateUiPauseTextEntity();
+    CreateUiMiniMapEntity();
     CreateCursorEntity();
 
     constexpr float houseYOffset = 64.0f;
@@ -271,14 +249,18 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     uiCamera_EntityId_ = (unsigned int)-1;
 
     uiText_EntityId_ = (unsigned int)-1;
+    uiPauseText_EntityId_ = (unsigned int)-1;
+    uiMiniMaphouse_RenderedMeshIndies.clear();
+    uiMiniMapPlayer_RenderedMeshIndex_ = (unsigned int)-1;
+    uiMiniMap_EntityId_ = (unsigned int)-1;
 
     cursor_EntityId_ = (unsigned int)-1;
-    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
-    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
-    cursorPressCollisionPointIndex_ = (unsigned int)-1;
-    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
+    cursorPosition_RenderedMeshIndex_ = (unsigned int)-1;
+    cursorPress_RenderedMeshIndex_ = (unsigned int)-1;
+    cursorRelease_RenderedMeshIndex_ = (unsigned int)-1;
+    cursorPosition_CollisionPointIndex_ = (unsigned int)-1;
+    cursorPress_CollisionPointIndex_ = (unsigned int)-1;
+    cursorRelease_CollisionPointIndex_ = (unsigned int)-1;
 
     base_EntityId_ = (unsigned int)-1;
     house_EntityIds_.clear();
@@ -293,6 +275,8 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     mainCamera_DistanceAway_ = 0.0f;
     mainCamera_Locked_ = true;
 
+    miniMapLocation_ = glm::vec2(0.0f, 0.0f);
+
     paused_ = false;
 }
 
@@ -305,7 +289,7 @@ void Scene002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& curso
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        collisionPoints[cursorPositionCollisionPointIndex_].enabled = true;
+        collisionPoints[cursorPosition_CollisionPointIndex_].enabled = true;
     }
 }
 
@@ -317,11 +301,11 @@ void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
     if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
     {
-        if (keyCode == sharedDataPtr_->keyCode_pause)
+        if (sharedDataPtr_->pause_usesKeyboard && keyCode == sharedDataPtr_->pause_KeyCode)
         {
             paused_ = !paused_;
         }
-        if (keyCode == sharedDataPtr_->keyCode_pauseReturn)
+        if (sharedDataPtr_->quit_usesKeyboard && keyCode == sharedDataPtr_->quit_KeyCode)
         {
             if (paused_)
             {
@@ -339,14 +323,7 @@ void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             Project001::Camera* cameraPtr = nullptr;
             if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_))
             {
-                if (cameraPtr->IsTurnedOn())
-                {
-                    cameraPtr->TurnOff();
-                }
-                else
-                {
-                    cameraPtr->TurnOn();
-                }
+                cameraPtr->SetTurnedOn(!cameraPtr->GetTurnedOn());
             }
         }
         // else if (keyCode == Project001::KeyCode::KEY_CODE_9)
@@ -354,13 +331,33 @@ void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         //     mainCamera_Locked_ = !mainCamera_Locked_;
         // }
     }
-
 }
 
 void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
     Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
+
+    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+    {
+        if (!sharedDataPtr_->pause_usesKeyboard && mouseButton == sharedDataPtr_->pause_MouseButton)
+        {
+            paused_ = !paused_;
+        }
+        if (!sharedDataPtr_->quit_usesKeyboard && mouseButton == sharedDataPtr_->quit_MouseButton)
+        {
+            if (paused_)
+            {
+                SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene001Id));
+                if (GetActiveScene()->GetId() == sharedDataPtr_->scene001Id)
+                {
+                    SendEventToScene(GetId(), Project001::DeinitializeEvent());
+                    SendEventToApplication(Project001::InitializeEvent());
+                }
+                return;
+            }
+        }
+    }
 
     if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1)
     {
@@ -371,9 +368,9 @@ void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
             if (collisionBody2DPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-                collisionPoints[cursorPressCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorPressCollisionPointIndex_].enabled = true;
-                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = false;
+                collisionPoints[cursorPress_CollisionPointIndex_].position = collisionPoints[cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[cursorPress_CollisionPointIndex_].enabled = true;
+                collisionPoints[cursorRelease_CollisionPointIndex_].enabled = false;
             }
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
@@ -383,8 +380,8 @@ void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
             if (collisionBody2DPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-                collisionPoints[cursorReleaseCollisionPointIndex_].position = collisionPoints[cursorPositionCollisionPointIndex_].position;
-                collisionPoints[cursorReleaseCollisionPointIndex_].enabled = true;
+                collisionPoints[cursorRelease_CollisionPointIndex_].position = collisionPoints[cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[cursorRelease_CollisionPointIndex_].enabled = true;
             }
         }
     }
@@ -397,16 +394,18 @@ void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
 void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
-    // float& yOffset = scrollEvent.yOffset;
-    // 
-    // constexpr float speedConstant = 20.0f;
-    // 
-    // mainCamera_DistanceAway_ += yOffset * speedConstant;
+    float& yOffset = scrollEvent.yOffset;
+
+    constexpr float speedConstant = 20.0f;
+
+    mainCamera_DistanceAway_ += yOffset * speedConstant;
 }
 
 void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     UpdateUiTextEntity();
+    UpdateUiPauseTextEntity();
+    UpdateUiMiniMapEntity();
 
     if (paused_)
     {
@@ -511,7 +510,7 @@ void Scene002::CreateMainCameraEntities()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_));
         if (cameraPtr != nullptr)
         {
-            cameraPtr->TurnOff();
+            cameraPtr->SetTurnedOn(false);
         }
     };
 
@@ -520,7 +519,7 @@ void Scene002::CreateMainCameraEntities()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark2_EntityId_));
         if (cameraPtr != nullptr)
         {
-            cameraPtr->TurnOff();
+            cameraPtr->SetTurnedOn(false);
         }
     };
 }
@@ -552,7 +551,7 @@ void Scene002::CreateUiCameraEntity()
         }
         cameraPtr->AddYaw(glm::pi<float>());
         cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
+        // cameraPtr->SetDepthTestEnabled(false);
         cameraPtr->SetCameraMask(s_uiCamera_Mask_);
         cameraPtr->SetPriorityValue(1000);
     }
@@ -573,31 +572,200 @@ void Scene002::CreateUiTextEntity()
         {
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
-            // mesh.SetCameraMask(s_uiCamera_Mask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiTopLeftText_MeshDataPtr);
-            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
-            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiLeftBackground_MeshDataPtr);
+            mesh.SetPosition(-480.0f + 48.0f, 320.0f - 24.0f, -0.1f);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
             mesh.SetUseLighting(false);
-            mesh.SetPosition(-464.0f, 304.0f, 0.0f);
         }
 
         {
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiTopMiddleText_MeshDataPtr);
-            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiLeftText01_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 14.0f);
+            mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetPosition(0.0f, 304.0f, 0.0f);
         }
+
         {
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiTopRightText_MeshDataPtr);
-            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiLeftText02_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 30.0f);
+            mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetPosition(464.0f, 304.0f, 0.0f);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiLeftText03_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 46.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMiddleBackground_MeshDataPtr);
+            mesh.SetPosition(0.0f, 320.0f - 8.0f, -0.1f);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMiddleText01_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionY(320.0f - 14.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+    }
+}
+
+void Scene002::CreateUiPauseTextEntity()
+{
+    GetComponentStoresPtr()->CreateEntity(uiPauseText_EntityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(uiPauseText_EntityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseText_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_Mask_);
+        renderedModelPtr->SetVisible(paused_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseBackground_MeshDataPtr);
+            mesh.SetPosition(0.0f, 320.0f - 41.0f - 2.0f, -0.1f);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseText01_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionY(320.0f - 30.0f - 2.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseText02_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionY(320.0f - 46.0f - 2.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseText03_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
+            mesh.SetPositionY(320.0f - 64.0f - 2.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+    }
+}
+
+void Scene002::CreateUiMiniMapEntity()
+{
+    miniMapLocation_ = glm::vec2(480.0f - 32.0f, 320.0f - 32.0f);
+
+    GetComponentStoresPtr()->CreateEntity(uiMiniMap_EntityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(uiMiniMap_EntityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiMiniMap_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_Mask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        constexpr float houseYOffset = 2.0f;
+        constexpr float houseSpacing = 12.0f;
+        for (int i = -2; i <= 2; i++)
+        {
+            for (int j = -2; j <= 2; j++)
+            {
+                if (i == 0 && j == 0)
+                {
+                    continue;
+                }
+
+                uiMiniMaphouse_RenderedMeshIndies.push_back(renderedMeshes.size());
+
+                renderedMeshes.emplace_back();
+                Project001::RenderedMesh& mesh = renderedMeshes.back();
+                mesh.SetCameraMask(s_uiCamera_Mask_);
+                mesh.SetMeshDataPtr(sharedDataPtr_->uiMiniMapHouse_MeshDataPtr);
+                mesh.SetPosition(
+                    miniMapLocation_.x + (float)i * houseSpacing,
+                    miniMapLocation_.y + (float)j * houseSpacing + houseYOffset,
+                    0.0f
+                );
+                mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+                mesh.SetUseLighting(false);
+            }
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMiniMapHouse_MeshDataPtr);
+            mesh.SetPosition(miniMapLocation_.x, miniMapLocation_.y + houseYOffset, 0.0f);
+            mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMiniMapBackground_MeshDataPtr);
+            mesh.SetPosition(miniMapLocation_.x, miniMapLocation_.y, -0.1f);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            uiMiniMapPlayer_RenderedMeshIndex_ = renderedMeshes.size();
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMiniMapPlayer_MeshDataPtr);
+            mesh.SetPosition(miniMapLocation_.x, miniMapLocation_.y, 0.1f);
+            mesh.SetColor(0.6f, 0.6f, 0.6f, 1.0f);
+            mesh.SetUseLighting(false);
         }
     }
 }
@@ -615,7 +783,7 @@ void Scene002::CreateCursorEntity()
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
         {
-            cursorPositionRenderedMeshIndex_ = renderedMeshes.size();
+            cursorPosition_RenderedMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
@@ -627,7 +795,7 @@ void Scene002::CreateCursorEntity()
         }
 
         {
-            cursorPressRenderedMeshIndex_ = renderedMeshes.size();
+            cursorPress_RenderedMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
@@ -640,7 +808,7 @@ void Scene002::CreateCursorEntity()
         }
 
         {
-            cursorReleaseRenderedMeshIndex_ = renderedMeshes.size();
+            cursorRelease_RenderedMeshIndex_ = renderedMeshes.size();
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
@@ -659,12 +827,12 @@ void Scene002::CreateCursorEntity()
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        cursorPositionCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPositionCollisionShapeId_, true);
-        cursorPressCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPressCollisionShapeId_, false);
-        cursorReleaseCollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorReleaseCollisionShapeId_, false);
+        cursorPosition_CollisionPointIndex_ = collisionPoints.size();
+        collisionPoints.emplace_back(glm::vec2(), s_cursorPosition_CollisionShapeId_, true);
+        cursorPress_CollisionPointIndex_ = collisionPoints.size();
+        collisionPoints.emplace_back(glm::vec2(), s_cursorPress_CollisionShapeId_, false);
+        cursorRelease_CollisionPointIndex_ = collisionPoints.size();
+        collisionPoints.emplace_back(glm::vec2(), s_cursorRelease_CollisionShapeId_, false);
     }
 }
 
@@ -685,7 +853,6 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->houseLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->houseLit_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -698,8 +865,7 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
             mesh.SetMeshDataPtr(sharedDataPtr_->houseText_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_TextureId);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
-            mesh.SetPosition(0.0f, -82.0f, 96.0f);
+            mesh.SetPosition(glm::vec3(0.0f, -66.0f, 84.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -711,7 +877,6 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->houseDark_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->houseDark_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -865,6 +1030,16 @@ void Scene002::CreateGroundEntity()
             renderedMeshes.emplace_back();
             Project001::RenderedMesh& mesh = renderedMeshes.back();
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->groundFog_MeshDataPtr);
+            mesh.SetPositionZ(-1.0f);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(-1);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->groundLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->groundLit_TextureId);
             mesh.SetUseLighting(false);
@@ -879,6 +1054,17 @@ void Scene002::CreateGroundEntity()
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.1f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCameraDark1_Mask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->groundFog_MeshDataPtr);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+            mesh.SetPositionZ(-1.0f);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(-1);
         }
 
         {
@@ -980,7 +1166,6 @@ void Scene002::CreateHouseEntity(unsigned int& entityId, const glm::vec2& positi
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->houseLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->houseLit_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -992,7 +1177,6 @@ void Scene002::CreateHouseEntity(unsigned int& entityId, const glm::vec2& positi
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->houseDark_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->houseDark_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -1141,7 +1325,6 @@ void Scene002::CreatePersonEntity(unsigned int& entityId, const glm::vec2& posit
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personLit_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1152,7 +1335,6 @@ void Scene002::CreatePersonEntity(unsigned int& entityId, const glm::vec2& posit
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personDark_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personDark_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1210,7 +1392,6 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personLit_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1221,7 +1402,6 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personDark_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personDark_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1375,7 +1555,6 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetMeshDataPtr(sharedDataPtr_->monsterLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->monsterLit_TextureId);
             mesh.SetColor(1.0f, 0.6f, 0.6f, 1.0f);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1386,7 +1565,6 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->monsterDark_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->monsterDark_TextureId);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1556,9 +1734,11 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
 
 void Scene002::UpdateUiTextEntity()
 {
-    constexpr float pixelSize = 4.0f;
+    constexpr float pixelSize = 2.0f;
 
-    sharedDataPtr_->uiTopLeftText_MeshDataPtr->Clear();
+    sharedDataPtr_->uiLeftText01_MeshDataPtr->Clear();
+    sharedDataPtr_->uiLeftText02_MeshDataPtr->Clear();
+    sharedDataPtr_->uiLeftText03_MeshDataPtr->Clear();
 
     unsigned int handScore = 0;
     unsigned int totalScore = sharedDataPtr_->score;
@@ -1575,66 +1755,143 @@ void Scene002::UpdateUiTextEntity()
         handScore = playerInfoPtr->score;
     }
 
-    std::string leftString;
-    leftString += "C:" + std::to_string(totalScore) + "(" + std::to_string(handScore) + ")" + "\n";
+    if (handScore > 99) handScore = 99;
+    if (totalScore > 99) totalScore = 99;
+    if (battery_s > 999.99f) battery_s = 999.99f;
+    if (stamina_s > 999.99f) stamina_s = 999.99f;
+    if (remainingTime_s > 999.99f) remainingTime_s = 999.99f;
+
+    std::string candyString =
+        "C:" + std::to_string(totalScore) + "(" + std::to_string(handScore) + ")";
 
     char buffer[20];
 
     snprintf(buffer, sizeof(buffer), "%.2f", battery_s);
-    leftString += "B:" + std::string(buffer) + "\n";
+    std::string batteryString = "B:" + std::string(buffer);
 
     snprintf(buffer, sizeof(buffer), "%.2f", stamina_s);
-    leftString += "S:" + std::string(buffer) + "\n";
+    std::string staminaString = "S:" + std::string(buffer);
 
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiTopLeftText_MeshDataPtr,
+        *sharedDataPtr_->uiLeftText01_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
-        leftString,
+        candyString,
         pixelSize
     ));
 
-    sharedDataPtr_->uiTopMiddleText_MeshDataPtr->Clear();
-
-    std::string middleString;
-    if (paused_)
-    {
-        middleString += "PAUSED\n\nPress <ESC> to exit.";
-    }
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiLeftText02_MeshDataPtr,
+        *sharedDataPtr_->pixelFont_FontDataPtr,
+        batteryString,
+        pixelSize
+    ));
 
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
+        *sharedDataPtr_->uiLeftText03_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
-        middleString,
-        pixelSize,
-        1
+        staminaString,
+        pixelSize
     ));
+
+    sharedDataPtr_->uiMiddleText01_MeshDataPtr->Clear();
+
+    snprintf(buffer, sizeof(buffer), "%.2f", remainingTime_s);
+    std::string timeString = std::string(buffer);
+
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiMiddleText01_MeshDataPtr,
+        *sharedDataPtr_->pixelFont_FontDataPtr,
+        timeString,
+        pixelSize
+    ));
+    Project001::MeshLoader::TranslateMesh(
+        *sharedDataPtr_->uiMiddleText01_MeshDataPtr,
+        glm::vec3(sharedDataPtr_->uiMiddleText01_MeshDataPtr->GetSize().x * -0.5f, 0.0f, 0.0f)
+    );
+
+    // FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    //     *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
+    //     *sharedDataPtr_->pixelFont_FontDataPtr,
+    //     middleString,
+    //     pixelSize,
+    //     1
+    // ));
     // Project001::MeshLoader::TranslateMesh(
     //     *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
     //     glm::vec3((middleString.length() * pixelSize * 6.0f) * -0.5f, 0.0f, 0.0f)
     // );
 
-    sharedDataPtr_->uiTopRightText_MeshDataPtr->Clear();
+    // sharedDataPtr_->uiTopRightText_MeshDataPtr->Clear();
 
-    std::string rightString;
-
-    snprintf(buffer, sizeof(buffer), "%.2f", remainingTime_s);
-    rightString += std::string(buffer) + ":T" + "\n";
-
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiTopRightText_MeshDataPtr,
-        *sharedDataPtr_->pixelFont_FontDataPtr,
-        rightString,
-        pixelSize,
-        2
-    ));
-    Project001::MeshLoader::TranslateMesh(
-        *sharedDataPtr_->uiTopRightText_MeshDataPtr,
-        glm::vec3(pixelSize, 0.0f, 0.0f)
-    );
+    // FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
+    //     *sharedDataPtr_->pixelFont_FontDataPtr,
+    //     rightString,
+    //     pixelSize,
+    //     2
+    // ));
+    // Project001::MeshLoader::TranslateMesh(
+    //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
+    //     glm::vec3(pixelSize, 0.0f, 0.0f)
+    // );
     // Project001::MeshLoader::TranslateMesh(
     //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
     //     glm::vec3((rightString.length() - 1) * pixelSize * -6.0f, 0.0f, 0.0f)
     // );
+}
+
+void Scene002::UpdateUiPauseTextEntity()
+{
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseText_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetVisible(paused_);
+    }
+}
+
+void Scene002::UpdateUiMiniMapEntity()
+{
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiMiniMap_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_Mask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        for (size_t i = 0; i < house_EntityIds_.size() && i < uiMiniMaphouse_RenderedMeshIndies.size(); ++i)
+        {
+            const unsigned int& entityId = house_EntityIds_[i];
+            const unsigned int& renderedMeshIndex = uiMiniMaphouse_RenderedMeshIndies[i];
+            Project001::RenderedMesh& renderedMesh = renderedMeshes[renderedMeshIndex];
+
+            HouseInfo* houseInfoPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<HouseInfo>(houseInfoPtr, entityId));
+            if (houseInfoPtr != nullptr)
+            {
+                if (houseInfoPtr->state == HouseInfo::State::STATE_DARK)
+                {
+                    renderedMesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+                }
+                else
+                {
+                    renderedMesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+            }
+        }
+
+        Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, player_EntityId_));
+        if (collisionBody2DPtr != nullptr)
+        {
+            Project001::RenderedMesh& renderedMesh = renderedMeshes[uiMiniMapPlayer_RenderedMeshIndex_];
+            renderedMesh.SetPosition(
+                miniMapLocation_.x + collisionBody2DPtr->GetPosition().x / 32.0f,
+                miniMapLocation_.y + collisionBody2DPtr->GetPosition().y / 32.0f,
+                0.1f
+            );
+        }
+    }
 }
 
 void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
@@ -1664,7 +1921,7 @@ void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
 
-                collisionPoints[cursorPositionCollisionPointIndex_].position = worldCursorPosition;
+                collisionPoints[cursorPosition_CollisionPointIndex_].position = worldCursorPosition;
             }
         }
     }
@@ -1859,11 +2116,55 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_EntityId_));
     if (playerInfoPtr != nullptr && playerCollisionBodyPtr != nullptr)
     {
-        const bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
-        const bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
-        const bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
-        const bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
-        const bool running = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_SPACE);
+        bool movingLeft = false;
+        if (sharedDataPtr_->left_usesKeyboard)
+        {
+            movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->left_KeyCode);
+        }
+        else
+        {
+            movingLeft = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->left_MouseButton);
+        }
+
+        bool movingRight = false;
+        if (sharedDataPtr_->right_usesKeyboard)
+        {
+            movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->right_KeyCode);
+        }
+        else
+        {
+            movingRight = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->right_MouseButton);
+        }
+
+        bool movingUp = false;
+        if (sharedDataPtr_->up_usesKeyboard)
+        {
+            movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->up_KeyCode);
+        }
+        else
+        {
+            movingUp = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->up_MouseButton);
+        }
+
+        bool movingDown = false;
+        if (sharedDataPtr_->down_usesKeyboard)
+        {
+            movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->down_KeyCode);
+        }
+        else
+        {
+            movingDown = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->down_MouseButton);
+        }
+
+        bool running = false;
+        if (sharedDataPtr_->sprint_usesKeyboard)
+        {
+            running = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->sprint_KeyCode);
+        }
+        else
+        {
+            running = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->sprint_MouseButton);
+        }
 
         const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
         float velocityMagnitude = glm::length(velocity);
@@ -1934,7 +2235,15 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerLightCollisionBodyPtr, playerInfoPtr->light_EntityId));
         if (playerLightCollisionBodyPtr != nullptr)
         {
-            bool lightOn = GetWindowPtr()->GetMouseButtonPressed(Project001::MouseButton::MOUSE_BUTTON_LEFT);
+            bool lightOn = false;
+            if (sharedDataPtr_->shine_usesKeyboard)
+            {
+                lightOn = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->shine_KeyCode);
+            }
+            else
+            {
+                lightOn = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->shine_MouseButton);
+            }
 
             if (lightOn)
             {
@@ -1957,7 +2266,7 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
             if (cursorCollisionBodyPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
-                const glm::vec2& cursorPosition = collisionPoints[cursorPositionCollisionPointIndex_].position;
+                const glm::vec2& cursorPosition = collisionPoints[cursorPosition_CollisionPointIndex_].position;
                 glm::vec2 collisionBodyDirection = playerLightCollisionBodyPtr->GetForwardVector();
                 glm::vec2 collisionBodyToCursor = cursorPosition - playerLightCollisionBodyPtr->GetPosition();
 
@@ -2232,9 +2541,9 @@ void Scene002::SyncCursorRenderedModel()
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        Project001::CollisionPoint2D collisionPoint01 = collisionPoints[cursorPositionCollisionPointIndex_];
-        Project001::CollisionPoint2D collisionPoint02 = collisionPoints[cursorPressCollisionPointIndex_];
-        Project001::CollisionPoint2D collisionPoint03 = collisionPoints[cursorReleaseCollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint01 = collisionPoints[cursorPosition_CollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint02 = collisionPoints[cursorPress_CollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint03 = collisionPoints[cursorRelease_CollisionPointIndex_];
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
@@ -2242,9 +2551,9 @@ void Scene002::SyncCursorRenderedModel()
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPositionRenderedMeshIndex_];
-            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPressRenderedMeshIndex_];
-            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorReleaseRenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPosition_RenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPress_RenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorRelease_RenderedMeshIndex_];
 
             circleMesh01.SetPositionX(collisionPoint01.position.x);
             circleMesh01.SetPositionY(collisionPoint01.position.y);

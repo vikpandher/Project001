@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-17
 
 #include "TestScene006.h"
 
@@ -286,6 +286,35 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
+    // Generated Shape Entity (font03 line red)
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            *newMeshDataPtr,
+            font03_FontData,
+            " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+            font03_pixelSize
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(1.0f, 1.7f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(font03_TextureId);
+            renderedMeshPtr->SetColorRGB(0.8f, 0.2f, 0.2f);
+        }
+    }
+
     // Generated Shape Entity (font02 yellow 'A')
     // -------------------------------------------------------------------------
     {
@@ -371,6 +400,20 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(2.0f, 1.0f, 0.0f);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.6f);
+        }
+
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(1.0f, 1.7f, 0.0f);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
             renderedMeshPtr->SetColor(0.8f, 0.6f, 0.2f, 0.6f);
         }

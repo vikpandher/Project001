@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-14
+// @DATE 2025-11-20
 
 #pragma once
 
@@ -754,11 +754,11 @@ namespace Project001
         return std::string("UNKNOWN");
     }
 
-    static KeyCode StringToKeyCode(std::string keyString)
+    static KeyCode StringToKeyCode(const std::string& keyString)
     {
         const std::string prefix = "KEY_CODE_";
         if (keyString.length() < prefix.length() ||
-            keyString.rfind(prefix, 0) == 0)
+            keyString.find(prefix, 0) != 0)
         {
             return KeyCode::KEY_CODE_UNKNOWN;
         }
@@ -1351,11 +1351,11 @@ namespace Project001
         return std::string("UNKNOWN");
     }
 
-    static MouseButton StringToMouseButton(std::string buttonString)
+    static MouseButton StringToMouseButton(const std::string& buttonString)
     {
         const std::string prefix = "MOUSE_BUTTON_";
         if (buttonString.length() < prefix.length() ||
-            buttonString.rfind(prefix, 0) == 0)
+            buttonString.find(prefix, 0) != 0)
         {
             return MouseButton::MOUSE_BUTTON_UNKNOWN;
         }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-17
 
 #pragma once
 
@@ -44,6 +44,8 @@ protected:
     void LoadPlayerResources();
     void LoadPlayerLightResources();
 
+    void LoadTestUiResources();
+
     void LoadTestPersonResources();
     void LoadTestMonsterResources();
     void LoadTestMonsterVisionResources();
@@ -59,6 +61,8 @@ protected:
     void CreateGroundEntity();
     void CreatePlayerEntity();
     void CreatePlayerLightEntity();
+
+    void CreateTestUiEntity();
 
     void CreateTestPersonEntity(unsigned int& entityId, glm::vec2 position);
     void CreateTestMonsterEntity();
@@ -131,6 +135,11 @@ protected:
     Project001::MeshData* playerLightTop_MeshDataPtr_;
     Project001::MeshData* playerLightStrong_MeshDataPtr_;
     Project001::MeshData* playerLightCollision_MeshDataPtr_;
+
+    Project001::MeshData* testUiBackground_MeshDataPtr_;
+    Project001::MeshData* testUiText01_MeshDataPtr_;
+    Project001::MeshData* testUiText02_MeshDataPtr_;
+    Project001::MeshData* testUiText03_MeshDataPtr_;
 
     Project001::MeshData* testPersonLit_MeshDataPtr_;
     Project001::TextureData* testPersonLit_TextureDataPtr_;
@@ -215,6 +224,8 @@ protected:
     unsigned int player_EntityId_;
 
     unsigned int playerLight_EntityId_;
+
+    unsigned int testUi_EntityId_;
 
     static const size_t testPeople_Size_ = 500;
     unsigned int testPeople_EntityIds_[testPeople_Size_];

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-11-18
 
 #pragma once
 
@@ -45,9 +45,8 @@ namespace Project001
 
         Camera();
 
-        const bool& IsTurnedOn() const;
-        void TurnOn();
-        void TurnOff();
+        const bool& GetTurnedOn() const;
+        void SetTurnedOn(bool turnedOn);
 
         // only meshes and lights with matching camera masks will be drawn by
         // this camera
@@ -159,19 +158,14 @@ namespace Project001
         float cameraViewportHeight_;
     };
 
-    inline const bool& Camera::IsTurnedOn() const
+    inline const bool& Camera::GetTurnedOn() const
     {
         return turnedOn_;
     }
 
-    inline void Camera::TurnOn()
+    inline void Camera::SetTurnedOn(bool turnedOn)
     {
-        turnedOn_ = true;
-    }
-
-    inline void Camera::TurnOff()
-    {
-        turnedOn_ = false;
+        turnedOn_ = turnedOn;
     }
 
     inline const uint32_t& Camera::GetCameraMask() const

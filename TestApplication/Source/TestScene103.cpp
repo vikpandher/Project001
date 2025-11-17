@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-20
 
 #include "TestScene103.h"
 
@@ -37,21 +37,6 @@ struct CharacterInfo
     State state = State::STATE_STANDING;
     State animationState = State::STATE_STANDING; // the change in state will be delayed
 };
-
-struct HouseInfo
-{
-    enum class State
-    {
-        STATE_HAS_CANDY,
-        STATE_GAVE_CHANDY,
-        STATE_NO_CANDY
-    };
-};
-
-// struct PlayerInfo
-// {
-//     unsigned int light_EntityId = (unsigned int)-1;
-// };
 
 struct PersonInfo
 {
@@ -98,6 +83,10 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , playerLightTop_MeshDataPtr_(nullptr)
     , playerLightStrong_MeshDataPtr_(nullptr)
     , playerLightCollision_MeshDataPtr_(nullptr)
+    , testUiBackground_MeshDataPtr_(nullptr)
+    , testUiText01_MeshDataPtr_(nullptr)
+    , testUiText02_MeshDataPtr_(nullptr)
+    , testUiText03_MeshDataPtr_(nullptr)
     , testPersonLit_MeshDataPtr_(nullptr)
     , testPersonLit_TextureDataPtr_(nullptr)
     , testPersonLit_TextureId_((unsigned int)-1)
@@ -142,7 +131,7 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , mainCameraDebug_EntityId_((unsigned int)-1)
     , mainCamera_LookAtPoint_()
     , mainCamera_DistanceAway_(0.0f)
-    , mainCamera_Locked_(false)
+    , mainCamera_Locked_(true)
     , uiCamera_EntityId_((unsigned int)-1)
     , cursor_EntityId_((unsigned int)-1)
     , cursorPositionRenderedMeshIndex_((unsigned int)-1)
@@ -155,6 +144,7 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , ground_EntityId_((unsigned int)-1)
     , player_EntityId_((unsigned int)-1)
     , playerLight_EntityId_((unsigned int)-1)
+    , testUi_EntityId_((unsigned int)-1)
     , testPeople_EntityIds_{(unsigned int)-1}
     , testPerson_EntityId_((unsigned int)-1)
     , testMonster_EntityId_((unsigned int)-1)
@@ -211,6 +201,8 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     LoadPlayerResources();
     LoadPlayerLightResources();
 
+    LoadTestUiResources();
+
     LoadTestPersonResources();
     LoadTestMonsterResources();
     LoadTestMonsterVisionResources();
@@ -228,6 +220,8 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     CreateGroundEntity();
     CreatePlayerEntity();
     CreatePlayerLightEntity();
+
+    CreateTestUiEntity();
 
     std::uniform_real_distribution<float> distributionX(-1024.0f, 1024.0f);
     std::uniform_real_distribution<float> distributionY(-1024.0f, 1024.0f);
@@ -320,6 +314,15 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     delete playerLightCollision_MeshDataPtr_;
     playerLightCollision_MeshDataPtr_ = nullptr;
 
+    delete testUiBackground_MeshDataPtr_;
+    testUiBackground_MeshDataPtr_ = nullptr;
+    delete testUiText01_MeshDataPtr_;
+    testUiText01_MeshDataPtr_ = nullptr;
+    delete testUiText02_MeshDataPtr_;
+    testUiText02_MeshDataPtr_ = nullptr;
+    delete testUiText03_MeshDataPtr_;
+    testUiText03_MeshDataPtr_ = nullptr;
+
     delete testPersonLit_MeshDataPtr_;
     testPersonLit_MeshDataPtr_ = nullptr;
     delete testPersonLit_TextureDataPtr_;
@@ -345,7 +348,6 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     testMonsterDark_TextureId_ = (unsigned int)-1;
     delete testMonsterCollision_MeshDataPtr_;
     testMonsterCollision_MeshDataPtr_ = nullptr;
-
 
     delete testMonsterVisionCollision_MeshDataPtr_;
     testMonsterVisionCollision_MeshDataPtr_ = nullptr;
@@ -404,7 +406,7 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     mainCameraDebug_EntityId_ = (unsigned int)-1;
     mainCamera_LookAtPoint_ = glm::vec3();
     mainCamera_DistanceAway_ = 0.0f;
-    mainCamera_Locked_ = false;
+    mainCamera_Locked_ = true;
 
     uiCamera_EntityId_ = (unsigned int)-1;
 
@@ -424,6 +426,7 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     playerLight_EntityId_ = (unsigned int)-1;
 
+    testUi_EntityId_ = (unsigned int)-1;
     testPerson_EntityId_ = (unsigned int)-1;
     testMonster_EntityId_ = (unsigned int)-1;
     testMonsterVision_EntityId_ = (unsigned int)-1;
@@ -473,14 +476,7 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         Project001::Camera* cameraPtr = nullptr;
         if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_EntityId_))
         {
-            if (cameraPtr->IsTurnedOn())
-            {
-                cameraPtr->TurnOff();
-            }
-            else
-            {
-                cameraPtr->TurnOn();
-            }
+            cameraPtr->SetTurnedOn(!cameraPtr->GetTurnedOn());
         }
     }
     else if (keyCode == Project001::KeyCode::KEY_CODE_2)
@@ -509,7 +505,7 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     }
     else if (keyCode == Project001::KeyCode::KEY_CODE_3)
     {
-        mainCamera_DistanceAway_ = 800.0f;
+        mainCamera_DistanceAway_ = 600.0f; // 800.0f;
 
         Project001::Camera* cameraPtr = nullptr;
         if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight1_EntityId_))
@@ -521,7 +517,7 @@ void TestScene103::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
     }
     else if (keyCode == Project001::KeyCode::KEY_CODE_4)
     {
-        mainCamera_DistanceAway_ = 800.0f;
+        mainCamera_DistanceAway_ = 600.0f; // 800.0f;
 
         Project001::Camera* cameraPtr = nullptr;
         if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight1_EntityId_))
@@ -729,6 +725,7 @@ void TestScene103::InitializeInstructionScene()
     instructionSceneInfo.fontTextureId = font01_TextureId;
     instructionSceneInfo.cameraEntityId = uiCamera_EntityId;
     instructionSceneInfo.cameraMask = uiCamera_Mask;
+    instructionSceneInfo.locatedOnBottom = true;
     instructionSceneInfo.keyCode_toggleInstructions = keyCode_toggleInstructions;
     instructionScene_.Initialize(instructionSceneInfo);
 }
@@ -873,7 +870,7 @@ void TestScene103::LoadGroundGridResources()
     // positive x-axis -----------------------------------------------------
 
     const float pixelFont_pixelSize = 2.0f;
-    float gridLabel_offsetY = pixelFont_pixelSize * 7.0f + 0.5f * lineWidth;
+    float gridLabel_offsetY = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
     float gridLabel_offsetX = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
 
     for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -899,7 +896,7 @@ void TestScene103::LoadGroundGridResources()
 
     // positive y-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * 7.0f + 0.5f * lineWidth + gridSpacing;
+    gridLabel_offsetY = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth + gridSpacing;
     gridLabel_offsetX = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
 
     for (size_t i = 1; i < gridLabels.size(); ++i)
@@ -925,7 +922,7 @@ void TestScene103::LoadGroundGridResources()
 
     // negative x-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * -1.0f - 0.5f * lineWidth;
+    gridLabel_offsetY = pixelFont_pixelSize * -7.0f - 0.5f * lineWidth;
     gridLabel_offsetX = pixelFont_pixelSize * -6.0f - 0.5f * lineWidth;
 
     for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -953,7 +950,7 @@ void TestScene103::LoadGroundGridResources()
 
     // negative y-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * -1.0f - 0.5f * lineWidth - gridSpacing;
+    gridLabel_offsetY = pixelFont_pixelSize * -7.0f - 0.5f * lineWidth - gridSpacing;
     gridLabel_offsetX = pixelFont_pixelSize * -6.0f - 0.5f * lineWidth;
 
     for (size_t i = 1; i < gridLabels.size(); ++i)
@@ -992,12 +989,11 @@ void TestScene103::LoadPlayerResources()
 {
     constexpr float spriteWidth = 32.0f;
     constexpr float spriteHeight = 56.0f;
-    // constexpr float spriteRotation = -0.25 * glm::pi<float>(); // = -0.125f * glm::pi<float>();
 
     playerDark_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerDark_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*playerDark_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
-    // Project001::MeshLoader::RotateMeshX(*playerDark_MeshDataPtr_, spriteRotation);
+    Project001::MeshLoader::RotateMeshX(*playerDark_MeshDataPtr_, glm::half_pi<float>());
 
     playerDark_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerDark_TextureDataPtr_, "../Textures/personDark_32x56.png"));
@@ -1013,7 +1009,7 @@ void TestScene103::LoadPlayerResources()
     playerLit_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*playerLit_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*playerLit_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
-    // Project001::MeshLoader::RotateMeshX(*playerLit_MeshDataPtr_, spriteRotation);
+    Project001::MeshLoader::RotateMeshX(*playerLit_MeshDataPtr_, glm::half_pi<float>());
 
     playerLit_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*playerLit_TextureDataPtr_, "../Textures/personLit_32x56.png"));
@@ -1087,6 +1083,38 @@ void TestScene103::LoadPlayerLightResources()
     }
 }
 
+void TestScene103::LoadTestUiResources()
+{
+    testUiBackground_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(*testUiBackground_MeshDataPtr_, 96.0f, 48.0f));
+
+    float pixelSize = 2.0f;
+
+    testUiText01_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *testUiText01_MeshDataPtr_,
+        *pixelFont_FontDataPtr_,
+        "C:99(99)",
+        pixelSize
+    ));
+
+    testUiText02_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *testUiText02_MeshDataPtr_,
+        *pixelFont_FontDataPtr_,
+        "B:99.99",
+        pixelSize
+    ));
+
+    testUiText03_MeshDataPtr_ = new Project001::MeshData();
+    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        *testUiText03_MeshDataPtr_,
+        *pixelFont_FontDataPtr_,
+        "S:99.99",
+        pixelSize
+    ));
+}
+
 void TestScene103::LoadTestPersonResources()
 {
     constexpr float spriteWidth = 32.0f;
@@ -1095,6 +1123,7 @@ void TestScene103::LoadTestPersonResources()
     testPersonLit_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*testPersonLit_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*testPersonLit_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*testPersonLit_MeshDataPtr_, glm::half_pi<float>());
 
     testPersonLit_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testPersonLit_TextureDataPtr_, "../Textures/personLit_32x56.png"));
@@ -1110,6 +1139,7 @@ void TestScene103::LoadTestPersonResources()
     testPersonDark_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*testPersonDark_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*testPersonDark_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*testPersonDark_MeshDataPtr_, glm::half_pi<float>());
 
     testPersonDark_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testPersonDark_TextureDataPtr_, "../Textures/personDark_32x56.png"));
@@ -1134,6 +1164,7 @@ void TestScene103::LoadTestMonsterResources()
     testMonsterLit_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*testMonsterLit_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*testMonsterLit_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*testMonsterLit_MeshDataPtr_, glm::half_pi<float>());
 
     testMonsterLit_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testMonsterLit_TextureDataPtr_, "../Textures/monsterLit_32x56.png"));
@@ -1149,6 +1180,7 @@ void TestScene103::LoadTestMonsterResources()
     testMonsterDark_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*testMonsterDark_MeshDataPtr_, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f));
     Project001::MeshLoader::TranslateMesh(*testMonsterDark_MeshDataPtr_, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f));
+    Project001::MeshLoader::RotateMeshX(*testMonsterDark_MeshDataPtr_, glm::half_pi<float>());
 
     testMonsterDark_TextureDataPtr_ = new Project001::TextureData();
     FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testMonsterDark_TextureDataPtr_, "../Textures/personDark_32x56.png"));
@@ -1174,11 +1206,11 @@ void TestScene103::LoadTestMonsterVisionResources()
 void TestScene103::LoadTestLampResources()
 {
     {
-        Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData0; // lamp neck
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData0, 32.0f, 128.0f, 0.0f, 1.0f, 0.0f, 0.8f));
         Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 0.0f));
 
-        Project001::MeshData tempMeshData1;
+        Project001::MeshData tempMeshData1; // lamp head
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData1, 32.0f, 32.0f, 0.0f, 1.0f, 0.8f, 1.0f));
         Project001::MeshLoader::RotateMeshX(tempMeshData1, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 128.0f, 16.0f));
@@ -1186,6 +1218,7 @@ void TestScene103::LoadTestLampResources()
         testLampLit_MeshDataPtr_ = new Project001::MeshData();
         Project001::MeshLoader::CopyMesh(*testLampLit_MeshDataPtr_, tempMeshData0);
         Project001::MeshLoader::CopyMesh(*testLampLit_MeshDataPtr_, tempMeshData1);
+        Project001::MeshLoader::RotateMeshX(*testLampLit_MeshDataPtr_, glm::half_pi<float>());
     }
 
     testLampLit_TextureDataPtr_ = new Project001::TextureData();
@@ -1200,18 +1233,8 @@ void TestScene103::LoadTestLampResources()
     );
 
     {
-        Project001::MeshData tempMeshData0;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData0, 32.0f, 128.0f, 0.0f, 1.0f, 0.0f, 0.8f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 0.0f));
-
-        Project001::MeshData tempMeshData1;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(tempMeshData1, 32.0f, 32.0f, 0.0f, 1.0f, 0.8f, 1.0f));
-        Project001::MeshLoader::RotateMeshX(tempMeshData1, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 128.0f, 16.0f));
-
         testLampDark_MeshDataPtr_ = new Project001::MeshData();
-        Project001::MeshLoader::CopyMesh(*testLampDark_MeshDataPtr_, tempMeshData0);
-        Project001::MeshLoader::CopyMesh(*testLampDark_MeshDataPtr_, tempMeshData1);
+        Project001::MeshLoader::CopyMesh(*testLampDark_MeshDataPtr_, *testLampLit_MeshDataPtr_);
     }
 
     testLampDark_TextureDataPtr_ = new Project001::TextureData();
@@ -1248,74 +1271,74 @@ void TestScene103::LoadTestLampLightResources()
 void TestScene103::LoadTestHouseResources()
 {
     {
-        Project001::MeshData tempMeshData0;
+        Project001::MeshData tempMeshData0; // front face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData0, 128.0f, 128.0f,
+            tempMeshData0, 128.0f, 112.0f,
             128.0f / 384.0f,
             256.0f / 384.0f,
             0.0f,
-            128.0f / 272.0f
+            112.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 56.0f, 64.0f));
 
-        Project001::MeshData tempMeshData1;
+        Project001::MeshData tempMeshData1; // left face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData1, 128.0f, 96.0f,
+            tempMeshData1, 128.0f, 80.0f,
             0.0f,
             128.0f / 384.0f,
             0.0f,
-            96.0f / 272.0f
+            80.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 48.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 40.0f, 64.0f));
         Project001::MeshLoader::RotateMeshY(tempMeshData1, -glm::half_pi<float>());
 
-        Project001::MeshData tempMeshData2;
+        Project001::MeshData tempMeshData2; // right face
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData2, 128.0f, 96.0f,
+            tempMeshData2, 128.0f, 80.0f,
             256.0f / 384.0f,
             1.0f,
             0.0f,
-            96.0f / 272.0f
+            80.0f / 256.0f
         ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData2, glm::vec3(0.0f, 48.0f, 64.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData2, glm::vec3(0.0f, 40.0f, 64.0f));
         Project001::MeshLoader::RotateMeshY(tempMeshData2, glm::half_pi<float>());
 
-        Project001::MeshData tempMeshData3;
+        Project001::MeshData tempMeshData3; // left roof
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData3, 80.0f, 144.0f,
             112.0f / 384.0f,
             192.0f / 384.0f,
-            128.0f / 272.0f,
+            112.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData3, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(-40.0f, 0.0f, 0.0f));
         Project001::MeshLoader::RotateMeshZ(tempMeshData3, glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(0.0f, 129.0f, 0.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(0.0f, 114.0f, 0.0f));
 
-        Project001::MeshData tempMeshData4;
+        Project001::MeshData tempMeshData4; // right roof
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData4, 80.0f, 144.0f,
             192.0f / 384.0f,
             272.0f / 384.0f,
-            128.0f / 272.0f,
+            112.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData4, -glm::half_pi<float>());
         Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(40.0f, 0.0f, 0.0f));
         Project001::MeshLoader::RotateMeshZ(tempMeshData4, -glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(0.0f, 129.0f, 0.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(0.0f, 114.0f, 0.0f));
 
-        Project001::MeshData tempMeshData5;
+        Project001::MeshData tempMeshData5; // door mat
         FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
             tempMeshData5, 48.0f, 32.0f,
             0.0f,
             48.0f / 384.0f,
-            240.0f / 272.0f,
+            224.0f / 256.0f,
             1.0f
         ));
         Project001::MeshLoader::RotateMeshX(tempMeshData5, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData5, glm::vec3(0.0f, 1.0f, 80.0f));
+        Project001::MeshLoader::TranslateMesh(tempMeshData5, glm::vec3(0.0f, 0.4f, 80.0f));
 
         testHouseLit_MeshDataPtr_ = new Project001::MeshData();
         Project001::MeshLoader::CopyMesh(*testHouseLit_MeshDataPtr_, tempMeshData3);
@@ -1324,10 +1347,11 @@ void TestScene103::LoadTestHouseResources()
         Project001::MeshLoader::CopyMesh(*testHouseLit_MeshDataPtr_, tempMeshData1);
         Project001::MeshLoader::CopyMesh(*testHouseLit_MeshDataPtr_, tempMeshData2);
         Project001::MeshLoader::CopyMesh(*testHouseLit_MeshDataPtr_, tempMeshData5);
+        Project001::MeshLoader::RotateMeshX(*testHouseLit_MeshDataPtr_, glm::half_pi<float>());
     }
 
     testHouseLit_TextureDataPtr_ = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testHouseLit_TextureDataPtr_, "../Textures/houseLit_384x272.png"));
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testHouseLit_TextureDataPtr_, "../Textures/houseLit_384x256.png"));
     GetRendererPtr()->CreateTexture(
         testHouseLit_TextureId_,
         testHouseLit_TextureDataPtr_->data,
@@ -1338,86 +1362,12 @@ void TestScene103::LoadTestHouseResources()
     );
 
     {
-        Project001::MeshData tempMeshData0;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData0, 128.0f, 128.0f,
-            128.0f / 384.0f,
-            256.0f / 384.0f,
-            0.0f,
-            128.0f / 272.0f
-        ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData0, glm::vec3(0.0f, 64.0f, 64.0f));
-
-        Project001::MeshData tempMeshData1;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData1, 128.0f, 96.0f,
-            0.0f,
-            128.0f / 384.0f,
-            0.0f,
-            96.0f / 272.0f
-        ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData1, glm::vec3(0.0f, 48.0f, 64.0f));
-        Project001::MeshLoader::RotateMeshY(tempMeshData1, -glm::half_pi<float>());
-
-        Project001::MeshData tempMeshData2;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData2, 128.0f, 96.0f,
-            256.0f / 384.0f,
-            1.0f,
-            0.0f,
-            96.0f / 272.0f
-        ));
-        Project001::MeshLoader::TranslateMesh(tempMeshData2, glm::vec3(0.0f, 48.0f, 64.0f));
-        Project001::MeshLoader::RotateMeshY(tempMeshData2, glm::half_pi<float>());
-
-        Project001::MeshData tempMeshData3;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData3, 80.0f, 144.0f,
-            112.0f / 384.0f,
-            192.0f / 384.0f,
-            128.0f / 272.0f,
-            1.0f
-        ));
-        Project001::MeshLoader::RotateMeshX(tempMeshData3, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(-40.0f, 0.0f, 0.0f));
-        Project001::MeshLoader::RotateMeshZ(tempMeshData3, glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData3, glm::vec3(0.0f, 129.0f, 0.0f));
-
-        Project001::MeshData tempMeshData4;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData4, 80.0f, 144.0f,
-            192.0f / 384.0f,
-            272.0f / 384.0f,
-            128.0f / 272.0f,
-            1.0f
-        ));
-        Project001::MeshLoader::RotateMeshX(tempMeshData4, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(40.0f, 0.0f, 0.0f));
-        Project001::MeshLoader::RotateMeshZ(tempMeshData4, -glm::pi<float>() / 7.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData4, glm::vec3(0.0f, 129.0f, 0.0f));
-
-        Project001::MeshData tempMeshData5;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-            tempMeshData5, 48.0f, 32.0f,
-            0.0f,
-            48.0f / 384.0f,
-            240.0f / 272.0f,
-            1.0f
-        ));
-        Project001::MeshLoader::RotateMeshX(tempMeshData5, -glm::half_pi<float>());
-        Project001::MeshLoader::TranslateMesh(tempMeshData5, glm::vec3(0.0f, 1.0f, 80.0f));
-
         testHouseDark_MeshDataPtr_ = new Project001::MeshData();
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData3);
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData4);
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData0);
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData1);
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData2);
-        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, tempMeshData5);
+        Project001::MeshLoader::CopyMesh(*testHouseDark_MeshDataPtr_, *testHouseLit_MeshDataPtr_);
     }
 
     testHouseDark_TextureDataPtr_ = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testHouseDark_TextureDataPtr_, "../Textures/houseDark_384x272.png"));
+    FAIL_CHECK(Project001::TextureLoader::LoadTexture(*testHouseDark_TextureDataPtr_, "../Textures/houseDark_384x256.png"));
     GetRendererPtr()->CreateTexture(
         testHouseDark_TextureId_,
         testHouseDark_TextureDataPtr_->data,
@@ -1438,21 +1388,22 @@ void TestScene103::LoadTestHouseResources()
         2.0f
     ));
     Project001::MeshLoader::RecenterMesh(*testHouseText_MeshDataPtr_);
+    Project001::MeshLoader::RotateMeshX(*testHouseText_MeshDataPtr_, glm::half_pi<float>());
 }
 
 void TestScene103::LoadTestHouseLightResources()
 {
     testHouseLightTop_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*testHouseLightTop_MeshDataPtr_, 160.0f, 16, 8, false));
+    FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*testHouseLightTop_MeshDataPtr_, 136.0f, 16, 8, false));
     Project001::MeshLoader::RotateMeshX(*testHouseLightTop_MeshDataPtr_, glm::half_pi<float>());
-    Project001::MeshLoader::TranslateMesh(*testHouseLightTop_MeshDataPtr_, glm::vec3(0.0f, 0.0f, 80.0f));
+    Project001::MeshLoader::TranslateMesh(*testHouseLightTop_MeshDataPtr_, glm::vec3(0.0f, 0.0f, 68.0f));
 
     testHouseLightBottom_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*testHouseLightBottom_MeshDataPtr_, 160.0f, 16));
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*testHouseLightBottom_MeshDataPtr_, 136.0f, 16));
     Project001::MeshLoader::TranslateMesh(*testHouseLightBottom_MeshDataPtr_, glm::vec3(0.0f, 1.0f, 1.0f));
 
     testHouseLightCollision_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*testHouseLightCollision_MeshDataPtr_, 160.0f, 16));
+    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*testHouseLightCollision_MeshDataPtr_, 136.0f, 16));
 
     testHouseDoorCollision_MeshDataPtr_ = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(*testHouseDoorCollision_MeshDataPtr_, 48.0f, 32.0f));
@@ -1519,7 +1470,7 @@ void TestScene103::CreateMainCameraEntities()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDark2_EntityId_));
         if (cameraPtr != nullptr)
         {
-            cameraPtr->TurnOff();
+            cameraPtr->SetTurnedOn(false);
         }
     };
 }
@@ -1770,7 +1721,6 @@ void TestScene103::CreatePlayerEntity()
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(playerLit_MeshDataPtr_);
             mesh.SetTextureId(playerLit_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1781,7 +1731,6 @@ void TestScene103::CreatePlayerEntity()
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(playerDark_MeshDataPtr_);
             mesh.SetTextureId(playerDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1908,6 +1857,66 @@ void TestScene103::CreatePlayerLightEntity()
     }
 }
 
+void TestScene103::CreateTestUiEntity()
+{
+    GetComponentStoresPtr()->CreateEntity(testUi_EntityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(testUi_EntityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, testUi_EntityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_Mask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(testUiBackground_MeshDataPtr_);
+            mesh.SetPosition(-480.0f + 48.0f, 296.0f, -0.1f);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(testUiText01_MeshDataPtr_);
+            mesh.SetTextureId(pixelFont_TextureId_);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 14.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(testUiText02_MeshDataPtr_);
+            mesh.SetTextureId(pixelFont_TextureId_);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 30.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_uiCamera_Mask_);
+            mesh.SetMeshDataPtr(testUiText03_MeshDataPtr_);
+            mesh.SetTextureId(pixelFont_TextureId_);
+            mesh.SetPositionX(-480.0f + 2.0f);
+            mesh.SetPositionY(320.0f - 46.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+    }
+}
+
 void TestScene103::CreateTestPersonEntity(unsigned int& entityId, glm::vec2 position)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
@@ -1926,7 +1935,6 @@ void TestScene103::CreateTestPersonEntity(unsigned int& entityId, glm::vec2 posi
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(testPersonLit_MeshDataPtr_);
             mesh.SetTextureId(testPersonLit_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1937,7 +1945,6 @@ void TestScene103::CreateTestPersonEntity(unsigned int& entityId, glm::vec2 posi
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(testPersonDark_MeshDataPtr_);
             mesh.SetTextureId(testPersonDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1988,7 +1995,6 @@ void TestScene103::CreateTestMonsterEntity()
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(testMonsterLit_MeshDataPtr_);
             mesh.SetTextureId(testMonsterLit_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetColor(1.0f, 0.2f, 0.2f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
@@ -2000,7 +2006,6 @@ void TestScene103::CreateTestMonsterEntity()
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(testMonsterDark_MeshDataPtr_);
             mesh.SetTextureId(testMonsterDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -2087,7 +2092,6 @@ void TestScene103::CreateTestLampEntity()
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(testLampLit_MeshDataPtr_);
             mesh.SetTextureId(testLampLit_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -2098,7 +2102,6 @@ void TestScene103::CreateTestLampEntity()
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(testLampDark_MeshDataPtr_);
             mesh.SetTextureId(testLampDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -2208,7 +2211,6 @@ void TestScene103::CreateTestHouseEntity()
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(testHouseLit_MeshDataPtr_);
             mesh.SetTextureId(testHouseLit_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -2221,8 +2223,7 @@ void TestScene103::CreateTestHouseEntity()
             mesh.SetMeshDataPtr(testHouseText_MeshDataPtr_);
             mesh.SetTextureId(pixelFont_TextureId_);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
-            mesh.SetPosition(glm::vec3(0.0f, -82.0f, 96.0f));
+            mesh.SetPosition(glm::vec3(0.0f, -66.0f, 84.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
@@ -2234,7 +2235,6 @@ void TestScene103::CreateTestHouseEntity()
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
             mesh.SetMeshDataPtr(testHouseDark_MeshDataPtr_);
             mesh.SetTextureId(testHouseDark_TextureId_);
-            mesh.LookAt(glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);

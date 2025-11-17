@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-11-19
 
 #pragma once
 
@@ -26,6 +26,7 @@ protected:
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
@@ -53,15 +54,16 @@ protected:
 
     // -------------------------------------------------------------------------
 
-    SharedApplicationData* sharedDataPtr_;
+    SharedApplicationData* sharedDataPtr_ = nullptr;
 
-    bool configFileFound_;
+    bool configFileFound_ = false;
 
     // Entity Ids --------------------------------------------------------------
 
     static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
-    unsigned int uiCamera_EntityId_;
+    unsigned int uiCamera_EntityId_ = (unsigned int)-1;
 
-    unsigned int introText_EntityId_;
-    unsigned int autorText_EntityId_;
+    unsigned int introText_EntityId_ = (unsigned int)-1;
+
+    unsigned int autorText_EntityId_ = (unsigned int)-1;
 };

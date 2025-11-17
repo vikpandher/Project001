@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-17
 
 #include "TestScene102.h"
 
@@ -431,7 +431,7 @@ void TestScene102::LoadMeshData()
 
         // positive x-axis -----------------------------------------------------
 
-        float gridLabel_offsetY = pixelFont_pixelSize_ * 7.0f + 0.5f * lineWidth;
+        float gridLabel_offsetY = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth;
         float gridLabel_offsetX = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth;
 
         for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -457,7 +457,7 @@ void TestScene102::LoadMeshData()
 
         // positive y-axis -----------------------------------------------------
 
-        gridLabel_offsetY = pixelFont_pixelSize_ * 7.0f + 0.5f * lineWidth + gridSpacing;
+        gridLabel_offsetY = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth + gridSpacing;
         gridLabel_offsetX = pixelFont_pixelSize_ * 1.0f + 0.5f * lineWidth;
 
         for (size_t i = 1; i < gridLabels.size(); ++i)
@@ -483,7 +483,7 @@ void TestScene102::LoadMeshData()
 
         // negative x-axis -----------------------------------------------------
 
-        gridLabel_offsetY = pixelFont_pixelSize_ * -1.0f - 0.5f * lineWidth;
+        gridLabel_offsetY = pixelFont_pixelSize_ * -7.0f - 0.5f * lineWidth;
         gridLabel_offsetX = pixelFont_pixelSize_ * -6.0f - 0.5f * lineWidth;
 
         for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -511,7 +511,7 @@ void TestScene102::LoadMeshData()
 
         // negative y-axis -----------------------------------------------------
 
-        gridLabel_offsetY = pixelFont_pixelSize_ * -1.0f - 0.5f * lineWidth - gridSpacing;
+        gridLabel_offsetY = pixelFont_pixelSize_ * -7.0f - 0.5f * lineWidth - gridSpacing;
         gridLabel_offsetX = pixelFont_pixelSize_ * -6.0f - 0.5f * lineWidth;
 
         for (size_t i = 1; i < gridLabels.size(); ++i)

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-11-03
+// @DATE 2024-11-17
 
 #pragma once
 
@@ -36,6 +36,8 @@ namespace Project001
             const std::string& text,
             float pixelSize = 0.01f,
             size_t alignemnt = 0,
+            bool useAltLineSpacing = false,
+            float altLineSpacing_px = 0.0f,
             bool trangulate = s_triangulate);
 
         static bool GenerateGlpyhMeshDataFromFontDataAndCharacter(
