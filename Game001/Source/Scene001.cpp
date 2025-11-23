@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-20
+// @DATE 2025-11-22
 
 #include "Scene001.h"
 
@@ -96,8 +96,6 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     // -------------------------------------------------------------------------
 
-    configFileFound_ = false;
-
     GetComponentStoresPtr()->DeleteEntity(uiCamera_EntityId_);
     uiCamera_EntityId_ = (unsigned int)-1;
 
@@ -156,7 +154,25 @@ void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
 void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
+    std::vector<bool> buttonValues;
+    GetWindowPtr()->GetJoystickButtons(0, buttonValues);
 
+    bool start = false;
+    if (buttonValues.size() > sharedDataPtr_->pause_joystickButtonIndex)
+    {
+        start |= buttonValues[sharedDataPtr_->pause_joystickButtonIndex];
+    }
+
+    if (start)
+    {
+        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+        if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+        {
+            SendEventToScene(GetId(), Project001::DeinitializeEvent());
+            SendEventToApplication(Project001::InitializeEvent());
+        }
+        return;
+    }
 }
 
 void Scene001::LoadPixelFontResources()
@@ -737,30 +753,6 @@ void Scene001::LoadPersonResources()
         false, false
     );
 
-    sharedDataPtr_->monsterDark_MeshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->monsterDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
-    ));
-    Project001::MeshLoader::TranslateMesh(
-        *sharedDataPtr_->monsterDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
-    );
-    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->monsterDark_MeshDataPtr, glm::half_pi<float>());
-
-    sharedDataPtr_->monsterDark_TextureDataPtr = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
-        *sharedDataPtr_->monsterDark_TextureDataPtr,
-        g_unknownDark_32x56_png,
-        sizeof(g_unknownDark_32x56_png) / sizeof(unsigned char)
-    ));
-    GetRendererPtr()->CreateTexture(
-        sharedDataPtr_->monsterDark_TextureId,
-        sharedDataPtr_->monsterDark_TextureDataPtr->data,
-        sharedDataPtr_->monsterDark_TextureDataPtr->width,
-        sharedDataPtr_->monsterDark_TextureDataPtr->height,
-        sharedDataPtr_->monsterDark_TextureDataPtr->bytesPerPixel,
-        false, false
-    );
-
     sharedDataPtr_->monsterCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
         *sharedDataPtr_->monsterCollision_MeshDataPtr, 8.0f, 8
@@ -795,34 +787,34 @@ void Scene001::LoadPersonResources()
         false, false
     );
 
-    sharedDataPtr_->personDark_MeshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
-        *sharedDataPtr_->personDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
-    ));
-    Project001::MeshLoader::TranslateMesh(
-        *sharedDataPtr_->personDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
-    );
-    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->personDark_MeshDataPtr, glm::half_pi<float>());
-
-    sharedDataPtr_->personDark_TextureDataPtr = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
-        *sharedDataPtr_->personDark_TextureDataPtr,
-        g_unknownDark_32x56_png,
-        sizeof(g_unknownDark_32x56_png) / sizeof(unsigned char)
-    ));
-    GetRendererPtr()->CreateTexture(
-        sharedDataPtr_->personDark_TextureId,
-        sharedDataPtr_->personDark_TextureDataPtr->data,
-        sharedDataPtr_->personDark_TextureDataPtr->width,
-        sharedDataPtr_->personDark_TextureDataPtr->height,
-        sharedDataPtr_->personDark_TextureDataPtr->bytesPerPixel,
-        false, false
-    );
-
     sharedDataPtr_->personCollision_MeshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(
         *sharedDataPtr_->personCollision_MeshDataPtr, 8.0f, 8
     ));
+
+    sharedDataPtr_->unknownDark_MeshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        *sharedDataPtr_->unknownDark_MeshDataPtr, spriteWidth, spriteHeight, 0.0f, 1.0f, 0.0f, 1.0f
+    ));
+    Project001::MeshLoader::TranslateMesh(
+        *sharedDataPtr_->unknownDark_MeshDataPtr, glm::vec3(0.0f, 0.5 * spriteHeight, 0.0f)
+    );
+    Project001::MeshLoader::RotateMeshX(*sharedDataPtr_->unknownDark_MeshDataPtr, glm::half_pi<float>());
+
+    sharedDataPtr_->unknownDark_TextureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        *sharedDataPtr_->unknownDark_TextureDataPtr,
+        g_unknownDark_32x56_png,
+        sizeof(g_unknownDark_32x56_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->unknownDark_TextureId,
+        sharedDataPtr_->unknownDark_TextureDataPtr->data,
+        sharedDataPtr_->unknownDark_TextureDataPtr->width,
+        sharedDataPtr_->unknownDark_TextureDataPtr->height,
+        sharedDataPtr_->unknownDark_TextureDataPtr->bytesPerPixel,
+        false, false
+    );
 }
 
 void Scene001::LoadPlayerLightResources()
@@ -1131,21 +1123,11 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->monsterLit_TextureDataPtr;
     sharedDataPtr_->monsterLit_TextureDataPtr = nullptr;
     sharedDataPtr_->monsterLit_TextureId = (unsigned int)-1;
-    delete sharedDataPtr_->monsterDark_MeshDataPtr;
-    sharedDataPtr_->monsterDark_MeshDataPtr = nullptr;
-    delete sharedDataPtr_->monsterDark_TextureDataPtr;
-    sharedDataPtr_->monsterDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->monsterDark_TextureId = (unsigned int)-1;
     delete sharedDataPtr_->monsterCollision_MeshDataPtr;
     sharedDataPtr_->monsterCollision_MeshDataPtr = nullptr;
     delete sharedDataPtr_->monsterVisionCollision_MeshDataPtr;
     sharedDataPtr_->monsterVisionCollision_MeshDataPtr = nullptr;
 
-    delete sharedDataPtr_->personDark_MeshDataPtr;
-    sharedDataPtr_->personDark_MeshDataPtr = nullptr;
-    delete sharedDataPtr_->personDark_TextureDataPtr;
-    sharedDataPtr_->personDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->personDark_TextureId = (unsigned int)-1;
     delete sharedDataPtr_->personLit_MeshDataPtr;
     sharedDataPtr_->personLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->personLit_TextureDataPtr;
@@ -1153,6 +1135,12 @@ void Scene001::FreeResources()
     sharedDataPtr_->personLit_TextureId = (unsigned int)-1;
     delete sharedDataPtr_->personCollision_MeshDataPtr;
     sharedDataPtr_->personCollision_MeshDataPtr = nullptr;
+
+    delete sharedDataPtr_->unknownDark_MeshDataPtr;
+    sharedDataPtr_->unknownDark_MeshDataPtr = nullptr;
+    delete sharedDataPtr_->unknownDark_TextureDataPtr;
+    sharedDataPtr_->unknownDark_TextureDataPtr = nullptr;
+    sharedDataPtr_->unknownDark_TextureId = (unsigned int)-1;
 
     delete sharedDataPtr_->playerLightBottom_MeshDataPtr;
     sharedDataPtr_->playerLightBottom_MeshDataPtr = nullptr;
@@ -1283,6 +1271,84 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->right_MouseButton = Project001::StringToMouseButton(value);
                 sharedDataPtr_->right_usesKeyboard = sharedDataPtr_->right_MouseButton == Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
             }
+
+            iter2 = iter->second.find("sprint_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sprint_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("pause_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->pause_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("quit_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->quit_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("up_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->up_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("left_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->left_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("down_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->down_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("right_button");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->right_joystickButtonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveRightLeft_axis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->moveRightLeft_joystickAxisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDownUp_axis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->moveDownUp_joystickAxisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("aimRightLeft_axis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->aimRightLeft_joystickAxisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("aimDownUp_axis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->aimDownUp_joystickAxisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->move_joystickAxisDeadzone = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("aimDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->aim_joystickAxisDeadzone = std::stof(iter2->second);
+            }
         }
 
         iter = sections.find("Game_Constants");
@@ -1298,36 +1364,6 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->startingGameTime_s = std::stof(iter2->second);
-            }
-
-            iter2 = iter->second.find("mainCamera_initialDistanceAway");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->mainCamera_initialDistanceAway = std::stof(iter2->second);
-            }
-
-            iter2 = iter->second.find("houseLight_radius");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->houseLight_radius = std::stof(iter2->second);
-            }
-
-            iter2 = iter->second.find("lampLight_radius");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->lampLight_radius = std::stof(iter2->second);
-            }
-
-            iter2 = iter->second.find("monsterVision_radius");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->monsterVision_radius = std::stof(iter2->second);
-            }
-
-            iter2 = iter->second.find("playerVision_radius");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->playerVision_radius = std::stof(iter2->second);
             }
 
             iter2 = iter->second.find("house_initialOnCount");
@@ -1470,7 +1506,7 @@ void Scene001::CreateUiCameraEntity()
 
 void Scene001::CreateIntroTextEntity()
 {
-    constexpr float infoPixelSize = 3.0f;
+    constexpr float infoPixelSize = 2.0f;
 
     sharedDataPtr_->introText_MeshDataPtr->Clear();
 
@@ -1492,35 +1528,33 @@ void Scene001::CreateIntroTextEntity()
         "version 0.1.x\n"
         "\n"
         "\n"
-        "Knock on the doors of lit-up houses to\n"
-        "collect candy. Return it home to score\n"
-        "points and charge your flashlight.\n"
+        "Knock on the doors of lit-up houses to collect candy.\n"
+        "Return it home to score points and charge your flashlight.\n"
         "Watch out for monsters!\n"
         "\n"
         "\n"
-        "Press <WASD> to move.\n"
-        "Use the <Mouse> to aim.\n"
-        "Press <Left_Mouse_Button> to turn\n"
-        " on your flashlight.\n"
-        "Press <Space> to sprint.\n"
-        "Press <Enter> to pause.\n"
-        "\n"
-        "\n"
-        "Press <Enter> to start."
-        "\n"
-        "\n"
+        "Default Controls | Mouse & Keyboard  | Controller\n"
+        "-----------------+-------------------+--------------------\n"
+        "Movement         | W-A-S-D Keys      | D-Pad or Left Stick\n"
+        "Aim              | Mouse Position    | Right Stick\n"
+        "Flash Light      | Left Mouse Button | Right Stick\n"
+        "Sprint           | Space             | L Bumper Button\n"
+        "Pause / Start    | Enter             | Menu Button\n"
+        "Quit             | Esc               | View Button\n"
         "\n"
         "\n"
     );
 
     if (configFileFound_)
     {
-        introString += "Config file was found.\n";
+        introString += "Config file was found.\n\n\n";
     }
     else
     {
-        introString += "\n";
+        introString += "\n\n\n\n";
     }
+
+    introString += "Press Enter or Menu Button to start.";
 
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->introText_MeshDataPtr,

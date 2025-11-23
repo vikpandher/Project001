@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-11-22
 
 #include "PixelFont5x6.h"
 
@@ -16,7 +16,7 @@ namespace Project001
         {
             FontData temp;
 
-            temp.lineSpacing_px = 7;
+            temp.lineSpacing_px = 8;
 
             constexpr float spacingX = 1.0f;
             constexpr float spacingY = 1.0f;

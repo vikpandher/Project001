@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-11-22
 
 #pragma once
 
@@ -64,6 +64,10 @@ protected:
     void UpdateMonsterEntities(float timestep_s);
     void UpdateWorld(float timestep_s);
 
+    void AnimatePersonEntities(float timestep_s);
+    void AnimatePlayerEntity(float timestep_s);
+    void AnimateMonsterEntities(float timestep_s);
+
     void SyncCursorRenderedModel();
     void SyncBaseRenderedModels();
     void SyncHouseRenderedModels();
@@ -100,12 +104,12 @@ protected:
     unsigned int uiMiniMap_EntityId_ = (unsigned int)-1;
 
     unsigned int cursor_EntityId_ = (unsigned int)-1;
-    unsigned int cursorPosition_RenderedMeshIndex_ = (unsigned int)-1;
-    unsigned int cursorPress_RenderedMeshIndex_ = (unsigned int)-1;
-    unsigned int cursorRelease_RenderedMeshIndex_ = (unsigned int)-1;
-    unsigned int cursorPosition_CollisionPointIndex_ = (unsigned int)-1;
-    unsigned int cursorPress_CollisionPointIndex_ = (unsigned int)-1;
-    unsigned int cursorRelease_CollisionPointIndex_ = (unsigned int)-1;
+    static const unsigned int s_cursorPosition_RenderedMeshIndex_ = 0;
+    static const unsigned int s_cursorPress_RenderedMeshIndex_ = 1;
+    static const unsigned int s_cursorRelease_RenderedMeshIndex_ = 2;
+    static const unsigned int s_cursorPosition_CollisionPointIndex_ = 0;
+    static const unsigned int s_cursorPress_CollisionPointIndex_ = 1;
+    static const unsigned int s_cursorRelease_CollisionPointIndex_ = 2;
     static const unsigned int s_cursorPosition_CollisionShapeId_ = 100;
     static const unsigned int s_cursorPress_CollisionShapeId_ = 101;
     static const unsigned int s_cursorRelease_CollisionShapeId_ = 102;
@@ -117,10 +121,16 @@ protected:
     unsigned int ground_EntityId_ = (unsigned int)-1;
 
     std::vector<unsigned int> person_EntityIds_;
+    static const unsigned int s_personLit_RenderedMeshIndex_ = 0;
+    static const unsigned int s_personDark_RenderedMeshIndex_ = 1;
 
     unsigned int player_EntityId_ = (unsigned int)-1;
+    static const unsigned int s_playerLit_RenderedMeshIndex_ = 0;
+    static const unsigned int s_playerDark_RenderedMeshIndex_ = 1;
 
     std::vector<unsigned int> monster_EntityIds_;
+    static const unsigned int s_monsterLit_RenderedMeshIndex_ = 0;
+    static const unsigned int s_monsterDark_RenderedMeshIndex_ = 1;
 
     // -------------------------------------------------------------------------
 
@@ -132,11 +142,12 @@ protected:
 
     bool paused_ = false;
 
+    bool pause_joystickButtonPressRested_ = false;
+
     std::mt19937 randomNumberEngine_;
 
     static const unsigned int s_base_collisionShapeTag_ = 1;
     static const unsigned int s_door_collisionShapeTag_ = 2;
     static const unsigned int s_light_collisionShapeTag_ = 3;
     static const unsigned int s_player_collisionShapeTag_ = 4;
-    static const unsigned int s_monster_collisionShapeTag_ = 5;
 };

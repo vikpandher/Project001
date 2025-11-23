@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-20
+// @DATE 2025-11-22
 
 #pragma once
 
@@ -61,18 +61,34 @@ struct SharedApplicationData
     Project001::KeyCode right_KeyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::MouseButton right_MouseButton = Project001::MouseButton::MOUSE_BUTTON_UNKNOWN;
 
+    unsigned int sprint_joystickButtonIndex = 4;
+    unsigned int pause_joystickButtonIndex = 7;
+    unsigned int quit_joystickButtonIndex = 6;
+    unsigned int up_joystickButtonIndex = 10;
+    unsigned int left_joystickButtonIndex = 13;
+    unsigned int down_joystickButtonIndex = 12;
+    unsigned int right_joystickButtonIndex = 11;
+
+    unsigned int moveRightLeft_joystickAxisIndex = 0;
+    unsigned int moveDownUp_joystickAxisIndex = 1;
+    unsigned int aimRightLeft_joystickAxisIndex = 2;
+    unsigned int aimDownUp_joystickAxisIndex = 3;
+
+    float move_joystickAxisDeadzone = 0.2f;
+    float aim_joystickAxisDeadzone = 0.2f;
+
     // Game Constants ----------------------------------------------------------
 
     unsigned int randomNumberSeed = 777;
 
     float startingGameTime_s = 300.0f;
 
-    float mainCamera_initialDistanceAway = 600.0f;
+    const float mainCamera_initialDistanceAway = 600.0f;
 
-    float houseLight_radius = 136.0f;
-    float lampLight_radius = 64.0f;
-    float monsterVision_radius = 116.0f;
-    float playerVision_radius = 320.0f;
+    const float houseLight_radius = 136.0f;
+    const float lampLight_radius = 64.0f;
+    const float monsterVision_radius = 116.0f;
+    const float playerVision_radius = 320.0f;
 
     size_t house_initialOnCount = 4;
     size_t person_initalCount = 128;
@@ -152,20 +168,18 @@ struct SharedApplicationData
     Project001::MeshData* monsterLit_MeshDataPtr = nullptr;
     Project001::TextureData* monsterLit_TextureDataPtr = nullptr;
     unsigned int monsterLit_TextureId = (unsigned int)-1;
-    Project001::MeshData* monsterDark_MeshDataPtr = nullptr;
-    Project001::TextureData* monsterDark_TextureDataPtr = nullptr;
-    unsigned int monsterDark_TextureId = (unsigned int)-1;
     Project001::MeshData* monsterCollision_MeshDataPtr = nullptr;
 
     Project001::MeshData* monsterVisionCollision_MeshDataPtr = nullptr;
 
-    Project001::MeshData* personDark_MeshDataPtr = nullptr;
-    Project001::TextureData* personDark_TextureDataPtr = nullptr;
-    unsigned int personDark_TextureId = (unsigned int)-1;
     Project001::MeshData* personLit_MeshDataPtr = nullptr;
     Project001::TextureData* personLit_TextureDataPtr = nullptr;
     unsigned int personLit_TextureId = (unsigned int)-1;
     Project001::MeshData* personCollision_MeshDataPtr = nullptr;
+
+    Project001::MeshData* unknownDark_MeshDataPtr = nullptr;
+    Project001::TextureData* unknownDark_TextureDataPtr = nullptr;
+    unsigned int unknownDark_TextureId = (unsigned int)-1;
 
     Project001::MeshData* playerLightBottom_MeshDataPtr = nullptr;
     Project001::MeshData* playerLightTop_MeshDataPtr = nullptr;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-20
+// @DATE 2025-11-22
 
 #include "Scene002.h"
 
@@ -52,11 +52,16 @@ struct MonsterInfo
     enum class State
     {
         STATE_STANDING,
-        STATE_WALKING
+        STATE_WALKING,
+        STATE_RUNNING,
+        STATE_CELEBRATING
     };
 
     State state = State::STATE_STANDING;
     float stateDuration_s = 0.0f;
+
+    State animationState = State::STATE_STANDING;
+    float animationStateDuration_s = 0.0f;
 };
 
 struct PersonInfo
@@ -69,6 +74,9 @@ struct PersonInfo
 
     State state = State::STATE_STANDING;
     float stateDuration_s = 0.0f;
+
+    State animationState = State::STATE_STANDING;
+    float animationStateDuration_s = 0.0f;
 };
 
 struct PlayerInfo
@@ -89,6 +97,9 @@ struct PlayerInfo
     float stamina_s = 0.0f;
 
     unsigned int score = 0;
+
+    State animationState = State::STATE_STANDING;
+    float animationStateDuration_s = 0.0f;
 };
 
 struct VisionInfo
@@ -255,12 +266,6 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     uiMiniMap_EntityId_ = (unsigned int)-1;
 
     cursor_EntityId_ = (unsigned int)-1;
-    cursorPosition_RenderedMeshIndex_ = (unsigned int)-1;
-    cursorPress_RenderedMeshIndex_ = (unsigned int)-1;
-    cursorRelease_RenderedMeshIndex_ = (unsigned int)-1;
-    cursorPosition_CollisionPointIndex_ = (unsigned int)-1;
-    cursorPress_CollisionPointIndex_ = (unsigned int)-1;
-    cursorRelease_CollisionPointIndex_ = (unsigned int)-1;
 
     base_EntityId_ = (unsigned int)-1;
     house_EntityIds_.clear();
@@ -278,6 +283,8 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     miniMapLocation_ = glm::vec2(0.0f, 0.0f);
 
     paused_ = false;
+
+    pause_joystickButtonPressRested_ = false;
 }
 
 void Scene002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -289,7 +296,7 @@ void Scene002::ProcessCursorPositionEvent(Project001::CursorPositionEvent& curso
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        collisionPoints[cursorPosition_CollisionPointIndex_].enabled = true;
+        collisionPoints[s_cursorPosition_CollisionPointIndex_].enabled = true;
     }
 }
 
@@ -368,9 +375,9 @@ void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
             if (collisionBody2DPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-                collisionPoints[cursorPress_CollisionPointIndex_].position = collisionPoints[cursorPosition_CollisionPointIndex_].position;
-                collisionPoints[cursorPress_CollisionPointIndex_].enabled = true;
-                collisionPoints[cursorRelease_CollisionPointIndex_].enabled = false;
+                collisionPoints[s_cursorPress_CollisionPointIndex_].position = collisionPoints[s_cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[s_cursorPress_CollisionPointIndex_].enabled = true;
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].enabled = false;
             }
         }
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
@@ -380,8 +387,8 @@ void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
             if (collisionBody2DPtr != nullptr)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-                collisionPoints[cursorRelease_CollisionPointIndex_].position = collisionPoints[cursorPosition_CollisionPointIndex_].position;
-                collisionPoints[cursorRelease_CollisionPointIndex_].enabled = true;
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].position = collisionPoints[s_cursorPosition_CollisionPointIndex_].position;
+                collisionPoints[s_cursorRelease_CollisionPointIndex_].enabled = true;
             }
         }
     }
@@ -407,8 +414,44 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     UpdateUiPauseTextEntity();
     UpdateUiMiniMapEntity();
 
+    std::vector<bool> buttonValues;
+    GetWindowPtr()->GetJoystickButtons(0, buttonValues);
+
+    bool pause_joystickButtonPressed = false;
+    if (buttonValues.size() > sharedDataPtr_->pause_joystickButtonIndex)
+    {
+        pause_joystickButtonPressed |= buttonValues[sharedDataPtr_->pause_joystickButtonIndex];
+    }
+
+    if (!pause_joystickButtonPressed)
+    {
+        pause_joystickButtonPressRested_ = true;
+    }
+
+    if (pause_joystickButtonPressRested_ && pause_joystickButtonPressed)
+    {
+        pause_joystickButtonPressRested_ = false;
+        paused_ = !paused_;
+    }
+
     if (paused_)
     {
+        bool quit = false;
+        if (buttonValues.size() > sharedDataPtr_->quit_joystickButtonIndex)
+        {
+            quit |= buttonValues[sharedDataPtr_->quit_joystickButtonIndex];
+        }
+
+        if (quit)
+        {
+            SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene001Id));
+            if (GetActiveScene()->GetId() == sharedDataPtr_->scene001Id)
+            {
+                SendEventToScene(GetId(), Project001::DeinitializeEvent());
+                SendEventToApplication(Project001::InitializeEvent());
+            }
+        }
+
         return;
     }
 
@@ -422,7 +465,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
 
-        UpdateMainCameraEntity(timestep_s);
+        UpdateMainCameraEntity(physicsTimestep_s);
 
         float cursorX_position;
         float cursorY_position;
@@ -430,12 +473,16 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         UpdateCursorPosition(cursorX_position, cursorY_position); // because camera updated
 
         UpdateGroundCollisionBodyQuadTreeMesh();
-        UpdateHouseEntities(timestep_s);
-        UpdatePersonEntities(timestep_s);
-        UpdatePlayerEntity(timestep_s);
-        UpdateMonsterEntities(timestep_s);
-        UpdateWorld(timestep_s);
+        UpdateHouseEntities(physicsTimestep_s);
+        UpdatePersonEntities(physicsTimestep_s);
+        UpdatePlayerEntity(physicsTimestep_s);
+        UpdateMonsterEntities(physicsTimestep_s);
+        UpdateWorld(physicsTimestep_s);
     }
+
+    AnimatePersonEntities(timestep_s);
+    AnimatePlayerEntity(timestep_s);
+    AnimateMonsterEntities(timestep_s);
 
     // Sync rendered models
     // -------------------------------------------------------------------------
@@ -781,11 +828,10 @@ void Scene002::CreateCursorEntity()
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(3);
 
         {
-            cursorPosition_RenderedMeshIndex_ = renderedMeshes.size();
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorPosition_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->cursorCircle_MeshDataPtr);
             mesh.SetPositionZ(0.53f);
@@ -795,9 +841,7 @@ void Scene002::CreateCursorEntity()
         }
 
         {
-            cursorPress_RenderedMeshIndex_ = renderedMeshes.size();
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorPress_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->cursorCircle_MeshDataPtr);
             mesh.SetPositionZ(0.52f);
@@ -808,9 +852,7 @@ void Scene002::CreateCursorEntity()
         }
 
         {
-            cursorRelease_RenderedMeshIndex_ = renderedMeshes.size();
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_cursorRelease_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDebug_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->cursorCircle_MeshDataPtr);
             mesh.SetPositionZ(0.51f);
@@ -827,12 +869,19 @@ void Scene002::CreateCursorEntity()
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        cursorPosition_CollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPosition_CollisionShapeId_, true);
-        cursorPress_CollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorPress_CollisionShapeId_, false);
-        cursorRelease_CollisionPointIndex_ = collisionPoints.size();
-        collisionPoints.emplace_back(glm::vec2(), s_cursorRelease_CollisionShapeId_, false);
+        collisionPoints.resize(3);
+
+        collisionPoints[s_cursorPosition_CollisionPointIndex_] = Project001::CollisionPoint2D(
+            glm::vec2(), s_cursorPosition_CollisionShapeId_, true
+        );
+
+        collisionPoints[s_cursorPress_CollisionPointIndex_] = Project001::CollisionPoint2D(
+            glm::vec2(), s_cursorPress_CollisionShapeId_, false
+        );
+
+        collisionPoints[s_cursorRelease_CollisionPointIndex_] = Project001::CollisionPoint2D(
+            glm::vec2(), s_cursorRelease_CollisionShapeId_, false
+        );
     }
 }
 
@@ -1012,8 +1061,8 @@ void Scene002::CreateGroundEntity()
     Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
         glm::vec2(-1160.0f, -1160.0f),
         glm::vec2(1160.0f, 1160.0f),
-        5,
-        16
+        4,
+        8
     );
 
     GetComponentStoresPtr()->CreateEntity(ground_EntityId_);
@@ -1318,10 +1367,10 @@ void Scene002::CreatePersonEntity(unsigned int& entityId, const glm::vec2& posit
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(2);
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_personLit_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personLit_TextureId);
@@ -1330,11 +1379,10 @@ void Scene002::CreatePersonEntity(unsigned int& entityId, const glm::vec2& posit
         }
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_personDark_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->personDark_MeshDataPtr);
-            mesh.SetTextureId(sharedDataPtr_->personDark_TextureId);
+            mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1385,10 +1433,10 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(2);
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_playerLit_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->personLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->personLit_TextureId);
@@ -1397,11 +1445,10 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
         }
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_playerDark_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->personDark_MeshDataPtr);
-            mesh.SetTextureId(sharedDataPtr_->personDark_TextureId);
+            mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1547,10 +1594,10 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(2);
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_monsterLit_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraLight1_Mask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->monsterLit_MeshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->monsterLit_TextureId);
@@ -1560,11 +1607,10 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
         }
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[s_monsterDark_RenderedMeshIndex_];
             mesh.SetCameraMask(s_mainCameraDark1_Mask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->monsterDark_MeshDataPtr);
-            mesh.SetTextureId(sharedDataPtr_->monsterDark_TextureId);
+            mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -1592,7 +1638,7 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
         collisionBody2DPtr->SetPosition(position);
 
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
-        collisionCircles.emplace_back(glm::vec2(0.0f, 0.0f), 8.0f, s_monster_collisionShapeTag_, true);
+        collisionCircles.emplace_back(glm::vec2(0.0f, 0.0f), 8.0f);
     }
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<MonsterInfo>(entityId));
@@ -1921,7 +1967,7 @@ void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
             {
                 std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
 
-                collisionPoints[cursorPosition_CollisionPointIndex_].position = worldCursorPosition;
+                collisionPoints[s_cursorPosition_CollisionPointIndex_].position = worldCursorPosition;
             }
         }
     }
@@ -2166,6 +2212,34 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
             running = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->sprint_MouseButton);
         }
 
+        std::vector<bool> buttonValues;
+        GetWindowPtr()->GetJoystickButtons(0, buttonValues);
+
+        if (buttonValues.size() > sharedDataPtr_->left_joystickButtonIndex)
+        {
+            movingLeft |= buttonValues[sharedDataPtr_->left_joystickButtonIndex];
+        }
+
+        if (buttonValues.size() > sharedDataPtr_->right_joystickButtonIndex)
+        {
+            movingRight |= buttonValues[sharedDataPtr_->right_joystickButtonIndex];
+        }
+
+        if (buttonValues.size() > sharedDataPtr_->down_joystickButtonIndex)
+        {
+            movingDown |= buttonValues[sharedDataPtr_->down_joystickButtonIndex];
+        }
+
+        if (buttonValues.size() > sharedDataPtr_->up_joystickButtonIndex)
+        {
+            movingUp |= buttonValues[sharedDataPtr_->up_joystickButtonIndex];
+        }
+
+        if (buttonValues.size() > sharedDataPtr_->sprint_joystickButtonIndex)
+        {
+            running |= buttonValues[sharedDataPtr_->sprint_joystickButtonIndex];
+        }
+
         const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
         float velocityMagnitude = glm::length(velocity);
 
@@ -2185,6 +2259,24 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
         if (movingDown)
         {
             velocityDirection.y -= 1.0f;
+        }
+
+        std::vector<float> axisValues;
+        GetWindowPtr()->GetJoystickAxis(0, axisValues);
+
+        glm::vec2 moveAxisValue(0.0f, 0.0f);
+        if (axisValues.size() > sharedDataPtr_->moveRightLeft_joystickAxisIndex)
+        {
+            moveAxisValue.x = axisValues[sharedDataPtr_->moveRightLeft_joystickAxisIndex];
+        }
+        if (axisValues.size() > sharedDataPtr_->moveDownUp_joystickAxisIndex)
+        {
+            moveAxisValue.y = -axisValues[sharedDataPtr_->moveDownUp_joystickAxisIndex];
+        }
+
+        if (glm::length(moveAxisValue) > sharedDataPtr_->move_joystickAxisDeadzone)
+        {
+            velocityDirection += moveAxisValue;
         }
 
         float accelerationMagnitude = glm::length(velocityDirection);
@@ -2235,43 +2327,72 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerLightCollisionBodyPtr, playerInfoPtr->light_EntityId));
         if (playerLightCollisionBodyPtr != nullptr)
         {
-            bool lightOn = false;
-            if (sharedDataPtr_->shine_usesKeyboard)
+            glm::vec2 aimAxisValue(0.0f, 0.0f);
+            if (axisValues.size() > sharedDataPtr_->aimRightLeft_joystickAxisIndex)
             {
-                lightOn = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->shine_KeyCode);
+                aimAxisValue.x = axisValues[sharedDataPtr_->aimRightLeft_joystickAxisIndex];
             }
-            else
+            if (axisValues.size() > sharedDataPtr_->aimDownUp_joystickAxisIndex)
             {
-                lightOn = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->shine_MouseButton);
+                aimAxisValue.y = -axisValues[sharedDataPtr_->aimDownUp_joystickAxisIndex];
             }
 
-            if (lightOn)
+            if (glm::length(aimAxisValue) > sharedDataPtr_->aim_joystickAxisDeadzone)
             {
                 playerInfoPtr->battery_s -= timestep_s;
                 if (playerInfoPtr->battery_s < 0.0f)
                 {
                     playerInfoPtr->battery_s = 0.0f;
                 }
-            }
 
-            if (playerInfoPtr->battery_s <= 0.0f)
-            {
-                lightOn = false;
-            }
+                playerLightCollisionBodyPtr->SetEnabled(true);
 
-            playerLightCollisionBodyPtr->SetEnabled(lightOn);
-
-            Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
-            if (cursorCollisionBodyPtr != nullptr)
-            {
-                std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
-                const glm::vec2& cursorPosition = collisionPoints[cursorPosition_CollisionPointIndex_].position;
                 glm::vec2 collisionBodyDirection = playerLightCollisionBodyPtr->GetForwardVector();
-                glm::vec2 collisionBodyToCursor = cursorPosition - playerLightCollisionBodyPtr->GetPosition();
 
-                float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+                float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, aimAxisValue);
                 playerLightCollisionBodyPtr->AddRotation(angleToCursor);
+            }
+            else
+            {
+                bool lightOn = false;
+
+                if (sharedDataPtr_->shine_usesKeyboard)
+                {
+                    lightOn = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->shine_KeyCode);
+                }
+                else
+                {
+                    lightOn = GetWindowPtr()->GetMouseButtonPressed(sharedDataPtr_->shine_MouseButton);
+                }
+
+                if (lightOn)
+                {
+                    playerInfoPtr->battery_s -= timestep_s;
+                    if (playerInfoPtr->battery_s < 0.0f)
+                    {
+                        playerInfoPtr->battery_s = 0.0f;
+                    }
+                }
+
+                if (playerInfoPtr->battery_s <= 0.0f)
+                {
+                    lightOn = false;
+                }
+
+                playerLightCollisionBodyPtr->SetEnabled(lightOn);
+
+                Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
+                if (cursorCollisionBodyPtr != nullptr)
+                {
+                    std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
+                    const glm::vec2& cursorPosition = collisionPoints[s_cursorPosition_CollisionPointIndex_].position;
+                    glm::vec2 collisionBodyDirection = playerLightCollisionBodyPtr->GetForwardVector();
+                    glm::vec2 collisionBodyToCursor = cursorPosition - playerLightCollisionBodyPtr->GetPosition();
+
+                    float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+                    playerLightCollisionBodyPtr->AddRotation(angleToCursor);
+                }
             }
         }
 
@@ -2320,15 +2441,6 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
             {
                 playerInfoPtr->safe = true;
             }
-            else if (collisionData.otherShapeTag == s_monster_collisionShapeTag_)
-            {
-                if (playerInfoPtr->score > 0)
-                {
-                    GetSoundPlayerPtr()->PlaySoundSource(sharedDataPtr_->hitHurt_SoundSourceId);
-                }
-
-                playerInfoPtr->score = 0;
-            }
         }
     }
 }
@@ -2356,7 +2468,31 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
             {
                 const Project001::CollisionData2D& collisionData = collisions[i];
 
-                if (collisionData.otherShapeTag == s_light_collisionShapeTag_)
+                if (collisionData.otherShapeTag == s_player_collisionShapeTag_)
+                {
+                    PlayerInfo* playerInfoPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, collisionData.otherEntityId));
+                    if (playerInfoPtr != nullptr)
+                    {
+                        if (playerInfoPtr->score > 0)
+                        {
+                            GetSoundPlayerPtr()->PlaySoundSource(sharedDataPtr_->hitHurt_SoundSourceId);
+
+                            Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+                            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, monsterEntityId));
+                            if (collisionBodyPtr != nullptr)
+                            {
+                                collisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
+                                monsterInfo.state = MonsterInfo::State::STATE_CELEBRATING;
+                                monsterInfo.stateDuration_s = 0.0f;
+                                distracted = true;
+                            }
+
+                            playerInfoPtr->score = 0;
+                        }
+                    }
+                }
+                else if (collisionData.otherShapeTag == s_light_collisionShapeTag_)
                 {
                     Project001::CollisionBody2D* otherCollisionBodyPtr = nullptr;
                     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, collisionData.otherEntityId));
@@ -2376,7 +2512,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                             {
                                 glm::vec2 newVelocity = -towardOther * sharedDataPtr_->monster_runSpeed / towardOtherMagnitude;
                                 collisionBodyPtr->SetVelocity(newVelocity);
-                                monsterInfo.state = MonsterInfo::State::STATE_STANDING;
+                                monsterInfo.state = MonsterInfo::State::STATE_RUNNING;
                                 monsterInfo.stateDuration_s = 0.0f;
                                 distracted = true;
                             }
@@ -2430,7 +2566,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                             {
                                 glm::vec2 newVelocity = towardOther * sharedDataPtr_->monster_runSpeed / towardOtherMagnitude;
                                 collisionBodyPtr->SetVelocity(newVelocity);
-                                monsterInfo.state = MonsterInfo::State::STATE_STANDING;
+                                monsterInfo.state = MonsterInfo::State::STATE_RUNNING;
                                 monsterInfo.stateDuration_s = 0.0f;
                                 distracted = true;
                             }
@@ -2447,7 +2583,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
 
         if (collisionBodyPtr != nullptr)
         {
-            if (monsterInfo.state == MonsterInfo::State::STATE_STANDING)
+            if (monsterInfo.state != MonsterInfo::State::STATE_WALKING)
             {
                 if (monsterInfo.stateDuration_s <= 0.0f)
                 {
@@ -2534,6 +2670,215 @@ void Scene002::UpdateWorld(float timestep_s)
     }
 }
 
+void Scene002::AnimatePersonEntities(float timestep_s)
+{
+    PersonInfo* personInfoPtrs = nullptr;
+    size_t personInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<PersonInfo>(personInfoPtrs, personInfoCount);
+    for (size_t i = 0; i < personInfoCount; ++i)
+    {
+        PersonInfo& personInfo = personInfoPtrs[i];
+
+        unsigned int personEntityId = (unsigned int)-1;
+        GetComponentStoresPtr()->GetComponentEntityId<PersonInfo>(personEntityId, &personInfo);
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, personEntityId));
+        if (renderedModelPtr != nullptr)
+        {
+            if (personInfo.animationStateDuration_s == 0.0f)
+            {
+                if (personInfo.state == PersonInfo::State::STATE_STANDING)
+                {
+                    personInfo.animationState = PersonInfo::State::STATE_STANDING;
+
+                }
+                else if (personInfo.state == PersonInfo::State::STATE_WALKING)
+                {
+                    personInfo.animationState = PersonInfo::State::STATE_WALKING;
+                    personInfo.animationStateDuration_s = 0.5;
+                }
+            }
+
+            float jumpDuration = 0.5f;
+            float jumpHeight = 2.0f;
+
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_personLit_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    jumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
+                );
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_personDark_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    jumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
+                );
+            }
+
+            personInfo.animationStateDuration_s -= timestep_s;
+            if (personInfo.animationStateDuration_s < 0.0f)
+            {
+                personInfo.animationStateDuration_s = 0.0f;
+            }
+        }
+    }
+}
+
+void Scene002::AnimatePlayerEntity(float timestep_s)
+{
+    PlayerInfo* playerInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, player_EntityId_));
+    Project001::RenderedModel* playerRenderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(playerRenderedModelPtr, player_EntityId_));
+    if (playerInfoPtr != nullptr && playerRenderedModelPtr != nullptr)
+    {
+        if (playerInfoPtr->animationStateDuration_s == 0.0f)
+        {
+            if (playerInfoPtr->state == PlayerInfo::State::STATE_STANDING)
+            {
+                playerInfoPtr->animationState = PlayerInfo::State::STATE_STANDING;
+                
+            }
+            else if(playerInfoPtr->state == PlayerInfo::State::STATE_WALKING)
+            {
+                playerInfoPtr->animationState = PlayerInfo::State::STATE_WALKING;
+                playerInfoPtr->animationStateDuration_s = 0.5;
+            }
+            else if (playerInfoPtr->state == PlayerInfo::State::STATE_RUNNING)
+            {
+                playerInfoPtr->animationState = PlayerInfo::State::STATE_RUNNING;
+                playerInfoPtr->animationStateDuration_s = 0.25;
+            }
+        }
+
+        float jumpDuration = 0.5f;
+        float jumpHeight = 2.0f;
+        if (playerInfoPtr->animationState == PlayerInfo::State::STATE_RUNNING)
+        {
+            jumpDuration = 0.25f;
+            jumpHeight = 4.0f;
+        }
+
+        std::vector<Project001::RenderedMesh>& renderedMeshes = playerRenderedModelPtr->GetRenderedMeshes();
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_playerLit_RenderedMeshIndex_];
+            mesh.SetPositionZ(
+                jumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / jumpDuration))
+            );
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[s_playerDark_RenderedMeshIndex_];
+            mesh.SetPositionZ(
+                jumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / jumpDuration))
+            );
+        }
+
+        playerInfoPtr->animationStateDuration_s -= timestep_s;
+        if (playerInfoPtr->animationStateDuration_s < 0.0f)
+        {
+            playerInfoPtr->animationStateDuration_s = 0.0f;
+        }
+    }
+}
+
+void Scene002::AnimateMonsterEntities(float timestep_s)
+{
+    MonsterInfo* monsterInfoPtrs = nullptr;
+    size_t monsterInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<MonsterInfo>(monsterInfoPtrs, monsterInfoCount);
+    for (size_t i = 0; i < monsterInfoCount; ++i)
+    {
+        MonsterInfo& monsterInfo = monsterInfoPtrs[i];
+
+        unsigned int monsterEntityId = (unsigned int)-1;
+        GetComponentStoresPtr()->GetComponentEntityId<MonsterInfo>(monsterEntityId, &monsterInfo);
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, monsterEntityId));
+        if (renderedModelPtr != nullptr)
+        {
+            if (monsterInfo.animationStateDuration_s == 0.0f)
+            {
+                if (monsterInfo.state == MonsterInfo::State::STATE_STANDING)
+                {
+                    monsterInfo.animationState = MonsterInfo::State::STATE_STANDING;
+
+                }
+                else if (monsterInfo.state == MonsterInfo::State::STATE_WALKING)
+                {
+                    monsterInfo.animationState = MonsterInfo::State::STATE_WALKING;
+                    monsterInfo.animationStateDuration_s = 0.5;
+                }
+                else if (monsterInfo.state == MonsterInfo::State::STATE_RUNNING)
+                {
+                    monsterInfo.animationState = MonsterInfo::State::STATE_RUNNING;
+                    monsterInfo.animationStateDuration_s = 0.25f;
+                }
+            }
+            else if (monsterInfo.state == MonsterInfo::State::STATE_CELEBRATING &&
+                monsterInfo.animationState != MonsterInfo::State::STATE_CELEBRATING)
+            {
+                monsterInfo.animationState = MonsterInfo::State::STATE_CELEBRATING;
+                monsterInfo.animationStateDuration_s = 0.5f;
+            }
+
+            float jumpDuration = 0.5f;
+            float jumpHeight = 2.0f;
+            if (monsterInfo.animationState == MonsterInfo::State::STATE_RUNNING)
+            {
+                jumpDuration = 0.25f;
+                jumpHeight = 4.0f;
+            }
+            else if (monsterInfo.animationState == MonsterInfo::State::STATE_CELEBRATING)
+            {
+                jumpDuration = 0.5f;
+                jumpHeight = 16.0f;
+            }
+
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_monsterLit_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    jumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
+                );
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_monsterDark_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    jumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
+                );
+
+                if (monsterInfo.animationState == MonsterInfo::State::STATE_CELEBRATING)
+                {
+                    mesh.SetMeshDataPtr(sharedDataPtr_->monsterLit_MeshDataPtr);
+                    mesh.SetTextureId(sharedDataPtr_->monsterLit_TextureId);
+                    mesh.SetColor(1.0f, 0.6f, 0.6f, 1.0f);
+                }
+                else
+                {
+                    mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
+                    mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
+                    mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+            }
+
+            monsterInfo.animationStateDuration_s -= timestep_s;
+            if (monsterInfo.animationStateDuration_s < 0.0f)
+            {
+                monsterInfo.animationStateDuration_s = 0.0f;
+            }
+        }
+    }
+}
+
 void Scene002::SyncCursorRenderedModel()
 {
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -2541,9 +2886,9 @@ void Scene002::SyncCursorRenderedModel()
     if (collisionBody2DPtr != nullptr)
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-        Project001::CollisionPoint2D collisionPoint01 = collisionPoints[cursorPosition_CollisionPointIndex_];
-        Project001::CollisionPoint2D collisionPoint02 = collisionPoints[cursorPress_CollisionPointIndex_];
-        Project001::CollisionPoint2D collisionPoint03 = collisionPoints[cursorRelease_CollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint01 = collisionPoints[s_cursorPosition_CollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint02 = collisionPoints[s_cursorPress_CollisionPointIndex_];
+        Project001::CollisionPoint2D collisionPoint03 = collisionPoints[s_cursorRelease_CollisionPointIndex_];
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, cursor_EntityId_));
@@ -2551,9 +2896,9 @@ void Scene002::SyncCursorRenderedModel()
         {
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            Project001::RenderedMesh& circleMesh01 = renderedMeshes[cursorPosition_RenderedMeshIndex_];
-            Project001::RenderedMesh& circleMesh02 = renderedMeshes[cursorPress_RenderedMeshIndex_];
-            Project001::RenderedMesh& circleMesh03 = renderedMeshes[cursorRelease_RenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh01 = renderedMeshes[s_cursorPosition_RenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh02 = renderedMeshes[s_cursorPress_RenderedMeshIndex_];
+            Project001::RenderedMesh& circleMesh03 = renderedMeshes[s_cursorRelease_RenderedMeshIndex_];
 
             circleMesh01.SetPositionX(collisionPoint01.position.x);
             circleMesh01.SetPositionY(collisionPoint01.position.y);

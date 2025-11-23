@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-22
 
 #include "TestScene027.h"
 
@@ -30,6 +30,8 @@ TestScene027::TestScene027(Project001::Application* applicationPtr)
     GetSharedDataPtr<TestApplicationData>()->testScene027Id = GetId();
 
     recolorOverlappingCollisionBodies_ = false;
+
+    physicsStepsPerUpdate_ = 2;
 
     generateCollisionMarkerCollectionMesh_ = false;
 
