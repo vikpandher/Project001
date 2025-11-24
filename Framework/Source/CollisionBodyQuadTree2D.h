@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-11-23
 
 #pragma once
 
@@ -39,13 +39,14 @@ namespace Project001
     class CollisionBodyQuadTree2D
     {
     public:
-        // A maxDepth value of 0 will be set to 1.
         // A maxBodiesPerNode value of 0 will be set to 1.
         CollisionBodyQuadTree2D(const glm::vec2& min, const glm::vec2& max, size_t maxDepth, size_t maxBodiesPerNode);
         ~CollisionBodyQuadTree2D();
 
         CollisionBodyQuadTree2D(CollisionBodyQuadTree2D& other) = delete;
         void operator=(const CollisionBodyQuadTree2D&) = delete;
+
+        void FullyLoadTree();
 
         void Reset(const glm::vec2& min, const glm::vec2& max, size_t maxDepth, size_t maxBodiesPerNode);
 
@@ -59,7 +60,7 @@ namespace Project001
     protected:
         void DeleteAllNodes();
 
-        void AllocateNodeMemory();
+        void AllocateChildNodeMemory(CollisionBodyQuadTreeNode2D* nodePtr);
 
         size_t maxDepth_;
         size_t maxBodiesPerNode_;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-11-23
 
 #include "Application.h"
 
@@ -84,49 +84,46 @@ namespace Project001
         HandleEvent(InitializeEvent());
         running_ = true;
 
-        std::chrono::system_clock::time_point lastFrameTimeStamp;
-        std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point lastFrameTimeStamp = std::chrono::system_clock::now();
 
         unsigned long long simulationTimeDebt_ns = 0ull;
 
-        unsigned int updatesInARow = 0;
-
         while (running_)
         {
-            lastFrameTimeStamp = currentFrameTimeStamp;
-            currentFrameTimeStamp = std::chrono::system_clock::now();
-            std::chrono::duration<unsigned long long, std::nano> lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-            unsigned long long lastFrameDuration_ns = lastFrameDuration.count();
+            std::chrono::system_clock::time_point currentFrameTimeStamp = std::chrono::system_clock::now();
+            std::chrono::duration<unsigned long long, std::nano> frameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+            unsigned long long frameDuration_ns = frameDuration.count();
 
             // Sleep to achive desired frame duration
             // -----------------------------------------------------------------
 
             if (sleepyRunLoop_)
             {
-                if (lastFrameDuration_ns < desiredFrameDuration_ns_)
+                if (frameDuration_ns < desiredFrameDuration_ns_)
                 {
-                    std::chrono::duration<unsigned long long, std::nano> delta_ns(desiredFrameDuration_ns_ - lastFrameDuration_ns);
+                    std::chrono::duration<unsigned long long, std::nano> delta_ns(desiredFrameDuration_ns_ - frameDuration_ns);
                     std::this_thread::sleep_for(delta_ns);
+                    currentFrameTimeStamp = std::chrono::system_clock::now();
+                    frameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+                    frameDuration_ns = frameDuration.count();
                 }
-                currentFrameTimeStamp = std::chrono::system_clock::now();
-                lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-                lastFrameDuration_ns = lastFrameDuration.count();
             }
             else
             {
-                while (lastFrameDuration_ns < desiredFrameDuration_ns_)
+                while (frameDuration_ns < desiredFrameDuration_ns_)
                 {
                     currentFrameTimeStamp = std::chrono::system_clock::now();
-                    lastFrameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
-                    lastFrameDuration_ns = lastFrameDuration.count();
+                    frameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+                    frameDuration_ns = frameDuration.count();
                 }
             }
 
             // Slept for too long, so catch up on UpdateEvents
             // -----------------------------------------------------------------
 
-            simulationTimeDebt_ns += lastFrameDuration_ns;
-            while (simulationTimeDebt_ns > desiredFrameDuration_ns_)
+            simulationTimeDebt_ns += frameDuration_ns;
+            unsigned int updatesInARow = 0;
+            while (simulationTimeDebt_ns >= desiredFrameDuration_ns_)
             {
                 HandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
                 updatesInARow++;
@@ -135,15 +132,17 @@ namespace Project001
                 if (updatesInARow >= updatesInARowLimit_)
                 {
                     simulationTimeDebt_ns = 0;
+                    // LOG_WARNING_F("Too many updates without Rendering. Resetting simulation time debt.");
+                    break;
                 }
             }
 
             // Render
             // -----------------------------------------------------------------
 
-            HandleEvent(RenderEvent(0, lastFrameDuration_ns));
-            updatesInARow = 0;
             windowPtr_->PollEvents();
+            HandleEvent(RenderEvent(0, frameDuration_ns));
+            lastFrameTimeStamp = currentFrameTimeStamp;
         }
 
         HandleEvent(DeinitializeEvent());

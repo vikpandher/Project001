@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-22
+// @DATE 2025-11-23
 
 #pragma once
 
@@ -150,4 +150,8 @@ protected:
     static const unsigned int s_door_collisionShapeTag_ = 2;
     static const unsigned int s_light_collisionShapeTag_ = 3;
     static const unsigned int s_player_collisionShapeTag_ = 4;
+
+    static const uint32_t s_wall_collisionGroupMask_ = 0b00000000000000000000000000000010;
+    static const uint32_t s_actor_collisionGroupMask_ = 0b00000000000000000000000000000100;
+    static const uint32_t s_sensor_collisionGroupMask_ = 0b00000000000000000000000000001000;
 };

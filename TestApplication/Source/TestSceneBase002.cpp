@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-23
 
 #include "TestSceneBase002.h"
 
@@ -703,8 +703,6 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
         buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
     {
         selectedEntityIdIndex_ = (unsigned int)-1;
-
-        Project001::CollisionSystem2D::CalculateCollisionsForGivenEntity(cursorEntityId_, GetComponentStoresPtr());
 
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));

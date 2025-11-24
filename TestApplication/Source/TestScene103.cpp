@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-20
+// @DATE 2025-11-23
 
 #include "TestScene103.h"
 
@@ -189,7 +189,7 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
         glm::vec2(-1160.0f, -1160.0f),
         glm::vec2(1160.0f, 1160.0f),
-        5,
+        4,
         16
     );
 

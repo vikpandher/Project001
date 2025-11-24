@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-22
+// @DATE 2025-11-23
 
 #include "Scene002.h"
 
@@ -396,16 +396,19 @@ void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
 
 void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
+    // if (renderEvent.timestep_ns > 17000000)
+    // {
+    //     LOG_WARNING_F("Slow Render Frame (ns): " << renderEvent.timestep_ns);
+    // }
+
     Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
-    float& yOffset = scrollEvent.yOffset;
-
-    constexpr float speedConstant = 20.0f;
-
-    mainCamera_DistanceAway_ += yOffset * speedConstant;
+    // float& yOffset = scrollEvent.yOffset;
+    // constexpr float speedConstant = 20.0f;
+    // mainCamera_DistanceAway_ += yOffset * speedConstant;
 }
 
 void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -863,7 +866,10 @@ void Scene002::CreateCursorEntity()
         }
     }
 
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursor_EntityId_));
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(cursor_EntityId_, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, cursor_EntityId_));
     if (collisionBody2DPtr != nullptr)
@@ -946,6 +952,8 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
     collisionBody2DCreationInfo.density_ = std::numeric_limits<float>::infinity();
+    collisionBody2DCreationInfo.collisionGroupMask = s_wall_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1037,12 +1045,12 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
             }
         }
 
-        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
-        collisionBody2DCreationInfo.fixedTranslation = true;
-        collisionBody2DCreationInfo.fixedRotation = true;
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo2;
+        collisionBody2DCreationInfo2.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
+        collisionBody2DCreationInfo2.collisionGroupMask = s_sensor_collisionGroupMask_;
+        collisionBody2DCreationInfo2.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo2));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, light_EntityId));
         if (collisionBody2DPtr != nullptr)
@@ -1061,9 +1069,11 @@ void Scene002::CreateGroundEntity()
     Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
         glm::vec2(-1160.0f, -1160.0f),
         glm::vec2(1160.0f, 1160.0f),
-        4,
-        8
+        3,
+        16
     );
+
+    Project001::CollisionSystem2D::FullyLoadCollisionBodyQuadTree2D();
 
     GetComponentStoresPtr()->CreateEntity(ground_EntityId_);
 
@@ -1184,6 +1194,8 @@ void Scene002::CreateGroundEntity()
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
     collisionBody2DCreationInfo.density_ = std::numeric_limits<float>::infinity();
+    collisionBody2DCreationInfo.collisionGroupMask = s_wall_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(ground_EntityId_, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1246,6 +1258,8 @@ void Scene002::CreateHouseEntity(unsigned int& entityId, const glm::vec2& positi
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
     collisionBody2DCreationInfo.density_ = std::numeric_limits<float>::infinity();
+    collisionBody2DCreationInfo.collisionGroupMask = s_wall_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1337,12 +1351,12 @@ void Scene002::CreateHouseEntity(unsigned int& entityId, const glm::vec2& positi
             }
         }
 
-        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
-        collisionBody2DCreationInfo.fixedTranslation = true;
-        collisionBody2DCreationInfo.fixedRotation = true;
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo2;
+        collisionBody2DCreationInfo2.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
+        collisionBody2DCreationInfo2.collisionGroupMask = s_sensor_collisionGroupMask_;
+        collisionBody2DCreationInfo2.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo2));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, light_EntityId));
         if (collisionBody2DPtr != nullptr)
@@ -1401,6 +1415,8 @@ void Scene002::CreatePersonEntity(unsigned int& entityId, const glm::vec2& posit
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
+    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_wall_collisionGroupMask_ | s_actor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1478,6 +1494,8 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
+    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_wall_collisionGroupMask_ | s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(player_EntityId_, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1551,12 +1569,12 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             }
         }
 
-        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
-        collisionBody2DCreationInfo.fixedTranslation = true;
-        collisionBody2DCreationInfo.fixedRotation = true;
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo2;
+        collisionBody2DCreationInfo2.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
+        collisionBody2DCreationInfo2.collisionGroupMask = s_sensor_collisionGroupMask_;
+        collisionBody2DCreationInfo2.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(light_EntityId, collisionBody2DCreationInfo2));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, light_EntityId));
         if (collisionBody2DPtr != nullptr)
@@ -1576,7 +1594,7 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             corners.emplace_back(4.0f, -112.0f);
             for (size_t i = 0; i < corners.size(); ++i)
             {
-                corners[i].y += 112.0f;
+                corners[i].y += 128.0f;
             }
             collisionConvexPolygons.emplace_back(corners, s_light_collisionShapeTag_, true);
         }
@@ -1629,6 +1647,8 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
     collisionBody2DCreationInfo.fixedTranslation = true;
     collisionBody2DCreationInfo.fixedRotation = true;
+    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_wall_collisionGroupMask_ | s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
@@ -1677,12 +1697,12 @@ void Scene002::CreateMonsterEntity(unsigned int& entityId, const glm::vec2& posi
             }
         }
 
-        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
-        collisionBody2DCreationInfo.fixedTranslation = true;
-        collisionBody2DCreationInfo.fixedRotation = true;
+        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo2;
+        collisionBody2DCreationInfo2.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR;
+        collisionBody2DCreationInfo2.collisionGroupMask = s_sensor_collisionGroupMask_;
+        collisionBody2DCreationInfo2.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(vision_EntityId, collisionBody2DCreationInfo));
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(vision_EntityId, collisionBody2DCreationInfo2));
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, vision_EntityId));
         if (collisionBody2DPtr != nullptr)
@@ -2476,6 +2496,8 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                     {
                         if (playerInfoPtr->score > 0)
                         {
+                            playerInfoPtr->score = 0;
+
                             GetSoundPlayerPtr()->PlaySoundSource(sharedDataPtr_->hitHurt_SoundSourceId);
 
                             Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -2484,11 +2506,10 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                             {
                                 collisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
                                 monsterInfo.state = MonsterInfo::State::STATE_CELEBRATING;
-                                monsterInfo.stateDuration_s = 0.0f;
+                                monsterInfo.stateDuration_s = 0.5f;
                                 distracted = true;
+                                break;
                             }
-
-                            playerInfoPtr->score = 0;
                         }
                     }
                 }

@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-10-30
+# @DATE 2025-11-23
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -52,8 +52,8 @@ set(GAME001_RESOURCE_FILES
     "Source/Resources/gridDark_64x64_png.h"
     "Source/Resources/gridLit_64x64_png.h"
     "Source/Resources/hitHurt_wav.h"
-    "Source/Resources/houseDark_384x272_png.h"
-    "Source/Resources/houseLit_384x272_png.h"
+    "Source/Resources/houseDark_384x256_png.h"
+    "Source/Resources/houseLit_384x256_png.h"
     "Source/Resources/lampDark_32x160_png.h"
     "Source/Resources/lampLit_32x160_png.h"
     "Source/Resources/monsterLit_32x56_png.h"

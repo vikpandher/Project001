@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-11-23
 
 #include "CollisionBodyQuadTree2D.h"
 
@@ -17,14 +17,7 @@ namespace Project001
 
     CollisionBodyQuadTree2D::CollisionBodyQuadTree2D(const glm::vec2& min, const glm::vec2& max, size_t maxDepth, size_t maxBodiesPerNode)
     {
-        if (maxDepth == 0)
-        {
-            maxDepth_ = 1;
-        }
-        else
-        {
-            maxDepth_ = maxDepth;
-        }
+        maxDepth_ = maxDepth;
 
         if (maxBodiesPerNode == 0)
         {
@@ -43,16 +36,37 @@ namespace Project001
         DeleteAllNodes();
     }
 
+    void CollisionBodyQuadTree2D::FullyLoadTree()
+    {
+        std::stack<CollisionBodyQuadTreeNode2D*> nodePtrStack;
+        nodePtrStack.push(rootNodePtr_);
+
+        while (!nodePtrStack.empty())
+        {
+            CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
+            nodePtrStack.pop();
+
+            if (nodePtr->depth == maxDepth_)
+            {
+                continue;
+            }
+
+            // Create the child nodes, if they don't exist.
+            if (nodePtr->childrenPtrs[0] == nullptr)
+            {
+                AllocateChildNodeMemory(nodePtr);
+
+                nodePtrStack.push(nodePtr->childrenPtrs[0]);
+                nodePtrStack.push(nodePtr->childrenPtrs[1]);
+                nodePtrStack.push(nodePtr->childrenPtrs[2]);
+                nodePtrStack.push(nodePtr->childrenPtrs[3]);
+            }
+        }
+    }
+
     void CollisionBodyQuadTree2D::Reset(const glm::vec2& min, const glm::vec2& max, size_t maxDepth, size_t maxBodiesPerNode)
     {
-        if (maxDepth == 0)
-        {
-            maxDepth_ = 1;
-        }
-        else
-        {
-            maxDepth_ = maxDepth;
-        }
+        maxDepth_ = maxDepth;
 
         if (maxBodiesPerNode == 0)
         {
@@ -65,7 +79,7 @@ namespace Project001
 
         DeleteAllNodes();
 
-        rootNodePtr_ = new CollisionBodyQuadTreeNode2D(1, min.x, min.y, max.x, max.y);
+        rootNodePtr_ = new CollisionBodyQuadTreeNode2D(0, min.x, min.y, max.x, max.y);
     }
 
     bool CollisionBodyQuadTree2D::Insert(CollisionBody2D* bodyPtr)
@@ -73,7 +87,7 @@ namespace Project001
         const glm::vec2& bodyPosition = bodyPtr->GetPosition();
         const float& bodyBoundingRadius = bodyPtr->GetBoundingRadius();
 
-        // If body is out of bounds, add it to the out of bounds list.
+        // If body is out of bounds, don't insert it.
         if (!Check2D_Rectangle_Circle_Overlap(
             rootNodePtr_->min,
             rootNodePtr_->max,
@@ -123,44 +137,7 @@ namespace Project001
             // Create the child nodes, if they don't exist.
             if (nodePtr->childrenPtrs[0] == nullptr)
             {
-                glm::vec2 mid = (nodePtr->min + nodePtr->max) / 2.0f;
-            
-                // NE
-                nodePtr->childrenPtrs[0] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    mid.x,
-                    mid.y,
-                    nodePtr->max.x,
-                    nodePtr->max.y
-                );
-
-                // NW
-                nodePtr->childrenPtrs[1] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    nodePtr->min.x,
-                    mid.y,
-                    mid.x,
-                    nodePtr->max.y
-                );
-
-            
-                // SW
-                nodePtr->childrenPtrs[2] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    nodePtr->min.x,
-                    nodePtr->min.y,
-                    mid.x,
-                    mid.y
-                );
-            
-                // SE
-                nodePtr->childrenPtrs[3] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    mid.x,
-                    nodePtr->min.y,
-                    nodePtr->max.x,
-                    mid.y
-                );
+                AllocateChildNodeMemory(nodePtr);
             }
 
             // Add all storedBodyPtrs to child nodes.
@@ -251,71 +228,49 @@ namespace Project001
         }
     }
 
-    void CollisionBodyQuadTree2D::AllocateNodeMemory()
+    void CollisionBodyQuadTree2D::AllocateChildNodeMemory(CollisionBodyQuadTreeNode2D* nodePtr)
     {
-        std::stack<CollisionBodyQuadTreeNode2D*> nodePtrStack;
-        nodePtrStack.push(rootNodePtr_);
+        glm::vec2 mid = (nodePtr->min + nodePtr->max) / 2.0f;
 
-        while (!nodePtrStack.empty())
-        {
-            CollisionBodyQuadTreeNode2D* nodePtr = nodePtrStack.top();
-            nodePtrStack.pop();
+        // NE
+        nodePtr->childrenPtrs[0] = new CollisionBodyQuadTreeNode2D(
+            nodePtr->depth + 1,
+            mid.x,
+            mid.y,
+            nodePtr->max.x,
+            nodePtr->max.y
+        );
+        nodePtr->childrenPtrs[0]->bodyPtrs.reserve(maxBodiesPerNode_);
 
-            if (nodePtr->depth > maxDepth_)
-            {
-                continue;
-            }
-
-            // Create the child nodes, if they don't exist.
-            if (nodePtr->childrenPtrs[0] == nullptr)
-            {
-                glm::vec2 mid = (nodePtr->min + nodePtr->max) / 2.0f;
-
-                // NE
-                nodePtr->childrenPtrs[0] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    mid.x,
-                    mid.y,
-                    nodePtr->max.x,
-                    nodePtr->max.y
-                );
-                nodePtr->childrenPtrs[0]->bodyPtrs.reserve(maxBodiesPerNode_);
-                nodePtrStack.push(nodePtr->childrenPtrs[0]);
-
-                // NW
-                nodePtr->childrenPtrs[1] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    nodePtr->min.x,
-                    mid.y,
-                    mid.x,
-                    nodePtr->max.y
-                );
-                nodePtr->childrenPtrs[1]->bodyPtrs.reserve(maxBodiesPerNode_);
-                nodePtrStack.push(nodePtr->childrenPtrs[1]);
+        // NW
+        nodePtr->childrenPtrs[1] = new CollisionBodyQuadTreeNode2D(
+            nodePtr->depth + 1,
+            nodePtr->min.x,
+            mid.y,
+            mid.x,
+            nodePtr->max.y
+        );
+        nodePtr->childrenPtrs[1]->bodyPtrs.reserve(maxBodiesPerNode_);
 
 
-                // SW
-                nodePtr->childrenPtrs[2] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    nodePtr->min.x,
-                    nodePtr->min.y,
-                    mid.x,
-                    mid.y
-                );
-                nodePtr->childrenPtrs[2]->bodyPtrs.reserve(maxBodiesPerNode_);
-                nodePtrStack.push(nodePtr->childrenPtrs[2]);
+        // SW
+        nodePtr->childrenPtrs[2] = new CollisionBodyQuadTreeNode2D(
+            nodePtr->depth + 1,
+            nodePtr->min.x,
+            nodePtr->min.y,
+            mid.x,
+            mid.y
+        );
+        nodePtr->childrenPtrs[2]->bodyPtrs.reserve(maxBodiesPerNode_);
 
-                // SE
-                nodePtr->childrenPtrs[3] = new CollisionBodyQuadTreeNode2D(
-                    nodePtr->depth + 1,
-                    mid.x,
-                    nodePtr->min.y,
-                    nodePtr->max.x,
-                    mid.y
-                );
-                nodePtr->childrenPtrs[3]->bodyPtrs.reserve(maxBodiesPerNode_);
-                nodePtrStack.push(nodePtr->childrenPtrs[3]);
-            }
-        }
+        // SE
+        nodePtr->childrenPtrs[3] = new CollisionBodyQuadTreeNode2D(
+            nodePtr->depth + 1,
+            mid.x,
+            nodePtr->min.y,
+            nodePtr->max.x,
+            mid.y
+        );
+        nodePtr->childrenPtrs[3]->bodyPtrs.reserve(maxBodiesPerNode_);
     }
 }

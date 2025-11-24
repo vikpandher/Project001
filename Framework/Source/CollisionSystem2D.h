@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-23
 
 #pragma once
 
@@ -37,6 +37,8 @@ namespace Project001
             const glm::vec2& max,
             size_t maxDepth,
             size_t maxBodiesPerNode);
+
+        static void FullyLoadCollisionBodyQuadTree2D();
 
         static float s_sunkenMeshSeperationSpacing;
 
@@ -97,5 +99,10 @@ namespace Project001
         size_t maxBodiesPerNode)
     {
         s_tangibleCollisionBodyQuadTree2D_.Reset(min, max, maxDepth, maxBodiesPerNode);
+    }
+
+    inline void CollisionSystem2D::FullyLoadCollisionBodyQuadTree2D()
+    {
+        s_tangibleCollisionBodyQuadTree2D_.FullyLoadTree();
     }
 }

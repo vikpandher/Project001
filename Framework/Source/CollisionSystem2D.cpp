@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-11-23
 
 #include "CollisionSystem2D.h"
 
@@ -3989,24 +3989,14 @@ namespace Project001
         }
 
         if (newCollisionManifold.collisionDepth != 0.0f &&
-            !(newCollisionManifold.collisionNormal.x == 0.0f && newCollisionManifold.collisionNormal.y == 0.0f))
+            !(newCollisionManifold.collisionNormal.x == 0.0f && newCollisionManifold.collisionNormal.y == 0.0f) &&
+            !std::isnan(newCollisionManifold.collisionPoint.x) &&
+            !std::isnan(newCollisionManifold.collisionPoint.y) &&
+            !std::isnan(newCollisionManifold.collisionNormal.x) &&
+            !std::isnan(newCollisionManifold.collisionNormal.y) &&
+            !std::isnan(newCollisionManifold.collisionDepth))
         {
-            if (!std::isnan(newCollisionManifold.collisionPoint.x) &&
-                !std::isnan(newCollisionManifold.collisionPoint.y) &&
-                !std::isnan(newCollisionManifold.collisionNormal.x) &&
-                !std::isnan(newCollisionManifold.collisionNormal.y) &&
-                !std::isnan(newCollisionManifold.collisionDepth))
-            {
-                s_collisionManifolds_.push_back(newCollisionManifold);
-            }
-            else
-            {
-                newCollisionManifold.collisionPoint = collisionBodyA.GetPosition();
-                newCollisionManifold.collisionNormal.x = 0.0f;
-                newCollisionManifold.collisionNormal.y = 1.0f;
-                newCollisionManifold.collisionDepth = collisionBodyA.GetBoundingRadius() + collisionBodyB.GetBoundingRadius();
-                s_collisionManifolds_.push_back(newCollisionManifold);
-            }
+            s_collisionManifolds_.push_back(newCollisionManifold);
         }
     }
 
@@ -4313,7 +4303,7 @@ namespace Project001
 
     std::vector<CollisionBody2D*> CollisionSystem2D::s_outOfBoundsTangibleCollisionBodyPtrs_;
 
-    CollisionBodyQuadTree2D CollisionSystem2D::s_tangibleCollisionBodyQuadTree2D_(glm::vec2(-8.0f, -6.0f), glm::vec2(8.0f, 6.0f), 4, 16);
+    CollisionBodyQuadTree2D CollisionSystem2D::s_tangibleCollisionBodyQuadTree2D_(glm::vec2(-8.0f, -6.0f), glm::vec2(8.0f, 6.0f), 3, 16);
 
     std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, CollisionSystem2D::PointerPairHashFunctor> CollisionSystem2D::s_collisionBodyPairPtrs_;
 
