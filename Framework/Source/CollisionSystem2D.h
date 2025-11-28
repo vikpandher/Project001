@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-11-27
 
 #pragma once
 
@@ -40,6 +40,7 @@ namespace Project001
 
         static void FullyLoadCollisionBodyQuadTree2D();
 
+        static float s_sunkenMeshOverlapAllowance;
         static float s_sunkenMeshSeperationSpacing;
 
     protected:

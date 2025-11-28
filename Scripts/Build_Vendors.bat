@@ -4,12 +4,16 @@
 
 SET cmake_generator="Visual Studio 17 2022"
 SET cmake_architecture=x64
-SET msbuild_path="C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/Msbuild.exe"
+SET msbuild_path=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\Msbuild.exe
+SET emscripten_path=C:\Users\vikpa\Documents\Dev\emsdk
+SET emscripten_cmake_toolchain_file=%emscripten_path%\upstream\emscripten\cmake\Modules\Platform\Emscripten.cmake
 
-IF NOT EXIST %msbuild_path% (
+IF NOT EXIST "%msbuild_path%" (
     ECHO Microsoft Build Engine not found: %msbuild_path%
     GOTO :EOF
 )
+
+SET originalDir=%cd%
 
 ECHO.
 ECHO Building FileToHeaderConverter
@@ -25,7 +29,7 @@ cmake ^
 
 CD Build
 
-%msbuild_path% FileToHeaderConverter.sln /p:Configuration=Release /p:Platform=x64
+CALL %msbuild_path% FileToHeaderConverter.sln /p:Configuration=Release /p:Platform=x64
 
 ECHO.
 ECHO Building glfw
@@ -45,6 +49,11 @@ cmake ^
 
 CD build
 
-%msbuild_path% GLFW.sln /p:Configuration=Debug /p:Platform=x64
+CALL %msbuild_path% GLFW.sln /p:Configuration=Debug /p:Platform=x64
 
-%msbuild_path% GLFW.sln /p:Configuration=Release /p:Platform=x64
+CALL %msbuild_path% GLFW.sln /p:Configuration=Release /p:Platform=x64
+
+ECHO ^
+--------------------------------------------------------------------------------
+
+CD %originalDir%

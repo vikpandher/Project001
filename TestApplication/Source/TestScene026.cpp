@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-11-27
 
 #include "TestScene026.h"
 
@@ -109,7 +109,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
     collisionBody2DCreationInfo.friction = 1.0f;
     collisionBody2DCreationInfo.restitution = 0.4f;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
-    collisionBody2DCreationInfo.mass = 1.0f;
+    // collisionBody2DCreationInfo.fixedRotation = true;
 
     { // Floor
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -158,6 +158,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
 
             collisionBody2DPtr->SetFixedTranslation(true);
             collisionBody2DPtr->SetFixedRotation(true);
+            // collisionBody2DPtr->SetDensity(std::numeric_limits<float>::infinity());
         }
     }
 

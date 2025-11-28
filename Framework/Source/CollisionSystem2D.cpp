@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-11-27
 
 #include "CollisionSystem2D.h"
 
@@ -125,10 +125,10 @@ namespace Project001
                 if ((collisionBodyA_ptr->GetCollisionGroupMask() & collisionBodyB_ptr->GetAllowedCollisionFilterMask()) &&
                     (collisionBodyB_ptr->GetCollisionGroupMask() & collisionBodyA_ptr->GetAllowedCollisionFilterMask()) &&
                     Check2D_Circle_Circle_Overlap(
-                    collisionBodyA_ptr->GetPosition(),
-                    collisionBodyA_ptr->GetBoundingRadius(),
-                    collisionBodyB_ptr->GetPosition(),
-                    collisionBodyB_ptr->GetBoundingRadius()))
+                        collisionBodyA_ptr->GetPosition(),
+                        collisionBodyA_ptr->GetBoundingRadius(),
+                        collisionBodyB_ptr->GetPosition(),
+                        collisionBodyB_ptr->GetBoundingRadius()))
                 {
                     s_collisionBodyPairPtrs_.insert(std::make_pair(collisionBodyA_ptr, collisionBodyB_ptr));
                 }
@@ -199,10 +199,10 @@ namespace Project001
                 (primaryCollisionBodyPtr->GetCollisionGroupMask() & currentCollisionBodyPtr->GetAllowedCollisionFilterMask()) &&
                 (currentCollisionBodyPtr->GetCollisionGroupMask() & primaryCollisionBodyPtr->GetAllowedCollisionFilterMask()) &&
                 Check2D_Circle_Circle_Overlap(
-                primaryCollisionBodyPtr->GetPosition(),
-                primaryCollisionBodyPtr->GetBoundingRadius(),
-                currentCollisionBodyPtr->GetPosition(),
-                currentCollisionBodyPtr->GetBoundingRadius()))
+                    primaryCollisionBodyPtr->GetPosition(),
+                    primaryCollisionBodyPtr->GetBoundingRadius(),
+                    currentCollisionBodyPtr->GetPosition(),
+                    currentCollisionBodyPtr->GetBoundingRadius()))
             {
                 CalculateCollisionsBetweenTwoBodiesAndAddManifold(entityId, *primaryCollisionBodyPtr, currentEntityId, *currentCollisionBodyPtr, false);
             }
@@ -380,7 +380,8 @@ namespace Project001
         ResolveCollisions();
     }
 
-    float CollisionSystem2D::s_sunkenMeshSeperationSpacing = 0.0001f;
+    float CollisionSystem2D::s_sunkenMeshOverlapAllowance = 0.001f;
+    float CollisionSystem2D::s_sunkenMeshSeperationSpacing = 0.0f;
 
     // protected ---------------------------------------------------------------
 
@@ -444,24 +445,24 @@ namespace Project001
 
         std::function<void(unsigned int tagA, unsigned int tagB)> AddCollisionData =
             [&](unsigned int tagA, unsigned int tagB)
-        {
-            CollisionData2D collisionA;
-            collisionA.otherEntityId = entityIdB;
-            collisionA.myShapeTag = tagA;
-            collisionA.otherShapeTag = tagB;
-
-            collisionBodyA.AddCollision(collisionA);
-
-            if (recordInBodyB)
             {
-                CollisionData2D collisionB;
-                collisionB.otherEntityId = entityIdA;
-                collisionB.myShapeTag = collisionA.otherShapeTag;
-                collisionB.otherShapeTag = collisionA.myShapeTag;
+                CollisionData2D collisionA;
+                collisionA.otherEntityId = entityIdB;
+                collisionA.myShapeTag = tagA;
+                collisionA.otherShapeTag = tagB;
 
-                collisionBodyB.AddCollision(collisionB);
-            }
-        };
+                collisionBodyA.AddCollision(collisionA);
+
+                if (recordInBodyB)
+                {
+                    CollisionData2D collisionB;
+                    collisionB.otherEntityId = entityIdA;
+                    collisionB.myShapeTag = collisionA.otherShapeTag;
+                    collisionB.otherShapeTag = collisionA.myShapeTag;
+
+                    collisionBodyB.AddCollision(collisionB);
+                }
+            };
 
         std::function<void(CollisionData2D& collisionA, unsigned int tagA, unsigned int tagB)> AddCollisionData2 =
             [&](CollisionData2D& collisionA, unsigned int tagA, unsigned int tagB)
@@ -4050,64 +4051,65 @@ namespace Project001
             // Unsink bodies from eachother
             // -----------------------------------------------------------------
 
-            bool bodyA_notMoving = std::isinf(massA) || std::isinf(momentOfInertiaA) || fixedTranslationA || fixedRotationA;
-            bool bodyB_notMoving = std::isinf(massB) || std::isinf(momentOfInertiaB) || fixedTranslationB || fixedRotationB;
-
-            if (bodyA_notMoving)
+            if (collisionDepth > s_sunkenMeshOverlapAllowance)
             {
-                if (bodyB_notMoving)
+                float collisionSeperation = collisionDepth - s_sunkenMeshOverlapAllowance;
+
+                bool bodyA_notMoving = std::isinf(massA) || std::isinf(momentOfInertiaA) || fixedTranslationA || fixedRotationA;
+                bool bodyB_notMoving = std::isinf(massB) || std::isinf(momentOfInertiaB) || fixedTranslationB || fixedRotationB;
+
+                if (bodyA_notMoving)
                 {
-                    if (std::isinf(massA) || std::isinf(massB))
+                    if (bodyB_notMoving)
                     {
-                        if (massA > massB)
+                        if (std::isinf(massA) || std::isinf(massB))
                         {
-                            // A is more immovable
-                            collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth);
-                        }
-                        else if (massB > massA)
-                        {
-                            // B is more immovable
-                            collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f);
+                            if (massA > massB)
+                            {
+                                // A is more immovable
+                                collisionBodyB.SetPosition(positionB + collisionNormal * collisionSeperation);
+                            }
+                            else if (massB > massA)
+                            {
+                                // B is more immovable
+                                collisionBodyA.SetPosition(positionA + collisionNormal * collisionSeperation * -1.0f);
+                            }
+                            else
+                            {
+                                // equally immovable
+                                collisionBodyA.SetPosition(positionA + collisionNormal * collisionSeperation * -0.5f);
+                                collisionBodyB.SetPosition(positionB + collisionNormal * collisionSeperation * 0.5f);
+                            }
                         }
                         else
                         {
-                            // equally immovable
-                            collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -0.5f);
-                            collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * 0.5f);
+                            float combinedMass = massA + massB;
+                            float massRatioA = massA / combinedMass;
+                            float massRatioB = massB / combinedMass;
+
+                            collisionBodyA.SetPosition(positionA + collisionNormal * collisionSeperation * -1.0f * massRatioA);
+                            collisionBodyB.SetPosition(positionB + collisionNormal * collisionSeperation * massRatioB);
                         }
                     }
-                    else
+                    else // if (bodyA_notMoving)
                     {
-                        float combinedMass = massA + massB;
-                        float massRatioA = massA / combinedMass;
-                        float massRatioB = massB / combinedMass;
-
-                        collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f * massRatioA);
-                        collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
+                        collisionBodyB.SetPosition(positionB + collisionNormal * collisionSeperation);
                     }
-
-                    continue; // skip velocity resolution
                 }
-                else // if (bodyA_notMoving)
+                else if (bodyB_notMoving)
                 {
-                    collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth);
+                    collisionBodyA.SetPosition(positionA + collisionNormal * collisionSeperation * -1.0f);
+                }
+                else
+                {
+                    float combinedMass = massA + massB;
+                    float massRatioA = massA / combinedMass;
+                    float massRatioB = massB / combinedMass;
+
+                    collisionBodyA.SetPosition(positionA + collisionNormal * collisionSeperation * -1.0f * massRatioA);
+                    collisionBodyB.SetPosition(positionB + collisionNormal * collisionSeperation * massRatioB);
                 }
             }
-            else if (bodyB_notMoving)
-            {
-                collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f);
-            }
-            else
-            {
-                float combinedMass = massA + massB;
-                float massRatioA = massA / combinedMass;
-                float massRatioB = massB / combinedMass;
-
-                collisionBodyA.SetPosition(positionA + collisionNormal * collisionDepth * -1.0f * massRatioA);
-                collisionBodyB.SetPosition(positionB + collisionNormal * collisionDepth * massRatioB);
-            }
-
-            // !bodyA_notMoving && !bodyB_notMoving
 
             if (fixedTranslationA)
             {

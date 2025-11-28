@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-22
+// @DATE 2025-11-27
 
 #include "TestScene027.h"
 
@@ -111,7 +111,6 @@ void TestScene027::CreateCollisionBodyEntities()
     collisionBody2DCreationInfo.friction = 1.0f;
     collisionBody2DCreationInfo.restitution = 0.4f;
     collisionBody2DCreationInfo.collisionGroupMask = s_mainCollisionGroupMask_;
-    collisionBody2DCreationInfo.mass = 1.0f;
 
     { // Left Floor
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -237,6 +236,29 @@ void TestScene027::CreateCollisionBodyEntities()
         circleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
     }
 
+    unsigned int rectangleMeshId = (unsigned int)-1;
+
+    float rectangleWidth = 0.08f;
+    float rectangleHeight = 0.08f;
+    float rectangleBoundingRadius;
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(*newMeshDataPtr, rectangleWidth, rectangleHeight));
+        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        GetRendererPtr()->CreateMesh(
+            rectangleMeshId,
+            newMeshDataPtr->meshVertexArray.data(),
+            (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+            newMeshDataPtr->meshIndexArray.data(),
+            (unsigned int)newMeshDataPtr->meshIndexArray.size()
+        );
+        rectangleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
+    }
+
+    bool creatingCirclesAndNotRectangles = true;
+
     size_t count;
 #ifndef NDEBUG
     count = 500;
@@ -258,7 +280,14 @@ void TestScene027::CreateCollisionBodyEntities()
         {
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(currentPosition);
-            renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(circleMeshId, circleBoundingRadius);
+            if (creatingCirclesAndNotRectangles)
+            {
+                renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(circleMeshId, circleBoundingRadius);
+            }
+            else
+            {
+                renderedMeshPtr->SetMeshIdAndMaxBoundingRadius(rectangleMeshId, rectangleBoundingRadius);
+            }
             renderedMeshPtr->SetUseLighting(false);
         }
 
@@ -268,11 +297,22 @@ void TestScene027::CreateCollisionBodyEntities()
         if (collisionBody2DPtr != nullptr)
         {
             collisionBody2DPtr->SetPosition(currentPosition);
-            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
-            collisionCircles.emplace_back(
-                glm::vec2(),
-                circleRadius
-            );
+            if (creatingCirclesAndNotRectangles)
+            {
+                std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBody2DPtr->GetCollisionCircles();
+                collisionCircles.emplace_back(
+                    glm::vec2(),
+                    circleRadius
+                );
+            }
+            else
+            {
+                std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBody2DPtr->GetCollisionRectangles();
+                collisionRectangles.emplace_back(
+                    glm::vec2(rectangleWidth * -0.5f, rectangleHeight * -0.5f),
+                    glm::vec2(rectangleWidth * 0.5f, rectangleHeight * 0.5f)
+                );
+            }
         }
     }
 }
