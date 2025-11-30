@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-10-18
+# @DATE 2025-11-30
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -284,12 +284,15 @@ if(${FRAMEWORK_SANITY_CHECK_DEBUG_OUTPUT})
     message("PROJECT_NAME: ${PROJECT_NAME}")
     message("PROJECT_VERSION: ${PROJECT_VERSION}")
     message("PROJECT_DESCRIPTION: ${PROJECT_DESCRIPTION}")
-    
+
     get_property(_ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
     message("ENABLED_LANGUAGES:")
     foreach(VARIABLE ${_ENABLED_LANGUAGES})
         message("    ${VARIABLE}")
     endforeach()
+
+    message("CMAKE_CXX_FLAGS:")
+    message("    ${CMAKE_CXX_FLAGS}")
 
     message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}") # ROOT DIR, top level CMakeLists.txt location
     message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}") # this CMakeLists.txt location

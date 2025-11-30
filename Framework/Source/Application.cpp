@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-11-30
 
 #include "Application.h"
 
@@ -125,7 +125,7 @@ namespace Project001
             unsigned int updatesInARow = 0;
             while (simulationTimeDebt_ns >= desiredFrameDuration_ns_)
             {
-                HandleEvent(UpdateEvent(0, desiredFrameDuration_ns_));
+                HandleEvent(UpdateEvent(desiredFrameDuration_ns_));
                 updatesInARow++;
                 simulationTimeDebt_ns -= desiredFrameDuration_ns_;
 
@@ -137,11 +137,15 @@ namespace Project001
                 }
             }
 
+            currentFrameTimeStamp = std::chrono::system_clock::now();
+            frameDuration = currentFrameTimeStamp - lastFrameTimeStamp;
+            frameDuration_ns = frameDuration.count();
+
             // Render
             // -----------------------------------------------------------------
 
             windowPtr_->PollEvents();
-            HandleEvent(RenderEvent(0, frameDuration_ns));
+            HandleEvent(RenderEvent(frameDuration_ns));
             lastFrameTimeStamp = currentFrameTimeStamp;
         }
 

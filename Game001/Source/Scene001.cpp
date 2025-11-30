@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-22
+// @DATE 2025-11-30
 
 #include "Scene001.h"
 
@@ -1525,7 +1525,7 @@ void Scene001::CreateIntroTextEntity()
         "\n"
         "Trick or Treat on Spooky Street\n"
         "\n"
-        "version 0.1.x\n"
+        "version 0.2.0\n"
         "\n"
         "\n"
         "Knock on the doors of lit-up houses to collect candy.\n"
