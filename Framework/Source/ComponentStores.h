@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-02
 
 #pragma once
 
@@ -51,7 +51,7 @@ namespace Project001
         bool GetAllComponents(Component*& componentPtrs, size_t& componentCount);
 
         template <typename Component>
-        bool GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr);
+        bool GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr) const;
 
         template <typename Component>
         bool GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const;
@@ -98,7 +98,7 @@ namespace Project001
             RegisterNewComponent<Component>(1, 2, 0);
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->CreateComponent<Component>(entityId, args...);
     }
 
@@ -116,7 +116,7 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->DeleteComponent(entityId);
     }
 
@@ -129,7 +129,7 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         componentContainerPtrs_[componentContainerIndex]->DeleteAllComponents();
 
         return true;
@@ -149,7 +149,7 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->GetComponent<Component>(componentPtr, entityId);
     }
 
@@ -162,12 +162,12 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->GetAllComponents<Component>(componentPtrs, componentCount);
     }
 
     template <typename Component>
-    inline bool ComponentStores::GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr)
+    inline bool ComponentStores::GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr) const
     {
         unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
         if (!ComponentTypeExists(componentTypeId))
@@ -175,7 +175,7 @@ namespace Project001
             return false;
         }
 
-        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_[componentTypeId];
+        unsigned int componentContainerIndex = componentTypeIdToComponentContainerIndexMap_.at(componentTypeId);
         return componentContainerPtrs_[componentContainerIndex]->GetComponentEntityId<Component>(entityId, componentPtr);
     }
 

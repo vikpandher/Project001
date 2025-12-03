@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-02
 
 #include "UniqueIdGenerator.h"
 
@@ -64,7 +64,7 @@ namespace Project001
         availableIdFlags_.clear();
     }
 
-    bool UniqueIdGenerator::IdIsAvailable(const unsigned int& id)
+    bool UniqueIdGenerator::IdIsAvailable(const unsigned int& id) const
     {
         if (id < minimumId_)
         {

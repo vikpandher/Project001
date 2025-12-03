@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-02
 
 #pragma once
 
@@ -22,7 +22,7 @@ namespace Project001
 
         void ReturnAllIds();
 
-        bool IdIsAvailable(const unsigned int& id);
+        bool IdIsAvailable(const unsigned int& id) const;
 
     protected:
         unsigned int minimumId_;
