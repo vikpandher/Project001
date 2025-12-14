@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #include "TextureLoader.h"
 
@@ -43,9 +43,9 @@ namespace Project001
         {
             return false;
         }
-        textureData.width = (unsigned int)width;
-        textureData.height = (unsigned int)height;
-        textureData.bytesPerPixel = (unsigned int)bytesPerPixel;
+        textureData.width = static_cast<unsigned int>(width);
+        textureData.height = static_cast<unsigned int>(height);
+        textureData.bytesPerPixel = static_cast<unsigned int>(bytesPerPixel);
 
         // NOTE: stbi_image_free just calls free
 
@@ -65,20 +65,20 @@ namespace Project001
         int bytesPerPixel;
         if (convertToRGBA)
         {
-            textureData.data = stbi_load_from_memory(dataPtr, (int)dataSize, &width, &height, &bytesPerPixel, STBI_rgb_alpha);
+            textureData.data = stbi_load_from_memory(dataPtr, static_cast<int>(dataSize), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
             bytesPerPixel = 4;
         }
         else
         {
-            textureData.data = stbi_load_from_memory(dataPtr, (int)dataSize, &width, &height, &bytesPerPixel, 0);
+            textureData.data = stbi_load_from_memory(dataPtr, static_cast<int>(dataSize), &width, &height, &bytesPerPixel, 0);
         }
         if (textureData.data == nullptr)
         {
             return false;
         }
-        textureData.width = (unsigned int)width;
-        textureData.height = (unsigned int)height;
-        textureData.bytesPerPixel = (unsigned int)bytesPerPixel;
+        textureData.width = static_cast<unsigned int>(width);
+        textureData.height = static_cast<unsigned int>(height);
+        textureData.bytesPerPixel = static_cast<unsigned int>(bytesPerPixel);
 
         return true;
     }

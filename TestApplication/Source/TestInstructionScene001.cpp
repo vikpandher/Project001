@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-12-13
 
 #include "TestInstructionScene001.h"
 
@@ -21,11 +21,11 @@ TestInstructionScene001::TestInstructionScene001(Project001::Application* applic
     , instructionTextMeshDataPtr_(nullptr)
     , hiddenInstructionBackgroundMeshDataPtr_(nullptr)
     , instructionBackgroundMeshDataPtr_(nullptr)
-    , instructionsEntityId_((unsigned int)-1)
-    , hiddenInstructionMeshIndex_((unsigned int)-1)
-    , instructionMeshIndex_((unsigned int)-1)
-    , hiddenInstructionBackgroundMeshIndex_((unsigned int)-1)
-    , instructionBackgroundMeshIndex_((unsigned int)-1)
+    , instructionsEntityId_(static_cast<unsigned int>(-1))
+    , hiddenInstructionMeshIndex_(static_cast<unsigned int>(-1))
+    , instructionMeshIndex_(static_cast<unsigned int>(-1))
+    , hiddenInstructionBackgroundMeshIndex_(static_cast<unsigned int>(-1))
+    , instructionBackgroundMeshIndex_(static_cast<unsigned int>(-1))
     , keyCode_toggleInstructions_(Project001::KeyCode::KEY_CODE_UNKNOWN)
 {}
 
@@ -204,11 +204,11 @@ void TestInstructionScene001::Deinitialize()
     // Entity Ids --------------------------------------------------------------
 
     GetComponentStoresPtr()->DeleteEntity(instructionsEntityId_);
-    instructionsEntityId_ = (unsigned int)-1;
-    hiddenInstructionMeshIndex_ = (unsigned int)-1;
-    instructionMeshIndex_ = (unsigned int)-1;
-    hiddenInstructionBackgroundMeshIndex_ = (unsigned int)-1;
-    instructionBackgroundMeshIndex_ = (unsigned int)-1;
+    instructionsEntityId_ = static_cast<unsigned int>(-1);
+    hiddenInstructionMeshIndex_ = static_cast<unsigned int>(-1);
+    instructionMeshIndex_ = static_cast<unsigned int>(-1);
+    hiddenInstructionBackgroundMeshIndex_ = static_cast<unsigned int>(-1);
+    instructionBackgroundMeshIndex_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 

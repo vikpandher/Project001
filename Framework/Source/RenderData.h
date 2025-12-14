@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -12,7 +12,8 @@
 
 namespace Project001
 {
-    struct DirectionalLight {
+    struct DirectionalLight
+    {
         DirectionalLight()
             : direction(0.0f, 0.0f, -1.0f)
             , ambient(0.0f, 0.0f, 0.0f)
@@ -32,19 +33,20 @@ namespace Project001
         {}
 
         // Direction the light is going
-        alignas(16) glm::vec3 direction;
+        glm::vec3 direction;
 
         // Ambient light applied to everything from all directions evenly
-        alignas(16) glm::vec3 ambient;
+        glm::vec3 ambient;
 
         // Light comming from a direction
-        alignas(16) glm::vec3 diffuse;
+        glm::vec3 diffuse;
 
         // The color of the shine
-        alignas(16) glm::vec3 specular;
+        glm::vec3 specular;
     };
 
-    struct PointLight {
+    struct PointLight
+    {
         PointLight()
             : position(0.0f, 0.0f, 0.0f)
             , constant(1.0f)
@@ -73,7 +75,7 @@ namespace Project001
         {}
 
         // Position of the light's source
-        alignas(16) glm::vec3 position;
+        glm::vec3 position;
 
         // This term is usually kept at 1.0 which is maily there to make sure
         // the denominator for the attenuation calculation never gets smaller
@@ -89,12 +91,13 @@ namespace Project001
         // Higher equals faster dimming
         float quadratic;
 
-        alignas(16) glm::vec3 ambient;
-        alignas(16) glm::vec3 diffuse;
-        alignas(16) glm::vec3 specular;
+        glm::vec3 ambient;
+        glm::vec3 diffuse;
+        glm::vec3 specular;
     };
 
-    struct SpotLight {
+    struct SpotLight
+    {
         SpotLight()
             : position(0.0f, 0.0f, 0.0f)
             , direction(0.0f, 0.0f, -1.0f)
@@ -131,8 +134,8 @@ namespace Project001
             , specular(specular)
         {}
 
-        alignas(16) glm::vec3 position;
-        alignas(16) glm::vec3 direction;
+        glm::vec3 position;
+        glm::vec3 direction;
 
         // The cut-offs determine the angle the cone of light spreads from the
         // source:
@@ -154,9 +157,9 @@ namespace Project001
 
         // Amblient light is cutoff as well, but will light the target from
         // behind.
-        alignas(16) glm::vec3 ambient;
-        alignas(16) glm::vec3 diffuse;
-        alignas(16) glm::vec3 specular;
+        glm::vec3 ambient;
+        glm::vec3 diffuse;
+        glm::vec3 specular;
     };
 
     // Combines VertexData with InstanceData

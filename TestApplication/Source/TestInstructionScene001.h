@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -24,9 +24,9 @@ public:
         std::string instructionString;
 
         const Project001::FontData* fontDataPtr = nullptr;
-        unsigned int fontTextureId = (unsigned int)-1;
+        unsigned int fontTextureId = static_cast<unsigned int>(-1);
 
-        unsigned int cameraEntityId = (unsigned int)-1;
+        unsigned int cameraEntityId = static_cast<unsigned int>(-1);
         uint32_t cameraMask = 0b00000000000000000000000000000000;
 
         bool locatedOnBottom = false;

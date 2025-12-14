@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene025.h"
 
@@ -122,7 +122,7 @@ void TestScene025::CreateEntitiesForTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition((float)i, yPos01, 0.0f);
+        glm::vec3 currentPosition(static_cast<float>(i), yPos01, 0.0f);
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -162,7 +162,7 @@ void TestScene025::CreateEntitiesForTest01()
     {
         for (int x = -2; x <= 2; ++x)
         {
-            meshEntityPositions.emplace_back((float)x * 2.5f, (float)y * 1.5f + 0.5f, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(x) * 2.5f, static_cast<float>(y) * 1.5f + 0.5f, 0.0f);
         }
     }
     size_t positionPosition = 0;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene022.h"
 
@@ -59,7 +59,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -2; j <= 3; ++j)
         {
-            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(j), static_cast<float>(i), 0.0f);
         }
     }
     size_t positionPosition = 0;
@@ -713,7 +713,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         size_t sides = 5;
         float radius = 0.24f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
 
         glm::vec2 radialVector(0.0f, radius);
         shapePoints.push_back(radialVector);
@@ -764,7 +764,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         size_t sides = 6;
         float radius = 0.32f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
 
         glm::vec2 radialVector(0.0f, radius);
         shapePoints.push_back(radialVector);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-12-13
 
 #include "ComponentContainer.h"
 
@@ -53,7 +53,7 @@ namespace Project001
         }
 
         int deletedComponentMemoryIndex = iter->second;
-        uint8_t* deletedComponentPtr = (uint8_t*)componentMemoryPtr_ + deletedComponentMemoryIndex * componentSize_;
+        uint8_t* deletedComponentPtr = componentMemoryPtr_ + deletedComponentMemoryIndex * componentSize_;
 
         ComponentDestructionFunction_(deletedComponentPtr);
         entityIdToComponentMemoryIndexMap_.erase(iter);
@@ -62,7 +62,7 @@ namespace Project001
 
         if (entityId != lastComponentEntityId)
         {
-            uint8_t* lastComponentPtr = (uint8_t*)componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
+            uint8_t* lastComponentPtr = componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
 
             ::memcpy(deletedComponentPtr, lastComponentPtr, componentSize_);
             *(componentEntityIdMemoryPtr_ + deletedComponentMemoryIndex) = lastComponentEntityId;
@@ -84,7 +84,7 @@ namespace Project001
 
         for (size_t i = 0; i < componentCount_; ++i)
         {
-            uint8_t* deletedComponent = (uint8_t*)componentMemoryPtr_ + i * componentSize_;
+            uint8_t* deletedComponent = componentMemoryPtr_ + i * componentSize_;
             ComponentDestructionFunction_(deletedComponent);
         }
 

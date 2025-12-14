@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene034.h"
 
@@ -27,17 +27,17 @@
 TestScene034::TestScene034(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
-    , thonk001_TextureId_((unsigned int)-1)
-    , thonkSpecular001_TextureId_((unsigned int)-1)
+    , thonk001_TextureId_(static_cast<unsigned int>(-1))
+    , thonkSpecular001_TextureId_(static_cast<unsigned int>(-1))
     , _32x32_TextureIds_()
     , cube001_MeshDataPtr_(nullptr)
-    , cube001_MeshId_((unsigned int)-1)
+    , cube001_MeshId_(static_cast<unsigned int>(-1))
     , cube001_MaxBoundingRadius_(0.0f)
     , line001_MeshDataPtr_(nullptr)
-    , line001_MeshId_((unsigned int)-1)
+    , line001_MeshId_(static_cast<unsigned int>(-1))
     , line001_MaxBoundingRadius_(0.0f)
     , cone001_MeshDataPtr_(nullptr)
-    , cone001_MeshId_((unsigned int)-1)
+    , cone001_MeshId_(static_cast<unsigned int>(-1))
     , cone001_MaxBoundingRadius_(0.0f)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene034Id = GetId();
@@ -90,7 +90,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
-        unsigned int tempTextureId = (unsigned int)-1;
+        unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
@@ -106,9 +106,9 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             cube001_MeshId_,
             cube001_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)cube001_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(cube001_MeshDataPtr_->meshVertexArray.size()),
             cube001_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)cube001_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(cube001_MeshDataPtr_->meshIndexArray.size())
         );
 
         cube001_MaxBoundingRadius_ = cube001_MeshDataPtr_->maxBoundingRadius;
@@ -142,9 +142,9 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             line001_MeshId_,
             line001_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)line001_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(line001_MeshDataPtr_->meshVertexArray.size()),
             line001_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)line001_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(line001_MeshDataPtr_->meshIndexArray.size())
         );
 
         line001_MaxBoundingRadius_ = line001_MeshDataPtr_->maxBoundingRadius;
@@ -158,9 +158,9 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             cone001_MeshId_,
             cone001_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)cone001_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(cone001_MeshDataPtr_->meshVertexArray.size()),
             cone001_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)cone001_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(cone001_MeshDataPtr_->meshIndexArray.size())
         );
 
         cone001_MaxBoundingRadius_ = cone001_MeshDataPtr_->maxBoundingRadius;
@@ -174,7 +174,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -2; j <= 2; ++j)
         {
-            positions.emplace_back(2.0f * (float)j, 2.0f * (float)i, 0.0f);
+            positions.emplace_back(2.0f * static_cast<float>(j), 2.0f * static_cast<float>(i), 0.0f);
         }
     }
 
@@ -279,7 +279,7 @@ void TestScene034::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -320,9 +320,9 @@ void TestScene034::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Texture Data ------------------------------------------------------------
 
-    thonk001_TextureId_ = (unsigned int)-1;
+    thonk001_TextureId_ = static_cast<unsigned int>(-1);
 
-    thonkSpecular001_TextureId_ = (unsigned int)-1;
+    thonkSpecular001_TextureId_ = static_cast<unsigned int>(-1);
 
     _32x32_TextureIds_.clear();
 
@@ -331,14 +331,14 @@ void TestScene034::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     // dont need to delete these here since they are added to meshDataPtrArray_
 
     cube001_MeshDataPtr_ = nullptr;
-    cube001_MeshId_ = (unsigned int)-1;
+    cube001_MeshId_ = static_cast<unsigned int>(-1);
     cube001_MaxBoundingRadius_ = 0.0f;
 
     line001_MeshDataPtr_ = nullptr;
-    line001_MeshId_ = (unsigned int)-1;
+    line001_MeshId_ = static_cast<unsigned int>(-1);
     line001_MaxBoundingRadius_ = 0.0f;
 
     cone001_MeshDataPtr_ = nullptr;
-    cone001_MeshId_ = (unsigned int)-1;
+    cone001_MeshId_ = static_cast<unsigned int>(-1);
     cone001_MaxBoundingRadius_ = 0.0f;
 }

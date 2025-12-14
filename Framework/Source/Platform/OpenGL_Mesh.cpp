@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #include "OpenGL_Mesh.h"
 
@@ -21,12 +21,12 @@ namespace Project001
         const unsigned int* meshIndexPtr,
         unsigned int meshIndexCount)
         : indexCount_(meshIndexCount)
-        , vertexArrayId_((unsigned int)-1)
+        , vertexArrayId_(static_cast<unsigned int>(-1))
     {
         glGenBuffers(1, &vertexBufferId_);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId_);
         glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * meshVertexCount, NULL, GL_STATIC_DRAW);
-        VertexData* mappedVertexDataPtr = (VertexData*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        VertexData* mappedVertexDataPtr = static_cast<VertexData*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
         for (unsigned int i = 0; i < meshVertexCount; ++i)
         {
             mappedVertexDataPtr[i].position = meshVertexPtr[i].position;
@@ -39,7 +39,7 @@ namespace Project001
         glGenBuffers(1, &indexBufferId_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * meshIndexCount, NULL, GL_STATIC_DRAW);
-        unsigned int* mappedIndexDataPtr = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+        unsigned int* mappedIndexDataPtr = static_cast<unsigned int*>(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
         for (unsigned int i = 0; i < meshIndexCount; ++i)
         {
             mappedIndexDataPtr[i] = meshIndexPtr[i];
@@ -74,15 +74,15 @@ namespace Project001
 
         unsigned long long attributeOffset = 0;
 
-        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(positionAttributeIndex);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glVertexAttribPointer(textureCoordinateAttributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(textureCoordinateAttributeIndex);
         attributeOffset += sizeof(glm::vec2);
 
-        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)attributeOffset);
+        glVertexAttribPointer(normalAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(normalAttributeIndex);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId);
@@ -98,42 +98,42 @@ namespace Project001
 
         attributeOffset = 0;
 
-        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(colorAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(colorAttributeIndex);
         glVertexAttribDivisor(colorAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec4);
 
-        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(textureUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(textureUnitAttributeIndex);
         glVertexAttribDivisor(textureUnitAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(specularUnitAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(specularUnitAttributeIndex);
         glVertexAttribDivisor(specularUnitAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(shininessAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(shininessAttributeIndex);
         glVertexAttribDivisor(shininessAttributeIndex, 1);
         attributeOffset += sizeof(float);
 
-        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(scaleAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(scaleAttributeIndex);
         glVertexAttribDivisor(scaleAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(translationAttributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(translationAttributeIndex);
         glVertexAttribDivisor(translationAttributeIndex, 1);
         attributeOffset += sizeof(glm::vec3);
 
-        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(orientationAttributeIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(orientationAttributeIndex);
         glVertexAttribDivisor(orientationAttributeIndex, 1);
         attributeOffset += sizeof(glm::quat);
 
-        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)attributeOffset);
+        glVertexAttribPointer(litAttributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceData), reinterpret_cast<const void*>(attributeOffset));
         glEnableVertexAttribArray(litAttributeIndex);
         glVertexAttribDivisor(litAttributeIndex, 1);
 

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-18
+// @DATE 2025-12-13
 
 #include "RenderSystem.h"
 
@@ -198,7 +198,7 @@ namespace Project001
                         }
                     }
 
-                    unsigned int currentCameraId = (unsigned int)-1;
+                    unsigned int currentCameraId = static_cast<unsigned int>(-1);
                     if (componentStoresPtr->GetComponentEntityId<Camera>(currentCameraId, &currentCamera))
                     {
                         s_cameraEntityIdToRenderedMeshCount_[currentCameraId] = s_renderedMeshPtrs_.size();
@@ -364,7 +364,7 @@ namespace Project001
                                     FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         s_meshInstanceDataArray_.data(),
-                                        (unsigned int)s_meshInstanceDataArray_.size()
+                                        static_cast<unsigned int>(s_meshInstanceDataArray_.size())
                                     ));
 
                                     s_meshInstanceDataArray_.clear();
@@ -388,7 +388,7 @@ namespace Project001
                                     FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         s_meshInstanceDataArray_.data(),
-                                        (unsigned int)s_meshInstanceDataArray_.size()
+                                        static_cast<unsigned int>(s_meshInstanceDataArray_.size())
                                     ));
 
                                     s_meshInstanceDataArray_.clear();
@@ -397,9 +397,9 @@ namespace Project001
                                 const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
                                 FAIL_CHECK(rendererPtr->AddMeshToBatch(
                                     currentMeshDataPtr->meshVertexArray.data(),
-                                    (unsigned int)currentMeshDataPtr->meshVertexArray.size(),
+                                    static_cast<unsigned int>(currentMeshDataPtr->meshVertexArray.size()),
                                     currentMeshDataPtr->meshIndexArray.data(),
-                                    (unsigned int)currentMeshDataPtr->meshIndexArray.size(),
+                                    static_cast<unsigned int>(currentMeshDataPtr->meshIndexArray.size()),
                                     currentRenderedMeshPtr->GetTextureId(),
                                     currentRenderedMeshPtr->GetSpecularId(),
                                     currentRenderedMeshPtr->GetPosition(),
@@ -420,7 +420,7 @@ namespace Project001
                             FAIL_CHECK(rendererPtr->RenderMesh(
                                 previousRenderedMeshPtr->GetMeshId(),
                                 s_meshInstanceDataArray_.data(),
-                                (unsigned int)s_meshInstanceDataArray_.size()
+                                static_cast<unsigned int>(s_meshInstanceDataArray_.size())
                             ));
 
                             s_meshInstanceDataArray_.clear();

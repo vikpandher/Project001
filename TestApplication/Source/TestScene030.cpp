@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene030.h"
 
@@ -28,11 +28,11 @@ TestScene030::TestScene030(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , ui_fps_MeshDataPtr_(nullptr)
     , ui_renderedMeshCount_MeshDataPtr_(nullptr)
-    , ui_fps_EntityId_((unsigned int)-1)
-    , ui_renderedMeshCount_EntityId_((unsigned int)-1)
+    , ui_fps_EntityId_(static_cast<unsigned int>(-1))
+    , ui_renderedMeshCount_EntityId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene030Id = GetId();
 }
@@ -125,7 +125,7 @@ void TestScene030::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Generate Entities -------------------------------------------------------
 
-    for (size_t i = 0; i < meshEntityPositions.size(); i++)
+    for (size_t i = 0; i < meshEntityPositions.size(); ++i)
     {
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -239,7 +239,7 @@ void TestScene030::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
 
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
@@ -251,14 +251,14 @@ void TestScene030::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Entity Ids --------------------------------------------------------------
 
-    ui_fps_EntityId_ = (unsigned int)-1;
+    ui_fps_EntityId_ = static_cast<unsigned int>(-1);
 
-    ui_renderedMeshCount_EntityId_ = (unsigned int)-1;
+    ui_renderedMeshCount_EntityId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene030::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
+    float fps = 1e9f / static_cast<float>(renderEvent.timestep_ns);
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));

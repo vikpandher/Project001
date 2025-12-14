@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-12-13
 
 #include "TestSceneBase001.h"
 
@@ -23,9 +23,9 @@
 TestSceneBase001::TestSceneBase001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , meshDataPtrArray_()
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
-    , lightSourceEntityId_((unsigned int)-1)
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
+    , lightSourceEntityId_(static_cast<unsigned int>(-1))
     , entityIds_()
     , previousCursorDownPosition_()
     , remainingTimeRecordingDuration_ns_(0)
@@ -68,7 +68,7 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 cameraPtr->SetAspectRatio(aspectRatio);
             }
             cameraPtr->SetPosition(0.0f, 0.0f, 7.5f);
@@ -96,7 +96,7 @@ void TestSceneBase001::ProcessInitializeEvent(Project001::InitializeEvent& initi
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 uiCameraHalfHeight = 3.5f;
                 uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -157,10 +157,10 @@ void TestSceneBase001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    lightSourceEntityId_ = (unsigned int)-1;
+    lightSourceEntityId_ = static_cast<unsigned int>(-1);
 
     entityIds_.clear();
 
@@ -333,7 +333,7 @@ void TestSceneBase001::UpdateMainCameraEntityPositionAndRoll(unsigned long long 
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
-        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+        float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
         float speedConstant = 1.0f;
         float cameraTranslationSpeed = speedConstant * timestep_s;

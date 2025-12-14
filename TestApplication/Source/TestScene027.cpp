@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-27
+// @DATE 2025-12-13
 
 #include "TestScene027.h"
 
@@ -216,7 +216,7 @@ void TestScene027::CreateCollisionBodyEntities()
     std::uniform_real_distribution<float> distributionX(-8.0f, 8.0f);
     std::uniform_real_distribution<float> distributionY(-6.0f, 6.0f);
 
-    unsigned int circleMeshId = (unsigned int)-1;
+    unsigned int circleMeshId = static_cast<unsigned int>(-1);
 
     float circleRadius = 0.08f;
     float circleBoundingRadius;
@@ -229,14 +229,14 @@ void TestScene027::CreateCollisionBodyEntities()
         GetRendererPtr()->CreateMesh(
             circleMeshId,
             newMeshDataPtr->meshVertexArray.data(),
-            (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+            static_cast<unsigned int>(newMeshDataPtr->meshVertexArray.size()),
             newMeshDataPtr->meshIndexArray.data(),
-            (unsigned int)newMeshDataPtr->meshIndexArray.size()
+            static_cast<unsigned int>(newMeshDataPtr->meshIndexArray.size())
         );
         circleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
     }
 
-    unsigned int rectangleMeshId = (unsigned int)-1;
+    unsigned int rectangleMeshId = static_cast<unsigned int>(-1);
 
     float rectangleWidth = 0.08f;
     float rectangleHeight = 0.08f;
@@ -250,9 +250,9 @@ void TestScene027::CreateCollisionBodyEntities()
         GetRendererPtr()->CreateMesh(
             rectangleMeshId,
             newMeshDataPtr->meshVertexArray.data(),
-            (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+            static_cast<unsigned int>(newMeshDataPtr->meshVertexArray.size()),
             newMeshDataPtr->meshIndexArray.data(),
-            (unsigned int)newMeshDataPtr->meshIndexArray.size()
+            static_cast<unsigned int>(newMeshDataPtr->meshIndexArray.size())
         );
         rectangleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
     }

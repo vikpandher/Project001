@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-22
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -18,8 +18,8 @@ struct SharedApplicationData
 {
     // Scene Ids ---------------------------------------------------------------
 
-    unsigned int scene001Id = (unsigned int)-1;
-    unsigned int scene002Id = (unsigned int)-1;
+    unsigned int scene001Id = static_cast<unsigned int>(-1);
+    unsigned int scene002Id = static_cast<unsigned int>(-1);
 
     // Game Info ---------------------------------------------------------------
 
@@ -117,7 +117,7 @@ struct SharedApplicationData
 
     const Project001::FontData* pixelFont_FontDataPtr = nullptr;
     const Project001::TextureData* pixelFont_TextureDataPtr = nullptr;
-    unsigned int pixelFont_TextureId = (unsigned int)-1;
+    unsigned int pixelFont_TextureId = static_cast<unsigned int>(-1);
 
     Project001::MeshData* introText_MeshDataPtr = nullptr;
     Project001::MeshData* authorText_MeshDataPtr = nullptr;
@@ -126,25 +126,25 @@ struct SharedApplicationData
 
     Project001::MeshData* groundDark_MeshDataPtr = nullptr;
     Project001::TextureData* groundDark_TextureDataPtr = nullptr;
-    unsigned int groundDark_TextureId = (unsigned int)-1;
+    unsigned int groundDark_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* groundLit_MeshDataPtr = nullptr;
     Project001::TextureData* groundLit_TextureDataPtr = nullptr;
-    unsigned int groundLit_TextureId = (unsigned int)-1;
+    unsigned int groundLit_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* groundFog_MeshDataPtr = nullptr;
     Project001::MeshData* groundCollision_MeshDataPtr = nullptr;
     Project001::MeshData* groundCollisionQuadTree_MeshDataPtr = nullptr;
 
     Project001::MeshData* groundGrid_MeshDataPtr = nullptr;
-    unsigned int groundGrid_MeshId = (unsigned int)-1;
+    unsigned int groundGrid_MeshId = static_cast<unsigned int>(-1);
     Project001::MeshData* groundGridLabels_MeshDataPtr = nullptr;
-    unsigned int groundGridLabels_MeshId = (unsigned int)-1;
+    unsigned int groundGridLabels_MeshId = static_cast<unsigned int>(-1);
 
     Project001::MeshData* houseLit_MeshDataPtr = nullptr;
     Project001::TextureData* houseLit_TextureDataPtr = nullptr;
-    unsigned int houseLit_TextureId = (unsigned int)-1;
+    unsigned int houseLit_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* houseDark_MeshDataPtr = nullptr;
     Project001::TextureData* houseDark_TextureDataPtr = nullptr;
-    unsigned int houseDark_TextureId = (unsigned int)-1;
+    unsigned int houseDark_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* houseText_MeshDataPtr = nullptr;
     Project001::MeshData* houseCollision_MeshDataPtr = nullptr;
 
@@ -155,10 +155,10 @@ struct SharedApplicationData
 
     Project001::MeshData* lampLit_MeshDataPtr = nullptr;
     Project001::TextureData* lampLit_TextureDataPtr = nullptr;
-    unsigned int lampLit_TextureId = (unsigned int)-1;
+    unsigned int lampLit_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* lampDark_MeshDataPtr = nullptr;
     Project001::TextureData* lampDark_TextureDataPtr = nullptr;
-    unsigned int lampDark_TextureId = (unsigned int)-1;
+    unsigned int lampDark_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* lampCollision_MeshDataPtr = nullptr;
 
     Project001::MeshData* lampLightBottom_MeshDataPtr = nullptr;
@@ -167,19 +167,19 @@ struct SharedApplicationData
 
     Project001::MeshData* monsterLit_MeshDataPtr = nullptr;
     Project001::TextureData* monsterLit_TextureDataPtr = nullptr;
-    unsigned int monsterLit_TextureId = (unsigned int)-1;
+    unsigned int monsterLit_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* monsterCollision_MeshDataPtr = nullptr;
 
     Project001::MeshData* monsterVisionCollision_MeshDataPtr = nullptr;
 
     Project001::MeshData* personLit_MeshDataPtr = nullptr;
     Project001::TextureData* personLit_TextureDataPtr = nullptr;
-    unsigned int personLit_TextureId = (unsigned int)-1;
+    unsigned int personLit_TextureId = static_cast<unsigned int>(-1);
     Project001::MeshData* personCollision_MeshDataPtr = nullptr;
 
     Project001::MeshData* unknownDark_MeshDataPtr = nullptr;
     Project001::TextureData* unknownDark_TextureDataPtr = nullptr;
-    unsigned int unknownDark_TextureId = (unsigned int)-1;
+    unsigned int unknownDark_TextureId = static_cast<unsigned int>(-1);
 
     Project001::MeshData* playerLightBottom_MeshDataPtr = nullptr;
     Project001::MeshData* playerLightTop_MeshDataPtr = nullptr;
@@ -204,12 +204,12 @@ struct SharedApplicationData
     Project001::MeshData* uiPauseText03_MeshDataPtr = nullptr;
 
     Project001::SoundData* hitHurt_SoundDataPtr = nullptr;
-    unsigned int hitHurt_SoundBufferId = (unsigned int)-1;
-    unsigned int hitHurt_SoundSourceId = (unsigned int)-1;
+    unsigned int hitHurt_SoundBufferId = static_cast<unsigned int>(-1);
+    unsigned int hitHurt_SoundSourceId = static_cast<unsigned int>(-1);
     Project001::SoundData* pickupCoin_SoundDataPtr = nullptr;
-    unsigned int pickupCoin_SoundBufferId = (unsigned int)-1;
-    unsigned int pickupCoin_SoundSourceId = (unsigned int)-1;
+    unsigned int pickupCoin_SoundBufferId = static_cast<unsigned int>(-1);
+    unsigned int pickupCoin_SoundSourceId = static_cast<unsigned int>(-1);
     Project001::SoundData* dropCoin_SoundDataPtr = nullptr;
-    unsigned int dropCoin_SoundBufferId = (unsigned int)-1;
-    unsigned int dropCoin_SoundSourceId = (unsigned int)-1;
+    unsigned int dropCoin_SoundBufferId = static_cast<unsigned int>(-1);
+    unsigned int dropCoin_SoundSourceId = static_cast<unsigned int>(-1);
 };

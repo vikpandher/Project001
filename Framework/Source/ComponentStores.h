@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-02
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -74,7 +74,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::InitializeComponentContainer(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
     {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -92,7 +92,7 @@ namespace Project001
             return false; // Entity doesn't exist
         }
 
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             RegisterNewComponent<Component>(1, 2, 0);
@@ -110,7 +110,7 @@ namespace Project001
             return false; // Entity doesn't exist
         }
 
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -123,7 +123,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::DeleteAllComponents()
     {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -143,7 +143,7 @@ namespace Project001
             return false; // Entity doesn't exist
         }
 
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -156,7 +156,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::GetAllComponents(Component*& componentPtrs, size_t& componentCount)
     {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -169,7 +169,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::GetComponentEntityId(unsigned int& entityId, const Component* const componentPtr) const
     {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -182,7 +182,7 @@ namespace Project001
     template <typename Component>
     inline bool ComponentStores::GetAllComponentEntityIds(const unsigned int*& componentEntityIdPtr, size_t& componentCount) const
     {
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         if (!ComponentTypeExists(componentTypeId))
         {
             return false;
@@ -202,8 +202,8 @@ namespace Project001
     template <typename Component>
     inline void ComponentStores::RegisterNewComponent(size_t initialComponentCapacity, size_t componentMemoryGrowthRate, size_t componentMemoryCapacityCap)
     {
-        unsigned int nextComponentContainerIndex = (unsigned int)componentContainerPtrs_.size();
-        unsigned int componentTypeId = (unsigned int)typeid(Component).hash_code();
+        unsigned int nextComponentContainerIndex = static_cast<unsigned int>(componentContainerPtrs_.size());
+        unsigned int componentTypeId = static_cast<unsigned int>(typeid(Component).hash_code());
         componentTypeIdToComponentContainerIndexMap_[componentTypeId] = nextComponentContainerIndex;
 
         ComponentContainer* newComponentContainerPtr = new ComponentContainer();

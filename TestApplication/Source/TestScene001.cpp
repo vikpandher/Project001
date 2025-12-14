@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene001.h"
 
@@ -27,12 +27,12 @@ struct TestButtonData001
 {
     std::string textString;
 
-    unsigned int destinationSceneId = (unsigned int)-1;
+    unsigned int destinationSceneId = static_cast<unsigned int>(-1);
 
-    unsigned int aboveEntityId = (unsigned int)-1;
-    unsigned int leftEntityId = (unsigned int)-1;
-    unsigned int bellowEntityId = (unsigned int)-1;
-    unsigned int rightEntityId = (unsigned int)-1;
+    unsigned int aboveEntityId = static_cast<unsigned int>(-1);
+    unsigned int leftEntityId = static_cast<unsigned int>(-1);
+    unsigned int bellowEntityId = static_cast<unsigned int>(-1);
+    unsigned int rightEntityId = static_cast<unsigned int>(-1);
 };
 
 // public ----------------------------------------------------------------------
@@ -42,25 +42,25 @@ TestScene001::TestScene001(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , rectangleMeshDataPtr_(nullptr)
-    , rectangularMeshId_((unsigned int)-1)
+    , rectangularMeshId_(static_cast<unsigned int>(-1))
     , selectorMeshDataPtr_(nullptr)
-    , selectorMeshId_((unsigned int)-1)
+    , selectorMeshId_(static_cast<unsigned int>(-1))
     , cursorCircleMeshDataPtr_(nullptr)
     , buttonTextMeshDataPtrs_()
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
-    , cursorEntityId_((unsigned int)-1)
-    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
-    , cursorPressRenderedMeshIndex_((unsigned int)-1)
-    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
-    , cursorPositionCollisionPointIndex_((unsigned int)-1)
-    , cursorPressCollisionPointIndex_((unsigned int)-1)
-    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
+    , cursorEntityId_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
     , buttonEntityIds_()
-    , selectorEntityId_((unsigned int)-1)
-    , selectedEntityId_((unsigned int)-1)
+    , selectorEntityId_(static_cast<unsigned int>(-1))
+    , selectedEntityId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene001Id = GetId();
 }
@@ -133,9 +133,9 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     GetRendererPtr()->CreateMesh(
         rectangularMeshId_,
         rectangleMeshDataPtr_->meshVertexArray.data(),
-        (unsigned int)rectangleMeshDataPtr_->meshVertexArray.size(),
+        static_cast<unsigned int>(rectangleMeshDataPtr_->meshVertexArray.size()),
         rectangleMeshDataPtr_->meshIndexArray.data(),
-        (unsigned int)rectangleMeshDataPtr_->meshIndexArray.size()
+        static_cast<unsigned int>(rectangleMeshDataPtr_->meshIndexArray.size())
     );
 
     selectorMeshDataPtr_ = new Project001::MeshData();
@@ -179,9 +179,9 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     GetRendererPtr()->CreateMesh(
         selectorMeshId_,
         selectorMeshDataPtr_->meshVertexArray.data(),
-        (unsigned int)selectorMeshDataPtr_->meshVertexArray.size(),
+        static_cast<unsigned int>(selectorMeshDataPtr_->meshVertexArray.size()),
         selectorMeshDataPtr_->meshIndexArray.data(),
-        (unsigned int)selectorMeshDataPtr_->meshIndexArray.size()
+        static_cast<unsigned int>(selectorMeshDataPtr_->meshIndexArray.size())
     );
 
     cursorCircleMeshDataPtr_ = new Project001::MeshData();
@@ -274,7 +274,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float mainCameraHalfHeight = 2.75f;
                 float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -307,7 +307,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float uiCameraHalfHeight = 3.5f;
                 float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -649,17 +649,17 @@ void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
     delete rectangleMeshDataPtr_;
     rectangleMeshDataPtr_ = nullptr;
-    rectangularMeshId_ = (unsigned int)-1;
+    rectangularMeshId_ = static_cast<unsigned int>(-1);
 
     delete selectorMeshDataPtr_;
     selectorMeshDataPtr_ = nullptr;
-    selectorMeshId_ = (unsigned int)-1;
+    selectorMeshId_ = static_cast<unsigned int>(-1);
 
     delete cursorCircleMeshDataPtr_;
     cursorCircleMeshDataPtr_ = nullptr;
@@ -672,24 +672,24 @@ void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    cursorEntityId_ = (unsigned int)-1;
-    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
-    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
-    cursorPressCollisionPointIndex_ = (unsigned int)-1;
-    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
+    cursorEntityId_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
 
     buttonEntityIds_.clear();
 
-    selectorEntityId_ = (unsigned int)-1;
+    selectorEntityId_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 
-    selectedEntityId_ = (unsigned int)-1;
+    selectedEntityId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene001::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -731,7 +731,7 @@ void TestScene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
             }
         }
 
-        if (selectedEntityId_ != (unsigned int)-1)
+        if (selectedEntityId_ != static_cast<unsigned int>(-1))
         {
             TestButtonData001* testButtonData001Ptr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<TestButtonData001>(testButtonData001Ptr, selectedEntityId_));
@@ -965,7 +965,7 @@ void TestScene001::UpdateCursorPosition(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))

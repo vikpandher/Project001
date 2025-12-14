@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -16,9 +16,9 @@ namespace Project001
     struct CollisionData2D
     {
         CollisionData2D()
-            : myShapeTag((unsigned int)-1)
-            , otherEntityId((unsigned int)-1)
-            , otherShapeTag((unsigned int)-1)
+            : myShapeTag(static_cast<unsigned int>(-1))
+            , otherEntityId(static_cast<unsigned int>(-1))
+            , otherShapeTag(static_cast<unsigned int>(-1))
             , point(NAN, NAN)
             , normal(NAN, NAN)
             , depth(NAN)

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene005.h"
 
@@ -55,7 +55,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int numbers12x6_TextureId = (unsigned int)-1;
+    unsigned int numbers12x6_TextureId = static_cast<unsigned int>(-1);
 
     {
         Project001::TextureData textureData;
@@ -73,7 +73,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int i = -4; i <= 4; ++i)
         {
-            meshEntityPositions.emplace_back((float)i + 0.5f, (float)j, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i) + 0.5f, static_cast<float>(j), 0.0f);
         }
     }
 
@@ -427,7 +427,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,

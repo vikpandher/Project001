@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-12-13
 
 #include "TestScene103.h"
 
@@ -59,25 +59,25 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , cursorCircle_MeshDataPtr_(nullptr)
     , pixelFont_FontDataPtr_(nullptr)
     , pixelFont_TextureDataPtr_(nullptr)
-    , pixelFont_TextureId_((unsigned int)-1)
+    , pixelFont_TextureId_(static_cast<unsigned int>(-1))
     , fog_MeshDataPtr_(nullptr)
     , groundDark_MeshDataPtr_(nullptr)
     , groundDark_TextureDataPtr_(nullptr)
-    , groundDark_TextureId_((unsigned int)-1)
+    , groundDark_TextureId_(static_cast<unsigned int>(-1))
     , groundLit_MeshDataPtr_(nullptr)
     , groundLit_TextureDataPtr_(nullptr)
-    , groundLit_TextureId_((unsigned int)-1)
+    , groundLit_TextureId_(static_cast<unsigned int>(-1))
     , groundGrid_MeshDataPtr_(nullptr)
-    , groundGrid_MeshId_((unsigned int)-1)
+    , groundGrid_MeshId_(static_cast<unsigned int>(-1))
     , groundGridLabels_MeshDataPtr_(nullptr)
-    , groundGridLabels_MeshId_((unsigned int)-1)
+    , groundGridLabels_MeshId_(static_cast<unsigned int>(-1))
     , groundCollision_MeshDataPtr_(nullptr)
     , playerDark_MeshDataPtr_(nullptr)
     , playerDark_TextureDataPtr_(nullptr)
-    , playerDark_TextureId_((unsigned int)-1)
+    , playerDark_TextureId_(static_cast<unsigned int>(-1))
     , playerLit_MeshDataPtr_(nullptr)
     , playerLit_TextureDataPtr_(nullptr)
-    , playerLit_TextureId_((unsigned int)-1)
+    , playerLit_TextureId_(static_cast<unsigned int>(-1))
     , playerCollision_MeshDataPtr_(nullptr)
     , playerLightBottom_MeshDataPtr_(nullptr)
     , playerLightTop_MeshDataPtr_(nullptr)
@@ -89,70 +89,70 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , testUiText03_MeshDataPtr_(nullptr)
     , testPersonLit_MeshDataPtr_(nullptr)
     , testPersonLit_TextureDataPtr_(nullptr)
-    , testPersonLit_TextureId_((unsigned int)-1)
+    , testPersonLit_TextureId_(static_cast<unsigned int>(-1))
     , testPersonDark_MeshDataPtr_(nullptr)
     , testPersonDark_TextureDataPtr_(nullptr)
-    , testPersonDark_TextureId_((unsigned int)-1)
+    , testPersonDark_TextureId_(static_cast<unsigned int>(-1))
     , testPersonCollision_MeshDataPtr_(nullptr)
     , testMonsterLit_MeshDataPtr_(nullptr)
     , testMonsterLit_TextureDataPtr_(nullptr)
-    , testMonsterLit_TextureId_((unsigned int)-1)
+    , testMonsterLit_TextureId_(static_cast<unsigned int>(-1))
     , testMonsterDark_MeshDataPtr_(nullptr)
     , testMonsterDark_TextureDataPtr_(nullptr)
-    , testMonsterDark_TextureId_((unsigned int)-1)
+    , testMonsterDark_TextureId_(static_cast<unsigned int>(-1))
     , testMonsterCollision_MeshDataPtr_(nullptr)
     , testMonsterVisionCollision_MeshDataPtr_(nullptr)
     , testLampLit_MeshDataPtr_(nullptr)
     , testLampLit_TextureDataPtr_(nullptr)
-    , testLampLit_TextureId_((unsigned int)-1)
+    , testLampLit_TextureId_(static_cast<unsigned int>(-1))
     , testLampDark_MeshDataPtr_(nullptr)
     , testLampDark_TextureDataPtr_(nullptr)
-    , testLampDark_TextureId_((unsigned int)-1)
+    , testLampDark_TextureId_(static_cast<unsigned int>(-1))
     , testLampCollision_MeshDataPtr_(nullptr)
     , testLampLightBottom_MeshDataPtr_(nullptr)
     , testLampLightTop_MeshDataPtr_(nullptr)
     , testLampLightCollision_MeshDataPtr_(nullptr)
     , testHouseLit_MeshDataPtr_(nullptr)
     , testHouseLit_TextureDataPtr_(nullptr)
-    , testHouseLit_TextureId_((unsigned int)-1)
+    , testHouseLit_TextureId_(static_cast<unsigned int>(-1))
     , testHouseDark_MeshDataPtr_(nullptr)
     , testHouseDark_TextureDataPtr_(nullptr)
-    , testHouseDark_TextureId_((unsigned int)-1)
+    , testHouseDark_TextureId_(static_cast<unsigned int>(-1))
     , testHouseCollision_MeshDataPtr_(nullptr)
     , testHouseText_MeshDataPtr_(nullptr)
     , testHouseLightBottom_MeshDataPtr_(nullptr)
     , testHouseLightTop_MeshDataPtr_(nullptr)
     , testHouseLightCollision_MeshDataPtr_(nullptr)
     , testHouseDoorCollision_MeshDataPtr_(nullptr)
-    , mainCameraLight1_EntityId_((unsigned int)-1)
-    , mainCameraLight2_EntityId_((unsigned int)-1)
-    , mainCameraDark1_EntityId_((unsigned int)-1)
-    , mainCameraDark2_EntityId_((unsigned int)-1)
-    , mainCameraDebug_EntityId_((unsigned int)-1)
+    , mainCameraLight1_EntityId_(static_cast<unsigned int>(-1))
+    , mainCameraLight2_EntityId_(static_cast<unsigned int>(-1))
+    , mainCameraDark1_EntityId_(static_cast<unsigned int>(-1))
+    , mainCameraDark2_EntityId_(static_cast<unsigned int>(-1))
+    , mainCameraDebug_EntityId_(static_cast<unsigned int>(-1))
     , mainCamera_LookAtPoint_()
     , mainCamera_DistanceAway_(0.0f)
     , mainCamera_Locked_(true)
-    , uiCamera_EntityId_((unsigned int)-1)
-    , cursor_EntityId_((unsigned int)-1)
-    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
-    , cursorPressRenderedMeshIndex_((unsigned int)-1)
-    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
-    , cursorPositionCollisionPointIndex_((unsigned int)-1)
-    , cursorPressCollisionPointIndex_((unsigned int)-1)
-    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
-    , fog_EntityId_((unsigned int)-1)
-    , ground_EntityId_((unsigned int)-1)
-    , player_EntityId_((unsigned int)-1)
-    , playerLight_EntityId_((unsigned int)-1)
-    , testUi_EntityId_((unsigned int)-1)
-    , testPeople_EntityIds_{(unsigned int)-1}
-    , testPerson_EntityId_((unsigned int)-1)
-    , testMonster_EntityId_((unsigned int)-1)
-    , testMonsterVision_EntityId_((unsigned int)-1)
-    , testLamp_EntityId_((unsigned int)-1)
-    , testLampLight_EntityId_((unsigned int)-1)
-    , testHouse_EntityId_((unsigned int)-1)
-    , testHouseLight_EntityId_((unsigned int)-1)
+    , uiCamera_EntityId_(static_cast<unsigned int>(-1))
+    , cursor_EntityId_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , fog_EntityId_(static_cast<unsigned int>(-1))
+    , ground_EntityId_(static_cast<unsigned int>(-1))
+    , player_EntityId_(static_cast<unsigned int>(-1))
+    , playerLight_EntityId_(static_cast<unsigned int>(-1))
+    , testUi_EntityId_(static_cast<unsigned int>(-1))
+    , testPeople_EntityIds_{ static_cast<unsigned int>(-1) }
+    , testPerson_EntityId_(static_cast<unsigned int>(-1))
+    , testMonster_EntityId_(static_cast<unsigned int>(-1))
+    , testMonsterVision_EntityId_(static_cast<unsigned int>(-1))
+    , testLamp_EntityId_(static_cast<unsigned int>(-1))
+    , testLampLight_EntityId_(static_cast<unsigned int>(-1))
+    , testHouse_EntityId_(static_cast<unsigned int>(-1))
+    , testHouseLight_EntityId_(static_cast<unsigned int>(-1))
     , paused_(false)
     , randomNumberEngine_(777)
 {
@@ -267,7 +267,7 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     pixelFont_FontDataPtr_ = nullptr;
     pixelFont_TextureDataPtr_ = nullptr;
-    pixelFont_TextureId_ = (unsigned int)-1;
+    pixelFont_TextureId_ = static_cast<unsigned int>(-1);
 
     delete fog_MeshDataPtr_;
     fog_MeshDataPtr_ = nullptr;
@@ -276,18 +276,18 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     groundDark_MeshDataPtr_ = nullptr;
     delete groundDark_TextureDataPtr_;
     groundDark_TextureDataPtr_ = nullptr;
-    groundDark_TextureId_ = (unsigned int)-1;
+    groundDark_TextureId_ = static_cast<unsigned int>(-1);
     delete groundLit_MeshDataPtr_;
     groundLit_MeshDataPtr_ = nullptr;
     delete groundLit_TextureDataPtr_;
     groundLit_TextureDataPtr_ = nullptr;
-    groundLit_TextureId_ = (unsigned int)-1;
+    groundLit_TextureId_ = static_cast<unsigned int>(-1);
     delete groundGrid_MeshDataPtr_;
     groundGrid_MeshDataPtr_ = nullptr;
-    groundGrid_MeshId_ = (unsigned int)-1;
+    groundGrid_MeshId_ = static_cast<unsigned int>(-1);
     delete groundGridLabels_MeshDataPtr_;
     groundGridLabels_MeshDataPtr_ = nullptr;
-    groundGridLabels_MeshId_ = (unsigned int)-1;
+    groundGridLabels_MeshId_ = static_cast<unsigned int>(-1);
     delete groundCollision_MeshDataPtr_;
     groundCollision_MeshDataPtr_ = nullptr;
 
@@ -295,13 +295,13 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     playerDark_MeshDataPtr_ = nullptr;
     delete playerDark_TextureDataPtr_;
     playerDark_TextureDataPtr_ = nullptr;
-    playerDark_TextureId_ = (unsigned int)-1;
+    playerDark_TextureId_ = static_cast<unsigned int>(-1);
 
     delete playerLit_MeshDataPtr_;
     playerLit_MeshDataPtr_ = nullptr;
     delete playerLit_TextureDataPtr_;
     playerLit_TextureDataPtr_ = nullptr;
-    playerLit_TextureId_ = (unsigned int)-1;
+    playerLit_TextureId_ = static_cast<unsigned int>(-1);
     delete playerCollision_MeshDataPtr_;
     playerCollision_MeshDataPtr_ = nullptr;
 
@@ -327,12 +327,12 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     testPersonLit_MeshDataPtr_ = nullptr;
     delete testPersonLit_TextureDataPtr_;
     testPersonLit_TextureDataPtr_ = nullptr;
-    testPersonLit_TextureId_ = (unsigned int)-1;
+    testPersonLit_TextureId_ = static_cast<unsigned int>(-1);
     delete testPersonDark_MeshDataPtr_;
     testPersonDark_MeshDataPtr_ = nullptr;
     delete testPersonDark_TextureDataPtr_;
     testPersonDark_TextureDataPtr_ = nullptr;
-    testPersonDark_TextureId_ = (unsigned int)-1;
+    testPersonDark_TextureId_ = static_cast<unsigned int>(-1);
     delete testPersonCollision_MeshDataPtr_;
     testPersonCollision_MeshDataPtr_ = nullptr;
 
@@ -340,12 +340,12 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     testMonsterLit_MeshDataPtr_ = nullptr;
     delete testMonsterLit_TextureDataPtr_;
     testMonsterLit_TextureDataPtr_ = nullptr;
-    testMonsterLit_TextureId_ = (unsigned int)-1;
+    testMonsterLit_TextureId_ = static_cast<unsigned int>(-1);
     delete testMonsterDark_MeshDataPtr_;
     testMonsterDark_MeshDataPtr_ = nullptr;
     delete testMonsterDark_TextureDataPtr_;
     testMonsterDark_TextureDataPtr_ = nullptr;
-    testMonsterDark_TextureId_ = (unsigned int)-1;
+    testMonsterDark_TextureId_ = static_cast<unsigned int>(-1);
     delete testMonsterCollision_MeshDataPtr_;
     testMonsterCollision_MeshDataPtr_ = nullptr;
 
@@ -356,12 +356,12 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     testLampLit_MeshDataPtr_ = nullptr;
     delete testLampLit_TextureDataPtr_;
     testLampLit_TextureDataPtr_ = nullptr;
-    testLampLit_TextureId_ = (unsigned int)-1;
+    testLampLit_TextureId_ = static_cast<unsigned int>(-1);
     delete testLampDark_MeshDataPtr_;
     testLampDark_MeshDataPtr_ = nullptr;
     delete testLampDark_TextureDataPtr_;
     testLampDark_TextureDataPtr_ = nullptr;
-    testLampDark_TextureId_ = (unsigned int)-1;
+    testLampDark_TextureId_ = static_cast<unsigned int>(-1);
     delete testLampCollision_MeshDataPtr_;
     testLampCollision_MeshDataPtr_ = nullptr;
 
@@ -376,12 +376,12 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     testHouseLit_MeshDataPtr_ = nullptr;
     delete testHouseLit_TextureDataPtr_;
     testHouseLit_TextureDataPtr_ = nullptr;
-    testHouseLit_TextureId_ = (unsigned int)-1;
+    testHouseLit_TextureId_ = static_cast<unsigned int>(-1);
     delete testHouseDark_MeshDataPtr_;
     testHouseDark_MeshDataPtr_ = nullptr;
     delete testHouseDark_TextureDataPtr_;
     testHouseDark_TextureDataPtr_ = nullptr;
-    testHouseDark_TextureId_ = (unsigned int)-1;
+    testHouseDark_TextureId_ = static_cast<unsigned int>(-1);
     delete testHouseCollision_MeshDataPtr_;
     testHouseCollision_MeshDataPtr_ = nullptr;
 
@@ -399,41 +399,41 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Entities ----------------------------------------------------------------
 
-    mainCameraLight1_EntityId_ = (unsigned int)-1;
-    mainCameraLight2_EntityId_ = (unsigned int)-1;
-    mainCameraDark1_EntityId_ = (unsigned int)-1;
-    mainCameraDark2_EntityId_ = (unsigned int)-1;
-    mainCameraDebug_EntityId_ = (unsigned int)-1;
+    mainCameraLight1_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraLight2_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDark1_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDark2_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDebug_EntityId_ = static_cast<unsigned int>(-1);
     mainCamera_LookAtPoint_ = glm::vec3();
     mainCamera_DistanceAway_ = 0.0f;
     mainCamera_Locked_ = true;
 
-    uiCamera_EntityId_ = (unsigned int)-1;
+    uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    cursor_EntityId_ = (unsigned int)-1;
-    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
-    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
-    cursorPressCollisionPointIndex_ = (unsigned int)-1;
-    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
+    cursor_EntityId_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
 
-    fog_EntityId_ = (unsigned int)-1;
+    fog_EntityId_ = static_cast<unsigned int>(-1);
 
-    ground_EntityId_ = (unsigned int)-1;
+    ground_EntityId_ = static_cast<unsigned int>(-1);
 
-    player_EntityId_ = (unsigned int)-1;
+    player_EntityId_ = static_cast<unsigned int>(-1);
 
-    playerLight_EntityId_ = (unsigned int)-1;
+    playerLight_EntityId_ = static_cast<unsigned int>(-1);
 
-    testUi_EntityId_ = (unsigned int)-1;
-    testPerson_EntityId_ = (unsigned int)-1;
-    testMonster_EntityId_ = (unsigned int)-1;
-    testMonsterVision_EntityId_ = (unsigned int)-1;
-    testLamp_EntityId_ = (unsigned int)-1;
-    testLampLight_EntityId_ = (unsigned int)-1;
-    testHouse_EntityId_ = (unsigned int)-1;
-    testHouseLight_EntityId_ = (unsigned int)-1;
+    testUi_EntityId_ = static_cast<unsigned int>(-1);
+    testPerson_EntityId_ = static_cast<unsigned int>(-1);
+    testMonster_EntityId_ = static_cast<unsigned int>(-1);
+    testMonsterVision_EntityId_ = static_cast<unsigned int>(-1);
+    testLamp_EntityId_ = static_cast<unsigned int>(-1);
+    testLampLight_EntityId_ = static_cast<unsigned int>(-1);
+    testHouse_EntityId_ = static_cast<unsigned int>(-1);
+    testHouseLight_EntityId_ = static_cast<unsigned int>(-1);
 
     paused_ = false;
 }
@@ -607,12 +607,12 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     }
 
     unsigned long long timestep_ns = updateEvent.timestep_ns;
-    float timestep_s = (float)timestep_ns / 1e9f;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
     // Move and Calculate collisions
     // -------------------------------------------------------------------------
     constexpr size_t physicsStepsPerUpdate = 1;
-    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate;
+    float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
         Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
@@ -668,7 +668,7 @@ void TestScene103::InitializeInstructionScene()
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -681,7 +681,7 @@ void TestScene103::InitializeInstructionScene()
 
     const uint32_t uiCamera_Mask = 0b01000000000000000000000000000000;
 
-    unsigned int uiCamera_EntityId = (unsigned int)-1;
+    unsigned int uiCamera_EntityId = static_cast<unsigned int>(-1);
     GetComponentStoresPtr()->CreateEntity(uiCamera_EntityId);
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_EntityId));
@@ -694,7 +694,7 @@ void TestScene103::InitializeInstructionScene()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 3.5f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
@@ -842,9 +842,9 @@ void TestScene103::LoadGroundGridResources()
     GetRendererPtr()->CreateMesh(
         groundGrid_MeshId_,
         groundGrid_MeshDataPtr_->meshVertexArray.data(),
-        (unsigned int)groundGrid_MeshDataPtr_->meshVertexArray.size(),
+        static_cast<unsigned int>(groundGrid_MeshDataPtr_->meshVertexArray.size()),
         groundGrid_MeshDataPtr_->meshIndexArray.data(),
-        (unsigned int)groundGrid_MeshDataPtr_->meshIndexArray.size()
+        static_cast<unsigned int>(groundGrid_MeshDataPtr_->meshIndexArray.size())
     );
 
     groundGridLabels_MeshDataPtr_ = new Project001::MeshData();
@@ -929,7 +929,7 @@ void TestScene103::LoadGroundGridResources()
     {
         const std::string& currentLabel = gridLabels[i];
 
-        float addition_offsetX = pixelFont_pixelSize * -6.0f * (float)(currentLabel.length() - 1);
+        float addition_offsetX = pixelFont_pixelSize * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
         Project001::MeshData currentLabelMeshData;
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -957,7 +957,7 @@ void TestScene103::LoadGroundGridResources()
     {
         const std::string& currentLabel = gridLabels[i];
 
-        float addition_offsetX = pixelFont_pixelSize * -6.0f * (float)(currentLabel.length() - 1);
+        float addition_offsetX = pixelFont_pixelSize * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
         Project001::MeshData currentLabelMeshData;
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -979,9 +979,9 @@ void TestScene103::LoadGroundGridResources()
     GetRendererPtr()->CreateMesh(
         groundGridLabels_MeshId_,
         groundGridLabels_MeshDataPtr_->meshVertexArray.data(),
-        (unsigned int)groundGridLabels_MeshDataPtr_->meshVertexArray.size(),
+        static_cast<unsigned int>(groundGridLabels_MeshDataPtr_->meshVertexArray.size()),
         groundGridLabels_MeshDataPtr_->meshIndexArray.data(),
-        (unsigned int)groundGridLabels_MeshDataPtr_->meshIndexArray.size()
+        static_cast<unsigned int>(groundGridLabels_MeshDataPtr_->meshIndexArray.size())
     );
 }
 
@@ -1066,11 +1066,11 @@ void TestScene103::LoadPlayerLightResources()
         std::vector<glm::vec2> corners;
         constexpr float radius = 60.0f;
         constexpr size_t subdivisions = 8;
-        constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+        constexpr float angleRotation = glm::pi<float>() / static_cast<float>(subdivisions);
         for (size_t i = 0; i <= subdivisions; ++i)
         {
             glm::vec2 radiusVector(radius, 0.0f);
-            radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+            radiusVector = Project001::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
             corners.emplace_back(radiusVector);
         }
         corners.emplace_back(-4.0f, -112.0f);
@@ -1416,7 +1416,7 @@ void TestScene103::CreateMainCameraEntities()
     int aspectRatioDenominator;
     GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
 
-    float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+    float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
     constexpr float mainCameraHalfHeight = 320.0f;
     float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
 
@@ -1489,7 +1489,7 @@ void TestScene103::CreateUiCameraEntity()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 320.0f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
@@ -1840,11 +1840,11 @@ void TestScene103::CreatePlayerLightEntity()
         std::vector<glm::vec2> corners;
         constexpr float radius = 60.0f;
         constexpr size_t subdivisions = 8;
-        constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+        constexpr float angleRotation = glm::pi<float>() / static_cast<float>(subdivisions);
         for (size_t i = 0; i <= subdivisions; ++i)
         {
             glm::vec2 radiusVector(radius, 0.0f);
-            radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+            radiusVector = Project001::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
             corners.emplace_back(radiusVector);
         }
         corners.emplace_back(-4.0f, -112.0f);
@@ -2432,7 +2432,7 @@ void TestScene103::UpdateCursorPosition(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight1_EntityId_))
@@ -2798,7 +2798,7 @@ void TestScene103::UpdatePersonLogic(float timestep_s)
     for (size_t i = 0; i < personInfoCount; ++i)
     {
         PersonInfo& currentPersonInfo = personInfoPtrs[i];
-        unsigned int personEntityId = (unsigned int)-1;
+        unsigned int personEntityId = static_cast<unsigned int>(-1);
         if (GetComponentStoresPtr()->GetComponentEntityId<PersonInfo>(personEntityId, &currentPersonInfo))
         {
             if (currentPersonInfo.state == PersonInfo::State::STATE_STANDING)

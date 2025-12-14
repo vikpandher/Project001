@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-14
+// @DATE 2025-12-13
 
 #include "TestScene104.h"
 
@@ -98,7 +98,7 @@ void TestScene104::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     pixelFont_FontDataPtr_ = nullptr;
     pixelFont_TextureDataPtr_ = nullptr;
-    pixelFont_TextureId_ = (unsigned int)-1;
+    pixelFont_TextureId_ = static_cast<unsigned int>(-1);
 
     delete cursorHandOpen_MeshDataPtr_;
     cursorHandOpen_MeshDataPtr_ = nullptr;
@@ -108,15 +108,15 @@ void TestScene104::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     cursorHandGrab_MeshDataPtr_ = nullptr;
     delete cursor_TextureDataPtr_;
     cursor_TextureDataPtr_ = nullptr;
-    cursor_TextureId_ = (unsigned int)-1;
+    cursor_TextureId_ = static_cast<unsigned int>(-1);
     delete cursorCollision_MeshDataPtr_;
     cursorCollision_MeshDataPtr_ = nullptr;
 
     // Entities ----------------------------------------------------------------
 
-    mainCamera_EntityId_ = (unsigned int)-1;
+    mainCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    cursor_EntityId_ = (unsigned int)-1;
+    cursor_EntityId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene104::ProcessCursorPositionEvent(Project001::CursorPositionEvent& cursorPositionEvent)
@@ -214,7 +214,7 @@ void TestScene104::InitializeInstructionScene()
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -227,7 +227,7 @@ void TestScene104::InitializeInstructionScene()
 
     const uint32_t uiCamera_Mask = 0b01000000000000000000000000000000;
 
-    unsigned int uiCamera_EntityId = (unsigned int)-1;
+    unsigned int uiCamera_EntityId = static_cast<unsigned int>(-1);
     GetComponentStoresPtr()->CreateEntity(uiCamera_EntityId);
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_EntityId));
@@ -240,7 +240,7 @@ void TestScene104::InitializeInstructionScene()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 3.5f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
@@ -341,7 +341,7 @@ void TestScene104::CreateMainCameraEntity()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 320.0f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
@@ -455,7 +455,7 @@ void TestScene104::UpdateCursorPositionUsingWindowCoordinates(unsigned int entit
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
     glm::vec2 viewportNormalizedCursorPosition =
-        GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+        GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_))
@@ -512,7 +512,7 @@ void TestScene104::SyncCursorRenderedModels()
     {
         CursorInfo& cursorInfo = cursorInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<CursorInfo>(entityId, &cursorInfo);
 
         Project001::CollisionBody2D* collisionBody2DPtr = nullptr;

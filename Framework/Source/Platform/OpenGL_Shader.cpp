@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #include "OpenGL_Shader.h"
 
@@ -101,7 +101,7 @@ namespace Project001
         const char* name,
         bool value) const
     {
-        glUniform1i(glGetUniformLocation(programId_, name), (int)value);
+        glUniform1i(glGetUniformLocation(programId_, name), static_cast<int>(value));
     }
 
     void OpenGL_Shader::SetInt(
@@ -222,7 +222,7 @@ namespace Project001
 
     void OpenGL_Shader::OutputActiveAttributesAndUniforms()
     {
-        GLint i;
+        GLuint i;
         GLint count;
 
         GLint size; // size of the variable
@@ -238,9 +238,9 @@ namespace Project001
         Logger log(LOG_LEVEL_INFO);
         log << "Active Attributes: " << count;
 
-        for (i = 0; i < count; i++)
+        for (i = 0; i < count; ++i)
         {
-            glGetActiveAttrib(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
+            glGetActiveAttrib(programId_, i, bufferCapacity, &length, &size, &type, name);
 
             log << "\nAttribute: " << i << " Type: " << type << " Name: " << name;
         }
@@ -249,9 +249,9 @@ namespace Project001
         glGetProgramiv(programId_, GL_ACTIVE_UNIFORMS, &count);
         log << "\nActive Uniforms: " << count;
 
-        for (i = 0; i < count; i++)
+        for (i = 0; i < count; ++i)
         {
-            glGetActiveUniform(programId_, (GLuint)i, bufferCapacity, &length, &size, &type, name);
+            glGetActiveUniform(programId_, i, bufferCapacity, &length, &size, &type, name);
 
             log << "\nUniform: " << i << " Type: " << type << " Name: " << name;
         }

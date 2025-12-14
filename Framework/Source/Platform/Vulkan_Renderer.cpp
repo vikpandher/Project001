@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-12-13
 
 #include "Vulkan_Renderer.h"
 
@@ -87,8 +87,8 @@ namespace Project001
         , debugMessenger_(VK_NULL_HANDLE)
         , surface_(VK_NULL_HANDLE)
         , physicalDevice_(VK_NULL_HANDLE)
-        , graphicsQueueFamilyIndex_((uint32_t)-1)
-        , presentQueueFamilyIndex_((uint32_t)-1)
+        , graphicsQueueFamilyIndex_(static_cast<uint32_t>(-1))
+        , presentQueueFamilyIndex_(static_cast<uint32_t>(-1))
         , surfaceCapabilities_({})
         , surfaceExtent_({})
         , surfaceFormat_({})
@@ -327,7 +327,7 @@ namespace Project001
         bool multisampleAntiAliasing,
         bool mipMaps)
     {
-        unsigned int textureUnit = (unsigned int)textureMap_.Size();
+        unsigned int textureUnit = static_cast<unsigned int>(textureMap_.Size());
         if (textureUnit >= NUMBER_OF_TEXTURE_UNITS)
         {
             textureUnit = NUMBER_OF_TEXTURE_UNITS - 1;
@@ -497,7 +497,7 @@ namespace Project001
                 primaryClearRect.rect.offset = { 0, 0 };
                 primaryClearRect.rect.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-                vkCmdClearAttachments(commandBuffer, (uint32_t)primaryClearAttachments.size(), primaryClearAttachments.data(), 1, &primaryClearRect);
+                vkCmdClearAttachments(commandBuffer, static_cast<uint32_t>(primaryClearAttachments.size()), primaryClearAttachments.data(), 1, &primaryClearRect);
 
                 vkCmdEndRenderPass(commandBuffer);
             }
@@ -607,7 +607,7 @@ namespace Project001
                 primaryClearRect.rect.offset = { 0, 0 };
                 primaryClearRect.rect.extent = { frameBufferWidth_, frameBufferHeight_ };
 
-                vkCmdClearAttachments(commandBuffer, (uint32_t)primaryClearAttachments.size(), primaryClearAttachments.data(), 1, &primaryClearRect);
+                vkCmdClearAttachments(commandBuffer, static_cast<uint32_t>(primaryClearAttachments.size()), primaryClearAttachments.data(), 1, &primaryClearRect);
 
                 vkCmdEndRenderPass(commandBuffer);
             }
@@ -703,7 +703,7 @@ namespace Project001
             bool getTextureFailed = false;
 
             float textureUnit = -1.0f;
-            if (textureId != (unsigned int)-1)
+            if (textureId != static_cast<unsigned int>(-1))
             {
                 int getTextureUnitResult = GetTextureUnit(textureId, textureUnit);
                 if (getTextureUnitResult == 1)
@@ -718,7 +718,7 @@ namespace Project001
             }
 
             float specularUnit = -1.0f;
-            if (specularId != (unsigned int)-1)
+            if (specularId != static_cast<unsigned int>(-1))
             {
                 int getTextureUnitResult = GetTextureUnit(specularId, specularUnit);
                 if (getTextureUnitResult == 1)
@@ -796,7 +796,7 @@ namespace Project001
         bool getTextureFailed = false;
 
         float textureUnit = -1.0f;
-        if (textureId != (unsigned int)-1)
+        if (textureId != static_cast<unsigned int>(-1))
         {
             int getTextureUnitResult = GetTextureUnit(textureId, textureUnit);
             if (getTextureUnitResult == 1)
@@ -811,7 +811,7 @@ namespace Project001
         }
 
         float specularUnit = -1.0f;
-        if (specularId != (unsigned int)-1)
+        if (specularId != static_cast<unsigned int>(-1))
         {
             int getTextureUnitResult = GetTextureUnit(specularId, specularUnit);
             if (getTextureUnitResult == 1)
@@ -865,7 +865,7 @@ namespace Project001
 
         for (unsigned int j = 0; j < meshIndexCount; ++j)
         {
-            uint32_t newIndex = (uint32_t)(batchedVertexBufferOffset + meshIndexPtr[j]);
+            uint32_t newIndex = static_cast<uint32_t>(batchedVertexBufferOffset + meshIndexPtr[j]);
 
             *(batchedIndexStagingBufferDataPtr_ + batchedIndexCount_++) = newIndex;
         }
@@ -1057,8 +1057,8 @@ namespace Project001
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = currentRenderPass;
             renderPassInfo.framebuffer = currentFrameBuffer;
-            renderPassInfo.renderArea.offset = { (int32_t)(frameBufferWidth_ * cameraViewportX_), (int32_t)(frameBufferHeight_ * cameraViewportY_) };
-            renderPassInfo.renderArea.extent = { (uint32_t)(frameBufferWidth_ * cameraViewportWidth_), (uint32_t)(frameBufferHeight_ * cameraViewportHeight_) };
+            renderPassInfo.renderArea.offset = { static_cast<int32_t>(frameBufferWidth_ * cameraViewportX_), static_cast<int32_t>(frameBufferHeight_ * cameraViewportY_) };
+            renderPassInfo.renderArea.extent = { static_cast<uint32_t>(frameBufferWidth_ * cameraViewportWidth_), static_cast<uint32_t>(frameBufferHeight_ * cameraViewportHeight_) };
 
             vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -1068,10 +1068,10 @@ namespace Project001
             // (making it behave like it does in OpenGL)
             // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
             VkViewport viewport = {};
-            viewport.x = (float)frameBufferWidth_ * cameraViewportX_;
-            viewport.y = (float)frameBufferHeight_ - (float)frameBufferHeight_ * cameraViewportY_;
-            viewport.width = (float)frameBufferWidth_ * cameraViewportWidth_;
-            viewport.height = -(float)frameBufferHeight_ * cameraViewportHeight_;
+            viewport.x = static_cast<float>(frameBufferWidth_) * cameraViewportX_;
+            viewport.y = static_cast<float>(frameBufferHeight_) - static_cast<float>(frameBufferHeight_) * cameraViewportY_;
+            viewport.width = static_cast<float>(frameBufferWidth_) * cameraViewportWidth_;
+            viewport.height = -1.0f * static_cast<float>(frameBufferHeight_) * cameraViewportHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
@@ -1089,7 +1089,7 @@ namespace Project001
 
             vkCmdBindDescriptorSets(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDrawIndexed(renderingCommandBuffer_, (uint32_t)batchedIndexCount_, 1, 0, 0, 0);
+            vkCmdDrawIndexed(renderingCommandBuffer_, static_cast<uint32_t>(batchedIndexCount_), 1, 0, 0, 0);
 
             vkCmdEndRenderPass(renderingCommandBuffer_);
 
@@ -1181,10 +1181,10 @@ namespace Project001
             // (making it behave like it does in OpenGL)
             // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
             VkViewport viewport = {};
-            viewport.x = (float)viewportX_;
-            viewport.y = (float)(viewportHeight_ + viewportY_);
-            viewport.width = (float)viewportWidth_;
-            viewport.height = -(float)viewportHeight_;
+            viewport.x = static_cast<float>(viewportX_);
+            viewport.y = static_cast<float>(viewportHeight_ + viewportY_);
+            viewport.width = static_cast<float>(viewportWidth_);
+            viewport.height = -1.0f * static_cast<float>(viewportHeight_);
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
@@ -1395,9 +1395,9 @@ namespace Project001
             {
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-                instanceCreateInfo.enabledLayerCount = (uint32_t)s_validationLayers_.size();
+                instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(s_validationLayers_.size());
                 instanceCreateInfo.ppEnabledLayerNames = s_validationLayers_.data();
-                instanceCreateInfo.pNext = (void*)&debugUtilsMessengerCreateInfo;
+                instanceCreateInfo.pNext = static_cast<void*>(&debugUtilsMessengerCreateInfo);
             }
             else
             {
@@ -1405,7 +1405,7 @@ namespace Project001
                 instanceCreateInfo.pNext = nullptr;
             }
 
-            instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
+            instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
             instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
             _VK_CHECK(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance_));
@@ -1489,10 +1489,10 @@ namespace Project001
                 // -----------------------------------------------------------------
 
                 bool valid_graphicsQueueFamilyIndex = false;
-                uint32_t graphicsQueueFamilyIndex = (uint32_t)-1;
+                uint32_t graphicsQueueFamilyIndex = static_cast<uint32_t>(-1);
 
                 bool valid_presentQueueFamilyIndex = false;
-                uint32_t presentQueueFamilyIndex = (uint32_t)-1;
+                uint32_t presentQueueFamilyIndex = static_cast<uint32_t>(-1);
 
                 uint32_t queueFamilyCount = 0;
                 vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -1506,15 +1506,15 @@ namespace Project001
 
                     if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                     {
-                        graphicsQueueFamilyIndex = (uint32_t)i;
+                        graphicsQueueFamilyIndex = static_cast<uint32_t>(i);
                         valid_graphicsQueueFamilyIndex = true;
                     }
 
                     VkBool32 presentSupport = false;
-                    _VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, (uint32_t)i, surface_, &presentSupport));
+                    _VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, static_cast<uint32_t>(i), surface_, &presentSupport));
                     if (presentSupport)
                     {
-                        presentQueueFamilyIndex = (uint32_t)i;
+                        presentQueueFamilyIndex = static_cast<uint32_t>(i);
                         valid_presentQueueFamilyIndex = true;
                     }
 
@@ -1604,8 +1604,8 @@ namespace Project001
 
                 UpdateSurfaceCapabilities();
 
-                viewportHeight_ = (unsigned int)surfaceExtent_.height;
-                viewportWidth_ = (unsigned int)surfaceExtent_.width;
+                viewportHeight_ = static_cast<unsigned int>(surfaceExtent_.height);
+                viewportWidth_ = static_cast<unsigned int>(surfaceExtent_.width);
 
                 // Select a Swap Chain Surface Format
                 // -----------------------------------------------------------------
@@ -1733,8 +1733,8 @@ namespace Project001
     void Vulkan_Renderer::UnPickPhysicalDevice()
     {
         physicalDevice_ = VK_NULL_HANDLE;
-        graphicsQueueFamilyIndex_ = (uint32_t)-1;
-        presentQueueFamilyIndex_ = (uint32_t)-1;
+        graphicsQueueFamilyIndex_ = static_cast<uint32_t>(-1);
+        presentQueueFamilyIndex_ = static_cast<uint32_t>(-1);
         surfaceCapabilities_ = {};
         surfaceExtent_ = {};
         surfaceFormat_ = {};
@@ -1780,17 +1780,17 @@ namespace Project001
             VkDeviceCreateInfo deviceCreateInfo = {};
             deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-            deviceCreateInfo.queueCreateInfoCount = (uint32_t)deviceQueueCreateInfos.size();
+            deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueCreateInfos.size());
             deviceCreateInfo.pQueueCreateInfos = deviceQueueCreateInfos.data();
 
             deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures;
 
-            deviceCreateInfo.enabledExtensionCount = (uint32_t)s_deviceExtensions_.size();
+            deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(s_deviceExtensions_.size());
             deviceCreateInfo.ppEnabledExtensionNames = s_deviceExtensions_.data();
 
             if (s_enableValidationLayers_)
             {
-                deviceCreateInfo.enabledLayerCount = (uint32_t)s_validationLayers_.size();
+                deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(s_validationLayers_.size());
                 deviceCreateInfo.ppEnabledLayerNames = s_validationLayers_.data();
             }
             else
@@ -1963,7 +1963,7 @@ namespace Project001
             _VK_CHECK(vkGetSwapchainImagesKHR(logicalDevice_, swapchain_, &swapchainImageCount_, swapchainImages_.data()));
 
             swapchainImageViews_.resize(swapchainImageCount_);
-            for (size_t i = 0; i < swapchainImages_.size(); i++)
+            for (size_t i = 0; i < swapchainImages_.size(); ++i)
             {
                 CreateImageView(swapchainImages_[i], surfaceFormat_.format, VK_IMAGE_ASPECT_COLOR_BIT, 1, swapchainImageViews_[i]);
             }
@@ -2008,7 +2008,7 @@ namespace Project001
             VkDeviceSize instanceBufferSize = sizeof(InstanceData) * instanceBufferCapacity_;
 
             CreateBuffer(instanceBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, instanceStagingBuffer_, instanceStagingBufferMemory_);
-            _VK_CHECK(vkMapMemory(logicalDevice_, instanceStagingBufferMemory_, 0, instanceBufferSize, 0, (void**)&instanceStagingBufferDataPtr_));
+            _VK_CHECK(vkMapMemory(logicalDevice_, instanceStagingBufferMemory_, 0, instanceBufferSize, 0, reinterpret_cast<void**>(&instanceStagingBufferDataPtr_)));
 
             CreateBuffer(instanceBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer_, instanceBufferMemory_);
         }
@@ -2052,7 +2052,7 @@ namespace Project001
             VkDeviceSize batchedIndexBufferSize = sizeof(uint32_t) * batchedIndexBufferCapacity_;
 
             CreateBuffer(batchedIndexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, batchedIndexStagingBuffer_, batchedIndexStagingBufferMemory_);
-            _VK_CHECK(vkMapMemory(logicalDevice_, batchedIndexStagingBufferMemory_, 0, batchedIndexBufferSize, 0, (void**)&batchedIndexStagingBufferDataPtr_));
+            _VK_CHECK(vkMapMemory(logicalDevice_, batchedIndexStagingBufferMemory_, 0, batchedIndexBufferSize, 0, reinterpret_cast<void**>(&batchedIndexStagingBufferDataPtr_)));
 
             CreateBuffer(batchedIndexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, batchedIndexBuffer_, batchedIndexBufferMemory_);
         }
@@ -2096,7 +2096,7 @@ namespace Project001
             VkDeviceSize batchedVertexBufferSize = sizeof(BatchedVertexData) * batchedVertexBufferCapacity_;
 
             CreateBuffer(batchedVertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, batchedVertexStagingBuffer_, batchedVertexStagingBufferMemory_);
-            _VK_CHECK(vkMapMemory(logicalDevice_, batchedVertexStagingBufferMemory_, 0, batchedVertexBufferSize, 0, (void**)&batchedVertexStagingBufferDataPtr_));
+            _VK_CHECK(vkMapMemory(logicalDevice_, batchedVertexStagingBufferMemory_, 0, batchedVertexBufferSize, 0, reinterpret_cast<void**>(&batchedVertexStagingBufferDataPtr_)));
 
             CreateBuffer(batchedVertexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, batchedVertexBuffer_, batchedVertexBufferMemory_);
         }
@@ -2256,7 +2256,7 @@ namespace Project001
             std::array<VkDescriptorSetLayoutBinding, 3> bindings = { vsuboLayoutBinding, fsuboLayoutBinding, samplerLayoutBinding };
             VkDescriptorSetLayoutCreateInfo layoutInfo = {};
             layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = (uint32_t)bindings.size();
+            layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
             layoutInfo.pBindings = bindings.data();
 
             _VK_CHECK(vkCreateDescriptorSetLayout(logicalDevice_, &layoutInfo, nullptr, &primaryDescriptorSetLayout_));
@@ -2301,7 +2301,7 @@ namespace Project001
 
             VkDescriptorPoolCreateInfo poolInfo = {};
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            poolInfo.poolSizeCount = (uint32_t)poolSizes.size();
+            poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
             poolInfo.pPoolSizes = poolSizes.data();
             poolInfo.maxSets = 2;
 
@@ -2374,12 +2374,12 @@ namespace Project001
             imageInfo.imageView = defaultTexture_.textureImageView_;
             imageInfo.sampler = defaultTexture_.textureSampler_;
 
-            for (size_t i = 0; i < NUMBER_OF_TEXTURE_UNITS; i++)
+            for (size_t i = 0; i < NUMBER_OF_TEXTURE_UNITS; ++i)
             {
                 descriptorWrites[2 + i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 descriptorWrites[2 + i].dstSet = primaryDescriptorSet_;
                 descriptorWrites[2 + i].dstBinding = 2;
-                descriptorWrites[2 + i].dstArrayElement = (uint32_t)i;
+                descriptorWrites[2 + i].dstArrayElement = static_cast<uint32_t>(i);
                 descriptorWrites[2 + i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 descriptorWrites[2 + i].descriptorCount = 1;
                 descriptorWrites[2 + i].pImageInfo = &imageInfo;
@@ -2393,7 +2393,7 @@ namespace Project001
             descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].descriptorCount = 1;
             descriptorWrites[2 + NUMBER_OF_TEXTURE_UNITS].pImageInfo = &imageInfo;
 
-            vkUpdateDescriptorSets(logicalDevice_, (uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+            vkUpdateDescriptorSets(logicalDevice_, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
     }
 
@@ -2932,7 +2932,7 @@ namespace Project001
             VkFramebufferCreateInfo framebufferCreateInfo1 = {};
             framebufferCreateInfo1.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo1.renderPass = primaryRenderPass1_;
-            framebufferCreateInfo1.attachmentCount = (uint32_t)attachments1.size();
+            framebufferCreateInfo1.attachmentCount = static_cast<uint32_t>(attachments1.size());
             framebufferCreateInfo1.pAttachments = attachments1.data();
             framebufferCreateInfo1.width = frameBufferWidth_;
             framebufferCreateInfo1.height = frameBufferHeight_;
@@ -2955,7 +2955,7 @@ namespace Project001
             VkFramebufferCreateInfo framebufferCreateInfo2 = {};
             framebufferCreateInfo2.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo2.renderPass = primaryRenderPass2_;
-            framebufferCreateInfo2.attachmentCount = (uint32_t)attachments2.size();
+            framebufferCreateInfo2.attachmentCount = static_cast<uint32_t>(attachments2.size());
             framebufferCreateInfo2.pAttachments = attachments2.data();
             framebufferCreateInfo2.width = frameBufferWidth_;
             framebufferCreateInfo2.height = frameBufferHeight_;
@@ -2978,7 +2978,7 @@ namespace Project001
             VkFramebufferCreateInfo framebufferCreateInfo3 = {};
             framebufferCreateInfo3.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo3.renderPass = primaryRenderPass3_;
-            framebufferCreateInfo3.attachmentCount = (uint32_t)attachments3.size();
+            framebufferCreateInfo3.attachmentCount = static_cast<uint32_t>(attachments3.size());
             framebufferCreateInfo3.pAttachments = attachments3.data();
             framebufferCreateInfo3.width = frameBufferWidth_;
             framebufferCreateInfo3.height = frameBufferHeight_;
@@ -3002,7 +3002,7 @@ namespace Project001
             VkFramebufferCreateInfo framebufferCreateInfo4 = {};
             framebufferCreateInfo4.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo4.renderPass = primaryRenderPass4_;
-            framebufferCreateInfo4.attachmentCount = (uint32_t)attachments4.size();
+            framebufferCreateInfo4.attachmentCount = static_cast<uint32_t>(attachments4.size());
             framebufferCreateInfo4.pAttachments = attachments4.data();
             framebufferCreateInfo4.width = frameBufferWidth_;
             framebufferCreateInfo4.height = frameBufferHeight_;
@@ -3152,7 +3152,7 @@ namespace Project001
             attributeDescriptions[1].offset = 8;
 
             vertexInputInfo.vertexBindingDescriptionCount = 1;
-            vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)attributeDescriptions.size();
+            vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
             vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
             vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
@@ -3206,7 +3206,7 @@ namespace Project001
 
             VkPipelineDynamicStateCreateInfo dynamicState = {};
             dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-            dynamicState.dynamicStateCount = (uint32_t)dynamicStates.size();
+            dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
             dynamicState.pDynamicStates = dynamicStates.data();
 
             VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -3559,8 +3559,8 @@ namespace Project001
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = currentRenderPass;
             renderPassInfo.framebuffer = currentFrameBuffer;
-            renderPassInfo.renderArea.offset = { (int32_t)(frameBufferWidth_ * cameraViewportX_), (int32_t)(frameBufferHeight_ * cameraViewportY_) };
-            renderPassInfo.renderArea.extent = { (uint32_t)(frameBufferWidth_ * cameraViewportWidth_), (uint32_t)(frameBufferHeight_ * cameraViewportHeight_) };
+            renderPassInfo.renderArea.offset = { static_cast<int32_t>(frameBufferWidth_ * cameraViewportX_), static_cast<int32_t>(frameBufferHeight_ * cameraViewportY_) };
+            renderPassInfo.renderArea.extent = { static_cast<uint32_t>(frameBufferWidth_ * cameraViewportWidth_), static_cast<uint32_t>(frameBufferHeight_ * cameraViewportHeight_) };
 
             vkCmdBeginRenderPass(renderingCommandBuffer_, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -3570,10 +3570,10 @@ namespace Project001
             // (making it behave like it does in OpenGL)
             // If VK_API_VERSION_1_1 < 1.1: requires VK_KHR_MAINTENANCE_1_EXTENSION_NAME
             VkViewport viewport = {};
-            viewport.x = (float)frameBufferWidth_ * cameraViewportX_;
-            viewport.y = (float)frameBufferHeight_ - (float)frameBufferHeight_ * cameraViewportY_;
-            viewport.width = (float)frameBufferWidth_ * cameraViewportWidth_;
-            viewport.height = -(float)frameBufferHeight_ * cameraViewportHeight_;
+            viewport.x = static_cast<float>(frameBufferWidth_) * cameraViewportX_;
+            viewport.y = static_cast<float>(frameBufferHeight_) - static_cast<float>(frameBufferHeight_) * cameraViewportY_;
+            viewport.width = static_cast<float>(frameBufferWidth_) * cameraViewportWidth_;
+            viewport.height = -1.0f * static_cast<float>(frameBufferHeight_) * cameraViewportHeight_;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(renderingCommandBuffer_, 0, 1, &viewport);
@@ -3591,7 +3591,7 @@ namespace Project001
 
             vkCmdBindDescriptorSets(renderingCommandBuffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, primaryPipelineLayout_, 0, 1, &primaryDescriptorSet_, 0, nullptr);
 
-            vkCmdDrawIndexed(renderingCommandBuffer_, (uint32_t)mesh.indexCount_, (uint32_t)instanceCount_, 0, 0, 0);
+            vkCmdDrawIndexed(renderingCommandBuffer_, static_cast<uint32_t>(mesh.indexCount_), static_cast<uint32_t>(instanceCount_), 0, 0, 0);
 
             vkCmdEndRenderPass(renderingCommandBuffer_);
 
@@ -3659,7 +3659,7 @@ namespace Project001
             int width, height;
             windowPtr_->GetFramebufferSize(width, height);
 
-            VkExtent2D actualExtent = { (uint32_t)width, (uint32_t)height };
+            VkExtent2D actualExtent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
             if (actualExtent.width < surfaceCapabilities_.minImageExtent.width)
             {
@@ -3780,7 +3780,7 @@ namespace Project001
         VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
         vkGetPhysicalDeviceMemoryProperties(physicalDevice_, &physicalDeviceMemoryProperties);
 
-        for (uint32_t i = 0; i < physicalDeviceMemoryProperties.memoryTypeCount; i++)
+        for (uint32_t i = 0; i < physicalDeviceMemoryProperties.memoryTypeCount; ++i)
         {
             if ((typeFilter & (1 << i)) &&
                 (physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlags) == memoryPropertyFlags)
@@ -3791,7 +3791,7 @@ namespace Project001
 
         LOG_ERROR_F("Vulkan Error: Failed to find suitable memory type!");
 
-        return (uint32_t)-1;
+        return static_cast<uint32_t>(-1);
     }
 
     void Vulkan_Renderer::CreateMesh(
@@ -3889,7 +3889,7 @@ namespace Project001
         {
             void* destinationData;
             _VK_CHECK(vkMapMemory(logicalDevice_, stagingBufferMemory, 0, imageSize, 0, &destinationData));
-            memcpy(destinationData, data, (size_t)imageSize);
+            memcpy(destinationData, data, static_cast<size_t>(imageSize));
             vkUnmapMemory(logicalDevice_, stagingBufferMemory);
         }
 
@@ -3923,8 +3923,8 @@ namespace Project001
         CopyBufferToImage(
             stagingBuffer,
             texture.textureImage_,
-            (uint32_t)width,
-            (uint32_t)height
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
         );
 
         vkDestroyBuffer(logicalDevice_, stagingBuffer, nullptr);
@@ -3978,8 +3978,8 @@ namespace Project001
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.minLod = 0.0f; // (float)mipLevels_ / 2.0f;
-        samplerInfo.maxLod = (float)mipLevels;
+        samplerInfo.minLod = 0.0f; // static_cast<float>(mipLevels_) / 2.0f;
+        samplerInfo.maxLod = static_cast<float>(mipLevels);
         samplerInfo.mipLodBias = 0.0f;
 
         _VK_CHECK(vkCreateSampler(logicalDevice_, &samplerInfo, nullptr, &texture.textureSampler_));
@@ -4004,7 +4004,7 @@ namespace Project001
         {
             unsigned int textureUnit_uint = iter->second;
             textureUnitStalenessValues_[textureUnit_uint] = 0;
-            textureUnit = (float)textureUnit_uint;
+            textureUnit = static_cast<float>(textureUnit_uint);
         }
         else
         {
@@ -4013,7 +4013,7 @@ namespace Project001
             {
                 if (BindTexture(textureId, newTextureUnit))
                 {
-                    textureUnit = (float)newTextureUnit;
+                    textureUnit = static_cast<float>(newTextureUnit);
                     textureUnitStalenessValues_[newTextureUnit] = 0;
                 }
                 else
@@ -4078,7 +4078,7 @@ namespace Project001
         std::array<VkDescriptorImageInfo, NUMBER_OF_TEXTURE_UNITS> imageInfos = {};
         std::array<VkWriteDescriptorSet, NUMBER_OF_TEXTURE_UNITS> descriptorWrites = {};
 
-        for (unsigned int i = 0; i < NUMBER_OF_TEXTURE_UNITS; i++)
+        for (unsigned int i = 0; i < NUMBER_OF_TEXTURE_UNITS; ++i)
         {
             Vulkan_Texture* currentTexturePtr;
             if (textureIdToUnitBiMap_.FindValue(i) != textureIdToUnitBiMap_.IteratorPastTheEnd())
@@ -4098,13 +4098,13 @@ namespace Project001
             descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrites[i].dstSet = primaryDescriptorSet_;
             descriptorWrites[i].dstBinding = 2;
-            descriptorWrites[i].dstArrayElement = (uint32_t)i;
+            descriptorWrites[i].dstArrayElement = static_cast<uint32_t>(i);
             descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptorWrites[i].descriptorCount = 1;
             descriptorWrites[i].pImageInfo = &imageInfos[i];
         }
 
-        vkUpdateDescriptorSets(logicalDevice_, (uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+        vkUpdateDescriptorSets(logicalDevice_, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 
     void Vulkan_Renderer::ApplyScreenTextureBinding()
@@ -4255,7 +4255,7 @@ namespace Project001
         int32_t mipWidth = texWidth;
         int32_t mipHeight = texHeight;
 
-        for (uint32_t i = 1; i < mipLevels; i++)
+        for (uint32_t i = 1; i < mipLevels; ++i)
         {
             imageMemoryBarrier.subresourceRange.baseMipLevel = i - 1;
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -4476,7 +4476,7 @@ namespace Project001
 
         VkRenderPassCreateInfo renderPassCreateInfo = {};
         renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassCreateInfo.attachmentCount = (uint32_t)attachmentDescriptions.size();
+        renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachmentDescriptions.size());
         renderPassCreateInfo.pAttachments = attachmentDescriptions.data();
         renderPassCreateInfo.subpassCount = 1;
         renderPassCreateInfo.pSubpasses = &subpassDescription;
@@ -4514,8 +4514,8 @@ namespace Project001
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-        vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexInputBindingDescriptions.size();
-        vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexInputAttributeDescriptions.size();
+        vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexInputBindingDescriptions.size());
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
         vertexInputInfo.pVertexBindingDescriptions = vertexInputBindingDescriptions.data();
         vertexInputInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
 
@@ -4569,7 +4569,7 @@ namespace Project001
 
         VkPipelineDynamicStateCreateInfo dynamicState = {};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = (uint32_t)dynamicStates.size();
+        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
         VkGraphicsPipelineCreateInfo pipelineInfo = {};

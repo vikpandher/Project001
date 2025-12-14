@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-12-13
 
 #include "TestScene006.h"
 
@@ -27,9 +27,9 @@
 TestScene006::TestScene006(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
-    , zzzEntityId_((unsigned int)-1)
-    , printableEntityId_((unsigned int)-1)
-    , sphinxEntityId_((unsigned int)-1)
+    , zzzEntityId_(static_cast<unsigned int>(-1))
+    , printableEntityId_(static_cast<unsigned int>(-1))
+    , sphinxEntityId_(static_cast<unsigned int>(-1))
     , timestamp_ns_(0ull)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene006Id = GetId();
@@ -89,7 +89,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -127,7 +127,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         font02_TextureData,
         "../Fonts/Antonio-Regular.png"
     ));
-    unsigned int font02_TextureId = (unsigned int)-1;
+    unsigned int font02_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font02_TextureId,
         font02_TextureData.data,
@@ -141,7 +141,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float font03_pixelSize = 0.005f;
     const Project001::FontData& font03_FontData = Project001::Get_PixelFont5x6_FontData();
     const Project001::TextureData& font03_TextureData = Project001::Get_PixelFont5x6_TextureData();
-    unsigned int font03_TextureId = (unsigned int)-1;
+    unsigned int font03_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font03_TextureId,
         font03_TextureData.data,
@@ -747,9 +747,9 @@ void TestScene006::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     LOG_INFO("DEINITIALIZING: TestScene006:            " << GetId());
 
-    zzzEntityId_ = (unsigned int)-1;
-    printableEntityId_ = (unsigned int)-1;
-    sphinxEntityId_ = (unsigned int)-1;
+    zzzEntityId_ = static_cast<unsigned int>(-1);
+    printableEntityId_ = static_cast<unsigned int>(-1);
+    sphinxEntityId_ = static_cast<unsigned int>(-1);
 
     timestamp_ns_ = 0ull;
 }
@@ -768,7 +768,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * static_cast<float>(i) + 8.0f * static_cast<float>(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
             }
         }
@@ -784,7 +784,7 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+8.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.2f * glm::sin(glm::pi<float>() * (0.2f * static_cast<float>(i) + 8.0f * static_cast<float>(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
             }
         }
@@ -800,9 +800,9 @@ void TestScene006::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             for (size_t i = 0; i < renderedMeshes.size(); ++i)
             {
                 Project001::RenderedMesh& renderedMesh = renderedMeshes[i];
-                float yShift = 0.02f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+2.0f * float(timestamp_ns_) * 0.0000000001f));
+                float yShift = 0.02f * glm::sin(glm::pi<float>() * (0.2f * static_cast<float>(i) + 2.0f * static_cast<float>(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.SetPositionY(yShift);
-                float zRotate = -0.02f * glm::sin(glm::pi<float>() * (0.2f * (float)(i)+32.0f * float(timestamp_ns_) * 0.0000000001f));
+                float zRotate = -0.02f * glm::sin(glm::pi<float>() * (0.2f * static_cast<float>(i) + 32.0f * static_cast<float>(timestamp_ns_) * 0.0000000001f));
                 renderedMesh.AddRelativeRotationZ(zRotate);
             }
         }

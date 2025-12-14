@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #include "SoundLoader.h"
 
@@ -20,7 +20,7 @@ namespace Project001
     {
         int numberOfChannels;
         int sampleRate_Hz;
-        int numberOfSamplesPerChannel = stb_vorbis_decode_filename(filePath.c_str(), &numberOfChannels, &sampleRate_Hz, (short**)&soundData.data);
+        int numberOfSamplesPerChannel = stb_vorbis_decode_filename(filePath.c_str(), &numberOfChannels, &sampleRate_Hz, reinterpret_cast<short**>(&soundData.data));
 
         if (numberOfSamplesPerChannel < 1)
         {
@@ -28,12 +28,12 @@ namespace Project001
             return false;
         }
 
-        soundData.numberOfChannels = (unsigned int)numberOfChannels;
-        soundData.sampleRate_Hz = (unsigned int)sampleRate_Hz;
+        soundData.numberOfChannels = static_cast<unsigned int>(numberOfChannels);
+        soundData.sampleRate_Hz = static_cast<unsigned int>(sampleRate_Hz);
         soundData.bitsPerSample = 16; // Assuming 16-bit samples.
-        soundData.sizeInFrames = (unsigned int)numberOfSamplesPerChannel;
+        soundData.sizeInFrames = static_cast<unsigned int>(numberOfSamplesPerChannel);
         soundData.sizeInBytes = soundData.sizeInFrames * soundData.numberOfChannels * soundData.bitsPerSample / 8;
-        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
+        soundData.duration_s = static_cast<float>(soundData.sizeInFrames) / static_cast<float>(soundData.sampleRate_Hz);
 
         return true;
     }
@@ -45,7 +45,7 @@ namespace Project001
     {
         int numberOfChannels;
         int sampleRate_Hz;
-        int numberOfSamplesPerChannel = stb_vorbis_decode_memory(dataPtr, (int)dataSize, &numberOfChannels, &sampleRate_Hz, (short**)&soundData.data);
+        int numberOfSamplesPerChannel = stb_vorbis_decode_memory(dataPtr, static_cast<int>(dataSize), &numberOfChannels, &sampleRate_Hz, reinterpret_cast<short**>(&soundData.data));
 
         if (numberOfSamplesPerChannel < 1)
         {
@@ -53,12 +53,12 @@ namespace Project001
             return false;
         }
 
-        soundData.numberOfChannels = (unsigned int)numberOfChannels;
-        soundData.sampleRate_Hz = (unsigned int)sampleRate_Hz;
+        soundData.numberOfChannels = static_cast<unsigned int>(numberOfChannels);
+        soundData.sampleRate_Hz = static_cast<unsigned int>(sampleRate_Hz);
         soundData.bitsPerSample = 16; // Assuming 16-bit samples.
-        soundData.sizeInFrames = (unsigned int)numberOfSamplesPerChannel;
+        soundData.sizeInFrames = static_cast<unsigned int>(numberOfSamplesPerChannel);
         soundData.sizeInBytes = soundData.sizeInFrames * soundData.numberOfChannels * soundData.bitsPerSample / 8;
-        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
+        soundData.duration_s = static_cast<float>(soundData.sizeInFrames) / static_cast<float>(soundData.sampleRate_Hz);
 
         return true;
     }
@@ -225,9 +225,9 @@ namespace Project001
         }
         soundData.sizeInBytes = ConvertToUInt32(buffer, 4);
 
-        size_t bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
+        unsigned int bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
         soundData.sizeInFrames = soundData.sizeInBytes / bytesPerFrame;
-        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
+        soundData.duration_s = static_cast<float>(soundData.sizeInFrames) / static_cast<float>(soundData.sampleRate_Hz);
 
         if (inputFileStream.eof())
         {
@@ -240,7 +240,7 @@ namespace Project001
             return false;
         }
 
-        soundData.data = malloc((size_t)soundData.sizeInBytes);
+        soundData.data = malloc(static_cast<size_t>(soundData.sizeInBytes));
         if (soundData.data == nullptr)
         {
             // ERROR: failed to allocate memory
@@ -248,7 +248,7 @@ namespace Project001
         }
 
         // Data
-        if (!inputFileStream.read((char*)soundData.data, (size_t)soundData.sizeInBytes))
+        if (!inputFileStream.read(reinterpret_cast<char*>(soundData.data), static_cast<size_t>(soundData.sizeInBytes)))
         {
             // ERROR: failed to read data memory
             return false;
@@ -267,7 +267,7 @@ namespace Project001
             return false;
         }
 
-        const char* incrementingDataPtr = (const char*)dataPtr;
+        const char* incrementingDataPtr = reinterpret_cast<const char*>(dataPtr);
         const char* pastTheEndOfSourcePtr = incrementingDataPtr + dataSize;
 
         size_t currentIndex = 0;
@@ -423,11 +423,11 @@ namespace Project001
         }
         soundData.sizeInBytes = ConvertToUInt32(buffer, 4);
 
-        size_t bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
+        unsigned int bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
         soundData.sizeInFrames = soundData.sizeInBytes / bytesPerFrame;
-        soundData.duration_s = (float)soundData.sizeInFrames / (float)soundData.sampleRate_Hz;
+        soundData.duration_s = static_cast<float>(soundData.sizeInFrames) / static_cast<float>(soundData.sampleRate_Hz);
 
-        soundData.data = malloc((size_t)soundData.sizeInBytes);
+        soundData.data = malloc(static_cast<size_t>(soundData.sizeInBytes));
         if (soundData.data == nullptr)
         {
             // ERROR: failed to allocate memory
@@ -435,7 +435,7 @@ namespace Project001
         }
 
         // Data
-        if (!Read((char*)soundData.data, incrementingDataPtr, pastTheEndOfSourcePtr, (size_t)soundData.sizeInBytes))
+        if (!Read(reinterpret_cast<char*>(soundData.data), incrementingDataPtr, pastTheEndOfSourcePtr, static_cast<size_t>(soundData.sizeInBytes)))
         {
             // ERROR: failed to read data memory
             return false;

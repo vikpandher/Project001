@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-04
+// @DATE 2025-12-13
 
 #include "Scene.h"
 
@@ -33,7 +33,7 @@ namespace Project001
 
     Scene::Scene(Application* applicationPtr)
         : applicationPtr_(applicationPtr)
-        , id_((unsigned int)-1)
+        , id_(static_cast<unsigned int>(-1))
     {
         if (applicationPtr_ != nullptr)
         {

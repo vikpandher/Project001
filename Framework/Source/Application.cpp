@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-30
+// @DATE 2025-12-13
 
 #include "Application.h"
 
@@ -44,7 +44,8 @@ namespace Project001
         int screenWidth;
         int screenHeight;
         windowPtr_->GetScreenSize(screenWidth, screenHeight);
-        if (screenWidth > (int)applicationCreationInfo.windowWidth && screenHeight > (int)applicationCreationInfo.windowHeight)
+        if (screenWidth > static_cast<int>(applicationCreationInfo.windowWidth) &&
+            screenHeight > static_cast<int>(applicationCreationInfo.windowHeight))
         {
             windowPtr_->SetWindowPosition((screenWidth - applicationCreationInfo.windowWidth) / 2, (screenHeight - applicationCreationInfo.windowHeight) / 2);
         }
@@ -173,10 +174,10 @@ namespace Project001
 
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
 
-            int adjustedHeight = (int)(width / aspectRatio);
-            int adjustedWidth = (int)(height * aspectRatio);
+            int adjustedHeight = static_cast<int>(width / aspectRatio);
+            int adjustedWidth = static_cast<int>(height * aspectRatio);
 
             if (adjustedWidth > width)
             {

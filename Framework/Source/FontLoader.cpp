@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-12-13
 
 #include "FontLoader.h"
 
@@ -184,9 +184,9 @@ namespace Project001
         maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
         minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
 
-        unsigned int initialVertexCount = (unsigned int)meshVertexArray.size();
-        unsigned int lineStartVertexCount = (unsigned int)meshVertexArray.size();
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int initialVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+        unsigned int lineStartVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -233,7 +233,7 @@ namespace Project001
                 }
                 else
                 {
-                    lineStartPenPosition.y -= (float)fontData.lineSpacing_px * pixelSize;
+                    lineStartPenPosition.y -= static_cast<float>(fontData.lineSpacing_px) * pixelSize;
                 }
 
                 currentPenPosition = lineStartPenPosition;
@@ -247,10 +247,10 @@ namespace Project001
                     const GlyphMetrics& currentGlyphMetrics = glyphMetricsMapIter->second;
                     if (currentGlyphMetrics.height_px != 0)
                     {
-                        float left = currentPenPosition.x + (float)currentGlyphMetrics.horiBearingX_px * pixelSize;
-                        float right = left + (float)currentGlyphMetrics.width_px * pixelSize;
-                        float top = currentPenPosition.y + (float)currentGlyphMetrics.horiBearingY_px * pixelSize;
-                        float bottom = top - (float)currentGlyphMetrics.height_px * pixelSize;
+                        float left = currentPenPosition.x + static_cast<float>(currentGlyphMetrics.horiBearingX_px) * pixelSize;
+                        float right = left + static_cast<float>(currentGlyphMetrics.width_px) * pixelSize;
+                        float top = currentPenPosition.y + static_cast<float>(currentGlyphMetrics.horiBearingY_px) * pixelSize;
+                        float bottom = top - static_cast<float>(currentGlyphMetrics.height_px) * pixelSize;
 
                         topRight.position.x = right;
                         topRight.position.y = top;
@@ -301,11 +301,11 @@ namespace Project001
                             currentVertexCount += 4;
                         }
                     }
-                    currentPenPosition.x += (float)currentGlyphMetrics.horiAdvance_px * pixelSize;
+                    currentPenPosition.x += static_cast<float>(currentGlyphMetrics.horiAdvance_px) * pixelSize;
                 }
                 else
                 {
-                    LOG_WARNING_F("Failed to generate mesh for character: " << c << " (ASCII: " << (unsigned int)c << ")");
+                    LOG_WARNING_F("Failed to generate mesh for character: " << c << " (ASCII: " << static_cast<unsigned int>(c) << ")");
 
                     // return false;
                 }
@@ -322,7 +322,7 @@ namespace Project001
             {
                 shift = (currentPenPosition - lineStartPenPosition);
             }
-            for (size_t i = lineStartVertexCount; i < currentVertexCount; ++i)
+            for (unsigned int i = lineStartVertexCount; i < currentVertexCount; ++i)
             {
                 MeshVertex& currentMeshVertex = meshVertexArray[i];
                 currentMeshVertex.position.x -= shift.x;
@@ -330,7 +330,7 @@ namespace Project001
             }
         }
 
-        for (size_t i = (size_t)initialVertexCount; i < meshVertexArray.size(); ++i)
+        for (unsigned int i = initialVertexCount; i < meshVertexArray.size(); ++i)
         {
             const glm::vec3& currentPosition = meshVertexArray[i].position;
 
@@ -393,7 +393,7 @@ namespace Project001
             GenerateGlpyhMeshDataFromGlyphMetrics_H(glyphMeshData, glyphMetrics, pixelSize, trangulate);
         }
 
-        fontMeshData.lineSpacing = pixelSize * (float)fontData.lineSpacing_px;
+        fontMeshData.lineSpacing = pixelSize * static_cast<float>(fontData.lineSpacing_px);
 
         return true;
     }
@@ -408,7 +408,7 @@ namespace Project001
         float pixelSize,
         bool trangulate)
     {
-        glyphMeshData.horiAdvance = (float)glyphMetrics.horiAdvance_px * pixelSize;
+        glyphMeshData.horiAdvance = static_cast<float>(glyphMetrics.horiAdvance_px) * pixelSize;
         if (glyphMetrics.height_px == 0)
         {
             // LOG_WARNING_F("Character of height_px == 0");
@@ -425,7 +425,7 @@ namespace Project001
         maxVertexPosition.z = std::max(maxVertexPosition.z, 0.0f);
         minVertexPosition.z = std::min(minVertexPosition.z, 0.0f);
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
         glm::vec3 normal(0.0f, 0.0f, 1.0f);
 
@@ -439,10 +439,10 @@ namespace Project001
         bottomLeft.normal = normal;
         bottomRight.normal = normal;
 
-        float left = (float)glyphMetrics.horiBearingX_px * pixelSize;
-        float right = left + (float)glyphMetrics.width_px * pixelSize;
-        float top = (float)glyphMetrics.horiBearingY_px * pixelSize;
-        float bottom = top - (float)glyphMetrics.height_px * pixelSize;
+        float left = static_cast<float>(glyphMetrics.horiBearingX_px) * pixelSize;
+        float right = left + static_cast<float>(glyphMetrics.width_px) * pixelSize;
+        float top = static_cast<float>(glyphMetrics.horiBearingY_px) * pixelSize;
+        float bottom = top - static_cast<float>(glyphMetrics.height_px) * pixelSize;
 
         topRight.position.x = right;
         topRight.position.y = top;

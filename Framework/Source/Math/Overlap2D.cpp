@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-12-13
 
 #include "Overlap2D.h"
 
@@ -2927,7 +2927,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -2942,7 +2942,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3089,7 +3089,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3115,7 +3115,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsB_count > 0)
         {
@@ -3182,7 +3182,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -3197,7 +3197,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3277,7 +3277,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -3292,7 +3292,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3416,7 +3416,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -3431,7 +3431,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3590,7 +3590,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
 
         if (intersectPointsA_count > 0)
@@ -3617,7 +3617,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         
         if (intersectPointsB_count > 0)
@@ -3692,7 +3692,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -3707,7 +3707,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -3794,7 +3794,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -3809,7 +3809,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -4260,7 +4260,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -4286,7 +4286,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsB_count > 0)
         {
@@ -4344,7 +4344,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -4370,7 +4370,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsB_count > 0)
         {
@@ -4514,7 +4514,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -4529,7 +4529,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -4599,7 +4599,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -4614,7 +4614,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {
@@ -4787,7 +4787,7 @@ namespace Project001
                 intersectPointsA_count++;
             }
         }
-        averageIntersectPointA /= (float)intersectPointsA_count;
+        averageIntersectPointA /= static_cast<float>(intersectPointsA_count);
 
         glm::vec2 averageIntersectPointB(0.0f, 0.0f);
         size_t intersectPointsB_count = 0;
@@ -4802,7 +4802,7 @@ namespace Project001
                 intersectPointsB_count++;
             }
         }
-        averageIntersectPointB /= (float)intersectPointsB_count;
+        averageIntersectPointB /= static_cast<float>(intersectPointsB_count);
 
         if (intersectPointsA_count > 0)
         {

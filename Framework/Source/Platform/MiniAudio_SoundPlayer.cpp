@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-12-13
 
 #include "MiniAudio_SoundPlayer.h"
 
@@ -162,8 +162,8 @@ namespace Project001
         AutoIdMap<void*>::iterator iter = soundBufferPtrMap_.Find(soundBufferId);
         if (iter != soundBufferPtrMap_.IteratorPastTheEnd())
         {
-            ma_audio_buffer_uninit((ma_audio_buffer*)iter->second);
-            delete (ma_audio_buffer*)iter->second;
+            ma_audio_buffer_uninit(reinterpret_cast<ma_audio_buffer*>(iter->second));
+            delete reinterpret_cast<ma_audio_buffer*>(iter->second);
             soundBufferPtrMap_.Erase(iter);
             return true;
         }
@@ -177,8 +177,8 @@ namespace Project001
         for (AutoIdMap<void*>::iterator iter = soundBufferPtrMap_.IteratorAtBeginning();
             iter != soundBufferPtrMap_.IteratorPastTheEnd(); ++iter)
         {
-            ma_audio_buffer_uninit((ma_audio_buffer*)iter->second);
-            delete (ma_audio_buffer*)iter->second;
+            ma_audio_buffer_uninit(reinterpret_cast<ma_audio_buffer*>(iter->second));
+            delete reinterpret_cast<ma_audio_buffer*>(iter->second);
         }
 
         soundBufferPtrMap_.Clear();
@@ -195,7 +195,7 @@ namespace Project001
             LOG_ERROR_F("Failed to find sound buffer");
             return false;
         }
-        audioBufferPtr = (ma_audio_buffer*)iter->second;
+        audioBufferPtr = reinterpret_cast<ma_audio_buffer*>(iter->second);
 
         MiniAudio_SoundSource newSoundSource;
         newSoundSource.audioBufferPtr = new (std::nothrow) ma_audio_buffer;
@@ -209,7 +209,7 @@ namespace Project001
             NULL
         );
 
-        ma_result result = ma_audio_buffer_init(&bufferConfig, (ma_audio_buffer*)newSoundSource.audioBufferPtr);
+        ma_result result = ma_audio_buffer_init(&bufferConfig, reinterpret_cast<ma_audio_buffer*>(newSoundSource.audioBufferPtr));
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to create sound buffer (ma_audio_buffer)");
@@ -220,7 +220,7 @@ namespace Project001
             return false;
         }
 
-        result = ma_sound_init_from_data_source(enginePtr_, &((ma_audio_buffer*)newSoundSource.audioBufferPtr)->ref.ds, 0, NULL, newSoundSource.soundPtr);
+        result = ma_sound_init_from_data_source(enginePtr_, &(reinterpret_cast<ma_audio_buffer*>(newSoundSource.audioBufferPtr))->ref.ds, 0, NULL, newSoundSource.soundPtr);
         if (result != MA_SUCCESS)
         {
             LOG_ERROR_F("Failed to create sound source (ma_sound)");

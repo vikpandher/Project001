@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene023.h"
 
@@ -25,8 +25,8 @@
 
 TestScene023::TestScene023(Project001::Application* applicationPtr)
     : TestSceneBase002(applicationPtr)
-    , rectangleMeshId_((unsigned int)-1)
-    , circleMeshId_((unsigned int)-1)
+    , rectangleMeshId_(static_cast<unsigned int>(-1))
+    , circleMeshId_(static_cast<unsigned int>(-1))
     , instructionScene_(applicationPtr)
 {
     GetSharedDataPtr<TestApplicationData>()->TestScene028Id = GetId();
@@ -89,9 +89,9 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetRendererPtr()->CreateMesh(
                 rectangleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),
-                (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+                static_cast<unsigned int>(newMeshDataPtr->meshVertexArray.size()),
                 newMeshDataPtr->meshIndexArray.data(),
-                (unsigned int)newMeshDataPtr->meshIndexArray.size()
+                static_cast<unsigned int>(newMeshDataPtr->meshIndexArray.size())
             );
             rectangleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
         }
@@ -149,9 +149,9 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetRendererPtr()->CreateMesh(
                 circleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),
-                (unsigned int)newMeshDataPtr->meshVertexArray.size(),
+                static_cast<unsigned int>(newMeshDataPtr->meshVertexArray.size()),
                 newMeshDataPtr->meshIndexArray.data(),
-                (unsigned int)newMeshDataPtr->meshIndexArray.size()
+                static_cast<unsigned int>(newMeshDataPtr->meshIndexArray.size())
             );
             circleBoundingRadius = newMeshDataPtr->maxBoundingRadius;
         }
@@ -252,9 +252,9 @@ void TestScene023::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // dont need to delete these here since they are added to meshDataPtrArray_
 
-    rectangleMeshId_ = (unsigned int)-1;
+    rectangleMeshId_ = static_cast<unsigned int>(-1);
 
-    circleMeshId_ = (unsigned int)-1;
+    circleMeshId_ = static_cast<unsigned int>(-1);
 }
 
 // private ---------------------------------------------------------------------

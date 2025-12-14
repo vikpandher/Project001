@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -124,14 +124,14 @@ namespace Project001
         componentCapacity_ = initialComponentCapacity;
 
         free(componentMemoryPtr_);
-        componentMemoryPtr_ = (uint8_t*)malloc(componentSize_ * componentCapacity_);
+        componentMemoryPtr_ = static_cast<uint8_t*>(malloc(componentSize_ * componentCapacity_));
         if (componentMemoryPtr_ == nullptr)
         {
             return false;
         }
 
         free(componentEntityIdMemoryPtr_);
-        componentEntityIdMemoryPtr_ = (unsigned int*)malloc(sizeof(unsigned int) * componentCapacity_);
+        componentEntityIdMemoryPtr_ = static_cast<unsigned int*>(malloc(sizeof(unsigned int) * componentCapacity_));
         if (componentEntityIdMemoryPtr_ == nullptr)
         {
             return false;
@@ -188,7 +188,7 @@ namespace Project001
                 return false;
             }
 
-            uint8_t* newComponentMemoryPtr = (uint8_t*)malloc(componentSize_ * newComponentCapacity);
+            uint8_t* newComponentMemoryPtr = static_cast<uint8_t*>(malloc((componentSize_ * newComponentCapacity)));
             if (newComponentMemoryPtr == nullptr)
             {
                 return false;
@@ -199,7 +199,7 @@ namespace Project001
             free(componentMemoryPtr_);
             componentMemoryPtr_ = newComponentMemoryPtr;
 
-            unsigned int* newComponentEntityIdMemoryPtr = (unsigned int*)malloc(sizeof(unsigned int) * newComponentCapacity);
+            unsigned int* newComponentEntityIdMemoryPtr = static_cast<unsigned int*>(malloc(sizeof(unsigned int) * newComponentCapacity));
             if (newComponentEntityIdMemoryPtr == nullptr)
             {
                 return false;
@@ -213,10 +213,10 @@ namespace Project001
             componentCapacity_ = newComponentCapacity;
         }
 
-        Component* newComponentPtr = new((Component*)componentMemoryPtr_ + componentCount_) Component(args...);
+        Component* newComponentPtr = new(reinterpret_cast<Component*>(componentMemoryPtr_) + componentCount_) Component(args...);
         *(componentEntityIdMemoryPtr_ + componentCount_) = entityId;
 
-        entityIdToComponentMemoryIndexMap_[entityId] = (unsigned int)componentCount_;
+        entityIdToComponentMemoryIndexMap_[entityId] = static_cast<unsigned int>(componentCount_);
 
         componentCount_++;
 
@@ -234,7 +234,7 @@ namespace Project001
         }
 
         const unsigned int& componentIndex = entityIdToComponentMemoryIndexMap_[entityId];
-        componentPtr = (Component*)componentMemoryPtr_ + componentIndex;
+        componentPtr = reinterpret_cast<Component*>(componentMemoryPtr_) + componentIndex;
 
         return true;
     }
@@ -248,7 +248,7 @@ namespace Project001
             return false;
         }
 
-        componentPtr = (Component*)componentMemoryPtr_;
+        componentPtr = reinterpret_cast<Component*>(componentMemoryPtr_);
         componetCount = componentCount_;
 
         return true;
@@ -263,14 +263,14 @@ namespace Project001
             return false;
         }
 
-        uint8_t* lastComponentPtr = (uint8_t*)componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
+        uint8_t* lastComponentPtr = componentMemoryPtr_ + (componentCount_ - 1) * componentSize_;
 
-        if ((uint8_t*)componentPtr < componentMemoryPtr_ || (uint8_t*)componentPtr > lastComponentPtr)
+        if (reinterpret_cast<const uint8_t* const>(componentPtr) < componentMemoryPtr_ || reinterpret_cast<const uint8_t* const>(componentPtr) > lastComponentPtr)
         {
             return false;
         }
 
-        size_t componentOffset = (size_t)componentPtr - (size_t)componentMemoryPtr_;
+        size_t componentOffset = reinterpret_cast<size_t>(componentPtr) - reinterpret_cast<size_t>(componentMemoryPtr_);
 
         // if (componentOffset % componentSize_ != 0)
         // {

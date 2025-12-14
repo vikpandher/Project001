@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-12-13
 
 #include "Components/Camera.h"
 
@@ -242,8 +242,9 @@ namespace Project001
         float cutoffWidth = rightCutoff_ - leftCutoff_;
         float cutoffHeight = topCutoff_ - bottomCutoff_;
         glm::vec2 orthoPoint(
-            cutoffWidth * (float)viewportPoint.x / (float)viewportWidth - rightCutoff_,
-            cutoffHeight * (float)viewportPoint.y / (float)viewportHeight - topCutoff_);
+            cutoffWidth * static_cast<float>(viewportPoint.x) / static_cast<float>(viewportWidth) - rightCutoff_,
+            cutoffHeight * static_cast<float>(viewportPoint.y) / static_cast<float>(viewportHeight) - topCutoff_
+        );
         orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
         orthoPoint.x += position_.x;
         orthoPoint.y += position_.y;

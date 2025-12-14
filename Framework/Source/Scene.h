@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -94,7 +94,7 @@ namespace Project001
         size_t sharedDataTypeId = typeid(SharedDataType).hash_code();
         if (applicationPtr_->sharedDataTypeId_ == sharedDataTypeId)
         {
-            return (SharedDataType*)applicationPtr_->sharedDataPtr_;
+            return reinterpret_cast<SharedDataType*>(applicationPtr_->sharedDataPtr_);
         }
         else
         {

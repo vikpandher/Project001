@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -936,8 +936,8 @@ namespace Project001
         float windowHeight) const
     {
         return glm::vec2(
-            windowPoint.x - (float)viewportX_,
-            windowHeight - windowPoint.y - (float)viewportY_);
+            windowPoint.x - static_cast<float>(viewportX_),
+            windowHeight - windowPoint.y - static_cast<float>(viewportY_));
     }
 
     inline glm::vec2 Vulkan_Renderer::ConvertPointFromWindowToViewportNormalized(
@@ -945,8 +945,8 @@ namespace Project001
         float windowHeight) const
     {
         return glm::vec2(
-            (windowPoint.x - (float)viewportX_) / (float)viewportWidth_,
-            (windowHeight - windowPoint.y - (float)viewportY_) / (float)viewportHeight_);
+            (windowPoint.x - static_cast<float>(viewportX_)) / static_cast<float>(viewportWidth_),
+            (windowHeight - windowPoint.y - static_cast<float>(viewportY_)) / static_cast<float>(viewportHeight_));
     }
 
     inline void Vulkan_Renderer::GetCameraViewport(
@@ -1032,6 +1032,6 @@ namespace Project001
 
     inline uint32_t Vulkan_Renderer::CalculateMipLevels(unsigned int width, unsigned int height)
     {
-        return (uint32_t)std::floor(std::log2(std::max(width, height))) + 1;
+        return static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
     }
 }

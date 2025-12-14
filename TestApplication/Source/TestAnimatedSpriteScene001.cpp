@@ -1,12 +1,14 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2025-12-13
 
 #include "TestAnimatedSpriteScene001.h"
 
 #include "Components/RenderedMesh.h"
 #include "ComponentStores.h"
 #include "Logger.h"
+
+
 
 // public ----------------------------------------------------------------------
 
@@ -15,7 +17,7 @@ TestAnimatedSpriteScene001::TestAnimatedSpriteScene001(Project001::Application* 
     , frameCount_(0)
     , frameMeshDataPtrsPtr_(nullptr)
     , frameDurations_ns_ptr_(nullptr)
-    , spriteEntityId_((unsigned int)-1)
+    , spriteEntityId_(static_cast<unsigned int>(-1))
     , currentFrame_(0)
     , animationTimeDebt_ns_(0)
 {}
@@ -70,7 +72,7 @@ void TestAnimatedSpriteScene001::Deinitialize()
     frameDurations_ns_ptr_ = nullptr;
 
     GetComponentStoresPtr()->DeleteEntity(spriteEntityId_);
-    spriteEntityId_ = (unsigned int)-1;
+    spriteEntityId_ = static_cast<unsigned int>(-1);
 
     currentFrame_ = 0;
     animationTimeDebt_ns_ = 0;

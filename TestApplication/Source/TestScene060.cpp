@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene060.h"
 
@@ -28,28 +28,28 @@ TestScene060::TestScene060(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , backgroundRectangleMeshDataPtr_(nullptr)
-    , backgroundRectangleMeshId_((unsigned int)-1)
+    , backgroundRectangleMeshId_(static_cast<unsigned int>(-1))
     , joystickAxisTextMeshDataPtr_(nullptr)
     , joystickButton_01_TextMeshDataPtr_(nullptr)
     , joystickButton_02_TextMeshDataPtr_(nullptr)
     , triangleMeshDataPtr_(nullptr)
-    , triangleMeshId_((unsigned int)-1)
+    , triangleMeshId_(static_cast<unsigned int>(-1))
     , circleMeshDataPtr_(nullptr)
-    , circleMeshId_((unsigned int)-1)
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
-    , backgroundEntityId_((unsigned int)-1)
-    , joystickAxisTextEntityId_((unsigned int)-1)
-    , joystickButton_01_TextEntityId_((unsigned int)-1)
-    , joystickButton_02_TextEntityId_((unsigned int)-1)
-    , leftStickEntityId_((unsigned int)-1)
-    , leftStickTriangleMeshIndex_((unsigned int)-1)
-    , leftStickCircleMeshIndex_((unsigned int)-1)
-    , rightStickEntityId_((unsigned int)-1)
-    , rightStickTriangleMeshIndex_((unsigned int)-1)
-    , rightStickCircleMeshIndex_((unsigned int)-1)
+    , circleMeshId_(static_cast<unsigned int>(-1))
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
+    , backgroundEntityId_(static_cast<unsigned int>(-1))
+    , joystickAxisTextEntityId_(static_cast<unsigned int>(-1))
+    , joystickButton_01_TextEntityId_(static_cast<unsigned int>(-1))
+    , joystickButton_02_TextEntityId_(static_cast<unsigned int>(-1))
+    , leftStickEntityId_(static_cast<unsigned int>(-1))
+    , leftStickTriangleMeshIndex_(static_cast<unsigned int>(-1))
+    , leftStickCircleMeshIndex_(static_cast<unsigned int>(-1))
+    , rightStickEntityId_(static_cast<unsigned int>(-1))
+    , rightStickTriangleMeshIndex_(static_cast<unsigned int>(-1))
+    , rightStickCircleMeshIndex_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene060Id = GetId();
 }
@@ -115,9 +115,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             backgroundEntityId_,
             backgroundRectangleMeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)backgroundRectangleMeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(backgroundRectangleMeshDataPtr_->meshVertexArray.size()),
             backgroundRectangleMeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)backgroundRectangleMeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(backgroundRectangleMeshDataPtr_->meshIndexArray.size())
         );
     }
 
@@ -161,9 +161,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             triangleMeshId_,
             triangleMeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)triangleMeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(triangleMeshDataPtr_->meshVertexArray.size()),
             triangleMeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)triangleMeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(triangleMeshDataPtr_->meshIndexArray.size())
         );
     }
 
@@ -173,9 +173,9 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             circleMeshId_,
             circleMeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)circleMeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(circleMeshDataPtr_->meshVertexArray.size()),
             circleMeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)circleMeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(circleMeshDataPtr_->meshIndexArray.size())
         );
     }
 
@@ -198,7 +198,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 mainCameraHalfHeight = 2.75f;
                 mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -230,7 +230,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float uiCameraHalfHeight = 3.5f;
                 float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -428,13 +428,13 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
     delete backgroundRectangleMeshDataPtr_;
     backgroundRectangleMeshDataPtr_ = nullptr;
-    backgroundRectangleMeshId_ = (unsigned int)-1;
+    backgroundRectangleMeshId_ = static_cast<unsigned int>(-1);
 
     delete joystickAxisTextMeshDataPtr_;
     joystickAxisTextMeshDataPtr_ = nullptr;
@@ -447,30 +447,30 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     delete triangleMeshDataPtr_;
     triangleMeshDataPtr_ = nullptr;
-    triangleMeshId_ = (unsigned int)-1;
+    triangleMeshId_ = static_cast<unsigned int>(-1);
 
     delete circleMeshDataPtr_;
     circleMeshDataPtr_ = nullptr;
-    circleMeshId_ = (unsigned int)-1;
+    circleMeshId_ = static_cast<unsigned int>(-1);
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    backgroundEntityId_ = (unsigned int)-1;
+    backgroundEntityId_ = static_cast<unsigned int>(-1);
 
-    joystickAxisTextEntityId_ = (unsigned int)-1;
-    joystickButton_01_TextEntityId_ = (unsigned int)-1;
-    joystickButton_02_TextEntityId_ = (unsigned int)-1;
+    joystickAxisTextEntityId_ = static_cast<unsigned int>(-1);
+    joystickButton_01_TextEntityId_ = static_cast<unsigned int>(-1);
+    joystickButton_02_TextEntityId_ = static_cast<unsigned int>(-1);
 
-    leftStickEntityId_ = (unsigned int)-1;
-    leftStickTriangleMeshIndex_ = (unsigned int)-1;
-    leftStickCircleMeshIndex_ = (unsigned int)-1;
+    leftStickEntityId_ = static_cast<unsigned int>(-1);
+    leftStickTriangleMeshIndex_ = static_cast<unsigned int>(-1);
+    leftStickCircleMeshIndex_ = static_cast<unsigned int>(-1);
 
-    rightStickEntityId_ = (unsigned int)-1;
-    rightStickTriangleMeshIndex_ = (unsigned int)-1;
-    rightStickCircleMeshIndex_ = (unsigned int)-1;
+    rightStickEntityId_ = static_cast<unsigned int>(-1);
+    rightStickTriangleMeshIndex_ = static_cast<unsigned int>(-1);
+    rightStickCircleMeshIndex_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene060::ProcessKeyEvent(Project001::KeyEvent& keyEvent)

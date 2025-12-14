@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-12-13
 
 #include "Scene002.h"
 
@@ -22,12 +22,12 @@
 
 struct BaseInfo
 {
-    unsigned int light_EntityId = (unsigned int)-1;
+    unsigned int light_EntityId = static_cast<unsigned int>(-1);
 };
 
 struct HouseInfo
 {
-    unsigned int light_EntityId = (unsigned int)-1;
+    unsigned int light_EntityId = static_cast<unsigned int>(-1);
 
     enum class State
     {
@@ -42,12 +42,12 @@ struct HouseInfo
 
 struct LightInfo
 {
-    unsigned int owner_EntityId = (unsigned int)-1;
+    unsigned int owner_EntityId = static_cast<unsigned int>(-1);
 };
 
 struct MonsterInfo
 {
-    unsigned int vision_EntityId = (unsigned int)-1;
+    unsigned int vision_EntityId = static_cast<unsigned int>(-1);
 
     enum class State
     {
@@ -81,7 +81,7 @@ struct PersonInfo
 
 struct PlayerInfo
 {
-    unsigned int light_EntityId = (unsigned int)-1;
+    unsigned int light_EntityId = static_cast<unsigned int>(-1);
 
     enum class State
     {
@@ -104,7 +104,7 @@ struct PlayerInfo
 
 struct VisionInfo
 {
-    unsigned int owner_EntityId = (unsigned int)-1;
+    unsigned int owner_EntityId = static_cast<unsigned int>(-1);
 };
 
 // public ----------------------------------------------------------------------
@@ -158,18 +158,18 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     CreateBaseEntity(base_EntityId_, glm::vec2(0.0f, houseYOffset));
 
     constexpr float houseSpacing = 384.0f;
-    for (int i = -2; i <= 2; i++)
+    for (int i = -2; i <= 2; ++i)
     {
-        for (int j = -2; j <= 2; j++)
+        for (int j = -2; j <= 2; ++j)
         {
             if (i == 0 && j == 0)
             {
                 continue;
             }
 
-            glm::vec2 position((float)i * houseSpacing, (float)j * houseSpacing + houseYOffset);
+            glm::vec2 position(static_cast<float>(i) * houseSpacing, static_cast<float>(j) * houseSpacing + houseYOffset);
 
-            house_EntityIds_.push_back((unsigned int)-1);
+            house_EntityIds_.push_back(static_cast<unsigned int>(-1));
             unsigned int& entityId = house_EntityIds_.back();
 
             CreateHouseEntity(entityId, position);
@@ -203,7 +203,7 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     {
         glm::vec2 currentPosition(distributionX(randomNumberEngine_), distributionY(randomNumberEngine_));
 
-        person_EntityIds_.push_back((unsigned int)-1);
+        person_EntityIds_.push_back(static_cast<unsigned int>(-1));
         unsigned int& entityId = person_EntityIds_.back();
 
         CreatePersonEntity(entityId, currentPosition);
@@ -234,7 +234,7 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
             }
         }
 
-        monster_EntityIds_.push_back((unsigned int)-1);
+        monster_EntityIds_.push_back(static_cast<unsigned int>(-1));
         unsigned int& entityId = monster_EntityIds_.back();
 
         CreateMonsterEntity(entityId, currentPosition);
@@ -251,26 +251,26 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraLight1_EntityId_ = (unsigned int)-1;
-    mainCameraLight2_EntityId_ = (unsigned int)-1;
-    mainCameraDark1_EntityId_ = (unsigned int)-1;
-    mainCameraDark2_EntityId_ = (unsigned int)-1;
-    mainCameraDebug_EntityId_ = (unsigned int)-1;
+    mainCameraLight1_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraLight2_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDark1_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDark2_EntityId_ = static_cast<unsigned int>(-1);
+    mainCameraDebug_EntityId_ = static_cast<unsigned int>(-1);
 
-    uiCamera_EntityId_ = (unsigned int)-1;
+    uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    uiText_EntityId_ = (unsigned int)-1;
-    uiPauseText_EntityId_ = (unsigned int)-1;
+    uiText_EntityId_ = static_cast<unsigned int>(-1);
+    uiPauseText_EntityId_ = static_cast<unsigned int>(-1);
     uiMiniMaphouse_RenderedMeshIndies.clear();
-    uiMiniMapPlayer_RenderedMeshIndex_ = (unsigned int)-1;
-    uiMiniMap_EntityId_ = (unsigned int)-1;
+    uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    uiMiniMap_EntityId_ = static_cast<unsigned int>(-1);
 
-    cursor_EntityId_ = (unsigned int)-1;
+    cursor_EntityId_ = static_cast<unsigned int>(-1);
 
-    base_EntityId_ = (unsigned int)-1;
+    base_EntityId_ = static_cast<unsigned int>(-1);
     house_EntityIds_.clear();
-    ground_EntityId_ = (unsigned int)-1;
-    player_EntityId_ = (unsigned int)-1;
+    ground_EntityId_ = static_cast<unsigned int>(-1);
+    player_EntityId_ = static_cast<unsigned int>(-1);
     person_EntityIds_.clear();
     monster_EntityIds_.clear();
 
@@ -459,10 +459,10 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     }
 
     unsigned long long timestep_ns = updateEvent.timestep_ns;
-    float timestep_s = (float)timestep_ns / 1e9f;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
     constexpr size_t physicsStepsPerUpdate = 1;
-    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate;
+    float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
         Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
@@ -506,7 +506,7 @@ void Scene002::CreateMainCameraEntities()
     int aspectRatioDenominator;
     GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
 
-    float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+    float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
     constexpr float mainCameraHalfHeight = 320.0f;
     float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
 
@@ -588,7 +588,7 @@ void Scene002::CreateUiCameraEntity()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 320.0f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);
@@ -762,9 +762,9 @@ void Scene002::CreateUiMiniMapEntity()
 
         constexpr float houseYOffset = 2.0f;
         constexpr float houseSpacing = 12.0f;
-        for (int i = -2; i <= 2; i++)
+        for (int i = -2; i <= 2; ++i)
         {
-            for (int j = -2; j <= 2; j++)
+            for (int j = -2; j <= 2; ++j)
             {
                 if (i == 0 && j == 0)
                 {
@@ -778,8 +778,8 @@ void Scene002::CreateUiMiniMapEntity()
                 mesh.SetCameraMask(s_uiCamera_Mask_);
                 mesh.SetMeshDataPtr(sharedDataPtr_->uiMiniMapHouse_MeshDataPtr);
                 mesh.SetPosition(
-                    miniMapLocation_.x + (float)i * houseSpacing,
-                    miniMapLocation_.y + (float)j * houseSpacing + houseYOffset,
+                    miniMapLocation_.x + static_cast<float>(i) * houseSpacing,
+                    miniMapLocation_.y + static_cast<float>(j) * houseSpacing + houseYOffset,
                     0.0f
                 );
                 mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
@@ -1583,11 +1583,11 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             std::vector<glm::vec2> corners;
             constexpr float radius = 60.0f;
             constexpr size_t subdivisions = 8;
-            constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+            constexpr float angleRotation = glm::pi<float>() / static_cast<float>(subdivisions);
             for (size_t i = 0; i <= subdivisions; ++i)
             {
                 glm::vec2 radiusVector(radius, 0.0f);
-                radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+                radiusVector = Project001::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
                 corners.emplace_back(radiusVector);
             }
             corners.emplace_back(-4.0f, -112.0f);
@@ -1965,7 +1965,7 @@ void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraLight1_EntityId_))
@@ -2103,7 +2103,7 @@ void Scene002::UpdatePersonEntities(float timestep_s)
     {
         PersonInfo& personInfo = personInfoPtrs[i];
 
-        unsigned int personEntityId = (unsigned int)-1;
+        unsigned int personEntityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<PersonInfo>(personEntityId, &personInfo);
 
         if (personInfo.state == PersonInfo::State::STATE_STANDING)
@@ -2474,7 +2474,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
     {
         MonsterInfo& monsterInfo = monsterInfoPtrs[i];
 
-        unsigned int monsterEntityId = (unsigned int)-1;
+        unsigned int monsterEntityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<MonsterInfo>(monsterEntityId, &monsterInfo);
 
         bool distracted = false;
@@ -2700,7 +2700,7 @@ void Scene002::AnimatePersonEntities(float timestep_s)
     {
         PersonInfo& personInfo = personInfoPtrs[i];
 
-        unsigned int personEntityId = (unsigned int)-1;
+        unsigned int personEntityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<PersonInfo>(personEntityId, &personInfo);
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
@@ -2817,7 +2817,7 @@ void Scene002::AnimateMonsterEntities(float timestep_s)
     {
         MonsterInfo& monsterInfo = monsterInfoPtrs[i];
 
-        unsigned int monsterEntityId = (unsigned int)-1;
+        unsigned int monsterEntityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<MonsterInfo>(monsterEntityId, &monsterInfo);
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
@@ -2946,7 +2946,7 @@ void Scene002::SyncBaseRenderedModels()
     {
         BaseInfo& baseInfo = baseInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<BaseInfo>(entityId, &baseInfo);
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -2995,7 +2995,7 @@ void Scene002::SyncHouseRenderedModels()
     {
         HouseInfo& houseInfo = houseInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<HouseInfo>(entityId, &houseInfo);
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -3044,7 +3044,7 @@ void Scene002::SyncPersonRenderedModels()
     {
         PersonInfo& personInfo = personInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<PersonInfo>(entityId, &personInfo);
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -3073,7 +3073,7 @@ void Scene002::SyncPlayerRenderedModels()
     {
         PlayerInfo& playerInfo = playerInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<PlayerInfo>(entityId, &playerInfo);
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -3122,7 +3122,7 @@ void Scene002::SyncMonsterRenderedModels()
     {
         MonsterInfo& monsterInfo = monsterInfoPtrs[i];
 
-        unsigned int entityId = (unsigned int)-1;
+        unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<MonsterInfo>(entityId, &monsterInfo);
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;

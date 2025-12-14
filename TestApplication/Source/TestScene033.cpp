@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene033.h"
 
@@ -30,20 +30,20 @@ TestScene033::TestScene033(Project001::Application* applicationPtr)
     , _48x48_TextureIds_()
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , square_MeshDataPtr_(nullptr)
-    , square_MeshId_((unsigned int)-1)
+    , square_MeshId_(static_cast<unsigned int>(-1))
     , square_MaxBoundingRadius_(0.0f)
     , ui_fps_MeshDataPtr_(nullptr)
     , counter_(0)
     , ui_counter_MeshDataPtr_(nullptr)
     , ui_largeText_MeshDataPtr_(nullptr)
-    , secondaryCameraEntityId_((unsigned int)-1)
-    , tertiaryCameraEntityId_((unsigned int)-1)
+    , secondaryCameraEntityId_(static_cast<unsigned int>(-1))
+    , tertiaryCameraEntityId_(static_cast<unsigned int>(-1))
     , square_EntityIds_()
-    , ui_fps_EntityId_((unsigned int)-1)
-    , ui_counter_EntityId_((unsigned int)-1)
-    , ui_largeText_EntityId_((unsigned int)-1)
+    , ui_fps_EntityId_(static_cast<unsigned int>(-1))
+    , ui_counter_EntityId_(static_cast<unsigned int>(-1))
+    , ui_largeText_EntityId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene033Id = GetId();
 }
@@ -90,7 +90,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 secondaryCameraHalfHeight = 3.5f;
                 secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
 
@@ -124,7 +124,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 cameraPtr->SetAspectRatio(aspectRatio);
             }
             // cameraPtr->SetCameraViewport(0.5f, 0.25f, 0.25f, 0.25f);
@@ -150,7 +150,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
-        unsigned int tempTextureId = (unsigned int)-1;
+        unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
@@ -167,7 +167,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
-        unsigned int tempTextureId = (unsigned int)-1;
+        unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _48x48_TextureIds_.push_back(tempTextureId);
     }
@@ -208,9 +208,9 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateMesh(
             square_MeshId_,
             square_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)square_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(square_MeshDataPtr_->meshVertexArray.size()),
             square_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)square_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(square_MeshDataPtr_->meshIndexArray.size())
         );
 
         square_MaxBoundingRadius_ = square_MeshDataPtr_->maxBoundingRadius;
@@ -252,7 +252,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    for (size_t i = 0; i < meshEntityPositions.size(); i++)
+    for (size_t i = 0; i < meshEntityPositions.size(); ++i)
     {
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -374,14 +374,14 @@ void TestScene033::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
 
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data: --------------------------------------------------------------
 
     // dont need to delete these here since they are added to meshDataPtrArray_
 
     square_MeshDataPtr_ = nullptr;
-    square_MeshId_ = (unsigned int)-1;
+    square_MeshId_ = static_cast<unsigned int>(-1);
     square_MaxBoundingRadius_ = 0.0f;
 
     ui_fps_MeshDataPtr_ = nullptr;
@@ -393,22 +393,22 @@ void TestScene033::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Entity Ids: -------------------------------------------------------------
 
-    secondaryCameraEntityId_ = (unsigned int)-1;
+    secondaryCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    tertiaryCameraEntityId_ = (unsigned int)-1;
+    tertiaryCameraEntityId_ = static_cast<unsigned int>(-1);
 
     square_EntityIds_.clear();
 
-    ui_fps_EntityId_ = (unsigned int)-1;
+    ui_fps_EntityId_ = static_cast<unsigned int>(-1);
 
-    ui_counter_EntityId_ = (unsigned int)-1;
+    ui_counter_EntityId_ = static_cast<unsigned int>(-1);
 
-    ui_largeText_EntityId_ = (unsigned int)-1;
+    ui_largeText_EntityId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene033::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    float fps = 1000000000.0f / (float)renderEvent.timestep_ns;
+    float fps = 1e9f / static_cast<float>(renderEvent.timestep_ns);
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
     FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));

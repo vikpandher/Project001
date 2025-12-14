@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -31,7 +31,7 @@ namespace Project001
         {
             if (erasedIds_.empty())
             {
-                id = (unsigned int)idToValueMap_.size();
+                id = static_cast<unsigned int>(idToValueMap_.size());
             }
             else
             {

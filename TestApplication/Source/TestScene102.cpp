@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-17
+// @DATE 2025-12-13
 
 #include "TestScene102.h"
 
@@ -32,33 +32,33 @@ TestScene102::TestScene102(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , pixelFont_FontDataPtr_(nullptr)
     , pixelFont_TextureDataPtr_(nullptr)
-    , pixelFont_TextureId_((unsigned int)-1)
+    , pixelFont_TextureId_(static_cast<unsigned int>(-1))
     , cursorCircle_MeshDataPtr_(nullptr)
     , floorGrid_MeshDataPtr_(nullptr)
-    , floorGrid_MeshId_((unsigned int)-1)
+    , floorGrid_MeshId_(static_cast<unsigned int>(-1))
     , floorGridLabels_MeshDataPtr_(nullptr)
-    , floorGridLabels_MeshId_((unsigned int)-1)
+    , floorGridLabels_MeshId_(static_cast<unsigned int>(-1))
     , mainCameraNearFrustum_MeshDataPtr_(nullptr)
     , mainCameraFarFrustum_MeshDataPtr_(nullptr)
     , ship_MeshDataPtr_(nullptr)
     , shipBeamSight_MeshDataPtr_(nullptr)
     , shipCollisionBody_MeshDataPtr_(nullptr)
-    , border96x64_TextureId_((unsigned int)-1)
-    , numbers16x4_TextureId_((unsigned int)-1)
-    , mainCamera_EntityId_((unsigned int)-1)
-    , uiCamera_EntityId_((unsigned int)-1)
-    , cursor_EntityId_((unsigned int)-1)
-    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
-    , cursorPressRenderedMeshIndex_((unsigned int)-1)
-    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
-    , cursorPositionCollisionPointIndex_((unsigned int)-1)
-    , cursorPressCollisionPointIndex_((unsigned int)-1)
-    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
-    , floor_EntityId_((unsigned int)-1)
-    , player_EntityId_((unsigned int)-1)
+    , border96x64_TextureId_(static_cast<unsigned int>(-1))
+    , numbers16x4_TextureId_(static_cast<unsigned int>(-1))
+    , mainCamera_EntityId_(static_cast<unsigned int>(-1))
+    , uiCamera_EntityId_(static_cast<unsigned int>(-1))
+    , cursor_EntityId_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , floor_EntityId_(static_cast<unsigned int>(-1))
+    , player_EntityId_(static_cast<unsigned int>(-1))
     , cameraDistanceFromPlayer_()
     , maxCollisionBodyVelocity_()
     , physicsStepsPerUpdate_(1)
@@ -150,11 +150,11 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     pixelFont_FontDataPtr_ = nullptr;
     pixelFont_TextureDataPtr_ = nullptr;
-    pixelFont_TextureId_ = (unsigned int)-1;
+    pixelFont_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
@@ -163,11 +163,11 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     delete floorGrid_MeshDataPtr_;
     floorGrid_MeshDataPtr_ = nullptr;
-    floorGrid_MeshId_ = (unsigned int)-1;
+    floorGrid_MeshId_ = static_cast<unsigned int>(-1);
 
     delete floorGridLabels_MeshDataPtr_;
     floorGridLabels_MeshDataPtr_ = nullptr;
-    floorGridLabels_MeshId_ = (unsigned int)-1;
+    floorGridLabels_MeshId_ = static_cast<unsigned int>(-1);
 
     delete mainCameraNearFrustum_MeshDataPtr_;
     mainCameraNearFrustum_MeshDataPtr_ = nullptr;
@@ -186,25 +186,25 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Texture Data ------------------------------------------------------------
 
-    border96x64_TextureId_ = (unsigned int)-1;
-    numbers16x4_TextureId_ = (unsigned int)-1;
+    border96x64_TextureId_ = static_cast<unsigned int>(-1);
+    numbers16x4_TextureId_ = static_cast<unsigned int>(-1);
 
     // Entities ----------------------------------------------------------------
 
-    mainCamera_EntityId_ = (unsigned int)-1;
-    uiCamera_EntityId_ = (unsigned int)-1;
+    mainCamera_EntityId_ = static_cast<unsigned int>(-1);
+    uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    cursor_EntityId_ = (unsigned int)-1;
-    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
-    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
-    cursorPressCollisionPointIndex_ = (unsigned int)-1;
-    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
+    cursor_EntityId_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
 
-    floor_EntityId_ = (unsigned int)-1;
+    floor_EntityId_ = static_cast<unsigned int>(-1);
 
-    player_EntityId_ = (unsigned int)-1;
+    player_EntityId_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 
@@ -307,8 +307,8 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     // Move and Calculate collisions
     // -------------------------------------------------------------------------
-    float timestep_s = (float)timestep_ns / 1e9f;
-    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate_;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
+    float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate_);
     for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
     {
         Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
@@ -404,9 +404,9 @@ void TestScene102::LoadMeshData()
         GetRendererPtr()->CreateMesh(
             floorGrid_MeshId_,
             floorGrid_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)floorGrid_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(floorGrid_MeshDataPtr_->meshVertexArray.size()),
             floorGrid_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)floorGrid_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(floorGrid_MeshDataPtr_->meshIndexArray.size())
         );
 
         floorGridLabels_MeshDataPtr_ = new Project001::MeshData();
@@ -490,7 +490,7 @@ void TestScene102::LoadMeshData()
         {
             const std::string& currentLabel = gridLabels[i];
 
-            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * (float)(currentLabel.length() - 1);
+            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
             Project001::MeshData currentLabelMeshData;
             FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -518,7 +518,7 @@ void TestScene102::LoadMeshData()
         {
             const std::string& currentLabel = gridLabels[i];
 
-            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * (float)(currentLabel.length() - 1);
+            float addition_offsetX = pixelFont_pixelSize_ * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
             Project001::MeshData currentLabelMeshData;
             FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -540,9 +540,9 @@ void TestScene102::LoadMeshData()
         GetRendererPtr()->CreateMesh(
             floorGridLabels_MeshId_,
             floorGridLabels_MeshDataPtr_->meshVertexArray.data(),
-            (unsigned int)floorGridLabels_MeshDataPtr_->meshVertexArray.size(),
+            static_cast<unsigned int>(floorGridLabels_MeshDataPtr_->meshVertexArray.size()),
             floorGridLabels_MeshDataPtr_->meshIndexArray.data(),
-            (unsigned int)floorGridLabels_MeshDataPtr_->meshIndexArray.size()
+            static_cast<unsigned int>(floorGridLabels_MeshDataPtr_->meshIndexArray.size())
         );
     }
 
@@ -601,7 +601,7 @@ void TestScene102::CreateCameraEntities()
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 mainCameraHalfHeight = 320.0f;
                 mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -681,7 +681,7 @@ void TestScene102::CreateCameraEntities()
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float uiCameraHalfHeight = 3.5f;
                 float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -1023,7 +1023,7 @@ void TestScene102::UpdateCursorPosition(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_EntityId_))

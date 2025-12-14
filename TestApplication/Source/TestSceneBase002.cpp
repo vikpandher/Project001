@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-12-13
 
 #include "TestSceneBase002.h"
 
@@ -31,12 +31,12 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
-    , text_dynamic_TextureId_((unsigned int)-1)
-    , text_overlapOnly_TextureId_((unsigned int)-1)
-    , text_rotationOnly_TextureId_((unsigned int)-1)
-    , text_static_TextureId_((unsigned int)-1)
-    , text_translationOnly_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
+    , text_dynamic_TextureId_(static_cast<unsigned int>(-1))
+    , text_overlapOnly_TextureId_(static_cast<unsigned int>(-1))
+    , text_rotationOnly_TextureId_(static_cast<unsigned int>(-1))
+    , text_static_TextureId_(static_cast<unsigned int>(-1))
+    , text_translationOnly_TextureId_(static_cast<unsigned int>(-1))
     , cursorLinePositions_()
     , cursorLineMeshDataPtr_(nullptr)
     , distanceTextMeshDataPtr_(nullptr)
@@ -49,22 +49,22 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , collisionBodyQuadTreeMeshDataPtr_(nullptr)
     , collisionMarkerCollectionMeshDataPtr_(nullptr)
     , meshDataPtrArray_()
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
-    , cursorEntityId_((unsigned int)-1)
-    , distanceEntityId_((unsigned int)-1)
-    , massEntityId_((unsigned int)-1)
-    , momentOfInertiaEntityId_((unsigned int)-1)
-    , entityIdTextEntityId_((unsigned int)-1)
-    , fpsTextEntityId_((unsigned int)-1)
-    , energyTextEntityId_((unsigned int)-1)
-    , collisionBodyBorderEntityId_((unsigned int)-1)
-    , collisionBodyQuadTreeEntityId_((unsigned int)-1)
-    , collisionMarkerCollectionEntityId_((unsigned int)-1)
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
+    , cursorEntityId_(static_cast<unsigned int>(-1))
+    , distanceEntityId_(static_cast<unsigned int>(-1))
+    , massEntityId_(static_cast<unsigned int>(-1))
+    , momentOfInertiaEntityId_(static_cast<unsigned int>(-1))
+    , entityIdTextEntityId_(static_cast<unsigned int>(-1))
+    , fpsTextEntityId_(static_cast<unsigned int>(-1))
+    , energyTextEntityId_(static_cast<unsigned int>(-1))
+    , collisionBodyBorderEntityId_(static_cast<unsigned int>(-1))
+    , collisionBodyQuadTreeEntityId_(static_cast<unsigned int>(-1))
+    , collisionMarkerCollectionEntityId_(static_cast<unsigned int>(-1))
     , entityIds_()
     , cursorGrabbingEntity_(false)
     , previousWorldCursorPosition_()
-    , selectedEntityIdIndex_((unsigned int)-1)
+    , selectedEntityIdIndex_(static_cast<unsigned int>(-1))
     , remainingTimeRecordingDuration_ns_(0)
     , positionBorderSize_(16.0f, 12.0f)
     , maxVelocity_(10.0f)
@@ -212,7 +212,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float secondaryCameraHalfHeight = 3.5f;
                 float secondaryCameraHalfWidth = aspectRatio * secondaryCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -249,7 +249,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 uiCameraHalfHeight = 3.5f;
                 uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -495,13 +495,13 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
 
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
-    text_dynamic_TextureId_ = (unsigned int)-1;
-    text_overlapOnly_TextureId_ = (unsigned int)-1;
-    text_rotationOnly_TextureId_ = (unsigned int)-1;
-    text_static_TextureId_ = (unsigned int)-1;
-    text_translationOnly_TextureId_ = (unsigned int)-1;
+    text_dynamic_TextureId_ = static_cast<unsigned int>(-1);
+    text_overlapOnly_TextureId_ = static_cast<unsigned int>(-1);
+    text_rotationOnly_TextureId_ = static_cast<unsigned int>(-1);
+    text_static_TextureId_ = static_cast<unsigned int>(-1);
+    text_translationOnly_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
@@ -543,28 +543,28 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    cursorEntityId_ = (unsigned int)-1;
+    cursorEntityId_ = static_cast<unsigned int>(-1);
 
-    distanceEntityId_ = (unsigned int)-1;
+    distanceEntityId_ = static_cast<unsigned int>(-1);
 
-    massEntityId_ = (unsigned int)-1;
+    massEntityId_ = static_cast<unsigned int>(-1);
 
-    momentOfInertiaEntityId_ = (unsigned int)-1;
+    momentOfInertiaEntityId_ = static_cast<unsigned int>(-1);
 
-    entityIdTextEntityId_ = (unsigned int)-1;
+    entityIdTextEntityId_ = static_cast<unsigned int>(-1);
 
-    fpsTextEntityId_ = (unsigned int)-1;
+    fpsTextEntityId_ = static_cast<unsigned int>(-1);
 
-    energyTextEntityId_ = (unsigned int)-1;
+    energyTextEntityId_ = static_cast<unsigned int>(-1);
 
-    collisionBodyBorderEntityId_ = (unsigned int)-1;
+    collisionBodyBorderEntityId_ = static_cast<unsigned int>(-1);
 
-    collisionBodyQuadTreeEntityId_ = (unsigned int)-1;
+    collisionBodyQuadTreeEntityId_ = static_cast<unsigned int>(-1);
 
-    collisionMarkerCollectionEntityId_ = (unsigned int)-1;
+    collisionMarkerCollectionEntityId_ = static_cast<unsigned int>(-1);
 
     entityIds_.clear();
 
@@ -572,7 +572,7 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
 
     cursorGrabbingEntity_ = false;
     previousWorldCursorPosition_ = glm::vec2(0.0f, 0.0f);
-    selectedEntityIdIndex_ = (unsigned int)-1;
+    selectedEntityIdIndex_ = static_cast<unsigned int>(-1);
 
     if (remainingTimeRecordingDuration_ns_ > 0)
     {
@@ -624,11 +624,11 @@ void TestSceneBase002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         {
             if (selectedEntityIdIndex_ == 0)
             {
-                selectedEntityIdIndex_ = (unsigned int)entityIds_.size() - 1;
+                selectedEntityIdIndex_ = static_cast<unsigned int>(entityIds_.size() - 1);
             }
             else if (selectedEntityIdIndex_ >= entityIds_.size())
             {
-                selectedEntityIdIndex_ = (unsigned int)entityIds_.size() - 1;
+                selectedEntityIdIndex_ = static_cast<unsigned int>(entityIds_.size() - 1);
             }
             else
             {
@@ -702,7 +702,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
     if (mouseButton == Project001::MouseButton::MOUSE_BUTTON_1 &&
         buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
     {
-        selectedEntityIdIndex_ = (unsigned int)-1;
+        selectedEntityIdIndex_ = static_cast<unsigned int>(-1);
 
         Project001::CollisionBody2D* cursorCollisionBody2DPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
@@ -713,7 +713,7 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
             // added to select the one rendered behind.
-            for (int i = (int)cursorCollisions.size() - 1; i >= 0; --i)
+            for (int i = static_cast<int>(cursorCollisions.size()) - 1; i >= 0; --i)
             // for (size_t i = 0; i < cursorCollisions.size(); ++i)
             {
                 const Project001::CollisionData2D& currentCollision = cursorCollisions[i];
@@ -814,9 +814,9 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         timer01_.Start("CollisionSystem2D::CalculateCollisions");
     }
 
-    float timestep_s = (float)timestep_ns / 1e9f;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
-    float physicsTimestep_s = timestep_s / (float)physicsStepsPerUpdate_;
+    float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate_);
     if (useCollisionBodyQuadTree_)
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
@@ -906,7 +906,7 @@ void TestSceneBase002::UpdateWorldCursor(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
@@ -954,7 +954,7 @@ void TestSceneBase002::UpdateCameraPosition(unsigned long long timestep_ns)
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
-        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+        float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
         float speedConstant = cameraPtr->GetTopCutoff();
         glm::vec2 cameraUp = cameraPtr->GetUpVector();
@@ -1018,7 +1018,7 @@ void TestSceneBase002::UpdateSelectedEntityPosition(unsigned long long timestep_
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
-        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+        float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
         float speedConstant = cameraPtr->GetTopCutoff();
         glm::vec2 cameraUp = cameraPtr->GetUpVector();
@@ -1088,7 +1088,7 @@ void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_));
     if (cameraPtr != nullptr)
     {
-        float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+        float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
         float speedConstant = cameraPtr->GetTopCutoff();
         glm::vec2 cameraUp = cameraPtr->GetUpVector();
@@ -1222,9 +1222,9 @@ void TestSceneBase002::UpdateSelectedEntityVelocity(unsigned long long timestep_
 
 void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
 {
-    float timestep_s = (float)timestep_ns / 1e9f;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
-    unsigned int selectedEntityId = (unsigned int)-1;
+    unsigned int selectedEntityId = static_cast<unsigned int>(-1);
     if (cursorGrabbingEntity_ && selectedEntityIdIndex_ < entityIds_.size())
     {
         selectedEntityId = entityIds_[selectedEntityIdIndex_];
@@ -1244,7 +1244,7 @@ void TestSceneBase002::ApplyGravity(unsigned long long timestep_ns)
             continue;
         }
 
-        unsigned int currentEntityId = (unsigned int)-1;
+        unsigned int currentEntityId = static_cast<unsigned int>(-1);
         if (GetComponentStoresPtr()->GetComponentEntityId(currentEntityId, &collisionBody2D) &&
             currentEntityId == selectedEntityId)
         {
@@ -1580,7 +1580,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
 
 void TestSceneBase002::UpdateFpsTextMesh(unsigned long long timestep_ns)
 {
-    float fps = 1000000000.0f / (float)timestep_ns;
+    float fps = 1e9f / static_cast<float>(timestep_ns);
     std::string fps_string = std::to_string(fps);
     if (fps_string.length() > 5)
     {

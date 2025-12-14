@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene007.h"
 
@@ -26,8 +26,8 @@
 TestScene007::TestScene007(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
-    , box03_TextureId_((unsigned int)-1)
-    , numbers12x6_TextureId_((unsigned int)-1)
+    , box03_TextureId_(static_cast<unsigned int>(-1))
+    , numbers12x6_TextureId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene007Id = GetId();
 }
@@ -81,7 +81,7 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -158,8 +158,8 @@ void TestScene007::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     LOG_INFO("DEINITIALIZING: TestScene007:            " << GetId());
 
-    box03_TextureId_ = (unsigned int)-1;
-    numbers12x6_TextureId_ = (unsigned int)-1;
+    box03_TextureId_ = static_cast<unsigned int>(-1);
+    numbers12x6_TextureId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene007::CreateEarClippingMeshes()
@@ -173,7 +173,7 @@ void TestScene007::CreateEarClippingMeshes()
     {
         for (int i = -3; i <= -1; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j), 0.0f);
         }
     }
 
@@ -497,8 +497,8 @@ void TestScene007::CreateAsteroidMeshes()
     {
         for (int i = 1; i <= 3; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j, -0.4f);
-            meshEntityPositions.emplace_back((float)i, (float)j, 0.4f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j), -0.4f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j), 0.4f);
         }
     }
 

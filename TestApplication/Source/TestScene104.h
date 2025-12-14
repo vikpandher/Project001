@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-14
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -55,21 +55,21 @@ protected:
 
     const Project001::FontData* pixelFont_FontDataPtr_ = nullptr;
     const Project001::TextureData* pixelFont_TextureDataPtr_ = nullptr;
-    unsigned int pixelFont_TextureId_ = (unsigned int)-1;
+    unsigned int pixelFont_TextureId_ = static_cast<unsigned int>(-1);
 
     Project001::MeshData* cursorHandOpen_MeshDataPtr_ = nullptr;
     Project001::MeshData* cursorHandPointer_MeshDataPtr_ = nullptr;
     Project001::MeshData* cursorHandGrab_MeshDataPtr_ = nullptr;
     Project001::TextureData* cursor_TextureDataPtr_ = nullptr;
-    unsigned int cursor_TextureId_ = (unsigned int)-1;
+    unsigned int cursor_TextureId_ = static_cast<unsigned int>(-1);
     Project001::MeshData* cursorCollision_MeshDataPtr_ = nullptr;
 
     // Entities ----------------------------------------------------------------
 
     static const uint32_t s_mainCamera_Mask_ = 0b00000000000000000000000000000001;
-    unsigned int mainCamera_EntityId_ = (unsigned int)-1;
+    unsigned int mainCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int cursor_EntityId_ = (unsigned int)-1;
+    unsigned int cursor_EntityId_ = static_cast<unsigned int>(-1);
 
     static const unsigned int s_cursorPosition_RenderedMeshIndex_ = 0;
     static const unsigned int s_cursorPress_RenderedMeshIndex_ = 1;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene101.h"
 
@@ -28,9 +28,9 @@ TestScene101::TestScene101(Project001::Application* applicationPtr)
     , instructionScene_(applicationPtr)
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene101Id = GetId();
 }
@@ -102,7 +102,7 @@ void TestScene101::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 mainCameraHalfHeight = 2.75f;
                 mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -134,7 +134,7 @@ void TestScene101::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float uiCameraHalfHeight = 3.5f;
                 float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -188,12 +188,12 @@ void TestScene101::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 }
 
 void TestScene101::ProcessKeyEvent(Project001::KeyEvent& keyEvent)

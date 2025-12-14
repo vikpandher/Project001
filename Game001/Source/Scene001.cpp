@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-02
+// @DATE 2025-12-13
 
 #include "Scene001.h"
 
@@ -97,13 +97,13 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     // -------------------------------------------------------------------------
 
     GetComponentStoresPtr()->DeleteEntity(uiCamera_EntityId_);
-    uiCamera_EntityId_ = (unsigned int)-1;
+    uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
     GetComponentStoresPtr()->DeleteEntity(introText_EntityId_);
-    introText_EntityId_ = (unsigned int)-1;
+    introText_EntityId_ = static_cast<unsigned int>(-1);
 
     GetComponentStoresPtr()->DeleteEntity(autorText_EntityId_);
-    autorText_EntityId_ = (unsigned int)-1;
+    autorText_EntityId_ = static_cast<unsigned int>(-1);
 }
 
 void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -238,9 +238,9 @@ void Scene001::LoadGroundGridResources()
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->groundGrid_MeshId,
         sharedDataPtr_->groundGrid_MeshDataPtr->meshVertexArray.data(),
-        (unsigned int)sharedDataPtr_->groundGrid_MeshDataPtr->meshVertexArray.size(),
+        static_cast<unsigned int>(sharedDataPtr_->groundGrid_MeshDataPtr->meshVertexArray.size()),
         sharedDataPtr_->groundGrid_MeshDataPtr->meshIndexArray.data(),
-        (unsigned int)sharedDataPtr_->groundGrid_MeshDataPtr->meshIndexArray.size()
+        static_cast<unsigned int>(sharedDataPtr_->groundGrid_MeshDataPtr->meshIndexArray.size())
     );
 
     sharedDataPtr_->groundGridLabels_MeshDataPtr = new Project001::MeshData();
@@ -325,7 +325,7 @@ void Scene001::LoadGroundGridResources()
     {
         const std::string& currentLabel = gridLabels[i];
 
-        float addition_offsetX = pixelFont_pixelSize * -6.0f * (float)(currentLabel.length() - 1);
+        float addition_offsetX = pixelFont_pixelSize * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
         Project001::MeshData currentLabelMeshData;
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -353,7 +353,7 @@ void Scene001::LoadGroundGridResources()
     {
         const std::string& currentLabel = gridLabels[i];
 
-        float addition_offsetX = pixelFont_pixelSize * -6.0f * (float)(currentLabel.length() - 1);
+        float addition_offsetX = pixelFont_pixelSize * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
         Project001::MeshData currentLabelMeshData;
         FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
@@ -375,9 +375,9 @@ void Scene001::LoadGroundGridResources()
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->groundGridLabels_MeshId,
         sharedDataPtr_->groundGridLabels_MeshDataPtr->meshVertexArray.data(),
-        (unsigned int)sharedDataPtr_->groundGridLabels_MeshDataPtr->meshVertexArray.size(),
+        static_cast<unsigned int>(sharedDataPtr_->groundGridLabels_MeshDataPtr->meshVertexArray.size()),
         sharedDataPtr_->groundGridLabels_MeshDataPtr->meshIndexArray.data(),
-        (unsigned int)sharedDataPtr_->groundGridLabels_MeshDataPtr->meshIndexArray.size()
+        static_cast<unsigned int>(sharedDataPtr_->groundGridLabels_MeshDataPtr->meshIndexArray.size())
     );
 }
 
@@ -866,11 +866,11 @@ void Scene001::LoadPlayerLightResources()
         std::vector<glm::vec2> corners;
         constexpr float radius = 60.0f;
         constexpr size_t subdivisions = 8;
-        constexpr float angleRotation = glm::pi<float>() / (float)subdivisions;
+        constexpr float angleRotation = glm::pi<float>() / static_cast<float>(subdivisions);
         for (size_t i = 0; i <= subdivisions; ++i)
         {
             glm::vec2 radiusVector(radius, 0.0f);
-            radiusVector = Project001::Rotate2DVector(radiusVector, (float)i * angleRotation);
+            radiusVector = Project001::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
             corners.emplace_back(radiusVector);
         }
         corners.emplace_back(-4.0f, -112.0f);
@@ -1054,12 +1054,12 @@ void Scene001::FreeResources()
     sharedDataPtr_->groundDark_MeshDataPtr = nullptr;
     delete sharedDataPtr_->groundDark_TextureDataPtr;
     sharedDataPtr_->groundDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->groundDark_TextureId = (unsigned int)-1;
+    sharedDataPtr_->groundDark_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->groundLit_MeshDataPtr;
     sharedDataPtr_->groundLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->groundLit_TextureDataPtr;
     sharedDataPtr_->groundLit_TextureDataPtr = nullptr;
-    sharedDataPtr_->groundLit_TextureId = (unsigned int)-1;
+    sharedDataPtr_->groundLit_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->groundFog_MeshDataPtr;
     sharedDataPtr_->groundFog_MeshDataPtr = nullptr;
     delete sharedDataPtr_->groundCollision_MeshDataPtr;
@@ -1069,21 +1069,21 @@ void Scene001::FreeResources()
 
     delete sharedDataPtr_->groundGrid_MeshDataPtr;
     sharedDataPtr_->groundGrid_MeshDataPtr = nullptr;
-    sharedDataPtr_->groundGrid_MeshId = (unsigned int)-1;
+    sharedDataPtr_->groundGrid_MeshId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->groundGridLabels_MeshDataPtr;
     sharedDataPtr_->groundGridLabels_MeshDataPtr = nullptr;
-    sharedDataPtr_->groundGridLabels_MeshId = (unsigned int)-1;
+    sharedDataPtr_->groundGridLabels_MeshId = static_cast<unsigned int>(-1);
 
     delete sharedDataPtr_->houseLit_MeshDataPtr;
     sharedDataPtr_->houseLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->houseLit_TextureDataPtr;
     sharedDataPtr_->houseLit_TextureDataPtr = nullptr;
-    sharedDataPtr_->houseLit_TextureId = (unsigned int)-1;
+    sharedDataPtr_->houseLit_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->houseDark_MeshDataPtr;
     sharedDataPtr_->houseDark_MeshDataPtr = nullptr;
     delete sharedDataPtr_->houseDark_TextureDataPtr;
     sharedDataPtr_->houseDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->houseDark_TextureId = (unsigned int)-1;
+    sharedDataPtr_->houseDark_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->houseText_MeshDataPtr;
     sharedDataPtr_->houseText_MeshDataPtr = nullptr;
     delete sharedDataPtr_->houseCollision_MeshDataPtr;
@@ -1102,12 +1102,12 @@ void Scene001::FreeResources()
     sharedDataPtr_->lampLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->lampLit_TextureDataPtr;
     sharedDataPtr_->lampLit_TextureDataPtr = nullptr;
-    sharedDataPtr_->lampLit_TextureId = (unsigned int)-1;
+    sharedDataPtr_->lampLit_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->lampDark_MeshDataPtr;
     sharedDataPtr_->lampDark_MeshDataPtr = nullptr;
     delete sharedDataPtr_->lampDark_TextureDataPtr;
     sharedDataPtr_->lampDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->lampDark_TextureId = (unsigned int)-1;
+    sharedDataPtr_->lampDark_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->lampCollision_MeshDataPtr;
     sharedDataPtr_->lampCollision_MeshDataPtr = nullptr;
 
@@ -1122,7 +1122,7 @@ void Scene001::FreeResources()
     sharedDataPtr_->monsterLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->monsterLit_TextureDataPtr;
     sharedDataPtr_->monsterLit_TextureDataPtr = nullptr;
-    sharedDataPtr_->monsterLit_TextureId = (unsigned int)-1;
+    sharedDataPtr_->monsterLit_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->monsterCollision_MeshDataPtr;
     sharedDataPtr_->monsterCollision_MeshDataPtr = nullptr;
     delete sharedDataPtr_->monsterVisionCollision_MeshDataPtr;
@@ -1132,7 +1132,7 @@ void Scene001::FreeResources()
     sharedDataPtr_->personLit_MeshDataPtr = nullptr;
     delete sharedDataPtr_->personLit_TextureDataPtr;
     sharedDataPtr_->personLit_TextureDataPtr = nullptr;
-    sharedDataPtr_->personLit_TextureId = (unsigned int)-1;
+    sharedDataPtr_->personLit_TextureId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->personCollision_MeshDataPtr;
     sharedDataPtr_->personCollision_MeshDataPtr = nullptr;
 
@@ -1140,7 +1140,7 @@ void Scene001::FreeResources()
     sharedDataPtr_->unknownDark_MeshDataPtr = nullptr;
     delete sharedDataPtr_->unknownDark_TextureDataPtr;
     sharedDataPtr_->unknownDark_TextureDataPtr = nullptr;
-    sharedDataPtr_->unknownDark_TextureId = (unsigned int)-1;
+    sharedDataPtr_->unknownDark_TextureId = static_cast<unsigned int>(-1);
 
     delete sharedDataPtr_->playerLightBottom_MeshDataPtr;
     sharedDataPtr_->playerLightBottom_MeshDataPtr = nullptr;
@@ -1485,7 +1485,7 @@ void Scene001::CreateUiCameraEntity()
         GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
         if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
         {
-            float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
             float uiCameraHalfHeight = 320.0f;
             float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
             cameraPtr->SetAspectRatio(aspectRatio);

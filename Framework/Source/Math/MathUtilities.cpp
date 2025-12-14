@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-06
+// @DATE 2025-12-13
 
 #include "MathUtilities.h"
 
@@ -73,9 +73,9 @@ namespace Project001
 
         x2 = number * 0.5F;
         y = number;
-        i = *(long*)&y; // evil floating point bit level hacking
+        i = *reinterpret_cast<long*>(&y); // evil floating point bit level hacking
         i = 0x5f3759df - (i >> 1); // what?
-        y = *(float*)&i;
+        y = *reinterpret_cast<float*>(&i);
         y = y * (threehalfs - (x2 * y * y)); // 1st iteration
         // y  = y * ( threehalfs - ( x2 * y * y ) ); // 2nd iteration
 
@@ -125,7 +125,7 @@ namespace Project001
         seed ^= seed >> 14;
 
         // mask out with a 24-bit mask and then divide it by 2^24
-        return (seed & 0xFFFFFF) / float(0x1000000);
+        return (seed & 0xFFFFFF) / static_cast<float>(0x1000000);
     }
 
     // Miscellaneous Algorithms ------------------------------------------------
@@ -310,7 +310,7 @@ namespace Project001
             }
 
             float minCutLength = std::numeric_limits<float>::infinity();
-            size_t minEarIndex = (unsigned int)-1;
+            size_t minEarIndex = static_cast<size_t>(-1);
 
             for (size_t i = 0; i < earIndexIndices.size(); ++i)
             {
@@ -365,7 +365,7 @@ namespace Project001
         {
             center += points[i];
         }
-        center /= (float)points.size();
+        center /= static_cast<float>(points.size());
 
         struct PointAngle
         {
@@ -414,7 +414,7 @@ namespace Project001
         {
             center += points[i];
         }
-        center /= (float)points.size();
+        center /= static_cast<float>(points.size());
 
         glm::vec3 normal = glm::normalize(axis);
         glm::vec3 right = glm::normalize(startDir - normal * glm::dot(startDir, normal)); // project startDir onto the plane

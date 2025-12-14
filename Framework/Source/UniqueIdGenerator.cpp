@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-02
+// @DATE 2025-12-13
 
 #include "UniqueIdGenerator.h"
 
@@ -23,7 +23,7 @@ namespace Project001
 
         if (availableIds_.empty())
         {
-            internalId = (unsigned int)availableIdFlags_.size();
+            internalId = static_cast<unsigned int>(availableIdFlags_.size());
             availableIdFlags_.push_back(false);
         }
         else

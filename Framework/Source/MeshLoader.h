@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -353,7 +353,7 @@ namespace Project001
             MeshData& meshData,
             float radius0, // for spiike 0 & 2
             float radius1, // for spiike 1 & 3
-            float points,
+            size_t points,
             float spikeHeight0, // heights are along +y axis
             float spikeHeight1,
             float spikeHeight2,

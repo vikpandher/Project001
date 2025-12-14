@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-19
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -61,9 +61,9 @@ protected:
     // Entity Ids --------------------------------------------------------------
 
     static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
-    unsigned int uiCamera_EntityId_ = (unsigned int)-1;
+    unsigned int uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int introText_EntityId_ = (unsigned int)-1;
+    unsigned int introText_EntityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int autorText_EntityId_ = (unsigned int)-1;
+    unsigned int autorText_EntityId_ = static_cast<unsigned int>(-1);
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-14
+// @DATE 2025-12-13
 
 #include "GLFW_Window.h"
 
@@ -72,7 +72,7 @@ namespace Project001
 
         if (glHint == nullptr) // OpenGL functions need to be loaded
         {
-            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
             {
                 LOG_ERROR_F("Failed to initialize OpenGL");
             }
@@ -227,13 +227,13 @@ namespace Project001
 
     bool GLFW_Window::GetKeyPressed(KeyCode key) const
     {
-        int result = glfwGetKey(glfwWindowPtr_, (int)key);
+        int result = glfwGetKey(glfwWindowPtr_, static_cast<int>(key));
         return result == GLFW_PRESS;
     }
 
     bool GLFW_Window::GetMouseButtonPressed(MouseButton mouseButton) const
     {
-        int result = glfwGetMouseButton(glfwWindowPtr_, (int)mouseButton);
+        int result = glfwGetMouseButton(glfwWindowPtr_, static_cast<int>(mouseButton));
         return result == GLFW_PRESS;
     }
 
@@ -241,8 +241,8 @@ namespace Project001
     {
         double xPositionDouble, yPositionDouble;
         glfwGetCursorPos(glfwWindowPtr_, &xPositionDouble, &yPositionDouble);
-        xPosition = (float)xPositionDouble;
-        yPosition = (float)yPositionDouble;
+        xPosition = static_cast<float>(xPositionDouble);
+        yPosition = static_cast<float>(yPositionDouble);
     }
 
     bool GLFW_Window::GetJoystickPresent(unsigned int index) const
@@ -354,56 +354,56 @@ namespace Project001
 
         glfwSetKeyCallback(glfwWindowPtr_, [](GLFWwindow* window, int key, int scancode, int action, int mods)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                KeyEvent event(sourceWindow.GetWindowId(), (KeyCode)key, (ButtonAction)action, (KeyModifier)mods);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                KeyEvent event(sourceWindow.GetWindowId(), static_cast<KeyCode>(key), static_cast<ButtonAction>(action), static_cast<KeyModifier>(mods));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetMouseButtonCallback(glfwWindowPtr_, [](GLFWwindow* window, int button, int action, int mods)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                MouseButtonEvent event(sourceWindow.GetWindowId(), (MouseButton)button, (ButtonAction)action, (KeyModifier)mods);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                MouseButtonEvent event(sourceWindow.GetWindowId(), static_cast<MouseButton>(button), static_cast<ButtonAction>(action), static_cast<KeyModifier>(mods));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetCursorPosCallback(glfwWindowPtr_, [](GLFWwindow* window, double xpos, double ypos)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                CursorPositionEvent event(sourceWindow.GetWindowId(), (float)xpos, (float)ypos);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                CursorPositionEvent event(sourceWindow.GetWindowId(), static_cast<float>(xpos), static_cast<float>(ypos));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetCursorEnterCallback(glfwWindowPtr_, [](GLFWwindow* window, int entered)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                CursorEnterEvent event(sourceWindow.GetWindowId(), (bool)entered);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                CursorEnterEvent event(sourceWindow.GetWindowId(), static_cast<bool>(entered));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetScrollCallback(glfwWindowPtr_, [](GLFWwindow* window, double xoffset, double yoffset)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                ScrollEvent event(sourceWindow.GetWindowId(), (float)xoffset, (float)yoffset);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                ScrollEvent event(sourceWindow.GetWindowId(), static_cast<float>(xoffset), static_cast<float>(yoffset));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowCloseCallback(glfwWindowPtr_, [](GLFWwindow* window)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
                 WindowCloseEvent event(sourceWindow.GetWindowId());
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowFocusCallback(glfwWindowPtr_, [](GLFWwindow* window, int focused)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
-                WindowFocusEvent event(sourceWindow.GetWindowId(), (bool)focused);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
+                WindowFocusEvent event(sourceWindow.GetWindowId(), static_cast<bool>(focused));
                 sourceWindow.EventCallback(event);
             });
 
         glfwSetWindowSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
                 WindowSizeEvent event(sourceWindow.GetWindowId(), width, height);
                 sourceWindow.EventCallback(event);
             });
@@ -413,7 +413,7 @@ namespace Project001
         // different framebuffer size but the same window size.
         glfwSetFramebufferSizeCallback(glfwWindowPtr_, [](GLFWwindow* window, int width, int height)
             {
-                GLFW_Window& sourceWindow = *(GLFW_Window*)glfwGetWindowUserPointer(window);
+                GLFW_Window& sourceWindow = *reinterpret_cast<GLFW_Window*>(glfwGetWindowUserPointer(window));
                 FrameBufferSizeEvent event(sourceWindow.GetWindowId(), width, height);
                 sourceWindow.EventCallback(event);
             });

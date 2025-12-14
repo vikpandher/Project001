@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene020.h"
 
@@ -75,7 +75,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -4; j <= 3; ++j)
         {
-            meshEntityPositions.emplace_back((float)j + 0.5f, (float)i, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(j) + 0.5f, static_cast<float>(i), 0.0f);
         }
     }
     size_t positionPosition = 0;

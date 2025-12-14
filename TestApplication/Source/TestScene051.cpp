@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene051.h"
 
@@ -30,23 +30,23 @@ TestScene051::TestScene051(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , instructionScene_(applicationPtr)
     , sound01_SoundDataPtr_(nullptr)
-    , sound01_SoundBufferId_((unsigned int)-1)
+    , sound01_SoundBufferId_(static_cast<unsigned int>(-1))
     , font01_FontDataPtr_(nullptr)
     , font01_TextureDataPtr_(nullptr)
-    , font01_TextureId_((unsigned int)-1)
+    , font01_TextureId_(static_cast<unsigned int>(-1))
     , rectangleMeshDataPtr_(nullptr)
-    , rectangularMeshId_((unsigned int)-1)
+    , rectangularMeshId_(static_cast<unsigned int>(-1))
     , cursorCircleMeshDataPtr_(nullptr)
     , buttonTextMeshDataPtrs_()
-    , mainCameraEntityId_((unsigned int)-1)
-    , uiCameraEntityId_((unsigned int)-1)
-    , cursorEntityId_((unsigned int)-1)
-    , cursorPositionRenderedMeshIndex_((unsigned int)-1)
-    , cursorPressRenderedMeshIndex_((unsigned int)-1)
-    , cursorReleaseRenderedMeshIndex_((unsigned int)-1)
-    , cursorPositionCollisionPointIndex_((unsigned int)-1)
-    , cursorPressCollisionPointIndex_((unsigned int)-1)
-    , cursorReleaseCollisionPointIndex_((unsigned int)-1)
+    , mainCameraEntityId_(static_cast<unsigned int>(-1))
+    , uiCameraEntityId_(static_cast<unsigned int>(-1))
+    , cursorEntityId_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
     , buttonEntityIds_()
 {
     GetSharedDataPtr<TestApplicationData>()->testScene051Id = GetId();
@@ -125,7 +125,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::vector<std::string> buttonStrings;
     for (size_t i = 32; i < 128; ++i)
     {
-        buttonStrings.emplace_back(1, (char)i);
+        buttonStrings.emplace_back(1, static_cast<char>(i));
     }
 
     for (size_t i = 0; i < buttonStrings.size(); ++i)
@@ -160,7 +160,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 mainCameraHalfHeight = 2.75f;
                 mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -197,7 +197,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
             if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
             {
-                float aspectRatio = (float)aspectRatioNumerator / (float)aspectRatioDenominator;
+                float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
                 float uiCameraHalfHeight = 3.5f;
                 float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
                 cameraPtr->SetAspectRatio(aspectRatio);
@@ -332,9 +332,9 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     GetRendererPtr()->CreateMesh(
         rectangularMeshId_,
         rectangleMeshDataPtr_->meshVertexArray.data(),
-        (unsigned int)rectangleMeshDataPtr_->meshVertexArray.size(),
+        static_cast<unsigned int>(rectangleMeshDataPtr_->meshVertexArray.size()),
         rectangleMeshDataPtr_->meshIndexArray.data(),
-        (unsigned int)rectangleMeshDataPtr_->meshIndexArray.size()
+        static_cast<unsigned int>(rectangleMeshDataPtr_->meshIndexArray.size())
     );
 
     // Button Sound Source -----------------------------------------------------
@@ -351,7 +351,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         FAIL_CHECK(GetSoundPlayerPtr()->SetSoundSourcePitch(
             currentSoundSourceId,
-            0.1f + 0.02f * (float)i
+            0.1f + 0.02f * static_cast<float>(i)
         ));
     }
 
@@ -447,7 +447,7 @@ void TestScene051::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     delete sound01_SoundDataPtr_;
     sound01_SoundDataPtr_ = nullptr;
-    sound01_SoundBufferId_ = (unsigned int)-1;
+    sound01_SoundBufferId_ = static_cast<unsigned int>(-1);
     buttonSoundSourceIds_.clear();
 
     // Font Data ---------------------------------------------------------------
@@ -456,13 +456,13 @@ void TestScene051::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     font01_FontDataPtr_ = nullptr;
     delete font01_TextureDataPtr_;
     font01_TextureDataPtr_ = nullptr;
-    font01_TextureId_ = (unsigned int)-1;
+    font01_TextureId_ = static_cast<unsigned int>(-1);
 
     // Mesh Data ---------------------------------------------------------------
 
     delete rectangleMeshDataPtr_;
     rectangleMeshDataPtr_ = nullptr;
-    rectangularMeshId_ = (unsigned int)-1;
+    rectangularMeshId_ = static_cast<unsigned int>(-1);
 
     delete cursorCircleMeshDataPtr_;
     cursorCircleMeshDataPtr_ = nullptr;
@@ -475,16 +475,16 @@ void TestScene051::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     // Entity Ids --------------------------------------------------------------
 
-    mainCameraEntityId_ = (unsigned int)-1;
-    uiCameraEntityId_ = (unsigned int)-1;
+    mainCameraEntityId_ = static_cast<unsigned int>(-1);
+    uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
-    cursorEntityId_ = (unsigned int)-1;
-    cursorPositionRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPressRenderedMeshIndex_ = (unsigned int)-1;
-    cursorReleaseRenderedMeshIndex_ = (unsigned int)-1;
-    cursorPositionCollisionPointIndex_ = (unsigned int)-1;
-    cursorPressCollisionPointIndex_ = (unsigned int)-1;
-    cursorReleaseCollisionPointIndex_ = (unsigned int)-1;
+    cursorEntityId_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
 
     buttonEntityIds_.clear();
 }
@@ -681,7 +681,7 @@ void TestScene051::UpdateCursorPosition(float xPosition, float yPosition)
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
 
-    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), (float)windowHeight);
+    glm::vec2 viewportNormalizedCursorPosition = GetRendererPtr()->ConvertPointFromWindowToViewportNormalized(glm::vec2(xPosition, yPosition), static_cast<float>(windowHeight));
 
     Project001::Camera* cameraPtr;
     if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraEntityId_))

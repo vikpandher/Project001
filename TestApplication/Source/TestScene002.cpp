@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene002.h"
 
@@ -68,15 +68,15 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int dice01_TextureId = (unsigned int)-1;
-    unsigned int dice02_TextureId = (unsigned int)-1;
-    unsigned int dice03_TextureId = (unsigned int)-1;
-    unsigned int thonk_TextureId = (unsigned int)-1;
-    unsigned int _100x100_TextureId = (unsigned int)-1;
-    unsigned int patternSpecular01_TextureId = (unsigned int)-1;
-    unsigned int patternSpecular02_TextureId = (unsigned int)-1;
-    unsigned int thonkSpecular_TextureId = (unsigned int)-1;
-    unsigned int numbers16x4_TextureId = (unsigned int)-1;
+    unsigned int dice01_TextureId = static_cast<unsigned int>(-1);
+    unsigned int dice02_TextureId = static_cast<unsigned int>(-1);
+    unsigned int dice03_TextureId = static_cast<unsigned int>(-1);
+    unsigned int thonk_TextureId = static_cast<unsigned int>(-1);
+    unsigned int _100x100_TextureId = static_cast<unsigned int>(-1);
+    unsigned int patternSpecular01_TextureId = static_cast<unsigned int>(-1);
+    unsigned int patternSpecular02_TextureId = static_cast<unsigned int>(-1);
+    unsigned int thonkSpecular_TextureId = static_cast<unsigned int>(-1);
+    unsigned int numbers16x4_TextureId = static_cast<unsigned int>(-1);
 
     {
         Project001::TextureData textureData;
@@ -142,7 +142,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -4; j <= 5; ++j)
         {
-            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(j), static_cast<float>(i), 0.0f);
         }
     }
     size_t positionIndex = 0;
@@ -1705,7 +1705,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -1750,14 +1750,14 @@ void TestScene002::AutoIdMapTest() const
 {
     Project001::AutoIdMap<std::string> testAutoIdMap;
 
-    unsigned int id00 = (unsigned int)-1;
-    unsigned int id01 = (unsigned int)-1;
-    unsigned int id02 = (unsigned int)-1;
-    unsigned int id03 = (unsigned int)-1;
-    unsigned int id04 = (unsigned int)-1;
-    unsigned int id05 = (unsigned int)-1;
-    unsigned int id06 = (unsigned int)-1;
-    unsigned int id07 = (unsigned int)-1;
+    unsigned int id00 = static_cast<unsigned int>(-1);
+    unsigned int id01 = static_cast<unsigned int>(-1);
+    unsigned int id02 = static_cast<unsigned int>(-1);
+    unsigned int id03 = static_cast<unsigned int>(-1);
+    unsigned int id04 = static_cast<unsigned int>(-1);
+    unsigned int id05 = static_cast<unsigned int>(-1);
+    unsigned int id06 = static_cast<unsigned int>(-1);
+    unsigned int id07 = static_cast<unsigned int>(-1);
 
     Project001::AutoIdMap<std::string>::iterator iter00 = testAutoIdMap.Add(id00, "value00");
     Project001::AutoIdMap<std::string>::iterator iter01 = testAutoIdMap.Add(id01, "value01");
@@ -1771,7 +1771,7 @@ void TestScene002::AutoIdMapTest() const
     Project001::AutoIdMap<std::string>::iterator iterA = testAutoIdMap.IteratorAtBeginning();
     Project001::AutoIdMap<std::string>::iterator iterB = testAutoIdMap.IteratorPastTheEnd();
 
-    iter00 = testAutoIdMap.Find((unsigned int)-1); // fail
+    iter00 = testAutoIdMap.Find(static_cast<unsigned int>(-1)); // fail
     iter01 = testAutoIdMap.Find(1000); // fail
     iter02 = testAutoIdMap.Find(2000); // fail
     iter03 = testAutoIdMap.Find(3000); // fail
@@ -1899,21 +1899,21 @@ void TestScene002::ComponentContainerTest() const
     TestComponent00* testComponent07ptr = nullptr;
     TestComponent00* testComponent08ptr = nullptr;
 
-    unsigned int entityId00 = (unsigned int)-1;
-    unsigned int entityId01 = (unsigned int)-1;
-    unsigned int entityId02 = (unsigned int)-1;
-    unsigned int entityId03 = (unsigned int)-1;
-    unsigned int entityId04 = (unsigned int)-1;
-    unsigned int entityId05 = (unsigned int)-1;
-    unsigned int entityId06 = (unsigned int)-1;
-    unsigned int entityId07 = (unsigned int)-1;
-    unsigned int entityId08 = (unsigned int)-1;
+    unsigned int entityId00 = static_cast<unsigned int>(-1);
+    unsigned int entityId01 = static_cast<unsigned int>(-1);
+    unsigned int entityId02 = static_cast<unsigned int>(-1);
+    unsigned int entityId03 = static_cast<unsigned int>(-1);
+    unsigned int entityId04 = static_cast<unsigned int>(-1);
+    unsigned int entityId05 = static_cast<unsigned int>(-1);
+    unsigned int entityId06 = static_cast<unsigned int>(-1);
+    unsigned int entityId07 = static_cast<unsigned int>(-1);
+    unsigned int entityId08 = static_cast<unsigned int>(-1);
 
     TestComponent00* allTestComponents = nullptr;
-    size_t testComponentCount = (size_t)-1;
+    size_t testComponentCount = static_cast<size_t>(-1);
 
     const unsigned int* allTestComponentEntityIds = nullptr;
-    size_t testComponentEntityIdCount = (size_t)-1;
+    size_t testComponentEntityIdCount = static_cast<size_t>(-1);
 
     bool functionSuccess = true;
 
@@ -2073,19 +2073,19 @@ void TestScene002::ComponentStoresTest() const
 {
     Project001::ComponentStores testComponentStores;
 
-    unsigned int entityId01 = (unsigned int)-1;
-    unsigned int entityId02 = (unsigned int)-1;
-    unsigned int entityId03 = (unsigned int)-1;
-    unsigned int entityId04 = (unsigned int)-1;
-    unsigned int entityId05 = (unsigned int)-1;
-    unsigned int entityId06 = (unsigned int)-1;
+    unsigned int entityId01 = static_cast<unsigned int>(-1);
+    unsigned int entityId02 = static_cast<unsigned int>(-1);
+    unsigned int entityId03 = static_cast<unsigned int>(-1);
+    unsigned int entityId04 = static_cast<unsigned int>(-1);
+    unsigned int entityId05 = static_cast<unsigned int>(-1);
+    unsigned int entityId06 = static_cast<unsigned int>(-1);
 
-    unsigned int entityId01_returned = (unsigned int)-1;
-    unsigned int entityId02_returned = (unsigned int)-1;
-    unsigned int entityId03_returned = (unsigned int)-1;
-    unsigned int entityId04_returned = (unsigned int)-1;
-    unsigned int entityId05_returned = (unsigned int)-1;
-    unsigned int entityId06_returned = (unsigned int)-1;
+    unsigned int entityId01_returned = static_cast<unsigned int>(-1);
+    unsigned int entityId02_returned = static_cast<unsigned int>(-1);
+    unsigned int entityId03_returned = static_cast<unsigned int>(-1);
+    unsigned int entityId04_returned = static_cast<unsigned int>(-1);
+    unsigned int entityId05_returned = static_cast<unsigned int>(-1);
+    unsigned int entityId06_returned = static_cast<unsigned int>(-1);
 
     TestComponent00* testComponent0001ptr = nullptr;
     TestComponent00* testComponent0002ptr = nullptr;
@@ -2095,10 +2095,10 @@ void TestScene002::ComponentStoresTest() const
     TestComponent00* testComponent0006ptr = nullptr;
 
     TestComponent00* allTestComponent00s = nullptr;
-    size_t testComponent00Count = (size_t)-1;
+    size_t testComponent00Count = static_cast<size_t>(-1);
 
     const unsigned int* allTestComponent00EntityIds = nullptr;
-    size_t testComponent00EntityIdCount = (size_t)-1;
+    size_t testComponent00EntityIdCount = static_cast<size_t>(-1);
 
     TestComponent01* testComponent0101ptr = nullptr;
     TestComponent01* testComponent0102ptr = nullptr;
@@ -2291,18 +2291,18 @@ void TestScene002::ResourceStoresTest() const
 
     // TestComponent00
 
-    unsigned int testComponent00_Id01 = (unsigned int)-1;
-    unsigned int testComponent00_Id02 = (unsigned int)-1;
-    unsigned int testComponent00_Id03 = (unsigned int)-1;
-    unsigned int testComponent00_Id04 = (unsigned int)-1;
-    unsigned int testComponent00_Id05 = (unsigned int)-1;
-    unsigned int testComponent00_Id06 = (unsigned int)-1;
-    unsigned int testComponent00_Id07 = (unsigned int)-1;
-    unsigned int testComponent00_Id08 = (unsigned int)-1;
+    unsigned int testComponent00_Id01 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id02 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id03 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id04 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id05 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id06 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id07 = static_cast<unsigned int>(-1);
+    unsigned int testComponent00_Id08 = static_cast<unsigned int>(-1);
 
-    unsigned int returned_testComponent00_Id01 = (unsigned int)-1;
-    unsigned int returned_testComponent00_Id02 = (unsigned int)-1;
-    unsigned int returned_testComponent00_Id03 = (unsigned int)-1;
+    unsigned int returned_testComponent00_Id01 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent00_Id02 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent00_Id03 = static_cast<unsigned int>(-1);
 
     const unsigned int* returned_testComponent00_Ids = nullptr;
     size_t returned_testComponent00_Id_count = 0;
@@ -2316,13 +2316,13 @@ void TestScene002::ResourceStoresTest() const
 
     // TestComponent01
 
-    unsigned int testComponent01_Id01 = (unsigned int)-1;
-    unsigned int testComponent01_Id02 = (unsigned int)-1;
-    unsigned int testComponent01_Id03 = (unsigned int)-1;
+    unsigned int testComponent01_Id01 = static_cast<unsigned int>(-1);
+    unsigned int testComponent01_Id02 = static_cast<unsigned int>(-1);
+    unsigned int testComponent01_Id03 = static_cast<unsigned int>(-1);
 
-    unsigned int returned_testComponent01_Id01 = (unsigned int)-1;
-    unsigned int returned_testComponent01_Id02 = (unsigned int)-1;
-    unsigned int returned_testComponent01_Id03 = (unsigned int)-1;
+    unsigned int returned_testComponent01_Id01 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent01_Id02 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent01_Id03 = static_cast<unsigned int>(-1);
 
     const unsigned int* returned_testComponent01_Ids = nullptr;
     size_t returned_testComponent01_Id_count = 0;
@@ -2336,13 +2336,13 @@ void TestScene002::ResourceStoresTest() const
 
     // TestComponent02
 
-    unsigned int testComponent02_Id01 = (unsigned int)-1;
-    unsigned int testComponent02_Id02 = (unsigned int)-1;
-    unsigned int testComponent02_Id03 = (unsigned int)-1;
+    unsigned int testComponent02_Id01 = static_cast<unsigned int>(-1);
+    unsigned int testComponent02_Id02 = static_cast<unsigned int>(-1);
+    unsigned int testComponent02_Id03 = static_cast<unsigned int>(-1);
 
-    unsigned int returned_testComponent02_Id01 = (unsigned int)-1;
-    unsigned int returned_testComponent02_Id02 = (unsigned int)-1;
-    unsigned int returned_testComponent02_Id03 = (unsigned int)-1;
+    unsigned int returned_testComponent02_Id01 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent02_Id02 = static_cast<unsigned int>(-1);
+    unsigned int returned_testComponent02_Id03 = static_cast<unsigned int>(-1);
 
     const unsigned int* returned_testComponent02_Ids = nullptr;
     size_t returned_testComponent02_Id_count = 0;
@@ -2469,10 +2469,10 @@ void TestScene002::ResourceStoresTest2() const
 
     // Font Data
     {
-        unsigned int font01_FontDataId = (unsigned int)-1;
-        unsigned int font02_FontDataId = (unsigned int)-1;
-        unsigned int font03_FontDataId = (unsigned int)-1;
-        unsigned int font04_FontDataId = (unsigned int)-1;
+        unsigned int font01_FontDataId = static_cast<unsigned int>(-1);
+        unsigned int font02_FontDataId = static_cast<unsigned int>(-1);
+        unsigned int font03_FontDataId = static_cast<unsigned int>(-1);
+        unsigned int font04_FontDataId = static_cast<unsigned int>(-1);
 
         Project001::FontData* font01_FontDataPtr = nullptr;
         Project001::FontData* font02_FontDataPtr = nullptr;

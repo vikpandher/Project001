@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene050.h"
 
@@ -34,11 +34,11 @@ TestScene050::TestScene050(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
     , sound01_SoundDataPtr_(nullptr)
-    , soundBufferId01_((unsigned int)-1)
-    , soundSourceId01_((unsigned int)-1)
+    , soundBufferId01_(static_cast<unsigned int>(-1))
+    , soundSourceId01_(static_cast<unsigned int>(-1))
     , sound02_SoundDataPtr_(nullptr)
-    , soundBufferId02_((unsigned int)-1)
-    , soundSourceId02_((unsigned int)-1)
+    , soundBufferId02_(static_cast<unsigned int>(-1))
+    , soundSourceId02_(static_cast<unsigned int>(-1))
     , playingSound_(false)
 {
     GetSharedDataPtr<TestApplicationData>()->testScene050Id = GetId();
@@ -153,7 +153,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -197,14 +197,14 @@ void TestScene050::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     delete sound01_SoundDataPtr_;
     sound01_SoundDataPtr_ = nullptr;
 
-    soundBufferId01_ = (unsigned int)-1;
-    soundSourceId01_ = (unsigned int)-1;
+    soundBufferId01_ = static_cast<unsigned int>(-1);
+    soundSourceId01_ = static_cast<unsigned int>(-1);
 
     delete sound02_SoundDataPtr_;
     sound02_SoundDataPtr_ = nullptr;
 
-    soundBufferId02_ = (unsigned int)-1;
-    soundSourceId02_ = (unsigned int)-1;
+    soundBufferId02_ = static_cast<unsigned int>(-1);
+    soundSourceId02_ = static_cast<unsigned int>(-1);
 
     playingSound_ = false;
 }
@@ -241,7 +241,7 @@ void TestScene050::UpdateCameraListenerPosition()
 
 void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
 {
-    float timestep_s = (float)(timestep_ns / 1000000) / 1000;
+    float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
 
     Project001::RenderedMesh* renderedMeshPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, entityIds_[0]));

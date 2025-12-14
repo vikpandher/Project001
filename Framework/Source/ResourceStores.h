@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -67,7 +67,7 @@ namespace Project001
         const size_t& resourceMemoryGrowthRate,
         const size_t& resourceMemoryCapacityCap)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             RegisterNewResource<Resource>(1, 2, 0);
@@ -80,7 +80,7 @@ namespace Project001
     template <typename Resource, typename... Args>
     inline bool ResourceStores::CreateResource(unsigned int& resourceId, Args... args)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             RegisterNewResource<Resource>(1, 2, 0);
@@ -101,7 +101,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::DeleteResource(unsigned int resourceId)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -115,7 +115,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::DeleteAllResources()
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -129,7 +129,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::GetResource(Resource*& resourcePtr, unsigned int resourceId)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -142,7 +142,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::GetAllResources(Resource*& resourcePtrs, size_t& resourceCount)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -155,7 +155,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::GetResourceId(unsigned int& resourceId, const Resource* const resourcePtr)
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -168,7 +168,7 @@ namespace Project001
     template <typename Resource>
     inline bool ResourceStores::GetAllResourceIds(const unsigned int*& resourceIdPtr, size_t& resourceCount) const
     {
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         if (!ResourceTypeExists(resourceTypeId))
         {
             return false;
@@ -188,8 +188,8 @@ namespace Project001
     template <typename Resource>
     inline void ResourceStores::RegisterNewResource(size_t initialResourceCapacity, size_t resourceMemoryGrowthRate, size_t resourceMemoryCapacityCap)
     {
-        unsigned int nextResourceContainerIndex = (unsigned int)resourceContainerPtrs_.size();
-        unsigned int resourceTypeId = (unsigned int)typeid(Resource).hash_code();
+        unsigned int nextResourceContainerIndex = static_cast<unsigned int>(resourceContainerPtrs_.size());
+        unsigned int resourceTypeId = static_cast<unsigned int>(typeid(Resource).hash_code());
         resourceTypeIdToResourceContainerIndexMap_[resourceTypeId] = nextResourceContainerIndex;
 
         UniqueIdGenerator* newUniqueIdGenerator = new UniqueIdGenerator();

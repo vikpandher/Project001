@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene003.h"
 
@@ -51,11 +51,11 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     // Texture Data ------------------------------------------------------------
 
-    unsigned int earth_TextureId = (unsigned int)-1;
-    unsigned int numbers12x6_TextureId = (unsigned int)-1;
-    unsigned int box01_TextureId = (unsigned int)-1;
-    unsigned int box02_TextureId = (unsigned int)-1;
-    unsigned int box03_TextureId = (unsigned int)-1;
+    unsigned int earth_TextureId = static_cast<unsigned int>(-1);
+    unsigned int numbers12x6_TextureId = static_cast<unsigned int>(-1);
+    unsigned int box01_TextureId = static_cast<unsigned int>(-1);
+    unsigned int box02_TextureId = static_cast<unsigned int>(-1);
+    unsigned int box03_TextureId = static_cast<unsigned int>(-1);
 
     {
         Project001::TextureData textureData;
@@ -178,7 +178,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int i = -6; i <= 5; ++i)
         {
-            meshEntityPositions.emplace_back((float)i + 0.5f, (float)j, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i) + 0.5f, static_cast<float>(j), 0.0f);
         }
     }
 
@@ -2175,7 +2175,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,

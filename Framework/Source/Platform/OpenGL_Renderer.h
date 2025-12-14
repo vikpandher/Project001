@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-08
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -339,8 +339,8 @@ namespace Project001
         float windowHeight) const
     {
         return glm::vec2(
-            windowPoint.x - (float)viewportX_,
-            windowHeight - windowPoint.y - (float)viewportY_);
+            windowPoint.x - static_cast<float>(viewportX_),
+            windowHeight - windowPoint.y - static_cast<float>(viewportY_));
     }
 
     inline glm::vec2 OpenGL_Renderer::ConvertPointFromWindowToViewportNormalized(
@@ -348,8 +348,8 @@ namespace Project001
         float windowHeight) const
     {
         return glm::vec2(
-            (windowPoint.x - (float)viewportX_) / (float)viewportWidth_,
-            (windowHeight - windowPoint.y - (float)viewportY_) / (float)viewportHeight_);
+            (windowPoint.x - static_cast<float>(viewportX_)) / static_cast<float>(viewportWidth_),
+            (windowHeight - windowPoint.y - static_cast<float>(viewportY_)) / static_cast<float>(viewportHeight_));
     }
 
     inline void OpenGL_Renderer::GetCameraViewport(

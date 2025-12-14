@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene009.h"
 
@@ -26,8 +26,8 @@
 TestScene009::TestScene009(Project001::Application* applicationPtr)
     : TestSceneBase001(applicationPtr)
     , instructionScene_(applicationPtr)
-    , gradiant_TextureId_((unsigned int)-1)
-    , numbers12x6_TextureId_((unsigned int)-1)
+    , gradiant_TextureId_(static_cast<unsigned int>(-1))
+    , numbers12x6_TextureId_(static_cast<unsigned int>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene009Id = GetId();
 }
@@ -106,7 +106,7 @@ void TestScene009::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,
@@ -144,8 +144,8 @@ void TestScene009::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
 
     LOG_INFO("DEINITIALIZING: TestScene009:            " << GetId());
 
-    gradiant_TextureId_ = (unsigned int)-1;
-    numbers12x6_TextureId_ = (unsigned int)-1;
+    gradiant_TextureId_ = static_cast<unsigned int>(-1);
+    numbers12x6_TextureId_ = static_cast<unsigned int>(-1);
 
     for (size_t i = 0; i < animatedMeshDataPtrArrayArray_.size(); ++i)
     {
@@ -176,7 +176,7 @@ void TestScene009::Create2DStarMeshes_1()
     {
         for (int i = -4; i <= 4; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j) - 0.5f, 0.0f);
         }
     }
 
@@ -397,7 +397,7 @@ void TestScene009::Create2DStarMeshes_2()
     {
         for (int i = -4; i <= 4; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j) - 0.5f, 0.0f);
         }
     }
 
@@ -573,7 +573,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         for (int i = 5; i <= 13; ++i)
         {
-            meshEntityPositions.emplace_back((float)i, (float)j - 0.5f, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(i), static_cast<float>(j) - 0.5f, 0.0f);
         }
     }
 

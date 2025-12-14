@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-10
+// @DATE 2025-12-13
 
 #include "TestScene004.h"
 
@@ -401,7 +401,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
-        unsigned int tempTextureId = (unsigned int)-1;
+        unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
@@ -418,7 +418,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
-        unsigned int tempTextureId = (unsigned int)-1;
+        unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
     }
@@ -433,7 +433,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -3; j <= 3; ++j)
         {
-            meshEntityPositions.emplace_back((float)j, (float)i, 0.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(j), static_cast<float>(i), 0.0f);
         }
     }
 
@@ -442,7 +442,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (int j = -3; j <= 3; ++j)
         {
-            meshEntityPositions.emplace_back((float)j, (float)i, -1.0f);
+            meshEntityPositions.emplace_back(static_cast<float>(j), static_cast<float>(i), -1.0f);
         }
     }
 
@@ -481,7 +481,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
     ));
-    unsigned int font01_TextureId = (unsigned int)-1;
+    unsigned int font01_TextureId = static_cast<unsigned int>(-1);
     GetRendererPtr()->CreateTexture(
         font01_TextureId,
         font01_TextureData.data,

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-27
+// @DATE 2025-12-13
 
 #include "PixelFont5x6.h"
 
@@ -26,10 +26,10 @@ namespace Project001
             constexpr size_t glyphRows = 8;
             constexpr float nextGlyphX = glyphWidth + spacingX;
             constexpr float nextGlyphY = glyphHeight + spacingY;
-            constexpr float sheetWidth = spacingX + nextGlyphX * (float)glyphColumns;
-            constexpr float sheetHeight = spacingY + nextGlyphY * (float)glyphRows;
+            constexpr float sheetWidth = spacingX + nextGlyphX * static_cast<float>(glyphColumns);
+            constexpr float sheetHeight = spacingY + nextGlyphY * static_cast<float>(glyphRows);
 
-            char currentChar = (char)32; // ' '
+            char currentChar = static_cast<char>(32); // ' '
 
             for (size_t j = 0; j < glyphRows; ++j)
             {
@@ -38,8 +38,8 @@ namespace Project001
                     temp.glyphMetricsMap[currentChar++] =
                     {
                         5, 6, 0, 6, 6, 0, 0, 7,
-                        glm::vec2((spacingX + nextGlyphX * (float)i) / sheetWidth, (spacingY + nextGlyphY * (float)j) / sheetHeight),
-                        glm::vec2((nextGlyphX * (float)(i + 1)) / sheetWidth, (nextGlyphY * (float)(j + 1)) / sheetHeight)
+                        glm::vec2((spacingX + nextGlyphX * static_cast<float>(i)) / sheetWidth, (spacingY + nextGlyphY * static_cast<float>(j)) / sheetHeight),
+                        glm::vec2((nextGlyphX * static_cast<float>(i + 1)) / sheetWidth, (nextGlyphY * static_cast<float>(j + 1)) / sheetHeight)
                     };
                 }
             }

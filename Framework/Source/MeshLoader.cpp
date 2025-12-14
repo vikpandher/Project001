@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-30
+// @DATE 2025-12-13
 
 #include "MeshLoader.h"
 
@@ -108,8 +108,8 @@ namespace Project001
             const int& positionIndex = faces[i].x;
             const int& normalIndex = faces[i].y;
 
-            if (positionIndex < 0 || positionIndex >= (int)positions.size() ||
-                normalIndex < 0 || normalIndex >= (int)normals.size())
+            if (positionIndex < 0 || positionIndex >= static_cast<int>(positions.size()) ||
+                normalIndex < 0 || normalIndex >= static_cast<int>(normals.size()))
             {
                 return false;
             }
@@ -118,7 +118,7 @@ namespace Project001
             meshVertex.position = positions[positionIndex];
             meshVertex.normal = normals[normalIndex];
 
-            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+            meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
             meshVertexArray.push_back(meshVertex);
         }
 
@@ -267,9 +267,9 @@ namespace Project001
 
             for (size_t i = 0; i < positions.size() - 2; ++i)
             {
-                meshIndexArray.push_back((unsigned int)currentVertexCount);
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 1);
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 2);
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
             }
         }
         else
@@ -288,11 +288,11 @@ namespace Project001
                 meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
                 meshVertexB.normal = normal;
 
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(centerMeshVertex);
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(meshVertexA);
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(meshVertexB);
             }
         }
@@ -341,7 +341,7 @@ namespace Project001
             meshVertex.normal = normal;
 
             meshVertexArray.push_back(meshVertex);
-            meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+            meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -398,15 +398,15 @@ namespace Project001
             {
                 if (i % 2 == 0)
                 {
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
                 }
                 else
                 {
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
                 }
             }
         }
@@ -426,7 +426,7 @@ namespace Project001
                 meshVertexC.position = glm::vec3(positions[i + 2], 0.0f);
                 meshVertexC.normal = normal;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 if (i % 2 == 0)
                 {
@@ -498,7 +498,7 @@ namespace Project001
 
         float arcRadius = endAngle - startAngle;
 
-        float sectionAngle = arcRadius / (float)subdivisions;
+        float sectionAngle = arcRadius / static_cast<float>(subdivisions);
 
         if (sectionAngle > 2.0f * glm::pi<float>())
         {
@@ -556,7 +556,7 @@ namespace Project001
 
         centerToArc = Rotate2DVector(centerToArc, theta * 0.5f);
 
-        float segmentTheta = -1.0f * theta / (float)subdivisions;
+        float segmentTheta = -1.0f * theta / static_cast<float>(subdivisions);
 
         std::vector<glm::vec2> positions;
         positions.push_back(centerToArc + focalPoint);
@@ -583,13 +583,13 @@ namespace Project001
 
         std::vector<glm::vec2> positions;
 
-        float radialStep = glm::pi<float>() / (float)radialSections;
+        float radialStep = glm::pi<float>() / static_cast<float>(radialSections);
         float halfHeight = rectangleHeight * 0.5f;
         float radius = capsuleWidth * 0.5f;
 
         for (size_t i = 0; i < radialSections + 1; ++i)
         {
-            float stackAngle = radialStep * (float)i;
+            float stackAngle = radialStep * static_cast<float>(i);
             float x = radius * glm::cos(stackAngle);
             float y = radius * glm::sin(stackAngle);
 
@@ -598,7 +598,7 @@ namespace Project001
 
         for (size_t i = 0; i < radialSections + 1; ++i)
         {
-            float stackAngle = glm::pi<float>() + radialStep * (float)i;
+            float stackAngle = glm::pi<float>() + radialStep * static_cast<float>(i);
             float x = radius * glm::cos(stackAngle);
             float y = radius * glm::sin(stackAngle);
 
@@ -623,7 +623,7 @@ namespace Project001
 
         std::vector<glm::vec2> positions;
 
-        float radialStep = glm::pi<float>() / (float)radialSections;
+        float radialStep = glm::pi<float>() / static_cast<float>(radialSections);
 
         glm::vec2 direction = end - start;
 
@@ -706,9 +706,9 @@ namespace Project001
 
             for (size_t i = 0; i < positionsSize - 2; ++i)
             {
-                meshIndexArray.push_back((unsigned int)currentVertexCount);
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 1);
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i + 2);
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
             }
         }
         else
@@ -727,11 +727,11 @@ namespace Project001
                 meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
                 meshVertexB.normal = normal;
 
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(centerMeshVertex);
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(meshVertexA);
-                meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                 meshVertexArray.push_back(meshVertexB);
             }
         }
@@ -896,7 +896,7 @@ namespace Project001
 
                 if (!triangulate)
                 {
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     meshVertexArray.push_back(meshVertexA);
                     meshVertexArray.push_back(meshVertexB);
@@ -933,7 +933,7 @@ namespace Project001
                 }
                 else
                 {
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     if (dotABC > 0.0f)
                     {
@@ -990,7 +990,7 @@ namespace Project001
 
                     float dotABC = glm::dot(normal, normalABC);
 
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     meshVertexArray.push_back(meshVertexA);
                     meshVertexArray.push_back(meshVertexB);
@@ -1055,7 +1055,7 @@ namespace Project001
 
         if (!triangulate)
         {
-            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+            unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
             meshVertexArray.push_back(meshVertexA);
             meshVertexArray.push_back(meshVertexB);
@@ -1090,7 +1090,7 @@ namespace Project001
         }
         else
         {
-            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+            unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
             if (dotABC > 0.0f)
             {
@@ -1197,7 +1197,7 @@ namespace Project001
         // | /   | /   | /   | /   | /   | /   |
         // |/    |/    |/    |/    |/    |/    |
         // +----(B)---(D)----+-----+-----+-----+
-        unsigned int indexA = (unsigned int)initialVertexCount;
+        unsigned int indexA = static_cast<unsigned int>(initialVertexCount);
         unsigned int indexB;
         unsigned int indexC;
         unsigned int indexD;
@@ -1241,7 +1241,7 @@ namespace Project001
                 meshVertexArray.push_back(tempMeshVertex);
             }
 
-            indexB = indexA + (unsigned int)endStyle;
+            indexB = indexA + static_cast<unsigned int>(endStyle);
 
             for (unsigned int i = indexA + 2; i <= indexB; ++i)
             {
@@ -1296,7 +1296,7 @@ namespace Project001
 
         // generating line end segment and cap
         // ---------------------------------------------------------------------
-        indexC = (unsigned int)meshVertexArray.size();;
+        indexC = static_cast<unsigned int>(meshVertexArray.size());
 
         if (endStyle > 0)
         {
@@ -1322,7 +1322,7 @@ namespace Project001
                 meshVertexArray.push_back(tempMeshVertex);
             }
 
-            indexD = indexC + (unsigned int)endStyle;
+            indexD = indexC + static_cast<unsigned int>(endStyle);
 
             for (unsigned int i = indexC + 2; i <= indexD; ++i)
             {
@@ -1585,7 +1585,7 @@ namespace Project001
 
                 if (!triangulate)
                 {
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     meshVertexArray.push_back(meshVertexA);
                     meshVertexArray.push_back(meshVertexB);
@@ -1620,7 +1620,7 @@ namespace Project001
                 }
                 else
                 {
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     if (dotABC > 0.0f)
                     {
@@ -1677,7 +1677,7 @@ namespace Project001
 
                     dotABC = glm::dot(normal, normalABC);
 
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                     meshVertexArray.push_back(meshVertexA);
                     meshVertexArray.push_back(meshVertexB);
@@ -1819,15 +1819,15 @@ namespace Project001
             {
                 if (i % 2 == 0)
                 {
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
                 }
                 else
                 {
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
-                    meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
 
                     i += 2;
                 }
@@ -1849,7 +1849,7 @@ namespace Project001
                 meshVertexC.position = glm::vec3(positions[i + 2], 0.0f);
                 meshVertexC.normal = normal;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 if (i % 2 == 0)
                 {
@@ -1939,7 +1939,7 @@ namespace Project001
         bottomRightVertex.position.y = -halfHeight;
         bottomRightVertex.normal.z = 1.0f;
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (triangulate)
         {
             meshVertexArray.push_back(topLeftVertex);
@@ -1987,7 +1987,7 @@ namespace Project001
 
         std::vector<glm::vec2> positions;
 
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
 
         glm::vec2 radialVector(0.0f, radius);
         positions.push_back(radialVector);
@@ -2016,14 +2016,14 @@ namespace Project001
 
         std::vector<glm::vec2> positions;
 
-        float radialStep = 0.5f * glm::pi<float>() / (float)bezelSections;
+        float radialStep = 0.5f * glm::pi<float>() / static_cast<float>(bezelSections);
         float halfHeight = height * 0.5f - bezelSize;
         float halfWidth = width * 0.5f - bezelSize;
 
         // top right
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
-            float stackAngle = radialStep * (float)i;
+            float stackAngle = radialStep * static_cast<float>(i);
             float x = bezelSize * glm::cos(stackAngle);
             float y = bezelSize * glm::sin(stackAngle);
 
@@ -2033,7 +2033,7 @@ namespace Project001
         // top left
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
-            float stackAngle = 0.5f * glm::pi<float>() + radialStep * (float)i;
+            float stackAngle = 0.5f * glm::pi<float>() + radialStep * static_cast<float>(i);
             float x = bezelSize * glm::cos(stackAngle);
             float y = bezelSize * glm::sin(stackAngle);
 
@@ -2043,7 +2043,7 @@ namespace Project001
         // bottom left
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
-            float stackAngle = glm::pi<float>() + radialStep * (float)i;
+            float stackAngle = glm::pi<float>() + radialStep * static_cast<float>(i);
             float x = bezelSize * glm::cos(stackAngle);
             float y = bezelSize * glm::sin(stackAngle);
 
@@ -2053,7 +2053,7 @@ namespace Project001
         // bottom right
         for (size_t i = 0; i < bezelSections + 1; ++i)
         {
-            float stackAngle = 1.5f * glm::pi<float>() + radialStep * (float)i;
+            float stackAngle = 1.5f * glm::pi<float>() + radialStep * static_cast<float>(i);
             float x = bezelSize * glm::cos(stackAngle);
             float y = bezelSize * glm::sin(stackAngle);
 
@@ -2151,7 +2151,7 @@ namespace Project001
         bottomRightVertex.textureCoordinate.y = textureBottom;
         bottomRightVertex.normal.z = 1.0f;
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (triangulate)
         {
             meshVertexArray.push_back(topLeftVertex);
@@ -2242,7 +2242,7 @@ namespace Project001
         bottomRightVertex.textureCoordinate.y = textureBottom;
         bottomRightVertex.normal.z = 1.0f;
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (triangulate)
         {
             meshVertexArray.push_back(topLeftVertex);
@@ -2488,7 +2488,7 @@ namespace Project001
         glm::vec3 octant_negX_negY_posZ(min.x, min.y, max.z);
         glm::vec3 octant_negX_negY_negZ(min);
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (smoothNormals)
         {
             const float& dimensionLength = 1.0f / glm::sqrt(3.0f);
@@ -2579,7 +2579,7 @@ namespace Project001
 
                 for (size_t i = 0; i < 36; ++i)
                 {
-                    meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                    meshIndexArray.push_back(currentVertexCount + static_cast<unsigned int>(i));
                 }
             }
             else
@@ -2777,7 +2777,7 @@ namespace Project001
 
                 for (size_t i = 0; i < 36; ++i)
                 {
-                    meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                    meshIndexArray.push_back(currentVertexCount + static_cast<unsigned int>(i));
                 }
             }
             else
@@ -3012,7 +3012,7 @@ namespace Project001
         meshVertex_bottomFace_bottomRight.position = octant_minX_minY_maxZ;
         meshVertex_bottomFace_bottomRight.textureCoordinate = textureCoordinates[23];
 
-        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (smoothNormals)
         {
             const float& dimensionLength = 1.0f / glm::sqrt(3.0f);
@@ -3142,7 +3142,7 @@ namespace Project001
 
             for (size_t i = 0; i < 36; ++i)
             {
-                meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
+                meshIndexArray.push_back(currentVertexCount + static_cast<unsigned int>(i));
             }
         }
         else
@@ -3261,8 +3261,8 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
-        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / static_cast<float>(stacks);
 
         float halfCylindricalHeight = cylindricalHeight * 0.5f;
         float quarterCircleCircumference = radius * glm::half_pi<float>();
@@ -3272,7 +3272,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, capsuleHalfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -3282,20 +3282,20 @@ namespace Project001
         // body top
         for (size_t i = 1; i <= stacks; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle) + halfCylindricalHeight;
 
             for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)faces,
-                    (capsuleHalfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / capsuleHalfBoarder
+                    static_cast<float>(j) / static_cast<float>(faces),
+                    (capsuleHalfBoarder - static_cast<float>(i) / static_cast<float>(stacks) * quarterCircleCircumference) / capsuleHalfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -3307,20 +3307,20 @@ namespace Project001
         // body bottom
         for (size_t i = stacks; i < stacks * 2; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle) - halfCylindricalHeight;
 
             for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)faces,
-                    (quarterCircleCircumference - ((float)i - stacks) / (float)stacks * quarterCircleCircumference) / capsuleHalfBoarder
+                    static_cast<float>(j) / static_cast<float>(faces),
+                    (quarterCircleCircumference - (static_cast<float>(i) - static_cast<float>(stacks)) / static_cast<float>(stacks) * quarterCircleCircumference) / capsuleHalfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -3333,7 +3333,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * capsuleHalfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -3403,8 +3403,8 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = -2.0f * glm::pi<float>() / (float)(faces);
-        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+        const float faceStep = -2.0f * glm::pi<float>() / static_cast<float>(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / static_cast<float>(stacks);
 
         float halfCylindricalHeight = cylindricalHeight * 0.5f;
 
@@ -3418,13 +3418,13 @@ namespace Project001
         // body top
         for (size_t i = 1; i < stacks + 1; ++i)
         {
-            float stackAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float stackAngle = glm::pi<float>() / 2.0f - stackStep * static_cast<float>(i);
             float xz = radius * glm::cos(stackAngle);
             float y = radius * glm::sin(stackAngle);
 
             for (size_t j = 0; j < faces; ++j)
             {
-                float faceAngle = faceStep * (float)j;
+                float faceAngle = faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(faceAngle);
                 float z = xz * glm::sin(faceAngle);
 
@@ -3439,13 +3439,13 @@ namespace Project001
         // body bottom
         for (size_t i = 0; i < stacks; ++i)
         {
-            float stackAngle = -1.0f * stackStep * (float)i;
+            float stackAngle = -1.0f * stackStep * static_cast<float>(i);
             float xz = radius * glm::cos(stackAngle);
             float y = radius * glm::sin(stackAngle);
 
             for (size_t j = 0; j < faces; ++j)
             {
-                float faceAngle = faceStep * (float)j;
+                float faceAngle = faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(faceAngle);
                 float z = xz * glm::sin(faceAngle);
 
@@ -3549,7 +3549,7 @@ namespace Project001
 
                 for (size_t i = 0; i < faces * stacks * 12; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -3565,13 +3565,13 @@ namespace Project001
                 // top
                 for (size_t i = 1; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)initialVertexCount);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i + 1));
                 }
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces));
-                meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
 
                 // body
                 for (size_t i = 0; i < stacks * 2 - 1; ++i)
@@ -3587,37 +3587,37 @@ namespace Project001
                         size_t i3 = i1 + 1;
                         size_t i4 = i2 + 1;
 
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i1));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i4));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i1));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i4));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
                     }
                     size_t i1 = (i + 1) * faces;
                     size_t i2 = (i + 2) * faces;
                     size_t i3 = i * faces + 1;
                     size_t i4 = (i + 1) * faces + 1;
 
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i1));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i4));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i4));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
                 }
 
                 // bottom
                 size_t lastIndex = positions.size() - 1;
                 for (size_t i = 1; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex - i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex - i) - 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex - i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex - i - 1));
                 }
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex));
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex - faces));
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + lastIndex) - 1);
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex - faces));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + lastIndex - 1));
             }
         }
         else
@@ -3645,7 +3645,7 @@ namespace Project001
                 v3.position = p3;
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -3676,7 +3676,7 @@ namespace Project001
                 v3.position = p3;
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -3726,7 +3726,7 @@ namespace Project001
                     v4.position = p4;
                     v4.normal = normal123;
 
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
                     if (triangulate)
                     {
                         meshVertexArray.push_back(v1);
@@ -3788,7 +3788,7 @@ namespace Project001
                 v4.position = p4;
                 v4.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
                 if (triangulate)
                 {
                     meshVertexArray.push_back(v1);
@@ -3845,7 +3845,7 @@ namespace Project001
                 v3.position = p3;
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -3876,7 +3876,7 @@ namespace Project001
                 v3.position = p3;
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -3923,7 +3923,7 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
 
         float halfHeight = height * 0.5f;
         float hypotenuse = glm::sqrt(height * height + radius * radius);
@@ -3933,7 +3933,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -3943,13 +3943,13 @@ namespace Project001
         // body bottom
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius * glm::cos(longAngle);
             float z = radius * glm::sin(longAngle);
 
             positions.emplace_back(x, -1.0f * halfHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 (halfBoarder - hypotenuse) / halfBoarder
             );
             if (smoothNormals)
@@ -3962,7 +3962,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -4021,7 +4021,7 @@ namespace Project001
 
         size_t initialVertexCount = meshVertexArray.size();
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
 
         if (smoothNormals)
         {
@@ -4045,7 +4045,7 @@ namespace Project001
 
             for (size_t i = 0; i < faces; ++i)
             {
-                float faceAngle = faceStep * (float)i;
+                float faceAngle = faceStep * static_cast<float>(i);
                 float x = radius * glm::sin(faceAngle);
                 float z = radius * glm::cos(faceAngle);
 
@@ -4087,7 +4087,7 @@ namespace Project001
 
                 for (size_t i = 0; i < faces * 6 - 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -4095,20 +4095,20 @@ namespace Project001
                 // top
                 for (size_t i = 1; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)initialVertexCount);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i + 1));
                 }
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces));
-                meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
 
                 // bottom
                 for (size_t i = 2; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
         }
@@ -4131,7 +4131,7 @@ namespace Project001
             float previousZ = radius;
             for (size_t i = 1; i < faces + 1; ++i)
             {
-                float faceAngle = faceStep * (float)i;
+                float faceAngle = faceStep * static_cast<float>(i);
                 float newX = radius * glm::sin(faceAngle);
                 float newZ = radius * glm::cos(faceAngle);
 
@@ -4169,7 +4169,7 @@ namespace Project001
 
             for (size_t i = 0; i < faces; ++i)
             {
-                float faceAngle = faceStep * (float)i;
+                float faceAngle = faceStep * static_cast<float>(i);
                 float x = radius * glm::sin(faceAngle);
                 float z = radius * glm::cos(faceAngle);
 
@@ -4201,7 +4201,7 @@ namespace Project001
 
                 for (size_t i = 0; i < faces * 6 - 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -4209,9 +4209,9 @@ namespace Project001
                 // top
                 for (size_t i = 0; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) * 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) * 3 + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) * 3 + 2);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i) * 3);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i) * 3 + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i) * 3 + 2);
                 }
 
                 // bottom
@@ -4219,9 +4219,9 @@ namespace Project001
                 size_t pastLastBottomIndex = faces * 4;
                 for (size_t i = firstBottomIndex; i < pastLastBottomIndex - 2; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + firstBottomIndex));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i) + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + firstBottomIndex));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i) + 2);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i) + 1);
                 }
             }
         }
@@ -4261,7 +4261,7 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
 
         float halfHeight = height * 0.5f;
         float halfBoarder = radius * 2.0f + height;
@@ -4270,7 +4270,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -4280,13 +4280,13 @@ namespace Project001
         // body top
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius * glm::cos(longAngle);
             float z = radius * glm::sin(longAngle);
 
             positions.emplace_back(x, halfHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 (halfBoarder - radius) / halfBoarder
             );
             if (smoothNormals)
@@ -4298,13 +4298,13 @@ namespace Project001
         // body bottom
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius * glm::cos(longAngle);
             float z = radius * glm::sin(longAngle);
 
             positions.emplace_back(x, -1.0f * halfHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 radius / halfBoarder
             );
             if (smoothNormals)
@@ -4317,7 +4317,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -4374,7 +4374,7 @@ namespace Project001
 
         size_t initialVertexCount = meshVertexArray.size();
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
 
         if (smoothNormals)
         {
@@ -4395,7 +4395,7 @@ namespace Project001
 
             for (size_t i = 0; i < faces; ++i)
             {
-                float faceAngle = faceStep * (float)i;
+                float faceAngle = faceStep * static_cast<float>(i);
                 float x = radius * glm::sin(faceAngle);
                 float z = radius * glm::cos(faceAngle);
 
@@ -4454,15 +4454,15 @@ namespace Project001
                     meshVertexArray.push_back(tempMeshVertexArray[1]);
                 }
 
-                // unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-                // for (unsigned int i = (unsigned int)initialVertexCount; i < currentVertexCount; ++i)
+                // unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+                // for (unsigned int i = static_cast<unsigned int>(initialVertexCount); i < currentVertexCount; ++i)
                 // {
                 //     meshIndexArray.push_back(i);
                 // }
 
                 for (size_t i = 0; i < (faces - 1) * 12; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -4470,34 +4470,34 @@ namespace Project001
                 // top
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)initialVertexCount);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + (i + 1) * 2));
                 }
 
                 // body
                 for (size_t i = 0; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 1));
                 }
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 2);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
-                meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 2));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 1));
 
                 // bottom
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount)+1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + (i + 1) * 2 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
                 }
             }
         }
@@ -4522,7 +4522,7 @@ namespace Project001
             float previousZ = radius;
             for (size_t i = 1; i < faces + 1; ++i)
             {
-                float faceAngle = faceStep * (float)i;
+                float faceAngle = faceStep * static_cast<float>(i);
                 float newX = radius * glm::sin(faceAngle);
                 float newZ = radius * glm::cos(faceAngle);
 
@@ -4603,7 +4603,7 @@ namespace Project001
 
                 for (size_t i = 0; i < (faces - 1) * 12; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -4611,28 +4611,28 @@ namespace Project001
                 // top
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)initialVertexCount);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 6));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + (i + 1) * 6));
                 }
 
                 // bottom
                 for (size_t i = 1; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + (i + 1) * 6) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 1);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + (i + 1) * 6 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
                 }
 
                 // body
                 for (size_t i = 0; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 4);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 5);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 4);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 6) + 3);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 4));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 5));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 4));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 6 + 3));
                 }
             }
         }
@@ -4672,8 +4672,8 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float longStep = 2.0f * glm::pi<float>() / (float)(longitudinalSections);
-        const float latiStep = 0.5f * glm::pi<float>() / (float)(latitudinalSections);
+        const float longStep = 2.0f * glm::pi<float>() / static_cast<float>(longitudinalSections);
+        const float latiStep = 0.5f * glm::pi<float>() / static_cast<float>(latitudinalSections);
 
         float quarterCircleRadius = radius * glm::half_pi<float>();
         float halfBoarder = quarterCircleRadius + radius;
@@ -4682,7 +4682,7 @@ namespace Project001
         for (size_t i = 0; i < longitudinalSections; ++i)
         {
             positions.emplace_back(0.0f, 0.5f * radius, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(longitudinalSections), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -4692,20 +4692,20 @@ namespace Project001
         // body
         for (size_t i = 1; i < latitudinalSections + 1; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - latiStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - latiStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle) - 0.5f * radius;
 
             for (size_t j = 0; j < longitudinalSections + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - longStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - longStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)longitudinalSections,
-                    (halfBoarder - (float)i / (float)latitudinalSections * quarterCircleRadius) / halfBoarder
+                    static_cast<float>(j) / static_cast<float>(longitudinalSections),
+                    (halfBoarder - static_cast<float>(i) / static_cast<float>(latitudinalSections) * quarterCircleRadius) / halfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -4718,7 +4718,7 @@ namespace Project001
         for (size_t i = 0; i < longitudinalSections; ++i)
         {
             positions.emplace_back(0.0f, -0.5f * radius, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(longitudinalSections), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -4786,8 +4786,8 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
-        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / static_cast<float>(stacks);
 
         float coneStartHeight = halfTotalHeight - radius;
         float quarterCircleCircumference = radius * glm::half_pi<float>();
@@ -4798,7 +4798,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, halfTotalHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -4808,20 +4808,20 @@ namespace Project001
         // body top
         for (size_t i = 1; i <= stacks; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle) + coneStartHeight;
 
             for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)faces,
-                    (halfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / halfBoarder
+                    static_cast<float>(j) / static_cast<float>(faces),
+                    (halfBoarder - static_cast<float>(i) / static_cast<float>(stacks) * quarterCircleCircumference) / halfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -4834,7 +4834,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * halfTotalHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -4903,8 +4903,8 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
-        const float stackStep = 0.5f * glm::pi<float>() / (float)(stacks);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
+        const float stackStep = 0.5f * glm::pi<float>() / static_cast<float>(stacks);
 
         float cupStartHeight = halfTotalHeight - radius0;
         float quarterCircleCircumference = radius0 * glm::half_pi<float>();
@@ -4915,7 +4915,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, halfTotalHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -4925,20 +4925,20 @@ namespace Project001
         // body top
         for (size_t i = 1; i <= stacks; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - stackStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - stackStep * static_cast<float>(i);
             float xz = radius0 * glm::cos(latiAngle);
             float y = radius0 * glm::sin(latiAngle) + cupStartHeight;
 
             for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)faces,
-                    (halfBoarder - (float)i / (float)stacks * quarterCircleCircumference) / halfBoarder
+                    static_cast<float>(j) / static_cast<float>(faces),
+                    (halfBoarder - static_cast<float>(i) / static_cast<float>(stacks) * quarterCircleCircumference) / halfBoarder
                 );
                 if (smoothNormals)
                 {
@@ -4950,13 +4950,13 @@ namespace Project001
         // body bottom
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius1 * glm::cos(longAngle);
             float z = radius1 * glm::sin(longAngle);
 
             positions.emplace_back(x, -1.0f * halfTotalHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 radius1 / halfBoarder
             );
             if (smoothNormals)
@@ -4969,7 +4969,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * halfTotalHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -5052,28 +5052,28 @@ namespace Project001
         // top
         for (size_t i = 0; i < 5; ++i)
         {
-            positions.emplace_back(radius, 0.0f, ((float)i + 0.5f) * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 10.0f, 1.0f);
+            positions.emplace_back(radius, 0.0f, (static_cast<float>(i) + 0.5f) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 10.0f, 1.0f);
         }
 
         // body
         for (size_t i = 0; i < 6; ++i)
         {
-            positions.emplace_back(radius, vAngle, (float)i * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2) / 10.0f, 2.0f / 3.0f);
+            positions.emplace_back(radius, vAngle, static_cast<float>(i) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2) / 10.0f, 2.0f / 3.0f);
         }
 
         for (size_t i = 0; i < 6; ++i)
         {
-            positions.emplace_back(radius, 2.0f * vAngle, ((float)i + 0.5f) * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 10.0f, 1.0f / 3.0f);
+            positions.emplace_back(radius, 2.0f * vAngle, (static_cast<float>(i) + 0.5f) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 10.0f, 1.0f / 3.0f);
         }
 
         // bottom
         for (size_t i = 0; i < 5; ++i)
         {
-            positions.emplace_back(radius, glm::pi<float>(), ((float)i + 1.0f) * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2 + 2) / 10.0f, 0.0f);
+            positions.emplace_back(radius, glm::pi<float>(), (static_cast<float>(i) + 1.0f) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 2) / 10.0f, 0.0f);
         }
 
         // convert positions from polar coordinates to cartesian coordinates
@@ -5191,21 +5191,21 @@ namespace Project001
         for (size_t i = 0; i < 3; ++i)
         {
             positions.emplace_back(radius, 0.0f, 0.0f);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 1.0f);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 6.0f, 1.0f);
         }
 
         // body
         for (size_t i = 0; i < 4; ++i)
         {
-            positions.emplace_back(radius, 0.5f * glm::pi<float>(), (float)i * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2) / 6.0f, 0.5f);
+            positions.emplace_back(radius, 0.5f * glm::pi<float>(), static_cast<float>(i) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2) / 6.0f, 0.5f);
         }
 
         // bottom
         for (size_t i = 0; i < 3; ++i)
         {
             positions.emplace_back(radius, glm::pi<float>(), 0.0f);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 0.0f);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 6.0f, 0.0f);
         }
 
         // convert positions from polar coordinates to cartesian coordinates
@@ -5324,21 +5324,21 @@ namespace Project001
         for (size_t i = 0; i < 3; ++i)
         {
             positions.emplace_back(radius, 0.0f, 0.0f);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 1.0f);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 6.0f, 1.0f);
         }
 
         // body
         for (size_t i = 0; i < 4; ++i)
         {
-            positions.emplace_back(radius, 0.5f * glm::pi<float>(), (float)i * hAngle);
-            textureCoordinates.emplace_back((float)(i * 2) / 6.0f, 0.5f);
+            positions.emplace_back(radius, 0.5f * glm::pi<float>(), static_cast<float>(i) * hAngle);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2) / 6.0f, 0.5f);
         }
 
         // bottom
         for (size_t i = 0; i < 3; ++i)
         {
             positions.emplace_back(radius, glm::pi<float>(), 0.0f);
-            textureCoordinates.emplace_back((float)(i * 2 + 1) / 6.0f, 0.0f);
+            textureCoordinates.emplace_back(static_cast<float>(i * 2 + 1) / 6.0f, 0.0f);
         }
 
         // convert positions from polar coordinates to cartesian coordinates
@@ -5482,7 +5482,7 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
 
         float halfHeight = height * 0.5f;
         float halfBoarder = radius0 + height + radius1;
@@ -5491,7 +5491,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -5501,13 +5501,13 @@ namespace Project001
         // body top
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius0 * glm::cos(longAngle);
             float z = radius0 * glm::sin(longAngle);
 
             positions.emplace_back(x, halfHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 (halfBoarder - radius0) / halfBoarder
             );
             if (smoothNormals)
@@ -5519,13 +5519,13 @@ namespace Project001
         // body bottom
         for (size_t j = 0; j < faces + 1; ++j) // +1 for wrap around
         {
-            float longAngle = glm::pi<float>() / 2.0f - faceStep * (float)j;
+            float longAngle = glm::pi<float>() / 2.0f - faceStep * static_cast<float>(j);
             float x = radius1 * glm::cos(longAngle);
             float z = radius1 * glm::sin(longAngle);
 
             positions.emplace_back(x, -1.0f * halfHeight, z);
             textureCoordinates.emplace_back(
-                (float)j / (float)faces,
+                static_cast<float>(j) / static_cast<float>(faces),
                 radius1 / halfBoarder
             );
             if (smoothNormals)
@@ -5538,7 +5538,7 @@ namespace Project001
         for (size_t i = 0; i < faces; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * halfHeight, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)faces, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(faces), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -5575,7 +5575,7 @@ namespace Project001
         MeshData& meshData,
         float radius0,
         float radius1,
-        float points,
+        size_t points,
         float spikeHeight0,
         float spikeHeight1,
         float spikeHeight2,
@@ -5608,10 +5608,10 @@ namespace Project001
         std::vector<glm::vec2> textureCoordinates;
         textureCoordinates.reserve(uniquePositions);
 
-        float segmentRotation = -1.0f * glm::pi<float>() / points;
+        float segmentRotation = -1.0f * glm::pi<float>() / static_cast<float>(points);
         glm::vec2 radiusVector(0.0f, 1.0f);
 
-        float textureSegmentSize = 0.5f / (float)points;
+        float textureSegmentSize = 0.5f / static_cast<float>(points);
         float textureOffset = 0.0f;
 
         std::vector<glm::vec3> normals;
@@ -5623,12 +5623,12 @@ namespace Project001
         for (size_t i = 0; i < points; ++i)
         {
             glm::vec2 radiusVector0 = radiusVector * radius0;
-            float adjustedHeight0 = spikeHeight0 + maxOffset0 * GetRandomFloat(offsetSeed + i);
+            float adjustedHeight0 = spikeHeight0 + maxOffset0 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i));
             positions.emplace_back(radiusVector0.x, adjustedHeight0, radiusVector0.y);
             textureCoordinates.emplace_back(textureOffset, 1.0f);
 
             glm::vec2 radiusVector1 = radiusVector * radius1;
-            float adjustedHeight1 = spikeHeight1 + maxOffset1 * GetRandomFloat(offsetSeed + i + points);
+            float adjustedHeight1 = spikeHeight1 + maxOffset1 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points));
             positions.emplace_back(radiusVector1.x, adjustedHeight1, radiusVector1.y);
             textureCoordinates.emplace_back(textureOffset, 0.0f);
 
@@ -5642,12 +5642,12 @@ namespace Project001
             textureOffset += textureSegmentSize;
 
             glm::vec2 radiusVector2 = radiusVector * radius0;
-            float adjustedHeight2 = spikeHeight2 + maxOffset2 * GetRandomFloat(offsetSeed + i + points * 2);
+            float adjustedHeight2 = spikeHeight2 + maxOffset2 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 2));
             positions.emplace_back(radiusVector2.x, adjustedHeight2, radiusVector2.y);
             textureCoordinates.emplace_back(textureOffset, 1.0f);
 
             glm::vec2 radiusVector3 = radiusVector * radius1;
-            float adjustedHeight3 = spikeHeight3 + maxOffset3 * GetRandomFloat(offsetSeed + i + points * 3);
+            float adjustedHeight3 = spikeHeight3 + maxOffset3 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 3));
             positions.emplace_back(radiusVector3.x, adjustedHeight3, radiusVector3.y);
             textureCoordinates.emplace_back(textureOffset, 0.0f);
 
@@ -5736,14 +5736,14 @@ namespace Project001
             normals.reserve(uniquePositions);
         }
 
-        const float longStep = 2.0f * glm::pi<float>() / (float)(longitudinalSections);
-        const float latiStep = glm::pi<float>() / (float)(latitudinalSections);
+        const float longStep = 2.0f * glm::pi<float>() / static_cast<float>(longitudinalSections);
+        const float latiStep = glm::pi<float>() / static_cast<float>(latitudinalSections);
 
         // top
         for (size_t i = 0; i < longitudinalSections; ++i)
         {
             positions.emplace_back(0.0f, radius, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 1.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(longitudinalSections), 1.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, 1.0f, 0.0f);
@@ -5753,20 +5753,20 @@ namespace Project001
         // body
         for (size_t i = 1; i < latitudinalSections; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - latiStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - latiStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle);
 
             for (size_t j = 0; j < longitudinalSections + 1; ++j) // +1 for wrap around
             {
-                float longAngle = glm::pi<float>() / 2.0f - longStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - longStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)longitudinalSections,
-                    (float)(latitudinalSections - i) / (float)latitudinalSections
+                    static_cast<float>(j) / static_cast<float>(longitudinalSections),
+                    static_cast<float>(latitudinalSections - i) / static_cast<float>(latitudinalSections)
                 );
                 if (smoothNormals)
                 {
@@ -5779,7 +5779,7 @@ namespace Project001
         for (size_t i = 0; i < longitudinalSections; ++i)
         {
             positions.emplace_back(0.0f, -1.0f * radius, 0.0f);
-            textureCoordinates.emplace_back(((float)i + 0.5f) / (float)longitudinalSections, 0.0f);
+            textureCoordinates.emplace_back((static_cast<float>(i) + 0.5f) / static_cast<float>(longitudinalSections), 0.0f);
             if (smoothNormals)
             {
                 normals.emplace_back(0.0f, -1.0f, 0.0f);
@@ -5872,25 +5872,25 @@ namespace Project001
         const float totalLongitudeAngle = maxLongitudeAngle - minLongitudeAngle;
         const float totalLatitudeAngle = maxLatitudeAngle - minLatitudeAngle;
 
-        const float longStep = totalLongitudeAngle / (float)(longitudinalSections);
-        const float latiStep = totalLatitudeAngle / (float)(latitudinalSections);
+        const float longStep = totalLongitudeAngle / static_cast<float>(longitudinalSections);
+        const float latiStep = totalLatitudeAngle / static_cast<float>(latitudinalSections);
 
         for (size_t i = 0; i < latitudinalSections + 1; ++i)
         {
-            float latiAngle = glm::pi<float>() / 2.0f - minLatitudeAngle - latiStep * (float)i;
+            float latiAngle = glm::pi<float>() / 2.0f - minLatitudeAngle - latiStep * static_cast<float>(i);
             float xz = radius * glm::cos(latiAngle);
             float y = radius * glm::sin(latiAngle);
 
             for (size_t j = 0; j < longitudinalSections + 1; ++j)
             {
-                float longAngle = glm::pi<float>() / 2.0f - minLongitudeAngle - longStep * (float)j;
+                float longAngle = glm::pi<float>() / 2.0f - minLongitudeAngle - longStep * static_cast<float>(j);
                 float x = xz * glm::cos(longAngle);
                 float z = xz * glm::sin(longAngle);
 
                 positions.emplace_back(x, y, z);
                 textureCoordinates.emplace_back(
-                    (float)j / (float)longitudinalSections,
-                    (float)(latitudinalSections - i) / (float)latitudinalSections
+                    static_cast<float>(j) / static_cast<float>(longitudinalSections),
+                    static_cast<float>(latitudinalSections - i) / static_cast<float>(latitudinalSections)
                 );
 
                 if (smoothNormals)
@@ -5971,7 +5971,7 @@ namespace Project001
 
                 for (size_t i = 0; i < longitudinalSections * latitudinalSections * 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -6000,12 +6000,12 @@ namespace Project001
                     size_t i3 = i + 1;
                     size_t i4 = i2 + 1;
 
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i4));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i4));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
                 }
             }
         }
@@ -6063,7 +6063,7 @@ namespace Project001
                 v4.textureCoordinate = textureCoordinates[i4];
                 v4.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
                 if (triangulate)
                 {
                     meshVertexArray.push_back(v1);
@@ -6129,19 +6129,19 @@ namespace Project001
             meshVertex.normal = normal;
 
             meshVertexArray.push_back(meshVertex);
-            meshIndexArray.push_back((unsigned int)(currentVertexCount + i));
+            meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
 
             meshVertex.position = position2;
             meshVertex.normal = normal;
 
             meshVertexArray.push_back(meshVertex);
-            meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 1));
+            meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
 
             meshVertex.position = position3;
             meshVertex.normal = normal;
 
             meshVertexArray.push_back(meshVertex);
-            meshIndexArray.push_back((unsigned int)(currentVertexCount + i + 2));
+            meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -6188,7 +6188,7 @@ namespace Project001
         glm::vec3 otherDirection(-direction.z, direction.x, direction.y);
         glm::vec3 unitPerpendicular = glm::normalize(glm::cross(direction, otherDirection));
 
-        const float faceStep = 2.0f * glm::pi<float>() / (float)(faces);
+        const float faceStep = 2.0f * glm::pi<float>() / static_cast<float>(faces);
         const glm::quat rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), faceStep, direction);
 
         if (smoothNormals)
@@ -6263,34 +6263,34 @@ namespace Project001
                 meshVertexArray.push_back(tempMeshVertexArray[faces * 2 - 1]);
                 meshVertexArray.push_back(tempMeshVertexArray[0]);
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
-                for (unsigned int i = (unsigned int)initialVertexCount; i < currentVertexCount; ++i)
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+                for (unsigned int i = static_cast<unsigned int>(initialVertexCount); i < currentVertexCount; ++i)
                 {
                     meshIndexArray.push_back(i);
                 }
 
                 for (size_t i = 0; i < faces * 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
             {
                 for (size_t i = 0; i < faces - 1; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 2) + 2);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 2 + 2));
                 }
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 2);
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
-                meshIndexArray.push_back((unsigned int)initialVertexCount + 1);
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + faces * 2) - 1);
-                meshIndexArray.push_back((unsigned int)initialVertexCount);
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 2));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + faces * 2 - 1));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount));
             }
         }
         else
@@ -6377,19 +6377,19 @@ namespace Project001
 
                 for (size_t i = 0; i < faces * 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
             {
                 for (size_t i = 0; i < faces; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 3);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 1);
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i * 4) + 2);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4 + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4 + 3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4 + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i * 4 + 2));
                 }
             }
         }
@@ -6609,7 +6609,7 @@ namespace Project001
             for (size_t i = 0; i < meshData.meshIndexArray.size(); ++i)
             {
                 unsigned int& currentIndex = meshData.meshIndexArray[i];
-                currentIndex = (unsigned int)meshData.meshIndexArray.size() - 1 - currentIndex;
+                currentIndex = static_cast<unsigned int>(meshData.meshIndexArray.size()) - 1 - currentIndex;
             }
         }
 
@@ -6707,7 +6707,7 @@ namespace Project001
 
             if (sideSum == 3) // no splitting, whole triangle to side 1
             {
-                unsigned int baseIndex = (unsigned int)outputMeshData0.meshVertexArray.size();
+                unsigned int baseIndex = static_cast<unsigned int>(outputMeshData0.meshVertexArray.size());
                 outputMeshData0.meshVertexArray.push_back(vertex0);
                 outputMeshData0.meshVertexArray.push_back(vertex1);
                 outputMeshData0.meshVertexArray.push_back(vertex2);
@@ -6718,7 +6718,7 @@ namespace Project001
             }
             else if (sideSum == 0) // no splitting, whole triangle to side 2
             {
-                unsigned int baseIndex = (unsigned int)outputMeshData1.meshVertexArray.size();
+                unsigned int baseIndex = static_cast<unsigned int>(outputMeshData1.meshVertexArray.size());
                 outputMeshData1.meshVertexArray.push_back(vertex0);
                 outputMeshData1.meshVertexArray.push_back(vertex1);
                 outputMeshData1.meshVertexArray.push_back(vertex2);
@@ -6747,7 +6747,7 @@ namespace Project001
                     {
                         if (count < 3) return;
 
-                        unsigned int baseIndex = (unsigned int)out.meshVertexArray.size();
+                        unsigned int baseIndex = static_cast<unsigned int>(out.meshVertexArray.size());
                         for (int i = 0; i < count; ++i)
                         {
                             out.meshVertexArray.push_back(poly[i]);
@@ -6915,7 +6915,7 @@ namespace Project001
             endPtr++;
         }
 
-        size_t lineLength = (size_t)(endPtr - startPtr);
+        size_t lineLength = static_cast<size_t>(endPtr - startPtr);
 
         currentLine = std::string(startPtr, lineLength);
 
@@ -7118,7 +7118,7 @@ namespace Project001
                 {
                     if (!triangulate)
                     {
-                        unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                        unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                         for (size_t i = 0; i < face.size(); ++i)
                         {
@@ -7134,8 +7134,8 @@ namespace Project001
                         for (size_t i = 1; i < face.size() - 1; ++i)
                         {
                             meshIndexArray.push_back(currentVertexCount);
-                            meshIndexArray.push_back(currentVertexCount + (unsigned int)i);
-                            meshIndexArray.push_back(currentVertexCount + (unsigned int)i + 1);
+                            meshIndexArray.push_back(currentVertexCount + static_cast<unsigned int>(i));
+                            meshIndexArray.push_back(currentVertexCount + static_cast<unsigned int>(i + 1));
                         }
                     }
                     else
@@ -7151,7 +7151,7 @@ namespace Project001
                             {
                                 return false;
                             }
-                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                             meshVertexArray.push_back(meshVertex0);
 
                             MeshVertex meshVertex1;
@@ -7159,7 +7159,7 @@ namespace Project001
                             {
                                 return false;
                             }
-                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                             meshVertexArray.push_back(meshVertex1);
 
                             MeshVertex meshVertex2;
@@ -7167,7 +7167,7 @@ namespace Project001
                             {
                                 return false;
                             }
-                            meshIndexArray.push_back((unsigned int)meshVertexArray.size());
+                            meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
                             meshVertexArray.push_back(meshVertex2);
                         }
                     }
@@ -7198,7 +7198,7 @@ namespace Project001
         }
         else if (positionIndex < 0 && positionIndex >= positions.size() * -1)
         {
-            int adjustedPositionIndex = (int)(positionIndex + positions.size());
+            int adjustedPositionIndex = static_cast<int>(positionIndex + positions.size());
             meshVertex.position = positions[adjustedPositionIndex];
         }
         else
@@ -7213,7 +7213,7 @@ namespace Project001
         }
         else if (textureCoordinateIndex < 0 && textureCoordinateIndex >= textureCoordinates.size() * -1)
         {
-            int adjustedTextureCoordinateIndex = (int)(textureCoordinateIndex + textureCoordinates.size());
+            int adjustedTextureCoordinateIndex = static_cast<int>(textureCoordinateIndex + textureCoordinates.size());
             meshVertex.textureCoordinate = textureCoordinates[adjustedTextureCoordinateIndex];
         }
         // else
@@ -7228,7 +7228,7 @@ namespace Project001
         }
         else if (normalIndex < 0 && normalIndex >= normals.size() * -1)
         {
-            int adjustedNormalIndex = (int)(normalIndex + normals.size());
+            int adjustedNormalIndex = static_cast<int>(normalIndex + normals.size());
             meshVertex.normal = normals[adjustedNormalIndex];
         }
         // else
@@ -7329,7 +7329,7 @@ namespace Project001
             {
                 const size_t& currentIndex = indices[i];
 
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)currentIndex);
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + currentIndex));
             }
         }
         else
@@ -7344,7 +7344,7 @@ namespace Project001
                 meshVertex.normal = normal;
                 meshVertexArray.push_back(meshVertex);
 
-                meshIndexArray.push_back((unsigned int)currentVertexCount + (unsigned int)i);
+                meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
             }
         }
 
@@ -7422,7 +7422,7 @@ namespace Project001
                 positionC.z *= scaleC;
                 glm::vec2 textureCoordinateC((textureCoordinate2.x + textureCoordinate0.x) / 2.0f, (textureCoordinate2.y + textureCoordinate0.y) / 2.0f);
 
-                const unsigned int indexA = (unsigned int)positions.size();
+                const unsigned int indexA = static_cast<unsigned int>(positions.size());
                 const unsigned int indexB = indexA + 1;
                 const unsigned int indexC = indexB + 1;
 
@@ -7561,7 +7561,7 @@ namespace Project001
                     offsetSeeds.push_back(offsetSeeds.size());
                 }
 
-                const unsigned int indexA = (unsigned int)positions.size();
+                const unsigned int indexA = static_cast<unsigned int>(positions.size());
                 const unsigned int indexB = indexA + 1;
                 const unsigned int indexC = indexB + 1;
 
@@ -7652,7 +7652,7 @@ namespace Project001
 
                 if (positionA_is_unique)
                 {
-                    indexA = (unsigned int)positions.size();
+                    indexA = static_cast<unsigned int>(positions.size());
                     positions.push_back(positionA);
                 }
 
@@ -7673,7 +7673,7 @@ namespace Project001
 
                 if (positionB_is_unique)
                 {
-                    indexB = (unsigned int)positions.size();
+                    indexB = static_cast<unsigned int>(positions.size());
                     positions.push_back(positionB);
                 }
 
@@ -7694,7 +7694,7 @@ namespace Project001
 
                 if (positionC_is_unique)
                 {
-                    indexC = (unsigned int)positions.size();
+                    indexC = static_cast<unsigned int>(positions.size());
                     positions.push_back(positionC);
                 }
 
@@ -7736,7 +7736,7 @@ namespace Project001
                     tempMeshVertexArray.push_back(meshVertex);
                 }
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 for (size_t i = 0; i < triangleFaces.size(); ++i)
                 {
@@ -7752,7 +7752,7 @@ namespace Project001
 
                 for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -7769,15 +7769,15 @@ namespace Project001
                 for (size_t i = 0; i < triangleFaces.size(); ++i)
                 {
                     const glm::uvec3& currentTriangleFace = triangleFaces[i];
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.x);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.y);
-                    meshIndexArray.push_back((unsigned int)initialVertexCount + currentTriangleFace.z);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount) + currentTriangleFace.x);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount) + currentTriangleFace.y);
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount) + currentTriangleFace.z);
                 }
             }
         }
         else
         {
-            unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+            unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
             for (size_t i = 0; i < triangleFaces.size(); ++i)
             {
@@ -7815,7 +7815,7 @@ namespace Project001
 
             for (size_t i = 0; i < triangleFaces.size() * 3; ++i)
             {
-                meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
             }
         }
     }
@@ -7934,7 +7934,7 @@ namespace Project001
 
                 for (size_t i = 0; i < (latitudinalSections - 1) * longitudinalSections * 6; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -7958,9 +7958,9 @@ namespace Project001
                     size_t i2 = i + longitudinalSections;
                     size_t i3 = i2 + 1;
 
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
                 }
 
                 // body
@@ -7981,12 +7981,12 @@ namespace Project001
                         size_t i3 = i + 1;
                         size_t i4 = i2 + 1;
 
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i4));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
-                        meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i4));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
+                        meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
                     }
                 }
 
@@ -8000,9 +8000,9 @@ namespace Project001
                     size_t i2 = i + bodyWrapVertexCount;
                     size_t i3 = i + 1;
 
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i2));
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i3));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i3));
                 }
             }
         }
@@ -8041,7 +8041,7 @@ namespace Project001
                 v3.textureCoordinate = textureCoordinates[i3];
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -8098,7 +8098,7 @@ namespace Project001
                     v4.textureCoordinate = textureCoordinates[i4];
                     v4.normal = normal123;
 
-                    unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                    unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
                     if (triangulate)
                     {
                         meshVertexArray.push_back(v1);
@@ -8165,7 +8165,7 @@ namespace Project001
                 v3.textureCoordinate = textureCoordinates[i3];
                 v3.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
 
                 meshVertexArray.push_back(v1);
                 meshVertexArray.push_back(v2);
@@ -8236,7 +8236,7 @@ namespace Project001
 
                 for (size_t i = 0; i < sections * 12; ++i)
                 {
-                    meshIndexArray.push_back((unsigned int)(initialVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(initialVertexCount + i));
                 }
             }
             else
@@ -8310,7 +8310,7 @@ namespace Project001
                 v4.textureCoordinate = textureCoordinates[i4];
                 v4.normal = normal123;
 
-                unsigned int currentVertexCount = (unsigned int)meshVertexArray.size();
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
                 if (triangulate)
                 {
                     meshVertexArray.push_back(v1);

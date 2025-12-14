@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-27
+// @DATE 2025-12-13
 
 #include "TestScene026.h"
 
@@ -282,7 +282,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
         }
     }
 
-    for (size_t i = 0; i < 8; i++)
+    for (size_t i = 0; i < 8; ++i)
     { // Rectangle
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -300,7 +300,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(-2.0f, -2.75f + 0.5f * (float)i, 0.0f);
+        glm::vec3 currentPosition(-2.0f, -2.75f + 0.5f * static_cast<float>(i), 0.0f);
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -334,7 +334,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
         }
     }
 
-    for (size_t i = 0; i < 8; i++)
+    for (size_t i = 0; i < 8; ++i)
     { // Capsule
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -350,7 +350,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
 
-        glm::vec3 currentPosition(2.0f, -2.75f + 0.5f * (float)i, 0.0f);
+        glm::vec3 currentPosition(2.0f, -2.75f + 0.5f * static_cast<float>(i), 0.0f);
 
         FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
         Project001::RenderedMesh* renderedMeshPtr = nullptr;
@@ -518,7 +518,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
 
         int sides = 6;
         float radius = 0.36f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
 
         glm::vec2 radialVector(0.0f, radius);
         shapePoints.push_back(radialVector);
@@ -570,7 +570,7 @@ void TestScene026::CreateEntitiesForGravityTest01()
 
         int sides = 5;
         float radius = 0.36f;
-        float sectionAngle = 2.0f * glm::pi<float>() / (float)sides;
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
 
         glm::vec2 radialVector(0.0f, radius);
         shapePoints.push_back(radialVector);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-23
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -81,11 +81,11 @@ protected:
 
     // Entity Ids --------------------------------------------------------------
 
-    unsigned int mainCameraLight1_EntityId_ = (unsigned int)-1;
-    unsigned int mainCameraLight2_EntityId_ = (unsigned int)-1;
-    unsigned int mainCameraDark1_EntityId_ = (unsigned int)-1;
-    unsigned int mainCameraDark2_EntityId_ = (unsigned int)-1;
-    unsigned int mainCameraDebug_EntityId_ = (unsigned int)-1;
+    unsigned int mainCameraLight1_EntityId_ = static_cast<unsigned int>(-1);
+    unsigned int mainCameraLight2_EntityId_ = static_cast<unsigned int>(-1);
+    unsigned int mainCameraDark1_EntityId_ = static_cast<unsigned int>(-1);
+    unsigned int mainCameraDark2_EntityId_ = static_cast<unsigned int>(-1);
+    unsigned int mainCameraDebug_EntityId_ = static_cast<unsigned int>(-1);
     static const uint32_t s_mainCameraLight1_Mask_ = 0b00000000000000000000000000000001;
     static const uint32_t s_mainCameraLight2_Mask_ = 0b00000000000000000000000000000010;
     static const uint32_t s_mainCameraDark1_Mask_ = 0b00000000000000000000000000000100;
@@ -93,17 +93,17 @@ protected:
     static const uint32_t s_mainCameraDebug_Mask_ = 0b00000000000000000000000000010000;
     static const uint32_t s_mainCameraGroup_Mask_ = s_mainCameraLight1_Mask_ | s_mainCameraLight2_Mask_ | s_mainCameraDark1_Mask_ | s_mainCameraDark2_Mask_ | s_mainCameraDebug_Mask_;
 
-    unsigned int uiCamera_EntityId_ = (unsigned int)-1;
+    unsigned int uiCamera_EntityId_ = static_cast<unsigned int>(-1);
     static const uint32_t s_uiCamera_Mask_ = 0b10000000000000000000000000000000;
 
-    unsigned int uiText_EntityId_ = (unsigned int)-1;
-    unsigned int uiPauseText_EntityId_ = (unsigned int)-1;
+    unsigned int uiText_EntityId_ = static_cast<unsigned int>(-1);
+    unsigned int uiPauseText_EntityId_ = static_cast<unsigned int>(-1);
 
     std::vector<unsigned int> uiMiniMaphouse_RenderedMeshIndies;
-    unsigned int uiMiniMapPlayer_RenderedMeshIndex_ = (unsigned int)-1;
-    unsigned int uiMiniMap_EntityId_ = (unsigned int)-1;
+    unsigned int uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    unsigned int uiMiniMap_EntityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int cursor_EntityId_ = (unsigned int)-1;
+    unsigned int cursor_EntityId_ = static_cast<unsigned int>(-1);
     static const unsigned int s_cursorPosition_RenderedMeshIndex_ = 0;
     static const unsigned int s_cursorPress_RenderedMeshIndex_ = 1;
     static const unsigned int s_cursorRelease_RenderedMeshIndex_ = 2;
@@ -114,17 +114,17 @@ protected:
     static const unsigned int s_cursorPress_CollisionShapeId_ = 101;
     static const unsigned int s_cursorRelease_CollisionShapeId_ = 102;
 
-    unsigned int base_EntityId_ = (unsigned int)-1;
+    unsigned int base_EntityId_ = static_cast<unsigned int>(-1);
 
     std::vector<unsigned int> house_EntityIds_;
 
-    unsigned int ground_EntityId_ = (unsigned int)-1;
+    unsigned int ground_EntityId_ = static_cast<unsigned int>(-1);
 
     std::vector<unsigned int> person_EntityIds_;
     static const unsigned int s_personLit_RenderedMeshIndex_ = 0;
     static const unsigned int s_personDark_RenderedMeshIndex_ = 1;
 
-    unsigned int player_EntityId_ = (unsigned int)-1;
+    unsigned int player_EntityId_ = static_cast<unsigned int>(-1);
     static const unsigned int s_playerLit_RenderedMeshIndex_ = 0;
     static const unsigned int s_playerDark_RenderedMeshIndex_ = 1;
 

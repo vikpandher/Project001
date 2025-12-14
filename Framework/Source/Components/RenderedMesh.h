@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2025-12-13
 
 #pragma once
 
@@ -112,11 +112,11 @@ namespace Project001
         , cameraMask_(0b11111111111111111111111111111111)
         , renderedMeshType_(RenderedMeshType::RENDERED_MESH_TYPE_NOT_LOADED)
         , meshDataPtr_(nullptr)
-        , meshId_((unsigned int)-1)
+        , meshId_(static_cast<unsigned int>(-1))
         , maxBoundingRadius_(0.0f)
         , renderPriorityOverride_(0)
-        , textureId_((unsigned int)-1)
-        , specularId_((unsigned int)-1)
+        , textureId_(static_cast<unsigned int>(-1))
+        , specularId_(static_cast<unsigned int>(-1))
         , scale_(1.0f, 1.0f, 1.0f)
         , color_(1.0f, 1.0f, 1.0f, 1.0f)
         , shininess_(0.0f)
