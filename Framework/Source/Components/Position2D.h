@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-12-24
+// @DATE 2025-12-19
 
 #pragma once
 
-#include "Math/MathUtilities.h"
+#include "Utilities/MathUtility.h"
 
 
 
@@ -86,7 +86,7 @@ namespace Project001
     inline void Position2D::RevolveAround(const glm::vec2& focalPoint, float angleInRadians)
     {
         glm::vec2 focalPointToPosition = position_ - focalPoint;
-        glm::vec2 focalPointToNewPosition = Rotate2DVector(focalPointToPosition, angleInRadians);
+        glm::vec2 focalPointToNewPosition = Math::Rotate2DVector(focalPointToPosition, angleInRadians);
         glm::vec2 positionToNewPosition = focalPointToNewPosition - focalPointToPosition;
         position_ += positionToNewPosition;
     }

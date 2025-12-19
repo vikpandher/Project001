@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene032.h"
 
@@ -10,14 +10,14 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -79,13 +79,13 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/earth.png"));
         GetRendererPtr()->CreateTexture(earth001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Specular1.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Specular1.png"));
         GetRendererPtr()->CreateTexture(specular001_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -100,7 +100,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -112,7 +112,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // icosphere
         icosphere001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(icosphere001_MeshDataPtr_);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*icosphere001_MeshDataPtr_, 0.64f, 1, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*icosphere001_MeshDataPtr_, 0.64f, 1, false));
 
         GetRendererPtr()->CreateMesh(
             icosphere001_MeshId_,
@@ -128,9 +128,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // arc
         arc001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(arc001_MeshDataPtr_);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DArc(*arc001_MeshDataPtr_, 0.08f, 0.32f, 24, glm::pi<float>(), 0.5f * glm::pi<float>()));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*arc001_MeshDataPtr_);
-        Project001::MeshLoader::TranslateTextureCoordinates(*arc001_MeshDataPtr_, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DArc(*arc001_MeshDataPtr_, 0.08f, 0.32f, 24, glm::pi<float>(), 0.5f * glm::pi<float>()));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*arc001_MeshDataPtr_);
+        Project001::Mesh::TranslateTextureCoordinates(*arc001_MeshDataPtr_, glm::vec2(0.5f, 0.5f));
 
         GetRendererPtr()->CreateMesh(
             arc001_MeshId_,
@@ -145,10 +145,10 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     { // line star
         glm::vec2 topPosition(0.0f, 0.96f);
-        glm::vec2 rightPosition = Project001::Rotate2DVector(topPosition, glm::pi<float>() * 2.0f / 5.0f);
-        glm::vec2 bottomRightPosition = Project001::Rotate2DVector(rightPosition, glm::pi<float>() * 2.0f / 5.0f);
-        glm::vec2 bottomLeftPosition = Project001::Rotate2DVector(bottomRightPosition, glm::pi<float>() * 2.0f / 5.0f);
-        glm::vec2 leftPosition = Project001::Rotate2DVector(bottomLeftPosition, glm::pi<float>() * 2.0f / 5.0f);
+        glm::vec2 rightPosition = Project001::Math::Rotate2DVector(topPosition, glm::pi<float>() * 2.0f / 5.0f);
+        glm::vec2 bottomRightPosition = Project001::Math::Rotate2DVector(rightPosition, glm::pi<float>() * 2.0f / 5.0f);
+        glm::vec2 bottomLeftPosition = Project001::Math::Rotate2DVector(bottomRightPosition, glm::pi<float>() * 2.0f / 5.0f);
+        glm::vec2 leftPosition = Project001::Math::Rotate2DVector(bottomLeftPosition, glm::pi<float>() * 2.0f / 5.0f);
 
         std::vector<glm::vec2> positions;
         positions.emplace_back(bottomLeftPosition);
@@ -164,9 +164,9 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         line001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(line001_MeshDataPtr_);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
-        Project001::MeshLoader::RecenterMesh(*line001_MeshDataPtr_);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*line001_MeshDataPtr_, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*line001_MeshDataPtr_);
+        Project001::Mesh::RecenterMesh(*line001_MeshDataPtr_);
 
         GetRendererPtr()->CreateMesh(
             line001_MeshId_,
@@ -182,7 +182,7 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     { // cone
         cone001_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(cone001_MeshDataPtr_);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*cone001_MeshDataPtr_, 0.64f, 0.32f, 8, false));
 
         GetRendererPtr()->CreateMesh(
             cone001_MeshId_,
@@ -459,14 +459,14 @@ void TestScene032::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)

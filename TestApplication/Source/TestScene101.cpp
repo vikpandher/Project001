@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene101.h"
 
@@ -10,13 +10,13 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -56,18 +56,18 @@ void TestScene101::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene101:            " << GetId());
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -182,7 +182,7 @@ void TestScene101::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     GetRendererPtr()->DeleteAllMeshes();
     GetComponentStoresPtr()->DeleteAllEntities();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;

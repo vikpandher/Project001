@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
-#include "MeshLoader.h"
+#include "MeshUtility.h"
 
-#include "Math/MathUtilities.h"
+#include "Utilities/MathUtility.h"
 
 #include <algorithm> // for std::sort
 #include <fstream>
@@ -13,9 +13,11 @@
 
 namespace Project001
 {
-    // public ------------------------------------------------------------------
+namespace Mesh
+{
+    bool g_triangulate = false;
 
-    bool MeshLoader::LoadMeshOBJ(
+    bool LoadMeshOBJ(
         MeshData& meshData,
         const std::string& filePath,
         bool triangulate)
@@ -34,7 +36,7 @@ namespace Project001
         std::string currentLine;
         while (std::getline(inputFileStream, currentLine))
         {
-            if (!ProcessMeshOBJLine(
+            if (!ProcessMeshOBJLine_H(
                 currentLine,
                 meshData,
                 positions,
@@ -54,7 +56,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::LoadMeshOBJFromMemory(
+    bool LoadMeshOBJFromMemory(
         MeshData& meshData,
         const char* dataPtr,
         bool triangulate)
@@ -64,9 +66,9 @@ namespace Project001
         std::vector<glm::vec3> normals;
 
         std::string currentLine;
-        while (GetLineFromConstChar(dataPtr, currentLine))
+        while (GetLineFromConstChar_H(dataPtr, currentLine))
         {
-            if (!ProcessMeshOBJLine(
+            if (!ProcessMeshOBJLine_H(
                 currentLine,
                 meshData,
                 positions,
@@ -86,7 +88,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::LoadTriangleMesh(
+    bool LoadTriangleMesh(
         MeshData& meshData,
         const std::vector<glm::vec3>& positions,
         const std::vector<glm::vec3>& normals,
@@ -145,7 +147,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::WriteMeshOBJ(
+    bool WriteMeshOBJ(
         MeshData& meshData,
         const std::string& filePath)
     {
@@ -232,7 +234,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DTriangleFan(
+    bool Generate2DTriangleFan(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         bool triangulate)
@@ -313,7 +315,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DTriangles(
+    bool Generate2DTriangles(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions)
     {
@@ -360,7 +362,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DTriangleStrip(
+    bool Generate2DTriangleStrip(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         bool triangulate)
@@ -463,7 +465,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DArc(
+    bool Generate2DArc(
         MeshData& meshData,
         float innerRadius,
         float outerRadius,
@@ -514,26 +516,26 @@ namespace Project001
         std::vector<glm::vec2> positions;
 
         glm::vec2 innerRadialVector(0.0f, innerRadius);
-        innerRadialVector = Rotate2DVector(innerRadialVector, startAngle);
+        innerRadialVector = Math::Rotate2DVector(innerRadialVector, startAngle);
         positions.push_back(innerRadialVector);
 
         glm::vec2 outerRadialVector(0.0f, outerRadius);
-        outerRadialVector = Rotate2DVector(outerRadialVector, startAngle);
+        outerRadialVector = Math::Rotate2DVector(outerRadialVector, startAngle);
         positions.push_back(outerRadialVector);
 
         for (size_t i = 0; i < subdivisions; ++i)
         {
-            innerRadialVector = Rotate2DVector(innerRadialVector, sectionAngle);
+            innerRadialVector = Math::Rotate2DVector(innerRadialVector, sectionAngle);
             positions.push_back(innerRadialVector);
 
-            outerRadialVector = Rotate2DVector(outerRadialVector, sectionAngle);
+            outerRadialVector = Math::Rotate2DVector(outerRadialVector, sectionAngle);
             positions.push_back(outerRadialVector);
         }
 
         return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DArc(
+    bool Generate2DArc(
         MeshData& meshData,
         const glm::vec2& focalPoint,
         const glm::vec2& arcCenterPoint,
@@ -554,7 +556,7 @@ namespace Project001
 
         float theta = arcLength / arcRadius;
 
-        centerToArc = Rotate2DVector(centerToArc, theta * 0.5f);
+        centerToArc = Math::Rotate2DVector(centerToArc, theta * 0.5f);
 
         float segmentTheta = -1.0f * theta / static_cast<float>(subdivisions);
 
@@ -562,14 +564,14 @@ namespace Project001
         positions.push_back(centerToArc + focalPoint);
         for (size_t i = 0; i < subdivisions; ++i)
         {
-            centerToArc = Rotate2DVector(centerToArc, segmentTheta);
+            centerToArc = Math::Rotate2DVector(centerToArc, segmentTheta);
             positions.push_back(centerToArc + focalPoint);
         }
 
         return Generate2DLine(meshData, positions, width, beveledCorners, triangulate);
     }
 
-    bool MeshLoader::Generate2DCapsule(
+    bool Generate2DCapsule(
         MeshData& meshData,
         float rectangleHeight,
         float capsuleWidth,
@@ -608,7 +610,7 @@ namespace Project001
         return Generate2DTriangleFan(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DCapsule(
+    bool Generate2DCapsule(
         MeshData& meshData,
         const glm::vec2& start,
         const glm::vec2& end,
@@ -641,7 +643,7 @@ namespace Project001
 
         for (size_t i = 0; i < radialSections; ++i)
         {
-            scaledOffset = Rotate2DVector(scaledOffset, radialStep);
+            scaledOffset = Math::Rotate2DVector(scaledOffset, radialStep);
             positions.emplace_back(start + scaledOffset);
         }
 
@@ -649,14 +651,14 @@ namespace Project001
 
         for (size_t i = 0; i < radialSections; ++i)
         {
-            scaledOffset = Rotate2DVector(scaledOffset, radialStep);
+            scaledOffset = Math::Rotate2DVector(scaledOffset, radialStep);
             positions.emplace_back(end + scaledOffset);
         }
 
         return Generate2DTriangleFan(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DLine(
+    bool Generate2DLine(
         MeshData& meshData,
         const glm::vec2& start,
         const glm::vec2& end,
@@ -752,7 +754,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DLine(
+    bool Generate2DLine(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         float width,
@@ -845,7 +847,7 @@ namespace Project001
                 glm::vec2 positionF = position2 - scaled2;
 
                 bool sharpCorner = false;
-                float angle = Get2DVectorAngle(direction1, direction2);
+                float angle = Math::Get2DVectorAngle(direction1, direction2);
                 if (beveledCorners)
                 {
                     if ((angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
@@ -863,13 +865,13 @@ namespace Project001
 
                     if (angle > 0.0f) // turn to the left
                     {
-                        positionC = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
+                        positionC = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
                         positionD = position2 - scaled1;
                     }
                     else
                     {
                         positionC = position2 + scaled1;
-                        positionD = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+                        positionD = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
                     }
                 }
                 else if (angle == glm::pi<float>())
@@ -879,8 +881,8 @@ namespace Project001
                 }
                 else
                 {
-                    positionC = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
-                    positionD = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+                    positionC = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
+                    positionD = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
                 }
 
                 meshVertexA.position = glm::vec3(positionA, 0.0f);
@@ -1144,7 +1146,7 @@ namespace Project001
     }
 
     // TODO:
-    bool MeshLoader::Generate2DLine_v2(
+    bool Generate2DLine_v2(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         float width,
@@ -1235,7 +1237,7 @@ namespace Project001
 
             for (size_t i = 0; i < endStyle; ++i)
             {
-                rotatingOffset = Rotate2DVector(rotatingOffset, segmentRotation);
+                rotatingOffset = Math::Rotate2DVector(rotatingOffset, segmentRotation);
 
                 tempMeshVertex.position = glm::vec3(position1 + rotatingOffset, 0.0f);
                 meshVertexArray.push_back(tempMeshVertex);
@@ -1291,7 +1293,7 @@ namespace Project001
                 continue;
             }
 
-            float angle = Get2DVectorAngle(direction1, direction2);
+            float angle = Math::Get2DVectorAngle(direction1, direction2);
         }
 
         // generating line end segment and cap
@@ -1316,7 +1318,7 @@ namespace Project001
 
             for (size_t i = 0; i < endStyle; ++i)
             {
-                rotatingOffset = Rotate2DVector(rotatingOffset, -segmentRotation);
+                rotatingOffset = Math::Rotate2DVector(rotatingOffset, -segmentRotation);
 
                 tempMeshVertex.position = glm::vec3(position2 + rotatingOffset, 0.0f);
                 meshVertexArray.push_back(tempMeshVertex);
@@ -1383,7 +1385,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DLineLoop(
+    bool Generate2DLineLoop(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         float width,
@@ -1471,7 +1473,7 @@ namespace Project001
         meshVertexD.normal = normal;
 
         bool sharpCorner = false;
-        float angle = Get2DVectorAngle(direction1, direction2);
+        float angle = Math::Get2DVectorAngle(direction1, direction2);
         if (beveledCorners)
         {
             if ((angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
@@ -1485,13 +1487,13 @@ namespace Project001
         {
             if (angle > 0.0f) // turn to the left
             {
-                positionA = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
+                positionA = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
                 positionB = positionF;
             }
             else
             {
                 positionA = positionE;
-                positionB = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+                positionB = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
             }
         }
         else if (angle == 0.0 || angle == glm::pi<float>())
@@ -1501,8 +1503,8 @@ namespace Project001
         }
         else
         {
-            positionA = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
-            positionB = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+            positionA = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
+            positionB = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
         }
 
         position1 = position2;
@@ -1534,7 +1536,7 @@ namespace Project001
                 positionF = position2 - scaled2;
 
                 sharpCorner = false;
-                angle = Get2DVectorAngle(direction1, direction2);
+                angle = Math::Get2DVectorAngle(direction1, direction2);
                 if (beveledCorners)
                 {
                     if ((angle > glm::pi<float>() / 1.9999999f || angle < glm::pi<float>() / -1.9999999f)
@@ -1552,13 +1554,13 @@ namespace Project001
 
                     if (angle > 0.0f) // turn to the left
                     {
-                        positionC = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
+                        positionC = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
                         positionD = position2 - scaled1;
                     }
                     else
                     {
                         positionC = position2 + scaled1;
-                        positionD = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+                        positionD = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
                     }
                 }
                 else if (angle == glm::pi<float>())
@@ -1568,8 +1570,8 @@ namespace Project001
                 }
                 else
                 {
-                    positionC = GetLineLineIntersection2D(positionA, slope1, positionE, slope2);
-                    positionD = GetLineLineIntersection2D(positionB, slope1, positionF, slope2);
+                    positionC = GetLineLineIntersection2D_H(positionA, slope1, positionE, slope2);
+                    positionD = GetLineLineIntersection2D_H(positionB, slope1, positionF, slope2);
                 }
 
                 meshVertexA.position = glm::vec3(positionA, 0.0f);
@@ -1747,41 +1749,41 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DPolygon(
+    bool Generate2DPolygon(
         MeshData& meshData,
         const std::vector<glm::vec2>& corners,
         bool triangulate)
     {
         std::vector<size_t> indices;
-        bool validPolygon = EarClipPolygon(indices, corners);
+        bool validPolygon = Math::EarClipPolygon(indices, corners);
         if (!validPolygon)
         {
             return false;
         }
 
-        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(meshData, corners, indices, triangulate);
+        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon_H(meshData, corners, indices, triangulate);
 
         return true;
     }
 
-    bool MeshLoader::Generate2DPolygon_v2(
+    bool Generate2DPolygon_v2(
         MeshData& meshData,
         const std::vector<glm::vec2>& corners,
         bool triangulate)
     {
         std::vector<size_t> indices;
-        bool validPolygon = EarClipPolygon_v2(indices, corners);
+        bool validPolygon = Math::EarClipPolygon_v2(indices, corners);
         if (!validPolygon)
         {
             return false;
         }
 
-        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(meshData, corners, indices, triangulate);
+        PopulateMeshDataWithIndicesAndVerticesFor2DPolygon_H(meshData, corners, indices, triangulate);
 
         return true;
     }
 
-    bool MeshLoader::Generate2DQuads(
+    bool Generate2DQuads(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
         bool triangulate)
@@ -1888,7 +1890,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DRectangle(
+    bool Generate2DRectangle(
         MeshData& meshData,
         float width,
         float height,
@@ -1974,7 +1976,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DRegularPolygon(
+    bool Generate2DRegularPolygon(
         MeshData& meshData,
         float radius,
         size_t sides,
@@ -1994,14 +1996,14 @@ namespace Project001
 
         for (size_t i = 0; i < sides - 1; ++i)
         {
-            radialVector = Rotate2DVector(radialVector, sectionAngle);
+            radialVector = Math::Rotate2DVector(radialVector, sectionAngle);
             positions.push_back(radialVector);
         }
 
         return Generate2DTriangleFan(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DBezeledRectangle(
+    bool Generate2DBezeledRectangle(
         MeshData& meshData,
         float width,
         float height,
@@ -2063,7 +2065,7 @@ namespace Project001
         return Generate2DTriangleFan(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DRectangleFrame(
+    bool Generate2DRectangleFrame(
         MeshData& meshData,
         const glm::vec2& bottomLeft,
         const glm::vec2& topRight,
@@ -2088,7 +2090,7 @@ namespace Project001
         return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DSprite(
+    bool Generate2DSprite(
         MeshData& meshData,
         float width,
         float height,
@@ -2186,7 +2188,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DSprite(
+    bool Generate2DSprite(
         MeshData& meshData,
         const glm::vec3& topLeft,
         const glm::vec3& topRight,
@@ -2277,7 +2279,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::Generate2DStarBurst(
+    bool Generate2DStarBurst(
         MeshData& meshData,
         size_t points,
         float radius0,
@@ -2310,24 +2312,24 @@ namespace Project001
         float segmentRotation = -1.0f * glm::two_pi<float>() / points;
 
         glm::vec2 radiusVector0(0.0f, 1.0f);
-        radiusVector0 = Rotate2DVector(radiusVector0, sectionAngle * 0.5f);
+        radiusVector0 = Math::Rotate2DVector(radiusVector0, sectionAngle * 0.5f);
 
         glm::vec2 radiusVector1(0.0f, 1.0f);
 
         glm::vec2 radiusVector2(0.0f, 1.0f);
 
         glm::vec2 radiusVector3(0.0f, 1.0f);
-        radiusVector3 = Rotate2DVector(radiusVector3, sectionAngle * -0.5f);
+        radiusVector3 = Math::Rotate2DVector(radiusVector3, sectionAngle * -0.5f);
 
         std::vector<glm::vec2> positions;
         positions.reserve(points * 4);
 
         for (size_t i = 0; i < points; ++i)
         {
-            float offsetRadius0 = radius0 + maxOffset0 * (GetRandomFloat(offsetSeed + i) - 1.0f);
-            float offsetRadius1 = radius1 + maxOffset1 * (GetRandomFloat(offsetSeed + i + points) - 1.0f);
-            float offsetRadius2 = radius2 + maxOffset2 * (GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
-            float offsetRadius3 = radius3 + maxOffset3 * (GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
+            float offsetRadius0 = radius0 + maxOffset0 * (Math::GetRandomFloat(offsetSeed + i) - 1.0f);
+            float offsetRadius1 = radius1 + maxOffset1 * (Math::GetRandomFloat(offsetSeed + i + points) - 1.0f);
+            float offsetRadius2 = radius2 + maxOffset2 * (Math::GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
+            float offsetRadius3 = radius3 + maxOffset3 * (Math::GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
 
             if (offsetRadius0 < 0.0f)
             {
@@ -2354,16 +2356,16 @@ namespace Project001
             positions.push_back(radiusVector2 * offsetRadius2);
             positions.push_back(radiusVector3 * offsetRadius3);
 
-            radiusVector0 = Rotate2DVector(radiusVector0, segmentRotation);
-            radiusVector1 = Rotate2DVector(radiusVector1, segmentRotation);
-            radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation);
-            radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation);
+            radiusVector0 = Math::Rotate2DVector(radiusVector0, segmentRotation);
+            radiusVector1 = Math::Rotate2DVector(radiusVector1, segmentRotation);
+            radiusVector2 = Math::Rotate2DVector(radiusVector2, segmentRotation);
+            radiusVector3 = Math::Rotate2DVector(radiusVector3, segmentRotation);
         }
 
         return Generate2DQuads(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::Generate2DStarRing(
+    bool Generate2DStarRing(
         MeshData& meshData,
         size_t points,
         float radius0,
@@ -2396,20 +2398,20 @@ namespace Project001
         glm::vec2 radiusVector1(0.0f, 1.0f);
 
         glm::vec2 radiusVector2(0.0f, 1.0f);
-        radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation * 0.5f);
+        radiusVector2 = Math::Rotate2DVector(radiusVector2, segmentRotation * 0.5f);
 
         glm::vec2 radiusVector3(0.0f, 1.0f);
-        radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation * 0.5f);
+        radiusVector3 = Math::Rotate2DVector(radiusVector3, segmentRotation * 0.5f);
 
         std::vector<glm::vec2> positions;
         positions.reserve(points * 4 + 2);
 
         for (size_t i = 0; i < points; ++i)
         {
-            float offsetRadius0 = radius0 + maxOffset0 * (GetRandomFloat(offsetSeed + i) - 1.0f);
-            float offsetRadius1 = radius1 + maxOffset1 * (GetRandomFloat(offsetSeed + i + points) - 1.0f);
-            float offsetRadius2 = radius2 + maxOffset2 * (GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
-            float offsetRadius3 = radius3 + maxOffset3 * (GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
+            float offsetRadius0 = radius0 + maxOffset0 * (Math::GetRandomFloat(offsetSeed + i) - 1.0f);
+            float offsetRadius1 = radius1 + maxOffset1 * (Math::GetRandomFloat(offsetSeed + i + points) - 1.0f);
+            float offsetRadius2 = radius2 + maxOffset2 * (Math::GetRandomFloat(offsetSeed + i + points * 2) - 1.0f);
+            float offsetRadius3 = radius3 + maxOffset3 * (Math::GetRandomFloat(offsetSeed + i + points * 3) - 1.0f);
 
             if (offsetRadius1 < 0.0f)
             {
@@ -2436,10 +2438,10 @@ namespace Project001
             positions.push_back(radiusVector2 * offsetRadius2);
             positions.push_back(radiusVector3 * offsetRadius3);
 
-            radiusVector0 = Rotate2DVector(radiusVector0, segmentRotation);
-            radiusVector1 = Rotate2DVector(radiusVector1, segmentRotation);
-            radiusVector2 = Rotate2DVector(radiusVector2, segmentRotation);
-            radiusVector3 = Rotate2DVector(radiusVector3, segmentRotation);
+            radiusVector0 = Math::Rotate2DVector(radiusVector0, segmentRotation);
+            radiusVector1 = Math::Rotate2DVector(radiusVector1, segmentRotation);
+            radiusVector2 = Math::Rotate2DVector(radiusVector2, segmentRotation);
+            radiusVector3 = Math::Rotate2DVector(radiusVector3, segmentRotation);
         }
 
         positions.push_back(positions[0]);
@@ -2448,7 +2450,7 @@ namespace Project001
         return Generate2DTriangleStrip(meshData, positions, triangulate);
     }
 
-    bool MeshLoader::GenerateBox(
+    bool GenerateBox(
         MeshData& meshData,
         const glm::vec3& min,
         const glm::vec3& max,
@@ -2861,7 +2863,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateBox(
+    bool GenerateBox(
         MeshData& meshData,
         float xLength,
         float yLength,
@@ -2886,7 +2888,7 @@ namespace Project001
         );
     }
 
-    bool MeshLoader::GenerateBoxWithTexture(
+    bool GenerateBoxWithTexture(
         MeshData& meshData,
         const glm::vec3& min,
         const glm::vec3& max,
@@ -3226,7 +3228,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateCapsule(
+    bool GenerateCapsule(
         MeshData& meshData,
         float cylindricalHeight,
         float radius,
@@ -3353,7 +3355,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             stacks * 2 + 1,
@@ -3366,7 +3368,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateCapsule_v2(
+    bool GenerateCapsule_v2(
         MeshData& meshData,
         float cylindricalHeight,
         float radius,
@@ -3891,7 +3893,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateCone(
+    bool GenerateCone(
         MeshData& meshData,
         float height,
         float radius,
@@ -3982,7 +3984,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             2,
@@ -3997,7 +3999,7 @@ namespace Project001
         return false;
     }
 
-    bool MeshLoader::GenerateCone_v2(
+    bool GenerateCone_v2(
         MeshData& meshData,
         float height,
         float radius,
@@ -4229,7 +4231,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateCylinder(
+    bool GenerateCylinder(
         MeshData& meshData,
         float height,
         float radius,
@@ -4337,7 +4339,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             3,
@@ -4350,7 +4352,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateCylinder_v2(
+    bool GenerateCylinder_v2(
         MeshData& meshData,
         float height,
         float radius,
@@ -4640,7 +4642,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateHemisphere(
+    bool GenerateHemisphere(
         MeshData& meshData,
         float radius,
         size_t longitudinalSections,
@@ -4738,7 +4740,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             longitudinalSections,
             latitudinalSections + 1,
@@ -4751,7 +4753,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateIceCreamCone(
+    bool GenerateIceCreamCone(
         MeshData& meshData,
         float coneHeight,
         float radius,
@@ -4854,7 +4856,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             stacks + 1,
@@ -4867,7 +4869,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateIceCreamCup(
+    bool GenerateIceCreamCup(
         MeshData& meshData,
         float cupHeight,
         float radius0,
@@ -4989,7 +4991,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             stacks + 2,
@@ -5002,7 +5004,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateIcosphere(
+    bool GenerateIcosphere(
         MeshData& meshData,
         float radius,
         size_t subdivisions,
@@ -5131,7 +5133,7 @@ namespace Project001
 
         // subdivide
         // ---------------------------------------------------------------------
-        SubdivideIcosphereTriangleFaces(
+        SubdivideIcosphereTriangleFaces_H(
             positions,
             textureCoordinates,
             triangleFaces,
@@ -5140,7 +5142,7 @@ namespace Project001
 
         // generate meshVertices
         // ---------------------------------------------------------------------
-        GenerateIcosphereMeshVerticesAndIndices(
+        GenerateIcosphereMeshVerticesAndIndices_H(
             meshData,
             radius,
             positions,
@@ -5152,7 +5154,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateIcosphere_v2(
+    bool GenerateIcosphere_v2(
         MeshData& meshData,
         float radius,
         size_t subdivisions,
@@ -5247,7 +5249,7 @@ namespace Project001
 
         // subdivide
         // ---------------------------------------------------------------------
-        SubdivideIcosphereTriangleFaces(
+        SubdivideIcosphereTriangleFaces_H(
             positions,
             textureCoordinates,
             triangleFaces,
@@ -5256,7 +5258,7 @@ namespace Project001
 
         // generate meshVertices
         // ---------------------------------------------------------------------
-        GenerateIcosphereMeshVerticesAndIndices(
+        GenerateIcosphereMeshVerticesAndIndices_H(
             meshData,
             radius,
             positions,
@@ -5268,7 +5270,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateIcosphereAsteroid(
+    bool GenerateIcosphereAsteroid(
         MeshData& meshData,
         std::vector<glm::vec2>& borderPoints,
         float radius,
@@ -5367,7 +5369,7 @@ namespace Project001
 
         // subdivide
         // ---------------------------------------------------------------------
-        SubdivideIcosphereTriangleFaces_v2(
+        SubdivideIcosphereTriangleFaces_H2(
             positions,
             textureCoordinates,
             offsetSeeds,
@@ -5379,7 +5381,7 @@ namespace Project001
         {
             glm::vec3& currentPosition = positions[i];
             uint32_t currentOffsetSeed = offsetSeed + offsetSeeds[i];
-            float offset = maxOffsetLength * (GetRandomFloat(currentOffsetSeed) - 1.0f);
+            float offset = maxOffsetLength * (Math::GetRandomFloat(currentOffsetSeed) - 1.0f);
 
             float positionLength = glm::sqrt(currentPosition.x * currentPosition.x + currentPosition.y * currentPosition.y + currentPosition.z * currentPosition.z);
             currentPosition *= (offset + positionLength) / positionLength;
@@ -5388,7 +5390,7 @@ namespace Project001
         for (size_t i = 0; i < positions.size(); ++i)
         {
             const glm::vec3& currentPosition = positions[i];
-            if (FloatEqualToFloat(currentPosition.y, 0.0f))
+            if (Math::FloatEqualToFloat(currentPosition.y, 0.0f))
             {
                 borderPoints.emplace_back(currentPosition.x, -currentPosition.z); // negative z because right handed coordinate system
             }
@@ -5397,7 +5399,7 @@ namespace Project001
         for (size_t i = 0; i < borderPoints.size(); ++i)
         {
             const glm::vec2& currentPosition = borderPoints[i];
-            borderPoints[i] = CartesianToPolar(currentPosition);
+            borderPoints[i] = Math::CartesianToPolar(currentPosition);
         }
 
         std::sort(borderPoints.begin(), borderPoints.end(),
@@ -5410,7 +5412,7 @@ namespace Project001
         // the start and end points will be the same, so the duplicate needs to be removed
         for (size_t i = 0; i < borderPoints.size() - 1; ++i)
         {
-            if (FloatEqualToFloat(borderPoints[i].y, borderPoints[i + 1].y))
+            if (Math::FloatEqualToFloat(borderPoints[i].y, borderPoints[i + 1].y))
             {
                 borderPoints.erase(borderPoints.begin() + i);
             }
@@ -5419,7 +5421,7 @@ namespace Project001
         for (size_t i = 0; i < borderPoints.size(); ++i)
         {
             const glm::vec2& currentPosition = borderPoints[i];
-            borderPoints[i] = PolarToCartesian(currentPosition);
+            borderPoints[i] = Math::PolarToCartesian(currentPosition);
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
@@ -5437,7 +5439,7 @@ namespace Project001
 
         // generate meshVertices
         // ---------------------------------------------------------------------
-        GenerateIcosphereMeshVerticesAndIndices(
+        GenerateIcosphereMeshVerticesAndIndices_H(
             meshData,
             radius,
             positions,
@@ -5449,7 +5451,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateTruncatedCone(
+    bool GenerateTruncatedCone(
         MeshData& meshData,
         float height,
         float radius0,
@@ -5558,7 +5560,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             faces,
             3,
@@ -5571,7 +5573,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateSpikeyCrown(
+    bool GenerateSpikeyCrown(
         MeshData& meshData,
         float radius0,
         float radius1,
@@ -5623,12 +5625,12 @@ namespace Project001
         for (size_t i = 0; i < points; ++i)
         {
             glm::vec2 radiusVector0 = radiusVector * radius0;
-            float adjustedHeight0 = spikeHeight0 + maxOffset0 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i));
+            float adjustedHeight0 = spikeHeight0 + maxOffset0 * Math::GetRandomFloat(offsetSeed + static_cast<uint32_t>(i));
             positions.emplace_back(radiusVector0.x, adjustedHeight0, radiusVector0.y);
             textureCoordinates.emplace_back(textureOffset, 1.0f);
 
             glm::vec2 radiusVector1 = radiusVector * radius1;
-            float adjustedHeight1 = spikeHeight1 + maxOffset1 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points));
+            float adjustedHeight1 = spikeHeight1 + maxOffset1 * Math::GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points));
             positions.emplace_back(radiusVector1.x, adjustedHeight1, radiusVector1.y);
             textureCoordinates.emplace_back(textureOffset, 0.0f);
 
@@ -5638,16 +5640,16 @@ namespace Project001
                 normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
             }
 
-            radiusVector = Rotate2DVector(radiusVector, segmentRotation);
+            radiusVector = Math::Rotate2DVector(radiusVector, segmentRotation);
             textureOffset += textureSegmentSize;
 
             glm::vec2 radiusVector2 = radiusVector * radius0;
-            float adjustedHeight2 = spikeHeight2 + maxOffset2 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 2));
+            float adjustedHeight2 = spikeHeight2 + maxOffset2 * Math::GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 2));
             positions.emplace_back(radiusVector2.x, adjustedHeight2, radiusVector2.y);
             textureCoordinates.emplace_back(textureOffset, 1.0f);
 
             glm::vec2 radiusVector3 = radiusVector * radius1;
-            float adjustedHeight3 = spikeHeight3 + maxOffset3 * GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 3));
+            float adjustedHeight3 = spikeHeight3 + maxOffset3 * Math::GetRandomFloat(offsetSeed + static_cast<uint32_t>(i + points * 3));
             positions.emplace_back(radiusVector3.x, adjustedHeight3, radiusVector3.y);
             textureCoordinates.emplace_back(textureOffset, 0.0f);
 
@@ -5657,7 +5659,7 @@ namespace Project001
                 normals.emplace_back(radiusVector.x, 0.0f, radiusVector.y);
             }
 
-            radiusVector = Rotate2DVector(radiusVector, segmentRotation);
+            radiusVector = Math::Rotate2DVector(radiusVector, segmentRotation);
             textureOffset += textureSegmentSize;
         }
 
@@ -5692,7 +5694,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateMeshStripVerticesAndIndices(
+        GenerateMeshStripVerticesAndIndices_H(
             meshData,
             points,
             positions,
@@ -5704,7 +5706,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateSphere(
+    bool GenerateSphere(
         MeshData& meshData,
         float radius,
         size_t longitudinalSections, // west/east
@@ -5799,7 +5801,7 @@ namespace Project001
             if (minVertexPosition.z > currentPosition.z) minVertexPosition.z = currentPosition.z;
         }
 
-        GenerateSphereMeshVerticesAndIndices(
+        GenerateSphereMeshVerticesAndIndices_H(
             meshData,
             longitudinalSections,
             latitudinalSections,
@@ -5812,7 +5814,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateSphereSection(
+    bool GenerateSphereSection(
         MeshData& meshData,
         float radius,
         size_t longitudinalSections,
@@ -6033,7 +6035,7 @@ namespace Project001
                 glm::vec3 p1_to_p2 = p2 - p1;
                 glm::vec3 p2_to_p3 = p3 - p2;
                 glm::vec3 cross123 = glm::cross(p1_to_p2, p2_to_p3);
-                if (FloatEqualToFloat(cross123.x, 0.0f) && FloatEqualToFloat(cross123.y, 0.0f) && FloatEqualToFloat(cross123.z, 0.0f))
+                if (Math::FloatEqualToFloat(cross123.x, 0.0f) && Math::FloatEqualToFloat(cross123.y, 0.0f) && Math::FloatEqualToFloat(cross123.z, 0.0f))
                 {
                     const glm::vec3& p4 = positions[i4];
 
@@ -6100,7 +6102,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateTriangles(
+    bool GenerateTriangles(
         MeshData& meshData,
         const std::vector<glm::vec3>& positions)
     {
@@ -6162,7 +6164,7 @@ namespace Project001
         return true;
     }
 
-    bool MeshLoader::GenerateTube(
+    bool GenerateTube(
         MeshData& meshData,
         const glm::vec3& start,
         const glm::vec3& end,
@@ -6397,7 +6399,7 @@ namespace Project001
         return true;
     }
 
-    void MeshLoader::CopyMesh(
+    void CopyMesh(
         MeshData& destinationMeshData,
         const MeshData& sourceMeshData)
     {
@@ -6424,7 +6426,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::NormalizeMeshSize(MeshData& meshData)
+    void NormalizeMeshSize(MeshData& meshData)
     {
         glm::vec3 size = meshData.maxVertexPosition - meshData.minVertexPosition;
         float biggestDimension = size.x;
@@ -6447,7 +6449,7 @@ namespace Project001
         meshData.minVertexPosition /= biggestDimension;
     }
 
-    void MeshLoader::RecenterMesh(MeshData& meshData)
+    void RecenterMesh(MeshData& meshData)
     {
         meshData.maxBoundingRadius = 0;
 
@@ -6465,7 +6467,7 @@ namespace Project001
         meshData.minVertexPosition -= centerShift;
     }
 
-    void MeshLoader::RecalculateMeshMinMax(MeshData& meshData)
+    void RecalculateMeshMinMax(MeshData& meshData)
     {
         meshData.maxBoundingRadius = 0;
         meshData.maxVertexPosition.x = -1.0f * std::numeric_limits<float>::infinity();
@@ -6491,7 +6493,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::RotateMesh(
+    void RotateMesh(
         MeshData& meshData,
         glm::quat rotation)
     {
@@ -6504,10 +6506,10 @@ namespace Project001
             normal = rotation * normal;
         }
 
-        RecalculateMeshMinMax_v2(meshData);
+        RecalculateMeshMinMax(meshData);
     }
 
-    void MeshLoader::RotateMeshX(
+    void RotateMeshX(
         MeshData& meshData,
         float rotationInRadians)
     {
@@ -6515,7 +6517,7 @@ namespace Project001
         RotateMesh(meshData, rotation);
     }
 
-    void MeshLoader::RotateMeshY(
+    void RotateMeshY(
         MeshData& meshData,
         float rotationInRadians)
     {
@@ -6523,7 +6525,7 @@ namespace Project001
         RotateMesh(meshData, rotation);
     }
 
-    void MeshLoader::RotateMeshZ(
+    void RotateMeshZ(
         MeshData& meshData,
         float rotationInRadians)
     {
@@ -6531,7 +6533,7 @@ namespace Project001
         RotateMesh(meshData, rotation);
     }
 
-    void MeshLoader::ScaleMesh(
+    void ScaleMesh(
         MeshData& meshData,
         glm::vec3 scale)
     {
@@ -6550,7 +6552,7 @@ namespace Project001
         meshData.minVertexPosition *= scale;
     }
 
-    void MeshLoader::TranslateMesh(
+    void TranslateMesh(
         MeshData& meshData,
         glm::vec3 translation)
     {
@@ -6569,7 +6571,7 @@ namespace Project001
         meshData.minVertexPosition += translation;
     }
 
-    void MeshLoader::SizeMeshAlongNormals(
+    void SizeMeshAlongNormals(
         MeshData& meshData,
         float size)
     {
@@ -6579,10 +6581,10 @@ namespace Project001
             currentMeshVertex.position += currentMeshVertex.normal * size;
         }
 
-        RecalculateMeshMinMax_v2(meshData);
+        RecalculateMeshMinMax(meshData);
     }
 
-    void MeshLoader::TurnInsideOut(
+    void TurnInsideOut(
         MeshData& meshData,
         bool wasTriangulated)
     {
@@ -6624,7 +6626,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::ApplyTextureCoordinates(
+    void ApplyTextureCoordinates(
         MeshData& meshData,
         const std::vector<glm::vec2>& textureCoordinates)
     {
@@ -6635,7 +6637,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::ApplyPositionalTextureCoordinates(MeshData& meshData)
+    void ApplyPositionalTextureCoordinates(MeshData& meshData)
     {
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
@@ -6644,18 +6646,18 @@ namespace Project001
         }
     }
 
-    void MeshLoader::RotateTextureCoordinates(
+    void RotateTextureCoordinates(
         MeshData& meshData,
         float rotation)
     {
         for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
         {
             glm::vec2& textureCoordinate = meshData.meshVertexArray[i].textureCoordinate;
-            textureCoordinate = Rotate2DVector(textureCoordinate, rotation);
+            textureCoordinate = Math::Rotate2DVector(textureCoordinate, rotation);
         }
     }
 
-    void MeshLoader::ScaleTextureCoordinates(
+    void ScaleTextureCoordinates(
         MeshData& meshData,
         glm::vec2 scale)
     {
@@ -6666,7 +6668,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::SliceMeshWithAPlane(
+    void SliceMeshWithAPlane(
         MeshData& outputMeshData0,
         MeshData& outputMeshData1,
         std::vector<glm::vec3>& capCorners,
@@ -6882,7 +6884,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::TranslateTextureCoordinates(
+    void TranslateTextureCoordinates(
         MeshData& meshData,
         glm::vec2 translation)
     {
@@ -6893,11 +6895,9 @@ namespace Project001
         }
     }
 
-    bool MeshLoader::s_triangulate = false;
+    // Helper Functions --------------------------------------------------------
 
-    // protected ---------------------------------------------------------------
-
-    bool MeshLoader::GetLineFromConstChar(
+    bool GetLineFromConstChar_H(
         const char*& incrementingPtr,
         std::string& currentLine)
     {
@@ -6929,7 +6929,7 @@ namespace Project001
         return false;
     }
 
-    bool MeshLoader::ProcessMeshOBJLine(
+    bool ProcessMeshOBJLine_H(
         std::string& line,
         MeshData& meshData,
         std::vector<glm::vec3>& positions,
@@ -7124,7 +7124,7 @@ namespace Project001
                         {
                             const glm::ivec3& faceVertex = face[i];
                             MeshVertex meshVertex;
-                            if (!GetMeshVertexFromFaceVertex(meshVertex, faceVertex, positions, textureCoordinates, normals))
+                            if (!GetMeshVertexFromFaceVertex_H(meshVertex, faceVertex, positions, textureCoordinates, normals))
                             {
                                 return false;
                             }
@@ -7147,7 +7147,7 @@ namespace Project001
                             const glm::ivec3& face2 = face[i + 1];
 
                             MeshVertex meshVertex0;
-                            if (!GetMeshVertexFromFaceVertex(meshVertex0, face0, positions, textureCoordinates, normals))
+                            if (!GetMeshVertexFromFaceVertex_H(meshVertex0, face0, positions, textureCoordinates, normals))
                             {
                                 return false;
                             }
@@ -7155,7 +7155,7 @@ namespace Project001
                             meshVertexArray.push_back(meshVertex0);
 
                             MeshVertex meshVertex1;
-                            if (!GetMeshVertexFromFaceVertex(meshVertex1, face1, positions, textureCoordinates, normals))
+                            if (!GetMeshVertexFromFaceVertex_H(meshVertex1, face1, positions, textureCoordinates, normals))
                             {
                                 return false;
                             }
@@ -7163,7 +7163,7 @@ namespace Project001
                             meshVertexArray.push_back(meshVertex1);
 
                             MeshVertex meshVertex2;
-                            if (!GetMeshVertexFromFaceVertex(meshVertex2, face2, positions, textureCoordinates, normals))
+                            if (!GetMeshVertexFromFaceVertex_H(meshVertex2, face2, positions, textureCoordinates, normals))
                             {
                                 return false;
                             }
@@ -7178,7 +7178,7 @@ namespace Project001
         return true; // continue
     }
 
-    bool MeshLoader::GetMeshVertexFromFaceVertex(
+    bool GetMeshVertexFromFaceVertex_H(
         MeshVertex& meshVertex,
         const glm::ivec3& faceVertex,
         const std::vector<glm::vec3>& positions,
@@ -7239,7 +7239,7 @@ namespace Project001
         return success;
     }
 
-    glm::vec2 MeshLoader::GetLineLineIntersection2D(
+    glm::vec2 GetLineLineIntersection2D_H(
         const glm::vec2& point1,
         const float& slope1,
         const glm::vec2& point2,
@@ -7294,7 +7294,7 @@ namespace Project001
         return intersectionPoint;
     }
 
-    void MeshLoader::PopulateMeshDataWithIndicesAndVerticesFor2DPolygon(
+    void PopulateMeshDataWithIndicesAndVerticesFor2DPolygon_H(
         MeshData& meshData,
         const std::vector<glm::vec2>& vertices,
         const std::vector<size_t>& indices,
@@ -7362,7 +7362,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::SubdivideIcosphereTriangleFaces(
+    void SubdivideIcosphereTriangleFaces_H(
         std::vector<glm::vec3>& positions,
         std::vector<glm::vec2>& textureCoordinates,
         std::vector<glm::uvec3>& triangleFaces,
@@ -7443,7 +7443,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::SubdivideIcosphereTriangleFaces_v2(
+    void SubdivideIcosphereTriangleFaces_H2(
         std::vector<glm::vec3>& positions,
         std::vector<glm::vec2>& textureCoordinates,
         std::vector<uint32_t>& offsetSeeds,
@@ -7511,9 +7511,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionA.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionA.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionA.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionA.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionA.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionA.z, currentPosition.z))
                     {
                         positionA_is_unique = false;
                         offsetSeeds.push_back(offsetSeeds[i]);
@@ -7529,9 +7529,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionB.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionB.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionB.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionB.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionB.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionB.z, currentPosition.z))
                     {
                         positionB_is_unique = false;
                         offsetSeeds.push_back(offsetSeeds[i]);
@@ -7547,9 +7547,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionC.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionC.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionC.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionC.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionC.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionC.z, currentPosition.z))
                     {
                         positionC_is_unique = false;
                         offsetSeeds.push_back(offsetSeeds[i]);
@@ -7582,7 +7582,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::SubdivideIcosphereTriangleFaces_v3(
+    void SubdivideIcosphereTriangleFaces_H3(
         std::vector<glm::vec3>& positions,
         std::vector<glm::uvec3>& triangleFaces,
         float radius,
@@ -7640,9 +7640,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionA.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionA.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionA.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionA.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionA.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionA.z, currentPosition.z))
                     {
                         indexA = i;
                         positionA_is_unique = false;
@@ -7661,9 +7661,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionB.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionB.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionB.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionB.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionB.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionB.z, currentPosition.z))
                     {
                         indexB = i;
                         positionB_is_unique = false;
@@ -7682,9 +7682,9 @@ namespace Project001
                 for (size_t i = 0; i < positions.size(); ++i)
                 {
                     const glm::vec3 currentPosition = positions[i];
-                    if (FloatEqualToFloat(positionC.x, currentPosition.x) &&
-                        FloatEqualToFloat(positionC.y, currentPosition.y) &&
-                        FloatEqualToFloat(positionC.z, currentPosition.z))
+                    if (Math::FloatEqualToFloat(positionC.x, currentPosition.x) &&
+                        Math::FloatEqualToFloat(positionC.y, currentPosition.y) &&
+                        Math::FloatEqualToFloat(positionC.z, currentPosition.z))
                     {
                         indexC = i;
                         positionC_is_unique = false;
@@ -7708,7 +7708,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::GenerateIcosphereMeshVerticesAndIndices(
+    void GenerateIcosphereMeshVerticesAndIndices_H(
         MeshData& meshData,
         float radius,
         std::vector<glm::vec3>& positions,
@@ -7820,7 +7820,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::GenerateSphereMeshVerticesAndIndices(
+    void GenerateSphereMeshVerticesAndIndices_H(
         MeshData& meshData,
         size_t longitudinalSections,
         size_t latitudinalSections,
@@ -8178,7 +8178,7 @@ namespace Project001
         }
     }
 
-    void MeshLoader::GenerateMeshStripVerticesAndIndices(
+    void GenerateMeshStripVerticesAndIndices_H(
         MeshData& meshData,
         size_t sections,
         std::vector<glm::vec3>& positions,
@@ -8344,35 +8344,5 @@ namespace Project001
             }
         }
     }
-
-    void MeshLoader::RecalculateMeshMinMax_v2(MeshData& meshData)
-    {
-        if (meshData.meshVertexArray.size() > 0)
-        {
-            const MeshVertex& currentMeshVertex = meshData.meshVertexArray[0];
-
-            meshData.maxBoundingRadius = 0;
-            meshData.maxVertexPosition.x = currentMeshVertex.position.x;
-            meshData.maxVertexPosition.y = currentMeshVertex.position.y;
-            meshData.maxVertexPosition.z = currentMeshVertex.position.z;
-            meshData.minVertexPosition.x = currentMeshVertex.position.x;
-            meshData.minVertexPosition.y = currentMeshVertex.position.y;
-            meshData.minVertexPosition.z = currentMeshVertex.position.z;
-        }
-
-        for (size_t i = 0; i < meshData.meshVertexArray.size(); ++i)
-        {
-            const glm::vec3& currentPosition = meshData.meshVertexArray[i].position;
-            float vertexRadius = glm::length(currentPosition);
-            if (meshData.maxBoundingRadius < vertexRadius) meshData.maxBoundingRadius = vertexRadius;
-
-            if (meshData.maxVertexPosition.x < currentPosition.x) meshData.maxVertexPosition.x = currentPosition.x;
-            if (meshData.maxVertexPosition.y < currentPosition.y) meshData.maxVertexPosition.y = currentPosition.y;
-            if (meshData.maxVertexPosition.z < currentPosition.z) meshData.maxVertexPosition.z = currentPosition.z;
-
-            if (meshData.minVertexPosition.x > currentPosition.x) meshData.minVertexPosition.x = currentPosition.x;
-            if (meshData.minVertexPosition.y > currentPosition.y) meshData.minVertexPosition.y = currentPosition.y;
-            if (meshData.minVertexPosition.z > currentPosition.z) meshData.minVertexPosition.z = currentPosition.z;
-        }
-    }
+}
 }

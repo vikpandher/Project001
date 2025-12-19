@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-21
+// @DATE 2025-12-19
 
 #include "Overlap3d.h"
 
@@ -16,9 +16,9 @@ namespace Project001
         const glm::vec3& pointA_position,
         const glm::vec3& pointB_position)
     {
-        return FloatEqualToFloat(pointA_position.x, pointB_position.x) &&
-            FloatEqualToFloat(pointA_position.y, pointB_position.y) &&
-            FloatEqualToFloat(pointA_position.z, pointB_position.z);
+        return Math::FloatEqualToFloat(pointA_position.x, pointB_position.x) &&
+            Math::FloatEqualToFloat(pointA_position.y, pointB_position.y) &&
+            Math::FloatEqualToFloat(pointA_position.z, pointB_position.z);
     }
 
     bool Check3D_Point_Line_Overlap(
@@ -34,12 +34,12 @@ namespace Project001
         glm::vec3 line_to_point = glm::normalize(point_position - line_position);
         glm::vec3 point_to_line = -line_to_point;
 
-        return (FloatEqualToFloat(line_direction.x, line_to_point.x) &&
-            FloatEqualToFloat(line_direction.y, line_to_point.y) &&
-            FloatEqualToFloat(line_direction.z, line_to_point.z)) ||
-            (FloatEqualToFloat(line_direction.x, point_to_line.x) &&
-            FloatEqualToFloat(line_direction.y, point_to_line.y) &&
-            FloatEqualToFloat(line_direction.z, point_to_line.z));
+        return (Math::FloatEqualToFloat(line_direction.x, line_to_point.x) &&
+            Math::FloatEqualToFloat(line_direction.y, line_to_point.y) &&
+            Math::FloatEqualToFloat(line_direction.z, line_to_point.z)) ||
+            (Math::FloatEqualToFloat(line_direction.x, point_to_line.x) &&
+            Math::FloatEqualToFloat(line_direction.y, point_to_line.y) &&
+            Math::FloatEqualToFloat(line_direction.z, point_to_line.z));
     }
 
     bool Check3D_Point_Ray_Overlap(
@@ -54,9 +54,9 @@ namespace Project001
 
         glm::vec3 ray_to_point = glm::normalize(point_position - ray_position);
 
-        return FloatEqualToFloat(ray_direction.x, ray_to_point.x) &&
-            FloatEqualToFloat(ray_direction.y, ray_to_point.y) &&
-            FloatEqualToFloat(ray_direction.z, ray_to_point.z);
+        return Math::FloatEqualToFloat(ray_direction.x, ray_to_point.x) &&
+            Math::FloatEqualToFloat(ray_direction.y, ray_to_point.y) &&
+            Math::FloatEqualToFloat(ray_direction.z, ray_to_point.z);
 
         // float dotProduct = glm::dot(rayToPoint, ray_direction);
         // return FloatsEqual(dotProduct, 1.0f);
@@ -87,7 +87,7 @@ namespace Project001
         float dot_product = glm::dot(point_position, plane_normal);
         // (dot_product - plane_distance) == 0.0f
         // dot_product == plane_distance
-        return FloatEqualToFloat(dot_product, plane_distance);
+        return Math::FloatEqualToFloat(dot_product, plane_distance);
     }
 
     bool Check3D_Point_Triangle_Overlap(
@@ -126,12 +126,12 @@ namespace Project001
         const glm::vec3& aabb_min,
         const glm::vec3& aabb_max)
     {
-        return FloatLessThanOrEqualToFloat(point_position.x, aabb_max.x) &&
-            FloatGreaterThanOrEqualToFloat(point_position.x, aabb_min.x) &&
-            FloatLessThanOrEqualToFloat(point_position.y, aabb_max.y) &&
-            FloatGreaterThanOrEqualToFloat(point_position.y, aabb_min.y) &&
-            FloatLessThanOrEqualToFloat(point_position.z, aabb_max.z) &&
-            FloatGreaterThanOrEqualToFloat(point_position.z, aabb_min.z);
+        return Math::FloatLessThanOrEqualToFloat(point_position.x, aabb_max.x) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.x, aabb_min.x) &&
+            Math::FloatLessThanOrEqualToFloat(point_position.y, aabb_max.y) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.y, aabb_min.y) &&
+            Math::FloatLessThanOrEqualToFloat(point_position.z, aabb_max.z) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.z, aabb_min.z);
     }
 
     bool Check3D_Point_OBB_Overlap(
@@ -155,7 +155,7 @@ namespace Project001
         glm::vec3 sphereToPoint = point_position - sphere_position;
         float distanceSquared = glm::dot(sphereToPoint, sphereToPoint);
         float sphereRadiusSquared = sphere_radius * sphere_radius;
-        return FloatLessThanOrEqualToFloat(distanceSquared, sphereRadiusSquared);
+        return Math::FloatLessThanOrEqualToFloat(distanceSquared, sphereRadiusSquared);
     }
 
     bool Check3D_Point_Capsule_Overlap(
@@ -169,7 +169,7 @@ namespace Project001
         glm::vec3 pointToClosestPoint = closestPointOnLineSegment - point_position;
         float distanceSquared = glm::dot(pointToClosestPoint, pointToClosestPoint);
         float capsuleRadiusSquared = capsule_radius * capsule_radius;
-        return FloatLessThanOrEqualToFloat(distanceSquared, capsuleRadiusSquared);
+        return Math::FloatLessThanOrEqualToFloat(distanceSquared, capsuleRadiusSquared);
     }
 
     bool Check3D_Point_Frustum_Overlap(
@@ -249,15 +249,15 @@ namespace Project001
         glm::vec3 n = glm::cross(lineA_direction, lineAB);
         float dotProduct = glm::dot(n, lineB_direction);
 
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // lines are not coplanar
             return false;
         }
 
-        if (FloatEqualToFloat(lineA_position.x, lineB_position.x) &&
-            FloatEqualToFloat(lineA_position.y, lineB_position.y) &&
-            FloatEqualToFloat(lineA_position.z, lineB_position.z))
+        if (Math::FloatEqualToFloat(lineA_position.x, lineB_position.x) &&
+            Math::FloatEqualToFloat(lineA_position.y, lineB_position.y) &&
+            Math::FloatEqualToFloat(lineA_position.z, lineB_position.z))
         {
             // points are the same
             return true;
@@ -265,7 +265,7 @@ namespace Project001
 
         glm::vec3 crossProduct = glm::cross(lineA_direction, lineB_direction);
         float crossProductMagnitudeSquared = glm::dot(crossProduct, crossProduct);
-        if (FloatEqualToFloat(crossProductMagnitudeSquared,0.0))
+        if (Math::FloatEqualToFloat(crossProductMagnitudeSquared,0.0))
         {
             // lines are parallel
             return false;
@@ -291,7 +291,7 @@ namespace Project001
         glm::vec3 o1_to_o2 = o2 - o1;
         glm::vec3 n = glm::cross(d1, o1_to_o2);
         float dotProduct = glm::dot(n, d2);
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // line and ray are not coplanar
             return false;
@@ -299,7 +299,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             if (Check3D_Point_Line_Overlap(ray_position, line_position, line_direction))
             {
@@ -317,7 +317,7 @@ namespace Project001
         // intersectionPoint = d2 * t2 + o2;
         // a negative t2 would mean the intersection point is behind the ray,
         // in the opposite direction to the ray's direction
-        return FloatGreaterThanOrEqualToFloat(t2, 0.0f);
+        return Math::FloatGreaterThanOrEqualToFloat(t2, 0.0f);
     }
 
     bool Check3D_Line_LineSegment_Overlap(
@@ -330,7 +330,7 @@ namespace Project001
 
         glm::vec3 n = glm::cross(line_direction, startToStart);
         float dotProduct = glm::dot(n, line_direction);
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // lines are not coplanar
             return false;
@@ -345,7 +345,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             if (Check3D_Point_Line_Overlap(lineSegment_start, line_position, line_direction))
             {
@@ -382,7 +382,7 @@ namespace Project001
         float dotProduct = glm::dot(line_direction, plane_normal);
 
         // If dotProduct == 0, line is parallel to the plane
-        return !FloatEqualToFloat(dotProduct, 0.0f);
+        return !Math::FloatEqualToFloat(dotProduct, 0.0f);
     }
 
     bool Check3D_Line_Triangle_Overlap(
@@ -444,7 +444,7 @@ namespace Project001
         // u = n dot (p2 - p1) / (n dot d)
 
         float denominator = glm::dot(plane_normal, line_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // line is parallel to the plane
             return Check3D_Line_LineSegment_Overlap(line_position, line_direction, triangle_corner1, triangle_corner2) ||
@@ -533,7 +533,7 @@ namespace Project001
         glm::vec3 o1_to_o2 = o2 - o1;
         glm::vec3 n = glm::cross(d1, o1_to_o2);
         float dotProduct = glm::dot(n, d2);
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // rays are not coplanar
             return false;
@@ -541,7 +541,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // rays are parallel
             return Check3D_Point_Ray_Overlap(rayB_position, rayA_position, rayA_direction) ||
@@ -555,7 +555,7 @@ namespace Project001
 
         // intersectionPointA_position = d1 * t1 + o1;
         // intersectionPointB_position = d2 * t2 + o2;
-        return FloatGreaterThanOrEqualToFloat(t1, 0.0f) && FloatGreaterThanOrEqualToFloat(t2, 0.0f);
+        return Math::FloatGreaterThanOrEqualToFloat(t1, 0.0f) && Math::FloatGreaterThanOrEqualToFloat(t2, 0.0f);
     }
 
     bool Check3D_Ray_LineSegment_Overlap(
@@ -568,7 +568,7 @@ namespace Project001
 
         glm::vec3 n = glm::cross(ray_direction, startToStart);
         float dotProduct = glm::dot(n, ray_direction);
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // ray and lineSegment are not coplanar
             return false;
@@ -583,7 +583,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // ray and lineSegment are parallel
             return Check3D_Point_Ray_Overlap(lineSegment_start, ray_position, ray_direction) ||
@@ -594,7 +594,7 @@ namespace Project001
         // t1 = determinant((o2 - o1),d2,d1 X d2) / ||d1 X d2||^2
         float t1 = glm::determinant(glm::mat3(o1_to_o2, d2, d1_X_d2)) / denominator;
 
-        if (FloatGreaterThanOrEqualToFloat(t1, 0.0f))
+        if (Math::FloatGreaterThanOrEqualToFloat(t1, 0.0f))
         {
             glm::vec3 p = d1 * t1 + o1;
 
@@ -626,14 +626,14 @@ namespace Project001
         // if nd == 0, ray is parallel to the plane
         // if nd > 0, ray is hitting plane from below
         // if nd < 0, ray is hitting plane from above
-        if (FloatEqualToFloat(nd, 0.0f))
+        if (Math::FloatEqualToFloat(nd, 0.0f))
         {
             return false;
         }
 
         float hit_scalar = (plane_distance - pn) / nd;
 
-        return FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f);
+        return Math::FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f);
     }
 
     bool Check3D_Ray_Triangle_Overlap(
@@ -674,7 +674,7 @@ namespace Project001
         // if nd == 0, ray is parallel to the plane
         // if nd > 0, ray is hitting plane from below
         // if nd < 0, ray is hitting plane from above
-        if (FloatEqualToFloat(nd, 0.0f))
+        if (Math::FloatEqualToFloat(nd, 0.0f))
         {
             return Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner1, triangle_corner2) ||
                 Check3D_Ray_LineSegment_Overlap(ray_position, ray_direction, triangle_corner2, triangle_corner3) ||
@@ -683,7 +683,7 @@ namespace Project001
 
         float hit_scalar = (plane_distance - pn) / nd;
 
-        if (FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
+        if (Math::FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
         {
             glm::vec3 hit_point_position = ray_position + ray_direction * hit_scalar;
 
@@ -777,7 +777,7 @@ namespace Project001
         glm::vec3 n = glm::cross(lineA_direction, startToStart);
         float dotProduct = glm::dot(n, lineA_direction);
 
-        if (!FloatEqualToFloat(dotProduct, 0.0f))
+        if (!Math::FloatEqualToFloat(dotProduct, 0.0f))
         {
             // lines are not coplanar
             return false;
@@ -792,7 +792,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // lineSegments are parallel
             return Check3D_Point_LineSegment_Overlap(lineSegmentA_start, lineSegmentB_start, lineSegmentB_end) ||
@@ -819,7 +819,7 @@ namespace Project001
     {
         glm::vec3 lineSegment_direction = glm::normalize(lineSegment_end - lineSegment_start);
         float denominator = glm::dot(plane_normal, lineSegment_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // line is parallel to the plane
             return Check3D_Point_Plane_Overlap(lineSegment_start, plane_normal, plane_distance) ||
@@ -950,11 +950,11 @@ namespace Project001
     {
         // This works even with the divide by Zero
         glm::vec3 normal_ratio = planeA_normal / planeB_normal;
-        if (FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
-            FloatEqualToFloat(normal_ratio.x, normal_ratio.z))
+        if (Math::FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
+            Math::FloatEqualToFloat(normal_ratio.x, normal_ratio.z))
         {
             // Planes parallel so they only overlap if they are the same
-            return FloatEqualToFloat(planeA_distance, planeB_distance);
+            return Math::FloatEqualToFloat(planeA_distance, planeB_distance);
         }
 
         return true;
@@ -969,19 +969,19 @@ namespace Project001
     {
         float distance1;
         Get3D_Point_Plane_Distance(triangle_corner1, plane_normal, plane_distance, distance1);
-        if (FloatEqualToFloat(distance1, 0.0f))
+        if (Math::FloatEqualToFloat(distance1, 0.0f))
         {
             return true;
         }
         float distance2;
         Get3D_Point_Plane_Distance(triangle_corner2, plane_normal, plane_distance, distance2);
-        if (FloatEqualToFloat(distance2, 0.0f) || std::signbit(distance1) != std::signbit(distance2))
+        if (Math::FloatEqualToFloat(distance2, 0.0f) || std::signbit(distance1) != std::signbit(distance2))
         {
             return true;
         }
         float distance3;
         Get3D_Point_Plane_Distance(triangle_corner3, plane_normal, plane_distance, distance3);
-        return FloatEqualToFloat(distance3, 0.0f) || std::signbit(distance1) != std::signbit(distance3);
+        return Math::FloatEqualToFloat(distance3, 0.0f) || std::signbit(distance1) != std::signbit(distance3);
     }
 
     bool Check3D_Plane_AABB_Overlap(
@@ -1000,7 +1000,7 @@ namespace Project001
         // distance from center of AABB to plane
         float distance = std::abs(glm::dot(plane_normal, aabb_position) - plane_distance);
 
-        return FloatLessThanOrEqualToFloat(distance, projection);
+        return Math::FloatLessThanOrEqualToFloat(distance, projection);
     }
 
     bool Check3D_Plane_OBB_Overlap(
@@ -1026,7 +1026,7 @@ namespace Project001
         // distance from center of OBB to plane
         float distance = std::abs(glm::dot(plane_normal, obb_position) - plane_distance);
 
-        return FloatLessThanOrEqualToFloat(distance, projection);
+        return Math::FloatLessThanOrEqualToFloat(distance, projection);
     }
 
     bool Check3D_Plane_Sphere_Overlap(
@@ -1167,7 +1167,7 @@ namespace Project001
 
             if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
             {
-                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                if (!(Math::FloatEqualToFloat(intervalB_min, intervalA_max) || Math::FloatEqualToFloat(intervalA_min, intervalB_max)))
                 {
                     return false;
                 }
@@ -1241,7 +1241,7 @@ namespace Project001
 
             if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
             {
-                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                if (!(Math::FloatEqualToFloat(intervalB_min, intervalA_max) || Math::FloatEqualToFloat(intervalA_min, intervalB_max)))
                 {
                     return false;
                 }
@@ -1316,7 +1316,7 @@ namespace Project001
 
             if ((intervalB_min > intervalA_max) || (intervalA_min > intervalB_max))
             {
-                if (!(FloatEqualToFloat(intervalB_min, intervalA_max) || FloatEqualToFloat(intervalA_min, intervalB_max)))
+                if (!(Math::FloatEqualToFloat(intervalB_min, intervalA_max) || Math::FloatEqualToFloat(intervalA_min, intervalB_max)))
                 {
                     return false;
                 }
@@ -1402,12 +1402,12 @@ namespace Project001
     {
         // Note:
         // Can't decide whether to use FloatLessThanOrEqualToFloat or just '<'
-        return FloatLessThanOrEqualToFloat(aabbA_min.x, aabbB_max.x) &&
-            FloatGreaterThanOrEqualToFloat(aabbA_max.x, aabbB_min.x) &&
-            FloatLessThanOrEqualToFloat(aabbA_min.y, aabbB_max.y) &&
-            FloatGreaterThanOrEqualToFloat(aabbA_max.y, aabbB_min.y) &&
-            FloatLessThanOrEqualToFloat(aabbA_min.z, aabbB_max.z) &&
-            FloatGreaterThanOrEqualToFloat(aabbA_max.z, aabbB_min.z);
+        return Math::FloatLessThanOrEqualToFloat(aabbA_min.x, aabbB_max.x) &&
+            Math::FloatGreaterThanOrEqualToFloat(aabbA_max.x, aabbB_min.x) &&
+            Math::FloatLessThanOrEqualToFloat(aabbA_min.y, aabbB_max.y) &&
+            Math::FloatGreaterThanOrEqualToFloat(aabbA_max.y, aabbB_min.y) &&
+            Math::FloatLessThanOrEqualToFloat(aabbA_min.z, aabbB_max.z) &&
+            Math::FloatGreaterThanOrEqualToFloat(aabbA_max.z, aabbB_min.z);
     }
 
     bool Check3D_AABB_OBB_Overlap(
@@ -1867,7 +1867,7 @@ namespace Project001
     {
         glm::vec3 lineSegment = lineSegment_end - lineSegment_start;
         float lineSegmentLengthSquared = glm::dot(lineSegment, lineSegment);
-        if (FloatEqualToFloat(lineSegmentLengthSquared, 0.0f))
+        if (Math::FloatEqualToFloat(lineSegmentLengthSquared, 0.0f))
         {
             closestPoint_position = lineSegment_start;
         }
@@ -2099,16 +2099,16 @@ namespace Project001
         // if nd == 0, ray is parallel to the plane
         // if nd > 0, ray is hitting plane from below
         // if nd < 0, ray is hitting plane from above
-        if (FloatEqualToFloat(nd, 0.0f))
+        if (Math::FloatEqualToFloat(nd, 0.0f))
         {
             return false;
         }
 
         hit_scalar = (plane_distance - pn) / nd;
 
-        if (FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
+        if (Math::FloatGreaterThanOrEqualToFloat(hit_scalar, 0.0f))
         {
-            if (FloatLessThanOrEqualToFloat(nd, 0))
+            if (Math::FloatLessThanOrEqualToFloat(nd, 0))
             {
                 hit_normal = plane_normal;
             }
@@ -2165,12 +2165,12 @@ namespace Project001
         // Address this by using a small number, close to
         // 0 in case any of directions components are 0
         float t[6] = {
-            (aabb_min.x - ray_position.x) / (FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
-            (aabb_max.x - ray_position.x) / (FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
-            (aabb_min.y - ray_position.y) / (FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
-            (aabb_max.y - ray_position.y) / (FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
-            (aabb_min.z - ray_position.z) / (FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z),
-            (aabb_max.z - ray_position.z) / (FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z)
+            (aabb_min.x - ray_position.x) / (Math::FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
+            (aabb_max.x - ray_position.x) / (Math::FloatEqualToFloat(ray_direction.x, 0.0f) ? 0.00001f : ray_direction.x),
+            (aabb_min.y - ray_position.y) / (Math::FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
+            (aabb_max.y - ray_position.y) / (Math::FloatEqualToFloat(ray_direction.y, 0.0f) ? 0.00001f : ray_direction.y),
+            (aabb_min.z - ray_position.z) / (Math::FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z),
+            (aabb_max.z - ray_position.z) / (Math::FloatEqualToFloat(ray_direction.z, 0.0f) ? 0.00001f : ray_direction.z)
         };
 
         float largest_t_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
@@ -2205,7 +2205,7 @@ namespace Project001
             glm::vec3(0, 0, 1)
         };
         for (int i = 0; i < 6; ++i) {
-            if (FloatEqualToFloat(hit_scalar, t[i])) {
+            if (Math::FloatEqualToFloat(hit_scalar, t[i])) {
                 hit_normal = normals[i];
                 break;
             }
@@ -2241,7 +2241,7 @@ namespace Project001
 
         float t[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         for (int i = 0; i < 3; ++i) {
-            if (FloatEqualToFloat(f[i], 0.0f)) {
+            if (Math::FloatEqualToFloat(f[i], 0.0f)) {
                 if (-e[i] - obb_halfSize[i] > 0.0f || -e[i] + obb_halfSize[i] < 0.0f) {
                     return false;
                 }
@@ -2284,7 +2284,7 @@ namespace Project001
             obb_rotation[2] * -1.0f
         };
         for (int i = 0; i < 6; ++i) {
-            if (FloatEqualToFloat(hit_scalar, t[i])) {
+            if (Math::FloatEqualToFloat(hit_scalar, t[i])) {
                 hit_normal = normals[i];
                 break;
             }
@@ -2310,7 +2310,7 @@ namespace Project001
         float bSq = rayToSphereSq - (aSq);
         float f = glm::sqrt(glm::abs((sphereRadiusSq)- bSq));
 
-        if (FloatGreaterThanOrEqualToFloat(sphereRadiusSq - (rayToSphereSq - aSq), 0.0f))
+        if (Math::FloatGreaterThanOrEqualToFloat(sphereRadiusSq - (rayToSphereSq - aSq), 0.0f))
         {
             if (rayToSphereSq < sphereRadiusSq) {
                 hit_scalar = a + f;
@@ -2346,7 +2346,7 @@ namespace Project001
         glm::vec3 v = glm::cross(planeA_normal, distances);
 
         float denominator = glm::dot(planeA_normal, u);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // planes don't intersect at a point
             return false;
@@ -2365,16 +2365,16 @@ namespace Project001
         const glm::vec3& box_oppositeCorner2)
     {
         float maxX, minX, maxY, minY, maxZ, minZ;
-        GetMinMax(box_oppositeCorner1.x, box_oppositeCorner2.x, minX, maxX);
-        GetMinMax(box_oppositeCorner1.y, box_oppositeCorner2.y, minY, maxY);
-        GetMinMax(box_oppositeCorner1.z, box_oppositeCorner2.z, minZ, maxZ);
+        Math::GetMinMax(box_oppositeCorner1.x, box_oppositeCorner2.x, minX, maxX);
+        Math::GetMinMax(box_oppositeCorner1.y, box_oppositeCorner2.y, minY, maxY);
+        Math::GetMinMax(box_oppositeCorner1.z, box_oppositeCorner2.z, minZ, maxZ);
 
-        return FloatLessThanOrEqualToFloat(point_position.x, maxX) &&
-            FloatGreaterThanOrEqualToFloat(point_position.x, minX) &&
-            FloatLessThanOrEqualToFloat(point_position.y, maxY) &&
-            FloatGreaterThanOrEqualToFloat(point_position.y, minY) &&
-            FloatLessThanOrEqualToFloat(point_position.z, maxZ) &&
-            FloatGreaterThanOrEqualToFloat(point_position.z, minZ);
+        return Math::FloatLessThanOrEqualToFloat(point_position.x, maxX) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.x, minX) &&
+            Math::FloatLessThanOrEqualToFloat(point_position.y, maxY) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.y, minY) &&
+            Math::FloatLessThanOrEqualToFloat(point_position.z, maxZ) &&
+            Math::FloatGreaterThanOrEqualToFloat(point_position.z, minZ);
     }
 
     void Get3D_Point_Plane_Distance(
@@ -2395,7 +2395,7 @@ namespace Project001
         glm::vec3 planeToPoint = point_position - plane_position;
 
         float dotProduct = glm::dot(planeToPoint, plane_normal);
-        return FloatEqualToFloat(dotProduct, 0.0f);
+        return Math::FloatEqualToFloat(dotProduct, 0.0f);
     }
 
     bool Check3D_Point_OBB_Overlap_Alt(
@@ -2454,7 +2454,7 @@ namespace Project001
         float dotProduct = glm::dot(line_direction, plane_normal);
 
         // If dotProduct == 0, line is parallel to the plane
-        return !FloatEqualToFloat(dotProduct, 0.0f);
+        return !Math::FloatEqualToFloat(dotProduct, 0.0f);
     }
 
     bool Get3D_Line_Line_ClosestPoints_H(
@@ -2474,7 +2474,7 @@ namespace Project001
 
         glm::vec3 d1_X_d2 = glm::cross(d1, d2);
         float denominator = glm::dot(d1_X_d2, d1_X_d2);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // if (Check3D_Point_Line_Overlap(lineA_position, lineB_position, lineB_direction))
             // {
@@ -2507,7 +2507,7 @@ namespace Project001
 
         glm::vec3 pointToClosest = closestLinePosition - point_position;
         float distanceSquared = glm::dot(pointToClosest, pointToClosest);
-        return FloatEqualToFloat(distanceSquared, 0.0f);
+        return Math::FloatEqualToFloat(distanceSquared, 0.0f);
     }
 
     bool Get3D_Line_Plane_Intersection_Alt(
@@ -2540,7 +2540,7 @@ namespace Project001
         // u = n dot (p2 - p1) / (n dot d)
 
         float denominator = glm::dot(plane_normal, line_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // line is parallel to the plane
             return false;
@@ -2561,7 +2561,7 @@ namespace Project001
         glm::vec3& intersection_position)
     {
         float denominator = glm::dot(plane_normal, ray_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // ray is parallel to the plane,
             return false;
@@ -2570,7 +2570,7 @@ namespace Project001
         float numerator = glm::dot(plane_normal, plane_position - ray_position);
         float u = numerator / denominator;
 
-        if (FloatGreaterThanOrEqualToFloat(u, 0.0f))
+        if (Math::FloatGreaterThanOrEqualToFloat(u, 0.0f))
         {
             intersection_position = ray_direction * u + ray_position;
             return true;
@@ -2606,9 +2606,9 @@ namespace Project001
         const glm::vec3& planeB_position,
         const glm::vec3& planeB_normal)
     {
-        if (FloatEqualToFloat(planeA_position.x, planeB_position.x) &&
-            FloatEqualToFloat(planeA_position.y, planeB_position.y) &&
-            FloatEqualToFloat(planeA_position.z, planeB_position.z))
+        if (Math::FloatEqualToFloat(planeA_position.x, planeB_position.x) &&
+            Math::FloatEqualToFloat(planeA_position.y, planeB_position.y) &&
+            Math::FloatEqualToFloat(planeA_position.z, planeB_position.z))
         {
             return true;
         }
@@ -2616,8 +2616,8 @@ namespace Project001
         glm::vec3 normal_ratio = planeA_normal / planeB_normal;
 
         // Check if planes are parallel; if they are, they don't Overlap
-        return !(FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
-            FloatEqualToFloat(normal_ratio.x, normal_ratio.z));
+        return !(Math::FloatEqualToFloat(normal_ratio.x, normal_ratio.y) &&
+            Math::FloatEqualToFloat(normal_ratio.x, normal_ratio.z));
     }
 
     bool Check3D_Point_Triangle_Overlap_H(
@@ -2638,8 +2638,8 @@ namespace Project001
         float dotUV = glm::dot(u, v);
         float dotUW = glm::dot(u, w);
 
-        return FloatGreaterThanOrEqualToFloat(dotUV, 0.0f) &&
-            FloatGreaterThanOrEqualToFloat(dotUW, 0.0f);
+        return Math::FloatGreaterThanOrEqualToFloat(dotUV, 0.0f) &&
+            Math::FloatGreaterThanOrEqualToFloat(dotUW, 0.0f);
     }
 
     bool Check3D_LineSegment_Triangle_Overlap_H(
@@ -2654,7 +2654,7 @@ namespace Project001
         glm::vec3 plane_normal = glm::normalize(glm::cross(side12, side13));
         glm::vec3 lineSegment_direction = glm::normalize(lineSegment_end - lineSegment_start);
         float denominator = glm::dot(plane_normal, lineSegment_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // line is parallel to the plane
             return Check3D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2) ||
@@ -2691,7 +2691,7 @@ namespace Project001
         glm::vec3 lineSegment_vector = lineSegment_end - lineSegment_start;
         glm::vec3 lineSegment_direction = glm::normalize(lineSegment_vector);
         float denominator = glm::dot(plane_normal, lineSegment_direction);
-        if (FloatEqualToFloat(denominator, 0.0f))
+        if (Math::FloatEqualToFloat(denominator, 0.0f))
         {
             // line is parallel to the plane
             return Check3D_LineSegment_LineSegment_Overlap(lineSegment_start, lineSegment_end, triangle_corner1, triangle_corner2) ||
@@ -2703,8 +2703,8 @@ namespace Project001
         {
             float t = (plane_distance - glm::dot(plane_normal, lineSegment_start)) / denominator;
             float lineSegmentLengthSq = glm::dot(lineSegment_vector, lineSegment_vector);
-            return FloatGreaterThanOrEqualToFloat(t, 0.0f) &&
-                FloatLessThanOrEqualToFloat(t * t, lineSegmentLengthSq);
+            return Math::FloatGreaterThanOrEqualToFloat(t, 0.0f) &&
+                Math::FloatLessThanOrEqualToFloat(t * t, lineSegmentLengthSq);
         }
     }
 
@@ -2747,15 +2747,15 @@ namespace Project001
         glm::vec3& plane_normal,
         float& plane_distance)
     {
-        if ((FloatEqualToFloat(triangle_corner1.x, triangle_corner2.x) &&
-            FloatEqualToFloat(triangle_corner1.y, triangle_corner2.y) &&
-            FloatEqualToFloat(triangle_corner1.z, triangle_corner2.z)) ||
-            (FloatEqualToFloat(triangle_corner2.x, triangle_corner3.x) &&
-            FloatEqualToFloat(triangle_corner2.y, triangle_corner3.y) &&
-            FloatEqualToFloat(triangle_corner2.z, triangle_corner3.z)) ||
-            (FloatEqualToFloat(triangle_corner3.x, triangle_corner1.x) &&
-            FloatEqualToFloat(triangle_corner3.y, triangle_corner1.y) &&
-            FloatEqualToFloat(triangle_corner3.z, triangle_corner1.z)))
+        if ((Math::FloatEqualToFloat(triangle_corner1.x, triangle_corner2.x) &&
+            Math::FloatEqualToFloat(triangle_corner1.y, triangle_corner2.y) &&
+            Math::FloatEqualToFloat(triangle_corner1.z, triangle_corner2.z)) ||
+            (Math::FloatEqualToFloat(triangle_corner2.x, triangle_corner3.x) &&
+            Math::FloatEqualToFloat(triangle_corner2.y, triangle_corner3.y) &&
+            Math::FloatEqualToFloat(triangle_corner2.z, triangle_corner3.z)) ||
+            (Math::FloatEqualToFloat(triangle_corner3.x, triangle_corner1.x) &&
+            Math::FloatEqualToFloat(triangle_corner3.y, triangle_corner1.y) &&
+            Math::FloatEqualToFloat(triangle_corner3.z, triangle_corner1.z)))
         {
             plane_normal = glm::vec3(0.0f, 1.0f, 0.0f);
             plane_distance = glm::length(triangle_corner1);
@@ -2873,12 +2873,12 @@ for (size_t i = 1; i < 8; ++i)
         // Address this by using a small number, close to
         // 0 in case any of directions components are 0
         float t[6] = {
-            (aabb_min.x - g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.x),
-            (aabb_max.x + g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.x),
-            (aabb_min.y - g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.y),
-            (aabb_max.y + g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.y),
-            (aabb_min.z - g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.z),
-            (aabb_max.z + g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * g_floatMarginOfError : line_direction.z)
+            (aabb_min.x - Math::g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.x),
+            (aabb_max.x + Math::g_floatMarginOfError - line_position.x) / (line_direction.x == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.x),
+            (aabb_min.y - Math::g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.y),
+            (aabb_max.y + Math::g_floatMarginOfError - line_position.y) / (line_direction.y == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.y),
+            (aabb_min.z - Math::g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.z),
+            (aabb_max.z + Math::g_floatMarginOfError - line_position.z) / (line_direction.z == 0.0f ? 0.001f * Math::g_floatMarginOfError : line_direction.z)
         };
 
         hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));
@@ -2922,10 +2922,10 @@ for (size_t i = 1; i < 8; ++i)
                 // if (-e[i] - obb_halfSize[i] > 0.0f || -e[i] + obb_halfSize[i] < 0.0f) {
                 //     return false;
                 // }
-                f[i] = 0.001f * g_floatMarginOfError; // avoid dividing by 0
+                f[i] = 0.001f * Math::g_floatMarginOfError; // avoid dividing by 0
             }
-            t[i * 2 + 0] = (e[i] + obb_halfSize[i] + g_floatMarginOfError) / f[i]; // tmin[x, y, z]
-            t[i * 2 + 1] = (e[i] - obb_halfSize[i] - g_floatMarginOfError) / f[i]; // tmax[x, y, z]
+            t[i * 2 + 0] = (e[i] + obb_halfSize[i] + Math::g_floatMarginOfError) / f[i]; // tmin[x, y, z]
+            t[i * 2 + 1] = (e[i] - obb_halfSize[i] - Math::g_floatMarginOfError) / f[i]; // tmax[x, y, z]
         }
 
         hit_scalar_largest_min = std::max(std::max(std::min(t[0], t[1]), std::min(t[2], t[3])), std::min(t[4], t[5]));

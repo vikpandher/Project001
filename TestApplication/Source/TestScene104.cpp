@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene104.h"
 
@@ -11,14 +11,14 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
-#include "Math/MathUtilities.h"
 #include "Resources/PixelFont5x6.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -202,14 +202,14 @@ void TestScene104::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 void TestScene104::InitializeInstructionScene()
 {
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -293,22 +293,22 @@ void TestScene104::LoadPixelFontResources()
 void TestScene104::LoadCursorResources()
 {
     cursorHandOpen_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *cursorHandOpen_MeshDataPtr_, 24.0f, 32.0f, 0.0f, 1.0f / 3.0f, 0.0f, 1.0f
     ));
 
     cursorHandPointer_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *cursorHandPointer_MeshDataPtr_, 24.0f, 32.0f, 1.0f / 3.0f, 2.0f / 3.0f, 0.0f, 1.0f
     ));
 
     cursorHandGrab_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *cursorHandGrab_MeshDataPtr_, 24.0f, 32.0f, 2.0f / 3.0f, 1.0f, 0.0f, 1.0f
     ));
 
     cursor_TextureDataPtr_ = new Project001::TextureData();
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(
+    FAIL_CHECK(Project001::Texture::LoadTexture(
         *cursor_TextureDataPtr_, "../Textures/handCursor_01.png"
     ));
 
@@ -322,7 +322,7 @@ void TestScene104::LoadCursorResources()
     );
 
     cursorCollision_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DArc(
+    FAIL_CHECK(Project001::Mesh::Generate2DArc(
         *cursorCollision_MeshDataPtr_, 2.0f, 4.0f, 8, 0.0f, 0.0f
     ));
 }

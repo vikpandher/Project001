@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene001.h"
 
@@ -11,14 +11,14 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
 #include "SoundPlayer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -88,18 +88,18 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene001:            " << GetId());
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -121,7 +121,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     float buttonRectangleHeight = 0.5f;
 
     rectangleMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *rectangleMeshDataPtr_,
         buttonRectangleWidth,
         buttonRectangleHeight,
@@ -147,7 +147,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     triangleFanPositions.emplace_back(0.75f, 0.375f);
     triangleFanPositions.emplace_back(0.25f, 0.375f);
     triangleFanPositions.emplace_back(0.25f, 0.25f);
-    Project001::MeshLoader::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
+    Project001::Mesh::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
 
     triangleFanPositions.clear();
     triangleFanPositions.emplace_back(-0.625f, 0.25f);
@@ -156,7 +156,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     triangleFanPositions.emplace_back(-0.75f, 0.375f);
     triangleFanPositions.emplace_back(-0.75f, 0.125f);
     triangleFanPositions.emplace_back(-0.625f, 0.125f);
-    Project001::MeshLoader::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
+    Project001::Mesh::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
 
     triangleFanPositions.clear();
     triangleFanPositions.emplace_back(-0.625f, -0.25f);
@@ -165,7 +165,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     triangleFanPositions.emplace_back(-0.75f, -0.375f);
     triangleFanPositions.emplace_back(-0.25f, -0.375f);
     triangleFanPositions.emplace_back(-0.25f, -0.25f);
-    Project001::MeshLoader::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
+    Project001::Mesh::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
 
     triangleFanPositions.clear();
     triangleFanPositions.emplace_back(0.625f, -0.25f);
@@ -174,7 +174,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     triangleFanPositions.emplace_back(0.75f, -0.375f);
     triangleFanPositions.emplace_back(0.75f, -0.125f);
     triangleFanPositions.emplace_back(0.625f, -0.125f);
-    Project001::MeshLoader::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
+    Project001::Mesh::Generate2DTriangleFan(*selectorMeshDataPtr_, triangleFanPositions);
 
     GetRendererPtr()->CreateMesh(
         selectorMeshId_,
@@ -185,7 +185,7 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     );
 
     cursorCircleMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*cursorCircleMeshDataPtr_, 0.08f, 12));
+    FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*cursorCircleMeshDataPtr_, 0.08f, 12));
 
     std::vector<std::string> buttonStrings;
     buttonStrings.emplace_back("TestScene002");
@@ -248,13 +248,13 @@ void TestScene001::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
         Project001::MeshData* newTextMeshDataPtr = new Project001::MeshData();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newTextMeshDataPtr,
             *font01_FontDataPtr_,
             buttonStrings[i],
             buttonFontPixelSize_
         ));
-        Project001::MeshLoader::RecenterMesh(*newTextMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newTextMeshDataPtr);
         buttonTextMeshDataPtrs_.push_back(newTextMeshDataPtr);
     }
 
@@ -643,7 +643,7 @@ void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     GetSoundPlayerPtr()->ResetListener();
     GetComponentStoresPtr()->DeleteAllEntities();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;

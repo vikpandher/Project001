@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene004.h"
 
@@ -9,13 +9,13 @@
 #include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/RenderedMesh.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -61,9 +61,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.0f, 0.48f);
         positions.emplace_back(0.0f, 0.64f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -76,9 +76,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.16f, 0.32f);
         positions.emplace_back(0.16f, 0.64f);
         positions.emplace_back(0.16f, 0.64f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -91,9 +91,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.32f, 0.32f);
         positions.emplace_back(0.32f, 0.32f);
         positions.emplace_back(0.32f, 0.64f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -104,9 +104,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.32f, 0.32f); // same slope
         positions.emplace_back(-0.32f, -0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -117,9 +117,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.0f);
         positions.emplace_back(0.32f, -0.32f); // same slope
         positions.emplace_back(-0.32f, -0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -130,9 +130,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, -0.32f);
         positions.emplace_back(0.32f, -0.32f); // same slope
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -143,9 +143,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, -0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -155,9 +155,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.32f, -0.32f);
         positions.emplace_back(0.32f, 0.32f);
         positions.emplace_back(-0.32f, -0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -167,9 +167,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-0.32f, 0.32f);
         positions.emplace_back(0.32f, -0.32f);
         positions.emplace_back(-0.32f, -0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -179,9 +179,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-0.32f, -0.32f);
         positions.emplace_back(0.32f, -0.32f);
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
-        (Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr));
-        (Project001::MeshLoader::RecenterMesh(*newMeshDataPtr));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
+        (Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr));
+        (Project001::Mesh::RecenterMesh(*newMeshDataPtr));
     }
 
     {
@@ -192,9 +192,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, -0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.24f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -213,9 +213,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-0.16f, -0.08f);
         positions.emplace_back(0.08f, 0.16f);
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.04f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.04f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -226,9 +226,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.08, -0.04f);
         positions.emplace_back(-0.08, 0.04f);
         positions.emplace_back(0.32, 0.04f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -239,9 +239,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.08, -0.04f);
         positions.emplace_back(-0.08, 0.04f);
         positions.emplace_back(0.32, 0.04f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.12f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.12f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -252,9 +252,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -265,9 +265,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -278,9 +278,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(-0.16f, 0.48f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -292,9 +292,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(-0.16f, 0.48f);
         positions.emplace_back(0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -304,9 +304,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -318,9 +318,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.32f, 0.0f);
         positions.emplace_back(0.16f, 0.16f);
         positions.emplace_back(0.48f, -0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -332,9 +332,9 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.16f, 0.16f);
         positions.emplace_back(0.48f, -0.16f);
         positions.emplace_back(-0.16f, 0.48f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     {
@@ -345,44 +345,44 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.0f, 0.32f);
         positions.emplace_back(0.32f, 0.32f);
         positions.emplace_back(0.32f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, positions, 0.08f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
     }
 
     Project001::MeshData* meshData01Ptr;
     {
         meshData01Ptr = new Project001::MeshData();
         meshDataPtrArray_.push_back(meshData01Ptr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*meshData01Ptr, 0.48f, 0.64f, 0.0f, 13.0f / 32.0f, 1.0f - 16.0f / 32.0f, 1.0f));
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(*meshData01Ptr, 0.48f, 0.64f, 0.0f, 13.0f / 32.0f, 1.0f - 16.0f / 32.0f, 1.0f));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
-        Project001::MeshLoader::RotateTextureCoordinates(*newMeshDataPtr, -glm::quarter_pi<float>());
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
+        Project001::Mesh::RotateTextureCoordinates(*newMeshDataPtr, -glm::quarter_pi<float>());
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
-        Project001::MeshLoader::ScaleTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
+        Project001::Mesh::ScaleTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
     }
 
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.06f / 0.32f, -0.08f / 0.32f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, *meshData01Ptr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.06f / 0.32f, -0.08f / 0.32f));
     }
 
     for(size_t i = 0; i < 44; ++i)
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*newMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(*newMeshDataPtr, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
     }
 
     // Texture Data ------------------------------------------------------------
@@ -400,7 +400,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -417,7 +417,7 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -469,14 +469,14 @@ void TestScene004::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)

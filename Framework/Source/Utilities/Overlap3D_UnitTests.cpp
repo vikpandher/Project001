@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-05-11
+// @DATE 2025-12-19
 
 #include "Overlap3D_UnitTests.h"
 
@@ -5587,9 +5587,9 @@ namespace Project001
                 glm::vec3(1.0f, 0.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -5604,9 +5604,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 2;
             }
@@ -5621,9 +5621,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 3;
             }
@@ -5638,9 +5638,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, -2.0f) &&
-                FloatEqualToFloat(closestPoint.y, -2.0f) &&
-                FloatEqualToFloat(closestPoint.z, 3.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, -2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 3.0f)))
             {
                 return 4;
             }
@@ -5660,9 +5660,9 @@ namespace Project001
                 glm::vec3(1.0f, 0.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -5677,9 +5677,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 2;
             }
@@ -5694,9 +5694,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 3;
             }
@@ -5711,9 +5711,9 @@ namespace Project001
                 glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f)),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, -2.0f) &&
-                FloatEqualToFloat(closestPoint.z, 1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 4;
             }
@@ -5733,9 +5733,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -5750,9 +5750,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, -1.0f) &&
-                FloatEqualToFloat(closestPoint.y, -1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, -1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 2;
             }
@@ -5767,9 +5767,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 3;
             }
@@ -5784,9 +5784,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 4;
             }
@@ -5806,9 +5806,9 @@ namespace Project001
                 0.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -5823,9 +5823,9 @@ namespace Project001
                 0.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, -1.0f) &&
-                FloatEqualToFloat(closestPoint.y, -1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, -1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 2;
             }
@@ -5840,9 +5840,9 @@ namespace Project001
                 glm::sqrt(3.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 3;
             }
@@ -5863,9 +5863,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -5881,9 +5881,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, -1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 2;
             }
@@ -5899,9 +5899,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, -1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, -2.0f) &&
-                FloatEqualToFloat(closestPoint.y, -3.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, -2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -3.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 3;
             }
@@ -5917,9 +5917,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, -1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, -2.0f) &&
-                FloatEqualToFloat(closestPoint.y, -3.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, -2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, -3.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 4;
             }
@@ -5935,9 +5935,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, -1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 2.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 5;
             }
@@ -5953,9 +5953,9 @@ namespace Project001
                 glm::vec3(-2.0f, 2.0f, -1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 2.0f) &&
-                FloatEqualToFloat(closestPoint.z, -1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, -1.0f)))
             {
                 return 6;
             }
@@ -5971,9 +5971,9 @@ namespace Project001
                 glm::vec3(0.0f, 0.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 7;
             }
@@ -5993,9 +5993,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -6010,9 +6010,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 2;
             }
@@ -6027,9 +6027,9 @@ namespace Project001
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 1.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 3;
             }
@@ -6050,9 +6050,9 @@ namespace Project001
                 glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -6073,9 +6073,9 @@ namespace Project001
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 2.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 2;
             }
@@ -6096,9 +6096,9 @@ namespace Project001
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 3.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 3.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.z, 1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f - 3.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.y, 3.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 3;
             }
@@ -6119,9 +6119,9 @@ namespace Project001
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.z, 1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 4;
             }
@@ -6142,9 +6142,9 @@ namespace Project001
                 rotation,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
-                FloatEqualToFloat(closestPoint.z, 1.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f - 2.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.y, 4.0f / glm::sqrt(2.0f)) &&
+                Math::FloatEqualToFloat(closestPoint.z, 1.0f)))
             {
                 return 5;
             }
@@ -6164,9 +6164,9 @@ namespace Project001
                 1.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 1;
             }
@@ -6181,9 +6181,9 @@ namespace Project001
                 1.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 1.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 1.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 2;
             }
@@ -6198,9 +6198,9 @@ namespace Project001
                 0.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 0.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 3;
             }
@@ -6215,9 +6215,9 @@ namespace Project001
                 0.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 4;
             }
@@ -6232,9 +6232,9 @@ namespace Project001
                 0.0f,
                 closestPoint);
 
-            if (!(FloatEqualToFloat(closestPoint.x, 2.0f) &&
-                FloatEqualToFloat(closestPoint.y, 0.0f) &&
-                FloatEqualToFloat(closestPoint.z, 0.0f)))
+            if (!(Math::FloatEqualToFloat(closestPoint.x, 2.0f) &&
+                Math::FloatEqualToFloat(closestPoint.y, 0.0f) &&
+                Math::FloatEqualToFloat(closestPoint.z, 0.0f)))
             {
                 return 5;
             }

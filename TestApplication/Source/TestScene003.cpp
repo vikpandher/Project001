@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene003.h"
 
@@ -9,13 +9,13 @@
 #include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/RenderedMesh.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -59,31 +59,31 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/earth.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/earth.png"));
         GetRendererPtr()->CreateTexture(earth_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
         GetRendererPtr()->CreateTexture(numbers12x6_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_01.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/box_01.png"));
         GetRendererPtr()->CreateTexture(box01_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_02.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/box_02.png"));
         GetRendererPtr()->CreateTexture(box02_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/box_03.png"));
         GetRendererPtr()->CreateTexture(box03_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -190,7 +190,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.16f, -0.16f, -0.16f);
         const glm::vec3 max(0.16f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -213,7 +213,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.16f, -0.16f);
         const glm::vec3 max(0.32f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -236,7 +236,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.32f, -0.16f);
         const glm::vec3 max(0.32f, 0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -259,7 +259,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.16f, -0.16f, -0.16f);
         const glm::vec3 max(0.16f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -282,7 +282,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.16f, -0.16f);
         const glm::vec3 max(0.32f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -305,7 +305,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.32f, -0.16f);
         const glm::vec3 max(0.32f, 0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -328,7 +328,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.16f, -0.16f, -0.16f);
         const glm::vec3 max(0.16f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -352,7 +352,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.16f, -0.16f);
         const glm::vec3 max(0.32f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -376,7 +376,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.32f, -0.16f);
         const glm::vec3 max(0.32f, 0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -400,7 +400,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.16f, -0.16f, -0.16f);
         const glm::vec3 max(0.16f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box01_textureCoordinates, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -424,7 +424,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.16f, -0.16f);
         const glm::vec3 max(0.32f, 0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box02_textureCoordinates, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -448,7 +448,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.32f, -0.32f, -0.16f);
         const glm::vec3 max(0.32f, 0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates, false));
+        FAIL_CHECK(Project001::Mesh::GenerateBoxWithTexture(*newMeshDataPtr, min, max, box03_textureCoordinates, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -470,7 +470,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -492,7 +492,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -514,7 +514,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -536,7 +536,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 3, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -558,7 +558,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 4, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -580,7 +580,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -602,7 +602,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>()));
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>()));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -624,7 +624,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(
             *newMeshDataPtr,
             0.32f,
             4,
@@ -655,7 +655,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(
             *newMeshDataPtr,
             0.32f,
             4,
@@ -686,7 +686,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>(), false));
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(*newMeshDataPtr, 0.32f, 4, 4, 0, glm::two_pi<float>(), 0, glm::pi<float>(), false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -708,7 +708,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(
             *newMeshDataPtr,
             0.32f,
             4,
@@ -740,7 +740,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphereSection(
+        FAIL_CHECK(Project001::Mesh::GenerateSphereSection(
             *newMeshDataPtr,
             0.32f,
             4,
@@ -772,7 +772,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -794,7 +794,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -816,7 +816,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -838,7 +838,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 0, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -860,7 +860,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 1, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -882,7 +882,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.32f, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -904,7 +904,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 0));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 0));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -926,7 +926,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 1));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 1));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -948,7 +948,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -970,7 +970,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 0, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 0, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -992,7 +992,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 1, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 1, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1014,7 +1014,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1044,7 +1044,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 3, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere_v2(*newMeshDataPtr, 0.32f, 3, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1066,7 +1066,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1088,7 +1088,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1110,7 +1110,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1132,7 +1132,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 3, 1, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1154,7 +1154,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 4, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1176,7 +1176,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCapsule(*newMeshDataPtr, 0.32f, 0.16f, 8, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1198,7 +1198,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1220,7 +1220,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1242,7 +1242,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1264,7 +1264,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 3, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1286,7 +1286,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 4, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1308,7 +1308,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateHemisphere(*newMeshDataPtr, 0.32f, 8, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1330,7 +1330,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1352,7 +1352,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1374,7 +1374,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1396,7 +1396,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1418,7 +1418,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1440,7 +1440,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCylinder(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1462,7 +1462,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1484,7 +1484,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1506,7 +1506,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1528,7 +1528,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 3, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1550,7 +1550,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1572,7 +1572,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateCone(*newMeshDataPtr, 0.64f, 0.32f, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1594,7 +1594,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 3));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 3));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1616,7 +1616,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1638,7 +1638,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1660,7 +1660,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 3, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 3, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1682,7 +1682,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1704,7 +1704,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTruncatedCone(*newMeshDataPtr, 0.64f, 0.16f, 0.32f, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1756,7 +1756,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 3, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 3, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1778,7 +1778,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 4, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 4, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1800,7 +1800,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 8, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 8, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1822,7 +1822,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 3, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 3, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1844,7 +1844,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 4, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 4, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1866,7 +1866,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 8, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCone(*newMeshDataPtr, 0.64f, 0.32f, 8, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1888,7 +1888,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 3, 2));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 3, 2));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1910,7 +1910,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 4, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 4, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1932,7 +1932,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 8, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 8, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1954,7 +1954,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 3, 2, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 3, 2, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1976,7 +1976,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 4, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 4, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1998,7 +1998,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 8, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.64f, 0.32f, 0.16f, 8, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2020,7 +2020,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2041,7 +2041,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2062,7 +2062,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2083,7 +2083,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 3, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2104,7 +2104,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 4, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2125,7 +2125,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8, false));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, glm::vec3(-0.64f, -0.64f, -0.64f), glm::vec3(0.64f, 0.64f, 0.64f), 0.12f, 8, false));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -2147,7 +2147,7 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
         {
-            Project001::MeshLoader::TurnInsideOut(*meshDataPtrArray_[i]);
+            Project001::Mesh::TurnInsideOut(*meshDataPtrArray_[i]);
         }
     }
 
@@ -2156,21 +2156,21 @@ void TestScene003::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
         {
-            Project001::MeshLoader::SizeMeshAlongNormals(*meshDataPtrArray_[i], 0.16f);
+            Project001::Mesh::SizeMeshAlongNormals(*meshDataPtrArray_[i], 0.16f);
         }
     }
 
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)

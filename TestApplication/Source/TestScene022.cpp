@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene022.h"
 
@@ -9,11 +9,11 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap2D.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap2D.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
 
 
@@ -74,7 +74,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -111,7 +111,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(0.0f, -100.0f);
         shapePoints.emplace_back(0.0f, 100.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -148,7 +148,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(0.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -185,7 +185,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(0.0f, 0.0f);
         shapePoints.emplace_back(0.0f, 100.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -225,7 +225,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.48f, -0.8f);
         shapePoints.emplace_back(0.48f, 0.8f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -269,9 +269,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -313,10 +313,10 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -354,9 +354,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -393,9 +393,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.08f, 12));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.08f, 12));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -432,9 +432,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -476,9 +476,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -561,9 +561,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             loopPoints[i] *= 0.16f;
         }
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -610,9 +610,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             fanPoints[i] *= 0.08f;
         }
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, fanPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, fanPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -673,9 +673,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             loopPoints[i] *= 0.16f;
         }
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, loopPoints, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -720,13 +720,13 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         for (size_t i = 0; i < sides - 1; ++i)
         {
-            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
+            radialVector = Project001::Math::Rotate2DVector(radialVector, sectionAngle);
             shapePoints.push_back(radialVector);
         }
 
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -771,13 +771,13 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         for (size_t i = 0; i < sides - 1; ++i)
         {
-            radialVector = Project001::Rotate2DVector(radialVector, sectionAngle);
+            radialVector = Project001::Math::Rotate2DVector(radialVector, sectionAngle);
             shapePoints.push_back(radialVector);
         }
 
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -815,9 +815,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         linePoints.emplace_back(0.32f, 0.32f);
         linePoints.emplace_back(-0.32f, -0.32f);
 
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -855,9 +855,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         linePoints.emplace_back(0.32f, -0.32f);
         linePoints.emplace_back(-0.32f, 0.32f);
 
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, linePoints, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -895,9 +895,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.32f, 0.0f);
         shapePoints.emplace_back(0.16f, 0.48f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -935,9 +935,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 16));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 16));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -979,9 +979,9 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1068,16 +1068,16 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     centerTriangleCorners.push_back(centerTriangleCorner1);
     centerTriangleCorners.push_back(centerTriangleCorner2);
     centerTriangleCorners.push_back(centerTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(tempMeshData, centerTriangleCorners));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Center Circle
     const float centerCircleRadius = 0.32f;
     const glm::vec2 centerCirclePosition(0.0f, 0.0f);
 
     tempMeshData.Clear();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(tempMeshData, centerCircleRadius, 24));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(tempMeshData, centerCircleRadius, 24));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Center Rectangle
     const glm::vec2 centerRectangleBottomLeft(-0.32f, -0.64f);
@@ -1089,8 +1089,8 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     centerRectangleCorners.push_back(centerRectangleBottomLeft);
     centerRectangleCorners.emplace_back(centerRectangleTopRight.x, centerRectangleBottomLeft.y);
     centerRectangleCorners.push_back(centerRectangleTopRight);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerRectangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(tempMeshData, centerRectangleCorners));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Center Convex Polygon
     tempMeshData.Clear();
@@ -1099,8 +1099,8 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     centerConvexPolygonCorners.emplace_back(-0.22f, -0.68f);
     centerConvexPolygonCorners.emplace_back(0.0f, -0.96f);
     centerConvexPolygonCorners.emplace_back(0.22f, -0.68f);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, centerConvexPolygonCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(tempMeshData, centerConvexPolygonCorners));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Left Capsule
     const glm::vec2 leftCapsuleStart(-0.44f, 0.32f);
@@ -1108,13 +1108,13 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     const float leftCapsuleRadius = 0.12f;
 
     tempMeshData.Clear();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
+    FAIL_CHECK(Project001::Mesh::Generate2DCapsule(
         tempMeshData,
         leftCapsuleStart,
         leftCapsuleEnd,
         leftCapsuleRadius,
         8));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Right Capsule
     const glm::vec2 rightCapsuleStart(0.44f, 0.32f);
@@ -1122,13 +1122,13 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     const float rightCapsuleRadius = 0.12f;
 
     tempMeshData.Clear();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(
+    FAIL_CHECK(Project001::Mesh::Generate2DCapsule(
         tempMeshData,
         rightCapsuleStart,
         rightCapsuleEnd,
         rightCapsuleRadius,
         8));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Left Triangle
     const glm::vec2 leftTriangleCorner1(-0.56f, 0.32f);
@@ -1140,8 +1140,8 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     leftTriangleCorners.push_back(leftTriangleCorner1);
     leftTriangleCorners.push_back(leftTriangleCorner2);
     leftTriangleCorners.push_back(leftTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, leftTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(tempMeshData, leftTriangleCorners));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
     // Right Triangle
     const glm::vec2 rightTriangleCorner1(0.56f, 0.32f);
@@ -1153,11 +1153,11 @@ void TestScene022::GenerateCombinationShape(glm::vec3& position)
     rightTriangleCorners.push_back(rightTriangleCorner1);
     rightTriangleCorners.push_back(rightTriangleCorner2);
     rightTriangleCorners.push_back(rightTriangleCorner3);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(tempMeshData, rightTriangleCorners));
-    Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(tempMeshData, rightTriangleCorners));
+    Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData);
 
-    Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-    Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+    Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+    Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
     unsigned int tempEntityId;
     GetComponentStoresPtr()->CreateEntity(tempEntityId);

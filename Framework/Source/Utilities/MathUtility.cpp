@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
-#include "MathUtilities.h"
+#include "MathUtility.h"
 
 #include "glm/gtc/constants.hpp"
 
@@ -11,6 +11,8 @@
 
 
 namespace Project001
+{
+namespace Math
 {
     // Coordinate Systems ------------------------------------------------------
 
@@ -594,4 +596,5 @@ namespace Project001
         float wrapped = glm::mod(angle + glm::pi<float>(), glm::two_pi<float>());
         return wrapped - glm::pi<float>();
     }
+}
 }

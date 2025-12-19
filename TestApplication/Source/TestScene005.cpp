@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene005.h"
 
@@ -9,14 +9,14 @@
 #include "TestResource_AntonioRegular_ssf.h"
 
 #include "Components/RenderedMesh.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -59,7 +59,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
         GetRendererPtr()->CreateTexture(numbers12x6_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -85,7 +85,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         meshDataPtrArray_.push_back(newMeshDataPtr);
         const glm::vec3 min(-0.30f, -0.20f, -0.15f);
         const glm::vec3 max(0.30f, 0.20f, 0.15f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, min, max));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, min, max));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -112,12 +112,12 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec3> capCorners;
         const glm::vec3 min(-0.30f, -0.20f, -0.15f);
         const glm::vec3 max(0.30f, 0.20f, 0.15f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(tempMeshData01, min, max));
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateBox(tempMeshData01, min, max));
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -166,7 +166,7 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.32f, 8, 8));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -192,12 +192,12 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -223,12 +223,12 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), -0.08f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), -0.08f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -254,12 +254,12 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -285,13 +285,13 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
-        Project001::MeshLoader::SliceMeshWithAPlane(
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(tempMeshData01, 0.32f, 8, 8));
+        Project001::Mesh::SliceMeshWithAPlane(
             tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)), 0.16f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -329,8 +329,8 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(*newMeshDataPtr, 0.48f, 0.32f, 0.08f, 8, 8, false));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(*newMeshDataPtr, 0.48f, 0.32f, 0.08f, 8, 8, false));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -356,13 +356,13 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(tempMeshData01, 0.48f, 0.32f, 0.08f, 8, 8, false));
-        Project001::MeshLoader::RotateMeshZ(tempMeshData01, glm::half_pi<float>());
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(tempMeshData01, 0.48f, 0.32f, 0.08f, 8, 8, false));
+        Project001::Mesh::RotateMeshZ(tempMeshData01, glm::half_pi<float>());
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -388,13 +388,13 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData tempMeshData02;
         Project001::MeshData tempMeshData03;
         std::vector<glm::vec3> capCorners;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIceCreamCup(tempMeshData01, 0.48f, 0.32f, 0.08f, 8, 8, false));
-        Project001::MeshLoader::RotateMeshZ(tempMeshData01, glm::half_pi<float>());
-        Project001::MeshLoader::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), -0.12f);
-        Project001::MeshLoader::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
-        Project001::MeshLoader::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData02);
-        Project001::MeshLoader::CopyMesh(*newMeshDataPtr, tempMeshData03);
+        FAIL_CHECK(Project001::Mesh::GenerateIceCreamCup(tempMeshData01, 0.48f, 0.32f, 0.08f, 8, 8, false));
+        Project001::Mesh::RotateMeshZ(tempMeshData01, glm::half_pi<float>());
+        Project001::Mesh::SliceMeshWithAPlane(tempMeshData02, tempMeshData03, capCorners, tempMeshData01, glm::vec3(0.0f, 1.0f, 0.0f), -0.12f);
+        Project001::Mesh::TranslateMesh(tempMeshData02, glm::vec3(0.0f, 0.04f, 0.0f));
+        Project001::Mesh::TranslateMesh(tempMeshData03, glm::vec3(0.0f, -0.04f, 0.0f));
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData02);
+        Project001::Mesh::CopyMesh(*newMeshDataPtr, tempMeshData03);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -415,14 +415,14 @@ void TestScene005::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -486,7 +486,7 @@ void TestScene005::TestOrderPointsCCW()
     // (0, 1, 0)
     // (-1, 0, 0)
     // (0, -1, 0)
-    Project001::OrderPointsCCW(test0_points, test0_axis, test0_startDir);
+    Project001::Math::OrderPointsCCW(test0_points, test0_axis, test0_startDir);
 
     std::vector<glm::vec3> test1_points =
     {
@@ -504,7 +504,7 @@ void TestScene005::TestOrderPointsCCW()
     // (-1, 0, 0)
     // (0, -1, 0)
     // (1, 0, 0)
-    Project001::OrderPointsCCW(test1_points, test1_axis, test1_startDir);
+    Project001::Math::OrderPointsCCW(test1_points, test1_axis, test1_startDir);
 
     std::vector<glm::vec3> test2_points =
     {
@@ -523,7 +523,7 @@ void TestScene005::TestOrderPointsCCW()
     // Note that the first point is not (1, 0, 0) becasue the startDir
     // is the direction from the center of all the points not the origin,
     // so the (1, 0, 0) point ends up "below" the startDir.
-    Project001::OrderPointsCCW(test2_points, test2_axis, test2_startDir);
+    Project001::Math::OrderPointsCCW(test2_points, test2_axis, test2_startDir);
 
     std::vector<glm::vec2> test3_points =
     {
@@ -538,14 +538,14 @@ void TestScene005::TestOrderPointsCCW()
     // (0, 1)
     // (-1, 0)
     // (0, -1)
-    Project001::OrderPointsCCW(test3_points, 0.0f);
+    Project001::Math::OrderPointsCCW(test3_points, 0.0f);
 
     // Expected output:
     // (0, 1)
     // (-1, 0)
     // (0, -1)
     // (1, 0)
-    Project001::OrderPointsCCW(test3_points, glm::half_pi<float>());
+    Project001::Math::OrderPointsCCW(test3_points, glm::half_pi<float>());
 
     std::vector<glm::vec2> test4_points =
     {
@@ -554,7 +554,7 @@ void TestScene005::TestOrderPointsCCW()
 
     // Expected output:
     // (-1, -1) -> (1, 0) -> (0, 1)
-    Project001::OrderPointsCCW(test4_points, glm::pi<float>());
+    Project001::Math::OrderPointsCCW(test4_points, glm::pi<float>());
 
     int z = 0;
 }
@@ -563,7 +563,7 @@ void TestScene005::TestRemoveDuplicates()
 {
     std::vector<glm::vec3> test0_input;
     std::vector<glm::vec3> test0_output;
-    Project001::RemoveDuplicates(test0_output, test0_input);
+    Project001::Math::RemoveDuplicates(test0_output, test0_input);
 
     test0_input.emplace_back(0.0f, 0.0f, 0.0f);
     test0_input.emplace_back(1.0f, 0.0f, 0.0f);
@@ -572,7 +572,7 @@ void TestScene005::TestRemoveDuplicates()
     test0_input.emplace_back(2.0f, 1.0f, 1.0f);
     test0_input.emplace_back(2.0f, 2.0f, 1.0f);
     test0_input.emplace_back(2.0f, 2.0f, 2.0f);
-    Project001::RemoveDuplicates(test0_output, test0_input);
+    Project001::Math::RemoveDuplicates(test0_output, test0_input);
 
     std::vector<glm::vec3> test1_input;
     std::vector<glm::vec3> test1_output;
@@ -590,7 +590,7 @@ void TestScene005::TestRemoveDuplicates()
     test1_input.emplace_back(2.0f, 2.0f, 1.0f);
     test1_input.emplace_back(2.0f, 2.0f, 2.0f);
     test1_input.emplace_back(2.0f, 2.0f, 2.0f);
-    Project001::RemoveDuplicates(test1_output, test1_input);
+    Project001::Math::RemoveDuplicates(test1_output, test1_input);
 
     std::vector<glm::vec2> test2_input;
     std::vector<glm::vec2> test2_output;
@@ -608,7 +608,7 @@ void TestScene005::TestRemoveDuplicates()
     test2_input.emplace_back(2.0f, 2.0f);
     test2_input.emplace_back(2.0f, 2.0f);
     test2_input.emplace_back(2.0f, 2.0f);
-    Project001::RemoveDuplicates(test2_output, test2_input);
+    Project001::Math::RemoveDuplicates(test2_output, test2_input);
 
     int z = 0;
 }

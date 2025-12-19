@@ -1,11 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "Components/Camera.h"
 
-#include "Math/MathUtilities.h"
-#include "Math/Overlap3D.h"
+#include "Utilities/Overlap3D.h"
 
 
 
@@ -245,7 +244,7 @@ namespace Project001
             cutoffWidth * static_cast<float>(viewportPoint.x) / static_cast<float>(viewportWidth) - rightCutoff_,
             cutoffHeight * static_cast<float>(viewportPoint.y) / static_cast<float>(viewportHeight) - topCutoff_
         );
-        orthoPoint = Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
+        orthoPoint = Math::Rotate2DVector(orthoPoint, glm::pi<float>() + GetRoll());
         orthoPoint.x += position_.x;
         orthoPoint.y += position_.y;
         return orthoPoint;

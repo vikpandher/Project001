@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene009.h"
 
@@ -10,13 +10,13 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -61,13 +61,13 @@ void TestScene009::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/32x32_gradiant.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/32x32_gradiant.png"));
         GetRendererPtr()->CreateTexture(gradiant_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
         GetRendererPtr()->CreateTexture(numbers12x6_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -94,14 +94,14 @@ void TestScene009::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -189,15 +189,15 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, i,
             1.0f, 0.5f, 0.75f, 0.25f,
             0,
             0.0f, 0.0f, 0.0f, 0.0f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -222,15 +222,15 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, i,
             1.0f, 0.5f, 0.75f, 0.25f,
             0,
             0.25f, 0.125f, 0.1875f, 0.0625f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -255,15 +255,15 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, i,
             1.0f, 0.5f, 0.75f, 0.25f,
             0,
             0.5f, 0.25f, 0.375f, 0.125f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -288,16 +288,16 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarBurst(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarBurst(
             *newMeshDataPtr, i,
             0.5f, 0.25f, 1.0f, 0.5f,
             glm::pi<float>() * 0.25f,
             0,
             0.0f, 0.0f, 0.0f, 0.0f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -322,16 +322,16 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarBurst(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarBurst(
             *newMeshDataPtr, i,
             0.5f, 0.25f, 1.0f, 0.5f,
             glm::pi<float>() * 0.25f,
             0,
             0.125f, 0.0625f, 0.25f, 0.125f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -356,16 +356,16 @@ void TestScene009::Create2DStarMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarBurst(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarBurst(
             *newMeshDataPtr, i,
             0.5f, 0.25f, 1.0f, 0.5f,
             glm::pi<float>() * 0.25f,
             0,
             0.25f, 0.125f, 0.5f, 0.25f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -415,15 +415,15 @@ void TestScene009::Create2DStarMeshes_2()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
         animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, 8,
             0.3f, 0.0f, 0.2f, 0.0f,
             i,
             0.2f, 0.0f, 0.1f, 0.0f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -449,15 +449,15 @@ void TestScene009::Create2DStarMeshes_2()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
         animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, 10,
             0.6f, 0.2f, 0.4f, 0.2f,
             i,
             0.4f, 0.1f, 0.3f, 0.1f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -483,15 +483,15 @@ void TestScene009::Create2DStarMeshes_2()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
         animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarRing(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
             *newMeshDataPtr, 10,
             0.8f, 0.4f, 0.7f, 0.3f,
             i,
             0.2f, 0.1f, 0.3f, 0.1f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -517,16 +517,16 @@ void TestScene009::Create2DStarMeshes_2()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         animatedMeshDataPtrArrayArray_[i].push_back(newMeshDataPtr);
         animatedMeshFrameDurationArrayArray_[i].emplace_back(frameDuration0);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DStarBurst(
+        FAIL_CHECK(Project001::Mesh::Generate2DStarBurst(
             *newMeshDataPtr, 10,
             0.8f, 0.5f, 1.0f, 0.8f,
             glm::pi<float>() * 0.1f,
             i,
             0.4f, 0.1f, 0.4f, 0.4f
         ));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -586,7 +586,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -595,7 +595,7 @@ void TestScene009::CreateCrownMeshes_1()
             0,
             0.0f, 0.0f, 0.0f, 0.0f
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -620,7 +620,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -629,7 +629,7 @@ void TestScene009::CreateCrownMeshes_1()
             0,
             0.25f, -0.125f, 0.25f, -0.125f
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -654,7 +654,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -663,7 +663,7 @@ void TestScene009::CreateCrownMeshes_1()
             0,
             0.5f, -0.25f, 0.5f, -0.25f
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -688,7 +688,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -698,7 +698,7 @@ void TestScene009::CreateCrownMeshes_1()
             0.0f, 0.0f, 0.0f, 0.0f,
             false
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -723,7 +723,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -733,7 +733,7 @@ void TestScene009::CreateCrownMeshes_1()
             0.25f, -0.125f, 0.25f, -0.125f,
             false
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -758,7 +758,7 @@ void TestScene009::CreateCrownMeshes_1()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSpikeyCrown(
+        FAIL_CHECK(Project001::Mesh::GenerateSpikeyCrown(
             *newMeshDataPtr,
             0.5f,
             1.0f,
@@ -768,7 +768,7 @@ void TestScene009::CreateCrownMeshes_1()
             0.5f, -0.25f, 0.5f, -0.25f,
             false
         ));
-        Project001::MeshLoader::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);

@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "PixelFont5x6.h"
 
-#include "TextureLoader.h"
+#include "Utilities/TextureUtility.h"
 
 
 
@@ -195,7 +195,7 @@ namespace Project001
 
         static bool initialized = []
         {
-            Project001::TextureLoader::LoadTextureFromMemory(
+            Project001::Texture::LoadTextureFromMemory(
                 textureData,
                 pixelFont5x6,
                 sizeof(pixelFont5x6)

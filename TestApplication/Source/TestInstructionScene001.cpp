@@ -1,15 +1,15 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestInstructionScene001.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 
 
 
@@ -48,29 +48,29 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     const float instructionFontPixelSize = 0.0048f;
 
     hiddenInstructionTextMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *hiddenInstructionTextMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.hiddenInstructionString,
         instructionFontPixelSize
     ));
-    Project001::MeshLoader::RecenterMesh(*hiddenInstructionTextMeshDataPtr_);
+    Project001::Mesh::RecenterMesh(*hiddenInstructionTextMeshDataPtr_);
 
     instructionTextMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *instructionTextMeshDataPtr_,
         *initializationInfo.fontDataPtr,
         initializationInfo.instructionString,
         instructionFontPixelSize
     ));
-    Project001::MeshLoader::RecenterMesh(*instructionTextMeshDataPtr_);
+    Project001::Mesh::RecenterMesh(*instructionTextMeshDataPtr_);
 
     float bezelSize = 0.08f;
 
     glm::vec3 hiddenInstructionMeshDataSize = hiddenInstructionTextMeshDataPtr_->GetSize();
 
     hiddenInstructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+    FAIL_CHECK(Project001::Mesh::Generate2DBezeledRectangle(
         *hiddenInstructionBackgroundMeshDataPtr_,
         hiddenInstructionMeshDataSize.x + bezelSize,
         hiddenInstructionMeshDataSize.y + bezelSize,
@@ -81,7 +81,7 @@ void TestInstructionScene001::Initialize(const InitializationInfo& initializatio
     glm::vec3 instructionMeshDataSize = instructionTextMeshDataPtr_->GetSize();
 
     instructionBackgroundMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DBezeledRectangle(
+    FAIL_CHECK(Project001::Mesh::Generate2DBezeledRectangle(
         *instructionBackgroundMeshDataPtr_,
         instructionMeshDataSize.x + bezelSize,
         instructionMeshDataSize.y + bezelSize,

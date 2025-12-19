@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene023.h"
 
@@ -9,12 +9,12 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap2D.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap2D.h"
 #include "Application.h"
 #include "CollisionBodyQuadTree2D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
 
 #include <random>
@@ -85,7 +85,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             shapePoints.emplace_back(-0.32f, -0.24f);
             shapePoints.emplace_back(0.32f, -0.24f);
             shapePoints.emplace_back(0.32f, 0.24f);
-            FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+            FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
             GetRendererPtr()->CreateMesh(
                 rectangleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),
@@ -145,7 +145,7 @@ void TestScene023::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
+            FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
             GetRendererPtr()->CreateMesh(
                 circleMeshId_,
                 newMeshDataPtr->meshVertexArray.data(),

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-06
+// @DATE 2025-12-19
 
 #pragma once
 
@@ -11,6 +11,8 @@
 
 
 namespace Project001
+{
+namespace Math
 {
     // Math Utility Groups:
     // * Coordinate Systems
@@ -40,7 +42,7 @@ namespace Project001
 
     // Float Comparisons -------------------------------------------------------
 
-    static const float g_floatMarginOfError = 0.00001f;
+    const float g_floatMarginOfError = 0.00001f;
 
     bool FloatEqualToFloat(float a, float b, float epsilon = g_floatMarginOfError);
 
@@ -87,4 +89,5 @@ namespace Project001
 
     // converts the angle to be in range [-pi, pi)
     float WrapAngleToPiRange(float angle);
+}
 }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene020.h"
 
@@ -9,11 +9,11 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap2D.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap2D.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
 
 #define _LOG_TEST(x) if ((x)) {LOG_INFO_F("--TEST-PASSED--");}\
@@ -90,7 +90,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -127,7 +127,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -164,7 +164,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.48f, -0.8f);
         shapePoints.emplace_back(0.48f, 0.8f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -206,9 +206,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, -0.24f);
         shapePoints.emplace_back(0.32f, 0.24f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -250,10 +250,10 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, -0.32f);
         shapePoints.emplace_back(0.48f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -291,9 +291,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.32f, 24));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -330,9 +330,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DCapsule(*newMeshDataPtr, 0.80f, 0.24f, 8));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -374,9 +374,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.48f, -0.48f);
         shapePoints.emplace_back(0.48f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.48f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -414,7 +414,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -451,7 +451,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -488,7 +488,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.32f, 0.32f);
         shapePoints.emplace_back(0.32f, -0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -530,9 +530,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, -0.32f);
         shapePoints.emplace_back(0.24f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -574,10 +574,10 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, -0.16f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, -1.0f * glm::quarter_pi<float>());
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, -1.0f * glm::quarter_pi<float>());
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -615,9 +615,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.24f, 24));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -654,10 +654,10 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.64f, 0.24f, 8));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DCapsule(*newMeshDataPtr, 0.64f, 0.24f, 8));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::half_pi<float>());
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -699,9 +699,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, 0.32f);
         shapePoints.emplace_back(0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -739,7 +739,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -776,7 +776,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-100.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -813,7 +813,7 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> shapePoints;
         shapePoints.emplace_back(-0.16f, -0.16f);
         shapePoints.emplace_back(0.16f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -855,9 +855,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -899,10 +899,10 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, -0.16f);
         shapePoints.emplace_back(0.24f, 0.16f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -940,9 +940,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.16f, 24));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -979,9 +979,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DCapsule(*newMeshDataPtr, 0.48f, 0.16f, 8));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DCapsule(*newMeshDataPtr, 0.48f, 0.16f, 8));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1023,9 +1023,9 @@ void TestScene020::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(-0.32f, -0.32f);
         shapePoints.emplace_back(0.32f, 0.0f);
         shapePoints.emplace_back(0.0f, 0.32f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1196,64 +1196,64 @@ void TestScene020::Test_GetCameraRollPitchYaw() const
 void TestScene020::Test_CartesianToPolar() const
 {
     glm::vec2 input00(0.0f, 0.0f);
-    glm::vec2 output00 = Project001::CartesianToPolar(input00);
+    glm::vec2 output00 = Project001::Math::CartesianToPolar(input00);
 
     glm::vec2 input01(1.0f, 0.0f);
-    glm::vec2 output01 = Project001::CartesianToPolar(input01);
+    glm::vec2 output01 = Project001::Math::CartesianToPolar(input01);
 
     glm::vec2 input02(1.0f, 1.0f);
-    glm::vec2 output02 = Project001::CartesianToPolar(input02);
+    glm::vec2 output02 = Project001::Math::CartesianToPolar(input02);
 
     glm::vec2 input03(0.0f, 1.0f);
-    glm::vec2 output03 = Project001::CartesianToPolar(input03);
+    glm::vec2 output03 = Project001::Math::CartesianToPolar(input03);
 
     glm::vec2 input04(-1.0f, 1.0f);
-    glm::vec2 output04 = Project001::CartesianToPolar(input04);
+    glm::vec2 output04 = Project001::Math::CartesianToPolar(input04);
 
     glm::vec2 input05(-1.0f, 0.0f);
-    glm::vec2 output05 = Project001::CartesianToPolar(input05);
+    glm::vec2 output05 = Project001::Math::CartesianToPolar(input05);
 
     glm::vec2 input06(-1.0f, -1.0f);
-    glm::vec2 output06 = Project001::CartesianToPolar(input06);
+    glm::vec2 output06 = Project001::Math::CartesianToPolar(input06);
 
     glm::vec2 input07(0.0f, -1.0f);
-    glm::vec2 output07 = Project001::CartesianToPolar(input07);
+    glm::vec2 output07 = Project001::Math::CartesianToPolar(input07);
 
     glm::vec2 input08(1.0f, -1.0f);
-    glm::vec2 output08 = Project001::CartesianToPolar(input08);
+    glm::vec2 output08 = Project001::Math::CartesianToPolar(input08);
 }
 
 void TestScene020::Test_PolarToCartesian() const
 {
     glm::vec2 input00(0.0f, 0.0f);
-    glm::vec2 output00 = Project001::PolarToCartesian(input00);
+    glm::vec2 output00 = Project001::Math::PolarToCartesian(input00);
 
     glm::vec2 input01(1.0f, 0.0f);
-    glm::vec2 output01 = Project001::PolarToCartesian(input01);
+    glm::vec2 output01 = Project001::Math::PolarToCartesian(input01);
 
     glm::vec2 input02(1.0f, glm::quarter_pi<float>());
-    glm::vec2 output02 = Project001::PolarToCartesian(input02);
+    glm::vec2 output02 = Project001::Math::PolarToCartesian(input02);
 
     glm::vec2 input03(1.0f, glm::half_pi<float>());
-    glm::vec2 output03 = Project001::PolarToCartesian(input03);
+    glm::vec2 output03 = Project001::Math::PolarToCartesian(input03);
 
     glm::vec2 input04(1.0f, glm::half_pi<float>() + glm::quarter_pi<float>());
-    glm::vec2 output04 = Project001::PolarToCartesian(input04);
+    glm::vec2 output04 = Project001::Math::PolarToCartesian(input04);
 
     glm::vec2 input05(1.0f, glm::pi<float>());
-    glm::vec2 output05 = Project001::PolarToCartesian(input05);
+    glm::vec2 output05 = Project001::Math::PolarToCartesian(input05);
 
     glm::vec2 input06(1.0f, glm::pi<float>() + glm::quarter_pi<float>());
-    glm::vec2 output06 = Project001::PolarToCartesian(input06);
+    glm::vec2 output06 = Project001::Math::PolarToCartesian(input06);
 
     glm::vec2 input07(1.0f, glm::pi<float>() + glm::half_pi<float>());
-    glm::vec2 output07 = Project001::PolarToCartesian(input07);
+    glm::vec2 output07 = Project001::Math::PolarToCartesian(input07);
 
     glm::vec2 input08(1.0f, glm::pi<float>() + glm::half_pi<float>() + glm::quarter_pi<float>());
-    glm::vec2 output08 = Project001::PolarToCartesian(input08);
+    glm::vec2 output08 = Project001::Math::PolarToCartesian(input08);
 
     glm::vec2 input09(1.0f, glm::two_pi<float>() + glm::pi<float>());
-    glm::vec2 output09 = Project001::PolarToCartesian(input09);
+    glm::vec2 output09 = Project001::Math::PolarToCartesian(input09);
 }
 
 void TestScene020::Test_Get2DVectorAngle() const
@@ -1267,18 +1267,18 @@ void TestScene020::Test_Get2DVectorAngle() const
     glm::vec2 vector06(-1.0f, -1.0f);
     glm::vec2 vector07(0.0f, -1.0f);
     glm::vec2 vector08(1.0f, -1.0f);
-    float angle0000 = Project001::Get2DVectorAngle(vector00, vector00);
-    float angle0001 = Project001::Get2DVectorAngle(vector00, vector01);
-    float angle0003 = Project001::Get2DVectorAngle(vector00, vector03);
-    float angle0101 = Project001::Get2DVectorAngle(vector01, vector01);
-    float angle0102 = Project001::Get2DVectorAngle(vector01, vector02);
-    float angle0201 = Project001::Get2DVectorAngle(vector02, vector01);
-    float angle0103 = Project001::Get2DVectorAngle(vector01, vector03);
-    float angle0104 = Project001::Get2DVectorAngle(vector01, vector04);
-    float angle0105 = Project001::Get2DVectorAngle(vector01, vector05);
-    float angle0106 = Project001::Get2DVectorAngle(vector01, vector06);
-    float angle0107 = Project001::Get2DVectorAngle(vector01, vector07);
-    float angle0108 = Project001::Get2DVectorAngle(vector01, vector08);
+    float angle0000 = Project001::Math::Get2DVectorAngle(vector00, vector00);
+    float angle0001 = Project001::Math::Get2DVectorAngle(vector00, vector01);
+    float angle0003 = Project001::Math::Get2DVectorAngle(vector00, vector03);
+    float angle0101 = Project001::Math::Get2DVectorAngle(vector01, vector01);
+    float angle0102 = Project001::Math::Get2DVectorAngle(vector01, vector02);
+    float angle0201 = Project001::Math::Get2DVectorAngle(vector02, vector01);
+    float angle0103 = Project001::Math::Get2DVectorAngle(vector01, vector03);
+    float angle0104 = Project001::Math::Get2DVectorAngle(vector01, vector04);
+    float angle0105 = Project001::Math::Get2DVectorAngle(vector01, vector05);
+    float angle0106 = Project001::Math::Get2DVectorAngle(vector01, vector06);
+    float angle0107 = Project001::Math::Get2DVectorAngle(vector01, vector07);
+    float angle0108 = Project001::Math::Get2DVectorAngle(vector01, vector08);
 }
 
 void TestScene020::TestCollision2D() const
@@ -1309,33 +1309,33 @@ void TestScene020::Test_Get2D_Point_Line_Distance() const
     glm::vec2 point_p2_n2(2.0f, -2.0f);
 
     float distance01 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p0, std::numeric_limits<float>::infinity());
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance01, 4.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance01, 4.0f));
 
     float distance02 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p1_p0, std::numeric_limits<float>::infinity());
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance02, 0.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance02, 0.0f));
 
     float distance03 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_n1_p1, 0.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance03, 1.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance03, 1.0f));
 
     float distance04 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_n1, point_p0_n1, 0.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance04, 0.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance04, 0.0f));
 
     float distance05 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_p1, point_p0_p0, 1.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance05, 2.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance05, 2.0f));
 
     float distance06 = Project001::Get2D_Point_Line_DistanceSquared(point_p0_p0, point_n1_p1, 1.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance06, 2.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance06, 2.0f));
 
     float distance07 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_p1, point_p0_p0, -1.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance07, 0.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance07, 0.0f));
 
     float distance08 = Project001::Get2D_Point_Line_DistanceSquared(point_n1_n1, point_p0_p0, -1.0f);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance08, 2.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance08, 2.0f));
 
     float distance09 = Project001::Get2D_Point_Line_DistanceSquared(point_p1_p0, point_p0_p0, 2.0f);
     float correctDistance09 = glm::sin(glm::atan(2.0f));
     correctDistance09 *= correctDistance09;
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance09, correctDistance09));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance09, correctDistance09));
 }
 
 void TestScene020::Test_Get2D_Point_LineSegment_Distance() const
@@ -1359,13 +1359,13 @@ void TestScene020::Test_Get2D_Point_LineSegment_Distance() const
     glm::vec2 point_p2_n2(2.0f, -2.0f);
 
     float distance01 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_p1_p0, point_n1_n1, point_n1_p0);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance01, 4.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance01, 4.0f));
 
     float distance02 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_p1_p1, point_p0_n1, point_p0_p0);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance02, 2.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance02, 2.0f));
 
     float distance03 = Project001::Get2D_Point_LineSegment_DistanceSquared(point_n2_p2, point_p0_n1, point_p0_p0);
-    _LOG_TEST_QUIET(Project001::FloatEqualToFloat(distance03, 8.0f));
+    _LOG_TEST_QUIET(Project001::Math::FloatEqualToFloat(distance03, 8.0f));
 }
 
 void TestScene020::Test_RotateSlope() const

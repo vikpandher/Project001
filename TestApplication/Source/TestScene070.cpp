@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene070.h"
 
@@ -11,14 +11,14 @@
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
 #include "Resources/PixelFont5x6.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/IniReaderWriter.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
-#include "IniReaderWriter.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 #include <sstream>
@@ -63,18 +63,18 @@ void TestScene070::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene070:            " << GetId());
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -192,7 +192,7 @@ void TestScene070::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     GetRendererPtr()->DeleteAllMeshes();
     GetComponentStoresPtr()->DeleteAllEntities();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;
@@ -291,7 +291,7 @@ void TestScene070::CreateText01()
     std::istringstream inputStream(inputString);
     std::map<std::string, std::map<std::string, std::string>> sections;
 
-    // Read the INI data
+    // Read_H the INI data
     Project001::ReadIniStream(sections, inputStream);
 
     // Simulate output stream (writing the ini back out)
@@ -313,7 +313,7 @@ void TestScene070::CreateText01()
     );
 
     text01_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *text01_MeshDataPtr_,
         pixel_FontData,
         outputString,

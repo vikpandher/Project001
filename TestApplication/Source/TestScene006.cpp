@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene006.h"
 
@@ -11,13 +11,13 @@
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
 #include "Resources/PixelFont5x6.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -67,7 +67,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Load Font ---------------------------------------------------------------
+    // Load FontUtils ---------------------------------------------------------------
 
     std::vector<unsigned char> characterList;
     for (unsigned char c = 32; c < 127; ++c) // ASCII characters
@@ -77,14 +77,14 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font01_pixelSize = 0.005f;
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -101,7 +101,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     );
 
     Project001::GlyphMeshData font01_Z_GlyphMeshData;
-    FAIL_CHECK(Project001::FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
+    FAIL_CHECK(Project001::Font::GenerateGlpyhMeshDataFromFontDataAndCharacter(
         font01_Z_GlyphMeshData,
         font01_FontData,
         'Z',
@@ -109,7 +109,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     ));
 
     Project001::FontMeshData font01_FontMeshData;
-    FAIL_CHECK(Project001::FontLoader::GenerateFontMeshDataFromFontData(
+    FAIL_CHECK(Project001::Font::GenerateFontMeshDataFromFontData(
         font01_FontMeshData,
         font01_FontData,
         font01_pixelSize
@@ -117,13 +117,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     float font02_pixelSize = 0.005f;
     Project001::FontData font02_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontData(
+    FAIL_CHECK(Project001::Font::LoadFontData(
         font02_FontData,
         "../Fonts/Antonio-Regular.ssf"
     ));
 
     Project001::TextureData font02_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTexture(
+    FAIL_CHECK(Project001::Texture::LoadTexture(
         font02_TextureData,
         "../Fonts/Antonio-Regular.png"
     ));
@@ -160,7 +160,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> positions;
         float width = font01_pixelSize * font01_TextureData.width;
         float height = font01_pixelSize * font01_TextureData.height;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -194,7 +194,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> positions;
         float width = font02_pixelSize * font02_TextureData.width;
         float height = font02_pixelSize * font02_TextureData.height;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -229,7 +229,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         std::vector<glm::vec2> positions;
         float width = font03_pixelSize * font03_TextureData.width;
         float height = font03_pixelSize * font03_TextureData.height;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -261,13 +261,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font03_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
             font03_pixelSize
         ));
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -291,7 +291,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font03_FontData,
             " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
@@ -327,7 +327,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         const float& textureLeft = currentGlyph.textureBottomLeft.x;
         const float& textureTop = currentGlyph.textureTopRight.y;
         const float& textureRight = currentGlyph.textureTopRight.x;
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(
             *newMeshDataPtr,
             width,
             height,
@@ -359,7 +359,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, 0.02f, 12));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.02f, 12));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -424,7 +424,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -454,7 +454,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -484,7 +484,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font02_FontData,
             "LINE 001\nAND LINE 002\nAND ALSO LINE 003",
@@ -513,13 +513,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font02_FontData,
             "Sphinx of black quartz, judge my vow!",
             font02_pixelSize * 2.0f
         ));
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -542,13 +542,13 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        Project001::MeshLoader::CopyMesh(
+        Project001::Mesh::CopyMesh(
             *newMeshDataPtr,
             font01_Z_GlyphMeshData.meshData
         );
-        // Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        // Project001::Mesh::RecenterMesh(*newMeshDataPtr);
         float meshScale = 4.0f;
-        Project001::MeshLoader::ScaleMesh(
+        Project001::Mesh::ScaleMesh(
             *newMeshDataPtr,
             glm::vec3(meshScale)
         );
@@ -646,7 +646,7 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
                 Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
                 meshDataPtrArray_.push_back(newMeshDataPtr);
-                Project001::MeshLoader::CopyMesh(
+                Project001::Mesh::CopyMesh(
                     *newMeshDataPtr,
                     currentMeshData
                 );
@@ -694,11 +694,11 @@ void TestScene006::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
                 Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
                 meshDataPtrArray_.push_back(newMeshDataPtr);
-                Project001::MeshLoader::CopyMesh(
+                Project001::Mesh::CopyMesh(
                     *newMeshDataPtr,
                     currentGlyphMeshData.meshData
                 );
-                Project001::MeshLoader::TranslateMesh(
+                Project001::Mesh::TranslateMesh(
                     *newMeshDataPtr,
                     glm::vec3(0.0f, -0.25f * font01_FontMeshData.lineSpacing, 0.0f)
                 );

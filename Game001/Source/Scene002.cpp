@@ -1,17 +1,17 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "Scene002.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
 #include "SoundPlayer.h"
 #include "Window.h"
@@ -1587,7 +1587,7 @@ void Scene002::CreatePlayerEntity(const glm::vec2& position)
             for (size_t i = 0; i <= subdivisions; ++i)
             {
                 glm::vec2 radiusVector(radius, 0.0f);
-                radiusVector = Project001::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
+                radiusVector = Project001::Math::Rotate2DVector(radiusVector, static_cast<float>(i) * angleRotation);
                 corners.emplace_back(radiusVector);
             }
             corners.emplace_back(-4.0f, -112.0f);
@@ -1838,21 +1838,21 @@ void Scene002::UpdateUiTextEntity()
     snprintf(buffer, sizeof(buffer), "%.2f", stamina_s);
     std::string staminaString = "S:" + std::string(buffer);
 
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiLeftText01_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
         candyString,
         pixelSize
     ));
 
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiLeftText02_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
         batteryString,
         pixelSize
     ));
 
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiLeftText03_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
         staminaString,
@@ -1864,43 +1864,43 @@ void Scene002::UpdateUiTextEntity()
     snprintf(buffer, sizeof(buffer), "%.2f", remainingTime_s);
     std::string timeString = std::string(buffer);
 
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiMiddleText01_MeshDataPtr,
         *sharedDataPtr_->pixelFont_FontDataPtr,
         timeString,
         pixelSize
     ));
-    Project001::MeshLoader::TranslateMesh(
+    Project001::Mesh::TranslateMesh(
         *sharedDataPtr_->uiMiddleText01_MeshDataPtr,
         glm::vec3(sharedDataPtr_->uiMiddleText01_MeshDataPtr->GetSize().x * -0.5f, 0.0f, 0.0f)
     );
 
-    // FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    // FAIL_CHECK(Project001::GenerateMeshDataFromFontDataAndString(
     //     *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
     //     *sharedDataPtr_->pixelFont_FontDataPtr,
     //     middleString,
     //     pixelSize,
     //     1
     // ));
-    // Project001::MeshLoader::TranslateMesh(
+    // Project001::Mesh::TranslateMesh(
     //     *sharedDataPtr_->uiTopMiddleText_MeshDataPtr,
     //     glm::vec3((middleString.length() * pixelSize * 6.0f) * -0.5f, 0.0f, 0.0f)
     // );
 
     // sharedDataPtr_->uiTopRightText_MeshDataPtr->Clear();
 
-    // FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+    // FAIL_CHECK(Project001::GenerateMeshDataFromFontDataAndString(
     //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
     //     *sharedDataPtr_->pixelFont_FontDataPtr,
     //     rightString,
     //     pixelSize,
     //     2
     // ));
-    // Project001::MeshLoader::TranslateMesh(
+    // Project001::Mesh::TranslateMesh(
     //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
     //     glm::vec3(pixelSize, 0.0f, 0.0f)
     // );
-    // Project001::MeshLoader::TranslateMesh(
+    // Project001::Mesh::TranslateMesh(
     //     *sharedDataPtr_->uiTopRightText_MeshDataPtr,
     //     glm::vec3((rightString.length() - 1) * pixelSize * -6.0f, 0.0f, 0.0f)
     // );
@@ -2001,7 +2001,7 @@ void Scene002::UpdateGroundCollisionBodyQuadTreeMesh()
 
     sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr->Clear();
 
-    Project001::MeshLoader::Generate2DRectangleFrame(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, rootNodePtr->min, rootNodePtr->max, lineWidth);
+    Project001::Mesh::Generate2DRectangleFrame(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, rootNodePtr->min, rootNodePtr->max, lineWidth);
 
     if ((!rootNodePtr->leafNode || !rootNodePtr->bodyPtrs.empty()))
     {
@@ -2023,8 +2023,8 @@ void Scene002::UpdateGroundCollisionBodyQuadTreeMesh()
                 glm::vec2 left(min.x, mid.y);
                 glm::vec2 right(max.x, mid.y);
 
-                Project001::MeshLoader::Generate2DLine(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, top, bottom, lineWidth);
-                Project001::MeshLoader::Generate2DLine(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, left, right, lineWidth);
+                Project001::Mesh::Generate2DLine(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, top, bottom, lineWidth);
+                Project001::Mesh::Generate2DLine(*sharedDataPtr_->groundCollisionQuadTree_MeshDataPtr, left, right, lineWidth);
 
                 for (size_t i = 0; i < 4; ++i)
                 {
@@ -2369,7 +2369,7 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
 
                 glm::vec2 collisionBodyDirection = playerLightCollisionBodyPtr->GetForwardVector();
 
-                float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, aimAxisValue);
+                float angleToCursor = Project001::Math::Get2DVectorAngle(collisionBodyDirection, aimAxisValue);
                 playerLightCollisionBodyPtr->AddRotation(angleToCursor);
             }
             else
@@ -2410,7 +2410,7 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
                     glm::vec2 collisionBodyDirection = playerLightCollisionBodyPtr->GetForwardVector();
                     glm::vec2 collisionBodyToCursor = cursorPosition - playerLightCollisionBodyPtr->GetPosition();
 
-                    float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+                    float angleToCursor = Project001::Math::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
                     playerLightCollisionBodyPtr->AddRotation(angleToCursor);
                 }
             }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene060.h"
 
@@ -10,13 +10,13 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -75,18 +75,18 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 {
     LOG_INFO("INITIALIZING:   TestScene060:            " << GetId());
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -111,7 +111,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(4.0f, 2.6f);
         positions.emplace_back(-4.0f, 2.6f);
         positions.emplace_back(-4.0f, -2.6f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*backgroundRectangleMeshDataPtr_, positions));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*backgroundRectangleMeshDataPtr_, positions));
         GetRendererPtr()->CreateMesh(
             backgroundEntityId_,
             backgroundRectangleMeshDataPtr_->meshVertexArray.data(),
@@ -123,7 +123,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickAxisTextMeshDataPtr_ = new Project001::MeshData();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -133,7 +133,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickButton_01_TextMeshDataPtr_ = new Project001::MeshData();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -143,7 +143,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         joystickButton_02_TextMeshDataPtr_ = new Project001::MeshData();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             "",
@@ -157,7 +157,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.2f, 0.0f);
         positions.emplace_back(0.0f, 0.6f);
         positions.emplace_back(-0.2f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*triangleMeshDataPtr_, positions));
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*triangleMeshDataPtr_, positions));
         GetRendererPtr()->CreateMesh(
             triangleMeshId_,
             triangleMeshDataPtr_->meshVertexArray.data(),
@@ -169,7 +169,7 @@ void TestScene060::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         circleMeshDataPtr_ = new Project001::MeshData();
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 8));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*circleMeshDataPtr_, 0.08f, 8));
         GetRendererPtr()->CreateMesh(
             circleMeshId_,
             circleMeshDataPtr_->meshVertexArray.data(),
@@ -422,7 +422,7 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     GetRendererPtr()->DeleteAllMeshes();
     GetComponentStoresPtr()->DeleteAllEntities();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;
@@ -514,7 +514,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickAxisTextMeshDataPtr_->Clear();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickAxisText.c_str(),
@@ -539,7 +539,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
         if (!(leftStickVector.x == 0.0f && leftStickVector.y == 0.0f))
         {
-            float leftStickAngle = Project001::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), leftStickVector);
+            float leftStickAngle = Project001::Math::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), leftStickVector);
 
             Project001::RenderedModel* renderedModelPtr;
             if (GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, leftStickEntityId_))
@@ -564,7 +564,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
         if (!(rightStickVector.x == 0.0f && rightStickVector.y == 0.0f))
         {
-            float rightStickAngle = Project001::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), rightStickVector);
+            float rightStickAngle = Project001::Math::Get2DVectorAngle(glm::vec2(0.0f, 1.0f), rightStickVector);
 
             Project001::RenderedModel* renderedModelPtr;
             if (GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, rightStickEntityId_))
@@ -586,7 +586,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickButton_01_TextMeshDataPtr_->Clear();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickButton_01_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText01.c_str(),
@@ -600,7 +600,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         joystickButton_02_TextMeshDataPtr_->Clear();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickButton_02_TextMeshDataPtr_,
             *font01_FontDataPtr_,
             joystickButtonText02.c_str(),
@@ -612,7 +612,7 @@ void TestScene060::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         const char* noJoyStickTestPtr = "NO JOYSTICK DETECTED";
 
         joystickAxisTextMeshDataPtr_->Clear();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *joystickAxisTextMeshDataPtr_,
             *font01_FontDataPtr_,
             noJoyStickTestPtr,

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene027.h"
 
@@ -9,13 +9,13 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap2D.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap2D.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 
 #include <random>
 
@@ -120,10 +120,10 @@ void TestScene027::CreateCollisionBodyEntities()
         shapePoints.emplace_back(-4.0f, -0.25f);
         shapePoints.emplace_back(4.0f, -0.25f);
         shapePoints.emplace_back(4.0f, 0.25f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, -0.5f * glm::quarter_pi<float>());
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, -0.5f * glm::quarter_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -169,10 +169,10 @@ void TestScene027::CreateCollisionBodyEntities()
         shapePoints.emplace_back(-4.0f, -0.25f);
         shapePoints.emplace_back(4.0f, -0.25f);
         shapePoints.emplace_back(4.0f, 0.25f);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, 0.5f * glm::quarter_pi<float>());
+        FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(*newMeshDataPtr, shapePoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, 0.5f * glm::quarter_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -223,9 +223,9 @@ void TestScene027::CreateCollisionBodyEntities()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, circleRadius, 12));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
         GetRendererPtr()->CreateMesh(
             circleMeshId,
             newMeshDataPtr->meshVertexArray.data(),
@@ -244,9 +244,9 @@ void TestScene027::CreateCollisionBodyEntities()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DRectangle(*newMeshDataPtr, rectangleWidth, rectangleHeight));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRectangle(*newMeshDataPtr, rectangleWidth, rectangleHeight));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
         GetRendererPtr()->CreateMesh(
             rectangleMeshId,
             newMeshDataPtr->meshVertexArray.data(),

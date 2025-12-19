@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2025-12-19
 
 #include "CollisionBody2D.h"
 
-#include "Math/Overlap2D.h"
+#include "Utilities/Overlap2D.h"
 
 #include "glm/gtc/constants.hpp"
 
@@ -21,7 +21,7 @@ namespace Project001
         float minDistanceSquared = std::numeric_limits<float>::infinity();
 
         glm::vec2 translatedPointPosition = point_position - position_;
-        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
+        glm::vec2 rotatedPointPosition = Math::Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
 
         for (size_t i = 0; i < collisionPoints_.size(); ++i)
         {
@@ -209,7 +209,7 @@ namespace Project001
         float minDistanceSquared = std::numeric_limits<float>::infinity();
 
         glm::vec2 translatedPointPosition = point_position - position_;
-        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
+        glm::vec2 rotatedPointPosition = Math::Rotate2DVector(translatedPointPosition, -1.0f * rotation_);
 
         // For some shapes the closest point is calculated while the distance squared is calculated
         // These are: Rectangles, OrientedReactangles, Triangles, Polygons, ConvexPolygons
@@ -514,7 +514,7 @@ namespace Project001
 
         // Move point to world space
 
-        closestPoint_position = Rotate2DVector(closestPoint_position, rotation_);
+        closestPoint_position = Math::Rotate2DVector(closestPoint_position, rotation_);
         closestPoint_position += position_;
 
         return minDistanceSquared;
@@ -639,10 +639,10 @@ namespace Project001
             glm::vec2 corner2(halfSize.x, -1.0f * halfSize.y);
             glm::vec2 corner3(-1.0f * halfSize.x, -1.0f * halfSize.y);
             glm::vec2 corner4(-1.0f * halfSize.x, halfSize.y);
-            Rotate2DVector(corner1, rotation);
-            Rotate2DVector(corner2, rotation);
-            Rotate2DVector(corner3, rotation);
-            Rotate2DVector(corner4, rotation);
+            Math::Rotate2DVector(corner1, rotation);
+            Math::Rotate2DVector(corner2, rotation);
+            Math::Rotate2DVector(corner3, rotation);
+            Math::Rotate2DVector(corner4, rotation);
             corner1 += position;
             corner2 += position;
             corner3 += position;
@@ -1068,7 +1068,7 @@ namespace Project001
                 continue;
             }
 
-            glm::vec2 newPosition = Rotate2DVector(currentCollisionPoint.position, rotation_) + position_;
+            glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionPoint.position, rotation_) + position_;
             transformedCollisionPoints_.emplace_back(
                 newPosition,
                 currentCollisionPoint.tag,
@@ -1084,7 +1084,7 @@ namespace Project001
                 continue;
             }
 
-            glm::vec2 newPosition = Rotate2DVector(currentCollisionLine.position, rotation_) + position_;
+            glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionLine.position, rotation_) + position_;
             float newSlope = RotateSlope(currentCollisionLine.slope, rotation_);
             transformedCollisionLines_.emplace_back(
                 newPosition,
@@ -1103,7 +1103,7 @@ namespace Project001
             }
 
             glm::vec2 newPosition = currentCollisionRay.position + position_;
-            glm::vec2 newDirectoin = Rotate2DVector(currentCollisionRay.direction, rotation_);
+            glm::vec2 newDirectoin = Math::Rotate2DVector(currentCollisionRay.direction, rotation_);
             transformedCollisionRays_.emplace_back(
                 newPosition,
                 newDirectoin,
@@ -1120,8 +1120,8 @@ namespace Project001
                 continue;
             }
 
-            glm::vec2 newStart = Rotate2DVector(currentCollisionLineSegment.start, rotation_) + position_;
-            glm::vec2 newEnd = Rotate2DVector(currentCollisionLineSegment.end, rotation_) + position_;
+            glm::vec2 newStart = Math::Rotate2DVector(currentCollisionLineSegment.start, rotation_) + position_;
+            glm::vec2 newEnd = Math::Rotate2DVector(currentCollisionLineSegment.end, rotation_) + position_;
             transformedCollisionLineSegments_.emplace_back(
                 newStart,
                 newEnd,
@@ -1144,7 +1144,7 @@ namespace Project001
                 currentPhysicsType = physicsType_;
             }
 
-            if (FloatEqualToFloat(rotation_, 0.0f))
+            if (Math::FloatEqualToFloat(rotation_, 0.0f))
             {
                 glm::vec2 newBottomLeft = currentCollisionRectangle.bottomLeft + position_;
                 glm::vec2 newTopRight = currentCollisionRectangle.topRight + position_;
@@ -1156,10 +1156,10 @@ namespace Project001
                     currentPhysicsType
                 );
             }
-            else if (FloatEqualToFloat(rotation_, glm::half_pi<float>()))
+            else if (Math::FloatEqualToFloat(rotation_, glm::half_pi<float>()))
             {
-                glm::vec2 newBottomLeft = Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::half_pi<float>()) + position_;
-                glm::vec2 newTopRight = Rotate2DVector(currentCollisionRectangle.topRight, glm::half_pi<float>()) + position_;
+                glm::vec2 newBottomLeft = Math::Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::half_pi<float>()) + position_;
+                glm::vec2 newTopRight = Math::Rotate2DVector(currentCollisionRectangle.topRight, glm::half_pi<float>()) + position_;
                 std::swap(newBottomLeft.x, newTopRight.x);
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
@@ -1169,10 +1169,10 @@ namespace Project001
                     currentPhysicsType
                 );
             }
-            else if (FloatEqualToFloat(rotation_, glm::pi<float>()))
+            else if (Math::FloatEqualToFloat(rotation_, glm::pi<float>()))
             {
-                glm::vec2 newBottomLeft = Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::pi<float>()) + position_;
-                glm::vec2 newTopRight = Rotate2DVector(currentCollisionRectangle.topRight, glm::pi<float>()) + position_;
+                glm::vec2 newBottomLeft = Math::Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::pi<float>()) + position_;
+                glm::vec2 newTopRight = Math::Rotate2DVector(currentCollisionRectangle.topRight, glm::pi<float>()) + position_;
                 transformedCollisionRectangles_.emplace_back(
                     newTopRight,
                     newBottomLeft,
@@ -1181,10 +1181,10 @@ namespace Project001
                     currentPhysicsType
                 );
             }
-            else if (FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
+            else if (Math::FloatEqualToFloat(rotation_, glm::three_over_two_pi<float>()))
             {
-                glm::vec2 newBottomLeft = Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::three_over_two_pi<float>()) + position_;
-                glm::vec2 newTopRight = Rotate2DVector(currentCollisionRectangle.topRight, glm::three_over_two_pi<float>()) + position_;
+                glm::vec2 newBottomLeft = Math::Rotate2DVector(currentCollisionRectangle.bottomLeft, glm::three_over_two_pi<float>()) + position_;
+                glm::vec2 newTopRight = Math::Rotate2DVector(currentCollisionRectangle.topRight, glm::three_over_two_pi<float>()) + position_;
                 std::swap(newBottomLeft.y, newTopRight.y);
                 transformedCollisionRectangles_.emplace_back(
                     newBottomLeft,
@@ -1198,7 +1198,7 @@ namespace Project001
             {
                 glm::vec2 newHalfSize = (currentCollisionRectangle.topRight - currentCollisionRectangle.bottomLeft) / 2.0f;
                 glm::vec2 newPosition = (currentCollisionRectangle.bottomLeft + currentCollisionRectangle.topRight) / 2.0f;
-                newPosition = Rotate2DVector(newPosition, rotation_) + position_;
+                newPosition = Math::Rotate2DVector(newPosition, rotation_) + position_;
                 transformedCollisionOrientedRectangles_.emplace_back(
                     newHalfSize,
                     newPosition,
@@ -1224,9 +1224,9 @@ namespace Project001
                 currentPhysicsType = physicsType_;
             }
 
-            glm::vec2 newPosition = Rotate2DVector(currentCollisionOrientedRectangle.position, rotation_) + position_;
+            glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionOrientedRectangle.position, rotation_) + position_;
             float newRotation = currentCollisionOrientedRectangle.rotation + rotation_;
-            if (FloatEqualToFloat(newRotation, 0.0f) || FloatEqualToFloat(newRotation, glm::pi<float>()))
+            if (Math::FloatEqualToFloat(newRotation, 0.0f) || Math::FloatEqualToFloat(newRotation, glm::pi<float>()))
             {
                 glm::vec2 newBottomLeft = newPosition - currentCollisionOrientedRectangle.halfSize;
                 glm::vec2 newTopRight = newPosition + currentCollisionOrientedRectangle.halfSize;
@@ -1238,8 +1238,8 @@ namespace Project001
                     currentPhysicsType
                 );
             }
-            else if (FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
-                FloatEqualToFloat(newRotation, glm::three_over_two_pi<float>()))
+            else if (Math::FloatEqualToFloat(newRotation, glm::half_pi<float>()) ||
+                Math::FloatEqualToFloat(newRotation, glm::three_over_two_pi<float>()))
             {
                 glm::vec2 newBottomLeft(newPosition.x - currentCollisionOrientedRectangle.halfSize.y,
                     newPosition.y - currentCollisionOrientedRectangle.halfSize.x);
@@ -1280,7 +1280,7 @@ namespace Project001
                 currentPhysicsType = physicsType_;
             }
 
-            glm::vec2 newPosition = Rotate2DVector(currentCollisionCircle.position, rotation_) + position_;
+            glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionCircle.position, rotation_) + position_;
             transformedCollisionCircles_.emplace_back(
                 newPosition,
                 currentCollisionCircle.radius,
@@ -1304,8 +1304,8 @@ namespace Project001
                 currentPhysicsType = physicsType_;
             }
 
-            glm::vec2 newStart = Rotate2DVector(currentCollisionCapsule.start, rotation_) + position_;
-            glm::vec2 newEnd = Rotate2DVector(currentCollisionCapsule.end, rotation_) + position_;
+            glm::vec2 newStart = Math::Rotate2DVector(currentCollisionCapsule.start, rotation_) + position_;
+            glm::vec2 newEnd = Math::Rotate2DVector(currentCollisionCapsule.end, rotation_) + position_;
             transformedCollisionCapsules_.emplace_back(
                 newStart,
                 newEnd,
@@ -1330,9 +1330,9 @@ namespace Project001
                 currentPhysicsType = physicsType_;
             }
 
-            glm::vec2 newCorner1 = Rotate2DVector(currentCollisionTriangle.corner1, rotation_) + position_;
-            glm::vec2 newCorner2 = Rotate2DVector(currentCollisionTriangle.corner2, rotation_) + position_;
-            glm::vec2 newCorner3 = Rotate2DVector(currentCollisionTriangle.corner3, rotation_) + position_;
+            glm::vec2 newCorner1 = Math::Rotate2DVector(currentCollisionTriangle.corner1, rotation_) + position_;
+            glm::vec2 newCorner2 = Math::Rotate2DVector(currentCollisionTriangle.corner2, rotation_) + position_;
+            glm::vec2 newCorner3 = Math::Rotate2DVector(currentCollisionTriangle.corner3, rotation_) + position_;
             transformedCollisionTriangles_.emplace_back(
                 newCorner1,
                 newCorner2,
@@ -1359,7 +1359,7 @@ namespace Project001
                 for (size_t j = 0; j < currentCollisionPolygon.corners.size(); ++j)
                 {
                     const glm::vec2& currentCorner = currentCollisionPolygon.corners[j];
-                    glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
+                    glm::vec2 newCorner = Math::Rotate2DVector(currentCorner, rotation_) + position_;
                     transformedCollisionPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionPolygon.tag = currentCollisionPolygon.tag;
@@ -1368,8 +1368,8 @@ namespace Project001
             else if (currentCollisionPolygon.corners.size() == 2)
             {
 
-                glm::vec2 newStart = Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
-                glm::vec2 newEnd = Rotate2DVector(currentCollisionPolygon.corners[1], rotation_) + position_;
+                glm::vec2 newStart = Math::Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newEnd = Math::Rotate2DVector(currentCollisionPolygon.corners[1], rotation_) + position_;
                 transformedCollisionLineSegments_.emplace_back(
                     newStart,
                     newEnd,
@@ -1379,7 +1379,7 @@ namespace Project001
             }
             else if (currentCollisionPolygon.corners.size() == 1)
             {
-                glm::vec2 newPosition = Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionPolygon.corners[0], rotation_) + position_;
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionPolygon.tag,
@@ -1410,7 +1410,7 @@ namespace Project001
                 for (size_t j = 0; j < currentCollisionConvexPolygon.corners.size(); ++j)
                 {
                     const glm::vec2& currentCorner = currentCollisionConvexPolygon.corners[j];
-                    glm::vec2 newCorner = Rotate2DVector(currentCorner, rotation_) + position_;
+                    glm::vec2 newCorner = Math::Rotate2DVector(currentCorner, rotation_) + position_;
                     transformedCollisionConvexPolygon.corners.push_back(newCorner);
                 }
                 transformedCollisionConvexPolygon.tag = currentCollisionConvexPolygon.tag;
@@ -1420,8 +1420,8 @@ namespace Project001
             else if (currentCollisionConvexPolygon.corners.size() == 2)
             {
 
-                glm::vec2 newStart = Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
-                glm::vec2 newEnd = Rotate2DVector(currentCollisionConvexPolygon.corners[1], rotation_) + position_;
+                glm::vec2 newStart = Math::Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newEnd = Math::Rotate2DVector(currentCollisionConvexPolygon.corners[1], rotation_) + position_;
                 transformedCollisionLineSegments_.emplace_back(
                     newStart,
                     newEnd,
@@ -1431,7 +1431,7 @@ namespace Project001
             }
             else if (currentCollisionConvexPolygon.corners.size() == 1)
             {
-                glm::vec2 newPosition = Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
+                glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionConvexPolygon.corners[0], rotation_) + position_;
                 transformedCollisionPoints_.emplace_back(
                     newPosition,
                     currentCollisionConvexPolygon.tag,

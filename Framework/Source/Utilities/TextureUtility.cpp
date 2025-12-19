@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
-#include "TextureLoader.h"
+#include "TextureUtility.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -11,9 +11,15 @@
 
 namespace Project001
 {
-    // public ------------------------------------------------------------------
+namespace Texture
+{
+#ifdef VULKAN_BUILD
+    bool g_convertToRGBA = true;
+#else
+    bool g_convertToRGBA = false;
+#endif
 
-    bool TextureLoader::LoadTexture(
+    bool LoadTexture(
         TextureData& textureData,
         const std::string& filePath,
         bool convertToRGBA)
@@ -52,7 +58,7 @@ namespace Project001
         return true;
     }
 
-    bool TextureLoader::LoadTextureFromMemory(
+    bool LoadTextureFromMemory(
         TextureData& textureData,
         const unsigned char* dataPtr,
         size_t dataSize,
@@ -82,10 +88,5 @@ namespace Project001
 
         return true;
     }
-
-#ifdef VULKAN_BUILD
-    bool TextureLoader::s_convertToRGBA = true;
-#else
-    bool TextureLoader::s_convertToRGBA = false;
-#endif
+}
 }

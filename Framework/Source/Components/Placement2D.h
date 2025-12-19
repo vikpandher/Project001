@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-19
 
 #pragma once
 
@@ -65,6 +65,6 @@ namespace Project001
 
     inline glm::vec2 Placement2D::GetForwardVector() const
     {
-        return Rotate2DVector(glm::vec2(0.0f, 1.0f), rotation_);
+        return Math::Rotate2DVector(glm::vec2(0.0f, 1.0f), rotation_);
     }
 }

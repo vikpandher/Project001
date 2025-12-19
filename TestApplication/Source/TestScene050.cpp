@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene050.h"
 
@@ -12,16 +12,16 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
-#include "Math/MathUtilities.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/SoundUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
 #include "SoundPlayer.h"
-#include "SoundLoader.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 #include <thread>
@@ -76,14 +76,14 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphere(*newMeshDataPtr, 0.16f, 0, false));
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphere(*newMeshDataPtr, 0.16f, 0, false));
     }
 
     // Load Sounds
     // -------------------------------------------------------------------------
 
     sound01_SoundDataPtr_ = new Project001::SoundData();
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
+    FAIL_CHECK(Project001::Sound::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
 
     FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundBuffer(
         soundBufferId01_,
@@ -101,7 +101,7 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     ));
 
     sound02_SoundDataPtr_ = new Project001::SoundData();
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/Bounce.wav"));
+    FAIL_CHECK(Project001::Sound::LoadSoundWAV(*sound02_SoundDataPtr_, "../Sounds/Bounce.wav"));
 
     FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundBuffer(
         soundBufferId02_,
@@ -141,14 +141,14 @@ void TestScene050::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -254,9 +254,9 @@ void TestScene050::UpdateShape01EntityPosition(unsigned long long timestep_ns)
             currentPosition.x = 1.28f;
         }
 
-        glm::vec2 currentPositionPolar = Project001::CartesianToPolar(currentPosition.x, currentPosition.y);
+        glm::vec2 currentPositionPolar = Project001::Math::CartesianToPolar(currentPosition.x, currentPosition.y);
         currentPositionPolar.y += timestep_s;
-        glm::vec2 newPosition = Project001::PolarToCartesian(currentPositionPolar);
+        glm::vec2 newPosition = Project001::Math::PolarToCartesian(currentPositionPolar);
 
         renderedMeshPtr->SetPosition(newPosition.x, newPosition.y, 0.0f);
 
@@ -274,7 +274,7 @@ void TestScene050::TestSoundPlayer()
     Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
 
     Project001::SoundData soundData01;
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(soundData01, "../Sounds/Congratulations.ogg"));
+    FAIL_CHECK(Project001::Sound::LoadSoundOGG(soundData01, "../Sounds/Congratulations.ogg"));
 
     unsigned int soundBufferId01;
     FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -294,7 +294,7 @@ void TestScene050::TestSoundPlayer()
     ));
 
     Project001::SoundData soundData02;
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundWAV(soundData02, "../Sounds/Bounce.wav"));
+    FAIL_CHECK(Project001::Sound::LoadSoundWAV(soundData02, "../Sounds/Bounce.wav"));
 
     unsigned int soundBufferId02;
     FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -403,7 +403,7 @@ void TestScene050::TestSoundPlayer()
             )
         );
 
-        positionVector = Project001::Rotate2DVector(positionVector, -glm::quarter_pi<float>());
+        positionVector = Project001::Math::Rotate2DVector(positionVector, -glm::quarter_pi<float>());
     }
 
     // Playing sound 02 in the center
@@ -434,7 +434,7 @@ void TestScene050::TestSoundPlayer()
             )
         );
 
-        positionVector = Project001::Rotate2DVector(positionVector, -glm::quarter_pi<float>());
+        positionVector = Project001::Math::Rotate2DVector(positionVector, -glm::quarter_pi<float>());
     }
 
     soundPlayerPtr->SetListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -460,7 +460,7 @@ void TestScene050::TestSoundPlayer2()
     Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
 
     Project001::SoundData sound01_SoundData;
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound01_SoundData, "../Sounds/Congratulations.ogg"));
+    FAIL_CHECK(Project001::Sound::LoadSoundOGG(sound01_SoundData, "../Sounds/Congratulations.ogg"));
 
     unsigned int sound01_SoundBufferId;
     FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -486,7 +486,7 @@ void TestScene050::TestSoundPlayer2()
     ));
 
     // Project001::SoundData sound02_SoundData;
-    // FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(sound02_SoundData, "../Sounds/perfect.ogg"));
+    // FAIL_CHECK(Project001::Sound::LoadSoundOGG(sound02_SoundData, "../Sounds/perfect.ogg"));
     // 
     // unsigned int sound02_SoundBufferId;
     // FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -545,7 +545,7 @@ void TestScene050::TestSoundPlayer3()
     Project001::SoundPlayer* soundPlayerPtr = Project001::SoundPlayer::Create();
 
     Project001::SoundData sound01_SoundData;
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundWAVFromMemory(sound01_SoundData, g_Bounce_wav, sizeof(g_Bounce_wav)/sizeof(unsigned char)));
+    FAIL_CHECK(Project001::Sound::LoadSoundWAVFromMemory(sound01_SoundData, g_Bounce_wav, sizeof(g_Bounce_wav)/sizeof(unsigned char)));
 
     unsigned int sound01_SoundBufferId;
     FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(
@@ -565,7 +565,7 @@ void TestScene050::TestSoundPlayer3()
     ));
 
     Project001::SoundData sound02_SoundData;
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundOGGFromMemory(sound02_SoundData, g_Congratulations_ogg, sizeof(g_Congratulations_ogg)/sizeof(unsigned char)));
+    FAIL_CHECK(Project001::Sound::LoadSoundOGGFromMemory(sound02_SoundData, g_Congratulations_ogg, sizeof(g_Congratulations_ogg)/sizeof(unsigned char)));
 
     unsigned int sound02_SoundBufferId;
     FAIL_CHECK(soundPlayerPtr->CreateSoundBuffer(

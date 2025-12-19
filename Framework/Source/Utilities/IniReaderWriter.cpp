@@ -1,8 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-18
+// @DATE 2025-12-19
 
 #include "IniReaderWriter.h"
+
+#include "Utilities/StringUtility.h"
 
 #include <istream>
 #include <ostream>
@@ -19,7 +21,7 @@ namespace Project001
 
         while (std::getline(inputStream, line))
         {
-            line = TrimWhiteSpace(line);
+            line = String::TrimWhiteSpace(line);
 
             // Skip empty or comment-only lines
             if (line.empty() || line[0] == '#' || line[0] == ';')
@@ -34,7 +36,7 @@ namespace Project001
                 if (closingBracketPos != std::string::npos)
                 {
                     std::string sectionName = line.substr(1, closingBracketPos - 1);
-                    sectionName = TrimWhiteSpace(sectionName);
+                    sectionName = String::TrimWhiteSpace(sectionName);
                     currentSection = sectionName;
                     continue;
                 }
@@ -47,8 +49,8 @@ namespace Project001
                 continue; // skip invalid lines
             }
 
-            std::string key = TrimWhiteSpace(line.substr(0, equalPos));
-            std::string value = TrimWhiteSpace(line.substr(equalPos + 1));
+            std::string key = String::TrimWhiteSpace(line.substr(0, equalPos));
+            std::string value = String::TrimWhiteSpace(line.substr(equalPos + 1));
 
             // Remove comments from value (the ones not inside quotes)
             bool currentlyInQuotes = false;
@@ -66,20 +68,20 @@ namespace Project001
                 }
             }
 
-            value = TrimWhiteSpace(value);
+            value = String::TrimWhiteSpace(value);
 
             // Strip quotes from value (if it's in quotes)
             if (!value.empty() && value.front() == '"' && value.back() == '"')
             {
                 value = value.substr(1, value.size() - 2);
 
-                value = ParseEscapes(value);
+                value = String::ParseEscapes(value);
 
-                value = TrimWhiteSpace(value);
+                value = String::TrimWhiteSpace(value);
             }
             else
             {
-                value = ParseEscapes(value);
+                value = String::ParseEscapes(value);
             }
 
             sections[currentSection][key] = value;
@@ -112,7 +114,7 @@ namespace Project001
                 const std::string& value = kvIt->second;
 
                 // Escape special characters
-                std::string escapedValue = UnParseEscapes(value);
+                std::string escapedValue = String::UnParseEscapes(value);
 
                 // Wrap in quotes if it contains '#' or ';'
                 bool needsQuotes = escapedValue.find_first_of("#;") != std::string::npos;
@@ -134,76 +136,4 @@ namespace Project001
         (std::ostream&, const std::map<std::string, std::map<std::string, std::string>>&);
     template void WriteIniStream<std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>
         (std::ostream&, const std::unordered_map<std::string, std::unordered_map<std::string, std::string>>&);
-
-    std::string TrimWhiteSpace(const std::string& str)
-    {
-        size_t first = str.find_first_not_of(" \n\r\t"); // space, new-line, carriage-return, tab
-        size_t last = str.find_last_not_of(" \n\r\t");
-        if (first == std::string::npos || last == std::string::npos)
-        {
-            return "";
-        }
-        else
-        {
-            return str.substr(first, last - first + 1);
-        }
-    }
-
-    std::string ParseEscapes(const std::string& str)
-    {
-        std::string result;
-        result.reserve(str.size());
-
-        for (size_t i = 0; i < str.size(); ++i)
-        {
-            if (str[i] == '\\')
-            {
-                if (i + 1 >= str.size())
-                {
-                    // Lone backslash at end: discard
-                    break;
-                }
-
-                char next = str[i + 1];
-                switch (next)
-                {
-                case 'n':  result += '\n'; break;
-                case 'r':  result += '\r'; break;
-                case 't':  result += '\t'; break;
-                case '"':  result += '"';  break;
-                case '\\': result += '\\'; break;
-                default:
-                    // Unknown escape: discard backslash, keep nothing
-                    break;
-                }
-                ++i; // skip the next char
-            }
-            else
-            {
-                result += str[i];
-            }
-        }
-        return result;
-    }
-
-    std::string UnParseEscapes(const std::string& str)
-    {
-        std::string result;
-        result.reserve(str.size()); // Reserve original size as an estimate
-
-        for (char c : str)
-        {
-            switch (c)
-            {
-            case '\n': result += "\\n"; break;
-            case '\r': result += "\\r"; break;
-            case '\t': result += "\\t"; break;
-            case '"':  result += "\\\""; break;
-            case '\\': result += "\\\\"; break;
-            default:   result += c; break;
-            }
-        }
-
-        return result;
-    }
 }

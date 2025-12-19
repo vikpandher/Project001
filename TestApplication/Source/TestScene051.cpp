@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene051.h"
 
@@ -11,15 +11,15 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/SoundUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "SoundLoader.h"
 #include "SoundPlayer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -78,7 +78,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // SoundData ---------------------------------------------------------------
 
     sound01_SoundDataPtr_ = new Project001::SoundData();
-    FAIL_CHECK(Project001::SoundLoader::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
+    FAIL_CHECK(Project001::Sound::LoadSoundOGG(*sound01_SoundDataPtr_, "../Sounds/Congratulations.ogg"));
 
     FAIL_CHECK(GetSoundPlayerPtr()->CreateSoundBuffer(
         sound01_SoundBufferId_,
@@ -90,18 +90,18 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         sound01_SoundDataPtr_->sizeInFrames
     ));
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -120,7 +120,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Mesh Data ---------------------------------------------------------------
 
     cursorCircleMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*cursorCircleMeshDataPtr_, 0.08f, 12));
+    FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*cursorCircleMeshDataPtr_, 0.08f, 12));
 
     std::vector<std::string> buttonStrings;
     for (size_t i = 32; i < 128; ++i)
@@ -131,13 +131,13 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     for (size_t i = 0; i < buttonStrings.size(); ++i)
     {
         Project001::MeshData* newTextMeshDataPtr = new Project001::MeshData();
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newTextMeshDataPtr,
             *font01_FontDataPtr_,
             buttonStrings[i],
             buttonFontPixelSize_
         ));
-        Project001::MeshLoader::RecenterMesh(*newTextMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newTextMeshDataPtr);
         buttonTextMeshDataPtrs_.push_back(newTextMeshDataPtr);
     }
 
@@ -320,7 +320,7 @@ void TestScene051::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Button Mesh -------------------------------------------------------------
 
     rectangleMeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *rectangleMeshDataPtr_,
         buttonWidth,
         buttonHeight,
@@ -450,7 +450,7 @@ void TestScene051::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     sound01_SoundBufferId_ = static_cast<unsigned int>(-1);
     buttonSoundSourceIds_.clear();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;

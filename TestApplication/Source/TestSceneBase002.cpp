@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestSceneBase002.h"
 
@@ -11,14 +11,14 @@
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap2D.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap2D.h"
+#include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
 #include "CollisionSystem2D.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 #include <stack>
@@ -120,14 +120,14 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -145,31 +145,31 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Dynamic.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Text_Dynamic.png"));
         GetRendererPtr()->CreateTexture(text_dynamic_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_OverlapOnly.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Text_OverlapOnly.png"));
         GetRendererPtr()->CreateTexture(text_overlapOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_RotationOnly.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Text_RotationOnly.png"));
         GetRendererPtr()->CreateTexture(text_rotationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_Static.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Text_Static.png"));
         GetRendererPtr()->CreateTexture(text_static_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/Text_TranslationOnly.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/Text_TranslationOnly.png"));
         GetRendererPtr()->CreateTexture(text_translationOnly_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
@@ -1490,9 +1490,9 @@ void TestSceneBase002::UpdateCursorLineAndDistanceTextMesh()
                 cursorLinePositions_.emplace_back();
                 cursorLinePositions_.emplace_back(closestPoint_position - previousWorldCursorPosition_);
 
-                Project001::MeshLoader::Generate2DLine(*cursorLineMeshDataPtr_, cursorLinePositions_, 0.01f); // No Fail Check
+                Project001::Mesh::Generate2DLine(*cursorLineMeshDataPtr_, cursorLinePositions_, 0.01f); // No Fail Check
 
-                FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+                FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                     *distanceTextMeshDataPtr_,
                     *font01_FontDataPtr_,
                     "distance: " + std::to_string(glm::sqrt(distanceSquared)),
@@ -1516,7 +1516,7 @@ void TestSceneBase002::UpdateMassTextMesh()
         {
             const float& mass = collisionBodyPtr->GetMass();
 
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 *massTextMeshDataPtr_,
                 *font01_FontDataPtr_,
                 "mass: " + std::to_string(mass),
@@ -1539,7 +1539,7 @@ void TestSceneBase002::UpdateMomentOfInertiaTextMesh()
         {
             const float& momentOfInertia = collisionBodyPtr->GetMomentOfInertia();
 
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 *momentOfInertiaTextMeshDataPtr_,
                 *font01_FontDataPtr_,
                 "momentOfInertia: " + std::to_string(momentOfInertia),
@@ -1569,7 +1569,7 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
             }
         }
 
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *entityIdTextMeshDataPtr_,
             *font01_FontDataPtr_,
             entityIdTextString,
@@ -1588,8 +1588,8 @@ void TestSceneBase002::UpdateFpsTextMesh(unsigned long long timestep_ns)
     }
     fps_string = "fps: " + fps_string;
     fps_MeshDataPtr_->Clear();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
-    // Project001::MeshLoader::RecenterMesh(*fps_MeshDataPtr_);
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(*fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    // Project001::Mesh::RecenterMesh(*fps_MeshDataPtr_);
 }
 
 void TestSceneBase002::UpdateEnergyTextMesh()
@@ -1641,9 +1641,9 @@ void TestSceneBase002::UpdateEnergyTextMesh()
 
     std::string energy_string = linearKeneticEnergy_string + " + " + rotationalKeneticEnergy_string + " = " + totalKeneticEnergy_string;
 
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
-    // Project001::MeshLoader::RecenterMesh(*energy_MeshDataPtr_);
-    // Project001::MeshLoader::TranslateMesh(*energy_MeshDataPtr_, -0.5f * energy_MeshDataPtr_->GetSize());
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(*energy_MeshDataPtr_, *font01_FontDataPtr_, energy_string, fontPixelSize_));
+    // Project001::Mesh::RecenterMesh(*energy_MeshDataPtr_);
+    // Project001::Mesh::TranslateMesh(*energy_MeshDataPtr_, -0.5f * energy_MeshDataPtr_->GetSize());
 }
 
 void TestSceneBase002::UpdateCollisionBodyBorderMesh()
@@ -1652,7 +1652,7 @@ void TestSceneBase002::UpdateCollisionBodyBorderMesh()
 
     collisionBodyBorderMeshDataPtr_->Clear();
 
-    Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyBorderMeshDataPtr_, -0.5f * positionBorderSize_, 0.5f * positionBorderSize_, lineWidth);
+    Project001::Mesh::Generate2DRectangleFrame(*collisionBodyBorderMeshDataPtr_, -0.5f * positionBorderSize_, 0.5f * positionBorderSize_, lineWidth);
 }
 
 void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
@@ -1665,7 +1665,7 @@ void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
 
     if (useCollisionBodyQuadTree_ && (!rootNodePtr->leafNode || !rootNodePtr->bodyPtrs.empty()))
     {
-        Project001::MeshLoader::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
+        Project001::Mesh::Generate2DRectangleFrame(*collisionBodyQuadTreeMeshDataPtr_, rootNodePtr->min, rootNodePtr->max, lineWidth);
 
         std::stack<const Project001::CollisionBodyQuadTreeNode2D*> nodePtrStack;
         nodePtrStack.push(rootNodePtr);
@@ -1685,8 +1685,8 @@ void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
                 glm::vec2 left(min.x, mid.y);
                 glm::vec2 right(max.x, mid.y);
 
-                Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, top, bottom, lineWidth);
-                Project001::MeshLoader::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, left, right, lineWidth);
+                Project001::Mesh::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, top, bottom, lineWidth);
+                Project001::Mesh::Generate2DLine(*collisionBodyQuadTreeMeshDataPtr_, left, right, lineWidth);
 
                 for (size_t i = 0; i < 4; ++i)
                 {
@@ -1727,12 +1727,12 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
                     positions.emplace_back(currentCollision.point + glm::vec2(0.0f, -0.02f));
                     positions.emplace_back(currentCollision.point + glm::vec2(0.02f, 0.0f));
                     positions.emplace_back(currentCollision.point + glm::vec2(0.0f, 0.02f));
-                    Project001::MeshLoader::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
+                    Project001::Mesh::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
                     positions.clear();
 
                     if (!std::isnan(currentCollision.normal.x) && !std::isnan(currentCollision.normal.y) && !std::isnan(currentCollision.depth))
                     {
-                        Project001::MeshLoader::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.point, currentCollision.point + currentCollision.normal * currentCollision.depth, 0.01f);
+                        Project001::Mesh::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.point, currentCollision.point + currentCollision.normal * currentCollision.depth, 0.01f);
                     }
                 }
             }

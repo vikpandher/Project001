@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene033.h"
 
@@ -10,13 +10,13 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -149,7 +149,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _32x32_TextureIds_.push_back(tempTextureId);
@@ -166,7 +166,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         filePath += ".png";
 
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, filePath));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, filePath));
         unsigned int tempTextureId = static_cast<unsigned int>(-1);
         GetRendererPtr()->CreateTexture(tempTextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
         _48x48_TextureIds_.push_back(tempTextureId);
@@ -174,14 +174,14 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         font01_FontDataPtr_ = new Project001::FontData;
-        FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+        FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
             *font01_FontDataPtr_,
             g_AntonioRegular_ssf,
             sizeof(g_AntonioRegular_ssf)
         ));
 
         font01_TextureDataPtr_ = new Project001::TextureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+        FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
             *font01_TextureDataPtr_,
             g_AntonioRegular_png,
             sizeof(g_AntonioRegular_png)
@@ -203,7 +203,7 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         square_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(square_MeshDataPtr_);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(*square_MeshDataPtr_, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
+        FAIL_CHECK(Project001::Mesh::Generate2DSprite(*square_MeshDataPtr_, 0.64f, 0.64f, 0.0f, 1.0f, 0.0f, 1.0f));
 
         GetRendererPtr()->CreateMesh(
             square_MeshId_,
@@ -229,8 +229,8 @@ void TestScene033::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         ui_largeText_MeshDataPtr_ = new Project001::MeshData();
         meshDataPtrArray_.push_back(ui_largeText_MeshDataPtr_);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "S S S", fontPixelSize_));
-        Project001::MeshLoader::RecenterMesh(*ui_largeText_MeshDataPtr_);
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(*ui_largeText_MeshDataPtr_, *font01_FontDataPtr_, "S S S", fontPixelSize_));
+        Project001::Mesh::RecenterMesh(*ui_largeText_MeshDataPtr_);
     }
 
     // Generate entities
@@ -411,16 +411,16 @@ void TestScene033::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     float fps = 1e9f / static_cast<float>(renderEvent.timestep_ns);
     std::string fps_string = std::to_string(fps);
     ui_fps_MeshDataPtr_->Clear();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
-    Project001::MeshLoader::RecenterMesh(*ui_fps_MeshDataPtr_);
-    Project001::MeshLoader::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(*ui_fps_MeshDataPtr_, *font01_FontDataPtr_, fps_string, fontPixelSize_));
+    Project001::Mesh::RecenterMesh(*ui_fps_MeshDataPtr_);
+    Project001::Mesh::TranslateMesh(*ui_fps_MeshDataPtr_, -0.5f * ui_fps_MeshDataPtr_->GetSize());
 }
 
 void TestScene033::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     std::string counter_string = std::to_string(++counter_);
     ui_counter_MeshDataPtr_->Clear();
-    FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(*ui_counter_MeshDataPtr_, *font01_FontDataPtr_, counter_string, fontPixelSize_));
-    Project001::MeshLoader::RecenterMesh(*ui_counter_MeshDataPtr_);
-    Project001::MeshLoader::TranslateMesh(*ui_counter_MeshDataPtr_, 0.5f * ui_counter_MeshDataPtr_->GetSize());
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(*ui_counter_MeshDataPtr_, *font01_FontDataPtr_, counter_string, fontPixelSize_));
+    Project001::Mesh::RecenterMesh(*ui_counter_MeshDataPtr_);
+    Project001::Mesh::TranslateMesh(*ui_counter_MeshDataPtr_, 0.5f * ui_counter_MeshDataPtr_->GetSize());
 }

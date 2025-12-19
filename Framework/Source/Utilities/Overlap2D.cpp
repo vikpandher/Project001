@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "Overlap2D.h"
 
@@ -31,7 +31,7 @@ namespace Project001
     {
         // rotate and translate the point rather then the orientedRectangle
         glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
-        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
+        glm::vec2 rotatedPointPosition = Math::Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
         return Check2D_Point_Rectangle_Overlap(rotatedPointPosition, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
     }
 
@@ -341,7 +341,7 @@ namespace Project001
         // rotate and translate the line rather then the orientedRectangle
         glm::vec2 transformed_line_position = line_position;
         transformed_line_position -= orientedRectangle_position;
-        transformed_line_position = Rotate2DVector(transformed_line_position, -1.0f * orientedRectangle_rotation);
+        transformed_line_position = Math::Rotate2DVector(transformed_line_position, -1.0f * orientedRectangle_rotation);
         float transformed_line_slope = RotateSlope(line_slope, -1.0f * orientedRectangle_rotation);
         return Check2D_Line_Rectangle_Overlap(
             transformed_line_position,
@@ -615,8 +615,8 @@ namespace Project001
         const float& orientedRectangle_rotation)
     {
         glm::vec2 transformed_position = ray_position - orientedRectangle_position;
-        transformed_position = Rotate2DVector(transformed_position, -orientedRectangle_rotation);
-        glm::vec2 transformed_direction = Rotate2DVector(ray_direction, -orientedRectangle_rotation);
+        transformed_position = Math::Rotate2DVector(transformed_position, -orientedRectangle_rotation);
+        glm::vec2 transformed_direction = Math::Rotate2DVector(ray_direction, -orientedRectangle_rotation);
         return Check2D_Ray_Rectangle_Overlap(
             transformed_position,
             transformed_direction,
@@ -799,9 +799,9 @@ namespace Project001
     {
         // rotate and translate the lineSegment rather then the orientedRectangle
         glm::vec2 transformedLineSegment_start = lineSegment_start - orientedRectangle_position;
-        transformedLineSegment_start = Rotate2DVector(transformedLineSegment_start, -1.0f * orientedRectangle_rotation);
+        transformedLineSegment_start = Math::Rotate2DVector(transformedLineSegment_start, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedLineSegment_end = lineSegment_end - orientedRectangle_position;
-        transformedLineSegment_end = Rotate2DVector(transformedLineSegment_end, -1.0f * orientedRectangle_rotation);
+        transformedLineSegment_end = Math::Rotate2DVector(transformedLineSegment_end, -1.0f * orientedRectangle_rotation);
         return Check2D_LineSegment_Rectangle_Overlap(
             transformedLineSegment_start, transformedLineSegment_end,
             -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
@@ -981,7 +981,7 @@ namespace Project001
         for (size_t i = 0; i < 4; ++i)
         {
             glm::vec2& current_orientedRectangle_corner = orientedRectangle_corner_array[i];
-            current_orientedRectangle_corner = Rotate2DVector(current_orientedRectangle_corner, orientedRectangle_rotation);
+            current_orientedRectangle_corner = Math::Rotate2DVector(current_orientedRectangle_corner, orientedRectangle_rotation);
             current_orientedRectangle_corner += orientedRectangle_position;
         }
 
@@ -1259,7 +1259,7 @@ namespace Project001
 
         // Cancel orientedRectangleA rotation by applying the reverse to
         // orientedRectangleB
-        combinedRectangleB_position = Rotate2DVector(combinedRectangleB_position, -1.0f * orientedRectangleA_rotation);
+        combinedRectangleB_position = Math::Rotate2DVector(combinedRectangleB_position, -1.0f * orientedRectangleA_rotation);
         float combinedRectangleB_rotation = orientedRectangleB_rotation - orientedRectangleA_rotation;
 
         return Check2D_Rectangle_OrientedRectangle_Overlap(-1.0f * orientedRectangleA_halfSize, orientedRectangleA_halfSize, orientedRectangleB_halfSize, combinedRectangleB_position, combinedRectangleB_rotation);
@@ -1274,7 +1274,7 @@ namespace Project001
     {
         // rotate and translate the circle rather then the orientedRectangle
         glm::vec2 transformedCirclePosition = circle_position - orientedRectangle_position;
-        transformedCirclePosition = Rotate2DVector(transformedCirclePosition, -1.0f * orientedRectangle_rotation);
+        transformedCirclePosition = Math::Rotate2DVector(transformedCirclePosition, -1.0f * orientedRectangle_rotation);
         return Check2D_Rectangle_Circle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCirclePosition, circle_radius);
     }
 
@@ -1288,9 +1288,9 @@ namespace Project001
     {
         // rotate and translate the capsule rather then the orientedRectangle
         glm::vec2 transformedCapsuleStart = capsule_start - orientedRectangle_position;
-        transformedCapsuleStart = Rotate2DVector(transformedCapsuleStart, -1.0f * orientedRectangle_rotation);
+        transformedCapsuleStart = Math::Rotate2DVector(transformedCapsuleStart, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedCapsuleEnd = capsule_end - orientedRectangle_position;
-        transformedCapsuleEnd = Rotate2DVector(transformedCapsuleEnd, -1.0f * orientedRectangle_rotation);
+        transformedCapsuleEnd = Math::Rotate2DVector(transformedCapsuleEnd, -1.0f * orientedRectangle_rotation);
         return Check2D_Rectangle_Capsule_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedCapsuleStart, transformedCapsuleEnd, capsule_radius);
     }
 
@@ -1304,11 +1304,11 @@ namespace Project001
     {
         // rotate and translate the triangle rather then the orientedRectangle
         glm::vec2 transformedTriangleCorner1 = triangle_corner1 - orientedRectangle_position;
-        transformedTriangleCorner1 = Rotate2DVector(transformedTriangleCorner1, -1.0f * orientedRectangle_rotation);
+        transformedTriangleCorner1 = Math::Rotate2DVector(transformedTriangleCorner1, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedTriangleCorner2 = triangle_corner2 - orientedRectangle_position;
-        transformedTriangleCorner2 = Rotate2DVector(transformedTriangleCorner2, -1.0f * orientedRectangle_rotation);
+        transformedTriangleCorner2 = Math::Rotate2DVector(transformedTriangleCorner2, -1.0f * orientedRectangle_rotation);
         glm::vec2 transformedTriangleCorner3 = triangle_corner3 - orientedRectangle_position;
-        transformedTriangleCorner3 = Rotate2DVector(transformedTriangleCorner3, -1.0f * orientedRectangle_rotation);
+        transformedTriangleCorner3 = Math::Rotate2DVector(transformedTriangleCorner3, -1.0f * orientedRectangle_rotation);
         return Check2D_Rectangle_Triangle_Overlap(-1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize, transformedTriangleCorner1, transformedTriangleCorner2, transformedTriangleCorner3);
     }
 
@@ -1335,9 +1335,9 @@ namespace Project001
 
             // rotate and translate the lineSegment rather then the orientedRectangle
             glm::vec2 transformedLineSegment_start = lineSegment_start - orientedRectangle_position;
-            transformedLineSegment_start = Rotate2DVector(transformedLineSegment_start, -1.0f * orientedRectangle_rotation);
+            transformedLineSegment_start = Math::Rotate2DVector(transformedLineSegment_start, -1.0f * orientedRectangle_rotation);
             glm::vec2 transformedLineSegment_end = lineSegment_end - orientedRectangle_position;
-            transformedLineSegment_end = Rotate2DVector(transformedLineSegment_end, -1.0f * orientedRectangle_rotation);
+            transformedLineSegment_end = Math::Rotate2DVector(transformedLineSegment_end, -1.0f * orientedRectangle_rotation);
 
             if (Check2D_RectangleFrame_LineSegment_Overlap(rectangle_bottomLeft, rectangle_topRight, transformedLineSegment_start, transformedLineSegment_end))
             {
@@ -1362,14 +1362,14 @@ namespace Project001
         // a rectangle when doing the SAT.
 
         glm::vec2 convexPolygon_array[4];
-        convexPolygon_array[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygon_array[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         convexPolygon_array[1].x = orientedRectangle_halfSize.x;
         convexPolygon_array[1].y = -orientedRectangle_halfSize.y;
-        convexPolygon_array[1] = Rotate2DVector(convexPolygon_array[1], orientedRectangle_rotation) + orientedRectangle_position;
-        convexPolygon_array[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygon_array[1] = Math::Rotate2DVector(convexPolygon_array[1], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygon_array[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         convexPolygon_array[3].x = -orientedRectangle_halfSize.x;
         convexPolygon_array[3].y = orientedRectangle_halfSize.y;
-        convexPolygon_array[3] = Rotate2DVector(convexPolygon_array[3], orientedRectangle_rotation) + orientedRectangle_position;
+        convexPolygon_array[3] = Math::Rotate2DVector(convexPolygon_array[3], orientedRectangle_rotation) + orientedRectangle_position;
         return Check2D_ConvexPolygon_ConvexPolygon_Overlap(&convexPolygon_array[0], 4, convexPolygon_corners, convexPolygon_cornerCount);
     }
 
@@ -2307,7 +2307,7 @@ namespace Project001
     {
         // rotate and translate the point rather then the orientedRectangle
         glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
-        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
+        glm::vec2 rotatedPointPosition = Math::Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
 
         Get2D_Point_Rectangle_ClosestPoint(
             rotatedPointPosition,
@@ -2316,7 +2316,7 @@ namespace Project001
             closestPoint_position);
 
         // rotate and translate back
-        closestPoint_position = Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
+        closestPoint_position = Math::Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
         closestPoint_position += orientedRectangle_position;
     }
 
@@ -2562,7 +2562,7 @@ namespace Project001
     {
         // rotate and translate the point rather then the orientedRectangle
         glm::vec2 translatedPointPosition = point_position - orientedRectangle_position;
-        glm::vec2 rotatedPointPosition = Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
+        glm::vec2 rotatedPointPosition = Math::Rotate2DVector(translatedPointPosition, -1.0f * orientedRectangle_rotation);
 
         float distanceSquared = Get2D_Point_Rectangle_ClosestPointAndDistanceSquared(
             rotatedPointPosition,
@@ -2571,7 +2571,7 @@ namespace Project001
             closestPoint_position);
 
         // rotate and translate back
-        closestPoint_position = Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
+        closestPoint_position = Math::Rotate2DVector(closestPoint_position, orientedRectangle_rotation);
         closestPoint_position += orientedRectangle_position;
 
         return distanceSquared;
@@ -2881,22 +2881,22 @@ namespace Project001
         rectangle_axes[1].y = 1.0f;
 
         glm::vec2 orientedRectangle_corners[4];
-        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
         orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
-        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
-        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1] = Math::Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
         orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
-        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3] = Math::Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
         glm::vec2 orientedRectangle_axes[2];
         orientedRectangle_axes[0].x = 1.0f;
         orientedRectangle_axes[0].y = 0.0f;
-        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[0] = Math::Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
         orientedRectangle_axes[1].x = 0.0f;
         orientedRectangle_axes[1].y = 1.0f;
-        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
+        orientedRectangle_axes[1] = Math::Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
 
         bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(rectangle_corners, 4, rectangle_axes, 2, orientedRectangle_corners, 4, orientedRectangle_axes, 2, collisionNormal, collisionDepth);
         if (!overlap)
@@ -3352,40 +3352,40 @@ namespace Project001
         float& collisionDepth)
     {
         glm::vec2 orientedRectangleA_corners[4];
-        orientedRectangleA_corners[0] = Rotate2DVector(-orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[0] = Math::Rotate2DVector(-orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
         orientedRectangleA_corners[1].x = orientedRectangleA_halfSize.x;
         orientedRectangleA_corners[1].y = -orientedRectangleA_halfSize.y;
-        orientedRectangleA_corners[1] = Rotate2DVector(orientedRectangleA_corners[1], orientedRectangleA_rotation) + orientedRectangleA_position;
-        orientedRectangleA_corners[2] = Rotate2DVector(orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[1] = Math::Rotate2DVector(orientedRectangleA_corners[1], orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[2] = Math::Rotate2DVector(orientedRectangleA_halfSize, orientedRectangleA_rotation) + orientedRectangleA_position;
         orientedRectangleA_corners[3].x = -orientedRectangleA_halfSize.x;
         orientedRectangleA_corners[3].y = orientedRectangleA_halfSize.y;
-        orientedRectangleA_corners[3] = Rotate2DVector(orientedRectangleA_corners[3], orientedRectangleA_rotation) + orientedRectangleA_position;
+        orientedRectangleA_corners[3] = Math::Rotate2DVector(orientedRectangleA_corners[3], orientedRectangleA_rotation) + orientedRectangleA_position;
 
         glm::vec2 orientedRectangleA_axes[2];
         orientedRectangleA_axes[0].x = 1.0f;
         orientedRectangleA_axes[0].y = 0.0f;
-        orientedRectangleA_axes[0] = Rotate2DVector(orientedRectangleA_axes[0], orientedRectangleA_rotation);
+        orientedRectangleA_axes[0] = Math::Rotate2DVector(orientedRectangleA_axes[0], orientedRectangleA_rotation);
         orientedRectangleA_axes[1].x = 0.0f;
         orientedRectangleA_axes[1].y = 1.0f;
-        orientedRectangleA_axes[1] = Rotate2DVector(orientedRectangleA_axes[1], orientedRectangleA_rotation);
+        orientedRectangleA_axes[1] = Math::Rotate2DVector(orientedRectangleA_axes[1], orientedRectangleA_rotation);
 
         glm::vec2 orientedRectangleB_corners[4];
-        orientedRectangleB_corners[0] = Rotate2DVector(-orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[0] = Math::Rotate2DVector(-orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
         orientedRectangleB_corners[1].x = orientedRectangleB_halfSize.x;
         orientedRectangleB_corners[1].y = -orientedRectangleB_halfSize.y;
-        orientedRectangleB_corners[1] = Rotate2DVector(orientedRectangleB_corners[1], orientedRectangleB_rotation) + orientedRectangleB_position;
-        orientedRectangleB_corners[2] = Rotate2DVector(orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[1] = Math::Rotate2DVector(orientedRectangleB_corners[1], orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[2] = Math::Rotate2DVector(orientedRectangleB_halfSize, orientedRectangleB_rotation) + orientedRectangleB_position;
         orientedRectangleB_corners[3].x = -orientedRectangleB_halfSize.x;
         orientedRectangleB_corners[3].y = orientedRectangleB_halfSize.y;
-        orientedRectangleB_corners[3] = Rotate2DVector(orientedRectangleB_corners[3], orientedRectangleB_rotation) + orientedRectangleB_position;
+        orientedRectangleB_corners[3] = Math::Rotate2DVector(orientedRectangleB_corners[3], orientedRectangleB_rotation) + orientedRectangleB_position;
 
         glm::vec2 orientedRectangleB_axes[2];
         orientedRectangleB_axes[0].x = 1.0f;
         orientedRectangleB_axes[0].y = 0.0f;
-        orientedRectangleB_axes[0] = Rotate2DVector(orientedRectangleB_axes[0], orientedRectangleB_rotation);
+        orientedRectangleB_axes[0] = Math::Rotate2DVector(orientedRectangleB_axes[0], orientedRectangleB_rotation);
         orientedRectangleB_axes[1].x = 0.0f;
         orientedRectangleB_axes[1].y = 1.0f;
-        orientedRectangleB_axes[1] = Rotate2DVector(orientedRectangleB_axes[1], orientedRectangleB_rotation);
+        orientedRectangleB_axes[1] = Math::Rotate2DVector(orientedRectangleB_axes[1], orientedRectangleB_rotation);
 
         bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H3(orientedRectangleA_corners, 4, orientedRectangleA_axes, 2, orientedRectangleB_corners, 4, orientedRectangleB_axes, 2, collisionNormal, collisionDepth);
         if (!overlap)
@@ -3467,14 +3467,14 @@ namespace Project001
         float& collisionDepth)
     {
         glm::vec2 orientedRectangle_corners[4];
-        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
         orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
-        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
-        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1] = Math::Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
         orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
-        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3] = Math::Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
         glm::vec2 closestPoint_position;
         Get2D_Point_PolygonEdge_ClosestPointAndDistanceSquared(circle_position, orientedRectangle_corners, 4, closestPoint_position);
@@ -3544,22 +3544,22 @@ namespace Project001
         float& collisionDepth)
     {
         glm::vec2 orientedRectangle_corners[4];
-        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
         orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
-        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
-        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1] = Math::Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
         orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
-        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3] = Math::Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
         glm::vec2 orientedRectangle_axes[2];
         orientedRectangle_axes[0].x = 1.0f;
         orientedRectangle_axes[0].y = 0.0f;
-        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[0] = Math::Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
         orientedRectangle_axes[1].x = 0.0f;
         orientedRectangle_axes[1].y = 1.0f;
-        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
+        orientedRectangle_axes[1] = Math::Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
 
         bool overlap = Get2D_ConvexPolygon_Capsule_CollisionNormalDepth_H2(orientedRectangle_corners, 4, orientedRectangle_axes, 2, capsule_start, capsule_end, capsule_radius, collisionNormal, collisionDepth);
         if (!overlap)
@@ -3644,22 +3644,22 @@ namespace Project001
         float& collisionDepth)
     {
         glm::vec2 orientedRectangle_corners[4];
-        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
         orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
-        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
-        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1] = Math::Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
         orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
-        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3] = Math::Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
         glm::vec2 orientedRectangle_axes[2];
         orientedRectangle_axes[0].x = 1.0f;
         orientedRectangle_axes[0].y = 0.0f;
-        orientedRectangle_axes[0] = Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
+        orientedRectangle_axes[0] = Math::Rotate2DVector(orientedRectangle_axes[0], orientedRectangle_rotation);
         orientedRectangle_axes[1].x = 0.0f;
         orientedRectangle_axes[1].y = 1.0f;
-        orientedRectangle_axes[1] = Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
+        orientedRectangle_axes[1] = Math::Rotate2DVector(orientedRectangle_axes[1], orientedRectangle_rotation);
 
         glm::vec2 triangle_corners[3] = { triangle_corner1, triangle_corner2, triangle_corner3 };
 
@@ -3748,22 +3748,22 @@ namespace Project001
         }
 
         glm::vec2 orientedRectangle_corners[4];
-        orientedRectangle_corners[0] = Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[0] = Math::Rotate2DVector(-orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[1].x = orientedRectangle_halfSize.x;
         orientedRectangle_corners[1].y = -orientedRectangle_halfSize.y;
-        orientedRectangle_corners[1] = Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
-        orientedRectangle_corners[2] = Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[1] = Math::Rotate2DVector(orientedRectangle_corners[1], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[2] = Math::Rotate2DVector(orientedRectangle_halfSize, orientedRectangle_rotation) + orientedRectangle_position;
         orientedRectangle_corners[3].x = -orientedRectangle_halfSize.x;
         orientedRectangle_corners[3].y = orientedRectangle_halfSize.y;
-        orientedRectangle_corners[3] = Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
+        orientedRectangle_corners[3] = Math::Rotate2DVector(orientedRectangle_corners[3], orientedRectangle_rotation) + orientedRectangle_position;
 
         glm::vec2 rectangle_axes[2];
         rectangle_axes[0].x = 1.0f;
         rectangle_axes[0].y = 0.0f;
-        rectangle_axes[0] = Rotate2DVector(rectangle_axes[0], orientedRectangle_rotation);
+        rectangle_axes[0] = Math::Rotate2DVector(rectangle_axes[0], orientedRectangle_rotation);
         rectangle_axes[1].x = 0.0f;
         rectangle_axes[1].y = 1.0f;
-        rectangle_axes[1] = Rotate2DVector(rectangle_axes[1], orientedRectangle_rotation);
+        rectangle_axes[1] = Math::Rotate2DVector(rectangle_axes[1], orientedRectangle_rotation);
 
         bool overlap = Get2D_ConvexPolygon_ConvexPolygon_CollisionNormalDepth_H2(orientedRectangle_corners, 4, rectangle_axes, 2, convexPolygon_corners, convexPolygon_cornerCount, collisionNormal, collisionDepth);
         if (!overlap)
@@ -5221,8 +5221,8 @@ namespace Project001
         const glm::vec2& rectangle_oppositeCorner2)
     {
         float maxX, minX, maxY, minY;
-        GetMinMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x, minX, maxX);
-        GetMinMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y, minY, maxY);
+        Math::GetMinMax(rectangle_oppositeCorner1.x, rectangle_oppositeCorner2.x, minX, maxX);
+        Math::GetMinMax(rectangle_oppositeCorner1.y, rectangle_oppositeCorner2.y, minY, maxY);
 
         return (point_position.x < maxX) && (point_position.x > minX) &&
             (point_position.y < maxY) && (point_position.y > minY);
@@ -5240,7 +5240,7 @@ namespace Project001
         float area3 = Get2D_Triangle_Area(point_position, triangle_corner2, triangle_corner3);
         float areaSum = area1 + area2 + area3;
 
-        return FloatEqualToFloat(triangleArea, areaSum);
+        return Math::FloatEqualToFloat(triangleArea, areaSum);
     }
 
     bool Check2D_Rectangle_OrientedRectangle_Overlap_Alt(
@@ -5252,15 +5252,15 @@ namespace Project001
     {
         // apply transformations to the orientedRectangle corners
         glm::vec2 transformedRectangle_bottomLeft(-1.0f * orientedRectangle_halfSize.x, -1.0f * orientedRectangle_halfSize.y);
-        transformedRectangle_bottomLeft = Rotate2DVector(transformedRectangle_bottomLeft, orientedRectangle_rotation);
+        transformedRectangle_bottomLeft = Math::Rotate2DVector(transformedRectangle_bottomLeft, orientedRectangle_rotation);
         transformedRectangle_bottomLeft += orientedRectangle_position;
 
         glm::vec2 transformedRectangle_topRight(orientedRectangle_halfSize.x, orientedRectangle_halfSize.y);
-        transformedRectangle_topRight = Rotate2DVector(transformedRectangle_topRight, orientedRectangle_rotation);
+        transformedRectangle_topRight = Math::Rotate2DVector(transformedRectangle_topRight, orientedRectangle_rotation);
         transformedRectangle_topRight += orientedRectangle_position;
 
         glm::vec2 transformedRectangle_bottomRight(orientedRectangle_halfSize.x, -1.0f * orientedRectangle_halfSize.y);
-        transformedRectangle_bottomRight = Rotate2DVector(transformedRectangle_bottomRight, orientedRectangle_rotation);
+        transformedRectangle_bottomRight = Math::Rotate2DVector(transformedRectangle_bottomRight, orientedRectangle_rotation);
         transformedRectangle_bottomRight += orientedRectangle_position;
 
         // check if the bottom or the right of the orientedRectangle crosses any sides of the rectangle
@@ -5271,7 +5271,7 @@ namespace Project001
         }
 
         glm::vec2 transformedRectangle_topLeft(-1.0f * orientedRectangle_halfSize.x, orientedRectangle_halfSize.y);
-        transformedRectangle_topLeft = Rotate2DVector(transformedRectangle_topLeft, orientedRectangle_rotation);
+        transformedRectangle_topLeft = Math::Rotate2DVector(transformedRectangle_topLeft, orientedRectangle_rotation);
         transformedRectangle_topLeft += orientedRectangle_position;
 
         // check if the top or the left of the orientedRectangle crosses any sides of the rectangle
@@ -5288,7 +5288,7 @@ namespace Project001
         }
 
         glm::vec2 transformedRectangle2_bottomLeft = rectangle_bottomLeft - orientedRectangle_position;
-        transformedRectangle2_bottomLeft = Rotate2DVector(transformedRectangle2_bottomLeft, -1.0f * orientedRectangle_rotation);
+        transformedRectangle2_bottomLeft = Math::Rotate2DVector(transformedRectangle2_bottomLeft, -1.0f * orientedRectangle_rotation);
 
         // check if the corner of the rectangle is inside the orientedRectangle
         return Check2D_Point_Rectangle_Overlap(transformedRectangle2_bottomLeft, -1.0f * orientedRectangle_halfSize, orientedRectangle_halfSize);
@@ -6451,11 +6451,11 @@ namespace Project001
         glm::vec2 normalVector;
         if (std::isinf(slope))
         {
-            normalVector = Rotate2DVector(glm::vec2(0.0f, 1.0f), rotationInRadians);
+            normalVector = Math::Rotate2DVector(glm::vec2(0.0f, 1.0f), rotationInRadians);
         }
         else
         {
-            normalVector = Rotate2DVector(glm::normalize(glm::vec2(1.0f, slope)), rotationInRadians);
+            normalVector = Math::Rotate2DVector(glm::normalize(glm::vec2(1.0f, slope)), rotationInRadians);
         }
         return normalVector.y / normalVector.x;
 

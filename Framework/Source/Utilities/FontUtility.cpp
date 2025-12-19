@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
-#include "FontLoader.h"
+#include "FontUtility.h"
 
-#include "Math/MathUtilities.h"
+#include "Utilities/MathUtility.h"
 #include "Logger.h"
 
 #include <fstream>
@@ -13,9 +13,11 @@
 
 namespace Project001
 {
-    // public ------------------------------------------------------------------
+namespace Font
+{
+    bool g_triangulateMeshes = false;
 
-    bool FontLoader::LoadFontData(
+    bool LoadFontData(
         FontData& fontData,
         const std::string& filePath)
     {
@@ -84,7 +86,7 @@ namespace Project001
         return true;
     }
 
-    bool FontLoader::LoadFontDataFromMemory(
+    bool LoadFontDataFromMemory(
         FontData& fontData,
         const unsigned char* dataPtr,
         size_t dataSize)
@@ -165,7 +167,7 @@ namespace Project001
         return true;
     }
 
-    bool FontLoader::GenerateMeshDataFromFontDataAndString(
+    bool GenerateMeshDataFromFontDataAndString(
         MeshData& meshData,
         const FontData& fontData,
         const std::string& text,
@@ -347,7 +349,7 @@ namespace Project001
         return true;
     }
 
-    bool FontLoader::GenerateGlpyhMeshDataFromFontDataAndCharacter(
+    bool GenerateGlpyhMeshDataFromFontDataAndCharacter(
         GlyphMeshData& glyphMeshData,
         const FontData& fontData,
         unsigned char character,
@@ -368,7 +370,7 @@ namespace Project001
         return true;
     }
 
-    bool FontLoader::GenerateFontMeshDataFromFontData(
+    bool GenerateFontMeshDataFromFontData(
         FontMeshData& fontMeshData,
         const FontData& fontData,
         float pixelSize,
@@ -398,11 +400,9 @@ namespace Project001
         return true;
     }
 
-    bool FontLoader::s_triangulate = false;
+    // Helper Functions --------------------------------------------------------
 
-    // protected ---------------------------------------------------------------
-
-    void FontLoader::GenerateGlpyhMeshDataFromGlyphMetrics_H(
+    void GenerateGlpyhMeshDataFromGlyphMetrics_H(
         GlyphMeshData& glyphMeshData,
         const GlyphMetrics& glyphMetrics,
         float pixelSize,
@@ -509,4 +509,5 @@ namespace Project001
             if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
         }
     }
+}
 }

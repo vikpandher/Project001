@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene007.h"
 
@@ -10,13 +10,13 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -56,27 +56,27 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/box_03.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/box_03.png"));
         GetRendererPtr()->CreateTexture(box03_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/12_6_numbers.png"));
         GetRendererPtr()->CreateTexture(numbers12x6_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -100,13 +100,13 @@ void TestScene007::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+        FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
             *newMeshDataPtr,
             font01_FontData,
             "ear clipping algorithm",
             0.005f
         ));
-        Project001::MeshLoader::RecenterMesh(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -273,9 +273,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon01_vertices, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, polygon01_vertices, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -297,9 +297,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon01_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon(*newMeshDataPtr, polygon01_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -321,9 +321,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon01_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, polygon01_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -345,9 +345,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon02_vertices, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, polygon02_vertices, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -369,9 +369,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon02_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon(*newMeshDataPtr, polygon02_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -393,9 +393,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon02_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, polygon02_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -417,9 +417,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DLineLoop(*newMeshDataPtr, polygon03_vertices, 0.01f, true));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DLineLoop(*newMeshDataPtr, polygon03_vertices, 0.01f, true));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -441,9 +441,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*newMeshDataPtr, polygon03_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon(*newMeshDataPtr, polygon03_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -465,9 +465,9 @@ void TestScene007::CreateEarClippingMeshes()
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, polygon03_vertices));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, polygon03_vertices));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -513,8 +513,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 0, 0.12f, 1, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 0, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -533,9 +533,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -558,8 +558,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 1, 0.12f, 1, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 1, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -578,9 +578,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -603,8 +603,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 2, 0.12f, 1, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.32f, 2, 0.12f, 1, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -623,9 +623,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -648,8 +648,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 0, 0.12f, 2, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 0, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -668,9 +668,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -693,8 +693,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 1, 0.12f, 2, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 1, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -713,9 +713,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -738,8 +738,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 2, 0.12f, 2, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.40f, 2, 0.12f, 2, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -758,9 +758,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -783,8 +783,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 0, 0.12f, 3, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 0, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -803,9 +803,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -828,8 +828,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 1, 0.12f, 3, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 1, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -848,9 +848,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);
@@ -873,8 +873,8 @@ void TestScene007::CreateAsteroidMeshes()
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         std::vector<glm::vec2> borderPoints;
-        FAIL_CHECK(Project001::MeshLoader::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 2, 0.12f, 3, vertexOffsetDistances, false));
-        Project001::MeshLoader::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
+        FAIL_CHECK(Project001::Mesh::GenerateIcosphereAsteroid(*newMeshDataPtr, borderPoints, 0.48f, 2, 0.12f, 3, vertexOffsetDistances, false));
+        Project001::Mesh::RotateMeshX(*newMeshDataPtr, glm::half_pi<float>());
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -893,9 +893,9 @@ void TestScene007::CreateAsteroidMeshes()
 
         newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
-        Project001::MeshLoader::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::MeshLoader::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        FAIL_CHECK(Project001::Mesh::Generate2DPolygon_v2(*newMeshDataPtr, borderPoints));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
         entityIds_.push_back(tempEntityId);

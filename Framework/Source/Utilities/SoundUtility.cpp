@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
-#include "SoundLoader.h"
+#include "SoundUtility.h"
 
 #include <fstream>
 
@@ -12,9 +12,9 @@
 
 namespace Project001
 {
-    // public ------------------------------------------------------------------
-
-    bool SoundLoader::LoadSoundOGG(
+namespace Sound
+{
+    bool LoadSoundOGG(
         SoundData& soundData,
         const std::string& filePath)
     {
@@ -38,7 +38,7 @@ namespace Project001
         return true;
     }
 
-    bool SoundLoader::LoadSoundOGGFromMemory(
+    bool LoadSoundOGGFromMemory(
         SoundData& soundData,
         const unsigned char* dataPtr,
         size_t dataSize)
@@ -63,7 +63,7 @@ namespace Project001
         return true;
     }
 
-    bool SoundLoader::LoadSoundWAV(
+    bool LoadSoundWAV(
         SoundData& soundData,
         const std::string& filePath)
     {
@@ -141,7 +141,7 @@ namespace Project001
             return false;
         }
 
-        uint32_t audioFormat = ConvertToUInt32(buffer, 2);
+        uint32_t audioFormat = ConvertToUInt32_H(buffer, 2);
 
         if (audioFormat == 1)
         {
@@ -168,7 +168,7 @@ namespace Project001
             // ERROR: could not read the NumChannels
             return false;
         }
-        soundData.numberOfChannels = ConvertToUInt32(buffer, 2);
+        soundData.numberOfChannels = ConvertToUInt32_H(buffer, 2);
 
         // SampleRate
         if (!inputFileStream.read(buffer, 4))
@@ -176,7 +176,7 @@ namespace Project001
             // ERROR: could not read the SampleRate
             return false;
         }
-        soundData.sampleRate_Hz = ConvertToUInt32(buffer, 4);
+        soundData.sampleRate_Hz = ConvertToUInt32_H(buffer, 4);
 
         // ByteRate (sampleRate * bitsPerSample * channels) / 8
         if (!inputFileStream.read(buffer, 4))
@@ -198,7 +198,7 @@ namespace Project001
             // ERROR: could not read the BitsPerSample
             return false;
         }
-        soundData.bitsPerSample = ConvertToUInt32(buffer, 2);
+        soundData.bitsPerSample = ConvertToUInt32_H(buffer, 2);
 
         // The "data" sub-chunk
         // ---------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace Project001
             // ERROR: could not read the Subchunk2 Size
             return false;
         }
-        soundData.sizeInBytes = ConvertToUInt32(buffer, 4);
+        soundData.sizeInBytes = ConvertToUInt32_H(buffer, 4);
 
         unsigned int bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
         soundData.sizeInFrames = soundData.sizeInBytes / bytesPerFrame;
@@ -257,7 +257,7 @@ namespace Project001
         return true;
     }
 
-    bool SoundLoader::LoadSoundWAVFromMemory(
+    bool LoadSoundWAVFromMemory(
         SoundData& soundData,
         const unsigned char* dataPtr,
         size_t dataSize)
@@ -279,7 +279,7 @@ namespace Project001
         // "fmt" and "data"
 
         // ChunkId
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the ChunkId
             return false;
@@ -291,14 +291,14 @@ namespace Project001
         }
 
         // ChunkSize
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the ChunkSize
             return false;
         }
 
         // Format
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the Format
             return false;
@@ -314,7 +314,7 @@ namespace Project001
         // describes the format of the sound information in the data sub-chunk
 
         // Subchunk1 ID ("fmt\0")
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the Subchunk1 ID ("fmt\0")
             return false;
@@ -326,20 +326,20 @@ namespace Project001
         }
 
         // Subchunk1 Size (always 16)
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the Subchunk1 Size (always 16)
             return false;
         }
 
         // AudioFormat
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
         {
             // ERROR: could not read the AudioFormat
             return false;
         }
 
-        uint32_t audioFormat = ConvertToUInt32(buffer, 2);
+        uint32_t audioFormat = ConvertToUInt32_H(buffer, 2);
 
         if (audioFormat == 1)
         {
@@ -361,42 +361,42 @@ namespace Project001
         }
 
         // NumChannels
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
         {
             // ERROR: could not read the NumChannels
             return false;
         }
-        soundData.numberOfChannels = ConvertToUInt32(buffer, 2);
+        soundData.numberOfChannels = ConvertToUInt32_H(buffer, 2);
 
         // SampleRate
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the SampleRate
             return false;
         }
-        soundData.sampleRate_Hz = ConvertToUInt32(buffer, 4);
+        soundData.sampleRate_Hz = ConvertToUInt32_H(buffer, 4);
 
         // ByteRate (sampleRate * bitsPerSample * channels) / 8
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the ByteRate
             return false;
         }
 
         // BlockAlign
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
         {
             // ERROR: could not read the BlockAlign
             return false;
         }
 
         // BitsPerSample
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 2))
         {
             // ERROR: could not read the BitsPerSample
             return false;
         }
-        soundData.bitsPerSample = ConvertToUInt32(buffer, 2);
+        soundData.bitsPerSample = ConvertToUInt32_H(buffer, 2);
 
         // The "data" sub-chunk
         // ---------------------------------------------------------------------
@@ -404,7 +404,7 @@ namespace Project001
         // raw sound data
 
         // Subchunk2 ID ("data")
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the Subchunk2 ID
             return false;
@@ -416,12 +416,12 @@ namespace Project001
         }
 
         // Subchunk2 Size
-        if (!Read(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
+        if (!Read_H(buffer, incrementingDataPtr, pastTheEndOfSourcePtr, 4))
         {
             // ERROR: could not read the Subchunk2 Size
             return false;
         }
-        soundData.sizeInBytes = ConvertToUInt32(buffer, 4);
+        soundData.sizeInBytes = ConvertToUInt32_H(buffer, 4);
 
         unsigned int bytesPerFrame = (soundData.bitsPerSample / 8) * soundData.numberOfChannels;
         soundData.sizeInFrames = soundData.sizeInBytes / bytesPerFrame;
@@ -435,7 +435,7 @@ namespace Project001
         }
 
         // Data
-        if (!Read(reinterpret_cast<char*>(soundData.data), incrementingDataPtr, pastTheEndOfSourcePtr, static_cast<size_t>(soundData.sizeInBytes)))
+        if (!Read_H(reinterpret_cast<char*>(soundData.data), incrementingDataPtr, pastTheEndOfSourcePtr, static_cast<size_t>(soundData.sizeInBytes)))
         {
             // ERROR: failed to read data memory
             return false;
@@ -444,9 +444,9 @@ namespace Project001
         return true;
     }
 
-    // protected ---------------------------------------------------------------
+    // Helper Functions --------------------------------------------------------
 
-    bool SoundLoader::Read(
+    bool Read_H(
         char* destinationPtr,
         const char*& incrementingSourcePtr,
         const char* pastTheEndOfSourcePtr,
@@ -461,7 +461,7 @@ namespace Project001
         return false;
     }
 
-    uint32_t SoundLoader::ConvertToUInt32(
+    uint32_t ConvertToUInt32_H(
         const char* buffer,
         size_t length)
     {
@@ -473,7 +473,7 @@ namespace Project001
             uint32_t i;
             char c[4];
         } result = { 0x00000000 };
-        if (!IsBigEndian())
+        if (!IsBigEndian_H())
         {
             std::memcpy(&result, buffer, length);
         }
@@ -487,7 +487,7 @@ namespace Project001
         return result.i;
     }
 
-    bool SoundLoader::IsBigEndian()
+    bool IsBigEndian_H()
     {
         union {
             uint32_t i;
@@ -496,4 +496,5 @@ namespace Project001
 
         return bint.c[0] == 1;
     }
+}
 }

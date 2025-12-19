@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene102.h"
 
@@ -12,15 +12,15 @@
 #include "Components/CollisionBody2D.h"
 #include "Components/RenderedModel.h"
 #include "Resources/PixelFont5x6.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/SoundUtility.h"
+#include "Utilities/TextureUtility.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "RenderSystem.h"
-#include "SoundLoader.h"
 #include "SoundPlayer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -144,7 +144,7 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     GetSoundPlayerPtr()->DeleteAllSoundBuffers();
     GetComponentStoresPtr()->DeleteAllEntities();
 
-    // Font Data ---------------------------------------------------------------
+    // FontUtils Data ---------------------------------------------------------------
 
     delete font01_FontDataPtr_;
     font01_FontDataPtr_ = nullptr;
@@ -335,14 +335,14 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 void TestScene102::LoadFontData()
 {
     font01_FontDataPtr_ = new Project001::FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         *font01_FontDataPtr_,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     font01_TextureDataPtr_ = new Project001::TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         *font01_TextureDataPtr_,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
@@ -373,7 +373,7 @@ void TestScene102::LoadFontData()
 void TestScene102::LoadMeshData()
 {
     cursorCircle_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DRegularPolygon(*cursorCircle_MeshDataPtr_, 4.0f, 12));
+    FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*cursorCircle_MeshDataPtr_, 4.0f, 12));
 
     {
         floorGrid_MeshDataPtr_ = new Project001::MeshData();
@@ -383,7 +383,7 @@ void TestScene102::LoadMeshData()
 
         for (float f = -gridSize; f < gridSize + 1.0f; f += gridSpacing)
         {
-            FAIL_CHECK(Project001::MeshLoader::Generate2DLine(
+            FAIL_CHECK(Project001::Mesh::Generate2DLine(
                 *floorGrid_MeshDataPtr_,
                 glm::vec2(-gridSize - 0.5f * lineWidth, f),
                 glm::vec2(gridSize + 0.5f * lineWidth, f),
@@ -393,7 +393,7 @@ void TestScene102::LoadMeshData()
         {
             for (float g = -gridSize; g < gridSize - 1.0f; g += gridSpacing)
             {
-                FAIL_CHECK(Project001::MeshLoader::Generate2DLine(
+                FAIL_CHECK(Project001::Mesh::Generate2DLine(
                     *floorGrid_MeshDataPtr_,
                     glm::vec2(f, g + 0.5f * lineWidth),
                     glm::vec2(f, g - 0.5f * lineWidth + gridSpacing),
@@ -439,18 +439,18 @@ void TestScene102::LoadMeshData()
             const std::string& currentLabel = gridLabels[i];
 
             Project001::MeshData currentLabelMeshData;
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 currentLabelMeshData,
                 *pixelFont_FontDataPtr_,
                 currentLabel,
                 pixelFont_pixelSize_
             ));
-            Project001::MeshLoader::TranslateMesh(
+            Project001::Mesh::TranslateMesh(
                 currentLabelMeshData,
                 glm::vec3(gridLabel_offsetX, gridLabel_offsetY, 0.0f)
             );
 
-            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+            Project001::Mesh::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
 
             gridLabel_offsetX += gridSpacing;
         }
@@ -465,18 +465,18 @@ void TestScene102::LoadMeshData()
             const std::string& currentLabel = gridLabels[i];
 
             Project001::MeshData currentLabelMeshData;
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 currentLabelMeshData,
                 *pixelFont_FontDataPtr_,
                 currentLabel,
                 pixelFont_pixelSize_
             ));
-            Project001::MeshLoader::TranslateMesh(
+            Project001::Mesh::TranslateMesh(
                 currentLabelMeshData,
                 glm::vec3(gridLabel_offsetX, gridLabel_offsetY, 0.0f)
             );
 
-            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+            Project001::Mesh::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
 
             gridLabel_offsetY += gridSpacing;
         }
@@ -493,18 +493,18 @@ void TestScene102::LoadMeshData()
             float addition_offsetX = pixelFont_pixelSize_ * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
             Project001::MeshData currentLabelMeshData;
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 currentLabelMeshData,
                 *pixelFont_FontDataPtr_,
                 currentLabel,
                 pixelFont_pixelSize_
             ));
-            Project001::MeshLoader::TranslateMesh(
+            Project001::Mesh::TranslateMesh(
                 currentLabelMeshData,
                 glm::vec3(gridLabel_offsetX + addition_offsetX , gridLabel_offsetY, 0.0f)
             );
 
-            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+            Project001::Mesh::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
 
             gridLabel_offsetX -= gridSpacing;
         }
@@ -521,18 +521,18 @@ void TestScene102::LoadMeshData()
             float addition_offsetX = pixelFont_pixelSize_ * -6.0f * static_cast<float>(currentLabel.length() - 1);
 
             Project001::MeshData currentLabelMeshData;
-            FAIL_CHECK(Project001::FontLoader::GenerateMeshDataFromFontDataAndString(
+            FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
                 currentLabelMeshData,
                 *pixelFont_FontDataPtr_,
                 currentLabel,
                 pixelFont_pixelSize_
             ));
-            Project001::MeshLoader::TranslateMesh(
+            Project001::Mesh::TranslateMesh(
                 currentLabelMeshData,
                 glm::vec3(gridLabel_offsetX + addition_offsetX, gridLabel_offsetY, 0.0f)
             );
 
-            Project001::MeshLoader::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
+            Project001::Mesh::CopyMesh(*floorGridLabels_MeshDataPtr_, currentLabelMeshData);
 
             gridLabel_offsetY -= gridSpacing;
         }
@@ -553,7 +553,7 @@ void TestScene102::LoadMeshData()
     // Generated when Main Camera Entity created
 
     ship_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::LoadMeshOBJ(*ship_MeshDataPtr_, "../Models/Ship.obj"));
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(*ship_MeshDataPtr_, "../Models/Ship.obj"));
 
     shipCollisionBody_MeshDataPtr_ = new Project001::MeshData();
     std::vector<glm::vec2> corners;
@@ -561,23 +561,23 @@ void TestScene102::LoadMeshData()
     corners.emplace_back(32.0f, -32.0f);
     corners.emplace_back(0.0f, 64.0f);
     corners.emplace_back(-32.0f, -32.0f);
-    FAIL_CHECK(Project001::MeshLoader::Generate2DPolygon(*shipCollisionBody_MeshDataPtr_, corners));
+    FAIL_CHECK(Project001::Mesh::Generate2DPolygon(*shipCollisionBody_MeshDataPtr_, corners));
 
     shipBeamSight_MeshDataPtr_ = new Project001::MeshData();
-    FAIL_CHECK(Project001::MeshLoader::Generate2DLine(*shipBeamSight_MeshDataPtr_, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 10000.0f), 2.0f));
+    FAIL_CHECK(Project001::Mesh::Generate2DLine(*shipBeamSight_MeshDataPtr_, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 10000.0f), 2.0f));
 }
 
 void TestScene102::LoadTextureData()
 {
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/border_96x64.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/border_96x64.png"));
         GetRendererPtr()->CreateTexture(border96x64_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     {
         Project001::TextureData textureData;
-        FAIL_CHECK(Project001::TextureLoader::LoadTexture(textureData, "../Textures/16_4_numbers.png"));
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/16_4_numbers.png"));
         GetRendererPtr()->CreateTexture(numbers16x4_TextureId_, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 }
@@ -616,18 +616,18 @@ void TestScene102::CreateCameraEntities()
 
             glm::vec3 corners[8] = {};
             cameraPtr->GetProjectionFrustumCorners(corners);
-            FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            FAIL_CHECK(Project001::Mesh::Generate2DSprite(
                 *mainCameraNearFrustum_MeshDataPtr_,
                 corners[1], corners[0], corners[3], corners[2],
                 0.0f, 1.0f, 0.0f, 1.0f
             ));
-            Project001::MeshLoader::TranslateMesh(*mainCameraNearFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, 0.001f));
-            FAIL_CHECK(Project001::MeshLoader::Generate2DSprite(
+            Project001::Mesh::TranslateMesh(*mainCameraNearFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, 0.001f));
+            FAIL_CHECK(Project001::Mesh::Generate2DSprite(
                 *mainCameraFarFrustum_MeshDataPtr_,
                 corners[5], corners[4], corners[7], corners[6],
                 0.0f, 1.0f, 0.0f, 1.0f
             ));
-            Project001::MeshLoader::TranslateMesh(*mainCameraFarFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, -1.0f));
+            Project001::Mesh::TranslateMesh(*mainCameraFarFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, -1.0f));
 
             cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->AddPitch(-glm::quarter_pi<float>());
@@ -974,7 +974,7 @@ void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
 
             const float& angularVelocity = playerCollisionBodyPtr->GetAngularVelocity();
 
-            float angleToCursor = Project001::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+            float angleToCursor = Project001::Math::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
             if (glm::sign(angleToCursor) == glm::sign(angularVelocity) || glm::sign(angularVelocity) == 0.0f) // apply angular acceleration
             {
                 float angularDifference = angleToCursor - angularVelocity * timestep_s;

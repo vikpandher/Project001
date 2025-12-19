@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-11-30
+# @DATE 2025-12-19
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -43,16 +43,10 @@ set(GENERAL_FILES
     "Source/ComponentStores.h"
     "Source/Event.h"
     "Source/FontData.h"
-    "Source/FontLoader.cpp"
-    "Source/FontLoader.h"
     "Source/FontMeshData.h"
-    "Source/IniReaderWriter.cpp"
-    "Source/IniReaderWriter.h"
     "Source/Logger.cpp"
     "Source/Logger.h"
     "Source/MeshData.h"
-    "Source/MeshLoader.cpp"
-    "Source/MeshLoader.h"
     "Source/MeshVertex.h"
     "Source/RenderData.h"
     "Source/Renderer.cpp"
@@ -64,13 +58,9 @@ set(GENERAL_FILES
     "Source/Scene.cpp"
     "Source/Scene.h"
     "Source/SoundData.h"
-    "Source/SoundLoader.cpp"
-    "Source/SoundLoader.h"
     "Source/SoundPlayer.cpp"
     "Source/SoundPlayer.h"
     "Source/TextureData.h"
-    "Source/TextureLoader.cpp"
-    "Source/TextureLoader.h"
     "Source/TimeProfiler.cpp"
     "Source/TimeProfiler.h"
     "Source/UniqueBiMap.h"
@@ -99,19 +89,6 @@ set (COMPONENTS_FILES
 )
 
 source_group("Source/Components" FILES ${COMPONENTS_FILES})
-
-set (MATH_FILES
-    "Source/Math/MathUtilities.cpp"
-    "Source/Math/MathUtilities.h"
-    "Source/Math/Overlap2D.cpp"
-    "Source/Math/Overlap2D.h"
-    "Source/Math/Overlap3D.cpp"
-    "Source/Math/Overlap3D.h"
-    "Source/Math/Overlap3D_UnitTests.cpp"
-    "Source/Math/Overlap3D_UnitTests.h"
-)
-
-source_group("Source/Math" FILES ${MATH_FILES})
 
 set(PLATFORM_GLFW_FILES
     "Source/Platform/GLFW_Window.cpp"
@@ -200,13 +177,6 @@ set(PLATFORM_VULKAN_GENERATED_SHADER_FILES
 
 source_group("Source/Platform/Vulkan_Shaders/Generated" FILES ${PLATFORM_VULKAN_GENERATED_SHADER_FILES})
 
-set (RESOURCE_FILES
-    "Source/Resources/PixelFont5x6.cpp"
-    "Source/Resources/PixelFont5x6.h"
-)
-
-source_group("Source/Resources" FILES ${RESOURCE_FILES})
-
 # The following makes it so the unused graphics platform files doesn't get
 # compiled, but the files are still listed in the visual studio project
 if(${PROJECT001_VULKAN_BUILD})
@@ -215,6 +185,38 @@ else()
     set_source_files_properties(${PLATFORM_VULKAN_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
 
+set(RESOURCE_FILES
+    "Source/Resources/PixelFont5x6.cpp"
+    "Source/Resources/PixelFont5x6.h"
+)
+
+source_group("Source/Resources" FILES ${RESOURCE_FILES})
+
+set(UTILITY_FILES
+    "Source/Utilities/FontUtility.cpp"
+    "Source/Utilities/FontUtility.h"
+    "Source/Utilities/IniReaderWriter.cpp"
+    "Source/Utilities/IniReaderWriter.h"
+    "Source/Utilities/MathUtility.cpp"
+    "Source/Utilities/MathUtility.h"
+    "Source/Utilities/MeshUtility.cpp"
+    "Source/Utilities/MeshUtility.h"
+    "Source/Utilities/Overlap2D.cpp"
+    "Source/Utilities/Overlap2D.h"
+    "Source/Utilities/Overlap3D.cpp"
+    "Source/Utilities/Overlap3D.h"
+    "Source/Utilities/Overlap3D_UnitTests.cpp"
+    "Source/Utilities/Overlap3D_UnitTests.h"
+    "Source/Utilities/SoundUtility.cpp"
+    "Source/Utilities/SoundUtility.h"
+    "Source/Utilities/StringUtility.cpp"
+    "Source/Utilities/StringUtility.h"
+    "Source/Utilities/TextureUtility.cpp"
+    "Source/Utilities/TextureUtility.h"
+)
+
+source_group("Source/Utilities" FILES ${UTILITY_FILES})
+
 # Statically linking the Visual C++ runtime libraries?
 # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
@@ -222,7 +224,6 @@ add_library("${PROJECT_NAME}" STATIC
 	$<$<BOOL:${PROJECT001_VULKAN_BUILD}>:${VENDOR_VULKAN_INCLUDE}>
     ${GENERAL_FILES}
     ${COMPONENTS_FILES}
-    ${MATH_FILES}
     ${PLATFORM_GLFW_FILES}
     ${PLATFORM_MINIAUDIO_FILES}
     ${PLATFORM_OPENGL_FILES}
@@ -232,6 +233,7 @@ add_library("${PROJECT_NAME}" STATIC
     ${PLATFORM_VULKAN_SHADER_FILES}
     ${PLATFORM_VULKAN_GENERATED_SHADER_FILES}
     ${RESOURCE_FILES}
+    ${UTILITY_FILES}
 )
 
 # target_compile_definitions(${PROJECT_NAME} PRIVATE "GLM_ENABLE_EXPERIMENTAL")

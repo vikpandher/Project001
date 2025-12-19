@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-19
 
 #include "TestScene028.h"
 
@@ -10,14 +10,14 @@
 
 #include "Components/Camera.h"
 #include "Components/RenderedMesh.h"
-#include "Math/Overlap3D_UnitTests.h"
+#include "Utilities/FontUtility.h"
+#include "Utilities/MeshUtility.h"
+#include "Utilities/Overlap3D_UnitTests.h"
+#include "Utilities/TextureUtility.h"
 #include "Application.h"
 #include "ComponentStores.h"
-#include "FontLoader.h"
 #include "Logger.h"
-#include "MeshLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
 #include "Window.h"
 
 
@@ -61,10 +61,10 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
-        Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() +  glm::quarter_pi<float>());
-        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
+        Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        Project001::Mesh::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() +  glm::quarter_pi<float>());
+        Project001::Mesh::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -110,7 +110,7 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
+            FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, position00, direction00 * 100.0f, 0.01f, 6));
 
             unsigned int tempEntityId;
             GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -132,7 +132,7 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         {
             Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
             meshDataPtrArray_.push_back(newMeshDataPtr);
-            FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
+            FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, position00, direction00 * -100.0f, 0.01f, 6));
 
             unsigned int tempEntityId;
             GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -174,7 +174,7 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
 
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
+        FAIL_CHECK(Project001::Mesh::GenerateTube(*newMeshDataPtr, position00, position01, 0.01f, 6));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -197,7 +197,7 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
-        FAIL_CHECK(Project001::MeshLoader::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
+        FAIL_CHECK(Project001::Mesh::GenerateBox(*newMeshDataPtr, glm::vec3(-0.1f, -0.2f, -0.3f), glm::vec3(0.1f, 0.2f, 0.3f)));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -225,10 +225,10 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(-0.2f, -0.1f, 0.0f);
         positions.emplace_back(-0.3f, 0.0f, 0.0f);
         positions.emplace_back(-0.1f, 0.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
-        // Project001::MeshLoader::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
-        // Project001::MeshLoader::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() + glm::quarter_pi<float>());
-        // Project001::MeshLoader::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
+        FAIL_CHECK(Project001::Mesh::GenerateTriangles(*newMeshDataPtr, positions));
+        // Project001::Mesh::RotateMeshZ(*newMeshDataPtr, glm::quarter_pi<float>());
+        // Project001::Mesh::RotateMeshY(*newMeshDataPtr, glm::half_pi<float>() + glm::quarter_pi<float>());
+        // Project001::Mesh::TranslateMesh(*newMeshDataPtr, glm::vec3(0.3f, 0.2f, 0.1f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -255,7 +255,7 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(0.2f, 0.1f, 0.0f);
         positions.emplace_back(-0.3f, 0.0f, 0.0f);
         positions.emplace_back(0.1f, 0.0f, 0.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateTriangles(*newMeshDataPtr, positions));
+        FAIL_CHECK(Project001::Mesh::GenerateTriangles(*newMeshDataPtr, positions));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -283,8 +283,8 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positions.emplace_back(1.0f, 0.0f, 0.0f);
         positions.emplace_back(0.0f, 1.0f, 0.0f);
         positions.emplace_back(0.0f, 0.0f, 1.0f);
-        FAIL_CHECK(Project001::MeshLoader::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
-        Project001::MeshLoader::TranslateMesh(*newMeshDataPtr,glm::vec3(1.0f, 1.0f, 1.0f) / 3.0f);
+        FAIL_CHECK(Project001::Mesh::GenerateSphere(*newMeshDataPtr, 0.02f, 6, 6));
+        Project001::Mesh::TranslateMesh(*newMeshDataPtr,glm::vec3(1.0f, 1.0f, 1.0f) / 3.0f);
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -305,14 +305,14 @@ void TestScene028::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Member Scenes -----------------------------------------------------------
 
     Project001::FontData font01_FontData;
-    FAIL_CHECK(Project001::FontLoader::LoadFontDataFromMemory(
+    FAIL_CHECK(Project001::Font::LoadFontDataFromMemory(
         font01_FontData,
         g_AntonioRegular_ssf,
         sizeof(g_AntonioRegular_ssf)
     ));
 
     Project001::TextureData font01_TextureData;
-    FAIL_CHECK(Project001::TextureLoader::LoadTextureFromMemory(
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
         font01_TextureData,
         g_AntonioRegular_png,
         sizeof(g_AntonioRegular_png)
