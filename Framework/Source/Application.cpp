@@ -1,12 +1,14 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-20
 
 #include "Application.h"
 
+#include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
 #include "Renderer.h"
+#include "RenderSystem.h"
 #include "Scene.h"
 #include "SoundPlayer.h"
 #include "Window.h"
@@ -33,10 +35,13 @@ namespace Project001
         , rendererPtr_(nullptr)
         , soundPlayerPtr_(nullptr)
         , componentStoresPtr_(nullptr)
+        , collisionSystemPtr_(nullptr)
         , activeScenePtr_(nullptr)
     {
         Logger::EnableConsole();
 
+        // You need to create the Window before the Renderer because the
+        // Renderer uses the Window's context.
         windowPtr_ = Window::Create(applicationCreationInfo.windowTitle, applicationCreationInfo.windowWidth, applicationCreationInfo.windowHeight);
         windowPtr_->SetEventCallback(std::bind(&Application::HandleEvent, this, std::placeholders::_1));
         windowPtr_->SetAspectRatio(applicationCreationInfo.windowWidth, applicationCreationInfo.windowHeight);
@@ -64,10 +69,17 @@ namespace Project001
         soundPlayerPtr_ = SoundPlayer::Create();
 
         componentStoresPtr_ = new ComponentStores();
+
+        collisionSystemPtr_ = new CollisionSystem2D();
+
+        renderSystemPtr_ = new RenderSystem();
     }
 
     Application::~Application()
     {
+        delete renderSystemPtr_;
+        delete collisionSystemPtr_;
+
         delete componentStoresPtr_;
         delete soundPlayerPtr_;
         delete rendererPtr_;

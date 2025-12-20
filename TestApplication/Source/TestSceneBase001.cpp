@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-20
 
 #include "TestSceneBase001.h"
 
@@ -277,7 +277,7 @@ void TestSceneBase001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 
     SyncLightSourcePosition();
 
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 
     // _LOG_MESSAGE("timestep_ns: %llu", renderEvent.timestep_ns);
 }

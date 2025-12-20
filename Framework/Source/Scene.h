@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-20
 
 #pragma once
 
@@ -14,12 +14,6 @@
 
 namespace Project001
 {
-    class Application;
-    class ComponentStores;
-    class Renderer;
-    class SoundPlayer;
-    class Window;
-
     class Scene
     {
     public:
@@ -50,6 +44,10 @@ namespace Project001
         SoundPlayer* GetSoundPlayerPtr();
 
         Window* GetWindowPtr();
+
+        CollisionSystem2D* GetCollisionSystemPtr();
+
+        RenderSystem* GetRenderSystemPtr();
 
         Scene* GetScene(unsigned int sceneId);
 
@@ -127,6 +125,16 @@ namespace Project001
     inline Window* Scene::GetWindowPtr()
     {
         return applicationPtr_->windowPtr_;
+    }
+
+    inline CollisionSystem2D* Scene::GetCollisionSystemPtr()
+    {
+        return applicationPtr_->collisionSystemPtr_;
+    }
+
+    inline RenderSystem* Scene::GetRenderSystemPtr()
+    {
+        return applicationPtr_->renderSystemPtr_;
     }
 
     inline Scene* Scene::GetScene(unsigned int sceneId)

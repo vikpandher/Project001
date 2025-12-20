@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2025-12-20
 
 #pragma once
 
@@ -12,8 +12,10 @@
 
 namespace Project001
 {
+    class CollisionSystem2D;
     class ComponentStores;
     class Renderer;
+    class RenderSystem;
     class SoundPlayer;
     class Window;
 
@@ -78,6 +80,9 @@ namespace Project001
         Renderer* rendererPtr_;
         SoundPlayer* soundPlayerPtr_;
         ComponentStores* componentStoresPtr_;
+
+        CollisionSystem2D* collisionSystemPtr_;
+        RenderSystem* renderSystemPtr_;
 
         AutoIdMap<Scene*> scenePtrMap_;
         Scene* activeScenePtr_;

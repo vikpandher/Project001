@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "TestScene104.h"
 
@@ -189,7 +189,7 @@ void TestScene104::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene104::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestScene104::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)

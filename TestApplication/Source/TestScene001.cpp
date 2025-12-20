@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "TestScene001.h"
 
@@ -819,7 +819,7 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -864,7 +864,7 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     // calculate collisions
     // -------------------------------------------------------------------------
-    Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
+    GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
 
     // recolor all buttons
     // -------------------------------------------------------------------------

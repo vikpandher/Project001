@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "RenderSystem.h"
 
@@ -38,7 +38,7 @@ namespace Project001
             size_t cameraCount = 0;
             componentStoresPtr->GetAllComponents<Camera>(cameraPtrs, cameraCount);
 
-            s_cameraPtrs_.clear();
+            cameraPtrs_.clear();
 
             for (size_t i = 0; i < cameraCount; ++i)
             {
@@ -46,11 +46,11 @@ namespace Project001
 
                 if (currentCamera.GetTurnedOn())
                 {
-                    s_cameraPtrs_.push_back(&currentCamera);
+                    cameraPtrs_.push_back(&currentCamera);
                 }
             }
 
-            std::sort(s_cameraPtrs_.begin(), s_cameraPtrs_.end(),
+            std::sort(cameraPtrs_.begin(), cameraPtrs_.end(),
                 [](Camera* a, Camera* b)->bool
                 {
                     const int& aPriorityValue = a->GetPriorityValue();
@@ -61,11 +61,11 @@ namespace Project001
 
             bool rendererPreviousDepthTesting = rendererPtr->GetDepthTesting();
 
-            s_cameraEntityIdToRenderedMeshCount_.clear();
+            cameraEntityIdToRenderedMeshCount_.clear();
 
-            for (size_t i = 0; i < s_cameraPtrs_.size(); ++i)
+            for (size_t i = 0; i < cameraPtrs_.size(); ++i)
             {
-                Camera& currentCamera = *s_cameraPtrs_[i];
+                Camera& currentCamera = *cameraPtrs_[i];
                 if (currentCamera.GetTurnedOn())
                 {
                     const Project001::Camera::CameraProjection& cameraProjection = currentCamera.GetProjection();
@@ -161,7 +161,7 @@ namespace Project001
                     // Amassing Meshes
                     // -------------------------------------------------------------
 
-                    s_renderedMeshPtrs_.clear();
+                    renderedMeshPtrs_.clear();
 
                     RenderedMesh* renderedMeshArrayPtr = nullptr;
                     size_t renderedMeshCount = 0;
@@ -201,7 +201,7 @@ namespace Project001
                     unsigned int currentCameraId = static_cast<unsigned int>(-1);
                     if (componentStoresPtr->GetComponentEntityId<Camera>(currentCameraId, &currentCamera))
                     {
-                        s_cameraEntityIdToRenderedMeshCount_[currentCameraId] = s_renderedMeshPtrs_.size();
+                        cameraEntityIdToRenderedMeshCount_[currentCameraId] = renderedMeshPtrs_.size();
                     }
 
                     // Sorting Meshes
@@ -237,7 +237,7 @@ namespace Project001
                     // | Small Id ----- Large Id |                         |                         |
                     // | Closer -------- Farther | Closer -------- Farther | Farther -------- Closer |
 
-                    std::sort(s_renderedMeshPtrs_.begin(), s_renderedMeshPtrs_.end(),
+                    std::sort(renderedMeshPtrs_.begin(), renderedMeshPtrs_.end(),
                         [cameraProjection, cameraPosition, currentCameraFrustumPlanes](const RenderedMesh* a, const RenderedMesh* b)->bool // true means "a" comes first
                         {
                             const int& aRenderPriorityOverride = a->GetRenderPriorityOverride();
@@ -343,14 +343,14 @@ namespace Project001
                     // Rendering Meshes
                     // ---------------------------------------------------------
 
-                    if (!s_renderedMeshPtrs_.empty())
+                    if (!renderedMeshPtrs_.empty())
                     {
-                        const RenderedMesh* previousRenderedMeshPtr = s_renderedMeshPtrs_[0];
+                        const RenderedMesh* previousRenderedMeshPtr = renderedMeshPtrs_[0];
                         RenderedMesh::RenderedMeshType previousRenderedMeshType = previousRenderedMeshPtr->GetRenderedMeshType();
 
-                        for (unsigned int j = 0; j < s_renderedMeshPtrs_.size(); ++j)
+                        for (unsigned int j = 0; j < renderedMeshPtrs_.size(); ++j)
                         {
-                            const RenderedMesh*& currentRenderedMeshPtr = s_renderedMeshPtrs_[j];
+                            const RenderedMesh*& currentRenderedMeshPtr = renderedMeshPtrs_[j];
                             const RenderedMesh::RenderedMeshType& currentRenderedMeshType = currentRenderedMeshPtr->GetRenderedMeshType();
 
                             if (currentRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // current mesh is instanced
@@ -363,14 +363,14 @@ namespace Project001
                                 {
                                     FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
-                                        s_meshInstanceDataArray_.data(),
-                                        static_cast<unsigned int>(s_meshInstanceDataArray_.size())
+                                        meshInstanceDataArray_.data(),
+                                        static_cast<unsigned int>(meshInstanceDataArray_.size())
                                     ));
 
-                                    s_meshInstanceDataArray_.clear();
+                                    meshInstanceDataArray_.clear();
                                 }
 
-                                s_meshInstanceDataArray_.emplace_back(
+                                meshInstanceDataArray_.emplace_back(
                                     currentRenderedMeshPtr->GetTextureId(),
                                     currentRenderedMeshPtr->GetSpecularId(),
                                     currentRenderedMeshPtr->GetPosition(),
@@ -387,11 +387,11 @@ namespace Project001
                                 {
                                     FAIL_CHECK(rendererPtr->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
-                                        s_meshInstanceDataArray_.data(),
-                                        static_cast<unsigned int>(s_meshInstanceDataArray_.size())
+                                        meshInstanceDataArray_.data(),
+                                        static_cast<unsigned int>(meshInstanceDataArray_.size())
                                     ));
 
-                                    s_meshInstanceDataArray_.clear();
+                                    meshInstanceDataArray_.clear();
                                 }
 
                                 const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
@@ -419,11 +419,11 @@ namespace Project001
                         {
                             FAIL_CHECK(rendererPtr->RenderMesh(
                                 previousRenderedMeshPtr->GetMeshId(),
-                                s_meshInstanceDataArray_.data(),
-                                static_cast<unsigned int>(s_meshInstanceDataArray_.size())
+                                meshInstanceDataArray_.data(),
+                                static_cast<unsigned int>(meshInstanceDataArray_.size())
                             ));
 
-                            s_meshInstanceDataArray_.clear();
+                            meshInstanceDataArray_.clear();
                         }
                         else // last mesh was batched
                         {
@@ -512,15 +512,7 @@ namespace Project001
 
         if (renderedMeshPtr->GetRenderedMeshType() != RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_NOT_LOADED)
         {
-            s_renderedMeshPtrs_.emplace_back(renderedMeshPtr);
+            renderedMeshPtrs_.emplace_back(renderedMeshPtr);
         }
     }
-
-    std::vector<Camera*> RenderSystem::s_cameraPtrs_;
-
-    std::vector<const RenderedMesh*> RenderSystem::s_renderedMeshPtrs_;
-
-    std::vector<MeshInstanceData> RenderSystem::s_meshInstanceDataArray_;
-
-    std::unordered_map<unsigned int, size_t> RenderSystem::s_cameraEntityIdToRenderedMeshCount_;
 }

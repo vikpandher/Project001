@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "TestScene103.h"
 
@@ -186,7 +186,7 @@ void TestScene103::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     // Resources ---------------------------------------------------------------
 
     collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
-    Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
+    GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
         glm::vec2(-1160.0f, -1160.0f),
         glm::vec2(1160.0f, 1160.0f),
         4,
@@ -587,7 +587,7 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene103::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestScene103::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -615,8 +615,8 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-        Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
 
         UpdatePersonLogic(physicsTimestep_s);
         UpdatePlayerEntityVelocity();
@@ -2885,7 +2885,7 @@ void TestScene103::UpdatePersonLogic(float timestep_s)
 
 void TestScene103::UpdateCollisionBodyQuadTreeMesh()
 {
-    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
+    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = GetCollisionSystemPtr()->GetCollisionBodyQuadTree2D().GetRootNode();
 
     const float lineWidth = 4.0f;
 

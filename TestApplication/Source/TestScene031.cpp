@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "TestScene031.h"
 
@@ -278,7 +278,7 @@ void TestScene031::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 void TestScene031::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     size_t numberOfMeshesBeingRenderedForMainCamera = 0;
-    if (Project001::RenderSystem::GetNumberOfMeshesRendered(mainCameraEntityId_, numberOfMeshesBeingRenderedForMainCamera))
+    if (GetRenderSystemPtr()->GetNumberOfMeshesRendered(mainCameraEntityId_, numberOfMeshesBeingRenderedForMainCamera))
     {
         std::string count_string = std::to_string(numberOfMeshesBeingRenderedForMainCamera);
         ui_renderedMeshCount_MeshDataPtr_->Clear();

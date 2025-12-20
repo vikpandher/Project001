@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-27
+// @DATE 2025-12-20
 
 #pragma once
 
@@ -20,28 +20,33 @@ namespace Project001
     class CollisionSystem2D
     {
     public:
-        static void ApplyMovement(ComponentStores* componentStoresPtr, float timestep_s);
+        CollisionSystem2D();
 
-        static void CalculateCollisions(ComponentStores* componentStoresPtr);
+        CollisionSystem2D(CollisionSystem2D& other) = delete;
+        void operator=(const CollisionSystem2D&) = delete;
 
-        static void CalculateCollisionsForGivenEntity(
+        void ApplyMovement(ComponentStores* componentStoresPtr, float timestep_s);
+
+        void CalculateCollisions(ComponentStores* componentStoresPtr);
+
+        void CalculateCollisionsForGivenEntity(
             unsigned int entityId,
             ComponentStores* componentStoresPtr);
 
-        static void CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr);
+        void CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr);
 
-        static const CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
+        const CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
 
-        static void ResetCollisionBodyQuadTree2D(
+        void ResetCollisionBodyQuadTree2D(
             const glm::vec2& min,
             const glm::vec2& max,
             size_t maxDepth,
             size_t maxBodiesPerNode);
 
-        static void FullyLoadCollisionBodyQuadTree2D();
+        void FullyLoadCollisionBodyQuadTree2D();
 
-        static float s_sunkenMeshOverlapAllowance;
-        static float s_sunkenMeshSeperationSpacing;
+        float sunkenMeshOverlapAllowance;
+        float sunkenMeshSeperationSpacing;
 
     protected:
         struct PointerPairHashFunctor
@@ -64,33 +69,33 @@ namespace Project001
             float collisionDepth;
         };
 
-        static void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
+        void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
 
-        static void CalculateCollisionsBetweenTwoBodiesAndAddManifold(
+        void CalculateCollisionsBetweenTwoBodiesAndAddManifold(
             unsigned int entityIdA,
             CollisionBody2D& collisionBodyA,
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
             bool recordInBodyB);
 
-        static void ResolveCollisions();
+        void ResolveCollisions();
 
-        static std::vector<CollisionBody2D*> s_enabledCollisionBodyPtrs_;
+        std::vector<CollisionBody2D*> enabledCollisionBodyPtrs_;
 
-        static std::vector< CollisionBody2D*> s_outOfBoundsTangibleCollisionBodyPtrs_;
+        std::vector< CollisionBody2D*> outOfBoundsTangibleCollisionBodyPtrs_;
 
-        static CollisionBodyQuadTree2D s_tangibleCollisionBodyQuadTree2D_;
+        CollisionBodyQuadTree2D tangibleCollisionBodyQuadTree2D_;
 
-        static std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> s_collisionBodyPairPtrs_;
+        std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> collisionBodyPairPtrs_;
 
-        static std::vector<CollisionManifold2D> s_collisionManifolds_;
+        std::vector<CollisionManifold2D> collisionManifolds_;
     };
 
     // public ------------------------------------------------------------------
 
     inline const CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
     {
-        return s_tangibleCollisionBodyQuadTree2D_;
+        return tangibleCollisionBodyQuadTree2D_;
     }
 
     inline void CollisionSystem2D::ResetCollisionBodyQuadTree2D(
@@ -99,11 +104,11 @@ namespace Project001
         size_t maxDepth,
         size_t maxBodiesPerNode)
     {
-        s_tangibleCollisionBodyQuadTree2D_.Reset(min, max, maxDepth, maxBodiesPerNode);
+        tangibleCollisionBodyQuadTree2D_.Reset(min, max, maxDepth, maxBodiesPerNode);
     }
 
     inline void CollisionSystem2D::FullyLoadCollisionBodyQuadTree2D()
     {
-        s_tangibleCollisionBodyQuadTree2D_.FullyLoadTree();
+        tangibleCollisionBodyQuadTree2D_.FullyLoadTree();
     }
 }

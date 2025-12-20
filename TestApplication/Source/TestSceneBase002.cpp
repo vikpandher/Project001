@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "TestSceneBase002.h"
 
@@ -108,7 +108,7 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
 {
     LOG_INFO("INITIALIZING:   TestSceneBase002:        " << GetId());
 
-    Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
+    GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
         glm::vec2(-8.0f, -6.0f),
         glm::vec2(8.0f, 6.0f),
         4,
@@ -745,7 +745,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         UpdateFpsTextMesh(renderEvent.timestep_ns);
     }
 
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -821,16 +821,16 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-            Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+            GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+            GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
         }
     }
     else
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-            Project001::CollisionSystem2D::CalculateCollisions(GetComponentStoresPtr());
+            GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+            GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
         }
     }
 
@@ -1657,7 +1657,7 @@ void TestSceneBase002::UpdateCollisionBodyBorderMesh()
 
 void TestSceneBase002::UpdateCollisionBodyQuadTreeMesh()
 {
-    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
+    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = GetCollisionSystemPtr()->GetCollisionBodyQuadTree2D().GetRootNode();
 
     const float lineWidth = 0.04f;
 

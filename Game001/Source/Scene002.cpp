@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "Scene002.h"
 
@@ -401,7 +401,7 @@ void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     //     LOG_WARNING_F("Slow Render Frame (ns): " << renderEvent.timestep_ns);
     // }
 
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -465,8 +465,8 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        Project001::CollisionSystem2D::ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-        Project001::CollisionSystem2D::CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
 
         UpdateMainCameraEntity(physicsTimestep_s);
 
@@ -1066,14 +1066,14 @@ void Scene002::CreateBaseEntity(unsigned int& entityId, const glm::vec2& positio
 
 void Scene002::CreateGroundEntity()
 {
-    Project001::CollisionSystem2D::ResetCollisionBodyQuadTree2D(
+    GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
         glm::vec2(-1160.0f, -1160.0f),
         glm::vec2(1160.0f, 1160.0f),
         3,
         16
     );
 
-    Project001::CollisionSystem2D::FullyLoadCollisionBodyQuadTree2D();
+    GetCollisionSystemPtr()->FullyLoadCollisionBodyQuadTree2D();
 
     GetComponentStoresPtr()->CreateEntity(ground_EntityId_);
 
@@ -1995,7 +1995,7 @@ void Scene002::UpdateCursorPosition(float xPosition, float yPosition)
 
 void Scene002::UpdateGroundCollisionBodyQuadTreeMesh()
 {
-    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = Project001::CollisionSystem2D::GetCollisionBodyQuadTree2D().GetRootNode();
+    const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = GetCollisionSystemPtr()->GetCollisionBodyQuadTree2D().GetRootNode();
 
     const float lineWidth = 4.0f;
 

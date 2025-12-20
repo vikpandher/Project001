@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2025-12-20
 
 #pragma once
 
@@ -21,33 +21,33 @@ namespace Project001
     class RenderSystem
     {
     public:
-        static void Render(
+        void Render(
             ComponentStores* componentStoresPtr,
             Renderer* rendererPtr);
 
         // Excludes meshes culled by the camera view frustum
-        static bool GetNumberOfMeshesRendered(unsigned int cameraEntityId, size_t& number);
+        bool GetNumberOfMeshesRendered(unsigned int cameraEntityId, size_t& number);
 
     protected:
-        static void GroupMeshPtr(
+        void GroupMeshPtr(
             const RenderedMesh* renderedMeshPtr,
             const Camera* cameraPtr,
             const FrustumPlanes* frustumPlanesPtr);
 
-        static std::vector<Camera*> s_cameraPtrs_;
+        std::vector<Camera*> cameraPtrs_;
 
-        static std::vector<const RenderedMesh*> s_renderedMeshPtrs_;
+        std::vector<const RenderedMesh*> renderedMeshPtrs_;
 
-        static std::vector<MeshInstanceData> s_meshInstanceDataArray_;
+        std::vector<MeshInstanceData> meshInstanceDataArray_;
 
-        static std::unordered_map<unsigned int, size_t> s_cameraEntityIdToRenderedMeshCount_;
+        std::unordered_map<unsigned int, size_t> cameraEntityIdToRenderedMeshCount_;
     };
 
     inline bool RenderSystem::GetNumberOfMeshesRendered(unsigned int cameraEntityId, size_t& number)
     {
-        if (s_cameraEntityIdToRenderedMeshCount_.find(cameraEntityId) != s_cameraEntityIdToRenderedMeshCount_.end())
+        if (cameraEntityIdToRenderedMeshCount_.find(cameraEntityId) != cameraEntityIdToRenderedMeshCount_.end())
         {
-            number = s_cameraEntityIdToRenderedMeshCount_[cameraEntityId];
+            number = cameraEntityIdToRenderedMeshCount_[cameraEntityId];
             return true;
         }
         return false;

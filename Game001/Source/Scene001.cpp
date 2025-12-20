@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-20
 
 #include "Scene001.h"
 
@@ -149,7 +149,7 @@ void Scene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
 
 void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    Project001::RenderSystem::Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
 }
 
 void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
