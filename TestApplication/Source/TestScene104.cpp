@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestScene104.h"
 
@@ -370,8 +370,7 @@ void TestScene104::CreateCursorEntity(unsigned int& entityId)
     {
         renderedModelPtr->SetCameraMask(s_mainCamera_Mask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-        renderedMeshes.resize(5);
+        renderedMeshes.resize(s_cursor_RenderedMeshIndices_);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[s_cursorPosition_RenderedMeshIndex_];
@@ -434,8 +433,7 @@ void TestScene104::CreateCursorEntity(unsigned int& entityId)
         collisionBody2DPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR);
 
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBody2DPtr->GetCollisionPoints();
-
-        collisionPoints.resize(3);
+        collisionPoints.resize(s_cursor_CollisionPointIndices_);
 
         collisionPoints[s_cursorPosition_CollisionPointIndex_].tag = s_cursorPosition_CollisionShapeId_;
 

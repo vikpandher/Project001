@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestSceneBase002.h"
 
@@ -823,6 +823,7 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
             GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+            GetCollisionSystemPtr()->ResolveCollisions();
         }
     }
     else
@@ -831,6 +832,7 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
             GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
+            GetCollisionSystemPtr()->ResolveCollisions();
         }
     }
 

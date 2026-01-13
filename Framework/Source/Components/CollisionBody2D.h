@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -133,6 +133,8 @@ namespace Project001
 
         const bool& GetMassCalculatedFromDensity() const;
         void SetMassCalculatedFromDensity(bool massCalculatedFromDensity);
+
+        void FlagMassToBeRecalculated();
 
         const float& GetDensity() const;
         void SetDensity(float density);
@@ -748,6 +750,12 @@ namespace Project001
     inline void CollisionBody2D::SetMassCalculatedFromDensity(bool massCalculatedFromDensity)
     {
         massCalculatedFromDensity = massCalculatedFromDensity_;
+        massFromDensityUpToDate_ = false;
+        momentOfInertiaUpToDate_ = false;
+    }
+
+    inline void CollisionBody2D::FlagMassToBeRecalculated()
+    {
         massFromDensityUpToDate_ = false;
         momentOfInertiaUpToDate_ = false;
     }

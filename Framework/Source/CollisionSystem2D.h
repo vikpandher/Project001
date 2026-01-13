@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -20,6 +20,16 @@ namespace Project001
     class CollisionSystem2D
     {
     public:
+        struct CollisionManifold2D
+        {
+            CollisionBody2D* collisionBodyA_Ptr;
+            CollisionBody2D* collisionBodyB_Ptr;
+
+            glm::vec2 collisionPoint;
+            glm::vec2 collisionNormal; // should point away from bodyA
+            float collisionDepth;
+        };
+
         CollisionSystem2D();
 
         CollisionSystem2D(CollisionSystem2D& other) = delete;
@@ -35,7 +45,11 @@ namespace Project001
 
         void CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr);
 
+        void ResolveCollisions();
+
         const CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
+
+        std::vector<CollisionManifold2D>& GetCollisionManifolds();
 
         void ResetCollisionBodyQuadTree2D(
             const glm::vec2& min,
@@ -59,16 +73,6 @@ namespace Project001
             }
         };
 
-        struct CollisionManifold2D
-        {
-            CollisionBody2D* collisionBodyA_Ptr;
-            CollisionBody2D* collisionBodyB_Ptr;
-
-            glm::vec2 collisionPoint;
-            glm::vec2 collisionNormal; // should point away from bodyA
-            float collisionDepth;
-        };
-
         void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
 
         void CalculateCollisionsBetweenTwoBodiesAndAddManifold(
@@ -77,8 +81,6 @@ namespace Project001
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
             bool recordInBodyB);
-
-        void ResolveCollisions();
 
         std::vector<CollisionBody2D*> enabledCollisionBodyPtrs_;
 
@@ -96,6 +98,11 @@ namespace Project001
     inline const CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
     {
         return tangibleCollisionBodyQuadTree2D_;
+    }
+
+    inline std::vector<CollisionSystem2D::CollisionManifold2D>& CollisionSystem2D::GetCollisionManifolds()
+    {
+        return collisionManifolds_;
     }
 
     inline void CollisionSystem2D::ResetCollisionBodyQuadTree2D(

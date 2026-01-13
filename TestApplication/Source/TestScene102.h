@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -46,7 +46,8 @@ protected:
     void CreatePlayerEntity();
 
     void UpdateMainCameraEntityPosition(float timestep_s);
-    void UpdatePlayerEntityVelocity(float timestep_s);
+    void UpdatePlayerEntityVelocity_V1(float timestep_s);
+    void UpdatePlayerEntityVelocity_V2(float timestep_s);
 
     void UpdateCursorPosition(float xPosition, float yPosition);
 
@@ -98,12 +99,12 @@ protected:
     unsigned int uiCamera_EntityId_;
 
     unsigned int cursor_EntityId_;
-    unsigned int cursorPositionRenderedMeshIndex_;
-    unsigned int cursorPressRenderedMeshIndex_;
-    unsigned int cursorReleaseRenderedMeshIndex_;
-    unsigned int cursorPositionCollisionPointIndex_;
-    unsigned int cursorPressCollisionPointIndex_;
-    unsigned int cursorReleaseCollisionPointIndex_;
+    size_t cursorPositionRenderedMeshIndex_;
+    size_t cursorPressRenderedMeshIndex_;
+    size_t cursorReleaseRenderedMeshIndex_;
+    size_t cursorPositionCollisionPointIndex_;
+    size_t cursorPressCollisionPointIndex_;
+    size_t cursorReleaseCollisionPointIndex_;
     static const unsigned int s_cursorPositionCollisionShapeId_ = 100;
     static const unsigned int s_cursorPressCollisionShapeId_ = 101;
     static const unsigned int s_cursorReleaseCollisionShapeId_ = 102;

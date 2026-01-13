@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-12
 
 #include "CollisionBody2D.h"
 
@@ -788,6 +788,8 @@ namespace Project001
         collisionCapsuleAreas_.clear();
         collisionTriangleAreas_.clear();
         collisionConvexPolygonAreas_.clear();
+
+        area_ = 0.0f;
 
         for (size_t i = 0; i < collisionRectangles_.size(); ++i)
         {

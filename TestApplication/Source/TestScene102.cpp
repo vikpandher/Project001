@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestScene102.h"
 
@@ -51,12 +51,12 @@ TestScene102::TestScene102(Project001::Application* applicationPtr)
     , mainCamera_EntityId_(static_cast<unsigned int>(-1))
     , uiCamera_EntityId_(static_cast<unsigned int>(-1))
     , cursor_EntityId_(static_cast<unsigned int>(-1))
-    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<size_t>(-1))
     , floor_EntityId_(static_cast<unsigned int>(-1))
     , player_EntityId_(static_cast<unsigned int>(-1))
     , cameraDistanceFromPlayer_()
@@ -195,12 +195,12 @@ void TestScene102::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
     cursor_EntityId_ = static_cast<unsigned int>(-1);
-    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<size_t>(-1);
 
     floor_EntityId_ = static_cast<unsigned int>(-1);
 
@@ -313,8 +313,9 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->ResolveCollisions();
 
-        UpdatePlayerEntityVelocity(physicsTimestep_s);
+        UpdatePlayerEntityVelocity_V1(physicsTimestep_s);
         UpdateMainCameraEntityPosition(physicsTimestep_s);
 
         // Update cursor because camera updates
@@ -880,59 +881,62 @@ void TestScene102::UpdateMainCameraEntityPosition(float timestep_s)
     }
 }
 
-void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
+void TestScene102::UpdatePlayerEntityVelocity_V1(float timestep_s)
 {
     Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_EntityId_));
     if (playerCollisionBodyPtr != nullptr)
     {
-        constexpr float maxSpeed = 256.0f;
+        constexpr float maxSpeed = 512.0f;
         constexpr float acceleration = 1024.0f;
-        constexpr float friction = 768.0f;
+        constexpr float friction = 512.0f + 256.0f;
 
         const bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
         const bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
         const bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
         const bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
 
-        const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
-        float velocityMagnitude = glm::length(velocity);
-
-        glm::vec2 accelerationDirection(0.0f, 0.0);
+        glm::vec2 moveDirection(0.0f, 0.0);
         if (movingLeft)
         {
-            accelerationDirection.x -= 1.0f;
+            moveDirection.x -= 1.0f;
         }
         if (movingRight)
         {
-            accelerationDirection.x += 1.0f;
+            moveDirection.x += 1.0f;
         }
         if (movingUp)
         {
-            accelerationDirection.y += 1.0f;
+            moveDirection.y += 1.0f;
         }
         if (movingDown)
         {
-            accelerationDirection.y -= 1.0f;
+            moveDirection.y -= 1.0f;
         }
 
-        float accelerationMagnitude = glm::length(accelerationDirection);
-        if (accelerationMagnitude > 0.0f)
+        float moveMagnitude = glm::length(moveDirection);
+        if (moveMagnitude > 0.0f)
         {
-            accelerationDirection /= accelerationMagnitude;
+            moveDirection /= moveMagnitude;
         }
 
-        if (accelerationMagnitude > 0.0f) // apply acceleration
+        const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
+        float velocityMagnitude = glm::length(velocity);
+        glm::vec2 velocityDirection;
+        if (velocityMagnitude > 0.0f)
         {
-            glm::vec2 targetVelocity = accelerationDirection * maxSpeed;
+            velocityDirection = velocity / velocityMagnitude;
+        }
+
+        if (moveMagnitude > 0.0f) // apply acceleration
+        {
+            glm::vec2 targetVelocity = moveDirection * maxSpeed;
             glm::vec2 neededVelocity = targetVelocity - velocity;
-
             float neededVelocityMagnitude = glm::length(neededVelocity);
             if (neededVelocityMagnitude > 0.0f)
             {
                 glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
                 glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
-
                 float accelerationStepMagnitude = glm::length(accelerationStep);
                 if (accelerationStepMagnitude > neededVelocityMagnitude)
                 {
@@ -946,15 +950,15 @@ void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
         {
             if (velocityMagnitude > 0.0f)
             {
-                float decelerationStepMagnitude = friction * timestep_s;
+                float decelerationStep = friction * timestep_s;
+                float decelerationStepMagnitude = std::abs(decelerationStep);
                 if (velocityMagnitude < decelerationStepMagnitude)
                 {
                     playerCollisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
                 }
                 else
                 {
-                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
-                    playerCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStepMagnitude);
+                    playerCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
                 }
             }
         }
@@ -963,56 +967,224 @@ void TestScene102::UpdatePlayerEntityVelocity(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, cursor_EntityId_));
         if (cursorCollisionBodyPtr != nullptr)
         {
-            constexpr float maxAngularSpeed = glm::pi<float>() * 8.0f;
-            constexpr float angularAcceleration = glm::pi<float>() * 12.0f;
+            constexpr float maxAngularSpeed = glm::pi<float>() * 4.0f;
+            constexpr float angularAcceleration = glm::pi<float>() * 8.0f;
             constexpr float angularFriction = glm::pi<float>() * 64.0f;
 
             std::vector<Project001::CollisionPoint2D>& collisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
             const glm::vec2& cursorPosition = collisionPoints[cursorPositionCollisionPointIndex_].position;
             glm::vec2 collisionBodyDirection = playerCollisionBodyPtr->GetForwardVector();
             glm::vec2 collisionBodyToCursor = cursorPosition - playerCollisionBodyPtr->GetPosition();
+            float collisionBodyToCursorMagnitude = glm::length(collisionBodyToCursor);
+
+            float turnAngle = 0.0f;
+            if (collisionBodyToCursorMagnitude > 0.0f)
+            {
+                turnAngle = Project001::Math::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
+            }
+            // float turnAngleMagnitude = glm::abs(turnAngle);
+            float turnAngleDirection = glm::sign(turnAngle);
 
             const float& angularVelocity = playerCollisionBodyPtr->GetAngularVelocity();
+            float angularVelocityMagnitude = glm::abs(angularVelocity);
+            float angularVelocityDirection = glm::sign(angularVelocity);
 
-            float angleToCursor = Project001::Math::Get2DVectorAngle(collisionBodyDirection, collisionBodyToCursor);
-            if (glm::sign(angleToCursor) == glm::sign(angularVelocity) || glm::sign(angularVelocity) == 0.0f) // apply angular acceleration
+            if (turnAngleDirection == angularVelocityDirection || angularVelocityDirection == 0.0f) // apply angular acceleration
             {
-                float angularDifference = angleToCursor - angularVelocity * timestep_s;
-                float angularDifferenceMagnitude = glm::abs(angularDifference);
-
-                float angularAccelerationStep = angularAcceleration * timestep_s;
-                if (angularAccelerationStep > angularDifferenceMagnitude)
+                float targetAngularVelocity = turnAngleDirection * maxAngularSpeed;
+                float neededAngularVelocity = targetAngularVelocity - angularVelocity;
+                float neededAngularVelocityMagnitude = std::abs(neededAngularVelocity);
+                if (neededAngularVelocityMagnitude > 0.0f)
                 {
-                    angularAccelerationStep = angularDifferenceMagnitude; // prevent angular acceleration from overshooting angular max speed
-                }
+                    float neededAngularVelocityDirection = glm::sign(neededAngularVelocity);
+                    float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration * timestep_s;
+                    float angularAccelerationStepMagnitude = glm::abs(angularAccelerationStep);
+                    if (angularAccelerationStepMagnitude > neededAngularVelocityMagnitude)
+                    {
+                        angularAccelerationStep = neededAngularVelocity; // prevent angular acceleration from overshooting max angular speed
+                    }
 
-                float newAngularVelocity = angularVelocity;
+                    float angularDifference = turnAngle - angularVelocity * timestep_s;
+                    float angularDifferenceMagnitude = glm::abs(angularDifference);
+                    if (angularAccelerationStepMagnitude > angularDifferenceMagnitude)
+                    {
+                        angularAccelerationStep = angularDifference; // prevent angular acceleration from jittering when low
+                    }
 
-                if (angleToCursor > 0.0f)
-                {
-                    newAngularVelocity += angularAccelerationStep;
+                    playerCollisionBodyPtr->SetAngularVelocity(angularVelocity + angularAccelerationStep);
                 }
-                else
-                {
-                    newAngularVelocity -= angularAccelerationStep;
-                }
-
-                playerCollisionBodyPtr->SetAngularVelocity(newAngularVelocity);
             }
             else // apply angular deceleration
             {
-                float newAngularVelocity;
-                float frictionStep = angularFriction * timestep_s;
-                if (angularVelocity > 0.0f)
+                float angularVelocityMagnitude = glm::abs(angularVelocity);
+                if (angularVelocityMagnitude > 0.0f)
                 {
-                    newAngularVelocity = glm::max(angularVelocity - frictionStep, 0.0f);
+                    float angularDecelerationStep = angularFriction * timestep_s;
+                    float angularDecelerationStepMagnitude = std::abs(angularFriction);
+                    if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
+                    {
+                        playerCollisionBodyPtr->SetAngularVelocity(0.0f);
+                    }
+                    else
+                    {
+                        playerCollisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TestScene102::UpdatePlayerEntityVelocity_V2(float timestep_s)
+{
+    Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_EntityId_));
+    if (playerCollisionBodyPtr != nullptr)
+    {
+        constexpr float maxSpeed = 256.0f;
+        constexpr float acceleration = 512.0f;
+        constexpr float friction = 512.0f + 128.0f;
+
+        constexpr float maxAngularSpeed = glm::pi<float>() * 2.0f;
+        constexpr float angularAcceleration = glm::pi<float>() * 2.0f;
+        constexpr float angularFriction = glm::pi<float>() * 64.0f;
+
+        // constexpr float maxSpeed = 128.0f;
+        // constexpr float acceleration = 256.0f;
+        // constexpr float friction = 512.0f + 256.0f;
+
+        // constexpr float maxAngularSpeed = glm::pi<float>() / 2.0f;
+        // constexpr float angularAcceleration = glm::pi<float>();
+        // constexpr float angularFriction = glm::pi<float>() * 128.0f;
+
+        constexpr float turnAngleMovementThreshold = glm::pi<float>() * 0.25f;
+
+        const bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_A);
+        const bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_D);
+        const bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_W);
+        const bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_S);
+
+        glm::vec2 moveDirection(0.0f, 0.0);
+        if (movingLeft)
+        {
+            moveDirection.x -= 1.0f;
+        }
+        if (movingRight)
+        {
+            moveDirection.x += 1.0f;
+        }
+        if (movingUp)
+        {
+            moveDirection.y += 1.0f;
+        }
+        if (movingDown)
+        {
+            moveDirection.y -= 1.0f;
+        }
+
+        float moveMagnitude = glm::length(moveDirection);
+        if (moveMagnitude > 0.0f)
+        {
+            moveDirection /= moveMagnitude;
+        }
+
+        glm::vec2 collisionBodyDirection = playerCollisionBodyPtr->GetForwardVector();
+
+        float turnAngle = 0.0f;
+        if (moveMagnitude > 0.0f)
+        {
+            turnAngle = Project001::Math::Get2DVectorAngle(collisionBodyDirection, moveDirection);
+        }
+        float turnAngleMagnitude = glm::abs(turnAngle);
+        float turnAngleDirection = glm::sign(turnAngle);
+
+        const glm::vec2& velocity = playerCollisionBodyPtr->GetVelocity();
+        float velocityMagnitude = glm::length(velocity);
+        glm::vec2 velocityDirection;
+        if (velocityMagnitude > 0.0f)
+        {
+            velocityDirection = velocity / velocityMagnitude;
+        }
+
+        const float& angularVelocity = playerCollisionBodyPtr->GetAngularVelocity();
+        float angularVelocityMagnitude = glm::abs(angularVelocity);
+        float angularVelocityDirection = glm::sign(angularVelocity);
+
+        if (turnAngleDirection == angularVelocityDirection || angularVelocityDirection == 0.0f) // apply angular acceleration
+        {
+            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed;
+            float neededAngularVelocity = targetAngularVelocity - angularVelocity;
+            float neededAngularVelocityMagnitude = std::abs(neededAngularVelocity);
+            if (neededAngularVelocityMagnitude > 0.0f)
+            {
+                float neededAngularVelocityDirection = glm::sign(neededAngularVelocity);
+                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration * timestep_s;
+                float angularAccelerationStepMagnitude = glm::abs(angularAccelerationStep);
+                if (angularAccelerationStepMagnitude > neededAngularVelocityMagnitude)
+                {
+                    angularAccelerationStep = neededAngularVelocity; // prevent angular acceleration from overshooting max angular speed
+                }
+
+                float angularDifference = turnAngle - angularVelocity * timestep_s;
+                float angularDifferenceMagnitude = glm::abs(angularDifference);
+                if (angularAccelerationStepMagnitude > angularDifferenceMagnitude)
+                {
+                    angularAccelerationStep = angularDifference; // prevent angular acceleration from jittering when low
+                }
+
+                playerCollisionBodyPtr->SetAngularVelocity(angularVelocity + angularAccelerationStep);
+            }
+        }
+        else // apply angular deceleration
+        {
+            float angularVelocityMagnitude = glm::abs(angularVelocity);
+            if (angularVelocityMagnitude > 0.0f)
+            {
+                float angularDecelerationStep = angularFriction * timestep_s;
+                float angularDecelerationStepMagnitude = std::abs(angularFriction);
+                if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
+                {
+                    playerCollisionBodyPtr->SetAngularVelocity(0.0f);
                 }
                 else
                 {
-                    newAngularVelocity = glm::min(angularVelocity + frictionStep, 0.0f);
+                    playerCollisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
+                }
+            }
+        }
+
+        if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f) // apply acceleration
+        {
+            glm::vec2 targetVelocity = moveDirection * maxSpeed;
+            glm::vec2 neededVelocity = targetVelocity - velocity;
+            float neededVelocityMagnitude = glm::length(neededVelocity);
+            if (neededVelocityMagnitude > 0.0f)
+            {
+                glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
+                glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
+                float accelerationStepMagnitude = glm::length(accelerationStep);
+                if (accelerationStepMagnitude > neededVelocityMagnitude)
+                {
+                    accelerationStep = neededVelocity; // prevent acceleration from overshooting max speed
                 }
 
-                playerCollisionBodyPtr->SetAngularVelocity(newAngularVelocity);
+                playerCollisionBodyPtr->SetVelocity(velocity + accelerationStep);
+            }
+        }
+        else // apply deceleration
+        {
+            if (velocityMagnitude > 0.0f)
+            {
+                float decelerationStep = friction * timestep_s;
+                float decelerationStepMagnitude = std::abs(decelerationStep);
+                if (velocityMagnitude < decelerationStepMagnitude)
+                {
+                    playerCollisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
+                }
+                else
+                {
+                    playerCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
+                }
             }
         }
     }

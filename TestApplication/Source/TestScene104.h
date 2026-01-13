@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -71,15 +71,17 @@ protected:
 
     unsigned int cursor_EntityId_ = static_cast<unsigned int>(-1);
 
-    static const unsigned int s_cursorPosition_RenderedMeshIndex_ = 0;
-    static const unsigned int s_cursorPress_RenderedMeshIndex_ = 1;
-    static const unsigned int s_cursorRelease_RenderedMeshIndex_ = 2;
-    static const unsigned int s_cursorHandOpen_RenderedMeshIndex_ = 3;
-    static const unsigned int s_cursorHandGrab_RenderedMeshIndex_ = 4;
+    static const size_t s_cursorPosition_RenderedMeshIndex_ = 0;
+    static const size_t s_cursorPress_RenderedMeshIndex_ = 1;
+    static const size_t s_cursorRelease_RenderedMeshIndex_ = 2;
+    static const size_t s_cursorHandOpen_RenderedMeshIndex_ = 3;
+    static const size_t s_cursorHandGrab_RenderedMeshIndex_ = 4;
+    static const size_t s_cursor_RenderedMeshIndices_ = 5;
 
-    static const unsigned int s_cursorPosition_CollisionPointIndex_ = 0;
-    static const unsigned int s_cursorPress_CollisionPointIndex_ = 1;
-    static const unsigned int s_cursorRelease_CollisionPointIndex_ = 2;
+    static const size_t s_cursorPosition_CollisionPointIndex_ = 0;
+    static const size_t s_cursorPress_CollisionPointIndex_ = 1;
+    static const size_t s_cursorRelease_CollisionPointIndex_ = 2;
+    static const size_t s_cursor_CollisionPointIndices_ = 3;
 
     static const unsigned int s_cursorPosition_CollisionShapeId_ = 100;
     static const unsigned int s_cursorPress_CollisionShapeId_ = 101;

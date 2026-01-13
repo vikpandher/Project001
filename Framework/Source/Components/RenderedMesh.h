@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -86,6 +86,9 @@ namespace Project001
         const bool& GetUseLighting() const;
         void SetUseLighting(bool useLighting);
 
+        const size_t& GetParentMeshIndex() const;
+        void SetParentMeshIndex(size_t parentMeshIndex);
+
     protected:
         // Inherited:
         // glm::vec3 position_;
@@ -105,6 +108,8 @@ namespace Project001
         glm::vec4 color_;
         bool translucent_;
         bool useLighting_;
+
+        size_t parentMeshIndex_;
     };
 
     inline RenderedMesh::RenderedMesh()
@@ -122,6 +127,7 @@ namespace Project001
         , shininess_(0.0f)
         , translucent_(false)
         , useLighting_(true)
+        , parentMeshIndex_(static_cast<unsigned int>(-1))
     {}
 
     inline const bool& RenderedMesh::GetVisible() const
@@ -292,5 +298,16 @@ namespace Project001
     inline void RenderedMesh::SetUseLighting(bool useLighting)
     {
         useLighting_ = useLighting;
+    }
+
+
+    inline const size_t& RenderedMesh::GetParentMeshIndex() const
+    {
+        return parentMeshIndex_;
+    }
+
+    inline void RenderedMesh::SetParentMeshIndex(size_t parentMeshIndex)
+    {
+        parentMeshIndex_ = parentMeshIndex;
     }
 }

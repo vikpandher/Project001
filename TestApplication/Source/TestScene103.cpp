@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestScene103.h"
 
@@ -134,12 +134,12 @@ TestScene103::TestScene103(Project001::Application* applicationPtr)
     , mainCamera_Locked_(true)
     , uiCamera_EntityId_(static_cast<unsigned int>(-1))
     , cursor_EntityId_(static_cast<unsigned int>(-1))
-    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<size_t>(-1))
     , fog_EntityId_(static_cast<unsigned int>(-1))
     , ground_EntityId_(static_cast<unsigned int>(-1))
     , player_EntityId_(static_cast<unsigned int>(-1))
@@ -411,12 +411,12 @@ void TestScene103::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     uiCamera_EntityId_ = static_cast<unsigned int>(-1);
 
     cursor_EntityId_ = static_cast<unsigned int>(-1);
-    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<size_t>(-1);
 
     fog_EntityId_ = static_cast<unsigned int>(-1);
 
@@ -617,6 +617,7 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->ResolveCollisions();
 
         UpdatePersonLogic(physicsTimestep_s);
         UpdatePlayerEntityVelocity();

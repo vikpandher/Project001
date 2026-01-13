@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -71,12 +71,12 @@ protected:
     unsigned int joystickButton_02_TextEntityId_;
 
     unsigned int leftStickEntityId_;
-    unsigned int leftStickTriangleMeshIndex_;
-    unsigned int leftStickCircleMeshIndex_;
+    size_t leftStickTriangleMeshIndex_;
+    size_t leftStickCircleMeshIndex_;
 
     unsigned int rightStickEntityId_;
-    unsigned int rightStickTriangleMeshIndex_;
-    unsigned int rightStickCircleMeshIndex_;
+    size_t rightStickTriangleMeshIndex_;
+    size_t rightStickCircleMeshIndex_;
 
     // -------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestScene060.h"
 
@@ -45,11 +45,11 @@ TestScene060::TestScene060(Project001::Application* applicationPtr)
     , joystickButton_01_TextEntityId_(static_cast<unsigned int>(-1))
     , joystickButton_02_TextEntityId_(static_cast<unsigned int>(-1))
     , leftStickEntityId_(static_cast<unsigned int>(-1))
-    , leftStickTriangleMeshIndex_(static_cast<unsigned int>(-1))
-    , leftStickCircleMeshIndex_(static_cast<unsigned int>(-1))
+    , leftStickTriangleMeshIndex_(static_cast<size_t>(-1))
+    , leftStickCircleMeshIndex_(static_cast<size_t>(-1))
     , rightStickEntityId_(static_cast<unsigned int>(-1))
-    , rightStickTriangleMeshIndex_(static_cast<unsigned int>(-1))
-    , rightStickCircleMeshIndex_(static_cast<unsigned int>(-1))
+    , rightStickTriangleMeshIndex_(static_cast<size_t>(-1))
+    , rightStickCircleMeshIndex_(static_cast<size_t>(-1))
 {
     GetSharedDataPtr<TestApplicationData>()->testScene060Id = GetId();
 }
@@ -465,12 +465,12 @@ void TestScene060::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     joystickButton_02_TextEntityId_ = static_cast<unsigned int>(-1);
 
     leftStickEntityId_ = static_cast<unsigned int>(-1);
-    leftStickTriangleMeshIndex_ = static_cast<unsigned int>(-1);
-    leftStickCircleMeshIndex_ = static_cast<unsigned int>(-1);
+    leftStickTriangleMeshIndex_ = static_cast<size_t>(-1);
+    leftStickCircleMeshIndex_ = static_cast<size_t>(-1);
 
     rightStickEntityId_ = static_cast<unsigned int>(-1);
-    rightStickTriangleMeshIndex_ = static_cast<unsigned int>(-1);
-    rightStickCircleMeshIndex_ = static_cast<unsigned int>(-1);
+    rightStickTriangleMeshIndex_ = static_cast<size_t>(-1);
+    rightStickCircleMeshIndex_ = static_cast<size_t>(-1);
 }
 
 void TestScene060::ProcessKeyEvent(Project001::KeyEvent& keyEvent)

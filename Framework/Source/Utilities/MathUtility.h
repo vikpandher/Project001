@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -69,6 +69,16 @@ namespace Math
     void RemoveDuplicates(std::vector<glm::vec2>& dst, const std::vector<glm::vec2>& src, float epsilon = g_floatMarginOfError);
 
     void RemoveDuplicates(std::vector<glm::vec3>& dst, const std::vector<glm::vec3>& src, float epsilon = g_floatMarginOfError);
+
+    // Unused
+    // This functions finds the radius of a circle generated when a sphere
+    // on the ground is intersected by a horizontal plane at a given height.
+    float GetCircleRaidusGivenSphereOnGroundAndHorizontalPlaneIntersection(float sphereRadius, float horizontalPlaneHeight);
+
+    // Unused
+    // This function finds the radius of a sphere given a horizontal circle on
+    // that sphere's surface at a given height from the bottom of the sphere.
+    float GetSphereRadiusGivenHorizontalCircleRadiusAtGivenHeight(float circleRadius, float height);
 
     // Vector Manipulation -----------------------------------------------------
 

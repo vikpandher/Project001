@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "Scene002.h"
 
@@ -262,7 +262,7 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     uiText_EntityId_ = static_cast<unsigned int>(-1);
     uiPauseText_EntityId_ = static_cast<unsigned int>(-1);
     uiMiniMaphouse_RenderedMeshIndies.clear();
-    uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<size_t>(-1);
     uiMiniMap_EntityId_ = static_cast<unsigned int>(-1);
 
     cursor_EntityId_ = static_cast<unsigned int>(-1);
@@ -467,6 +467,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
         GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->ResolveCollisions();
 
         UpdateMainCameraEntity(physicsTimestep_s);
 

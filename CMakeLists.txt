@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-11-30
+# @DATE 2026-01-12
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -122,8 +122,10 @@ endif()
 add_subdirectory("Framework")
 add_subdirectory("TestApplication")
 add_subdirectory("Game001")
+add_subdirectory("Game002")
 add_dependencies("${TESTAPP_PROJECT_NAME}" "${FRAMEWORK_PROJECT_NAME}")
 add_dependencies("${GAME001_PROJECT_NAME}" "${FRAMEWORK_PROJECT_NAME}")
+add_dependencies("${GAME002_PROJECT_NAME}" "${FRAMEWORK_PROJECT_NAME}")
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${TESTAPP_PROJECT_NAME}")
 
 # ##############################################################################

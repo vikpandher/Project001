@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-12
 
 #include "TestScene001.h"
 
@@ -52,12 +52,12 @@ TestScene001::TestScene001(Project001::Application* applicationPtr)
     , mainCameraEntityId_(static_cast<unsigned int>(-1))
     , uiCameraEntityId_(static_cast<unsigned int>(-1))
     , cursorEntityId_(static_cast<unsigned int>(-1))
-    , cursorPositionRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPressRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseRenderedMeshIndex_(static_cast<unsigned int>(-1))
-    , cursorPositionCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorPressCollisionPointIndex_(static_cast<unsigned int>(-1))
-    , cursorReleaseCollisionPointIndex_(static_cast<unsigned int>(-1))
+    , cursorPositionRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPressRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorReleaseRenderedMeshIndex_(static_cast<size_t>(-1))
+    , cursorPositionCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorPressCollisionPointIndex_(static_cast<size_t>(-1))
+    , cursorReleaseCollisionPointIndex_(static_cast<size_t>(-1))
     , buttonEntityIds_()
     , selectorEntityId_(static_cast<unsigned int>(-1))
     , selectedEntityId_(static_cast<unsigned int>(-1))
@@ -676,12 +676,12 @@ void TestScene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deini
     uiCameraEntityId_ = static_cast<unsigned int>(-1);
 
     cursorEntityId_ = static_cast<unsigned int>(-1);
-    cursorPositionRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPressRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseRenderedMeshIndex_ = static_cast<unsigned int>(-1);
-    cursorPositionCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorPressCollisionPointIndex_ = static_cast<unsigned int>(-1);
-    cursorReleaseCollisionPointIndex_ = static_cast<unsigned int>(-1);
+    cursorPositionRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPressRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorReleaseRenderedMeshIndex_ = static_cast<size_t>(-1);
+    cursorPositionCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorPressCollisionPointIndex_ = static_cast<size_t>(-1);
+    cursorReleaseCollisionPointIndex_ = static_cast<size_t>(-1);
 
     buttonEntityIds_.clear();
 

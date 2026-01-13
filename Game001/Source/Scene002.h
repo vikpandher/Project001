@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-01-12
 
 #pragma once
 
@@ -100,16 +100,16 @@ protected:
     unsigned int uiPauseText_EntityId_ = static_cast<unsigned int>(-1);
 
     std::vector<unsigned int> uiMiniMaphouse_RenderedMeshIndies;
-    unsigned int uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<unsigned int>(-1);
+    size_t uiMiniMapPlayer_RenderedMeshIndex_ = static_cast<size_t>(-1);
     unsigned int uiMiniMap_EntityId_ = static_cast<unsigned int>(-1);
 
     unsigned int cursor_EntityId_ = static_cast<unsigned int>(-1);
-    static const unsigned int s_cursorPosition_RenderedMeshIndex_ = 0;
-    static const unsigned int s_cursorPress_RenderedMeshIndex_ = 1;
-    static const unsigned int s_cursorRelease_RenderedMeshIndex_ = 2;
-    static const unsigned int s_cursorPosition_CollisionPointIndex_ = 0;
-    static const unsigned int s_cursorPress_CollisionPointIndex_ = 1;
-    static const unsigned int s_cursorRelease_CollisionPointIndex_ = 2;
+    static const size_t s_cursorPosition_RenderedMeshIndex_ = 0;
+    static const size_t s_cursorPress_RenderedMeshIndex_ = 1;
+    static const size_t s_cursorRelease_RenderedMeshIndex_ = 2;
+    static const size_t s_cursorPosition_CollisionPointIndex_ = 0;
+    static const size_t s_cursorPress_CollisionPointIndex_ = 1;
+    static const size_t s_cursorRelease_CollisionPointIndex_ = 2;
     static const unsigned int s_cursorPosition_CollisionShapeId_ = 100;
     static const unsigned int s_cursorPress_CollisionShapeId_ = 101;
     static const unsigned int s_cursorRelease_CollisionShapeId_ = 102;
@@ -121,16 +121,16 @@ protected:
     unsigned int ground_EntityId_ = static_cast<unsigned int>(-1);
 
     std::vector<unsigned int> person_EntityIds_;
-    static const unsigned int s_personLit_RenderedMeshIndex_ = 0;
-    static const unsigned int s_personDark_RenderedMeshIndex_ = 1;
+    static const size_t s_personLit_RenderedMeshIndex_ = 0;
+    static const size_t s_personDark_RenderedMeshIndex_ = 1;
 
     unsigned int player_EntityId_ = static_cast<unsigned int>(-1);
-    static const unsigned int s_playerLit_RenderedMeshIndex_ = 0;
-    static const unsigned int s_playerDark_RenderedMeshIndex_ = 1;
+    static const size_t s_playerLit_RenderedMeshIndex_ = 0;
+    static const size_t s_playerDark_RenderedMeshIndex_ = 1;
 
     std::vector<unsigned int> monster_EntityIds_;
-    static const unsigned int s_monsterLit_RenderedMeshIndex_ = 0;
-    static const unsigned int s_monsterDark_RenderedMeshIndex_ = 1;
+    static const size_t s_monsterLit_RenderedMeshIndex_ = 0;
+    static const size_t s_monsterDark_RenderedMeshIndex_ = 1;
 
     // -------------------------------------------------------------------------
 

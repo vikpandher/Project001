@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-22
+// @DATE 2026-01-12
 
 #include "Components/RenderedModel.h"
 
@@ -19,8 +19,24 @@ namespace Project001
             const RenderedMesh& renderedMesh = renderedMeshes_[i];
             transformedRenderedMeshes_.emplace_back();
             RenderedMesh& transformedRenderedMesh = transformedRenderedMeshes_.back();
-            transformedRenderedMesh.SetPosition(position_ + orientation_ * renderedMesh.GetPosition());
-            transformedRenderedMesh.SetOrientation(orientation_ * renderedMesh.GetOrientation());
+
+            transformedRenderedMesh.SetPosition(renderedMesh.GetPosition());
+            transformedRenderedMesh.SetOrientation(renderedMesh.GetOrientation());
+            size_t childMeshIndex = i;
+            size_t parentMeshIndex = renderedMesh.GetParentMeshIndex();
+            while (parentMeshIndex < childMeshIndex) // parent meshes must be added to the model before their child meshes
+            {
+                const RenderedMesh& parentMesh = renderedMeshes_[parentMeshIndex];
+                const glm::vec3& parentPosition = parentMesh.GetPosition();
+                const glm::quat& parentOrientation = parentMesh.GetOrientation();
+                transformedRenderedMesh.SetPosition(parentPosition + parentOrientation * transformedRenderedMesh.GetPosition());
+                transformedRenderedMesh.SetOrientation(parentOrientation * transformedRenderedMesh.GetOrientation());
+                childMeshIndex = parentMeshIndex;
+                parentMeshIndex = parentMesh.GetParentMeshIndex();
+            }
+            transformedRenderedMesh.SetPosition(position_ + orientation_ * transformedRenderedMesh.GetPosition());
+            transformedRenderedMesh.SetOrientation(orientation_ * transformedRenderedMesh.GetOrientation());
+
             transformedRenderedMesh.SetVisible(visible_ && renderedMesh.GetVisible());
             transformedRenderedMesh.SetCameraMask(cameraMask_ & renderedMesh.GetCameraMask());
             if (renderedMesh.GetRenderedMeshType() == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_CPU_SIDE)

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-12
 
 #include "MathUtility.h"
 
@@ -517,6 +517,34 @@ namespace Math
                 dst.push_back(current);
             }
         }
+    }
+
+    float GetCircleRaidusGivenSphereOnGroundAndHorizontalPlaneIntersection(float sphereRadius, float horizontalPlaneHeight)
+    {
+        // plane must intersect the sphere: 0 <= H <= 2R
+        // clamp to avoid negative values due to floating-point error
+        // r = circle radius
+        // R = sphere radius
+        // H = height
+        // r^2 = 2*R*H - H^2
+        float value = 2.0f * sphereRadius * horizontalPlaneHeight - horizontalPlaneHeight * horizontalPlaneHeight;
+        return glm::sqrt(std::max(0.0f, value));
+    }
+
+    float GetSphereRadiusGivenHorizontalCircleRadiusAtGivenHeight(float circleRadius, float height)
+    {
+        // if circleRadius < height :  intersection on bottom half of sphere
+        // if circleRadius == height : intersection on center of sphere
+        // if circleRadius > height :  intersection on top half of sphere
+        if (height <= 0.0f)
+        {
+            return 0.0f;
+        }
+        // r = circle radius
+        // R = sphere radius
+        // H = height
+        // R = (r^2 + H^2) / (2*H)
+        return (circleRadius * circleRadius + height * height) / (2.0f * height);
     }
 
     // Vector Manipulation -----------------------------------------------------
