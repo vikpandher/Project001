@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -28,21 +28,21 @@ struct SharedApplicationData
 
     // Player Controls ---------------------------------------------------------
 
-    Project001::KeyCode snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
-
     Project001::KeyCode start_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
-
     Project001::KeyCode pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
-
     Project001::KeyCode quit_keyCode = Project001::KeyCode::KEY_CODE_ESCAPE;
 
-    Project001::KeyCode up_keyCode = Project001::KeyCode::KEY_CODE_W;
+    Project001::KeyCode player1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
+    Project001::KeyCode player1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
+    Project001::KeyCode player1_down_keyCode = Project001::KeyCode::KEY_CODE_S;
+    Project001::KeyCode player1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
+    Project001::KeyCode player1_snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
 
-    Project001::KeyCode left_keyCode = Project001::KeyCode::KEY_CODE_A;
-
-    Project001::KeyCode down_keyCode = Project001::KeyCode::KEY_CODE_S;
-
-    Project001::KeyCode right_keyCode = Project001::KeyCode::KEY_CODE_D;
+    Project001::KeyCode player2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
+    Project001::KeyCode player2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
+    Project001::KeyCode player2_down_keyCode = Project001::KeyCode::KEY_CODE_DOWN;
+    Project001::KeyCode player2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
+    Project001::KeyCode player2_snowball_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
 
     // Game Constants ----------------------------------------------------------
 
@@ -57,8 +57,9 @@ struct SharedApplicationData
     const float maxStage_size = 1088.0f;
 
     const float penguin_collisionRadius = 12.0f;
-    const float penguin_grabOffset = 18.0f;
+    const float penguin_grabOffset = 22.0f;
     const float penguin_grabRadius = 18.0f;
+    const float penguin_throwSpeed_s = 256.0f;
 
     // Resources ---------------------------------------------------------------
 
@@ -115,8 +116,12 @@ struct SharedApplicationData
     unsigned int penguin01_glasses_meshId = static_cast<unsigned int>(-1);
     Project001::MeshData* penguin01_glasses_v2_meshDataPtr = nullptr;
     unsigned int penguin01_glasses_v2_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin01_glasses_v3_meshDataPtr = nullptr;
+    unsigned int penguin01_glasses_v3_meshId = static_cast<unsigned int>(-1);
     Project001::TextureData* penguin01_textureDataPtr = nullptr;
     unsigned int penguin01_textureId = static_cast<unsigned int>(-1);
+    Project001::TextureData* penguin01_v2_textureDataPtr = nullptr;
+    unsigned int penguin01_v2_textureId = static_cast<unsigned int>(-1);
 
     Project001::MeshData* snowball_meshDataPtr = nullptr;
     unsigned int snowball_meshId = static_cast<unsigned int>(-1);

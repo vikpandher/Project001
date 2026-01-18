@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-17
 
 #include "Overlap2D.h"
 
@@ -3903,23 +3903,25 @@ namespace Project001
             return false;
         }
 
-        // if (a_to_b_distance == 0.0f)
-        // {
-        //     collisionNormal.x = 0.0f;
-        //     collisionNormal.y = 1.0f;
-        // }
-        // else
-        // {
-        //     collisionNormal = a_to_b / a_to_b_distance; // normalize
-        // }
+        if (a_to_b_distance == 0.0f) // they are in the same exact spot
+        {
+            collisionNormal.x = 0.0f;
+            collisionNormal.y = 1.0f;
 
-        collisionNormal = a_to_b / a_to_b_distance; // normalize
+            collisionPoint = circleA_position;
 
-        float collisionPointDistance = (a_to_b_distance - circleB_radius + circleA_radius) * 0.5f;
+            collisionDepth = (circleB_radius + circleA_radius) * 0.5f;
+        }
+        else
+        {
+            collisionNormal = a_to_b / a_to_b_distance; // normalize
 
-        collisionPoint = circleA_position + collisionNormal * collisionPointDistance;
+            float collisionPointDistance = (a_to_b_distance - circleB_radius + circleA_radius) * 0.5f;
 
-        collisionDepth = (circleA_radius - collisionPointDistance) * 2.0f;
+            collisionPoint = circleA_position + collisionNormal * collisionPointDistance;
+
+            collisionDepth = (circleA_radius - collisionPointDistance) * 2.0f;
+        }
 
         return true;
     }
@@ -3949,23 +3951,25 @@ namespace Project001
 
         float a_to_b_distance = glm::length(a_to_b);
 
-        // if (a_to_b_distance == 0.0f)
-        // {
-        //     collisionNormal.x = 0.0f;
-        //     collisionNormal.y = 1.0f;
-        // }
-        // else
-        // {
-        //     collisionNormal = a_to_b / a_to_b_distance; // normalize
-        // }
+        if (a_to_b_distance == 0.0f) // they are in the same exact spot
+        {
+            collisionNormal.x = 0.0f;
+            collisionNormal.y = 1.0f;
 
-        collisionNormal = a_to_b / a_to_b_distance; // normalize
+            collisionPoint = circle_position;
 
-        float collisionPointDistance = (a_to_b_distance - capsule_radius + circle_radius) * 0.5f;
+            collisionDepth = (circle_radius + capsule_radius) * 0.5f;
+        }
+        else
+        {
+            collisionNormal = a_to_b / a_to_b_distance; // normalize
 
-        collisionPoint = circle_position + collisionNormal * collisionPointDistance;
+            float collisionPointDistance = (a_to_b_distance - capsule_radius + circle_radius) * 0.5f;
 
-        collisionDepth = (circle_radius - collisionPointDistance) * 2.0f;
+            collisionPoint = circle_position + collisionNormal * collisionPointDistance;
+
+            collisionDepth = (circle_radius - collisionPointDistance) * 2.0f;
+        }
 
         return true;
     }

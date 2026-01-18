@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-17
 
 #include "RenderSystem.h"
 
@@ -19,24 +19,32 @@ namespace Project001
 {
     // public ------------------------------------------------------------------
 
-    void RenderSystem::Render(
-        ComponentStores* componentStoresPtr,
-        Renderer* rendererPtr)
+    RenderSystem::RenderSystem()
+        : componentStoresPtr_(nullptr)
+        , rendererPtr_(nullptr)
+    {}
+
+    void RenderSystem::Render()
     {
+        if (componentStoresPtr_ == nullptr || rendererPtr_ == nullptr)
+        {
+            return;
+        }
+
         unsigned int framebufferWidth;
         unsigned int framebufferHeight;
-        rendererPtr->GetFramebufferSize(framebufferWidth, framebufferHeight);
+        rendererPtr_->GetFramebufferSize(framebufferWidth, framebufferHeight);
         if (framebufferWidth > 0 && framebufferHeight > 0)
         {
-            rendererPtr->BeginRendering();
-            rendererPtr->Clear();
+            rendererPtr_->BeginRendering();
+            rendererPtr_->Clear();
 
             // Get a Camera
             // -----------------------------------------------------------------
 
             Camera* cameraPtrs = nullptr;
             size_t cameraCount = 0;
-            componentStoresPtr->GetAllComponents<Camera>(cameraPtrs, cameraCount);
+            componentStoresPtr_->GetAllComponents<Camera>(cameraPtrs, cameraCount);
 
             cameraPtrs_.clear();
 
@@ -59,7 +67,7 @@ namespace Project001
                     return aPriorityValue < bPriorityValue;
                 });
 
-            bool rendererPreviousDepthTesting = rendererPtr->GetDepthTesting();
+            bool rendererPreviousDepthTesting = rendererPtr_->GetDepthTesting();
 
             cameraEntityIdToRenderedMeshCount_.clear();
 
@@ -71,7 +79,7 @@ namespace Project001
                     const Project001::Camera::CameraProjection& cameraProjection = currentCamera.GetProjection();
 
                     const bool& currentCameraDepthTestEnabled = currentCamera.GetDepthTestEnabled();
-                    rendererPtr->SetDepthTesting(currentCameraDepthTestEnabled);
+                    rendererPtr_->SetDepthTesting(currentCameraDepthTestEnabled);
 
                     glm::mat4 cameraViewMatrix = currentCamera.GetViewMatrix();
                     glm::vec3 cameraPosition = currentCamera.GetPosition();
@@ -80,14 +88,14 @@ namespace Project001
                     FrustumPlanes currentCameraFrustumPlanes;
                     currentCamera.GetProjectionFrustumPlanes(currentCameraFrustumPlanes);
 
-                    rendererPtr->ClearDirectionalLight();
-                    rendererPtr->ClearPointLights();
-                    rendererPtr->ClearSpotLights();
-                    rendererPtr->ClearDepthOnly();
+                    rendererPtr_->ClearDirectionalLight();
+                    rendererPtr_->ClearPointLights();
+                    rendererPtr_->ClearSpotLights();
+                    rendererPtr_->ClearDepthOnly();
 
-                    rendererPtr->SetViewMatrix(cameraViewMatrix);
-                    rendererPtr->SetViewPosition(cameraPosition);
-                    rendererPtr->SetProjectionMatrix(cameraProjectionMatrix);
+                    rendererPtr_->SetViewMatrix(cameraViewMatrix);
+                    rendererPtr_->SetViewPosition(cameraPosition);
+                    rendererPtr_->SetProjectionMatrix(cameraProjectionMatrix);
 
                     float cameraViewportX;
                     float cameraViewportY;
@@ -99,7 +107,7 @@ namespace Project001
                         cameraViewportWidth,
                         cameraViewportHeight
                     );
-                    rendererPtr->SetCameraViewport(
+                    rendererPtr_->SetCameraViewport(
                         cameraViewportX,
                         cameraViewportY,
                         cameraViewportWidth,
@@ -111,7 +119,7 @@ namespace Project001
 
                     LightSource* lightSourceArray = nullptr;
                     size_t lightSourceCount = 0;
-                    componentStoresPtr->GetAllComponents<LightSource>(lightSourceArray, lightSourceCount);
+                    componentStoresPtr_->GetAllComponents<LightSource>(lightSourceArray, lightSourceCount);
 
                     for (size_t j = 0; j < lightSourceCount; ++j)
                     {
@@ -121,7 +129,7 @@ namespace Project001
                         {
                             if (currentLightSource.IsLightTypeDirectional())
                             {
-                                rendererPtr->SetDirectionalLight(
+                                rendererPtr_->SetDirectionalLight(
                                     currentLightSource.GetDirection(),
                                     currentLightSource.GetAmbientColor(),
                                     currentLightSource.GetDiffuseColor(),
@@ -130,7 +138,7 @@ namespace Project001
                             }
                             else if (currentLightSource.IsLightTypePoint())
                             {
-                                rendererPtr->AddPointLight(
+                                rendererPtr_->AddPointLight(
                                     currentLightSource.GetPosition(),
                                     currentLightSource.GetAttenuationConstant(),
                                     currentLightSource.GetLinearAttenuation(),
@@ -142,7 +150,7 @@ namespace Project001
                             }
                             else if (currentLightSource.IsLightTypeSpot())
                             {
-                                rendererPtr->AddSpotLight(
+                                rendererPtr_->AddSpotLight(
                                     currentLightSource.GetPosition(),
                                     currentLightSource.GetDirection(),
                                     currentLightSource.GetCutoff(),
@@ -165,7 +173,7 @@ namespace Project001
 
                     RenderedMesh* renderedMeshArrayPtr = nullptr;
                     size_t renderedMeshCount = 0;
-                    componentStoresPtr->GetAllComponents<RenderedMesh>(renderedMeshArrayPtr, renderedMeshCount);
+                    componentStoresPtr_->GetAllComponents<RenderedMesh>(renderedMeshArrayPtr, renderedMeshCount);
 
                     for (size_t j = 0; j < renderedMeshCount; ++j)
                     {
@@ -174,7 +182,7 @@ namespace Project001
 
                     RenderedModel* renderedModelArrayPtr = nullptr;
                     size_t renderedModelCount = 0;
-                    componentStoresPtr->GetAllComponents<RenderedModel>(renderedModelArrayPtr, renderedModelCount);
+                    componentStoresPtr_->GetAllComponents<RenderedModel>(renderedModelArrayPtr, renderedModelCount);
 
                     for (size_t j = 0; j < renderedModelCount; ++j)
                     {
@@ -199,7 +207,7 @@ namespace Project001
                     }
 
                     unsigned int currentCameraId = static_cast<unsigned int>(-1);
-                    if (componentStoresPtr->GetComponentEntityId<Camera>(currentCameraId, &currentCamera))
+                    if (componentStoresPtr_->GetComponentEntityId<Camera>(currentCameraId, &currentCamera))
                     {
                         cameraEntityIdToRenderedMeshCount_[currentCameraId] = renderedMeshPtrs_.size();
                     }
@@ -357,11 +365,11 @@ namespace Project001
                             {
                                 if (currentRenderedMeshType != previousRenderedMeshType) // previous mesh was batched
                                 {
-                                    rendererPtr->RenderBatch();
+                                    rendererPtr_->RenderBatch();
                                 }
                                 else if (currentRenderedMeshPtr->GetMeshId() != previousRenderedMeshPtr->GetMeshId()) // previous and current mesh ids are different
                                 {
-                                    FAIL_CHECK(rendererPtr->RenderMesh(
+                                    FAIL_CHECK(rendererPtr_->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         meshInstanceDataArray_.data(),
                                         static_cast<unsigned int>(meshInstanceDataArray_.size())
@@ -385,7 +393,7 @@ namespace Project001
                             {
                                 if (currentRenderedMeshType != previousRenderedMeshType) // previous mesh was instanced
                                 {
-                                    FAIL_CHECK(rendererPtr->RenderMesh(
+                                    FAIL_CHECK(rendererPtr_->RenderMesh(
                                         previousRenderedMeshPtr->GetMeshId(),
                                         meshInstanceDataArray_.data(),
                                         static_cast<unsigned int>(meshInstanceDataArray_.size())
@@ -395,7 +403,7 @@ namespace Project001
                                 }
 
                                 const MeshData* currentMeshDataPtr = currentRenderedMeshPtr->GetMeshDataPtr();
-                                FAIL_CHECK(rendererPtr->AddMeshToBatch(
+                                FAIL_CHECK(rendererPtr_->AddMeshToBatch(
                                     currentMeshDataPtr->meshVertexArray.data(),
                                     static_cast<unsigned int>(currentMeshDataPtr->meshVertexArray.size()),
                                     currentMeshDataPtr->meshIndexArray.data(),
@@ -417,7 +425,7 @@ namespace Project001
 
                         if (previousRenderedMeshType == RenderedMesh::RenderedMeshType::RENDERED_MESH_TYPE_LOADED_GPU_SIDE) // last mesh was instanced
                         {
-                            FAIL_CHECK(rendererPtr->RenderMesh(
+                            FAIL_CHECK(rendererPtr_->RenderMesh(
                                 previousRenderedMeshPtr->GetMeshId(),
                                 meshInstanceDataArray_.data(),
                                 static_cast<unsigned int>(meshInstanceDataArray_.size())
@@ -427,16 +435,16 @@ namespace Project001
                         }
                         else // last mesh was batched
                         {
-                            rendererPtr->RenderBatch();
+                            rendererPtr_->RenderBatch();
                         }
                     }
                 }
             }
 
-            rendererPtr->FinishRendering();
-            rendererPtr->SwapBuffers();
+            rendererPtr_->FinishRendering();
+            rendererPtr_->SwapBuffers();
 
-            rendererPtr->SetDepthTesting(rendererPreviousDepthTesting);
+            rendererPtr_->SetDepthTesting(rendererPreviousDepthTesting);
         }
     }
 

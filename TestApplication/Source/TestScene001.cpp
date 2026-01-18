@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "TestScene001.h"
 
@@ -819,7 +819,7 @@ void TestScene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -864,7 +864,7 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     // calculate collisions
     // -------------------------------------------------------------------------
-    GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
+    GetCollisionSystemPtr()->CalculateCollisions();
 
     // recolor all buttons
     // -------------------------------------------------------------------------
@@ -881,22 +881,22 @@ void TestScene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(buttonCollisionBody2DPtr, buttonEntityId));
             if (buttonCollisionBody2DPtr != nullptr)
             {
-                const std::vector<Project001::CollisionData2D> collisions = buttonCollisionBody2DPtr->GetCollisions();
-                for (size_t i = 0; i < collisions.size(); ++i)
+                const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = buttonCollisionBody2DPtr->GetCollisionOverlaps();
+                for (size_t i = 0; i < collisionOverlaps.size(); ++i)
                 {
-                    const Project001::CollisionData2D& collisionData = collisions[i];
+                    const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
 
-                    if (collisionData.otherEntityId == cursorEntityId_)
+                    if (collisionOverlapData.otherEntityId == cursorEntityId_)
                     {
-                        if (collisionData.otherShapeTag == s_cursorPositionCollisionShapeId_)
+                        if (collisionOverlapData.otherShapeTag == s_cursorPositionCollisionShapeId_)
                         {
                             collidingWithCursorPosition = true;
                         }
-                        if (collisionData.otherShapeTag == s_cursorPressCollisionShapeId_)
+                        if (collisionOverlapData.otherShapeTag == s_cursorPressCollisionShapeId_)
                         {
                             collidingWithCursorPress = true;
                         }
-                        if (collisionData.otherShapeTag == s_cursorReleaseCollisionShapeId_)
+                        if (collisionOverlapData.otherShapeTag == s_cursorReleaseCollisionShapeId_)
                         {
                             collidingWithCursorRelease = true;
                         }

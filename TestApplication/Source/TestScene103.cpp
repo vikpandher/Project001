@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "TestScene103.h"
 
@@ -587,7 +587,7 @@ void TestScene103::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene103::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void TestScene103::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -615,9 +615,8 @@ void TestScene103::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
-        GetCollisionSystemPtr()->ResolveCollisions();
+        GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
+        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree();
 
         UpdatePersonLogic(physicsTimestep_s);
         UpdatePlayerEntityVelocity();

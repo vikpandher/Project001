@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -74,8 +74,11 @@ namespace Project001
 
         const glm::vec4& GetColor() const;
         void SetColor(const glm::vec4& color);
+        void SetColor(const glm::vec3& rgb, float a);
         void SetColor(float r, float g, float b, float a);
+        void SetColorRGB(const glm::vec3& rgb);
         void SetColorRGB(float r, float g, float b);
+        void SetColorAlpha(float a);
 
         const float& GetShininess() const;
         void SetShininess(float shininess);
@@ -255,6 +258,14 @@ namespace Project001
         color_ = color;
     }
 
+    inline void RenderedMesh::SetColor(const glm::vec3& rgb, float a)
+    {
+        color_.r = rgb.r;
+        color_.g = rgb.g;
+        color_.b = rgb.b;
+        color_.a = a;
+    }
+
     inline void RenderedMesh::SetColor(float r, float g, float b, float a)
     {
         color_.r = r;
@@ -263,11 +274,23 @@ namespace Project001
         color_.a = a;
     }
 
+    inline void RenderedMesh::SetColorRGB(const glm::vec3& rgb)
+    {
+        color_.r = rgb.r;
+        color_.g = rgb.g;
+        color_.b = rgb.b;
+    }
+
     inline void RenderedMesh::SetColorRGB(float r, float g, float b)
     {
         color_.r = r;
         color_.g = g;
         color_.b = b;
+    }
+
+    inline void RenderedMesh::SetColorAlpha(float a)
+    {
+        color_.a = a;
     }
 
     inline const float& RenderedMesh::GetShininess() const

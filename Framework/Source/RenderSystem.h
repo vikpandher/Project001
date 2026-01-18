@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -21,9 +21,12 @@ namespace Project001
     class RenderSystem
     {
     public:
-        void Render(
-            ComponentStores* componentStoresPtr,
-            Renderer* rendererPtr);
+        RenderSystem();
+
+        void SetComponentStoresPtr(ComponentStores* componentStoresPtr);
+        void SetRendererPtr(Renderer* rendererPtr);
+
+        void Render();
 
         // Excludes meshes culled by the camera view frustum
         bool GetNumberOfMeshesRendered(unsigned int cameraEntityId, size_t& number);
@@ -34,6 +37,9 @@ namespace Project001
             const Camera* cameraPtr,
             const FrustumPlanes* frustumPlanesPtr);
 
+        ComponentStores* componentStoresPtr_;
+        Renderer* rendererPtr_;
+
         std::vector<Camera*> cameraPtrs_;
 
         std::vector<const RenderedMesh*> renderedMeshPtrs_;
@@ -42,6 +48,18 @@ namespace Project001
 
         std::unordered_map<unsigned int, size_t> cameraEntityIdToRenderedMeshCount_;
     };
+
+    // public ------------------------------------------------------------------
+
+    inline void RenderSystem::SetComponentStoresPtr(ComponentStores* componentStoresPtr)
+    {
+        componentStoresPtr_ = componentStoresPtr;
+    }
+
+    inline void RenderSystem::SetRendererPtr(Renderer* rendererPtr)
+    {
+        rendererPtr_ = rendererPtr;
+    }
 
     inline bool RenderSystem::GetNumberOfMeshesRendered(unsigned int cameraEntityId, size_t& number)
     {

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "Scene001.h"
 
@@ -110,7 +110,7 @@ void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
 void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void Scene001::LoadPixelFontResources()
@@ -590,6 +590,18 @@ void Scene001::LoadActorResources()
         static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->meshIndexArray.size())
     );
 
+    sharedDataPtr_->penguin01_glasses_v3_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
+        *sharedDataPtr_->penguin01_glasses_v3_meshDataPtr, "../Models/penguin01_glasses_v3.obj"
+    ));
+    GetRendererPtr()->CreateMesh(
+        sharedDataPtr_->penguin01_glasses_v3_meshId,
+        sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshIndexArray.size())
+    );
+
     sharedDataPtr_->penguin01_textureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::Texture::LoadTexture(
         *sharedDataPtr_->penguin01_textureDataPtr, "../Models/penguin01.png"
@@ -600,6 +612,20 @@ void Scene001::LoadActorResources()
         sharedDataPtr_->penguin01_textureDataPtr->width,
         sharedDataPtr_->penguin01_textureDataPtr->height,
         sharedDataPtr_->penguin01_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
+
+    sharedDataPtr_->penguin01_v2_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTexture(
+        *sharedDataPtr_->penguin01_v2_textureDataPtr, "../Models/penguin01_v2.png"
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->penguin01_v2_textureId,
+        sharedDataPtr_->penguin01_v2_textureDataPtr->data,
+        sharedDataPtr_->penguin01_v2_textureDataPtr->width,
+        sharedDataPtr_->penguin01_v2_textureDataPtr->height,
+        sharedDataPtr_->penguin01_v2_textureDataPtr->bytesPerPixel,
         false,
         false
     );
@@ -701,9 +727,15 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->penguin01_glasses_v2_meshDataPtr;
     sharedDataPtr_->penguin01_glasses_v2_meshDataPtr = nullptr;
     sharedDataPtr_->penguin01_glasses_v2_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin01_glasses_v3_meshDataPtr;
+    sharedDataPtr_->penguin01_glasses_v3_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin01_glasses_v3_meshId = static_cast<unsigned int>(-1);
     delete sharedDataPtr_->penguin01_textureDataPtr;
     sharedDataPtr_->penguin01_textureDataPtr = nullptr;
     sharedDataPtr_->penguin01_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin01_v2_textureDataPtr;
+    sharedDataPtr_->penguin01_v2_textureDataPtr = nullptr;
+    sharedDataPtr_->penguin01_v2_textureId = static_cast<unsigned int>(-1);
 
     delete sharedDataPtr_->snowball_meshDataPtr;
     sharedDataPtr_->snowball_meshDataPtr = nullptr;
@@ -749,13 +781,7 @@ void Scene001::ReadConfigFile()
         std::map<std::string, std::map<std::string, std::string>>::const_iterator iter = sections.find("Player_Controls");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("snowball");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->snowball_keyCode = Project001::StringToKeyCode(iter2->second);
-            }
-
-            iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->start_keyCode = Project001::StringToKeyCode(iter2->second);
@@ -773,28 +799,64 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->quit_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("up");
+            iter2 = iter->second.find("player1_up");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->up_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->player1_up_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("left");
+            iter2 = iter->second.find("player1_left");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->left_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->player1_left_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("down");
+            iter2 = iter->second.find("player1_down");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->down_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->player1_down_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("right");
+            iter2 = iter->second.find("player1_right");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->right_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->player1_right_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player1_snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player1_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player2_up");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player2_up_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player2_left");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player2_left_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player2_down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player2_down_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player2_right");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player2_right_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("player2_snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->player2_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
             }
         }
 

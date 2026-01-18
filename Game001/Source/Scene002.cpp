@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "Scene002.h"
 
@@ -401,7 +401,7 @@ void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
     //     LOG_WARNING_F("Slow Render Frame (ns): " << renderEvent.timestep_ns);
     // }
 
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -465,9 +465,8 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
-        GetCollisionSystemPtr()->ResolveCollisions();
+        GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
+        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree();
 
         UpdateMainCameraEntity(physicsTimestep_s);
 
@@ -2419,12 +2418,12 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
 
         playerInfoPtr->safe = false;
 
-        const std::vector<Project001::CollisionData2D> collisions = playerCollisionBodyPtr->GetCollisions();
-        for (size_t i = 0; i < collisions.size(); ++i)
+        const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = playerCollisionBodyPtr->GetCollisionOverlaps();
+        for (size_t i = 0; i < collisionOverlaps.size(); ++i)
         {
-            const Project001::CollisionData2D& collisionData = collisions[i];
+            const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
 
-            if (collisionData.otherShapeTag == s_base_collisionShapeTag_)
+            if (collisionOverlapData.otherShapeTag == s_base_collisionShapeTag_)
             {
                 if (playerInfoPtr->score > 0)
                 {
@@ -2436,10 +2435,10 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
 
                 playerInfoPtr->battery_s = sharedDataPtr_->player_initialBattery_s;
             }
-            else if (collisionData.otherShapeTag == s_door_collisionShapeTag_)
+            else if (collisionOverlapData.otherShapeTag == s_door_collisionShapeTag_)
             {
                 LightInfo* lightInfoPtr = nullptr;
-                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<LightInfo>(lightInfoPtr, collisionData.otherEntityId));
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<LightInfo>(lightInfoPtr, collisionOverlapData.otherEntityId));
                 if (lightInfoPtr != nullptr)
                 {
                     HouseInfo* houseInfoPtr = nullptr;
@@ -2458,7 +2457,7 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
                     }
                 }
             }
-            else if (collisionData.otherShapeTag == s_light_collisionShapeTag_)
+            else if (collisionOverlapData.otherShapeTag == s_light_collisionShapeTag_)
             {
                 playerInfoPtr->safe = true;
             }
@@ -2484,15 +2483,15 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, monsterEntityId));
         if (collisionBodyPtr != nullptr)
         {
-            const std::vector<Project001::CollisionData2D> collisions = collisionBodyPtr->GetCollisions();
-            for (size_t i = 0; i < collisions.size(); ++i)
+            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = collisionBodyPtr->GetCollisionOverlaps();
+            for (size_t i = 0; i < collisionOverlaps.size(); ++i)
             {
-                const Project001::CollisionData2D& collisionData = collisions[i];
+                const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
 
-                if (collisionData.otherShapeTag == s_player_collisionShapeTag_)
+                if (collisionOverlapData.otherShapeTag == s_player_collisionShapeTag_)
                 {
                     PlayerInfo* playerInfoPtr = nullptr;
-                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, collisionData.otherEntityId));
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, collisionOverlapData.otherEntityId));
                     if (playerInfoPtr != nullptr)
                     {
                         if (playerInfoPtr->score > 0)
@@ -2514,10 +2513,10 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                         }
                     }
                 }
-                else if (collisionData.otherShapeTag == s_light_collisionShapeTag_)
+                else if (collisionOverlapData.otherShapeTag == s_light_collisionShapeTag_)
                 {
                     Project001::CollisionBody2D* otherCollisionBodyPtr = nullptr;
-                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, collisionData.otherEntityId));
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, collisionOverlapData.otherEntityId));
                     if (otherCollisionBodyPtr != nullptr)
                     {
                         const glm::vec2& position = collisionBodyPtr->GetPosition();
@@ -2553,15 +2552,15 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(visionCollisionBodyPtr, monsterInfo.vision_EntityId));
         if (visionCollisionBodyPtr != nullptr)
         {
-            const std::vector<Project001::CollisionData2D> collisions = visionCollisionBodyPtr->GetCollisions();
-            for (size_t i = 0; i < collisions.size(); ++i)
+            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = visionCollisionBodyPtr->GetCollisionOverlaps();
+            for (size_t i = 0; i < collisionOverlaps.size(); ++i)
             {
-                const Project001::CollisionData2D& collisionData = collisions[i];
+                const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
 
-                if (collisionData.otherShapeTag == s_player_collisionShapeTag_)
+                if (collisionOverlapData.otherShapeTag == s_player_collisionShapeTag_)
                 {
                     PlayerInfo* playerInfoPtr = nullptr;
-                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, collisionData.otherEntityId));
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PlayerInfo>(playerInfoPtr, collisionOverlapData.otherEntityId));
                     if (playerInfoPtr != nullptr)
                     {
                         if (playerInfoPtr->safe || playerInfoPtr->score == 0)
@@ -2571,7 +2570,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                     }
 
                     Project001::CollisionBody2D* otherCollisionBodyPtr = nullptr;
-                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, collisionData.otherEntityId));
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, collisionOverlapData.otherEntityId));
                     if (otherCollisionBodyPtr != nullptr)
                     {
                         const glm::vec2& position = visionCollisionBodyPtr->GetPosition();

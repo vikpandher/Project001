@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -13,9 +13,9 @@ namespace Project001
 {
     struct CollisionBody2DCreationInfo;
 
-    struct CollisionData2D
+    struct CollisionOverlapData2D
     {
-        CollisionData2D()
+        CollisionOverlapData2D()
             : myShapeTag(static_cast<unsigned int>(-1))
             , otherEntityId(static_cast<unsigned int>(-1))
             , otherShapeTag(static_cast<unsigned int>(-1))
@@ -32,6 +32,20 @@ namespace Project001
         glm::vec2 point;
         glm::vec2 normal;
         float depth;
+    };
+
+    struct CollisionImpulseData2D
+    {
+        CollisionImpulseData2D()
+            : otherEntityId(static_cast<unsigned int>(-1))
+            , impulse(0.0f, 0.0f)
+            , angularImpulse(0.0f)
+        {}
+    
+        unsigned int otherEntityId;
+    
+        glm::vec2 impulse;
+        float angularImpulse;
     };
 
     class CollisionBody2D : public Placement2D
@@ -100,18 +114,22 @@ namespace Project001
         const std::vector<CollisionConvexPolygon2D>& GetCollisionConvexPolygons() const;
         const std::vector<CollisionConvexPolygon2D>& GetTransformedCollisionConvexPolygons();
 
+        // Only enabled_ shapes will be included in the bounding radius
+        // calucation and in the transformed collision shape vectors
+
         const float& GetBoundingRadius();
 
         const float& GetArea();
 
         const float& GetMomentOfInertia();
 
-        // Only enabled_ shapes will be included in the bounding radius
-        // calucation and in the transformed collision shape vectors
+        void AddCollisionOverlap(const CollisionOverlapData2D& collisionOverlap);
+        void ClearCollisionOverlaps();
+        const std::vector<CollisionOverlapData2D>& GetCollisionOverlaps() const;
 
-        void AddCollision(const CollisionData2D& collision);
-        void ClearCollisions();
-        const std::vector<CollisionData2D>& GetCollisions() const;
+        void AddCollisionImpulse(const CollisionImpulseData2D& collisionImpulse);
+        void ClearCollisionImpulses();
+        const std::vector<CollisionImpulseData2D>& GetCollisionImpulses() const;
 
         float GetDistanceSquaredToPoint(const glm::vec2& point_position) const;
 
@@ -251,7 +269,8 @@ namespace Project001
 
         bool transformedCollisionShapesUpToDate_;
 
-        std::vector<CollisionData2D> collisions_;
+        std::vector<CollisionOverlapData2D> collisionOverlaps_;
+        std::vector<CollisionImpulseData2D> collisionImpulses_;
 
         CollisionShape2D::PhysicsType physicsType_;
 
@@ -687,19 +706,34 @@ namespace Project001
         return momentOfInertia_;
     }
 
-    inline void CollisionBody2D::AddCollision(const CollisionData2D& collision)
+    inline void CollisionBody2D::AddCollisionOverlap(const CollisionOverlapData2D& collisionOverlap)
     {
-        collisions_.push_back(collision);
+        collisionOverlaps_.push_back(collisionOverlap);
     }
 
-    inline void CollisionBody2D::ClearCollisions()
+    inline void CollisionBody2D::ClearCollisionOverlaps()
     {
-        collisions_.clear();
+        collisionOverlaps_.clear();
     }
 
-    inline const std::vector<CollisionData2D>& CollisionBody2D::GetCollisions() const
+    inline const std::vector<CollisionOverlapData2D>& CollisionBody2D::GetCollisionOverlaps() const
     {
-        return collisions_;
+        return collisionOverlaps_;
+    }
+
+    inline void CollisionBody2D::AddCollisionImpulse(const CollisionImpulseData2D& collisionImpulse)
+    {
+        collisionImpulses_.push_back(collisionImpulse);
+    }
+
+    inline void CollisionBody2D::ClearCollisionImpulses()
+    {
+        collisionImpulses_.clear();
+    }
+
+    inline const std::vector<CollisionImpulseData2D>& CollisionBody2D::GetCollisionImpulses() const
+    {
+        return collisionImpulses_;
     }
 
     inline float CollisionBody2D::GetLinearKeneticEnergy() const

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -42,7 +42,7 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position);
+    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, size_t playerNumber);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, float radius);
 
     void UpdateMainCameraEntity(float timestep_s);
@@ -80,13 +80,19 @@ protected:
     unsigned int stage_entityId_ = static_cast<unsigned int>(-1);
     unsigned int stageLight_entityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int player_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int player1_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int player2_entityId_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 
     glm::vec3 mainCamera_lookAtPoint_;
     float mainCamera_distanceAway_ = 0.0f;
-    bool mainCamera_locked_ = false;
+
+    // 0 = unlocked
+    // 1 = locked to player 1
+    // 2 = locked to player 2
+    // 3 = locked between player 1 & 2
+    size_t mainCamera_playerLock_ = 0;
 
     bool paused_ = false;
 

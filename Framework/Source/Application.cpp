@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-17
 
 #include "Application.h"
 
@@ -71,8 +71,11 @@ namespace Project001
         componentStoresPtr_ = new ComponentStores();
 
         collisionSystemPtr_ = new CollisionSystem2D();
+        collisionSystemPtr_->SetComponentStoresPtr(componentStoresPtr_);
 
         renderSystemPtr_ = new RenderSystem();
+        renderSystemPtr_->SetComponentStoresPtr(componentStoresPtr_);
+        renderSystemPtr_->SetRendererPtr(rendererPtr_);
     }
 
     Application::~Application()

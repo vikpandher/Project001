@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #pragma once
 
@@ -22,6 +22,9 @@ namespace Project001
     public:
         struct CollisionManifold2D
         {
+            unsigned int entityIdA;
+            unsigned int entityIdB;
+
             CollisionBody2D* collisionBodyA_Ptr;
             CollisionBody2D* collisionBodyB_Ptr;
 
@@ -35,17 +38,16 @@ namespace Project001
         CollisionSystem2D(CollisionSystem2D& other) = delete;
         void operator=(const CollisionSystem2D&) = delete;
 
-        void ApplyMovement(ComponentStores* componentStoresPtr, float timestep_s);
+        void SetComponentStoresPtr(ComponentStores* componentStoresPtr);
 
-        void CalculateCollisions(ComponentStores* componentStoresPtr);
+        void ApplyMovement(float timestep_s);
 
-        void CalculateCollisionsForGivenEntity(
-            unsigned int entityId,
-            ComponentStores* componentStoresPtr);
+        void CalculateCollisions();
 
-        void CalculateCollisionsWithQuadTree(ComponentStores* componentStoresPtr);
+        void CalculateCollisionsWithQuadTree();
 
-        void ResolveCollisions();
+        // Unused: This hasn't been tested in a while
+        void CalculateOverlapsForGivenEntity(unsigned int entityId);
 
         const CollisionBodyQuadTree2D& GetCollisionBodyQuadTree2D();
 
@@ -65,7 +67,8 @@ namespace Project001
     protected:
         struct PointerPairHashFunctor
         {
-            std::size_t operator()(const std::pair<void*, void*>& obj) const {
+            std::size_t operator()(const std::pair<void*, void*>& obj) const
+            {
                 std::size_t hashA = std::hash<void*>{}(obj.first);
                 std::size_t hashB = std::hash<void*>{}(obj.second);
                 // Combine the hash values using a simple hash combining technique
@@ -73,14 +76,22 @@ namespace Project001
             }
         };
 
-        void CalculateCollisionsBetweenBodyPairs(ComponentStores* componentStoresPtr);
+        void CalculateCollisionOverlapsBetweenBodyPairsAndAddManifolds();
 
-        void CalculateCollisionsBetweenTwoBodiesAndAddManifold(
+        void CalculateCollisionOverlapsBetweenTwoBodiesAndAddManifold(
             unsigned int entityIdA,
             CollisionBody2D& collisionBodyA,
             unsigned int entityIdB,
             CollisionBody2D& collisionBodyB,
-            bool recordInBodyB);
+            bool detectOnlyOverlapForEntityIdAandDontAddManifolds);
+
+        void UnsinkBodies();
+
+        void GatherImpulses();
+
+        void ApplyImpulses();
+
+        ComponentStores* componentStoresPtr_;
 
         std::vector<CollisionBody2D*> enabledCollisionBodyPtrs_;
 
@@ -94,6 +105,11 @@ namespace Project001
     };
 
     // public ------------------------------------------------------------------
+
+    inline void CollisionSystem2D::SetComponentStoresPtr(ComponentStores* componentStoresPtr)
+    {
+        componentStoresPtr_ = componentStoresPtr;
+    }
 
     inline const CollisionBodyQuadTree2D& CollisionSystem2D::GetCollisionBodyQuadTree2D()
     {

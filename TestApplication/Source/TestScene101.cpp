@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-20
+// @DATE 2026-01-17
 
 #include "TestScene101.h"
 
@@ -220,7 +220,7 @@ void TestScene101::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 
 void TestScene101::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void TestScene101::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)

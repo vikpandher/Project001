@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "TestSceneBase002.h"
 
@@ -708,19 +708,19 @@ void TestSceneBase002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mou
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBody2DPtr, cursorEntityId_));
         if(cursorCollisionBody2DPtr != nullptr)
         {
-            const std::vector<Project001::CollisionData2D>& cursorCollisions = cursorCollisionBody2DPtr->GetCollisions();
+            const std::vector<Project001::CollisionOverlapData2D>& cursorCollisionOverlaps = cursorCollisionBody2DPtr->GetCollisionOverlaps();
 
             // This loop goes backwards to grab the component drawn last first.
             // This relies on the order the components and render bodies were 
             // added to select the one rendered behind.
-            for (int i = static_cast<int>(cursorCollisions.size()) - 1; i >= 0; --i)
+            for (int i = static_cast<int>(cursorCollisionOverlaps.size()) - 1; i >= 0; --i)
             // for (size_t i = 0; i < cursorCollisions.size(); ++i)
             {
-                const Project001::CollisionData2D& currentCollision = cursorCollisions[i];
+                const Project001::CollisionOverlapData2D& currentCollisionOverlap = cursorCollisionOverlaps[i];
 
                 for (unsigned int j = 0; j < entityIds_.size(); ++j)
                 {
-                    if (currentCollision.otherEntityId == entityIds_[j])
+                    if (currentCollisionOverlap.otherEntityId == entityIds_[j])
                     {
                         selectedEntityIdIndex_ = j;
 
@@ -745,7 +745,7 @@ void TestSceneBase002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
         UpdateFpsTextMesh(renderEvent.timestep_ns);
     }
 
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void TestSceneBase002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -821,18 +821,16 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-            GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
-            GetCollisionSystemPtr()->ResolveCollisions();
+            GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
+            GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree();
         }
     }
     else
     {
         for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
         {
-            GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-            GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
-            GetCollisionSystemPtr()->ResolveCollisions();
+            GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
+            GetCollisionSystemPtr()->CalculateCollisions();
         }
     }
 
@@ -1390,11 +1388,11 @@ void TestSceneBase002::UpdateCollisionBodyColors()
         bool collisionBodyColliding = false;
 
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
-        const std::vector<Project001::CollisionData2D>& currentCollisions = currentCollisionBody.GetCollisions();
-        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        const std::vector<Project001::CollisionOverlapData2D>& currentCollisionOverlaps = currentCollisionBody.GetCollisionOverlaps();
+        for (size_t j = 0; j < currentCollisionOverlaps.size(); ++j)
         {
-            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
-            if (currentCollision.otherShapeTag == 0)
+            const Project001::CollisionOverlapData2D& currentCollisionOverlap = currentCollisionOverlaps[j];
+            if (currentCollisionOverlap.otherShapeTag == 0)
             {
                 collisionBodyColliding = true;
                 break;
@@ -1561,13 +1559,13 @@ void TestSceneBase002::UpdateEntityIdTextMesh()
     {
         std::string entityIdTextString = "entityId:";
 
-        const std::vector<Project001::CollisionData2D>& currentCollisions = collisionBody2DPtr->GetCollisions();
-        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        const std::vector<Project001::CollisionOverlapData2D>& currentCollisionOverlaps = collisionBody2DPtr->GetCollisionOverlaps();
+        for (size_t j = 0; j < currentCollisionOverlaps.size(); ++j)
         {
-            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
-            if (currentCollision.otherShapeTag == 0)
+            const Project001::CollisionOverlapData2D& currentCollisionOverlap = currentCollisionOverlaps[j];
+            if (currentCollisionOverlap.otherShapeTag == 0)
             {
-                entityIdTextString += ' ' + std::to_string(currentCollision.otherEntityId);
+                entityIdTextString += ' ' + std::to_string(currentCollisionOverlap.otherEntityId);
             }
         }
 
@@ -1716,25 +1714,30 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
         Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
         unsigned int currentEntityId;
         GetComponentStoresPtr()->GetComponentEntityId<Project001::CollisionBody2D>(currentEntityId, &currentCollisionBody);
-        const std::vector<Project001::CollisionData2D>& currentCollisions = currentCollisionBody.GetCollisions();
-        for (size_t j = 0; j < currentCollisions.size(); ++j)
+        const std::vector<Project001::CollisionOverlapData2D>& currentCollisionOverlaps = currentCollisionBody.GetCollisionOverlaps();
+        for (size_t j = 0; j < currentCollisionOverlaps.size(); ++j)
         {
-            const Project001::CollisionData2D& currentCollision = currentCollisions[j];
+            const Project001::CollisionOverlapData2D& currentCollisionOverlap = currentCollisionOverlaps[j];
 
-            if (currentEntityId < currentCollision.otherEntityId)
+            if (currentEntityId < currentCollisionOverlap.otherEntityId)
             {
-                if (!std::isnan(currentCollision.point.x) && !std::isnan(currentCollision.point.y))
+                if (!std::isnan(currentCollisionOverlap.point.x) && !std::isnan(currentCollisionOverlap.point.y))
                 {
-                    positions.emplace_back(currentCollision.point + glm::vec2(-0.02f, 0.0f));
-                    positions.emplace_back(currentCollision.point + glm::vec2(0.0f, -0.02f));
-                    positions.emplace_back(currentCollision.point + glm::vec2(0.02f, 0.0f));
-                    positions.emplace_back(currentCollision.point + glm::vec2(0.0f, 0.02f));
+                    positions.emplace_back(currentCollisionOverlap.point + glm::vec2(-0.02f, 0.0f));
+                    positions.emplace_back(currentCollisionOverlap.point + glm::vec2(0.0f, -0.02f));
+                    positions.emplace_back(currentCollisionOverlap.point + glm::vec2(0.02f, 0.0f));
+                    positions.emplace_back(currentCollisionOverlap.point + glm::vec2(0.0f, 0.02f));
                     Project001::Mesh::Generate2DTriangleFan(*collisionMarkerCollectionMeshDataPtr_, positions);
                     positions.clear();
 
-                    if (!std::isnan(currentCollision.normal.x) && !std::isnan(currentCollision.normal.y) && !std::isnan(currentCollision.depth))
+                    if (!std::isnan(currentCollisionOverlap.normal.x) && !std::isnan(currentCollisionOverlap.normal.y) && !std::isnan(currentCollisionOverlap.depth))
                     {
-                        Project001::Mesh::Generate2DLine(*collisionMarkerCollectionMeshDataPtr_, currentCollision.point, currentCollision.point + currentCollision.normal * currentCollision.depth, 0.01f);
+                        Project001::Mesh::Generate2DLine(
+                            *collisionMarkerCollectionMeshDataPtr_,
+                            currentCollisionOverlap.point,
+                            currentCollisionOverlap.point + currentCollisionOverlap.normal * currentCollisionOverlap.depth,
+                            0.01f
+                        );
                     }
                 }
             }

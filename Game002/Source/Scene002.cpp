@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "Scene002.h"
 
@@ -24,6 +24,8 @@
 
 struct PenguinInfo
 {
+    size_t playerNumber = 1;
+
     enum class State
     {
         STATE_STANDING,
@@ -77,6 +79,20 @@ struct PenguinInfo
 
 struct SnowballInfo
 {
+    enum class State
+    {
+        STATE_REGULAR,
+        STATE_EXPLODING
+    };
+
+    State state = State::STATE_REGULAR;
+    static constexpr float s_explosionTime_s = 0.75f;
+
+    State animationState = State::STATE_REGULAR;
+    float animationStateCountDown_s = 0.0f;
+
+    float animationRandomRotation = 0.0f;
+
     bool onLand = false;
 
     float radius = 8.0f;
@@ -86,8 +102,14 @@ struct SnowballInfo
     float positionZ = 0.0f;
 
     static const size_t s_snowball_renderedMeshIndex = 0;
-    static const size_t s_collision_renderedMeshIndex = 1;
-    static const size_t s_renderedMeshIndices = 2;
+    static const size_t s_snowball_break_01_renderedMeshIndex = 1;
+    static const size_t s_snowball_break_02_renderedMeshIndex = 2;
+    static const size_t s_snowball_break_03_renderedMeshIndex = 3;
+    static const size_t s_snowball_break_04_renderedMeshIndex = 4;
+    static const size_t s_snowball_break_05_renderedMeshIndex = 5;
+    static const size_t s_snowball_break_06_renderedMeshIndex = 6;
+    static const size_t s_collision_renderedMeshIndex = 7;
+    static const size_t s_renderedMeshIndices = 8;
 
     static const size_t s_snowball_collisionCircleIndex = 0;
     static const size_t s_collisionCircleCount = 1;
@@ -135,7 +157,8 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateStageEntity();
     CreateStageLightEntity();
-    CreatePenguinEntity(player_entityId_, glm::vec2(0.0f,0.0f));
+    CreatePenguinEntity(player1_entityId_, glm::vec2(-128.0f,0.0f), 1);
+    CreatePenguinEntity(player2_entityId_, glm::vec2(128.0f,0.0f), 2);
 
     // unsigned int snowball_entityId = static_cast<unsigned int>(-1);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(-128.0f, -128.0f), 8.0f);
@@ -175,13 +198,14 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     stage_entityId_ = static_cast<unsigned int>(-1);
     stageLight_entityId_ = static_cast<unsigned int>(-1);
 
-    player_entityId_ = static_cast<unsigned int>(-1);
+    player1_entityId_ = static_cast<unsigned int>(-1);
+    player2_entityId_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 
     mainCamera_lookAtPoint_ = glm::vec3(0.0f, 0.0f, 0.0f);
     mainCamera_distanceAway_ = 0.0f;
-    mainCamera_locked_ = true;
+    mainCamera_playerLock_ = 0;
 
     paused_ = false;
 }
@@ -218,10 +242,6 @@ void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
         }
         else if (keyCode == Project001::KeyCode::KEY_CODE_1)
         {
-            mainCamera_locked_ = !mainCamera_locked_;
-        }
-        else if (keyCode == Project001::KeyCode::KEY_CODE_2)
-        {
             mainCamera_distanceAway_ = 1400.0f;
 
             Project001::Camera* cameraPtr = nullptr;
@@ -240,12 +260,20 @@ void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
                 otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
             }
         }
+        else if (keyCode == Project001::KeyCode::KEY_CODE_KP_5)
+        {
+            mainCamera_playerLock_++;
+            if (mainCamera_playerLock_ > 3)
+            {
+                mainCamera_playerLock_ = 0;
+            }
+        }
     }
 }
 
 void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -267,17 +295,17 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
     for (size_t i = 0; i < physicsStepsPerUpdate; ++i)
     {
-        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree(GetComponentStoresPtr());
+        GetCollisionSystemPtr()->CalculateCollisionsWithQuadTree();
 
         UpdateMainCameraEntity(physicsTimestep_s);
 
         UpdateStageCollisionBodyQuadTreeMesh();
-        UpdatePenguinEntity(player_entityId_, physicsTimestep_s);
+        UpdatePenguinEntity(player1_entityId_, physicsTimestep_s);
+        UpdatePenguinEntity(player2_entityId_, physicsTimestep_s);
         UpdateSnowballEntities(physicsTimestep_s);
         UpdateWorld(physicsTimestep_s);
 
-        GetCollisionSystemPtr()->ResolveCollisions();
-        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
+        GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
     }
 
     AnimatePenguinEntities(timestep_s);
@@ -314,8 +342,8 @@ void Scene002::CreateMainCameraEntities()
     auto CreateMainCamera = [&](unsigned int& camera_EntityId, const uint32_t camera_Mask, int priorityValue)
         {
             GetComponentStoresPtr()->CreateEntity(camera_EntityId);
-            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(camera_EntityId));
 
+            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(camera_EntityId));
             Project001::Camera* cameraPtr = nullptr;
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, camera_EntityId));
             if (cameraPtr != nullptr)
@@ -357,8 +385,8 @@ void Scene002::CreateMainCameraEntities()
 void Scene002::CreateUiCameraEntity()
 {
     GetComponentStoresPtr()->CreateEntity(uiCamera_entityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_entityId_));
 
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_entityId_));
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCamera_entityId_));
     if (cameraPtr != nullptr)
@@ -455,6 +483,7 @@ void Scene002::CreateStageEntity()
             mesh.SetPositionZ(s_waterHeight);
             mesh.SetColor(0.6f, 0.6f, 1.0f, 0.6f);
             mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(1);
         }
 
         // {
@@ -535,18 +564,31 @@ void Scene002::CreateStageLightEntity()
     }
 }
 
-void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position)
+void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, size_t playerNumber)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<PenguinInfo>(entityId));
     PenguinInfo* penguinInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PenguinInfo>(penguinInfoPtr, entityId));
+
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
     Project001::RenderedModel* renderedModelPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
     if (penguinInfoPtr != nullptr && renderedModelPtr != nullptr)
     {
+        penguinInfoPtr->playerNumber = playerNumber;
+
+        unsigned int textureId = static_cast<unsigned int>(-1);
+        if (penguinInfoPtr->playerNumber == 1)
+        {
+            textureId = sharedDataPtr_->penguin01_textureId;
+        }
+        else if (penguinInfoPtr->playerNumber == 2)
+        {
+            textureId = sharedDataPtr_->penguin01_v2_textureId;
+        }
+
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         renderedMeshes.resize(PenguinInfo::s_renderedMeshIndices);
@@ -554,55 +596,55 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_body_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_flipper_right_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_body_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_flipper_left_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_body_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_foot_right_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_body_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_foot_left_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_body_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_head_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_body_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_beak_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_head_renderedMeshIndex);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_glasses_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->penguin01_textureId);
+            mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_head_renderedMeshIndex);
         }
 
@@ -628,7 +670,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetColor(0.6f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(1);
+            mesh.SetRenderPriorityOverride(-2);
         }
 
         {
@@ -640,7 +682,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-2);
+            mesh.SetRenderPriorityOverride(-3);
         }
 
         {
@@ -652,7 +694,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-3);
+            mesh.SetRenderPriorityOverride(-4);
         }
     }
 
@@ -706,15 +748,31 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
+    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
+
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<SnowballInfo>(entityId));
     SnowballInfo* snowballInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, entityId));
+
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
     Project001::RenderedModel* renderedModelPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
-    if (snowballInfoPtr != nullptr && renderedModelPtr != nullptr)
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
+    if (snowballInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
     {
         snowballInfoPtr->radius = radius;
+
+        // static bool exploding = true;
+        // if (exploding)
+        // {
+        //     snowballInfoPtr->state = SnowballInfo::State::STATE_EXPLODING;
+        // }
+        // exploding = !exploding;
 
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -727,37 +785,82 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
         }
 
         {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_01_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_02_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_03_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_04_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_05_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_06_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->snowball_meshId, sharedDataPtr_->snowball_meshDataPtr->maxBoundingRadius);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetVisible(false);
+        }
+
+        {
             Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_collision_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circleWithArrow_meshDataPtr);
             mesh.SetPositionZ(0.1f);
             mesh.SetColor(0.2f, 0.6f, 0.2f, 0.4f);
             mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(-4);
             mesh.SetUseLighting(false);
         }
 
-        Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-        collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
-        collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
+        collisionBodyPtr->SetPosition(position);
 
-        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
-        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
-        if (collisionBodyPtr != nullptr)
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
+        collisionCircles.resize(SnowballInfo::s_collisionCircleCount);
+
         {
-            collisionBodyPtr->SetPosition(position);
-
-            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
-            collisionCircles.resize(SnowballInfo::s_collisionCircleCount);
-
-            {
-                Project001::CollisionCircle2D& collisionCircle = collisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];
-                collisionCircle = Project001::CollisionCircle2D(
-                    glm::vec2(0.0f, 0.0f),
-                    snowballInfoPtr->radius,
-                    s_snowball_collisionShapeTag_
-                );
-            }
+            Project001::CollisionCircle2D& collisionCircle = collisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];
+            collisionCircle = Project001::CollisionCircle2D(
+                glm::vec2(0.0f, 0.0f),
+                snowballInfoPtr->radius,
+                s_snowball_collisionShapeTag_
+            );
         }
     }
 }
@@ -777,10 +880,10 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
         const float moveSpeed = 128.0f;
         float moveSpeedDelta = moveSpeed * timestep_s;
 
-        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_LEFT);
-        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_RIGHT);
-        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_UP);
-        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_DOWN);
+        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_4);
+        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_6);
+        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_8);
+        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_2);
 
         if (pitchingUp)
         {
@@ -812,13 +915,33 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
             mainCamera_lookAtPoint_.y -= moveSpeedDelta;
         }
 
-        if (mainCamera_locked_)
+        if (mainCamera_playerLock_ == 1)
         {
             Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityId_));
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player1_entityId_));
             if (playerCollisionBodyPtr != nullptr)
             {
                 mainCamera_lookAtPoint_ = glm::vec3(playerCollisionBodyPtr->GetPosition(), 0.0f);
+            }
+        }
+        else if (mainCamera_playerLock_ == 2)
+        {
+            Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player2_entityId_));
+            if (playerCollisionBodyPtr != nullptr)
+            {
+                mainCamera_lookAtPoint_ = glm::vec3(playerCollisionBodyPtr->GetPosition(), 0.0f);
+            }
+        }
+        else if (mainCamera_playerLock_ == 3)
+        {
+            Project001::CollisionBody2D* player1CollisionBodyPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(player1CollisionBodyPtr, player1_entityId_));
+            Project001::CollisionBody2D* player2CollisionBodyPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(player2CollisionBodyPtr, player2_entityId_));
+            if (player1CollisionBodyPtr != nullptr && player2CollisionBodyPtr != nullptr)
+            {
+                mainCamera_lookAtPoint_ =glm::vec3((player1CollisionBodyPtr->GetPosition() + player2CollisionBodyPtr->GetPosition()) * 0.5f, 0.0f);
             }
         }
 
@@ -908,25 +1031,25 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         unsigned int grabable_entityId = static_cast<unsigned int>(-1);
         float grabable_entityDistance = std::numeric_limits<float>::infinity();
 
-        const std::vector<Project001::CollisionData2D> penguinCollisions = penguinCollisionBodyPtr->GetCollisions();
-        for (size_t i = 0; i < penguinCollisions.size(); ++i)
+        const std::vector<Project001::CollisionOverlapData2D> penguinCollisionOverlaps = penguinCollisionBodyPtr->GetCollisionOverlaps();
+        for (size_t i = 0; i < penguinCollisionOverlaps.size(); ++i)
         {
-            const Project001::CollisionData2D& penguinCollisionData = penguinCollisions[i];
+            const Project001::CollisionOverlapData2D& penguinCollisionOverlapData = penguinCollisionOverlaps[i];
 
-            if (penguinCollisionData.myShapeTag == s_player_collisionShapeTag_ &&
-                penguinCollisionData.otherShapeTag == s_ground_collisionShapeTag_)
+            if (penguinCollisionOverlapData.myShapeTag == s_player_collisionShapeTag_ &&
+                penguinCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
             {
                 penguinInfoPtr->onLand = true;
             }
 
             if (penguinInfoPtr->snowball_EntityId == static_cast<unsigned int>(-1) &&
-                penguinCollisionData.myShapeTag == s_grab_collisionShapeTag_ &&
-                penguinCollisionData.otherShapeTag == s_snowball_collisionShapeTag_)
+                penguinCollisionOverlapData.myShapeTag == s_grab_collisionShapeTag_ &&
+                penguinCollisionOverlapData.otherShapeTag == s_snowball_collisionShapeTag_)
             {
                 SnowballInfo* snowballInfoPtr = nullptr;
-                GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinCollisionData.otherEntityId);
+                GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinCollisionOverlapData.otherEntityId);
                 Project001::CollisionBody2D* otherCollisionBodyPtr = nullptr;
-                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, penguinCollisionData.otherEntityId));
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(otherCollisionBodyPtr, penguinCollisionOverlapData.otherEntityId));
                 if (snowballInfoPtr != nullptr && otherCollisionBodyPtr != nullptr && snowballInfoPtr->onLand &&
                     otherCollisionBodyPtr->GetPhysicsType() == Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                 {
@@ -945,11 +1068,21 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                     float distance = glm::length(otherPosition - penguinPosition) - otherRadius;
                     if (distance < grabable_entityDistance)
                     {
-                        grabable_entityId = penguinCollisionData.otherEntityId;
+                        grabable_entityId = penguinCollisionOverlapData.otherEntityId;
                         grabable_entityDistance = distance;
                     }
                 }
             }
+        }
+
+        glm::vec2 impulseSum(0.0f, 0.0f);
+
+        const std::vector<Project001::CollisionImpulseData2D> penguinCollisionImpulses = penguinCollisionBodyPtr->GetCollisionImpulses();
+        for (size_t i = 0; i < penguinCollisionImpulses.size(); ++i)
+        {
+            const Project001::CollisionImpulseData2D& penguinCollisionImpulseData = penguinCollisionImpulses[i];
+
+            impulseSum += penguinCollisionImpulseData.impulse;
         }
 
         // Gathering input
@@ -959,7 +1092,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         float acceleration = 256.0f;
         float friction = 192.0f;
 
-        float maxAngularSpeed = glm::pi<float>() * 16.0f;
+        float maxAngularSpeed = glm::pi<float>() * 8.0f;
         float angularAcceleration = glm::pi<float>() * 16.0f;
         float angularFriction = glm::pi<float>() * 32.0f;
 
@@ -979,14 +1112,39 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             angularFriction = angularFriction * massRatio * massRatio;
         }
 
+        if (penguinInfoPtr->state == PenguinInfo::State::STATE_HITSTUN)
+        {
+            angularFriction = 0.0f;
+            friction = 8.0f;
+
+            angularAcceleration = 0.0f;
+            angularFriction = glm::pi<float>();
+        }
+
         constexpr float turnAngleMovementThreshold = glm::pi<float>() * 0.25f;
 
-        const bool movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->left_keyCode);
-        const bool movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->right_keyCode);
-        const bool movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->up_keyCode);
-        const bool movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->down_keyCode);
+        bool movingLeft = false;
+        bool movingRight = false;
+        bool movingUp = false;
+        bool movingDown = false;
+        bool grabPressed = false;
 
-        const bool grabPressed = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->snowball_keyCode);
+        if (penguinInfoPtr->playerNumber == 1)
+        {
+            movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_left_keyCode);
+            movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_right_keyCode);
+            movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_up_keyCode);
+            movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_down_keyCode);
+            grabPressed = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_snowball_keyCode);
+        }
+        else if (penguinInfoPtr->playerNumber == 2)
+        {
+            movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_left_keyCode);
+            movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_right_keyCode);
+            movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_up_keyCode);
+            movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_down_keyCode);
+            grabPressed = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_snowball_keyCode);
+        }
 
         glm::vec2 moveDirection(0.0f, 0.0);
         if (movingLeft)
@@ -1353,10 +1511,18 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
                 if (penguinMass > 0.0f)
                 {
-                    penguinCollisionBodyPtr->SetVelocity(snowballCollisionBodyPtr->GetVelocity() * snowballMass / (penguinMass + snowballMass));
-                    penguinCollisionBodyPtr->SetAcceleration(snowballCollisionBodyPtr->GetAcceleration()* snowballMass / (penguinMass + snowballMass));
-                    penguinCollisionBodyPtr->SetAngularVelocity(snowballCollisionBodyPtr->GetAngularVelocity()* snowballMass / (penguinMass + snowballMass));
-                    penguinCollisionBodyPtr->SetAngularAcceleration(snowballCollisionBodyPtr->GetAngularAcceleration()* snowballMass / (penguinMass + snowballMass));
+                    penguinCollisionBodyPtr->SetVelocity(
+                        snowballCollisionBodyPtr->GetVelocity() * snowballMass / (penguinMass + snowballMass)
+                    );
+                    penguinCollisionBodyPtr->SetAcceleration(
+                        snowballCollisionBodyPtr->GetAcceleration() * snowballMass / (penguinMass + snowballMass)
+                    );
+                    penguinCollisionBodyPtr->SetAngularVelocity(
+                        snowballCollisionBodyPtr->GetAngularVelocity() * snowballMass / (penguinMass + snowballMass)
+                    );
+                    penguinCollisionBodyPtr->SetAngularAcceleration(
+                        snowballCollisionBodyPtr->GetAngularAcceleration() * snowballMass / (penguinMass + snowballMass)
+                    );
                 }
 
                 snowballCollisionBodyPtr->SetVelocity(glm::vec2(0.0f));
@@ -1384,10 +1550,11 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             if (snowballCollisionBodyPtr != nullptr)
             {
                 snowballCollisionBodyPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY);
+
+                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
             }
 
             penguinCollisionBodyPtr->FlagMassToBeRecalculated();
-            snowballCollisionBodyPtr->FlagMassToBeRecalculated();
 
             penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
             break;
@@ -1404,11 +1571,17 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 snowballCollisionBodyPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY);
 
-                // TODO: Throw the snowball
+                if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f)
+                {
+                    snowballCollisionBodyPtr->SetVelocity(
+                        snowballCollisionBodyPtr->GetVelocity() + penguinCollisionBodyDirection * sharedDataPtr_->penguin_throwSpeed_s
+                    );
+                }
+
+                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
             }
 
             penguinCollisionBodyPtr->FlagMassToBeRecalculated();
-            snowballCollisionBodyPtr->FlagMassToBeRecalculated();
 
             penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
             break;
@@ -1464,7 +1637,10 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             if (snowballToAttractionPointMagnitude > attractionStep)
             {
                 snowballToAttractionPointDirection /= snowballToAttractionPointMagnitude;
-                snowballCollisionBodyPtr->SetPosition(snowballCollisionBodyPtr->GetPosition() + snowballToAttractionPointDirection * attractionStep);
+                const glm::vec2 snowballVelocityStep = snowballCollisionBodyPtr->GetVelocity() * timestep_s;
+                snowballCollisionBodyPtr->SetPosition(
+                    snowballCollisionBodyPtr->GetPosition() - snowballVelocityStep + snowballToAttractionPointDirection * attractionStep
+                );
             }
             else
             {
@@ -1541,18 +1717,18 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
         {
             snowballInfo.onLand = false;
 
-            const std::vector<Project001::CollisionData2D> collisions = collisionBodyPtr->GetCollisions();
-            for (size_t i = 0; i < collisions.size(); ++i)
+            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = collisionBodyPtr->GetCollisionOverlaps();
+            for (size_t i = 0; i < collisionOverlaps.size(); ++i)
             {
-                const Project001::CollisionData2D& collisionData = collisions[i];
+                const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
 
-                if (collisionData.otherShapeTag == s_ground_collisionShapeTag_)
+                if (collisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
                 {
                     snowballInfo.onLand = true;
                 }
             }
 
-            constexpr float landFriction = 4.f;
+            constexpr float landFriction = 8.0f;
             constexpr float waterFriction = 16.0f;
 
             float friction = landFriction;
@@ -1576,6 +1752,26 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 else
                 {
                     collisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
+                }
+            }
+
+            constexpr float angularFriction = glm::pi<float>();
+
+            const float& angularVelocity = collisionBodyPtr->GetAngularVelocity();
+            float angularVelocityMagnitude = glm::abs(angularVelocity);
+            if (angularVelocityMagnitude > 0.0f)
+            {
+                float angularVelocityDirection = glm::sign(angularVelocity);
+
+                float angularDecelerationStep = angularFriction * timestep_s;
+                float angularDecelerationStepMagnitude = glm::abs(angularDecelerationStep);
+                if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
+                {
+                    collisionBodyPtr->SetAngularVelocity(0.0f);
+                }
+                else
+                {
+                    collisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
                 }
             }
 
@@ -1610,8 +1806,6 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
         if (renderedModelPtr != nullptr)
         {
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
             // Some animations can be interrupted
             if ((penguinInfo.animationState == PenguinInfo::State::STATE_STANDING ||
                 penguinInfo.animationState == PenguinInfo::State::STATE_TREADING_WATER ||
@@ -1712,6 +1906,8 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
             }
 
             // Reset the mesh to default
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
             {
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_body_renderedMeshIndex];
                 mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->penguin01_body_meshId, sharedDataPtr_->penguin01_body_meshDataPtr->maxBoundingRadius);
@@ -1763,7 +1959,14 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
             {
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_glasses_renderedMeshIndex];
-                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->penguin01_glasses_meshId, sharedDataPtr_->penguin01_glasses_meshDataPtr->maxBoundingRadius);
+                if (penguinInfo.playerNumber == 1)
+                {
+                    mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->penguin01_glasses_meshId, sharedDataPtr_->penguin01_glasses_meshDataPtr->maxBoundingRadius);
+                }
+                else if (penguinInfo.playerNumber == 2)
+                {
+                    mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->penguin01_glasses_v2_meshId, sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->maxBoundingRadius);
+                }
                 mesh.SetPosition(0.0f, 0.0f, 0.0f);
                 mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
             }
@@ -2286,25 +2489,123 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
         if (collisionBodyPtr != nullptr && renderedModelPtr != nullptr)
         {
-            const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
-            float velocityMagnitude = glm::length(velocity);
-            glm::vec3 normalDirection(1.0f, 0.0f, 0.0f);
-            float rotationAngle = 0.0f;
-            if (velocityMagnitude > 0.0f)
+            // Set animationState to state when the animation is done
+            if (snowballInfo.animationStateCountDown_s <= 0.0f)
             {
-                glm::vec2 velocityDirection = velocity / velocityMagnitude;
-                normalDirection = glm::vec3(-velocityDirection.y, velocityDirection.x, 0.0f);
+                snowballInfo.animationState = snowballInfo.state;
 
-                rotationAngle = velocityMagnitude * timestep_s / snowballInfo.radius;
+                if (snowballInfo.animationState == SnowballInfo::State::STATE_EXPLODING)
+                {
+                    snowballInfo.animationStateCountDown_s = SnowballInfo::s_explosionTime_s;
+
+                    std::uniform_real_distribution<float> randomRotation(0.0f, glm::two_pi<float>());
+                    snowballInfo.animationRandomRotation = randomRotation(randomNumberEngine_);
+                }
+                else
+                {
+                    snowballInfo.animationStateCountDown_s = 0.0f;
+                }
             }
 
-            {
-                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-                Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
+            const glm::vec3 maxSizeColor(0.8f, 0.9f, 1.0f);
+            const glm::vec3 regularColor(1.0f, 1.0f, 1.0f);
 
-                float adjustedScale = snowballInfo.radius * SnowballInfo::s_renderedMeshRadiusScaler;
-                mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
-                mesh.AddWorldRotation(rotationAngle, normalDirection);
+            constexpr float regularAlpha = 1.0f;
+
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            if (snowballInfo.animationState == SnowballInfo::State::STATE_REGULAR)
+            {
+                const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
+                float velocityMagnitude = glm::length(velocity);
+                glm::vec3 normalDirection(1.0f, 0.0f, 0.0f);
+                float rotationAngle = 0.0f;
+                if (velocityMagnitude > 0.0f)
+                {
+                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
+                    normalDirection = glm::vec3(-velocityDirection.y, velocityDirection.x, 0.0f);
+
+                    rotationAngle = velocityMagnitude * timestep_s / snowballInfo.radius;
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
+
+                    float adjustedScale = snowballInfo.radius * SnowballInfo::s_renderedMeshRadiusScaler;
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+                    mesh.AddWorldRotation(rotationAngle, normalDirection);
+
+                    float desiredPositionZ = 0.0f;
+                    if (snowballInfo.onLand)
+                    {
+                        desiredPositionZ = snowballInfo.radius;
+                    }
+                    else
+                    {
+                        desiredPositionZ = -0.8f * snowballInfo.radius + s_waterHeight;
+                    }
+
+                    float riseSpeed = timestep_s * 120.0f;
+                    float sinkSpeed = timestep_s * 120.0f;
+
+                    if (snowballInfo.positionZ < desiredPositionZ - riseSpeed)
+                    {
+                        snowballInfo.positionZ += riseSpeed;
+                    }
+                    else if (snowballInfo.positionZ > desiredPositionZ + sinkSpeed)
+                    {
+                        snowballInfo.positionZ -= sinkSpeed;
+                    }
+                    else
+                    {
+                        snowballInfo.positionZ = desiredPositionZ;
+                    }
+
+                    mesh.SetPositionZ(snowballInfo.positionZ);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, regularAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, regularAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_01_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_02_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_03_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_04_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_05_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_06_renderedMeshIndex];
+                    mesh.SetVisible(false);
+                }
+            }
+            else if (snowballInfo.animationState == SnowballInfo::State::STATE_EXPLODING)
+            {
+                float adjustedScale = snowballInfo.radius * SnowballInfo::s_renderedMeshRadiusScaler * snowballInfo.animationStateCountDown_s;
 
                 float desiredPositionZ = 0.0f;
                 if (snowballInfo.onLand)
@@ -2316,8 +2617,8 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
                     desiredPositionZ = -0.8f * snowballInfo.radius + s_waterHeight;
                 }
 
-                float riseSpeed = timestep_s * 120.0f;
-                float sinkSpeed = timestep_s * 120.0f;
+                float riseSpeed = timestep_s * 160.0f;
+                float sinkSpeed = timestep_s * 160.0f;
 
                 if (snowballInfo.positionZ < desiredPositionZ - riseSpeed)
                 {
@@ -2332,17 +2633,157 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
                     snowballInfo.positionZ = desiredPositionZ;
                 }
 
-                mesh.SetPositionZ(snowballInfo.positionZ);
+                glm::vec2 outwardVector = Project001::Math::Rotate2DVector(collisionBodyPtr->GetForwardVector(), snowballInfo.animationRandomRotation);
+                constexpr float outwardVectorRotation = glm::two_pi<float>() / 6.0f;
 
-                if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                const float timeRatio = (SnowballInfo::s_explosionTime_s - snowballInfo.animationStateCountDown_s) / SnowballInfo::s_explosionTime_s;
+                const float outwardVectorLength = snowballInfo.radius * SnowballInfo::s_renderedMeshRadiusScaler * timeRatio;
+
+                float zDrop = 0.0f;
+                float zBounce = 0.0f;
+                if (snowballInfo.onLand)
                 {
-                    mesh.SetColor(0.9f, 0.9f, 1.0f, 1.0f);
+                    zDrop = -snowballInfo.radius * timeRatio;
+                    zBounce = snowballInfo.radius * glm::sin(glm::pi<float>() * timeRatio);
                 }
                 else
                 {
-                    mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    zDrop = snowballInfo.radius * timeRatio;
+                }
+
+                const float explodeAlpha = snowballInfo.animationStateCountDown_s / SnowballInfo::s_explosionTime_s;
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, regularAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, regularAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_01_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f)* outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop + zBounce);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_02_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f) * outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_03_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f)* outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop + zBounce);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_04_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f) * outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_05_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f) * outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop + zBounce);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
+                }
+
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_break_06_renderedMeshIndex];
+                    mesh.SetVisible(true);
+                    mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
+
+                    mesh.SetPosition(glm::vec3(outwardVector, 0.0f)* outwardVectorLength);
+                    mesh.SetPositionZ(snowballInfo.positionZ + zDrop);
+                    outwardVector = Project001::Math::Rotate2DVector(outwardVector, outwardVectorRotation);
+
+                    if (snowballInfo.radius == SnowballInfo::s_maxRadius)
+                    {
+                        mesh.SetColor(maxSizeColor, explodeAlpha);
+                    }
+                    else
+                    {
+                        mesh.SetColor(regularColor, explodeAlpha);
+                    }
                 }
             }
+
+            snowballInfo.animationStateCountDown_s -= timestep_s;
         }
     }
 }

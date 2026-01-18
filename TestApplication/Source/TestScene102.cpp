@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-17
 
 #include "TestScene102.h"
 
@@ -298,7 +298,7 @@ void TestScene102::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseBu
 
 void TestScene102::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render(GetComponentStoresPtr(), GetRendererPtr());
+    GetRenderSystemPtr()->Render();
 }
 
 void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -311,9 +311,8 @@ void TestScene102::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate_);
     for (size_t i = 0; i < physicsStepsPerUpdate_; ++i)
     {
-        GetCollisionSystemPtr()->ApplyMovement(GetComponentStoresPtr(), physicsTimestep_s);
-        GetCollisionSystemPtr()->CalculateCollisions(GetComponentStoresPtr());
-        GetCollisionSystemPtr()->ResolveCollisions();
+        GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
+        GetCollisionSystemPtr()->CalculateCollisions();
 
         UpdatePlayerEntityVelocity_V1(physicsTimestep_s);
         UpdateMainCameraEntityPosition(physicsTimestep_s);
