@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #include "CollisionSystem2D.h"
 
@@ -22,6 +22,8 @@ namespace Project001
         , sunkenMeshSeperationSpacing(0.0f)
         , componentStoresPtr_(nullptr)
         , tangibleCollisionBodyQuadTree2D_(glm::vec2(-8.0f, -6.0f), glm::vec2(8.0f, 6.0f), 3, 16)
+        , overlapIdCounter_(0)
+        , impulseIdCounter_(0)
     {}
 
     void CollisionSystem2D::ApplyMovement(float timestep_s)
@@ -93,6 +95,8 @@ namespace Project001
         }
 
         // Clear old collision overlaps and impulses
+        overlapIdCounter_ = 0;
+        impulseIdCounter_ = 0;
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
@@ -168,6 +172,8 @@ namespace Project001
         }
 
         // Clear old collision overlaps and impulses
+        overlapIdCounter_ = 0;
+        impulseIdCounter_ = 0;
         for (size_t i = 0; i < collisionBodyCount; ++i)
         {
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
@@ -390,6 +396,232 @@ namespace Project001
         }
     }
 
+    bool CollisionSystem2D::CalculateImpulse(
+        CollisionBody2D& collisionBodyA,
+        CollisionBody2D& collisionBodyB,
+        const glm::vec2& collisionPoint,
+        const glm::vec2& collisionNormal,
+        glm::vec2& totalImpulseA,
+        float& totalAngularImpulseA,
+        glm::vec2& totalImpulseB,
+        float& totalAngularImpulseB)
+    {
+        const bool& fixedTranslationA = collisionBodyA.GetFixedTranslation();
+        const bool& fixedTranslationB = collisionBodyB.GetFixedTranslation();
+
+        const bool& fixedRotationA = collisionBodyA.GetFixedRotation();
+        const bool& fixedRotationB = collisionBodyB.GetFixedRotation();
+
+        const glm::vec2& positionA = collisionBodyA.GetPosition();
+        const glm::vec2& positionB = collisionBodyB.GetPosition();
+
+        const glm::vec2& velocityA = collisionBodyA.GetVelocity();
+        const glm::vec2& velocityB = collisionBodyB.GetVelocity();
+
+        const float& angularVelocityA = collisionBodyA.GetAngularVelocity();
+        const float& angularVelocityB = collisionBodyB.GetAngularVelocity();
+
+        const float& restitutionA = collisionBodyA.GetRestitution();
+        const float& restitutionB = collisionBodyB.GetRestitution();
+
+        const float& frictionA = collisionBodyA.GetFriction();
+        const float& frictionB = collisionBodyB.GetFriction();
+
+        float massA = collisionBodyA.GetMass();
+        float massB = collisionBodyB.GetMass();
+
+        float momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
+        float momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
+
+        if (fixedTranslationA)
+        {
+            massA = std::numeric_limits<float>::infinity();
+        }
+
+        if (fixedTranslationB)
+        {
+            massB = std::numeric_limits<float>::infinity();
+        }
+
+        if (fixedRotationA)
+        {
+            momentOfInertiaA = std::numeric_limits<float>::infinity();
+        }
+
+        if (fixedRotationB)
+        {
+            momentOfInertiaB = std::numeric_limits<float>::infinity();
+        }
+
+        // Gather collision impulses
+        // -----------------------------------------------------------------
+
+        glm::vec2 rA = collisionPoint - positionA; // center of mass A to collision point
+        glm::vec2 rB = collisionPoint - positionB; // center of mass B to collision point
+
+        glm::vec2 rA_p(-rA.y, rA.x); // perpendicular
+        glm::vec2 rB_p(-rB.y, rB.x); // perpendicular
+
+        // Add angular velocity contribution
+        glm::vec2 vA = velocityA + angularVelocityA * rA_p;
+        glm::vec2 vB = velocityB + angularVelocityB * rB_p;
+
+        // Relative velocity at collision point
+        glm::vec2 relativeVelocity = vB - vA;
+
+        // Normal component of rel. velocity along the collision normal length
+        float relativeVelocity_n_length = glm::dot(relativeVelocity, collisionNormal);
+
+        if (relativeVelocity_n_length >= 0.0f)
+        {
+            // The collision bodies are not moving towards eachother
+            return false;
+        }
+
+        // Use minimum restitution value
+        float restitution = std::min(restitutionA, restitutionB);
+
+        float invMassA = 1.0f / massA;
+        float invMassB = 1.0f / massB;
+        float invMomentOfInertiaA = 1.0f / momentOfInertiaA;
+        float invMomentOfInertiaB = 1.0f / momentOfInertiaB;
+
+        glm::vec2 collisionTangent = glm::vec2(-collisionNormal.y, collisionNormal.x);
+
+        // Scalar projections of rA and rB onto collisionTangent
+        float leverArmA = glm::dot(rA, collisionTangent);
+        float leverArmB = glm::dot(rB, collisionTangent);
+
+        float impulseScalar_denominator = invMassA + invMassB +
+            (leverArmA * leverArmA * invMomentOfInertiaA) + (leverArmB * leverArmB * invMomentOfInertiaB);
+
+        float impulseScalar = -(1.0f + restitution) * relativeVelocity_n_length / impulseScalar_denominator;
+
+        glm::vec2 impulse = impulseScalar * collisionNormal;
+        glm::vec2 impulseA = impulse / massA;
+        glm::vec2 impulseB = impulse / massB;
+
+        glm::vec2 addedVelocityA(0.0f, 0.0f);
+        glm::vec2 addedVelocityB(0.0f, 0.0f);
+
+        if (!fixedTranslationA)
+        {
+            if (!fixedTranslationB)
+            {
+                addedVelocityA -= impulseA;
+                addedVelocityB += impulseB;
+            }
+            else
+            {
+                addedVelocityA -= impulseA;
+                addedVelocityA -= impulseB;
+            }
+        }
+        else if (!fixedTranslationB)
+        {
+            addedVelocityB += impulseA;
+            addedVelocityB += impulseB;
+        }
+
+        glm::vec2 impulsePerpendicular = glm::vec2(-impulse.y, impulse.x);
+        float angularImpulseA = glm::dot(rA, impulsePerpendicular) / momentOfInertiaA;
+        float angularImpulseB = glm::dot(rB, impulsePerpendicular) / momentOfInertiaB;
+
+        float addedAngularVelocityA = 0.0f;
+        float addedAngularVelocityB = 0.0f;
+
+        if (!fixedRotationA)
+        {
+            if (!fixedRotationB)
+            {
+                addedAngularVelocityA += angularImpulseA;
+                addedAngularVelocityB -= angularImpulseB;
+            }
+            else
+            {
+                addedAngularVelocityA += angularImpulseA;
+                addedAngularVelocityA += angularImpulseB;
+            }
+        }
+        else if (!fixedRotationB)
+        {
+            addedAngularVelocityB -= angularImpulseA;
+            addedAngularVelocityB -= angularImpulseB;
+        }
+
+        // Gather friction impulses
+        // -----------------------------------------------------------------
+
+        float rA_dot_p = glm::dot(rA, collisionNormal);
+        float rB_dot_p = glm::dot(rB, collisionNormal);
+
+        float frictionImpulseScalar_denominator = invMassA + invMassB +
+            (rA_dot_p * rA_dot_p * invMomentOfInertiaA) + (rB_dot_p * rB_dot_p * invMomentOfInertiaB);
+
+        // Use minimum friction value
+        float friction = std::min(frictionA, frictionB);
+
+        float relativeVelocity_t_length = glm::dot(relativeVelocity, collisionTangent);
+
+        float frictionImpulseScalar = -relativeVelocity_t_length / frictionImpulseScalar_denominator;
+
+        frictionImpulseScalar = glm::clamp(frictionImpulseScalar, -friction * impulseScalar, friction * impulseScalar);
+
+        glm::vec2 frictionImpulse = frictionImpulseScalar * collisionTangent;
+        glm::vec2 frictionImpulseA = frictionImpulse / massA;
+        glm::vec2 frictionImpulseB = frictionImpulse / massB;
+
+        if (!fixedTranslationA)
+        {
+            if (!fixedTranslationB)
+            {
+                addedVelocityA -= frictionImpulseA;
+                addedVelocityB += frictionImpulseB;
+            }
+            else
+            {
+                addedVelocityA -= frictionImpulseA;
+                addedVelocityA -= frictionImpulseB;
+            }
+        }
+        else if (!fixedTranslationB)
+        {
+            addedVelocityB += frictionImpulseA;
+            addedVelocityB += frictionImpulseB;
+        }
+
+        glm::vec2 frictionImpulsePerpendicular = glm::vec2(-frictionImpulse.y, frictionImpulse.x);
+        float frictionAngularImpulseA = glm::dot(rA, frictionImpulsePerpendicular) / momentOfInertiaA;
+        float frictionAngularImpulseB = glm::dot(rB, frictionImpulsePerpendicular) / momentOfInertiaB;
+
+        if (!fixedRotationA)
+        {
+            if (!fixedRotationB)
+            {
+                addedAngularVelocityA += frictionAngularImpulseA;
+                addedAngularVelocityB -= frictionAngularImpulseB;
+            }
+            else
+            {
+                addedAngularVelocityA += frictionAngularImpulseA;
+                addedAngularVelocityA += frictionAngularImpulseB;
+            }
+        }
+        else if (!fixedRotationB)
+        {
+            addedAngularVelocityB -= frictionAngularImpulseA;
+            addedAngularVelocityB -= frictionAngularImpulseB;
+        }
+
+        totalImpulseA = addedVelocityA;
+        totalAngularImpulseA = addedAngularVelocityA;
+
+        totalImpulseB = addedVelocityB;
+        totalAngularImpulseB = addedAngularVelocityB;
+
+        return true;
+    }
+
     // protected ---------------------------------------------------------------
 
     void CollisionSystem2D::CalculateCollisionOverlapsBetweenBodyPairsAndAddManifolds()
@@ -452,6 +684,8 @@ namespace Project001
             entityIdB,
             &collisionBodyA,
             &collisionBodyB,
+            static_cast<unsigned int>(-1),
+            static_cast<unsigned int>(-1),
             glm::vec2(0.0f, 0.0f),
             glm::vec2(0.0f, 0.0f),
             0.0f
@@ -461,8 +695,9 @@ namespace Project001
             [&](unsigned int tagA, unsigned int tagB)
             {
                 CollisionOverlapData2D collisionOverlapA;
-                collisionOverlapA.otherEntityId = entityIdB;
+                collisionOverlapA.overlapId = overlapIdCounter_++;
                 collisionOverlapA.myShapeTag = tagA;
+                collisionOverlapA.otherEntityId = entityIdB;
                 collisionOverlapA.otherShapeTag = tagB;
 
                 collisionBodyA.AddCollisionOverlap(collisionOverlapA);
@@ -470,19 +705,21 @@ namespace Project001
                 if (!detectOnlyOverlapForEntityIdAandDontAddManifolds)
                 {
                     CollisionOverlapData2D collisionOverlapB;
-                    collisionOverlapB.otherEntityId = entityIdA;
+                    collisionOverlapB.overlapId = collisionOverlapA.overlapId;
                     collisionOverlapB.myShapeTag = collisionOverlapA.otherShapeTag;
+                    collisionOverlapB.otherEntityId = entityIdA;
                     collisionOverlapB.otherShapeTag = collisionOverlapA.myShapeTag;
 
                     collisionBodyB.AddCollisionOverlap(collisionOverlapB);
                 }
             };
 
-        std::function<void(CollisionOverlapData2D& collisionA, unsigned int tagA, unsigned int tagB)> AddCollisionOverlapData_v2 =
+        std::function<void(CollisionOverlapData2D& collisionOverlapA, unsigned int tagA, unsigned int tagB)> AddCollisionOverlapData_v2 =
             [&](CollisionOverlapData2D& collisionOverlapA, unsigned int tagA, unsigned int tagB)
             {
-                collisionOverlapA.otherEntityId = entityIdB;
+                collisionOverlapA.overlapId = overlapIdCounter_++;
                 collisionOverlapA.myShapeTag = tagA;
+                collisionOverlapA.otherEntityId = entityIdB;
                 collisionOverlapA.otherShapeTag = tagB;
 
                 collisionBodyA.AddCollisionOverlap(collisionOverlapA);
@@ -490,14 +727,28 @@ namespace Project001
                 if (!detectOnlyOverlapForEntityIdAandDontAddManifolds)
                 {
                     CollisionOverlapData2D collisionOverlapB;
-                    collisionOverlapB.otherEntityId = entityIdA;
+                    collisionOverlapB.overlapId = collisionOverlapA.overlapId;
                     collisionOverlapB.myShapeTag = collisionOverlapA.otherShapeTag;
+                    collisionOverlapB.otherEntityId = entityIdA;
                     collisionOverlapB.otherShapeTag = collisionOverlapA.myShapeTag;
                     collisionOverlapB.point = collisionOverlapA.point;
                     collisionOverlapB.normal = -collisionOverlapA.normal;
                     collisionOverlapB.depth = collisionOverlapA.depth;
 
                     collisionBodyB.AddCollisionOverlap(collisionOverlapB);
+                }
+            };
+
+        std::function<void(CollisionOverlapData2D& collisionOverlap)> UpdateCollisionManifold =
+            [&](CollisionOverlapData2D& collisionOverlap)
+            {
+                if (collisionOverlap.depth > newCollisionManifold.collisionDepth)
+                {
+                    newCollisionManifold.shapeTagA = collisionOverlap.myShapeTag;
+                    newCollisionManifold.shapeTagB = collisionOverlap.otherShapeTag;
+                    newCollisionManifold.collisionPoint = collisionOverlap.point;
+                    newCollisionManifold.collisionNormal = collisionOverlap.normal;
+                    newCollisionManifold.collisionDepth = collisionOverlap.depth;
                 }
             };
 
@@ -1393,12 +1644,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1449,12 +1695,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1503,12 +1744,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1559,12 +1795,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1615,12 +1846,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1690,12 +1916,7 @@ namespace Project001
                             rectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1813,12 +2034,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1871,12 +2087,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1927,12 +2138,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -1985,12 +2191,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2043,12 +2244,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2121,12 +2317,7 @@ namespace Project001
                             orientedRectangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2239,12 +2430,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2295,12 +2481,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2349,12 +2530,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2405,12 +2581,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2461,12 +2632,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2536,12 +2702,7 @@ namespace Project001
                             circleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2659,12 +2820,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2717,12 +2873,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2773,12 +2924,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2831,12 +2977,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2889,12 +3030,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -2967,12 +3103,7 @@ namespace Project001
                             capsuleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3090,12 +3221,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3148,12 +3274,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3204,12 +3325,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3262,12 +3378,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3320,12 +3431,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3398,12 +3504,7 @@ namespace Project001
                             triangleA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3730,12 +3831,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             rectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3786,12 +3882,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             orientedRectangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3840,12 +3931,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             circleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3896,12 +3982,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             capsuleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -3952,12 +4033,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             triangleB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -4027,12 +4103,7 @@ namespace Project001
                             convexPolygonA.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY &&
                             convexPolygonB.physicsType == CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY)
                         {
-                            if (collisionOverlapA.depth > newCollisionManifold.collisionDepth)
-                            {
-                                newCollisionManifold.collisionPoint = collisionOverlapA.point;
-                                newCollisionManifold.collisionNormal = collisionOverlapA.normal;
-                                newCollisionManifold.collisionDepth = collisionOverlapA.depth;
-                            }
+                            UpdateCollisionManifold(collisionOverlapA);
                         }
                     }
                 }
@@ -4062,7 +4133,7 @@ namespace Project001
 
             const glm::vec2& collisionPoint = collisionManifold.collisionPoint;
             const glm::vec2& collisionNormal = collisionManifold.collisionNormal; // points away from bodyA
-            float collisionDepth = collisionManifold.collisionDepth + sunkenMeshSeperationSpacing;
+            float collisionDepth = collisionManifold.collisionDepth;
 
             const bool& fixedTranslationA = collisionBodyA.GetFixedTranslation();
             const bool& fixedTranslationB = collisionBodyB.GetFixedTranslation();
@@ -4092,7 +4163,7 @@ namespace Project001
 
             if (collisionDepth > sunkenMeshOverlapAllowance)
             {
-                float collisionSeperation = collisionDepth; // - sunkenMeshOverlapAllowance;
+                float collisionSeperation = collisionDepth + sunkenMeshSeperationSpacing;
 
                 bool bodyA_notMoving = std::isinf(massA) || std::isinf(momentOfInertiaA) || fixedTranslationA || fixedRotationA;
                 bool bodyB_notMoving = std::isinf(massB) || std::isinf(momentOfInertiaB) || fixedTranslationB || fixedRotationB;
@@ -4164,230 +4235,49 @@ namespace Project001
             CollisionBody2D& collisionBodyA = *collisionManifold.collisionBodyA_Ptr;
             CollisionBody2D& collisionBodyB = *collisionManifold.collisionBodyB_Ptr;
 
+            unsigned int& shapeTagA = collisionManifold.shapeTagA;
+            unsigned int& shapeTagB = collisionManifold.shapeTagB;
+
             const glm::vec2& collisionPoint = collisionManifold.collisionPoint;
             const glm::vec2& collisionNormal = collisionManifold.collisionNormal; // points away from bodyA
-            float collisionDepth = collisionManifold.collisionDepth + sunkenMeshSeperationSpacing;
 
-            const bool& fixedTranslationA = collisionBodyA.GetFixedTranslation();
-            const bool& fixedTranslationB = collisionBodyB.GetFixedTranslation();
+            glm::vec2 totalImpulseA;
+            float totalAngularImpulseA;
+            glm::vec2 totalImpulseB;
+            float totalAngularImpulseB;
+            bool colliding = CalculateImpulse(
+                collisionBodyA,
+                collisionBodyB,
+                collisionPoint,
+                collisionNormal,
+                totalImpulseA,
+                totalAngularImpulseA,
+                totalImpulseB,
+                totalAngularImpulseB
+            );
 
-            const bool& fixedRotationA = collisionBodyA.GetFixedRotation();
-            const bool& fixedRotationB = collisionBodyB.GetFixedRotation();
-
-            const glm::vec2& positionA = collisionBodyA.GetPosition();
-            const glm::vec2& positionB = collisionBodyB.GetPosition();
-
-            const glm::vec2& velocityA = collisionBodyA.GetVelocity();
-            const glm::vec2& velocityB = collisionBodyB.GetVelocity();
-
-            const float& angularVelocityA = collisionBodyA.GetAngularVelocity();
-            const float& angularVelocityB = collisionBodyB.GetAngularVelocity();
-
-            const float& restitutionA = collisionBodyA.GetRestitution();
-            const float& restitutionB = collisionBodyB.GetRestitution();
-
-            const float& frictionA = collisionBodyA.GetFriction();
-            const float& frictionB = collisionBodyB.GetFriction();
-
-            float massA = collisionBodyA.GetMass();
-            float massB = collisionBodyB.GetMass();
-
-            float momentOfInertiaA = collisionBodyA.GetMomentOfInertia();
-            float momentOfInertiaB = collisionBodyB.GetMomentOfInertia();
-
-            if (fixedTranslationA)
+            if (colliding)
             {
-                massA = std::numeric_limits<float>::infinity();
+                CollisionImpulseData2D collisionImpulseDataA = {};
+                collisionImpulseDataA.impulseId = impulseIdCounter_;
+                collisionImpulseDataA.myShapeTag = shapeTagA;
+                collisionImpulseDataA.otherEntityId = entityIdB;
+                collisionImpulseDataA.otherShapeTag = shapeTagB;
+                collisionImpulseDataA.impulse = totalImpulseA;
+                collisionImpulseDataA.angularImpulse = totalAngularImpulseA;
+                collisionBodyA.AddCollisionImpulse(collisionImpulseDataA);
+
+                CollisionImpulseData2D collisionImpulseDataB = {};
+                collisionImpulseDataB.impulseId = impulseIdCounter_;
+                collisionImpulseDataB.myShapeTag = shapeTagB;
+                collisionImpulseDataB.otherEntityId = entityIdA;
+                collisionImpulseDataB.otherShapeTag = shapeTagA;
+                collisionImpulseDataB.impulse = totalImpulseB;
+                collisionImpulseDataB.angularImpulse = totalAngularImpulseB;
+                collisionBodyB.AddCollisionImpulse(collisionImpulseDataB);
+
+                impulseIdCounter_++;
             }
-
-            if (fixedTranslationB)
-            {
-                massB = std::numeric_limits<float>::infinity();
-            }
-
-            if (fixedRotationA)
-            {
-                momentOfInertiaA = std::numeric_limits<float>::infinity();
-            }
-
-            if (fixedRotationB)
-            {
-                momentOfInertiaB = std::numeric_limits<float>::infinity();
-            }
-
-            // Gather collision impulses
-            // -----------------------------------------------------------------
-
-            glm::vec2 rA = collisionPoint - positionA; // center of mass A to collision point
-            glm::vec2 rB = collisionPoint - positionB; // center of mass B to collision point
-
-            glm::vec2 rA_p(-rA.y, rA.x); // perpendicular
-            glm::vec2 rB_p(-rB.y, rB.x); // perpendicular
-
-            // Add angular velocity contribution
-            glm::vec2 vA = velocityA + angularVelocityA * rA_p;
-            glm::vec2 vB = velocityB + angularVelocityB * rB_p;
-
-            // Relative velocity at collision point
-            glm::vec2 relativeVelocity = vB - vA;
-
-            // Normal component of rel. velocity along the collision normal length
-            float relativeVelocity_n_length = glm::dot(relativeVelocity, collisionNormal);
-
-            if (relativeVelocity_n_length >= 0.0f)
-            {
-                // The collision bodies are not moving towards eachother
-                continue;
-            }
-
-            // Use minimum restitution value
-            float restitution = std::min(restitutionA, restitutionB);
-
-            float invMassA = 1.0f / massA;
-            float invMassB = 1.0f / massB;
-            float invMomentOfInertiaA = 1.0f / momentOfInertiaA;
-            float invMomentOfInertiaB = 1.0f / momentOfInertiaB;
-
-            glm::vec2 collisionTangent = glm::vec2(-collisionNormal.y, collisionNormal.x);
-
-            // Scalar projections of rA and rB onto collisionTangent
-            float leverArmA = glm::dot(rA, collisionTangent);
-            float leverArmB = glm::dot(rB, collisionTangent);
-
-            float impulseScalar_denominator = invMassA + invMassB +
-                (leverArmA * leverArmA * invMomentOfInertiaA) + (leverArmB * leverArmB * invMomentOfInertiaB);
-
-            float impulseScalar = -(1.0f + restitution) * relativeVelocity_n_length / impulseScalar_denominator;
-
-            glm::vec2 impulse = impulseScalar * collisionNormal;
-            glm::vec2 impulseA = impulse / massA;
-            glm::vec2 impulseB = impulse / massB;
-
-            glm::vec2 addedVelocityA(0.0f, 0.0f);
-            glm::vec2 addedVelocityB(0.0f, 0.0f);
-
-            if (!fixedTranslationA)
-            {
-                if (!fixedTranslationB)
-                {
-                    addedVelocityA -= impulseA;
-                    addedVelocityB += impulseB;
-                }
-                else
-                {
-                    addedVelocityA -= impulseA;
-                    addedVelocityA -= impulseB;
-                }
-            }
-            else if (!fixedTranslationB)
-            {
-                addedVelocityB += impulseA;
-                addedVelocityB += impulseB;
-            }
-
-            glm::vec2 impulsePerpendicular = glm::vec2(-impulse.y, impulse.x);
-            float angularImpulseA = glm::dot(rA, impulsePerpendicular) / momentOfInertiaA;
-            float angularImpulseB = glm::dot(rB, impulsePerpendicular) / momentOfInertiaB;
-
-            float addedAngularVelocityA = 0.0f;
-            float addedAngularVelocityB = 0.0f;
-
-            if (!fixedRotationA)
-            {
-                if (!fixedRotationB)
-                {
-                    addedAngularVelocityA += angularImpulseA;
-                    addedAngularVelocityB -= angularImpulseB;
-                }
-                else
-                {
-                    addedAngularVelocityA += angularImpulseA;
-                    addedAngularVelocityA += angularImpulseB;
-                }
-            }
-            else if (!fixedRotationB)
-            {
-                addedAngularVelocityB -= angularImpulseA;
-                addedAngularVelocityB -= angularImpulseB;
-            }
-
-            // Gather friction impulses
-            // -----------------------------------------------------------------
-
-            float rA_dot_p = glm::dot(rA, collisionNormal);
-            float rB_dot_p = glm::dot(rB, collisionNormal);
-
-            float frictionImpulseScalar_denominator = invMassA + invMassB +
-                (rA_dot_p * rA_dot_p * invMomentOfInertiaA) + (rB_dot_p * rB_dot_p * invMomentOfInertiaB);
-
-            // Use minimum friction value
-            float friction = std::min(frictionA, frictionB);
-
-            float relativeVelocity_t_length = glm::dot(relativeVelocity, collisionTangent);
-
-            float frictionImpulseScalar = -relativeVelocity_t_length / frictionImpulseScalar_denominator;
-
-            frictionImpulseScalar = glm::clamp(frictionImpulseScalar, -friction * impulseScalar, friction * impulseScalar);
-
-            glm::vec2 frictionImpulse = frictionImpulseScalar * collisionTangent;
-            glm::vec2 frictionImpulseA = frictionImpulse / massA;
-            glm::vec2 frictionImpulseB = frictionImpulse / massB;
-
-            if (!fixedTranslationA)
-            {
-                if (!fixedTranslationB)
-                {
-                    addedVelocityA -= frictionImpulseA;
-                    addedVelocityB += frictionImpulseB;
-                }
-                else
-                {
-                    addedVelocityA -= frictionImpulseA;
-                    addedVelocityA -= frictionImpulseB;
-                }
-            }
-            else if (!fixedTranslationB)
-            {
-                addedVelocityB += frictionImpulseA;
-                addedVelocityB += frictionImpulseB;
-            }
-
-            glm::vec2 frictionImpulsePerpendicular = glm::vec2(-frictionImpulse.y, frictionImpulse.x);
-            float frictionAngularImpulseA = glm::dot(rA, frictionImpulsePerpendicular) / momentOfInertiaA;
-            float frictionAngularImpulseB = glm::dot(rB, frictionImpulsePerpendicular) / momentOfInertiaB;
-
-            if (!fixedRotationA)
-            {
-                if (!fixedRotationB)
-                {
-                    addedAngularVelocityA += frictionAngularImpulseA;
-                    addedAngularVelocityB -= frictionAngularImpulseB;
-                }
-                else
-                {
-                    addedAngularVelocityA += frictionAngularImpulseA;
-                    addedAngularVelocityA += frictionAngularImpulseB;
-                }
-            }
-            else if (!fixedRotationB)
-            {
-                addedAngularVelocityB -= frictionAngularImpulseA;
-                addedAngularVelocityB -= frictionAngularImpulseB;
-            }
-
-            // -----------------------------------------------------------------
-
-            CollisionImpulseData2D collisionImpulseDataA = {};
-            collisionImpulseDataA.otherEntityId = entityIdB;
-            collisionImpulseDataA.impulse = addedVelocityA;
-            collisionImpulseDataA.angularImpulse = addedAngularVelocityA;
-            collisionBodyA.AddCollisionImpulse(collisionImpulseDataA);
-
-            CollisionImpulseData2D collisionImpulseDataB = {};
-            collisionImpulseDataB.otherEntityId = entityIdA;
-            collisionImpulseDataB.impulse = addedVelocityB;
-            collisionImpulseDataB.angularImpulse = addedAngularVelocityB;
-            collisionBodyB.AddCollisionImpulse(collisionImpulseDataB);
         }
     }
 

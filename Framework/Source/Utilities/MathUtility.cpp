@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-22
 
 #include "MathUtility.h"
 
@@ -115,6 +115,8 @@ namespace Math
         }
     }
 
+    // Miscellaneous Algorithms ------------------------------------------------
+
     float GetRandomFloat(uint32_t seed)
     {
         // Scramble the seed
@@ -129,8 +131,6 @@ namespace Math
         // mask out with a 24-bit mask and then divide it by 2^24
         return (seed & 0xFFFFFF) / static_cast<float>(0x1000000);
     }
-
-    // Miscellaneous Algorithms ------------------------------------------------
 
     bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners)
     {

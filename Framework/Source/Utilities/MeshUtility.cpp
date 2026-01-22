@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-22
 
 #include "MeshUtility.h"
 
@@ -55,6 +55,16 @@ namespace Mesh
 
         return true;
     }
+
+    bool LoadMeshOBJFromMemory(
+        MeshData& meshData,
+        const unsigned char* dataPtr,
+        bool triangulate)
+    {
+        const char* charDataPtr = reinterpret_cast<const char*>(dataPtr);
+        return LoadMeshOBJFromMemory(meshData, charDataPtr, triangulate);
+    }
+
 
     bool LoadMeshOBJFromMemory(
         MeshData& meshData,

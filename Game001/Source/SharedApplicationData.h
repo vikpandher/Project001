@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -103,7 +103,7 @@ struct SharedApplicationData
 
     float player_initialBattery_s = 12.0f;
     float player_initialStamina_s = 4.0f;
-    float player_staminaRechargeRate = 0.2f;
+    float player_staminaRechargeRate = 0.25f;
 
     float player_walkSpeed = 64.0f;
     float player_runSpeed = 128.0f;

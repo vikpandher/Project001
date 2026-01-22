@@ -1,8 +1,23 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #include "Scene001.h"
+
+#include "Resources/penguin01_beak_obj.h"
+#include "Resources/penguin01_body_obj.h"
+#include "Resources/penguin01_flipper_left_obj.h"
+#include "Resources/penguin01_flipper_right_obj.h"
+#include "Resources/penguin01_foot_left_obj.h"
+#include "Resources/penguin01_foot_right_obj.h"
+#include "Resources/penguin01_glasses_obj.h"
+#include "Resources/penguin01_glasses_v2_obj.h"
+#include "Resources/penguin01_glasses_v3_obj.h"
+#include "Resources/penguin01_head_obj.h"
+#include "Resources/penguin01_head_v2_obj.h"
+#include "Resources/penguin01_png.h"
+#include "Resources/penguin01_v2_png.h"
+
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
@@ -471,8 +486,9 @@ void Scene001::LoadStageGridResources()
 void Scene001::LoadActorResources()
 {
     sharedDataPtr_->penguin01_body_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_body_meshDataPtr, "../Models/penguin01_body.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_body_meshDataPtr,
+        g_penguin01_body_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_body_meshId,
@@ -483,8 +499,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_flipper_right_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_flipper_right_meshDataPtr, "../Models/penguin01_flipper_right.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_flipper_right_meshDataPtr,
+        g_penguin01_flipper_right_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_flipper_right_meshId,
@@ -495,8 +512,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_flipper_left_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_flipper_left_meshDataPtr, "../Models/penguin01_flipper_left.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_flipper_left_meshDataPtr,
+        g_penguin01_flipper_left_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_flipper_left_meshId,
@@ -507,8 +525,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_foot_right_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_foot_right_meshDataPtr, "../Models/penguin01_foot_right.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_foot_right_meshDataPtr,
+        g_penguin01_foot_right_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_foot_right_meshId,
@@ -519,8 +538,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_foot_left_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_foot_left_meshDataPtr, "../Models/penguin01_foot_left.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_foot_left_meshDataPtr,
+        g_penguin01_foot_left_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_foot_left_meshId,
@@ -531,8 +551,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_head_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_head_meshDataPtr, "../Models/penguin01_head.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_head_meshDataPtr,
+        g_penguin01_head_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_head_meshId,
@@ -543,8 +564,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_head_v2_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_head_v2_meshDataPtr, "../Models/penguin01_head_v2.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_head_v2_meshDataPtr,
+        g_penguin01_head_v2_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_head_v2_meshId,
@@ -555,8 +577,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_beak_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_beak_meshDataPtr, "../Models/penguin01_beak.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_beak_meshDataPtr,
+        g_penguin01_beak_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_beak_meshId,
@@ -567,8 +590,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_glasses_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_glasses_meshDataPtr, "../Models/penguin01_glasses.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_glasses_meshDataPtr,
+        g_penguin01_glasses_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_glasses_meshId,
@@ -579,8 +603,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_glasses_v2_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_glasses_v2_meshDataPtr, "../Models/penguin01_glasses_v2.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_glasses_v2_meshDataPtr, 
+        g_penguin01_glasses_v2_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_glasses_v2_meshId,
@@ -591,8 +616,9 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_glasses_v3_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::LoadMeshOBJ(
-        *sharedDataPtr_->penguin01_glasses_v3_meshDataPtr, "../Models/penguin01_glasses_v3.obj"
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin01_glasses_v3_meshDataPtr, 
+        g_penguin01_glasses_v3_obj
     ));
     GetRendererPtr()->CreateMesh(
         sharedDataPtr_->penguin01_glasses_v3_meshId,
@@ -603,8 +629,10 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_textureDataPtr = new Project001::TextureData();
-    FAIL_CHECK(Project001::Texture::LoadTexture(
-        *sharedDataPtr_->penguin01_textureDataPtr, "../Models/penguin01.png"
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->penguin01_textureDataPtr,
+        g_penguin01_png,
+        sizeof(g_penguin01_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
         sharedDataPtr_->penguin01_textureId,
@@ -617,8 +645,10 @@ void Scene001::LoadActorResources()
     );
 
     sharedDataPtr_->penguin01_v2_textureDataPtr = new Project001::TextureData();
-    FAIL_CHECK(Project001::Texture::LoadTexture(
-        *sharedDataPtr_->penguin01_v2_textureDataPtr, "../Models/penguin01_v2.png"
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->penguin01_v2_textureDataPtr,
+        g_penguin01_v2_png,
+        sizeof(g_penguin01_v2_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
         sharedDataPtr_->penguin01_v2_textureId,

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -16,13 +16,16 @@ namespace Project001
     struct CollisionOverlapData2D
     {
         CollisionOverlapData2D()
-            : myShapeTag(static_cast<unsigned int>(-1))
+            : overlapId(static_cast<unsigned int>(-1))
+            , myShapeTag(static_cast<unsigned int>(-1))
             , otherEntityId(static_cast<unsigned int>(-1))
             , otherShapeTag(static_cast<unsigned int>(-1))
             , point(NAN, NAN)
             , normal(NAN, NAN)
             , depth(NAN)
         {}
+
+        unsigned int overlapId; // used to match overlaps across collision bodies
 
         unsigned int myShapeTag;
 
@@ -37,12 +40,20 @@ namespace Project001
     struct CollisionImpulseData2D
     {
         CollisionImpulseData2D()
-            : otherEntityId(static_cast<unsigned int>(-1))
+            : impulseId(static_cast<unsigned int>(-1))
+            , myShapeTag(static_cast<unsigned int>(-1))
+            , otherEntityId(static_cast<unsigned int>(-1))
+            , otherShapeTag(static_cast<unsigned int>(-1))
             , impulse(0.0f, 0.0f)
             , angularImpulse(0.0f)
         {}
-    
+
+        unsigned int impulseId; // used to match impulses across collision bodies
+
+        unsigned int myShapeTag;
+
         unsigned int otherEntityId;
+        unsigned int otherShapeTag;
     
         glm::vec2 impulse;
         float angularImpulse;

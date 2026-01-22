@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2024-10-30
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -24,9 +24,9 @@ namespace Project001
 #define FILE_LINE_FUNC __FILE__ << " (" << __LINE__ << ") " << __func__
 #define INDENT "         "
 
-#define LOG_ERROR(x)   Project001::Logger(Project001::LOG_LEVEL_ERROR)   << "ERROR:   " x << Project001::Logger::endl
-#define LOG_WARNING(x) Project001::Logger(Project001::LOG_LEVEL_WARNING) << "WARNING: " x << Project001::Logger::endl
-#define LOG_INFO(x)    Project001::Logger(Project001::LOG_LEVEL_INFO)    << "INFO:    " x << Project001::Logger::endl
+#define LOG_ERROR(x)   Project001::Logger(Project001::LOG_LEVEL_ERROR)   << "ERROR:   " << x << Project001::Logger::endl
+#define LOG_WARNING(x) Project001::Logger(Project001::LOG_LEVEL_WARNING) << "WARNING: " << x << Project001::Logger::endl
+#define LOG_INFO(x)    Project001::Logger(Project001::LOG_LEVEL_INFO)    << "INFO:    " << x << Project001::Logger::endl
 
 #define LOG_ERROR_F(x)   LOG_ERROR(FILE_LINE_FUNC << ":\n" << INDENT << x)
 #define LOG_WARNING_F(x) LOG_WARNING(FILE_LINE_FUNC << ":\n" << INDENT << x)

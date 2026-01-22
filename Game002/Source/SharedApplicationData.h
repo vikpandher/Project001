@@ -1,8 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #pragma once
+
+#include "glm/gtc/constants.hpp"
 
 
 
@@ -38,11 +40,11 @@ struct SharedApplicationData
     Project001::KeyCode player1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::KeyCode player1_snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
 
-    Project001::KeyCode player2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
-    Project001::KeyCode player2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
-    Project001::KeyCode player2_down_keyCode = Project001::KeyCode::KEY_CODE_DOWN;
-    Project001::KeyCode player2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
-    Project001::KeyCode player2_snowball_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
+    Project001::KeyCode player2_up_keyCode = Project001::KeyCode::KEY_CODE_P;
+    Project001::KeyCode player2_left_keyCode = Project001::KeyCode::KEY_CODE_L;
+    Project001::KeyCode player2_down_keyCode = Project001::KeyCode::KEY_CODE_SEMICOLON;
+    Project001::KeyCode player2_right_keyCode = Project001::KeyCode::KEY_CODE_APOSTROPHE;
+    Project001::KeyCode player2_snowball_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_CONTROL;
 
     // Game Constants ----------------------------------------------------------
 
@@ -60,6 +62,10 @@ struct SharedApplicationData
     const float penguin_grabOffset = 22.0f;
     const float penguin_grabRadius = 18.0f;
     const float penguin_throwSpeed_s = 256.0f;
+
+    const float snowball_landFriction = 0.0f; // 8.0f;
+    const float snowball_waterFriction = 16.0f;
+    const float snowball_angularFriction = glm::pi<float>();
 
     // Resources ---------------------------------------------------------------
 

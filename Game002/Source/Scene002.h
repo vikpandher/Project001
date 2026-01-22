@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -42,8 +42,8 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, size_t playerNumber);
-    void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, float radius);
+    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, float rotation, size_t playerNumber);
+    void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
     void UpdateMainCameraEntity(float timestep_s);
     void UpdateUiTextEntity();

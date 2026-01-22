@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #include "Scene002.h"
 
@@ -62,6 +62,9 @@ struct MonsterInfo
 
     State animationState = State::STATE_STANDING;
     float animationStateDuration_s = 0.0f;
+
+    float currentJumpDuration_s = 0.0f;
+    float currentJumpHeight = 0.0f;
 };
 
 struct PersonInfo
@@ -77,6 +80,9 @@ struct PersonInfo
 
     State animationState = State::STATE_STANDING;
     float animationStateDuration_s = 0.0f;
+
+    float currentJumpDuration_s = 0.0f;
+    float currentJumpHeight = 0.0f;
 };
 
 struct PlayerInfo
@@ -100,6 +106,9 @@ struct PlayerInfo
 
     State animationState = State::STATE_STANDING;
     float animationStateDuration_s = 0.0f;
+
+    float currentJumpDuration_s = 0.0f;
+    float currentJumpHeight = 0.0f;
 };
 
 struct VisionInfo
@@ -2506,7 +2515,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
                             {
                                 collisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
                                 monsterInfo.state = MonsterInfo::State::STATE_CELEBRATING;
-                                monsterInfo.stateDuration_s = 0.5f;
+                                monsterInfo.stateDuration_s = 0.5f; // make sure this is greater then monsterInfo.animationStateDuration_s for walking and running
                                 distracted = true;
                                 break;
                             }
@@ -2712,38 +2721,42 @@ void Scene002::AnimatePersonEntities(float timestep_s)
                 if (personInfo.state == PersonInfo::State::STATE_STANDING)
                 {
                     personInfo.animationState = PersonInfo::State::STATE_STANDING;
+                    personInfo.currentJumpDuration_s = 0.0f;
+                    personInfo.currentJumpHeight = 0.0f;
 
                 }
                 else if (personInfo.state == PersonInfo::State::STATE_WALKING)
                 {
                     personInfo.animationState = PersonInfo::State::STATE_WALKING;
-                    personInfo.animationStateDuration_s = 0.5;
+                    personInfo.animationStateDuration_s = 0.375f;
+                    personInfo.currentJumpDuration_s = 0.375f;
+                    personInfo.currentJumpHeight = 2.0f;
                 }
             }
 
-            float jumpDuration = 0.5f;
-            float jumpHeight = 2.0f;
-
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
+            if (personInfo.currentJumpDuration_s > 0.0f)
             {
-                Project001::RenderedMesh& mesh = renderedMeshes[s_personLit_RenderedMeshIndex_];
-                mesh.SetPositionZ(
-                    jumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
-                );
-            }
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            {
-                Project001::RenderedMesh& mesh = renderedMeshes[s_personDark_RenderedMeshIndex_];
-                mesh.SetPositionZ(
-                    jumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
-                );
-            }
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[s_personLit_RenderedMeshIndex_];
+                    mesh.SetPositionZ(
+                        personInfo.currentJumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / personInfo.currentJumpDuration_s))
+                    );
+                }
 
-            personInfo.animationStateDuration_s -= timestep_s;
-            if (personInfo.animationStateDuration_s < 0.0f)
-            {
-                personInfo.animationStateDuration_s = 0.0f;
+                {
+                    Project001::RenderedMesh& mesh = renderedMeshes[s_personDark_RenderedMeshIndex_];
+                    mesh.SetPositionZ(
+                        personInfo.currentJumpHeight * std::abs(glm::sin(personInfo.animationStateDuration_s * glm::pi<float>() / personInfo.currentJumpDuration_s))
+                    );
+                }
+
+                personInfo.animationStateDuration_s -= timestep_s;
+                if (personInfo.animationStateDuration_s < 0.0f)
+                {
+                    personInfo.animationStateDuration_s = 0.0f;
+                }
             }
         }
     }
@@ -2762,42 +2775,44 @@ void Scene002::AnimatePlayerEntity(float timestep_s)
             if (playerInfoPtr->state == PlayerInfo::State::STATE_STANDING)
             {
                 playerInfoPtr->animationState = PlayerInfo::State::STATE_STANDING;
+                playerInfoPtr->animationStateDuration_s = 0.0f;
+                playerInfoPtr->currentJumpDuration_s = 0.0f;
+                playerInfoPtr->currentJumpHeight = 0.0f;
                 
             }
             else if(playerInfoPtr->state == PlayerInfo::State::STATE_WALKING)
             {
                 playerInfoPtr->animationState = PlayerInfo::State::STATE_WALKING;
-                playerInfoPtr->animationStateDuration_s = 0.5;
+                playerInfoPtr->animationStateDuration_s = 0.375f;
+                playerInfoPtr->currentJumpDuration_s = 0.375f;
+                playerInfoPtr->currentJumpHeight = 2.0f;
             }
             else if (playerInfoPtr->state == PlayerInfo::State::STATE_RUNNING)
             {
                 playerInfoPtr->animationState = PlayerInfo::State::STATE_RUNNING;
-                playerInfoPtr->animationStateDuration_s = 0.25;
+                playerInfoPtr->animationStateDuration_s = 0.25f;
+                playerInfoPtr->currentJumpDuration_s = 0.25f;
+                playerInfoPtr->currentJumpHeight = 4.0f;
             }
         }
 
-        float jumpDuration = 0.5f;
-        float jumpHeight = 2.0f;
-        if (playerInfoPtr->animationState == PlayerInfo::State::STATE_RUNNING)
+        if (playerInfoPtr->currentJumpDuration_s > 0.0f)
         {
-            jumpDuration = 0.25f;
-            jumpHeight = 4.0f;
-        }
+            std::vector<Project001::RenderedMesh>& renderedMeshes = playerRenderedModelPtr->GetRenderedMeshes();
 
-        std::vector<Project001::RenderedMesh>& renderedMeshes = playerRenderedModelPtr->GetRenderedMeshes();
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_playerLit_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    playerInfoPtr->currentJumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / playerInfoPtr->currentJumpDuration_s))
+                );
+            }
 
-        {
-            Project001::RenderedMesh& mesh = renderedMeshes[s_playerLit_RenderedMeshIndex_];
-            mesh.SetPositionZ(
-                jumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / jumpDuration))
-            );
-        }
-
-        {
-            Project001::RenderedMesh& mesh = renderedMeshes[s_playerDark_RenderedMeshIndex_];
-            mesh.SetPositionZ(
-                jumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / jumpDuration))
-            );
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[s_playerDark_RenderedMeshIndex_];
+                mesh.SetPositionZ(
+                    playerInfoPtr->currentJumpHeight * std::abs(glm::sin(playerInfoPtr->animationStateDuration_s * glm::pi<float>() / playerInfoPtr->currentJumpDuration_s))
+                );
+            }
         }
 
         playerInfoPtr->animationStateDuration_s -= timestep_s;
@@ -2829,65 +2844,64 @@ void Scene002::AnimateMonsterEntities(float timestep_s)
                 if (monsterInfo.state == MonsterInfo::State::STATE_STANDING)
                 {
                     monsterInfo.animationState = MonsterInfo::State::STATE_STANDING;
+                    monsterInfo.animationStateDuration_s = 0.0f;
+                    monsterInfo.currentJumpDuration_s = 0.0f;
+                    monsterInfo.currentJumpHeight = 0.0f;
 
                 }
                 else if (monsterInfo.state == MonsterInfo::State::STATE_WALKING)
                 {
                     monsterInfo.animationState = MonsterInfo::State::STATE_WALKING;
-                    monsterInfo.animationStateDuration_s = 0.5;
+                    monsterInfo.animationStateDuration_s = 0.375f;
+                    monsterInfo.currentJumpDuration_s = 0.375f;
+                    monsterInfo.currentJumpHeight = 2.0f;
                 }
                 else if (monsterInfo.state == MonsterInfo::State::STATE_RUNNING)
                 {
                     monsterInfo.animationState = MonsterInfo::State::STATE_RUNNING;
                     monsterInfo.animationStateDuration_s = 0.25f;
+                    monsterInfo.currentJumpDuration_s = 0.25f;
+                    monsterInfo.currentJumpHeight = 4.0f;
                 }
             }
             else if (monsterInfo.state == MonsterInfo::State::STATE_CELEBRATING &&
                 monsterInfo.animationState != MonsterInfo::State::STATE_CELEBRATING)
             {
                 monsterInfo.animationState = MonsterInfo::State::STATE_CELEBRATING;
-                monsterInfo.animationStateDuration_s = 0.5f;
+                monsterInfo.animationStateDuration_s = 1.125f;
+                monsterInfo.currentJumpDuration_s = 0.375f;
+                monsterInfo.currentJumpHeight = 16.0f;
             }
 
-            float jumpDuration = 0.5f;
-            float jumpHeight = 2.0f;
-            if (monsterInfo.animationState == MonsterInfo::State::STATE_RUNNING)
+            if (monsterInfo.currentJumpDuration_s > 0.0f)
             {
-                jumpDuration = 0.25f;
-                jumpHeight = 4.0f;
-            }
-            else if (monsterInfo.animationState == MonsterInfo::State::STATE_CELEBRATING)
-            {
-                jumpDuration = 0.5f;
-                jumpHeight = 16.0f;
-            }
+                std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
-            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-
-            {
-                Project001::RenderedMesh& mesh = renderedMeshes[s_monsterLit_RenderedMeshIndex_];
-                mesh.SetPositionZ(
-                    jumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
-                );
-            }
-
-            {
-                Project001::RenderedMesh& mesh = renderedMeshes[s_monsterDark_RenderedMeshIndex_];
-                mesh.SetPositionZ(
-                    jumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / jumpDuration))
-                );
-
-                if (monsterInfo.animationState == MonsterInfo::State::STATE_CELEBRATING)
                 {
-                    mesh.SetMeshDataPtr(sharedDataPtr_->monsterLit_MeshDataPtr);
-                    mesh.SetTextureId(sharedDataPtr_->monsterLit_TextureId);
-                    mesh.SetColor(1.0f, 0.6f, 0.6f, 1.0f);
+                    Project001::RenderedMesh& mesh = renderedMeshes[s_monsterLit_RenderedMeshIndex_];
+                    mesh.SetPositionZ(
+                        monsterInfo.currentJumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / monsterInfo.currentJumpDuration_s))
+                    );
                 }
-                else
+
                 {
-                    mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
-                    mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
-                    mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    Project001::RenderedMesh& mesh = renderedMeshes[s_monsterDark_RenderedMeshIndex_];
+                    mesh.SetPositionZ(
+                        monsterInfo.currentJumpHeight * std::abs(glm::sin(monsterInfo.animationStateDuration_s * glm::pi<float>() / monsterInfo.currentJumpDuration_s))
+                    );
+
+                    if (monsterInfo.animationState == MonsterInfo::State::STATE_CELEBRATING)
+                    {
+                        mesh.SetMeshDataPtr(sharedDataPtr_->monsterLit_MeshDataPtr);
+                        mesh.SetTextureId(sharedDataPtr_->monsterLit_TextureId);
+                        mesh.SetColor(1.0f, 0.6f, 0.6f, 1.0f);
+                    }
+                    else
+                    {
+                        mesh.SetMeshDataPtr(sharedDataPtr_->unknownDark_MeshDataPtr);
+                        mesh.SetTextureId(sharedDataPtr_->unknownDark_TextureId);
+                        mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    }
                 }
             }
 

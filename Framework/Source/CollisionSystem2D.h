@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -27,6 +27,9 @@ namespace Project001
 
             CollisionBody2D* collisionBodyA_Ptr;
             CollisionBody2D* collisionBodyB_Ptr;
+
+            unsigned int shapeTagA;
+            unsigned int shapeTagB;
 
             glm::vec2 collisionPoint;
             glm::vec2 collisionNormal; // should point away from bodyA
@@ -60,6 +63,16 @@ namespace Project001
             size_t maxBodiesPerNode);
 
         void FullyLoadCollisionBodyQuadTree2D();
+
+        static bool CalculateImpulse(
+            CollisionBody2D& collisionBodyA,
+            CollisionBody2D& collisionBodyB,
+            const glm::vec2& collisionPoint,
+            const glm::vec2& collisionNormal,
+            glm::vec2& totalImpulseA,
+            float& totalAngularImpulseA,
+            glm::vec2& totalImpulseB,
+            float& totalAngularImpulseB);
 
         float sunkenMeshOverlapAllowance;
         float sunkenMeshSeperationSpacing;
@@ -95,13 +108,16 @@ namespace Project001
 
         std::vector<CollisionBody2D*> enabledCollisionBodyPtrs_;
 
-        std::vector< CollisionBody2D*> outOfBoundsTangibleCollisionBodyPtrs_;
+        std::vector<CollisionBody2D*> outOfBoundsTangibleCollisionBodyPtrs_;
 
         CollisionBodyQuadTree2D tangibleCollisionBodyQuadTree2D_;
 
         std::unordered_set<std::pair<CollisionBody2D*, CollisionBody2D*>, PointerPairHashFunctor> collisionBodyPairPtrs_;
 
         std::vector<CollisionManifold2D> collisionManifolds_;
+
+        unsigned int overlapIdCounter_;
+        unsigned int impulseIdCounter_;
     };
 
     // public ------------------------------------------------------------------

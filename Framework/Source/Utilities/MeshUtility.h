@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -23,6 +23,11 @@ namespace Mesh
     bool LoadMeshOBJ(
         MeshData& meshData,
         const std::string& filePath,
+        bool triangulate = g_triangulate);
+
+    bool LoadMeshOBJFromMemory(
+        MeshData& meshData,
+        const unsigned char* dataPtr, // must be null terminated
         bool triangulate = g_triangulate);
 
     bool LoadMeshOBJFromMemory(

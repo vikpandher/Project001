@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-01-22
 
 #pragma once
 
@@ -52,10 +52,10 @@ namespace Math
 
     void GetMinMax(float a, float b, float& min, float& max);
 
+    // Miscellaneous Algorithms ------------------------------------------------
+
     // Returns normalized float [0, 1)
     float GetRandomFloat(uint32_t seed);
-
-    // Miscellaneous Algorithms ------------------------------------------------
 
     bool EarClipPolygon(std::vector<size_t>& indices, const std::vector<glm::vec2>& corners);
 
