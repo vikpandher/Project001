@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-01-22
+# @DATE 2026-01-23
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -48,6 +48,7 @@ set(GAME002_FILES
 source_group("Source" FILES ${GAME002_FILES})
 
 set(GAME002_RESOURCE_FILES
+    "Source/Resources/hazard_4x4_png.h"
     "Source/Resources/penguin01_beak_obj.h"
     "Source/Resources/penguin01_body_obj.h"
     "Source/Resources/penguin01_flipper_left_obj.h"

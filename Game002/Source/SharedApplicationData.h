@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-23
 
 #pragma once
 
@@ -76,7 +76,7 @@ struct SharedApplicationData
 
     // General Resources
     Project001::MeshData* circle_meshDataPtr = nullptr;
-    Project001::MeshData* circleWithArrow_meshDataPtr = nullptr;
+    Project001::MeshData* orientationArrow_meshDataPtr = nullptr;
     Project001::MeshData* hallowCircle_meshDataPtr = nullptr;
 
     // Main Menu Resources
@@ -91,7 +91,9 @@ struct SharedApplicationData
 
     Project001::MeshData* water_meshDataPtr = nullptr;
 
-    Project001::MeshData* deadZoneCollision_meshDataPtr = nullptr;
+    Project001::MeshData* deadZone_meshDataPtr = nullptr;
+    Project001::TextureData* hazard_textureDataPtr = nullptr;
+    unsigned int hazard_textureId = static_cast<unsigned int>(-1);
 
     // Stage Grid Resources
     Project001::MeshData* stageGrid_meshDataPtr = nullptr;

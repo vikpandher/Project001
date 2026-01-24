@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-23
 
 #include "Scene002.h"
 
@@ -26,6 +26,8 @@ struct PenguinInfo
 {
     size_t playerNumber = 1;
 
+    unsigned int snowball_EntityId = static_cast<unsigned int>(-1);
+
     enum class State
     {
         STATE_STANDING,
@@ -47,8 +49,6 @@ struct PenguinInfo
 
     bool onLand = false;
 
-    unsigned int snowball_EntityId = static_cast<unsigned int>(-1);
-
     State animationState = State::STATE_STANDING;
     float animationStateCountDown_s = 0.0f;
 
@@ -67,8 +67,8 @@ struct PenguinInfo
     static const size_t s_beak_renderedMeshIndex = 6;
     static const size_t s_glasses_renderedMeshIndex = 7;
     static const size_t s_shadow_renderedMeshIndex = 8;
-    static const size_t s_collision_renderedMeshIndex = 9;
-    static const size_t s_grabCollision_renderedMeshIndex = 10;
+    static const size_t s_grabZone_renderedMeshIndex = 9;
+    static const size_t s_orientationArrow_renderedMeshIndex = 10;
     static const size_t s_attractionPointCollision_renderedMeshIndex = 11;
     static const size_t s_snowballCollision_renderedMeshIndex = 12;
     static const size_t s_renderedMeshIndices = 13;
@@ -81,6 +81,8 @@ struct PenguinInfo
 
 struct SnowballInfo
 {
+    unsigned int penguin_EntityId = static_cast<unsigned int>(-1);
+
     enum class State
     {
         STATE_REGULAR,
@@ -111,7 +113,7 @@ struct SnowballInfo
     static const size_t s_snowball_break_05_renderedMeshIndex = 5;
     static const size_t s_snowball_break_06_renderedMeshIndex = 6;
     static const size_t s_shadow_renderedMeshIndex = 7;
-    static const size_t s_collision_renderedMeshIndex = 8;
+    static const size_t s_orientationArrow_renderedMeshIndex = 8;
     static const size_t s_renderedMeshIndices = 9;
 
     static const size_t s_snowball_collisionCircleIndex = 0;
@@ -483,6 +485,16 @@ void Scene002::CreateStageEntity()
             mesh.SetMeshDataPtr(sharedDataPtr_->ground_meshDataPtr);
         }
 
+        {
+            renderedMeshes.emplace_back();
+            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->deadZone_meshDataPtr);
+            mesh.SetColor(0.8f, 0.6f, 0.2f, 1.0f);
+            mesh.SetTextureId(sharedDataPtr_->hazard_textureId);
+            mesh.SetRenderPriorityOverride(3);
+        }
+
         // {
         //     renderedMeshes.emplace_back();
         //     Project001::RenderedMesh& mesh = renderedMeshes.back();
@@ -493,17 +505,6 @@ void Scene002::CreateStageEntity()
         //     mesh.SetTranslucent(true);
         //     mesh.SetUseLighting(false);
         // }
-
-        {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->deadZoneCollision_meshDataPtr);
-            mesh.SetPositionZ(0.1f);
-            mesh.SetColor(1.0f, 0.2f, 0.2f, 0.2f);
-            mesh.SetTranslucent(true);
-            mesh.SetUseLighting(false);
-        }
 
         {
             renderedMeshes.emplace_back();
@@ -686,31 +687,31 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetPositionZ(0.01f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_collision_renderedMeshIndex];
+            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabZone_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->hallowCircle_meshDataPtr);
+            mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_grabRadius));
+            mesh.SetPositionY(sharedDataPtr_->penguin_grabOffset);
+            mesh.SetPositionZ(0.02f);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.1f);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_orientationArrow_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->circleWithArrow_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->orientationArrow_meshDataPtr);
             mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_collisionRadius));
             mesh.SetPositionZ(0.1f);
             mesh.SetColor(0.2f, 0.6f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(-1);
-        }
-
-        {
-            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabCollision_renderedMeshIndex];
-            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
-            mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_grabRadius));
-            mesh.SetPositionY(sharedDataPtr_->penguin_grabOffset);
-            mesh.SetPositionZ(-0.1f);
-            mesh.SetColor(0.6f, 0.2f, 0.6f, 0.4f);
-            mesh.SetTranslucent(true);
-            mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-2);
         }
 
         {
@@ -722,7 +723,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-3);
+            mesh.SetRenderPriorityOverride(-2);
         }
 
         {
@@ -734,7 +735,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-4);
+            mesh.SetRenderPriorityOverride(-3);
         }
     }
 
@@ -889,9 +890,9 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_collision_renderedMeshIndex];
+            Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_orientationArrow_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->circleWithArrow_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->orientationArrow_meshDataPtr);
             mesh.SetPositionZ(0.1f);
             mesh.SetColor(0.2f, 0.6f, 0.2f, 0.4f);
             mesh.SetTranslucent(true);
@@ -2534,7 +2535,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                 }
             }
 
-            // Animate the shadow
+            // Animate the shadow and grab zone
 
             {
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_shadow_renderedMeshIndex];
@@ -2546,6 +2547,19 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                 else
                 {
                     mesh.SetPositionZ(s_waterHeight + 0.01f);
+                }
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabZone_renderedMeshIndex];
+
+                if (penguinInfo.onLand)
+                {
+                    mesh.SetVisible(true);
+                }
+                else
+                {
+                    mesh.SetVisible(false);
                 }
             }
 
@@ -2997,7 +3011,7 @@ void Scene002::SyncSnowballRenderedModels()
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             {
-                Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_collision_renderedMeshIndex];
+                Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_orientationArrow_renderedMeshIndex];
 
                 std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
                 Project001::CollisionCircle2D& collisionCircle = collisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];

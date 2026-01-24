@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-23
 
 #include "Scene001.h"
 
+#include "Resources/hazard_4x4_png.h"
 #include "Resources/penguin01_beak_obj.h"
 #include "Resources/penguin01_body_obj.h"
 #include "Resources/penguin01_flipper_left_obj.h"
@@ -17,7 +18,6 @@
 #include "Resources/penguin01_head_v2_obj.h"
 #include "Resources/penguin01_png.h"
 #include "Resources/penguin01_v2_png.h"
-
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
@@ -153,17 +153,13 @@ void Scene001::LoadGeneralResources()
     }
 
     {
-        sharedDataPtr_->circleWithArrow_meshDataPtr = new Project001::MeshData();
-        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(
-            *sharedDataPtr_->circleWithArrow_meshDataPtr, 1.0f, 24
-        ));
-
+        sharedDataPtr_->orientationArrow_meshDataPtr = new Project001::MeshData();
         std::vector<glm::vec2> arrowPositions;
         arrowPositions.emplace_back(0.5f, 1.0f);
         arrowPositions.emplace_back(0.0f, 1.5f);
         arrowPositions.emplace_back(-0.5f, 1.0f);
         FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(
-            *sharedDataPtr_->circleWithArrow_meshDataPtr, arrowPositions
+            *sharedDataPtr_->orientationArrow_meshDataPtr, arrowPositions
         ));
     }
 
@@ -222,39 +218,57 @@ void Scene001::LoadStageResources()
         groundCollisionCorners
     ));
 
-    sharedDataPtr_->deadZoneCollision_meshDataPtr = new Project001::MeshData();
-    Project001::Mesh::Generate2DRectangleFrame(
-        *sharedDataPtr_->deadZoneCollision_meshDataPtr,
-        glm::vec2(-sharedDataPtr_->deadzone_size, -sharedDataPtr_->deadzone_size),
-        glm::vec2(sharedDataPtr_->deadzone_size, sharedDataPtr_->deadzone_size),
-        4.0f
-    );
+    // sharedDataPtr_->deadZoneCollision_meshDataPtr = new Project001::MeshData();
+    // Project001::Mesh::Generate2DRectangleFrame(
+    //     *sharedDataPtr_->deadZoneCollision_meshDataPtr,
+    //     glm::vec2(-sharedDataPtr_->deadzone_size, -sharedDataPtr_->deadzone_size),
+    //     glm::vec2(sharedDataPtr_->deadzone_size, sharedDataPtr_->deadzone_size),
+    //     4.0f
+    // );
 
-    // {
-    //     float rectThickness = sharedDataPtr_->maxStage_size - sharedDataPtr_->deadzone_size;
-    // 
-    //     Project001::MeshData tempMeshData0;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-    //     Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData1;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-    //     Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData2;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-    //     Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData3;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-    //     Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f));
-    // 
-    //     sharedDataPtr_->deadZoneCollision_meshDataPtr = new Project001::MeshData();
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData0);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData1);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData2);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData3);
-    // }
+    {
+        float rectThickness = (sharedDataPtr_->maxStage_size - sharedDataPtr_->deadzone_size) * 2.0f;
+    
+        Project001::MeshData tempMeshData0;
+        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
+    
+        Project001::MeshData tempMeshData1;
+        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
+    
+        Project001::MeshData tempMeshData2;
+        Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f));
+    
+        Project001::MeshData tempMeshData3;
+        Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f));
+    
+        sharedDataPtr_->deadZone_meshDataPtr = new Project001::MeshData();
+        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData0);
+        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData1);
+        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData2);
+        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData3);
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr);
+        Project001::Mesh::ScaleTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr, glm::vec2(1.0f / 32.0f, 1.0f / 32.0f));
+    }
+
+    sharedDataPtr_->hazard_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->hazard_textureDataPtr,
+        g_hazard_4x4_png,
+        sizeof(g_hazard_4x4_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->hazard_textureId,
+        sharedDataPtr_->hazard_textureDataPtr->data,
+        sharedDataPtr_->hazard_textureDataPtr->width,
+        sharedDataPtr_->hazard_textureDataPtr->height,
+        sharedDataPtr_->hazard_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
 
     // {
     //     float rectThickness = sharedDataPtr_->maxStage_size - sharedDataPtr_->deadzone_size;
@@ -688,8 +702,8 @@ void Scene001::FreeResources()
     // General Resources
     delete sharedDataPtr_->circle_meshDataPtr;
     sharedDataPtr_->circle_meshDataPtr = nullptr;
-    delete sharedDataPtr_->circleWithArrow_meshDataPtr;
-    sharedDataPtr_->circleWithArrow_meshDataPtr = nullptr;
+    delete sharedDataPtr_->orientationArrow_meshDataPtr;
+    sharedDataPtr_->orientationArrow_meshDataPtr = nullptr;
     delete sharedDataPtr_->hallowCircle_meshDataPtr;
     sharedDataPtr_->hallowCircle_meshDataPtr = nullptr;
 
@@ -712,8 +726,12 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->water_meshDataPtr;
     sharedDataPtr_->water_meshDataPtr = nullptr;
 
-    delete sharedDataPtr_->deadZoneCollision_meshDataPtr;
-    sharedDataPtr_->deadZoneCollision_meshDataPtr = nullptr;
+    delete sharedDataPtr_->deadZone_meshDataPtr;
+    sharedDataPtr_->deadZone_meshDataPtr = nullptr;
+
+    delete sharedDataPtr_->hazard_textureDataPtr;
+    sharedDataPtr_->hazard_textureDataPtr = nullptr;
+    sharedDataPtr_->hazard_textureId = static_cast<unsigned int>(-1);
 
     // Stage Grid Resources
     delete sharedDataPtr_->stageGrid_meshDataPtr;
