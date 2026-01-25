@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-24
 
 #pragma once
 
@@ -141,6 +141,7 @@ namespace Project001
         void AddCollisionImpulse(const CollisionImpulseData2D& collisionImpulse);
         void ClearCollisionImpulses();
         const std::vector<CollisionImpulseData2D>& GetCollisionImpulses() const;
+        std::vector<CollisionImpulseData2D>& GetCollisionImpulses();
 
         float GetDistanceSquaredToPoint(const glm::vec2& point_position) const;
 
@@ -743,6 +744,11 @@ namespace Project001
     }
 
     inline const std::vector<CollisionImpulseData2D>& CollisionBody2D::GetCollisionImpulses() const
+    {
+        return collisionImpulses_;
+    }
+
+    inline std::vector<CollisionImpulseData2D>& CollisionBody2D::GetCollisionImpulses()
     {
         return collisionImpulses_;
     }

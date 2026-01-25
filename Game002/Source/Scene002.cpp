@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-23
+// @DATE 2026-01-24
 
 #include "Scene002.h"
 
@@ -56,7 +56,8 @@ struct PenguinInfo
 
     float positionZ = 0.0f;
 
-    float attractionRadius = 0.0f;
+    static constexpr float s_initialGrabAttractionRadius = 12.0f + 8.0f; // penguinRadius + snowballRadius
+    float grabAttractionRadius = s_initialGrabAttractionRadius;
 
     static const size_t s_body_renderedMeshIndex = 0;
     static const size_t s_flipper_right_renderedMeshIndex = 1;
@@ -69,14 +70,15 @@ struct PenguinInfo
     static const size_t s_shadow_renderedMeshIndex = 8;
     static const size_t s_grabZone_renderedMeshIndex = 9;
     static const size_t s_orientationArrow_renderedMeshIndex = 10;
-    static const size_t s_attractionPointCollision_renderedMeshIndex = 11;
-    static const size_t s_snowballCollision_renderedMeshIndex = 12;
-    static const size_t s_renderedMeshIndices = 13;
+    static const size_t s_grabAttractorCollision_renderedMeshIndex = 11;
+    static const size_t s_renderedMeshIndices = 12;
 
     static const size_t s_body_collisionCircleIndex = 0;
-    static const size_t s_grab_collisionCircleIndex = 1;
-    static const size_t s_snowball_collisionCircleIndex = 2;
-    static const size_t s_collisionCircleCount = 3;
+    static const size_t s_grabZone_collisionCircleIndex = 1;
+    static const size_t s_collisionCircleCount = 2;
+
+    static const size_t s_grabAttractor_collisionPointIndex = 0;
+    static const size_t s_collisionPointCount = 1;
 };
 
 struct SnowballInfo
@@ -99,7 +101,8 @@ struct SnowballInfo
 
     bool onLand = false;
 
-    float radius = 8.0f;
+    static constexpr float s_initialSnowballRadius = 8.0f;
+    float radius = s_initialSnowballRadius;
     static constexpr float s_maxRadius = 48.0f;
     static constexpr float s_renderedMeshRadiusScaler = 1.2f;
 
@@ -553,8 +556,6 @@ void Scene002::CreateStageEntity()
     }
 
     Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.collisionGroupMask = s_sensor_collisionGroupMask_;
-    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_;
     collisionBody2DCreationInfo.physicsType = Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(stage_entityId_, collisionBody2DCreationInfo));
@@ -606,17 +607,27 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
     Project001::RenderedModel* renderedModelPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
-    if (penguinInfoPtr != nullptr && renderedModelPtr != nullptr)
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
+    if (penguinInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
     {
         penguinInfoPtr->playerNumber = playerNumber;
 
         unsigned int textureId = static_cast<unsigned int>(-1);
         if (penguinInfoPtr->playerNumber == 1)
         {
+            collisionBodyPtr->SetCollisionGroupMask(s_player1_collisionGroupMask_);
+
             textureId = sharedDataPtr_->penguin01_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 2)
         {
+            collisionBodyPtr->SetCollisionGroupMask(s_player2_collisionGroupMask_);
+
             textureId = sharedDataPtr_->penguin01_v2_textureId;
         }
 
@@ -715,10 +726,10 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_attractionPointCollision_renderedMeshIndex];
+            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabAttractorCollision_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
-            mesh.SetScale(glm::vec3(2.0f));
+            // mesh.SetScale(glm::vec3(2.0f));
             mesh.SetPositionZ(0.2f);
             mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
@@ -726,28 +737,6 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetRenderPriorityOverride(-2);
         }
 
-        {
-            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_snowballCollision_renderedMeshIndex];
-            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->hallowCircle_meshDataPtr);
-            mesh.SetScale(glm::vec3(2.0f));
-            mesh.SetPositionZ(0.3f);
-            mesh.SetColor(0.2f, 0.2f, 0.6f, 0.4f);
-            mesh.SetTranslucent(true);
-            mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(-3);
-        }
-    }
-
-    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
-    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
-
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
-    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
-    if (collisionBodyPtr != nullptr)
-    {
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetRotation(rotation);
 
@@ -764,7 +753,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
         }
 
         {
-            Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_grab_collisionCircleIndex];
+            Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_grabZone_collisionCircleIndex];
             collisionCircle = Project001::CollisionCircle2D(
                 glm::vec2(0.0f, sharedDataPtr_->penguin_grabOffset),
                 sharedDataPtr_->penguin_grabRadius,
@@ -774,13 +763,14 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             );
         }
 
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+        collisionPoints.resize(PenguinInfo::s_collisionPointCount);
+
         {
-            Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-            collisionCircle = Project001::CollisionCircle2D(
-                glm::vec2(0.0f, 0.0f),
-                0.0f,
-                s_snowball_collisionShapeTag_,
-                false
+            Project001::CollisionPoint2D& collisionPoint = collisionPoints[PenguinInfo::s_grabAttractor_collisionPointIndex];
+            collisionPoint = Project001::CollisionPoint2D(
+                glm::vec2(0.0f, penguinInfoPtr->grabAttractionRadius),
+                s_grabAttractor_collisionShapeTag_
             );
         }
     }
@@ -790,10 +780,6 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
-    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
-    collisionBody2DCreationInfo.collisionGroupMask = s_actor_collisionGroupMask_;
-    collisionBody2DCreationInfo.allowedCollisionFilterMask = s_actor_collisionGroupMask_ | s_sensor_collisionGroupMask_;
-
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<SnowballInfo>(entityId));
     SnowballInfo* snowballInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, entityId));
@@ -801,6 +787,8 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
     Project001::RenderedModel* renderedModelPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
 
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(entityId, collisionBody2DCreationInfo));
     Project001::CollisionBody2D* collisionBodyPtr = nullptr;
@@ -1068,7 +1056,9 @@ void Scene002::UpdateStageCollisionBodyQuadTreeMesh()
 
 void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 {
-    bool createSnowballEntityAtTheEndOfThisFunctionToAvoidVectorResizingProblemsInTheECS = false;
+    // Creating new components will cause old pointers from the ECS to become,
+    // invalid. Flags will be used to preform these actions at the end.
+    bool actionCreateSnowballEntity = false;
 
     PenguinInfo* penguinInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PenguinInfo>(penguinInfoPtr, entityId));
@@ -1083,7 +1073,9 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         unsigned int grabable_entityId = static_cast<unsigned int>(-1);
         float grabable_entityDistance = std::numeric_limits<float>::infinity();
 
-        const std::vector<Project001::CollisionOverlapData2D> penguinCollisionOverlaps = penguinCollisionBodyPtr->GetCollisionOverlaps();
+        bool snowballSpawnPointOnLand = false;
+
+        const std::vector<Project001::CollisionOverlapData2D>& penguinCollisionOverlaps = penguinCollisionBodyPtr->GetCollisionOverlaps();
         for (size_t i = 0; i < penguinCollisionOverlaps.size(); ++i)
         {
             const Project001::CollisionOverlapData2D& penguinCollisionOverlapData = penguinCollisionOverlaps[i];
@@ -1092,6 +1084,12 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 penguinCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
             {
                 penguinInfoPtr->onLand = true;
+            }
+
+            if (penguinCollisionOverlapData.myShapeTag == s_grabAttractor_collisionShapeTag_ &&
+                penguinCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
+            {
+                snowballSpawnPointOnLand = true;
             }
 
             if (penguinInfoPtr->snowball_EntityId == static_cast<unsigned int>(-1) &&
@@ -1129,7 +1127,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         float impulseMagntidueSum = 0.0f;
 
-        const std::vector<Project001::CollisionImpulseData2D> penguinCollisionImpulses = penguinCollisionBodyPtr->GetCollisionImpulses();
+        const std::vector<Project001::CollisionImpulseData2D>& penguinCollisionImpulses = penguinCollisionBodyPtr->GetCollisionImpulses();
         for (size_t i = 0; i < penguinCollisionImpulses.size(); ++i)
         {
             const Project001::CollisionImpulseData2D& penguinCollisionImpulseData = penguinCollisionImpulses[i];
@@ -1147,6 +1145,29 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         {
             hitHard = true;
         }
+
+        // if (snowballSpawnPointOnLand)
+        // {
+        //     Project001::RenderedModel* renderedModelPtr = nullptr;
+        //     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+        //     if (renderedModelPtr != nullptr)
+        //     {
+        //         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        //         Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabAttractorCollision_renderedMeshIndex];
+        //         mesh.SetColor(0.2f, 0.8f, 0.2f, 1.0f);
+        //     }
+        // }
+        // else
+        // {
+        //     Project001::RenderedModel* renderedModelPtr = nullptr;
+        //     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+        //     if (renderedModelPtr != nullptr)
+        //     {
+        //         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        //         Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabAttractorCollision_renderedMeshIndex];
+        //         mesh.SetColor(0.8f, 0.2f, 0.2f, 1.0f);
+        //     }
+        // }
 
         // Gathering input
         // ---------------------------------------------------------------------
@@ -1254,7 +1275,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                                 penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING_SNOWBALL;
                             }
                         }
-                        else // !grabableInReach
+                        else if (snowballSpawnPointOnLand) // && !grabableInReach
                         {
                             penguinInfoPtr->makeSnowballCountDown_s = PenguinInfo::s_makeSnowballTime_s;
                             penguinInfoPtr->state = PenguinInfo::State::STATE_MAKING_SNOWBALL;
@@ -1353,13 +1374,13 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 moveMagnitude = 0.0f;
                 penguinInfoPtr->state = PenguinInfo::State::STATE_HITSTUN;
                 penguinInfoPtr->hitstunCoolDown_s = impulseMagntidueSum / 512.0f;
-
+        
                 penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
-
+        
                 break;
             }
-
+        
             if (penguinOnLand)
             {
                 if (grabPressed)
@@ -1387,7 +1408,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                     {
                         penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
                         snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
-
+        
                         if (moving)
                         {
                             penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING;
@@ -1417,7 +1438,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
-
+        
                 if (moving)
                 {
                     penguinInfoPtr->state = PenguinInfo::State::STATE_SWIMMING;
@@ -1441,7 +1462,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
             }
-
+        
             break;
         }
         }
@@ -1461,18 +1482,24 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         if (penguinInfoPtr->snowball_EntityId != static_cast<unsigned int>(-1))
         {
-            const float penguinOnlyMass = sharedDataPtr_->penguin_collisionRadius * sharedDataPtr_->penguin_collisionRadius * glm::pi<float>() * penguinCollisionBodyPtr->GetDensity();
-            const float& currentPenguinMass = penguinCollisionBodyPtr->GetMass();
-            float snowballMass = currentPenguinMass - penguinOnlyMass;
-            float massRatio = penguinOnlyMass / (currentPenguinMass - 0.75f * snowballMass);
+            float penguinMass = penguinCollisionBodyPtr->GetMass();
+            float snowballMass = 0.0f;
+            Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
+            GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, penguinInfoPtr->snowball_EntityId);
+            if (snowballCollisionBodyPtr != nullptr)
+            {
+                snowballMass = snowballCollisionBodyPtr->GetMass();
+            }
 
-            maxSpeed = 0.8f * maxSpeed * massRatio;
-            acceleration = 0.8f * acceleration * massRatio;
-            friction = 0.8f * friction * massRatio;
+            float penguinMassRatio = penguinMass / (penguinMass + 0.25f * snowballMass);
 
-            maxAngularSpeed = 0.4f * maxAngularSpeed * massRatio * massRatio;
-            angularAcceleration = 0.4f * angularAcceleration * massRatio * massRatio;
-            angularFriction = angularFriction * massRatio * massRatio;
+            maxSpeed = 0.8f * maxSpeed * penguinMassRatio;
+            acceleration = 0.8f * acceleration * penguinMassRatio;
+            friction = 0.8f * friction * penguinMassRatio;
+
+            maxAngularSpeed = 0.4f * maxAngularSpeed * penguinMassRatio * penguinMassRatio;
+            angularAcceleration = 0.4f * angularAcceleration * penguinMassRatio * penguinMassRatio;
+            angularFriction = angularFriction * penguinMassRatio * penguinMassRatio;
         }
 
         if (penguinInfoPtr->state == PenguinInfo::State::STATE_HITSTUN)
@@ -1603,96 +1630,84 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         }
         case SnowballAction::SNOWBALL_ACTION_GRAB:
         {
-            penguinInfoPtr->snowball_EntityId = grabable_entityId;
-
-            std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& penguinSnowballCollisionCircle = penguinCollisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-            penguinSnowballCollisionCircle.enabled = true;
-
+            SnowballInfo* snowballInfoPtr = nullptr;
+            GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, grabable_entityId);
             Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
-            GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, penguinInfoPtr->snowball_EntityId);
-            if (snowballCollisionBodyPtr != nullptr)
+            GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, grabable_entityId);
+            if (snowballInfoPtr != nullptr && snowballCollisionBodyPtr != nullptr)
             {
-                snowballCollisionBodyPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SENSOR);
+                penguinInfoPtr->snowball_EntityId = grabable_entityId;
+                snowballInfoPtr->penguin_EntityId = entityId;
 
                 float penguinMass = penguinCollisionBodyPtr->GetMass();
                 float snowballMass = snowballCollisionBodyPtr->GetMass();
 
                 if (penguinMass > 0.0f)
                 {
+                    float snowballMassRatio = snowballMass / (penguinMass + snowballMass);
+                    constexpr float extraSlowdownConstant = 0.8f;
+
                     penguinCollisionBodyPtr->SetVelocity(
-                        snowballCollisionBodyPtr->GetVelocity() * snowballMass / (penguinMass + snowballMass)
-                    );
-                    penguinCollisionBodyPtr->SetAcceleration(
-                        snowballCollisionBodyPtr->GetAcceleration() * snowballMass / (penguinMass + snowballMass)
+                        snowballCollisionBodyPtr->GetVelocity() * snowballMassRatio * extraSlowdownConstant
                     );
                     penguinCollisionBodyPtr->SetAngularVelocity(
-                        snowballCollisionBodyPtr->GetAngularVelocity() * snowballMass / (penguinMass + snowballMass)
-                    );
-                    penguinCollisionBodyPtr->SetAngularAcceleration(
-                        snowballCollisionBodyPtr->GetAngularAcceleration() * snowballMass / (penguinMass + snowballMass)
+                        -snowballCollisionBodyPtr->GetAngularVelocity() * snowballMassRatio
                     );
                 }
 
-                snowballCollisionBodyPtr->SetVelocity(glm::vec2(0.0f));
-                snowballCollisionBodyPtr->SetAcceleration(glm::vec2(0.0f));
-                snowballCollisionBodyPtr->SetAngularVelocity(0.0f);
-                snowballCollisionBodyPtr->SetAngularAcceleration(0.0f);
+                snowballCollisionBodyPtr->SetAllowedCollisionFilterMask(
+                    snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() & ~penguinCollisionBodyPtr->GetCollisionGroupMask()
+                );
             }
 
             break;
         }
         case SnowballAction::SNOWBALL_ACTION_SPAWN:
         {
-            createSnowballEntityAtTheEndOfThisFunctionToAvoidVectorResizingProblemsInTheECS = true;
-
-            break;
+            actionCreateSnowballEntity = true;
         }
         case SnowballAction::SNOWBALL_ACTION_DROP:
         {
-            std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& penguinSnowballCollisionCircle = penguinCollisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-            penguinSnowballCollisionCircle.enabled = false;
-
+            SnowballInfo* snowballInfoPtr = nullptr;
+            GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfoPtr->snowball_EntityId);
             Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
             GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, penguinInfoPtr->snowball_EntityId);
-            if (snowballCollisionBodyPtr != nullptr)
+            if (snowballInfoPtr != nullptr && snowballCollisionBodyPtr != nullptr)
             {
-                snowballCollisionBodyPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY);
+                penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
+                snowballInfoPtr->penguin_EntityId = static_cast<unsigned int>(-1);
 
-                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
+                snowballCollisionBodyPtr->SetAllowedCollisionFilterMask(
+                    snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() | penguinCollisionBodyPtr->GetCollisionGroupMask()
+                );
             }
 
-            penguinCollisionBodyPtr->FlagMassToBeRecalculated();
-
-            penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
             break;
         }
         case SnowballAction::SNOWBALL_ACTION_THROW:
         {
-            std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& penguinSnowballCollisionCircle = penguinCollisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-            penguinSnowballCollisionCircle.enabled = false;
-
+            SnowballInfo* snowballInfoPtr = nullptr;
+            GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfoPtr->snowball_EntityId);
             Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
             GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, penguinInfoPtr->snowball_EntityId);
-            if (snowballCollisionBodyPtr != nullptr)
+            if (snowballInfoPtr != nullptr && snowballCollisionBodyPtr != nullptr)
             {
-                snowballCollisionBodyPtr->SetPhysicsType(Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_RIGID_BODY);
+                penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
+                snowballInfoPtr->penguin_EntityId = static_cast<unsigned int>(-1);
+
+                snowballCollisionBodyPtr->SetAllowedCollisionFilterMask(
+                    snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() | penguinCollisionBodyPtr->GetCollisionGroupMask()
+                );
 
                 if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f)
                 {
                     snowballCollisionBodyPtr->SetVelocity(
-                        snowballCollisionBodyPtr->GetVelocity() + penguinCollisionBodyDirection * sharedDataPtr_->penguin_throwSpeed_s
+                        snowballCollisionBodyPtr->GetVelocity() +
+                        penguinCollisionBodyDirection * sharedDataPtr_->penguin_throwSpeed_s
                     );
                 }
-
-                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
             }
 
-            penguinCollisionBodyPtr->FlagMassToBeRecalculated();
-
-            penguinInfoPtr->snowball_EntityId = static_cast<unsigned int>(-1);
             break;
         }
         }
@@ -1709,17 +1724,10 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             const glm::vec2& snowballPosition = snowballCollisionBodyPtr->GetPosition();
             const float& snowballRadius = snowballInfoPtr->radius;
 
-            glm::vec2 penguinToSnowball = snowballPosition - penguinPosition;
-
-            std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& penguinSnowballCollisionCircle = penguinCollisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-
-            std::vector<Project001::CollisionCircle2D>& snowballCollisionCircles = snowballCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& snowballCollisionCircle = snowballCollisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];
-
             constexpr float penguinRotationSpeed = glm::pi<float>() * 16.0f;
             const float penguinRotationStep = penguinRotationSpeed * timestep_s;
 
+            glm::vec2 penguinToSnowball = snowballPosition - penguinPosition;
             float penguinToSnowballMagnitude = glm::length(penguinToSnowball);
             glm::vec2 penguinToSnowballDirection = penguinToSnowball / penguinToSnowballMagnitude;
             float angleToSnowball = Project001::Math::Get2DVectorAngle(penguinCollisionBodyPtr->GetForwardVector(), penguinToSnowballDirection);
@@ -1730,13 +1738,10 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 float angleToSnowballSign = glm::sign(angleToSnowball);
                 penguinCollisionBodyPtr->AddRotation(angleToSnowballSign * penguinRotationStep);
             }
-            penguinCollisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector();
+            penguinCollisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector(); // get this again because rotation was applied
 
-            penguinSnowballCollisionCircle.position = Project001::Math::Rotate2DVector(penguinToSnowball, -penguinRotation);
-            penguinSnowballCollisionCircle.radius = snowballCollisionCircle.radius;
-            penguinInfoPtr->attractionRadius = penguinRadius + snowballRadius;
-
-            glm::vec2 attractionPoint = penguinPosition + penguinCollisionBodyDirection * penguinInfoPtr->attractionRadius;
+            penguinInfoPtr->grabAttractionRadius = penguinRadius + snowballRadius;
+            glm::vec2 attractionPoint = penguinPosition + penguinCollisionBodyDirection * penguinInfoPtr->grabAttractionRadius;
             glm::vec2 snowballToAttractionPointDirection = attractionPoint - snowballPosition;
             float snowballToAttractionPointMagnitude = glm::length(snowballToAttractionPointDirection);
 
@@ -1746,15 +1751,19 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             if (snowballToAttractionPointMagnitude > attractionStep)
             {
                 snowballToAttractionPointDirection /= snowballToAttractionPointMagnitude;
-                const glm::vec2 snowballVelocityStep = snowballCollisionBodyPtr->GetVelocity() * timestep_s;
                 snowballCollisionBodyPtr->SetPosition(
-                    snowballCollisionBodyPtr->GetPosition() - snowballVelocityStep + snowballToAttractionPointDirection * attractionStep
+                    snowballCollisionBodyPtr->GetPosition() + snowballToAttractionPointDirection * attractionStep
                 );
             }
             else
             {
                 snowballCollisionBodyPtr->SetPosition(attractionPoint);
             }
+
+            snowballCollisionBodyPtr->SetVelocity(
+                penguinCollisionBodyPtr->GetVelocity() +
+                penguinCollisionBodyPtr->GetRightVector() * -penguinCollisionBodyPtr->GetAngularVelocity()
+            );
 
             if (moveMagnitude > 0.0f)
             {
@@ -1766,25 +1775,24 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 {
                     snowballInfoPtr->radius = SnowballInfo::s_maxRadius;
                 }
-            }
 
-            penguinCollisionBodyPtr->FlagMassToBeRecalculated();
+                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
+            }
         }
         else
         {
-            penguinInfoPtr->attractionRadius = 0.0f;
-
-            std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
-            Project001::CollisionCircle2D& penguinSnowballCollisionCircle = penguinCollisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-
-            penguinSnowballCollisionCircle.position = glm::vec2(0.0f, 0.0f);
-            penguinSnowballCollisionCircle.radius = 0.0f;
+            penguinInfoPtr->grabAttractionRadius = PenguinInfo::s_initialGrabAttractionRadius;
         }
     }
 
-    if (createSnowballEntityAtTheEndOfThisFunctionToAvoidVectorResizingProblemsInTheECS)
+    if (actionCreateSnowballEntity)
     {
-        CreateSnowballEntity(penguinInfoPtr->snowball_EntityId, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 8.0f);
+        CreateSnowballEntity(
+            penguinInfoPtr->snowball_EntityId,
+            glm::vec2(0.0f, 0.0f),
+            glm::vec2(0.0f, 0.0f),
+            SnowballInfo::s_initialSnowballRadius
+        );
 
         Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, entityId));
@@ -1794,13 +1802,15 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, penguinInfoPtr->snowball_EntityId);
         if (snowballInfoPtr != nullptr && snowballCollisionBodyPtr != nullptr)
         {
+            snowballInfoPtr->penguin_EntityId = entityId;
+
             const glm::vec2& penguinPosition = penguinCollisionBodyPtr->GetPosition();
             const float& penguinRadius = sharedDataPtr_->penguin_collisionRadius;
             const float& snowballRadius = snowballInfoPtr->radius;
 
-            penguinInfoPtr->attractionRadius = penguinRadius + snowballRadius;
+            penguinInfoPtr->grabAttractionRadius = penguinRadius + snowballRadius;
             glm::vec2 collisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector();
-            glm::vec2 attractionPoint = penguinPosition + collisionBodyDirection * penguinInfoPtr->attractionRadius;
+            glm::vec2 attractionPoint = penguinPosition + collisionBodyDirection * penguinInfoPtr->grabAttractionRadius;
             snowballCollisionBodyPtr->SetPosition(attractionPoint);
 
             penguinCollisionBodyPtr->FlagMassToBeRecalculated();
@@ -1820,21 +1830,31 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
         unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo);
 
-        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
-        if (collisionBodyPtr != nullptr)
+        Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, entityId));
+        if (snowballCollisionBodyPtr != nullptr)
         {
             snowballInfo.onLand = false;
 
-            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = collisionBodyPtr->GetCollisionOverlaps();
-            for (size_t i = 0; i < collisionOverlaps.size(); ++i)
+            const std::vector<Project001::CollisionOverlapData2D>& snowballCollisionOverlaps = snowballCollisionBodyPtr->GetCollisionOverlaps();
+            for (size_t i = 0; i < snowballCollisionOverlaps.size(); ++i)
             {
-                const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
+                const Project001::CollisionOverlapData2D& snowballCollisionOverlapData = snowballCollisionOverlaps[i];
 
-                if (collisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
+                if (snowballCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
                 {
                     snowballInfo.onLand = true;
                 }
+            }
+
+            float impulseMagntidueSum = 0.0f;
+
+            const std::vector<Project001::CollisionImpulseData2D>& snowballCollisionImpulses = snowballCollisionBodyPtr->GetCollisionImpulses();
+            for (size_t i = 0; i < snowballCollisionImpulses.size(); ++i)
+            {
+                const Project001::CollisionImpulseData2D& snowballCollisionImpulseData = snowballCollisionImpulses[i];
+
+                impulseMagntidueSum += glm::length(snowballCollisionImpulseData.impulse);
             }
 
             float friction = sharedDataPtr_->snowball_landFriction;
@@ -1843,7 +1863,7 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 friction = sharedDataPtr_->snowball_waterFriction;
             }
 
-            const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
+            const glm::vec2& velocity = snowballCollisionBodyPtr->GetVelocity();
             float velocityMagnitude = glm::length(velocity);
             if (velocityMagnitude > 0.0f)
             {
@@ -1853,17 +1873,17 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 float decelerationStepMagnitude = std::abs(decelerationStep);
                 if (velocityMagnitude < decelerationStepMagnitude)
                 {
-                    collisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
+                    snowballCollisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
                 }
                 else
                 {
-                    collisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
+                    snowballCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
                 }
             }
 
             float angularFriction = sharedDataPtr_->snowball_angularFriction;
 
-            const float& angularVelocity = collisionBodyPtr->GetAngularVelocity();
+            const float& angularVelocity = snowballCollisionBodyPtr->GetAngularVelocity();
             float angularVelocityMagnitude = glm::abs(angularVelocity);
             if (angularVelocityMagnitude > 0.0f)
             {
@@ -1873,15 +1893,15 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 float angularDecelerationStepMagnitude = glm::abs(angularDecelerationStep);
                 if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
                 {
-                    collisionBodyPtr->SetAngularVelocity(0.0f);
+                    snowballCollisionBodyPtr->SetAngularVelocity(0.0f);
                 }
                 else
                 {
-                    collisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
+                    snowballCollisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
                 }
             }
 
-            std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
+            std::vector<Project001::CollisionCircle2D>& collisionCircles = snowballCollisionBodyPtr->GetCollisionCircles();
 
             {
                 Project001::CollisionCircle2D& collisionCircle = collisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];
@@ -1929,7 +1949,8 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                 (penguinInfo.animationState == PenguinInfo::State::STATE_SWIMMING && penguinInfo.state == PenguinInfo::State::STATE_WALKING) ||
                 (penguinInfo.animationState == PenguinInfo::State::STATE_WALKING_SNOWBALL && penguinInfo.state == PenguinInfo::State::STATE_SWIMMING) ||
                 (penguinInfo.animationState == PenguinInfo::State::STATE_SWIMMING && penguinInfo.state == PenguinInfo::State::STATE_WALKING_SNOWBALL) ||
-                (penguinInfo.animationState != PenguinInfo::State::STATE_HITSTUN && penguinInfo.state == PenguinInfo::State::STATE_HITSTUN))
+                (penguinInfo.animationState != PenguinInfo::State::STATE_HITSTUN && penguinInfo.state == PenguinInfo::State::STATE_HITSTUN) ||
+                (penguinInfo.animationState == PenguinInfo::State::STATE_SWIMMING && penguinInfo.state == PenguinInfo::State::STATE_MAKING_SNOWBALL))
             {
                 penguinInfo.animationStateCountDown_s = 0.0f;
             }
@@ -2328,9 +2349,9 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
                 SnowballInfo* snowballInfoPtr = nullptr;
                 GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfo.snowball_EntityId);
-                if (snowballInfoPtr != nullptr && penguinInfo.attractionRadius > 0.0f)
+                if (snowballInfoPtr != nullptr && penguinInfo.grabAttractionRadius > 0.0f)
                 {
-                    headTilt = glm::atan((2.0f * snowballInfoPtr->radius - 32.0f) / penguinInfo.attractionRadius);
+                    headTilt = glm::atan((2.0f * snowballInfoPtr->radius - 32.0f) / penguinInfo.grabAttractionRadius);
                     if (headTilt > glm::quarter_pi<float>())
                     {
                         bodyTilt = headTilt - glm::quarter_pi<float>();
@@ -2341,7 +2362,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                         bodyTilt = headTilt + glm::quarter_pi<float>();
                         headTilt = -glm::quarter_pi<float>();
                     }
-                    flipperTilt = glm::atan((snowballInfoPtr->radius - 16.0f) / penguinInfo.attractionRadius);
+                    flipperTilt = glm::atan((snowballInfoPtr->radius - 16.0f) / penguinInfo.grabAttractionRadius);
                 }
 
                 {
@@ -2394,9 +2415,9 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
                 SnowballInfo* snowballInfoPtr = nullptr;
                 GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfo.snowball_EntityId);
-                if (snowballInfoPtr != nullptr && penguinInfo.attractionRadius > 0.0f)
+                if (snowballInfoPtr != nullptr && penguinInfo.grabAttractionRadius > 0.0f)
                 {
-                    headTilt = glm::atan((2.0f * snowballInfoPtr->radius - 32.0f) / penguinInfo.attractionRadius);
+                    headTilt = glm::atan((2.0f * snowballInfoPtr->radius - 32.0f) / penguinInfo.grabAttractionRadius);
                     if (headTilt > glm::quarter_pi<float>())
                     {
                         bodyTilt = headTilt - glm::quarter_pi<float>();
@@ -2407,7 +2428,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                         bodyTilt = headTilt + glm::quarter_pi<float>();
                         headTilt = -glm::quarter_pi<float>();
                     }
-                    flipperTilt = glm::atan((snowballInfoPtr->radius - 16.0f) / penguinInfo.attractionRadius);
+                    flipperTilt = glm::atan((snowballInfoPtr->radius - 16.0f) / penguinInfo.grabAttractionRadius);
                 }
 
                 {
@@ -2565,43 +2586,32 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
             // Animate the snowball held by the penguin
 
-            Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-            GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId);
+            Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;
+            GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, entityId);
             SnowballInfo* snowballInfoPtr = nullptr;
             GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfo.snowball_EntityId);
             Project001::RenderedModel* snowballRenderedModelPtr = nullptr;
             GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(snowballRenderedModelPtr, penguinInfo.snowball_EntityId);
-            if (collisionBodyPtr != nullptr && snowballInfoPtr != nullptr && snowballRenderedModelPtr != nullptr)
+            if (penguinCollisionBodyPtr != nullptr && snowballInfoPtr != nullptr && snowballRenderedModelPtr != nullptr)
             {
-                const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
+                const glm::vec2& velocity = penguinCollisionBodyPtr->GetVelocity();
                 float velocityMagnitude = glm::length(velocity);
 
-                const float& angularVelocity = collisionBodyPtr->GetAngularVelocity();
+                const float& angularVelocity = penguinCollisionBodyPtr->GetAngularVelocity();
 
                 float rotationAngle1 = 0.0f;
-                float rotationAngle2 = 0.0f;
                 if (snowballInfoPtr->radius > 0.0f)
                 {
-                    rotationAngle1 = velocityMagnitude * timestep_s / snowballInfoPtr->radius;
-
-                    rotationAngle2 = -angularVelocity * timestep_s * penguinInfo.attractionRadius / snowballInfoPtr->radius;
+                    rotationAngle1 = -angularVelocity * timestep_s * penguinInfo.grabAttractionRadius / snowballInfoPtr->radius;
                 }
 
-                glm::vec3 rotationAxis1(1.0f, 0.0f, 0.0f);
-                if (velocityMagnitude > 0.0f)
-                {
-                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
-                    rotationAxis1 = glm::vec3(-velocityDirection.y, velocityDirection.x, 0.0f);
-                }
-
-                glm::vec3 rotationAxis2(collisionBodyPtr->GetForwardVector(), 0.0f);
+                glm::vec3 rotationAxis1(penguinCollisionBodyPtr->GetForwardVector(), 0.0f);
 
                 {
                     std::vector<Project001::RenderedMesh>& renderedMeshes = snowballRenderedModelPtr->GetRenderedMeshes();
                     Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
 
                     mesh.AddWorldRotation(rotationAngle1, rotationAxis1);
-                    mesh.AddWorldRotation(rotationAngle2, rotationAxis2);
                 }
             }
 
@@ -2622,11 +2632,11 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
         unsigned int entityId = static_cast<unsigned int>(-1);
         GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo);
 
-        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
+        Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, entityId));
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
-        if (collisionBodyPtr != nullptr && renderedModelPtr != nullptr)
+        if (snowballCollisionBodyPtr != nullptr && renderedModelPtr != nullptr)
         {
             // Set animationState to state when the animation is done
             if (snowballInfo.animationStateCountDown_s <= 0.0f)
@@ -2655,24 +2665,26 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
 
             if (snowballInfo.animationState == SnowballInfo::State::STATE_REGULAR)
             {
-                const glm::vec2& velocity = collisionBodyPtr->GetVelocity();
-                float velocityMagnitude = glm::length(velocity);
-                glm::vec3 normalDirection(1.0f, 0.0f, 0.0f);
-                float rotationAngle = 0.0f;
-                if (velocityMagnitude > 0.0f)
-                {
-                    glm::vec2 velocityDirection = velocity / velocityMagnitude;
-                    normalDirection = glm::vec3(-velocityDirection.y, velocityDirection.x, 0.0f);
-
-                    rotationAngle = velocityMagnitude * timestep_s / snowballInfo.radius;
-                }
-
                 {
                     Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
 
                     float adjustedScale = snowballInfo.radius * SnowballInfo::s_renderedMeshRadiusScaler;
                     mesh.SetScale(adjustedScale, adjustedScale, adjustedScale);
-                    mesh.AddWorldRotation(rotationAngle, normalDirection);
+
+                    const glm::vec2& velocity = snowballCollisionBodyPtr->GetVelocity();
+                    float velocityMagnitude = glm::length(velocity);
+                    glm::vec3 rotationAxis(1.0f, 0.0f, 0.0f);
+                    float rotationAngle = 0.0f;
+                    if (velocityMagnitude > 0.0f)
+                    {
+                        glm::vec2 velocityDirection = velocity / velocityMagnitude;
+                        glm::vec2 normalDirection = glm::vec2(-velocityDirection.y, velocityDirection.x);
+                        normalDirection = Project001::Math::Rotate2DVector(normalDirection, snowballCollisionBodyPtr->GetRotation());
+                        rotationAxis = glm::vec3(normalDirection, 0.0f);
+
+                        rotationAngle = velocityMagnitude * timestep_s / snowballInfo.radius;
+                    }
+                    mesh.AddWorldRotation(rotationAngle, rotationAxis);
 
                     float desiredPositionZ = 0.0f;
                     if (snowballInfo.onLand)
@@ -2787,7 +2799,7 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
                     snowballInfo.positionZ = desiredPositionZ;
                 }
 
-                glm::vec2 outwardVector = Project001::Math::Rotate2DVector(collisionBodyPtr->GetForwardVector(), snowballInfo.animationRandomRotation);
+                glm::vec2 outwardVector = Project001::Math::Rotate2DVector(snowballCollisionBodyPtr->GetForwardVector(), snowballInfo.animationRandomRotation);
                 constexpr float outwardVectorRotation = glm::two_pi<float>() / 6.0f;
 
                 const float timeRatio = (SnowballInfo::s_explosionTime_s - snowballInfo.animationStateCountDown_s) / SnowballInfo::s_explosionTime_s;
@@ -2968,18 +2980,8 @@ void Scene002::SyncPenguinRenderedModels()
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             {
-                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_attractionPointCollision_renderedMeshIndex];
-                mesh.SetPositionY(penguinInfo.attractionRadius);
-            }
-
-            {
-                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_snowballCollision_renderedMeshIndex];
-
-                std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
-                Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_snowball_collisionCircleIndex];
-
-                mesh.SetPosition(glm::vec3(collisionCircle.position, 0.0f));
-                mesh.SetScale(glm::vec3(collisionCircle.radius));
+                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabAttractorCollision_renderedMeshIndex];
+                mesh.SetPositionY(penguinInfo.grabAttractionRadius);
             }
         }
     }

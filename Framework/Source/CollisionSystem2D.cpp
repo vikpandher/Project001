@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-24
 
 #include "CollisionSystem2D.h"
 
@@ -1539,6 +1539,26 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // rectangle A & point B
+        for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
+        {
+            const CollisionRectangle2D& rectangleA = transformedCollisionRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_Rectangle_Point_Overlap(
+                    rectangleA.bottomLeft,
+                    rectangleA.topRight,
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(rectangleA.tag, pointB.tag);
+                }
+            }
+        }
+
         // rectangle A & line B
         for (size_t i = 0; i < transformedCollisionRectanglesA.size(); ++i)
         {
@@ -1924,6 +1944,27 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // orientedRectangle A & point B
+        for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
+        {
+            const CollisionOrientedRectangle2D& orientedRectangleA = transformedCollisionOrientedRectanglesA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_OrientedRectangle_Point_Overlap(
+                    orientedRectangleA.halfSize,
+                    orientedRectangleA.position,
+                    orientedRectangleA.rotation,
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(orientedRectangleA.tag, pointB.tag);
+                }
+            }
+        }
+
         // orientedRectangle A & line B
         for (size_t i = 0; i < transformedCollisionOrientedRectanglesA.size(); ++i)
         {
@@ -2325,6 +2366,26 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // circle A & point B
+        for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
+        {
+            const CollisionCircle2D& circleA = transformedCollisionCirclesA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_Circle_Point_Overlap(
+                    circleA.position,
+                    circleA.radius,
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(circleA.tag, pointB.tag);
+                }
+            }
+        }
+
         // circle A & line B
         for (size_t i = 0; i < transformedCollisionCirclesA.size(); ++i)
         {
@@ -2710,6 +2771,27 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // capsule A & point B
+        for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
+        {
+            const CollisionCapsule2D& capsuleA = transformedCollisionCapsulesA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_Capsule_Point_Overlap(
+                    capsuleA.start,
+                    capsuleA.end,
+                    capsuleA.radius,
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(capsuleA.tag, pointB.tag);
+                }
+            }
+        }
+
         // capsule A & line B
         for (size_t i = 0; i < transformedCollisionCapsulesA.size(); ++i)
         {
@@ -3111,6 +3193,27 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // triangle A & point B
+        for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
+        {
+            const CollisionTriangle2D& triangleA = transformedCollisionTrianglesA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_Triangle_Point_Overlap(
+                    triangleA.corner1,
+                    triangleA.corner2,
+                    triangleA.corner3,
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(triangleA.tag, pointB.tag);
+                }
+            }
+        }
+
         // triangle A & line B
         for (size_t i = 0; i < transformedCollisionTrianglesA.size(); ++i)
         {
@@ -3512,6 +3615,26 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // polygon A & point B
+        for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
+        {
+            const CollisionPolygon2D& polygonA = transformedCollisionPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_Polygon_Point_Overlap(
+                    polygonA.corners.data(),
+                    polygonA.corners.size(),
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(polygonA.tag, pointB.tag);
+                }
+            }
+        }
+
         // polygon A & line B
         for (size_t i = 0; i < transformedCollisionPolygonsA.size(); ++i)
         {
@@ -3726,6 +3849,26 @@ namespace Project001
         }
 
         // ---------------------------------------------------------------------
+        // convexPolygon A & point B
+        for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
+        {
+            const CollisionConvexPolygon2D& convexPolygonA = transformedCollisionConvexPolygonsA[i];
+            for (size_t j = 0; j < transformedCollisionPointsB.size(); ++j)
+            {
+                const CollisionPoint2D& pointB = transformedCollisionPointsB[j];
+
+                bool collisionFound = Check2D_ConvexPolygon_Point_Overlap(
+                    convexPolygonA.corners.data(),
+                    convexPolygonA.corners.size(),
+                    pointB.position);
+
+                if (collisionFound)
+                {
+                    AddCollisionOverlapData(convexPolygonA.tag, pointB.tag);
+                }
+            }
+        }
+
         // convexPolygon A & line B
         for (size_t i = 0; i < transformedCollisionConvexPolygonsA.size(); ++i)
         {

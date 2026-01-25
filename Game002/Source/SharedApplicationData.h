@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-23
+// @DATE 2026-01-24
 
 #pragma once
 
@@ -63,7 +63,7 @@ struct SharedApplicationData
     const float penguin_grabRadius = 18.0f;
     const float penguin_throwSpeed_s = 256.0f;
 
-    const float snowball_landFriction = 0.0f; // 8.0f;
+    const float snowball_landFriction = 8.0f;
     const float snowball_waterFriction = 16.0f;
     const float snowball_angularFriction = glm::pi<float>();
 

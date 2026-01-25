@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-24
 
 #pragma once
 
@@ -100,14 +100,14 @@ protected:
 
     static const int s_main_renderPriority = 0;
 
+    static const uint32_t s_player1_collisionGroupMask_ = 0b00000000000000000000000000000010;
+    static const uint32_t s_player2_collisionGroupMask_ = 0b00000000000000000000000000000100;
+
     static const unsigned int s_player_collisionShapeTag_ = 1;
     static const unsigned int s_grab_collisionShapeTag_ = 2;
-    static const unsigned int s_snowball_collisionShapeTag_ = 3;
-    static const unsigned int s_ground_collisionShapeTag_ = 4;
-
-    static const uint32_t s_actor_collisionGroupMask_ = 0b00000000000000000000000000000010;
-    static const uint32_t s_sensor_collisionGroupMask_ = 0b00000000000000000000000000000100;
-    static const uint32_t s_ground_collisionGroupMask_ = 0b00000000000000000000000000001000;
+    static const unsigned int s_grabAttractor_collisionShapeTag_ = 3;
+    static const unsigned int s_snowball_collisionShapeTag_ = 4;
+    static const unsigned int s_ground_collisionShapeTag_ = 5;
 
     static constexpr float s_waterHeight = -8.0f;
 };

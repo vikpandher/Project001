@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-01-24
 
 #include "TestScene051.h"
 
@@ -623,7 +623,7 @@ void TestScene051::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBody2DPtr, buttonEntityId));
             if (collisionBody2DPtr != nullptr)
             {
-                const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = collisionBody2DPtr->GetCollisionOverlaps();
+                const std::vector<Project001::CollisionOverlapData2D>& collisionOverlaps = collisionBody2DPtr->GetCollisionOverlaps();
                 for (size_t i = 0; i < collisionOverlaps.size(); ++i)
                 {
                     const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];

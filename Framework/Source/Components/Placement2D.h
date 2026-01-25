@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-01-24
 
 #pragma once
 
@@ -25,6 +25,7 @@ namespace Project001
         void SetRotation(float angleInRadians);
 
         glm::vec2 GetForwardVector() const;
+        glm::vec2 GetRightVector() const;
 
     protected:
         // Inherited:
@@ -66,5 +67,10 @@ namespace Project001
     inline glm::vec2 Placement2D::GetForwardVector() const
     {
         return Math::Rotate2DVector(glm::vec2(0.0f, 1.0f), rotation_);
+    }
+
+    inline glm::vec2 Placement2D::GetRightVector() const
+    {
+        return Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), rotation_);
     }
 }

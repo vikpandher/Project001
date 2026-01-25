@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-24
 
 #include "Scene002.h"
 
@@ -2427,7 +2427,7 @@ void Scene002::UpdatePlayerEntity(float timestep_s)
 
         playerInfoPtr->safe = false;
 
-        const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = playerCollisionBodyPtr->GetCollisionOverlaps();
+        const std::vector<Project001::CollisionOverlapData2D>& collisionOverlaps = playerCollisionBodyPtr->GetCollisionOverlaps();
         for (size_t i = 0; i < collisionOverlaps.size(); ++i)
         {
             const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
@@ -2492,7 +2492,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, monsterEntityId));
         if (collisionBodyPtr != nullptr)
         {
-            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = collisionBodyPtr->GetCollisionOverlaps();
+            const std::vector<Project001::CollisionOverlapData2D>& collisionOverlaps = collisionBodyPtr->GetCollisionOverlaps();
             for (size_t i = 0; i < collisionOverlaps.size(); ++i)
             {
                 const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
@@ -2561,7 +2561,7 @@ void Scene002::UpdateMonsterEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(visionCollisionBodyPtr, monsterInfo.vision_EntityId));
         if (visionCollisionBodyPtr != nullptr)
         {
-            const std::vector<Project001::CollisionOverlapData2D> collisionOverlaps = visionCollisionBodyPtr->GetCollisionOverlaps();
+            const std::vector<Project001::CollisionOverlapData2D>& collisionOverlaps = visionCollisionBodyPtr->GetCollisionOverlaps();
             for (size_t i = 0; i < collisionOverlaps.size(); ++i)
             {
                 const Project001::CollisionOverlapData2D& collisionOverlapData = collisionOverlaps[i];
