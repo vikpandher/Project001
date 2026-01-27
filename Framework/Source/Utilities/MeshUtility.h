@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-26
 
 #pragma once
 
@@ -91,6 +91,17 @@ namespace Mesh
         const glm::vec2& end,
         float radius,
         size_t radialSections,
+        bool triangulate = g_triangulate);
+
+    bool Generate2DDashedLine(
+        MeshData& meshData,
+        const glm::vec2& start,
+        const glm::vec2& direction,
+        float dashLength,
+        float gapLength,
+        float width,
+        size_t dashCount,
+        bool gapsIncludedInTextureCoordinateCalculation = false,
         bool triangulate = g_triangulate);
 
     bool Generate2DLine(

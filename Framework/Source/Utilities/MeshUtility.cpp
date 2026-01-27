@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-01-26
 
 #include "MeshUtility.h"
 
@@ -666,6 +666,150 @@ namespace Mesh
         }
 
         return Generate2DTriangleFan(meshData, positions, triangulate);
+    }
+
+    bool Generate2DDashedLine(
+        MeshData& meshData,
+        const glm::vec2& start,
+        const glm::vec2& direction,
+        float dashLength,
+        float gapLength,
+        float width,
+        size_t dashCount,
+        bool gapsIncludedInTextureCoordinateCalculation,
+        bool triangulate)
+    {
+        if (dashLength <= 0.0f || dashCount == 0)
+        {
+            return false;
+        }
+
+        if (direction.x == 0.0f && direction.y == 0.0f)
+        {
+            return false;
+        }
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        float totalLength = dashLength * dashCount + gapLength * (dashCount - 1);
+        float halfWidth = width * 0.5f;
+
+        glm::vec3 potentialMax(totalLength, halfWidth, 0.0f);
+        glm::vec3 potentialMin(0.0f, -halfWidth, 0.0f);
+        float radius1 = glm::length(potentialMax);
+        float radius2 = glm::length(potentialMin);
+
+        if (maxBoundingRadius < radius1) maxBoundingRadius = radius1;
+        if (maxBoundingRadius < radius2) maxBoundingRadius = radius2;
+        if (maxVertexPosition.x < potentialMax.x) maxVertexPosition.x = potentialMax.x;
+        if (minVertexPosition.x > potentialMin.x) minVertexPosition.x = potentialMin.x;
+        if (maxVertexPosition.y < potentialMax.y) maxVertexPosition.y = potentialMax.y;
+        if (minVertexPosition.y > potentialMin.y) minVertexPosition.y = potentialMin.y;
+        if (maxVertexPosition.z < potentialMax.z) maxVertexPosition.z = potentialMax.z;
+        if (minVertexPosition.z > potentialMin.z) minVertexPosition.z = potentialMin.z;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        glm::vec2 unitDirection = glm::normalize(direction);
+        glm::vec2 unitPerpendicular(-unitDirection.y, unitDirection.x);
+        glm::vec2 perpendicular = unitPerpendicular * halfWidth;
+
+        for (size_t i = 0; i < dashCount; ++i)
+        {
+            glm::vec2 dashStart = start + unitDirection * static_cast<float>(i) * (dashLength + gapLength);
+            glm::vec2 dashEnd = dashStart + unitDirection * dashLength;
+
+            glm::vec2 positionA = dashStart + perpendicular;
+            glm::vec2 positionB = dashStart - perpendicular;
+            glm::vec2 positionC = dashEnd + perpendicular;
+            glm::vec2 positionD = dashEnd - perpendicular;
+
+            glm::vec2 textureCoordinateA(0.0f, 1.0f);
+            glm::vec2 textureCoordinateB(0.0f, 0.0f);
+            glm::vec2 textureCoordinateC(0.0f, 1.0f);
+            glm::vec2 textureCoordinateD(0.0f, 0.0f);
+
+            if (gapsIncludedInTextureCoordinateCalculation)
+            {
+                float startLength = glm::length(dashStart - start);
+                float endLength = glm::length(dashEnd - start);
+
+                textureCoordinateA.x = startLength / totalLength;
+                textureCoordinateB.x = startLength / totalLength;
+                textureCoordinateC.x = endLength / totalLength;
+                textureCoordinateD.x = endLength / totalLength;
+            }
+            else
+            {
+                float dashCountFloat = static_cast<float>(dashCount);
+
+                textureCoordinateA.x = static_cast<float>(i) / dashCountFloat;
+                textureCoordinateB.x = static_cast<float>(i) / dashCountFloat;
+                textureCoordinateC.x = static_cast<float>(i + 1) / dashCountFloat;
+                textureCoordinateD.x = static_cast<float>(i + 1) / dashCountFloat;
+            }
+
+            MeshVertex meshVertexA;
+            meshVertexA.position = glm::vec3(positionA, 0.0f);
+            meshVertexA.textureCoordinate = textureCoordinateA;
+            meshVertexA.normal = normal;
+
+            MeshVertex meshVertexB;
+            meshVertexB.position = glm::vec3(positionB, 0.0f);
+            meshVertexB.textureCoordinate = textureCoordinateB;
+            meshVertexB.normal = normal;
+
+            MeshVertex meshVertexC;
+            meshVertexC.position = glm::vec3(positionC, 0.0f);
+            meshVertexC.textureCoordinate = textureCoordinateC;
+            meshVertexC.normal = normal;
+
+            MeshVertex meshVertexD;
+            meshVertexD.position = glm::vec3(positionD, 0.0f);
+            meshVertexD.textureCoordinate = textureCoordinateD;
+            meshVertexD.normal = normal;
+
+            if (triangulate)
+            {
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+
+                meshVertexArray.push_back(meshVertexA);
+                meshVertexArray.push_back(meshVertexB);
+                meshVertexArray.push_back(meshVertexC);
+                meshVertexArray.push_back(meshVertexD);
+                meshVertexArray.push_back(meshVertexC);
+                meshVertexArray.push_back(meshVertexB);
+
+                meshIndexArray.push_back(currentVertexCount);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 4);
+                meshIndexArray.push_back(currentVertexCount + 5);
+            }
+            else
+            {
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+
+                meshVertexArray.push_back(meshVertexA);
+                meshVertexArray.push_back(meshVertexB);
+                meshVertexArray.push_back(meshVertexC);
+                meshVertexArray.push_back(meshVertexD);
+
+                meshIndexArray.push_back(currentVertexCount);
+                meshIndexArray.push_back(currentVertexCount + 1);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 3);
+                meshIndexArray.push_back(currentVertexCount + 2);
+                meshIndexArray.push_back(currentVertexCount + 1);
+            }
+        }
+
+        return true;
     }
 
     bool Generate2DLine(

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2025-12-26
 
 #include "TestScene002.h"
 
@@ -13,6 +13,7 @@
 
 #include "Components/RenderedMesh.h"
 #include "Utilities/FontUtility.h"
+#include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
 #include "Utilities/TextureUtility.h"
 #include "Application.h"
@@ -77,6 +78,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     unsigned int patternSpecular02_TextureId = static_cast<unsigned int>(-1);
     unsigned int thonkSpecular_TextureId = static_cast<unsigned int>(-1);
     unsigned int numbers16x4_TextureId = static_cast<unsigned int>(-1);
+    unsigned int _0123456789abcdefj_TextureId = static_cast<unsigned int>(-1);
 
     {
         Project001::TextureData textureData;
@@ -132,13 +134,19 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         GetRendererPtr()->CreateTexture(numbers16x4_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/0123456789abcdefghij_long.png"));
+        GetRendererPtr()->CreateTexture(_0123456789abcdefj_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
     // Creating Entities and Meshes
     // -------------------------------------------------------------------------
 
     // Calculating positions ---------------------------------------------------
 
     std::vector<glm::vec3> meshEntityPositions;
-    for (int i = 3; i >= -3; --i)
+    for (int i = 4; i >= -4; --i)
     {
         for (int j = -4; j <= 5; ++j)
         {
@@ -1673,6 +1681,384 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetTextureId(numbers16x4_TextureId);
             renderedMeshPtr->SetShininess(32.0f);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // row 7 -------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 1
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 2
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 3
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 4
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 5
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 6
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
+    // row 8 -------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 1, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 2, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 3, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 4, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 5, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DDashedLine(
+            *newMeshDataPtr,
+            glm::vec2(0.0f, 0.0f),
+            Project001::Math::Rotate2DVector(glm::vec2(1.0f, 0.0f), glm::quarter_pi<float>()),
+            0.08f, 0.04f, 0.08f, 6, true
+        ));
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
