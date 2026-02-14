@@ -4,23 +4,28 @@
 setlocal enabledelayedexpansion
 
 set exe=..\..\Vendor\FileToHeaderConverter\Bin\FileToHeaderConverter.exe
-set outputPath=Resources\
+set outputPath=..\Source\Resources\
 
 set files= ^
 hazard_4x4.png ^
-penguin01.png ^
-penguin01_beak.obj ^
-penguin01_body.obj ^
-penguin01_flipper_left.obj ^
-penguin01_flipper_right.obj ^
-penguin01_foot_left.obj ^
-penguin01_foot_right.obj ^
-penguin01_glasses.obj ^
-penguin01_glasses_v2.obj ^
-penguin01_glasses_v3.obj ^
-penguin01_head.obj ^
-penguin01_head_v2.obj ^
-penguin01_v2.png
+penguin_beak.obj ^
+penguin_body.obj ^
+penguin_eyes.obj ^
+penguin_eyes_v2.obj ^
+penguin_flipper_left.obj ^
+penguin_flipper_right.obj ^
+penguin_foot_left.obj ^
+penguin_foot_right.obj ^
+penguin_glasses.obj ^
+penguin_glasses_v2.obj ^
+penguin_glasses_v3.obj ^
+penguin_head.obj ^
+penguin_head_v2.obj ^
+penguin_v2.png ^
+penguin_texture.png ^
+penguin_texture_v2.png ^
+penguin_texture_v3.png ^
+penguin_texture_v4.png
 
 for %%f in (%files%) do (
     set "input_file=%%f"

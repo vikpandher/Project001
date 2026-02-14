@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-24
+// @DATE 2026-02-13
 
 #pragma once
 
@@ -27,6 +27,11 @@ struct SharedApplicationData
 
     unsigned int score = 0;
     float gameTime_s = 0.0f;
+
+    // bool player1_turnedOn = false;
+    // bool player2_turnedOn = false;
+    // bool player3_turnedOn = false;
+    // bool player4_turnedOn = false;
 
     // Player Controls ---------------------------------------------------------
 
@@ -104,32 +109,38 @@ struct SharedApplicationData
     Project001::MeshData* stageCollisionQuadTree_meshDataPtr = nullptr;
 
     // Actor Resources
-    Project001::MeshData* penguin01_body_meshDataPtr = nullptr;
-    unsigned int penguin01_body_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_flipper_right_meshDataPtr = nullptr;
-    unsigned int penguin01_flipper_right_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_flipper_left_meshDataPtr = nullptr;
-    unsigned int penguin01_flipper_left_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_foot_right_meshDataPtr = nullptr;
-    unsigned int penguin01_foot_right_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_foot_left_meshDataPtr = nullptr;
-    unsigned int penguin01_foot_left_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_head_meshDataPtr = nullptr;
-    unsigned int penguin01_head_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_head_v2_meshDataPtr = nullptr;
-    unsigned int penguin01_head_v2_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_beak_meshDataPtr = nullptr;
-    unsigned int penguin01_beak_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_glasses_meshDataPtr = nullptr;
-    unsigned int penguin01_glasses_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_glasses_v2_meshDataPtr = nullptr;
-    unsigned int penguin01_glasses_v2_meshId = static_cast<unsigned int>(-1);
-    Project001::MeshData* penguin01_glasses_v3_meshDataPtr = nullptr;
-    unsigned int penguin01_glasses_v3_meshId = static_cast<unsigned int>(-1);
-    Project001::TextureData* penguin01_textureDataPtr = nullptr;
-    unsigned int penguin01_textureId = static_cast<unsigned int>(-1);
-    Project001::TextureData* penguin01_v2_textureDataPtr = nullptr;
-    unsigned int penguin01_v2_textureId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_body_meshDataPtr = nullptr;
+    unsigned int penguin_body_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_flipper_right_meshDataPtr = nullptr;
+    unsigned int penguin_flipper_right_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_flipper_left_meshDataPtr = nullptr;
+    unsigned int penguin_flipper_left_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_foot_right_meshDataPtr = nullptr;
+    unsigned int penguin_foot_right_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_foot_left_meshDataPtr = nullptr;
+    unsigned int penguin_foot_left_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_head_meshDataPtr = nullptr;
+    unsigned int penguin_head_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_eyes_meshDataPtr = nullptr;
+    unsigned int penguin_eyes_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_eyes_v2_meshDataPtr = nullptr;
+    unsigned int penguin_eyes_v2_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_beak_meshDataPtr = nullptr;
+    unsigned int penguin_beak_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_glasses_meshDataPtr = nullptr;
+    unsigned int penguin_glasses_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_glasses_v2_meshDataPtr = nullptr;
+    unsigned int penguin_glasses_v2_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* penguin_glasses_v3_meshDataPtr = nullptr;
+    unsigned int penguin_glasses_v3_meshId = static_cast<unsigned int>(-1);
+    Project001::TextureData* penguin_textureDataPtr = nullptr;
+    unsigned int penguin_textureId = static_cast<unsigned int>(-1);
+    Project001::TextureData* penguin_v2_textureDataPtr = nullptr;
+    unsigned int penguin_v2_textureId = static_cast<unsigned int>(-1);
+    Project001::TextureData* penguin_v3_textureDataPtr = nullptr;
+    unsigned int penguin_v3_textureId = static_cast<unsigned int>(-1);
+    Project001::TextureData* penguin_v4_textureDataPtr = nullptr;
+    unsigned int penguin_v4_textureId = static_cast<unsigned int>(-1);
 
     Project001::MeshData* snowball_meshDataPtr = nullptr;
     unsigned int snowball_meshId = static_cast<unsigned int>(-1);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-24
+// @DATE 2026-02-13
 
 #pragma once
 
@@ -42,7 +42,7 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, float rotation, size_t playerNumber);
+    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, float rotation, size_t playerNumber, size_t controlScheme);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
     void UpdateMainCameraEntity(float timestep_s);
@@ -82,6 +82,8 @@ protected:
 
     unsigned int player1_entityId_ = static_cast<unsigned int>(-1);
     unsigned int player2_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int player3_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int player4_entityId_ = static_cast<unsigned int>(-1);
 
     // -------------------------------------------------------------------------
 
@@ -102,6 +104,8 @@ protected:
 
     static const uint32_t s_player1_collisionGroupMask_ = 0b00000000000000000000000000000010;
     static const uint32_t s_player2_collisionGroupMask_ = 0b00000000000000000000000000000100;
+    static const uint32_t s_player3_collisionGroupMask_ = 0b00000000000000000000000000001000;
+    static const uint32_t s_player4_collisionGroupMask_ = 0b00000000000000000000000000010000;
 
     static const unsigned int s_player_collisionShapeTag_ = 1;
     static const unsigned int s_grab_collisionShapeTag_ = 2;

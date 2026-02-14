@@ -1,23 +1,26 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-23
+// @DATE 2026-02-13
 
 #include "Scene001.h"
 
 #include "Resources/hazard_4x4_png.h"
-#include "Resources/penguin01_beak_obj.h"
-#include "Resources/penguin01_body_obj.h"
-#include "Resources/penguin01_flipper_left_obj.h"
-#include "Resources/penguin01_flipper_right_obj.h"
-#include "Resources/penguin01_foot_left_obj.h"
-#include "Resources/penguin01_foot_right_obj.h"
-#include "Resources/penguin01_glasses_obj.h"
-#include "Resources/penguin01_glasses_v2_obj.h"
-#include "Resources/penguin01_glasses_v3_obj.h"
-#include "Resources/penguin01_head_obj.h"
-#include "Resources/penguin01_head_v2_obj.h"
-#include "Resources/penguin01_png.h"
-#include "Resources/penguin01_v2_png.h"
+#include "Resources/penguin_beak_obj.h"
+#include "Resources/penguin_body_obj.h"
+#include "Resources/penguin_eyes_obj.h"
+#include "Resources/penguin_eyes_v2_obj.h"
+#include "Resources/penguin_flipper_left_obj.h"
+#include "Resources/penguin_flipper_right_obj.h"
+#include "Resources/penguin_foot_left_obj.h"
+#include "Resources/penguin_foot_right_obj.h"
+#include "Resources/penguin_glasses_obj.h"
+#include "Resources/penguin_glasses_v2_obj.h"
+#include "Resources/penguin_glasses_v3_obj.h"
+#include "Resources/penguin_head_obj.h"
+#include "Resources/penguin_texture_png.h"
+#include "Resources/penguin_texture_v2_png.h"
+#include "Resources/penguin_texture_v3_png.h"
+#include "Resources/penguin_texture_v4_png.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
@@ -499,177 +502,222 @@ void Scene001::LoadStageGridResources()
 
 void Scene001::LoadActorResources()
 {
-    sharedDataPtr_->penguin01_body_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_body_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_body_meshDataPtr,
-        g_penguin01_body_obj
+        *sharedDataPtr_->penguin_body_meshDataPtr,
+        g_penguin_body_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_body_meshId,
-        sharedDataPtr_->penguin01_body_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_body_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_body_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_body_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_body_meshId,
+        sharedDataPtr_->penguin_body_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_body_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_body_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_body_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_flipper_right_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_flipper_right_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_flipper_right_meshDataPtr,
-        g_penguin01_flipper_right_obj
+        *sharedDataPtr_->penguin_flipper_right_meshDataPtr,
+        g_penguin_flipper_right_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_flipper_right_meshId,
-        sharedDataPtr_->penguin01_flipper_right_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_flipper_right_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_flipper_right_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_flipper_right_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_flipper_right_meshId,
+        sharedDataPtr_->penguin_flipper_right_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_flipper_right_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_flipper_right_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_flipper_right_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_flipper_left_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_flipper_left_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_flipper_left_meshDataPtr,
-        g_penguin01_flipper_left_obj
+        *sharedDataPtr_->penguin_flipper_left_meshDataPtr,
+        g_penguin_flipper_left_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_flipper_left_meshId,
-        sharedDataPtr_->penguin01_flipper_left_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_flipper_left_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_flipper_left_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_flipper_left_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_flipper_left_meshId,
+        sharedDataPtr_->penguin_flipper_left_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_flipper_left_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_flipper_left_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_flipper_left_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_foot_right_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_foot_right_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_foot_right_meshDataPtr,
-        g_penguin01_foot_right_obj
+        *sharedDataPtr_->penguin_foot_right_meshDataPtr,
+        g_penguin_foot_right_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_foot_right_meshId,
-        sharedDataPtr_->penguin01_foot_right_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_foot_right_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_foot_right_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_foot_right_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_foot_right_meshId,
+        sharedDataPtr_->penguin_foot_right_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_foot_right_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_foot_right_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_foot_right_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_foot_left_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_foot_left_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_foot_left_meshDataPtr,
-        g_penguin01_foot_left_obj
+        *sharedDataPtr_->penguin_foot_left_meshDataPtr,
+        g_penguin_foot_left_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_foot_left_meshId,
-        sharedDataPtr_->penguin01_foot_left_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_foot_left_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_foot_left_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_foot_left_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_foot_left_meshId,
+        sharedDataPtr_->penguin_foot_left_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_foot_left_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_foot_left_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_foot_left_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_head_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_head_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_head_meshDataPtr,
-        g_penguin01_head_obj
+        *sharedDataPtr_->penguin_head_meshDataPtr,
+        g_penguin_head_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_head_meshId,
-        sharedDataPtr_->penguin01_head_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_head_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_head_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_head_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_head_meshId,
+        sharedDataPtr_->penguin_head_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_head_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_head_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_head_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_head_v2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_eyes_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_head_v2_meshDataPtr,
-        g_penguin01_head_v2_obj
+        *sharedDataPtr_->penguin_eyes_meshDataPtr,
+        g_penguin_eyes_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_head_v2_meshId,
-        sharedDataPtr_->penguin01_head_v2_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_head_v2_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_head_v2_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_head_v2_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_eyes_meshId,
+        sharedDataPtr_->penguin_eyes_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_eyes_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_eyes_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_eyes_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_beak_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_eyes_v2_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_beak_meshDataPtr,
-        g_penguin01_beak_obj
+        *sharedDataPtr_->penguin_eyes_v2_meshDataPtr,
+        g_penguin_eyes_v2_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_beak_meshId,
-        sharedDataPtr_->penguin01_beak_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_beak_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_beak_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_beak_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_eyes_v2_meshId,
+        sharedDataPtr_->penguin_eyes_v2_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_eyes_v2_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_eyes_v2_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_eyes_v2_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_glasses_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_beak_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_glasses_meshDataPtr,
-        g_penguin01_glasses_obj
+        *sharedDataPtr_->penguin_beak_meshDataPtr,
+        g_penguin_beak_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_glasses_meshId,
-        sharedDataPtr_->penguin01_glasses_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_glasses_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_beak_meshId,
+        sharedDataPtr_->penguin_beak_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_beak_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_beak_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_beak_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_glasses_v2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_glasses_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_glasses_v2_meshDataPtr, 
-        g_penguin01_glasses_v2_obj
+        *sharedDataPtr_->penguin_glasses_meshDataPtr,
+        g_penguin_glasses_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_glasses_v2_meshId,
-        sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v2_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_glasses_meshId,
+        sharedDataPtr_->penguin_glasses_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_glasses_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_glasses_v3_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->penguin_glasses_v2_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
-        *sharedDataPtr_->penguin01_glasses_v3_meshDataPtr, 
-        g_penguin01_glasses_v3_obj
+        *sharedDataPtr_->penguin_glasses_v2_meshDataPtr, 
+        g_penguin_glasses_v2_obj
     ));
     GetRendererPtr()->CreateMesh(
-        sharedDataPtr_->penguin01_glasses_v3_meshId,
-        sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshVertexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshVertexArray.size()),
-        sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshIndexArray.data(),
-        static_cast<unsigned int>(sharedDataPtr_->penguin01_glasses_v3_meshDataPtr->meshIndexArray.size())
+        sharedDataPtr_->penguin_glasses_v2_meshId,
+        sharedDataPtr_->penguin_glasses_v2_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_v2_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_glasses_v2_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_v2_meshDataPtr->meshIndexArray.size())
     );
 
-    sharedDataPtr_->penguin01_textureDataPtr = new Project001::TextureData();
+    sharedDataPtr_->penguin_glasses_v3_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->penguin_glasses_v3_meshDataPtr, 
+        g_penguin_glasses_v3_obj
+    ));
+    GetRendererPtr()->CreateMesh(
+        sharedDataPtr_->penguin_glasses_v3_meshId,
+        sharedDataPtr_->penguin_glasses_v3_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_v3_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->penguin_glasses_v3_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->penguin_glasses_v3_meshDataPtr->meshIndexArray.size())
+    );
+
+    sharedDataPtr_->penguin_textureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
-        *sharedDataPtr_->penguin01_textureDataPtr,
-        g_penguin01_png,
-        sizeof(g_penguin01_png) / sizeof(unsigned char)
+        *sharedDataPtr_->penguin_textureDataPtr,
+        g_penguin_texture_png,
+        sizeof(g_penguin_texture_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
-        sharedDataPtr_->penguin01_textureId,
-        sharedDataPtr_->penguin01_textureDataPtr->data,
-        sharedDataPtr_->penguin01_textureDataPtr->width,
-        sharedDataPtr_->penguin01_textureDataPtr->height,
-        sharedDataPtr_->penguin01_textureDataPtr->bytesPerPixel,
+        sharedDataPtr_->penguin_textureId,
+        sharedDataPtr_->penguin_textureDataPtr->data,
+        sharedDataPtr_->penguin_textureDataPtr->width,
+        sharedDataPtr_->penguin_textureDataPtr->height,
+        sharedDataPtr_->penguin_textureDataPtr->bytesPerPixel,
         false,
         false
     );
 
-    sharedDataPtr_->penguin01_v2_textureDataPtr = new Project001::TextureData();
+    sharedDataPtr_->penguin_v2_textureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
-        *sharedDataPtr_->penguin01_v2_textureDataPtr,
-        g_penguin01_v2_png,
-        sizeof(g_penguin01_v2_png) / sizeof(unsigned char)
+        *sharedDataPtr_->penguin_v2_textureDataPtr,
+        g_penguin_texture_v2_png,
+        sizeof(g_penguin_texture_v2_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
-        sharedDataPtr_->penguin01_v2_textureId,
-        sharedDataPtr_->penguin01_v2_textureDataPtr->data,
-        sharedDataPtr_->penguin01_v2_textureDataPtr->width,
-        sharedDataPtr_->penguin01_v2_textureDataPtr->height,
-        sharedDataPtr_->penguin01_v2_textureDataPtr->bytesPerPixel,
+        sharedDataPtr_->penguin_v2_textureId,
+        sharedDataPtr_->penguin_v2_textureDataPtr->data,
+        sharedDataPtr_->penguin_v2_textureDataPtr->width,
+        sharedDataPtr_->penguin_v2_textureDataPtr->height,
+        sharedDataPtr_->penguin_v2_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
+
+    sharedDataPtr_->penguin_v3_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->penguin_v3_textureDataPtr,
+        g_penguin_texture_v3_png,
+        sizeof(g_penguin_texture_v3_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->penguin_v3_textureId,
+        sharedDataPtr_->penguin_v3_textureDataPtr->data,
+        sharedDataPtr_->penguin_v3_textureDataPtr->width,
+        sharedDataPtr_->penguin_v3_textureDataPtr->height,
+        sharedDataPtr_->penguin_v3_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
+
+    sharedDataPtr_->penguin_v4_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->penguin_v4_textureDataPtr,
+        g_penguin_texture_v4_png,
+        sizeof(g_penguin_texture_v4_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->penguin_v4_textureId,
+        sharedDataPtr_->penguin_v4_textureDataPtr->data,
+        sharedDataPtr_->penguin_v4_textureDataPtr->width,
+        sharedDataPtr_->penguin_v4_textureDataPtr->height,
+        sharedDataPtr_->penguin_v4_textureDataPtr->bytesPerPixel,
         false,
         false
     );
@@ -745,45 +793,54 @@ void Scene001::FreeResources()
     sharedDataPtr_->stageCollisionQuadTree_meshDataPtr = nullptr;
 
     // Actor Resources
-    delete sharedDataPtr_->penguin01_body_meshDataPtr;
-    sharedDataPtr_->penguin01_body_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_body_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_flipper_right_meshDataPtr;
-    sharedDataPtr_->penguin01_flipper_right_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_flipper_right_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_flipper_left_meshDataPtr;
-    sharedDataPtr_->penguin01_flipper_left_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_flipper_left_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_foot_right_meshDataPtr;
-    sharedDataPtr_->penguin01_foot_right_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_foot_right_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_foot_left_meshDataPtr;
-    sharedDataPtr_->penguin01_foot_left_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_foot_left_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_head_meshDataPtr;
-    sharedDataPtr_->penguin01_head_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_head_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_head_v2_meshDataPtr;
-    sharedDataPtr_->penguin01_head_v2_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_head_v2_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_beak_meshDataPtr;
-    sharedDataPtr_->penguin01_beak_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_beak_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_glasses_meshDataPtr;
-    sharedDataPtr_->penguin01_glasses_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_glasses_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_glasses_v2_meshDataPtr;
-    sharedDataPtr_->penguin01_glasses_v2_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_glasses_v2_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_glasses_v3_meshDataPtr;
-    sharedDataPtr_->penguin01_glasses_v3_meshDataPtr = nullptr;
-    sharedDataPtr_->penguin01_glasses_v3_meshId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_textureDataPtr;
-    sharedDataPtr_->penguin01_textureDataPtr = nullptr;
-    sharedDataPtr_->penguin01_textureId = static_cast<unsigned int>(-1);
-    delete sharedDataPtr_->penguin01_v2_textureDataPtr;
-    sharedDataPtr_->penguin01_v2_textureDataPtr = nullptr;
-    sharedDataPtr_->penguin01_v2_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_body_meshDataPtr;
+    sharedDataPtr_->penguin_body_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_body_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_flipper_right_meshDataPtr;
+    sharedDataPtr_->penguin_flipper_right_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_flipper_right_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_flipper_left_meshDataPtr;
+    sharedDataPtr_->penguin_flipper_left_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_flipper_left_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_foot_right_meshDataPtr;
+    sharedDataPtr_->penguin_foot_right_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_foot_right_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_foot_left_meshDataPtr;
+    sharedDataPtr_->penguin_foot_left_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_foot_left_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_head_meshDataPtr;
+    sharedDataPtr_->penguin_head_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_head_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_eyes_meshDataPtr;
+    sharedDataPtr_->penguin_eyes_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_eyes_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_eyes_v2_meshDataPtr;
+    sharedDataPtr_->penguin_eyes_v2_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_eyes_v2_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_beak_meshDataPtr;
+    sharedDataPtr_->penguin_beak_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_beak_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_glasses_meshDataPtr;
+    sharedDataPtr_->penguin_glasses_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_glasses_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_glasses_v2_meshDataPtr;
+    sharedDataPtr_->penguin_glasses_v2_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_glasses_v2_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_glasses_v3_meshDataPtr;
+    sharedDataPtr_->penguin_glasses_v3_meshDataPtr = nullptr;
+    sharedDataPtr_->penguin_glasses_v3_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_textureDataPtr;
+    sharedDataPtr_->penguin_textureDataPtr = nullptr;
+    sharedDataPtr_->penguin_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_v2_textureDataPtr;
+    sharedDataPtr_->penguin_v2_textureDataPtr = nullptr;
+    sharedDataPtr_->penguin_v2_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_v3_textureDataPtr;
+    sharedDataPtr_->penguin_v3_textureDataPtr = nullptr;
+    sharedDataPtr_->penguin_v3_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->penguin_v4_textureDataPtr;
+    sharedDataPtr_->penguin_v4_textureDataPtr = nullptr;
+    sharedDataPtr_->penguin_v4_textureId = static_cast<unsigned int>(-1);
 
     delete sharedDataPtr_->snowball_meshDataPtr;
     sharedDataPtr_->snowball_meshDataPtr = nullptr;

@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-01-23
+# @DATE 2026-02-13
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -49,19 +49,22 @@ source_group("Source" FILES ${GAME002_FILES})
 
 set(GAME002_RESOURCE_FILES
     "Source/Resources/hazard_4x4_png.h"
-    "Source/Resources/penguin01_beak_obj.h"
-    "Source/Resources/penguin01_body_obj.h"
-    "Source/Resources/penguin01_flipper_left_obj.h"
-    "Source/Resources/penguin01_flipper_right_obj.h"
-    "Source/Resources/penguin01_foot_left_obj.h"
-    "Source/Resources/penguin01_foot_right_obj.h"
-    "Source/Resources/penguin01_glasses_obj.h"
-    "Source/Resources/penguin01_glasses_v2_obj.h"
-    "Source/Resources/penguin01_glasses_v3_obj.h"
-    "Source/Resources/penguin01_head_obj.h"
-    "Source/Resources/penguin01_head_v2_obj.h"
-    "Source/Resources/penguin01_png.h"
-    "Source/Resources/penguin01_v2_png.h"
+    "Source/Resources/penguin_beak_obj.h"
+    "Source/Resources/penguin_body_obj.h"
+    "Source/Resources/penguin_eyes_obj.h"
+    "Source/Resources/penguin_eyes_v2_obj.h"
+    "Source/Resources/penguin_flipper_left_obj.h"
+    "Source/Resources/penguin_flipper_right_obj.h"
+    "Source/Resources/penguin_foot_left_obj.h"
+    "Source/Resources/penguin_foot_right_obj.h"
+    "Source/Resources/penguin_glasses_obj.h"
+    "Source/Resources/penguin_glasses_v2_obj.h"
+    "Source/Resources/penguin_glasses_v3_obj.h"
+    "Source/Resources/penguin_head_obj.h"
+    "Source/Resources/penguin_texture_png.h"
+    "Source/Resources/penguin_texture_v2_png.h"
+    "Source/Resources/penguin_texture_v3_png.h"
+    "Source/Resources/penguin_texture_v4_png.h"
 )
 
 source_group("Source/Resources" FILES ${GAME002_RESOURCE_FILES})
