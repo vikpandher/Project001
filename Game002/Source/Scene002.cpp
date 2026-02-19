@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-13
+// @DATE 2026-02-18
 
 #include "Scene002.h"
 
@@ -24,9 +24,6 @@
 
 struct PenguinInfo
 {
-    size_t playerNumber = 1;
-    size_t controlScheme = 1;
-
     unsigned int snowball_EntityId = static_cast<unsigned int>(-1);
 
     enum class State
@@ -47,6 +44,8 @@ struct PenguinInfo
     float regrabSnowballCoolDown_s = 0.0f;
     static constexpr float s_regrabSnowballTime_s = 0.0f;
     float hitstunCoolDown_s = 0.0f;
+
+    size_t glassesType = 0;
 
     bool onLand = false;
 
@@ -167,10 +166,23 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateStageEntity();
     CreateStageLightEntity();
-    CreatePenguinEntity(player1_entityId_, glm::vec2(-128.0f, 0.0f), glm::pi<float>(), 1, 1);
-    CreatePenguinEntity(player2_entityId_, glm::vec2(-96.0f, 0.0f), glm::pi<float>(), 2, 1);
-    CreatePenguinEntity(player3_entityId_, glm::vec2(-64.0f, 0.0f), glm::pi<float>(), 3, 1);
-    CreatePenguinEntity(player4_entityId_, glm::vec2(-32.0f, 0.0f), glm::pi<float>(), 4, 1);
+
+    if (sharedDataPtr_->playerInfos[0].turnedOn)
+    {
+        CreatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerInfos[0], glm::vec2(-128.0f, 0.0f), glm::pi<float>());
+    }
+    if (sharedDataPtr_->playerInfos[1].turnedOn)
+    {
+        CreatePenguinEntity(player_entityIds_[1], sharedDataPtr_->playerInfos[1], glm::vec2(-96.0f, 0.0f), glm::pi<float>());
+    }
+    if (sharedDataPtr_->playerInfos[2].turnedOn)
+    {
+        CreatePenguinEntity(player_entityIds_[2], sharedDataPtr_->playerInfos[2], glm::vec2(-64.0f, 0.0f), glm::pi<float>());
+    }
+    if (sharedDataPtr_->playerInfos[3].turnedOn)
+    {
+        CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], glm::vec2(-32.0f, 0.0f), glm::pi<float>());
+    }
 
     // unsigned int snowball_entityId = static_cast<unsigned int>(-1);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(0.0f, 0.0f), glm::vec2(-sharedDataPtr_->penguin_throwSpeed_s, 0.0f), 8.0f);
@@ -212,104 +224,24 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     stage_entityId_ = static_cast<unsigned int>(-1);
     stageLight_entityId_ = static_cast<unsigned int>(-1);
 
-    player1_entityId_ = static_cast<unsigned int>(-1);
-    player2_entityId_ = static_cast<unsigned int>(-1);
-    player3_entityId_ = static_cast<unsigned int>(-1);
-    player4_entityId_ = static_cast<unsigned int>(-1);
+    for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
+    {
+        player_entityIds_[i] = static_cast<unsigned int>(-1);
+    }
 
     // -------------------------------------------------------------------------
 
     mainCamera_lookAtPoint_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    mainCamera_distanceAway_ = 0.0f;
-    mainCamera_playerLock_ = 0;
+    mainCamera_distanceAway_ = mainCamera_initialDistanceAway_;
+    mainCamera_lockedToPlayers_ = true;
+    debugCamera_turnedOn_ = false;
 
     paused_ = false;
 }
 
 void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == sharedDataPtr_->pause_keyCode)
-        {
-            paused_ = !paused_;
-        }
-        if (paused_ && keyCode == sharedDataPtr_->quit_keyCode)
-        {
-            SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene001Id));
-            if (GetActiveScene()->GetId() == sharedDataPtr_->scene001Id)
-            {
-                SendEventToScene(GetId(), Project001::DeinitializeEvent());
-                SendEventToApplication(Project001::InitializeEvent());
-            }
-            return;
-        }
-        else if (keyCode == Project001::KeyCode::KEY_CODE_1)
-        {
-            mainCamera_playerLock_++;
-            if (mainCamera_playerLock_ > 3)
-            {
-                mainCamera_playerLock_ = 0;
-            }
-        }
-        else if (keyCode == Project001::KeyCode::KEY_CODE_2)
-        {
-            constexpr float mainCameraPitch = glm::quarter_pi<float>();
-            constexpr float mainCameraYaw = glm::pi<float>();
-            mainCamera_distanceAway_ = sharedDataPtr_->mainCamera_initialDistanceAway;
-
-            Project001::Camera* cameraPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_entityId_));
-            if (cameraPtr != nullptr)
-            {
-                cameraPtr->ResetOrientation();
-
-                cameraPtr->AddPitch(mainCameraPitch);
-                cameraPtr->AddYaw(mainCameraYaw);
-
-                cameraPtr->FollowFocalPoint(glm::vec3(0.0f, 0.0f, 0.0f), mainCamera_distanceAway_);
-            }
-
-            Project001::Camera* otherCameraPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraDebug_entityId_));
-            if (cameraPtr != nullptr)
-            {
-                otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
-            }
-        }
-        else if (keyCode == Project001::KeyCode::KEY_CODE_3)
-        {
-            mainCamera_distanceAway_ = 1400.0f;
-
-            Project001::Camera* cameraPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_entityId_));
-            if (cameraPtr != nullptr)
-            {
-                cameraPtr->ResetOrientation();
-                cameraPtr->AddYaw(glm::pi<float>());
-                // cameraPtr->AddPitch(glm::half_pi<float>());
-            }
-
-            Project001::Camera* otherCameraPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraDebug_entityId_));
-            if (cameraPtr != nullptr)
-            {
-                otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
-            }
-        }
-        else if (keyCode == Project001::KeyCode::KEY_CODE_0)
-        {
-            Project001::Camera* cameraPtr = nullptr;
-            if (GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_entityId_))
-            {
-                cameraPtr->SetTurnedOn(!cameraPtr->GetTurnedOn());
-            }
-        }
-    }
+    sharedDataPtr_->UpdateKeyboardButtonPresses(keyEvent);
 }
 
 void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
@@ -326,6 +258,8 @@ void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 
 void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
+    sharedDataPtr_->UpdateButtonPressCounts(GetWindowPtr());
+
     UpdateUiTextEntity();
     UpdateUiPauseTextEntity();
 
@@ -341,10 +275,24 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         UpdateMainCameraEntity(physicsTimestep_s);
 
         UpdateStageCollisionBodyQuadTreeMesh();
-        UpdatePenguinEntity(player1_entityId_, physicsTimestep_s);
-        UpdatePenguinEntity(player2_entityId_, physicsTimestep_s);
-        UpdatePenguinEntity(player3_entityId_, physicsTimestep_s);
-        UpdatePenguinEntity(player4_entityId_, physicsTimestep_s);
+
+        if (sharedDataPtr_->playerInfos[0].turnedOn)
+        {
+            UpdatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerInfos[0], physicsTimestep_s);
+        }
+        if (sharedDataPtr_->playerInfos[1].turnedOn)
+        {
+            UpdatePenguinEntity(player_entityIds_[1], sharedDataPtr_->playerInfos[1], physicsTimestep_s);
+        }
+        if (sharedDataPtr_->playerInfos[2].turnedOn)
+        {
+            UpdatePenguinEntity(player_entityIds_[2], sharedDataPtr_->playerInfos[2], physicsTimestep_s);
+        }
+        if (sharedDataPtr_->playerInfos[3].turnedOn)
+        {
+            UpdatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], physicsTimestep_s);
+        }
+        
         UpdateSnowballEntities(physicsTimestep_s);
         UpdateWorld(physicsTimestep_s);
 
@@ -363,8 +311,6 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
 void Scene002::CreateMainCameraEntities()
 {
-    mainCamera_distanceAway_ = sharedDataPtr_->mainCamera_initialDistanceAway;
-
     int aspectRatioNumerator;
     int aspectRatioDenominator;
     GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
@@ -374,7 +320,7 @@ void Scene002::CreateMainCameraEntities()
     float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
 
     constexpr float mainCameraNearCutoff = mainCameraHalfHeight * 0.1f;
-    constexpr float mainCameraFarCutoff = mainCameraHalfHeight * 15.0f;
+    constexpr float mainCameraFarCutoff = mainCameraHalfHeight * 24.0f;
 
     constexpr float mainCameraPitch = glm::quarter_pi<float>();
     constexpr float mainCameraYaw = glm::pi<float>();
@@ -420,7 +366,7 @@ void Scene002::CreateMainCameraEntities()
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_entityId_));
         if (cameraPtr != nullptr)
         {
-            // cameraPtr->SetTurnedOn(false);
+            cameraPtr->SetTurnedOn(debugCamera_turnedOn_);
         }
     };
 }
@@ -604,7 +550,7 @@ void Scene002::CreateStageLightEntity()
     }
 }
 
-void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, float rotation, size_t playerNumber, size_t controlScheme)
+void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
@@ -623,31 +569,36 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
     if (penguinInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
     {
-        penguinInfoPtr->playerNumber = playerNumber;
-        penguinInfoPtr->controlScheme = controlScheme;
-
         unsigned int textureId = static_cast<unsigned int>(-1);
-        if (penguinInfoPtr->playerNumber == 1)
+        if (playerInfo.playerNumber == 0)
         {
-            collisionBodyPtr->SetCollisionGroupMask(s_player1_collisionGroupMask_);
+            penguinInfoPtr->glassesType = 0;
+
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
 
             textureId = sharedDataPtr_->penguin_textureId;
         }
-        else if (penguinInfoPtr->playerNumber == 2)
+        else if (playerInfo.playerNumber == 1)
         {
-            collisionBodyPtr->SetCollisionGroupMask(s_player2_collisionGroupMask_);
+            penguinInfoPtr->glassesType = 1;
+
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v2_textureId;
         }
-        else if (penguinInfoPtr->playerNumber == 3)
+        else if (playerInfo.playerNumber == 2)
         {
-            collisionBodyPtr->SetCollisionGroupMask(s_player3_collisionGroupMask_);
+            penguinInfoPtr->glassesType = 1;
+
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v3_textureId;
         }
-        else if (penguinInfoPtr->playerNumber == 4)
+        else if (playerInfo.playerNumber == 3)
         {
-            collisionBodyPtr->SetCollisionGroupMask(s_player4_collisionGroupMask_);
+            penguinInfoPtr->glassesType = 1;
+
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v4_textureId;
         }
@@ -723,7 +674,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
             mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_collisionRadius));
-            mesh.SetPositionZ(0.01f);
+            mesh.SetPositionZ(0.5f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -735,7 +686,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, const glm::vec2& posi
             mesh.SetMeshDataPtr(sharedDataPtr_->hallowCircle_meshDataPtr);
             mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_grabRadius));
             mesh.SetPositionY(sharedDataPtr_->penguin_grabOffset);
-            mesh.SetPositionZ(0.02f);
+            mesh.SetPositionZ(0.6f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.1f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -900,7 +851,7 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
             Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_shadow_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
-            mesh.SetPositionZ(0.01f);
+            mesh.SetPositionZ(0.5f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
         }
@@ -935,6 +886,16 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
 
 void Scene002::UpdateMainCameraEntity(float timestep_s)
 {
+    if (sharedDataPtr_->debug_keyboard_toggleDebugCamera_pressCount == 1)
+    {
+        debugCamera_turnedOn_ = !debugCamera_turnedOn_;
+    }
+
+    if (sharedDataPtr_->debug_keyboard_toggleCameraLock_pressCount == 1)
+    {
+        mainCamera_lockedToPlayers_ = !mainCamera_lockedToPlayers_;
+    }
+
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_entityId_));
     if (cameraPtr != nullptr)
@@ -942,16 +903,16 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
         constexpr float orbitSpeed = 0.1f * glm::pi<float>();
         float cameraPitchDelta = orbitSpeed * timestep_s;
 
-        bool pitchingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_PAGE_DOWN);
-        bool pitchingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_PAGE_UP);
+        bool pitchingUp = sharedDataPtr_->debug_keyboard_pitchCameraDown_pressCount > 0;
+        bool pitchingDown = sharedDataPtr_->debug_keyboard_pitchCameraUp_pressCount > 0;
 
         const float moveSpeed = 128.0f;
         float moveSpeedDelta = moveSpeed * timestep_s;
 
-        bool movingLeft = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_4);
-        bool movingRight = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_6);
-        bool movingUp = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_8);
-        bool movingDown = GetWindowPtr()->GetKeyPressed(Project001::KeyCode::KEY_CODE_KP_2);
+        bool movingLeft = sharedDataPtr_->debug_keyboard_moveCameraLeft_pressCount > 0;
+        bool movingRight = sharedDataPtr_->debug_keyboard_moveCameraRight_pressCount > 0;
+        bool movingUp = sharedDataPtr_->debug_keyboard_moveCameraUp_pressCount > 0;
+        bool movingDown = sharedDataPtr_->debug_keyboard_moveCameraDown_pressCount > 0;
 
         if (pitchingUp)
         {
@@ -983,34 +944,91 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
             mainCamera_lookAtPoint_.y -= moveSpeedDelta;
         }
 
-        if (mainCamera_playerLock_ == 1)
+        const float& cameraFieldOfView = cameraPtr->GetFieldOfView();
+        float cameraFieldOfViewRemainder = glm::mod(cameraFieldOfView, glm::pi<float>());
+        if (mainCamera_lockedToPlayers_ && sharedDataPtr_->s_player_count > 0 && cameraFieldOfViewRemainder != 0.0f)
         {
-            Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player1_entityId_));
-            if (playerCollisionBodyPtr != nullptr)
+            glm::vec2 maxPlayerPosition(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity());
+            glm::vec2 minPlayerPosition(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
+            for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
             {
-                mainCamera_lookAtPoint_ = glm::vec3(playerCollisionBodyPtr->GetPosition(), 0.0f);
+                Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityIds_[i]));
+                if (playerCollisionBodyPtr != nullptr)
+                {
+                    const glm::vec2& playerPosition = playerCollisionBodyPtr->GetPosition();
+
+                    if (playerPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = playerPosition.x;
+                    if (playerPosition.x < minPlayerPosition.x) minPlayerPosition.x = playerPosition.x;
+                    if (playerPosition.y > maxPlayerPosition.y) maxPlayerPosition.y = playerPosition.y;
+                    if (playerPosition.y < minPlayerPosition.y) minPlayerPosition.y = playerPosition.y;
+                }
             }
+
+            glm::vec2 centerPlayerPosition = (maxPlayerPosition + minPlayerPosition) * 0.5f;
+
+            mainCamera_lookAtPoint_.x = centerPlayerPosition.x;
+            mainCamera_lookAtPoint_.y = centerPlayerPosition.y;
+            mainCamera_lookAtPoint_.z = 0.0f;
+
+            float playerPositionBoundingRaidus = glm::length(centerPlayerPosition - minPlayerPosition);
+
+            glm::vec3 forwardVector = cameraPtr->GetForwardVector();
+            glm::vec3 forwardHorizontalVector = forwardVector;
+            forwardHorizontalVector.z = 0.0f;
+
+            // Calculate mainCamera_distanceAway_ with law of sines to include all players
+            // 
+            //                                  . <- Camera Point
+            //                                //
+            //                              / /
+            //                            /  /
+            //                          /   /
+            //                        /    /
+            //                      /     /
+            //                    /      /
+            // Player Center -> /_______/
+            //                      ^
+            //                      Player Spread
+            // 
+            //                                  . <- angleA
+            //                                //
+            //                              / /
+            //                            /  /
+            //                 sideC -> /   /
+            //                        /    / <- sideB
+            //                      /     /
+            //                    /      /
+            //        angleB -> /_______/ <- angleC
+            //                      ^
+            //                      sideA
+            // 
+            // sideA / sin(angleA) = sideB / sin(angleB) = sideC / sin(angleC)
+            // sideA / sin(angleA) = sideC / sin(angleC)
+            // sideC = sideA * sin(angleC) / sin(angleA)
+
+            float angleA = cameraFieldOfView * 0.5f;
+            float angleB = Project001::Math::Get3DVectorAngle(forwardHorizontalVector, forwardVector);
+            float angleC = glm::pi<float>() - angleA - angleB;
+
+            float sideA = playerPositionBoundingRaidus + mainCamera_playerToEdgeSpacing_;
+            float sideC = sideA * sin(angleC) / sin(angleA);
+
+            mainCamera_distanceAway_ = sideC;
         }
-        else if (mainCamera_playerLock_ == 2)
+
+        if (sharedDataPtr_->debug_keyboard_setCameraPitch1_pressCount == 1)
         {
-            Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player2_entityId_));
-            if (playerCollisionBodyPtr != nullptr)
-            {
-                mainCamera_lookAtPoint_ = glm::vec3(playerCollisionBodyPtr->GetPosition(), 0.0f);
-            }
+            cameraPtr->ResetOrientation();
+
+            cameraPtr->AddYaw(glm::pi<float>());
+            cameraPtr->AddPitch(-glm::quarter_pi<float>());
         }
-        else if (mainCamera_playerLock_ == 3)
+        else if (sharedDataPtr_->debug_keyboard_setCameraPitch2_pressCount == 1)
         {
-            Project001::CollisionBody2D* player1CollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(player1CollisionBodyPtr, player1_entityId_));
-            Project001::CollisionBody2D* player2CollisionBodyPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(player2CollisionBodyPtr, player2_entityId_));
-            if (player1CollisionBodyPtr != nullptr && player2CollisionBodyPtr != nullptr)
-            {
-                mainCamera_lookAtPoint_ =glm::vec3((player1CollisionBodyPtr->GetPosition() + player2CollisionBodyPtr->GetPosition()) * 0.5f, 0.0f);
-            }
+            cameraPtr->ResetOrientation();
+
+            cameraPtr->AddYaw(glm::pi<float>());
         }
 
         glm::vec3 offsetLookAtPoint = mainCamera_lookAtPoint_;
@@ -1021,6 +1039,7 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(otherCameraPtr, mainCameraDebug_entityId_));
         if (otherCameraPtr != nullptr)
         {
+            otherCameraPtr->SetTurnedOn(debugCamera_turnedOn_);
             otherCameraPtr->SetPosition(cameraPtr->GetPosition());
             otherCameraPtr->SetOrientation(cameraPtr->GetOrientation());
         }
@@ -1082,7 +1101,7 @@ void Scene002::UpdateStageCollisionBodyQuadTreeMesh()
     }
 }
 
-void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
+void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, float timestep_s)
 {
     // Creating new components will cause old pointers from the ECS to become,
     // invalid. Flags will be used to preform these actions at the end.
@@ -1239,45 +1258,32 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         // Gathering input
         // ---------------------------------------------------------------------
 
-        bool movingLeft = false;
-        bool movingRight = false;
-        bool movingUp = false;
-        bool movingDown = false;
-        bool grabPressed = false;
-
-        if (penguinInfoPtr->controlScheme == 1)
-        {
-            movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_left_keyCode);
-            movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_right_keyCode);
-            movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_up_keyCode);
-            movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_down_keyCode);
-            grabPressed = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player1_snowball_keyCode);
-        }
-        else if (penguinInfoPtr->controlScheme == 2)
-        {
-            movingLeft = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_left_keyCode);
-            movingRight = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_right_keyCode);
-            movingUp = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_up_keyCode);
-            movingDown = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_down_keyCode);
-            grabPressed = GetWindowPtr()->GetKeyPressed(sharedDataPtr_->player2_snowball_keyCode);
-        }
+        const bool& grabPressed = playerInfo.snowball_pressCount > 0;
 
         glm::vec2 moveDirection(0.0f, 0.0);
-        if (movingLeft)
+        if (playerInfo.left_pressCount > 0)
         {
             moveDirection.x -= 1.0f;
         }
-        if (movingRight)
+        if (playerInfo.right_pressCount > 0)
         {
             moveDirection.x += 1.0f;
         }
-        if (movingUp)
+        if (playerInfo.up_pressCount > 0)
         {
             moveDirection.y += 1.0f;
         }
-        if (movingDown)
+        if (playerInfo.down_pressCount > 0)
         {
             moveDirection.y -= 1.0f;
+        }
+        if (glm::abs(playerInfo.leftRightAxisValue) > playerInfo.axisDeadzone)
+        {
+            moveDirection.x += playerInfo.leftRightAxisValue;
+        }
+        if (glm::abs(playerInfo.upDownAxisValue) > playerInfo.axisDeadzone)
+        {
+            moveDirection.y += playerInfo.upDownAxisValue;
         }
 
         float moveMagnitude = glm::length(moveDirection);
@@ -2169,7 +2175,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
             {
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_glasses_renderedMeshIndex];
-                if (penguinInfo.playerNumber == 1)
+                if (penguinInfo.glassesType == 0)
                 {
                     mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->penguin_glasses_meshId, sharedDataPtr_->penguin_glasses_meshDataPtr->maxBoundingRadius);
                 }
@@ -3074,3 +3080,10 @@ void Scene002::SyncSnowballRenderedModels()
         }
     }
 }
+
+const uint32_t Scene002::s_player_collisionGroupMasks_[SharedApplicationData::s_player_count] = {
+        0b00000000000000000000000000000010,
+        0b00000000000000000000000000000100,
+        0b00000000000000000000000000001000,
+        0b00000000000000000000000000010000
+};

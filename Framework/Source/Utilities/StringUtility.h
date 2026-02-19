@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-02-18
 
 #pragma once
 
@@ -22,5 +22,10 @@ namespace String
 
     // Converts certain chacters into escape sequence pairs.
     std::string UnParseEscapes(const std::string& str);
+
+    // Converts a string to a bool.
+    // Returns true if the string is recognized and successfuly converted.
+    // Returns false if the string was not recognized.
+    bool StringToBool(const std::string& str, bool& result);
 }
 }

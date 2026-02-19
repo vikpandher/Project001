@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-02-18
 
 #pragma once
 
@@ -27,6 +27,7 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
+    void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
     void LoadPixelFontResources();
     void LoadGeneralResources();

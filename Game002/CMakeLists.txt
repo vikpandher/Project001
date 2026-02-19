@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-02-13
+# @DATE 2026-02-18
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -42,6 +42,7 @@ set(GAME002_FILES
     "Source/Scene001.h"
     "Source/Scene002.cpp"
     "Source/Scene002.h"
+    "Source/SharedApplicationData.cpp"
     "Source/SharedApplicationData.h"
 )
 

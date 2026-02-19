@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-13
+// @DATE 2026-02-18
 
 #pragma once
 
@@ -42,14 +42,14 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreatePenguinEntity(unsigned int& entityId, const glm::vec2& position, float rotation, size_t playerNumber, size_t controlScheme);
+    void CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
     void UpdateMainCameraEntity(float timestep_s);
     void UpdateUiTextEntity();
     void UpdateUiPauseTextEntity();
     void UpdateStageCollisionBodyQuadTreeMesh();
-    void UpdatePenguinEntity(unsigned int& entityId, float timestep_s);
+    void UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, float timestep_s);
     void UpdateSnowballEntities(float timestep_s);
     void UpdateWorld(float timestep_s);
 
@@ -80,38 +80,34 @@ protected:
     unsigned int stage_entityId_ = static_cast<unsigned int>(-1);
     unsigned int stageLight_entityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int player1_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int player2_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int player3_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int player4_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int player_entityIds_[SharedApplicationData::s_player_count] = {
+        static_cast<unsigned int>(-1),
+        static_cast<unsigned int>(-1),
+        static_cast<unsigned int>(-1),
+        static_cast<unsigned int>(-1)
+    };
 
     // -------------------------------------------------------------------------
 
     glm::vec3 mainCamera_lookAtPoint_;
-    float mainCamera_distanceAway_ = 0.0f;
 
-    // 0 = unlocked
-    // 1 = locked to player 1
-    // 2 = locked to player 2
-    // 3 = locked between player 1 & 2
-    size_t mainCamera_playerLock_ = 0;
+    static constexpr float mainCamera_initialDistanceAway_ = 600.0f;
+    static constexpr float mainCamera_playerToEdgeSpacing_ = 128.0f;
+    float mainCamera_distanceAway_ = mainCamera_initialDistanceAway_;
+    bool mainCamera_lockedToPlayers_ = true;
+    bool debugCamera_turnedOn_ = false;
 
     bool paused_ = false;
 
     std::mt19937 randomNumberEngine_;
 
-    static const int s_main_renderPriority = 0;
+    static const uint32_t s_player_collisionGroupMasks_[SharedApplicationData::s_player_count];
 
-    static const uint32_t s_player1_collisionGroupMask_ = 0b00000000000000000000000000000010;
-    static const uint32_t s_player2_collisionGroupMask_ = 0b00000000000000000000000000000100;
-    static const uint32_t s_player3_collisionGroupMask_ = 0b00000000000000000000000000001000;
-    static const uint32_t s_player4_collisionGroupMask_ = 0b00000000000000000000000000010000;
-
-    static const unsigned int s_player_collisionShapeTag_ = 1;
-    static const unsigned int s_grab_collisionShapeTag_ = 2;
-    static const unsigned int s_grabAttractor_collisionShapeTag_ = 3;
-    static const unsigned int s_snowball_collisionShapeTag_ = 4;
-    static const unsigned int s_ground_collisionShapeTag_ = 5;
+    static constexpr unsigned int s_player_collisionShapeTag_ = 1;
+    static constexpr unsigned int s_grab_collisionShapeTag_ = 2;
+    static constexpr unsigned int s_grabAttractor_collisionShapeTag_ = 3;
+    static constexpr unsigned int s_snowball_collisionShapeTag_ = 4;
+    static constexpr unsigned int s_ground_collisionShapeTag_ = 5;
 
     static constexpr float s_waterHeight = -8.0f;
 };

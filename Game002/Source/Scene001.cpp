@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-13
+// @DATE 2026-02-18
 
 #include "Scene001.h"
 
@@ -30,6 +30,7 @@
 #include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
 #include "Utilities/SoundUtility.h"
+#include "Utilities/StringUtility.h"
 #include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
 #include "Logger.h"
@@ -48,8 +49,6 @@ Scene001::Scene001(Project001::Application* applicationPtr)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene001Id = GetId();
-
-    ReadConfigFile();
 
     LoadPixelFontResources();
     LoadGeneralResources();
@@ -72,6 +71,7 @@ void Scene001::HandleEvent(Project001::Event& event)
 
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene001::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene001::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene001::ProcessUpdateEvent, this, std::placeholders::_1));
 }
 
 // protected -------------------------------------------------------------------
@@ -82,6 +82,8 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     // -------------------------------------------------------------------------
 
+    ReadConfigFile();
+
     CreateUiCameraEntity();
     CreateIntroTextEntity();
 }
@@ -91,6 +93,8 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     LOG_INFO("DEINITIALIZING: Scene001:            " << GetId());
 
     // -------------------------------------------------------------------------
+
+    configFileFound_ = false;
 
     GetComponentStoresPtr()->DeleteEntity(uiCamera_entityId_);
     uiCamera_entityId_ = static_cast<unsigned int>(-1);
@@ -107,28 +111,33 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
 void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
-    Project001::KeyCode& keyCode = keyEvent.keyCode;
-    Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
-    Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
-
-    if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
-    {
-        if (keyCode == sharedDataPtr_->start_keyCode)
-        {
-            SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
-            if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
-            {
-                SendEventToScene(GetId(), Project001::DeinitializeEvent());
-                SendEventToApplication(Project001::InitializeEvent());
-            }
-            return;
-        }
-    }
+    sharedDataPtr_->UpdateKeyboardButtonPresses(keyEvent);
 }
 
 void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     GetRenderSystemPtr()->Render();
+}
+
+void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+{
+    sharedDataPtr_->UpdateButtonPressCounts(GetWindowPtr());
+
+    bool startPressed = false;
+    for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
+    {
+        startPressed |= sharedDataPtr_->playerInfos[i].turnedOn && (sharedDataPtr_->playerInfos[i].start_pressCount > 0);
+    }
+    if (startPressed)
+    {
+        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+        if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+        {
+            SendEventToScene(GetId(), Project001::DeinitializeEvent());
+            SendEventToApplication(Project001::InitializeEvent());
+        }
+        return;
+    }
 }
 
 void Scene001::LoadPixelFontResources()
@@ -198,7 +207,10 @@ void Scene001::LoadStageResources()
 
     sharedDataPtr_->water_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DSprite(
-        *sharedDataPtr_->water_meshDataPtr, 4096.0f, 4096.0f, 0.0f, 1.0f, 0.0f, 1.0f
+        *sharedDataPtr_->water_meshDataPtr,
+        sharedDataPtr_->ground_size * 24.0f,
+        sharedDataPtr_->ground_size * 24.0f,
+        0.0f, 1.0f, 0.0f, 1.0f
     ));
 
     std::vector<glm::vec2> groundCollisionCorners;
@@ -883,85 +895,467 @@ void Scene001::ReadConfigFile()
         std::map<std::string, std::map<std::string, std::string>> sections;
         Project001::ReadIniStream(sections, inputStream);
 
-        std::map<std::string, std::map<std::string, std::string>>::const_iterator iter = sections.find("Player_Controls");
+        std::map<std::string, std::map<std::string, std::string>>::const_iterator iter = sections.find("Player_1");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("turnedOn");
+            if (iter2 != iter->second.end())
+            {
+                bool result = false;
+                if (Project001::String::StringToBool(iter2->second, result))
+                {
+                    sharedDataPtr_->playerInfos[0].turnedOn = result;
+                }
+            }
+
+            iter2 = iter->second.find("controlScheme");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerInfos[0].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+            }
+        }
+
+        iter = sections.find("Player_2");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("turnedOn");
+            if (iter2 != iter->second.end())
+            {
+                bool result = false;
+                if (Project001::String::StringToBool(iter2->second, result))
+                {
+                    sharedDataPtr_->playerInfos[1].turnedOn = result;
+                }
+            }
+
+            iter2 = iter->second.find("controlScheme");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerInfos[1].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+            }
+        }
+
+        iter = sections.find("Player_3");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("turnedOn");
+            if (iter2 != iter->second.end())
+            {
+                bool result = false;
+                if (Project001::String::StringToBool(iter2->second, result))
+                {
+                    sharedDataPtr_->playerInfos[2].turnedOn = result;
+                }
+            }
+
+            iter2 = iter->second.find("controlScheme");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerInfos[2].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+            }
+        }
+
+        iter = sections.find("Player_4");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("turnedOn");
+            if (iter2 != iter->second.end())
+            {
+                bool result = false;
+                if (Project001::String::StringToBool(iter2->second, result))
+                {
+                    sharedDataPtr_->playerInfos[3].turnedOn = result;
+                }
+            }
+
+            iter2 = iter->second.find("controlScheme");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerInfos[3].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+            }
+        }
+
+        iter = sections.find("Keyboard_1");
         if (iter != sections.end())
         {
             std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->start_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_start_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
             iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->pause_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
             iter2 = iter->second.find("quit");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->quit_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_quit_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player1_up");
+            iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player1_up_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_left_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player1_left");
+            iter2 = iter->second.find("right");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player1_left_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_right_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player1_down");
+            iter2 = iter->second.find("up");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player1_down_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_up_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player1_right");
+            iter2 = iter->second.find("down");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player1_right_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_down_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player1_snowball");
+            iter2 = iter->second.find("snowball");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player1_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+        }
+
+        iter = sections.find("Keyboard_2");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->keyboard_2_start_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player2_up");
+            iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player2_up_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player2_left");
+            iter2 = iter->second.find("quit");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player2_left_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_quit_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player2_down");
+            iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player2_down_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_left_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player2_right");
+            iter2 = iter->second.find("right");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player2_right_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_right_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("player2_snowball");
+            iter2 = iter->second.find("up");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->player2_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_up_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->keyboard_2_down_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->keyboard_2_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+        }
+
+        iter = sections.find("Controller_1");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_start_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("pause");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_pause_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("quit");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_quit_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("left");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_left_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("right");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_right_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("up");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_up_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_down_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_snowball_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveRightLeftAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_moveRightLeft_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDownUpAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_moveDownUp_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("axisDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_axisDeadzone = std::stof(iter2->second);
+            }
+        }
+
+        iter = sections.find("Controller_2");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_start_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("pause");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_pause_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("quit");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_quit_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("left");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_left_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("right");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_right_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("up");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_up_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_down_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_snowball_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveRightLeftAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_moveRightLeft_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDownUpAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_moveDownUp_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("axisDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_axisDeadzone = std::stof(iter2->second);
+            }
+        }
+
+        iter = sections.find("Controller_3");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_start_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("pause");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_pause_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("quit");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_quit_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("left");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_left_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("right");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_right_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("up");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_up_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_down_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_snowball_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveRightLeftAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_moveRightLeft_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDownUpAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_moveDownUp_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("axisDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_axisDeadzone = std::stof(iter2->second);
+            }
+        }
+
+        iter = sections.find("Controller_4");
+        if (iter != sections.end())
+        {
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_start_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("pause");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_pause_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("quit");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_quit_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("left");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_left_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("right");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_right_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("up");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_up_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("down");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_down_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowball");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_snowball_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveRightLeftAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_moveRightLeft_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("moveDownUpAxis");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_moveDownUp_axisIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("axisDeadzone");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_axisDeadzone = std::stof(iter2->second);
             }
         }
 

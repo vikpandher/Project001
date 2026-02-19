@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-02-18
 
 #include "Scene001.h"
 
@@ -44,8 +44,6 @@ Scene001::Scene001(Project001::Application* applicationPtr)
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene001Id = GetId();
 
-    ReadConfigFile();
-
     LoadPixelFontResources();
 
     LoadIntroTextResources();
@@ -86,6 +84,8 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     // -------------------------------------------------------------------------
 
+    ReadConfigFile();
+
     CreateUiCameraEntity();
     CreateIntroTextEntity();
 }
@@ -95,6 +95,8 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     LOG_INFO("DEINITIALIZING: Scene001:            " << GetId());
 
     // -------------------------------------------------------------------------
+
+    configFileFound_ = false;
 
     GetComponentStoresPtr()->DeleteEntity(uiCamera_EntityId_);
     uiCamera_EntityId_ = static_cast<unsigned int>(-1);
@@ -1547,7 +1549,7 @@ void Scene001::CreateIntroTextEntity()
 
     if (configFileFound_)
     {
-        introString += "Config file was found.\n\n\n";
+        introString += "Config file was loaded.\n\n\n";
     }
     else
     {

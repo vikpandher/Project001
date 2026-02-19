@@ -1,10 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-13
+// @DATE 2026-02-18
 
 #pragma once
 
 #include "glm/gtc/constants.hpp"
+
+#include "Event.h"
 
 
 
@@ -14,7 +16,43 @@ namespace Project001
     struct MeshData;
     struct SoundData;
     struct TextureData;
+
+    class Window;
 }
+
+struct PlayerInfo
+{
+    size_t playerNumber = 0;
+    bool turnedOn = true;
+
+    enum class ControlScheme
+    {
+        CONTROL_SCHEME_UNKNOWN,
+        CONTROL_SCHEME_KEYBOARD_1,
+        CONTROL_SCHEME_KEYBOARD_2,
+        CONTROL_SCHEME_CONTROLLER_1,
+        CONTROL_SCHEME_CONTROLLER_2,
+        CONTROL_SCHEME_CONTROLLER_3,
+        CONTROL_SCHEME_CONTROLLER_4
+    };
+
+    static PlayerInfo::ControlScheme PlayerInfo::StringToControlScheme(const std::string& str);
+
+    ControlScheme controlScheme = ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
+
+    float axisDeadzone = 0.2f;
+
+    unsigned int start_pressCount = 0;
+    unsigned int pause_pressCount = 0;
+    unsigned int quit_pressCount = 0;
+    unsigned int left_pressCount = 0;
+    unsigned int right_pressCount = 0;
+    unsigned int up_pressCount = 0;
+    unsigned int down_pressCount = 0;
+    unsigned int snowball_pressCount = 0;
+    float leftRightAxisValue = 0.0f;
+    float upDownAxisValue = 0.0f;
+};
 
 struct SharedApplicationData
 {
@@ -28,34 +66,139 @@ struct SharedApplicationData
     unsigned int score = 0;
     float gameTime_s = 0.0f;
 
-    // bool player1_turnedOn = false;
-    // bool player2_turnedOn = false;
-    // bool player3_turnedOn = false;
-    // bool player4_turnedOn = false;
+    static const size_t s_player_count = 4;
+    PlayerInfo playerInfos[s_player_count] = {
+        {0, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
+        {1, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
+        {2, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
+        {3, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
+    };
+
+    void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
+    void UpdateButtonPressCounts(const Project001::Window* windowPtr);
 
     // Player Controls ---------------------------------------------------------
 
-    Project001::KeyCode start_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
-    Project001::KeyCode pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
-    Project001::KeyCode quit_keyCode = Project001::KeyCode::KEY_CODE_ESCAPE;
+    Project001::KeyCode keyboard_1_start_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    Project001::KeyCode keyboard_1_pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
+    Project001::KeyCode keyboard_1_quit_keyCode = Project001::KeyCode::KEY_CODE_ESCAPE;
+    Project001::KeyCode keyboard_1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
+    Project001::KeyCode keyboard_1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
+    Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
+    Project001::KeyCode keyboard_1_down_keyCode = Project001::KeyCode::KEY_CODE_S;
+    Project001::KeyCode keyboard_1_snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
 
-    Project001::KeyCode player1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
-    Project001::KeyCode player1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
-    Project001::KeyCode player1_down_keyCode = Project001::KeyCode::KEY_CODE_S;
-    Project001::KeyCode player1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
-    Project001::KeyCode player1_snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    bool keyboard_1_start_pressed = false;
+    bool keyboard_1_pause_pressed = false;
+    bool keyboard_1_quit_pressed = false;
+    bool keyboard_1_left_pressed = false;
+    bool keyboard_1_right_pressed = false;
+    bool keyboard_1_up_pressed = false;
+    bool keyboard_1_down_pressed = false;
+    bool keyboard_1_snowball_pressed = false;
 
-    Project001::KeyCode player2_up_keyCode = Project001::KeyCode::KEY_CODE_P;
-    Project001::KeyCode player2_left_keyCode = Project001::KeyCode::KEY_CODE_L;
-    Project001::KeyCode player2_down_keyCode = Project001::KeyCode::KEY_CODE_SEMICOLON;
-    Project001::KeyCode player2_right_keyCode = Project001::KeyCode::KEY_CODE_APOSTROPHE;
-    Project001::KeyCode player2_snowball_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_CONTROL;
+    Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
+    Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
+    Project001::KeyCode keyboard_2_quit_keyCode = Project001::KeyCode::KEY_CODE_KP_SUBTRACT;
+    Project001::KeyCode keyboard_2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
+    Project001::KeyCode keyboard_2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
+    Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
+    Project001::KeyCode keyboard_2_down_keyCode = Project001::KeyCode::KEY_CODE_DOWN;
+    Project001::KeyCode keyboard_2_snowball_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
+
+    bool keyboard_2_start_pressed = false;
+    bool keyboard_2_pause_pressed = false;
+    bool keyboard_2_quit_pressed = false;
+    bool keyboard_2_left_pressed = false;
+    bool keyboard_2_right_pressed = false;
+    bool keyboard_2_up_pressed = false;
+    bool keyboard_2_down_pressed = false;
+    bool keyboard_2_snowball_pressed = false;
+
+    unsigned int controller_1_start_buttonIndex = 0;
+    unsigned int controller_1_pause_buttonIndex = 7;
+    unsigned int controller_1_quit_buttonIndex = 1;
+    unsigned int controller_1_left_buttonIndex = 13;
+    unsigned int controller_1_right_buttonIndex = 11;
+    unsigned int controller_1_up_buttonIndex = 10;
+    unsigned int controller_1_down_buttonIndex = 12;
+    unsigned int controller_1_snowball_buttonIndex = 0;
+    unsigned int controller_1_moveRightLeft_axisIndex = 0;
+    unsigned int controller_1_moveDownUp_axisIndex = 1;
+    float controller_1_axisDeadzone = 0.2f;
+
+    unsigned int controller_2_start_buttonIndex = 0;
+    unsigned int controller_2_pause_buttonIndex = 7;
+    unsigned int controller_2_quit_buttonIndex = 1;
+    unsigned int controller_2_left_buttonIndex = 13;
+    unsigned int controller_2_right_buttonIndex = 11;
+    unsigned int controller_2_up_buttonIndex = 10;
+    unsigned int controller_2_down_buttonIndex = 12;
+    unsigned int controller_2_snowball_buttonIndex = 0;
+    unsigned int controller_2_moveRightLeft_axisIndex = 0;
+    unsigned int controller_2_moveDownUp_axisIndex = 1;
+    float controller_2_axisDeadzone = 0.2f;
+
+    unsigned int controller_3_start_buttonIndex = 0;
+    unsigned int controller_3_pause_buttonIndex = 7;
+    unsigned int controller_3_quit_buttonIndex = 1;
+    unsigned int controller_3_left_buttonIndex = 13;
+    unsigned int controller_3_right_buttonIndex = 11;
+    unsigned int controller_3_up_buttonIndex = 10;
+    unsigned int controller_3_down_buttonIndex = 12;
+    unsigned int controller_3_snowball_buttonIndex = 0;
+    unsigned int controller_3_moveRightLeft_axisIndex = 0;
+    unsigned int controller_3_moveDownUp_axisIndex = 1;
+    float controller_3_axisDeadzone = 0.2f;
+
+    unsigned int controller_4_start_buttonIndex = 0;
+    unsigned int controller_4_pause_buttonIndex = 7;
+    unsigned int controller_4_quit_buttonIndex = 1;
+    unsigned int controller_4_left_buttonIndex = 13;
+    unsigned int controller_4_right_buttonIndex = 11;
+    unsigned int controller_4_up_buttonIndex = 10;
+    unsigned int controller_4_down_buttonIndex = 12;
+    unsigned int controller_4_snowball_buttonIndex = 0;
+    unsigned int controller_4_moveRightLeft_axisIndex = 0;
+    unsigned int controller_4_moveDownUp_axisIndex = 1;
+    float controller_4_axisDeadzone = 0.2f;
+
+    static const Project001::KeyCode debug_keyboard_toggleDebugCamera_keyCode = Project001::KeyCode::KEY_CODE_0;
+    static const Project001::KeyCode debug_keyboard_toggleCameraLock_keyCode = Project001::KeyCode::KEY_CODE_KP_5;
+    static const Project001::KeyCode debug_keyboard_setCameraPitch1_keyCode = Project001::KeyCode::KEY_CODE_KP_7;
+    static const Project001::KeyCode debug_keyboard_setCameraPitch2_keyCode = Project001::KeyCode::KEY_CODE_KP_9;
+    static const Project001::KeyCode debug_keyboard_pitchCameraUp_keyCode = Project001::KeyCode::KEY_CODE_PAGE_DOWN;
+    static const Project001::KeyCode debug_keyboard_pitchCameraDown_keyCode = Project001::KeyCode::KEY_CODE_PAGE_UP;
+    static const Project001::KeyCode debug_keyboard_moveCameraLeft_keyCode = Project001::KeyCode::KEY_CODE_KP_4;
+    static const Project001::KeyCode debug_keyboard_moveCameraRight_keyCode = Project001::KeyCode::KEY_CODE_KP_6;
+    static const Project001::KeyCode debug_keyboard_moveCameraUp_keyCode = Project001::KeyCode::KEY_CODE_KP_8;
+    static const Project001::KeyCode debug_keyboard_moveCameraDown_keyCode = Project001::KeyCode::KEY_CODE_KP_2;
+
+    bool debug_keyboard_toggleDebugCamera_pressed = false;
+    bool debug_keyboard_toggleCameraLock_pressed = false;
+    bool debug_keyboard_setCameraPitch1_pressed = false;
+    bool debug_keyboard_setCameraPitch2_pressed = false;
+    bool debug_keyboard_pitchCameraUp_pressed = false;
+    bool debug_keyboard_pitchCameraDown_pressed = false;
+    bool debug_keyboard_moveCameraLeft_pressed = false;
+    bool debug_keyboard_moveCameraRight_pressed = false;
+    bool debug_keyboard_moveCameraUp_pressed = false;
+    bool debug_keyboard_moveCameraDown_pressed = false;
+
+    unsigned int debug_keyboard_toggleDebugCamera_pressCount = 0;
+    unsigned int debug_keyboard_toggleCameraLock_pressCount = 0;
+    unsigned int debug_keyboard_setCameraPitch1_pressCount = 0;
+    unsigned int debug_keyboard_setCameraPitch2_pressCount = 0;
+    unsigned int debug_keyboard_pitchCameraUp_pressCount = 0;
+    unsigned int debug_keyboard_pitchCameraDown_pressCount = 0;
+    unsigned int debug_keyboard_moveCameraLeft_pressCount = 0;
+    unsigned int debug_keyboard_moveCameraRight_pressCount = 0;
+    unsigned int debug_keyboard_moveCameraUp_pressCount = 0;
+    unsigned int debug_keyboard_moveCameraDown_pressCount = 0;
 
     // Game Constants ----------------------------------------------------------
 
     unsigned int randomNumberSeed = 777;
-
-    const float mainCamera_initialDistanceAway = 600.0f;
 
     const float ground_size = 512.0f;
 

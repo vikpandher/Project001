@@ -1,8 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-02-18
 
 #include "StringUtility.h"
+
+#include <algorithm>
 
 
 
@@ -80,6 +82,26 @@ namespace String
         }
 
         return result;
+    }
+
+    bool StringToBool(const std::string& str, bool& result)
+    {
+        std::string temp = str;
+        std::transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+        if (temp.compare("true") == 0 || temp.compare("t") == 0 || temp.compare("1") == 0)
+        {
+            result = true;
+            return true;
+        }
+        else if (temp.compare("false") == 0 || temp.compare("f") == 0 || temp.compare("0") == 0)
+        {
+            result = false;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 }
