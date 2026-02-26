@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-18
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -49,7 +49,8 @@ struct PlayerInfo
     unsigned int right_pressCount = 0;
     unsigned int up_pressCount = 0;
     unsigned int down_pressCount = 0;
-    unsigned int snowball_pressCount = 0;
+    unsigned int grab_pressCount = 0;
+    unsigned int throw_pressCount = 0;
     float leftRightAxisValue = 0.0f;
     float upDownAxisValue = 0.0f;
 };
@@ -66,7 +67,7 @@ struct SharedApplicationData
     unsigned int score = 0;
     float gameTime_s = 0.0f;
 
-    static const size_t s_player_count = 4;
+    static constexpr size_t s_player_count = 4;
     PlayerInfo playerInfos[s_player_count] = {
         {0, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
         {1, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
@@ -86,7 +87,8 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
     Project001::KeyCode keyboard_1_down_keyCode = Project001::KeyCode::KEY_CODE_S;
-    Project001::KeyCode keyboard_1_snowball_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    Project001::KeyCode keyboard_1_grab_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    Project001::KeyCode keyboard_1_throw_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_ALT;
 
     bool keyboard_1_start_pressed = false;
     bool keyboard_1_pause_pressed = false;
@@ -95,7 +97,8 @@ struct SharedApplicationData
     bool keyboard_1_right_pressed = false;
     bool keyboard_1_up_pressed = false;
     bool keyboard_1_down_pressed = false;
-    bool keyboard_1_snowball_pressed = false;
+    bool keyboard_1_grab_pressed = false;
+    bool keyboard_1_throw_pressed = false;
 
     Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
     Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
@@ -104,7 +107,8 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
     Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
     Project001::KeyCode keyboard_2_down_keyCode = Project001::KeyCode::KEY_CODE_DOWN;
-    Project001::KeyCode keyboard_2_snowball_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
+    Project001::KeyCode keyboard_2_grab_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
+    Project001::KeyCode keyboard_2_throw_keyCode = Project001::KeyCode::KEY_CODE_KP_DECIMAL;
 
     bool keyboard_2_start_pressed = false;
     bool keyboard_2_pause_pressed = false;
@@ -113,7 +117,8 @@ struct SharedApplicationData
     bool keyboard_2_right_pressed = false;
     bool keyboard_2_up_pressed = false;
     bool keyboard_2_down_pressed = false;
-    bool keyboard_2_snowball_pressed = false;
+    bool keyboard_2_grab_pressed = false;
+    bool keyboard_2_throw_pressed = false;
 
     unsigned int controller_1_start_buttonIndex = 0;
     unsigned int controller_1_pause_buttonIndex = 7;
@@ -122,7 +127,8 @@ struct SharedApplicationData
     unsigned int controller_1_right_buttonIndex = 11;
     unsigned int controller_1_up_buttonIndex = 10;
     unsigned int controller_1_down_buttonIndex = 12;
-    unsigned int controller_1_snowball_buttonIndex = 0;
+    unsigned int controller_1_grab_buttonIndex = 0;
+    unsigned int controller_1_throw_buttonIndex = 5;
     unsigned int controller_1_moveRightLeft_axisIndex = 0;
     unsigned int controller_1_moveDownUp_axisIndex = 1;
     float controller_1_axisDeadzone = 0.2f;
@@ -134,7 +140,8 @@ struct SharedApplicationData
     unsigned int controller_2_right_buttonIndex = 11;
     unsigned int controller_2_up_buttonIndex = 10;
     unsigned int controller_2_down_buttonIndex = 12;
-    unsigned int controller_2_snowball_buttonIndex = 0;
+    unsigned int controller_2_grab_buttonIndex = 0;
+    unsigned int controller_2_throw_buttonIndex = 5;
     unsigned int controller_2_moveRightLeft_axisIndex = 0;
     unsigned int controller_2_moveDownUp_axisIndex = 1;
     float controller_2_axisDeadzone = 0.2f;
@@ -146,7 +153,8 @@ struct SharedApplicationData
     unsigned int controller_3_right_buttonIndex = 11;
     unsigned int controller_3_up_buttonIndex = 10;
     unsigned int controller_3_down_buttonIndex = 12;
-    unsigned int controller_3_snowball_buttonIndex = 0;
+    unsigned int controller_3_grab_buttonIndex = 0;
+    unsigned int controller_3_throw_buttonIndex = 5;
     unsigned int controller_3_moveRightLeft_axisIndex = 0;
     unsigned int controller_3_moveDownUp_axisIndex = 1;
     float controller_3_axisDeadzone = 0.2f;
@@ -158,21 +166,22 @@ struct SharedApplicationData
     unsigned int controller_4_right_buttonIndex = 11;
     unsigned int controller_4_up_buttonIndex = 10;
     unsigned int controller_4_down_buttonIndex = 12;
-    unsigned int controller_4_snowball_buttonIndex = 0;
+    unsigned int controller_4_grab_buttonIndex = 0;
+    unsigned int controller_4_throw_buttonIndex = 5;
     unsigned int controller_4_moveRightLeft_axisIndex = 0;
     unsigned int controller_4_moveDownUp_axisIndex = 1;
     float controller_4_axisDeadzone = 0.2f;
 
-    static const Project001::KeyCode debug_keyboard_toggleDebugCamera_keyCode = Project001::KeyCode::KEY_CODE_0;
-    static const Project001::KeyCode debug_keyboard_toggleCameraLock_keyCode = Project001::KeyCode::KEY_CODE_KP_5;
-    static const Project001::KeyCode debug_keyboard_setCameraPitch1_keyCode = Project001::KeyCode::KEY_CODE_KP_7;
-    static const Project001::KeyCode debug_keyboard_setCameraPitch2_keyCode = Project001::KeyCode::KEY_CODE_KP_9;
-    static const Project001::KeyCode debug_keyboard_pitchCameraUp_keyCode = Project001::KeyCode::KEY_CODE_PAGE_DOWN;
-    static const Project001::KeyCode debug_keyboard_pitchCameraDown_keyCode = Project001::KeyCode::KEY_CODE_PAGE_UP;
-    static const Project001::KeyCode debug_keyboard_moveCameraLeft_keyCode = Project001::KeyCode::KEY_CODE_KP_4;
-    static const Project001::KeyCode debug_keyboard_moveCameraRight_keyCode = Project001::KeyCode::KEY_CODE_KP_6;
-    static const Project001::KeyCode debug_keyboard_moveCameraUp_keyCode = Project001::KeyCode::KEY_CODE_KP_8;
-    static const Project001::KeyCode debug_keyboard_moveCameraDown_keyCode = Project001::KeyCode::KEY_CODE_KP_2;
+    static constexpr Project001::KeyCode debug_keyboard_toggleDebugCamera_keyCode = Project001::KeyCode::KEY_CODE_0;
+    static constexpr Project001::KeyCode debug_keyboard_toggleCameraLock_keyCode = Project001::KeyCode::KEY_CODE_KP_5;
+    static constexpr Project001::KeyCode debug_keyboard_setCameraPitch1_keyCode = Project001::KeyCode::KEY_CODE_KP_7;
+    static constexpr Project001::KeyCode debug_keyboard_setCameraPitch2_keyCode = Project001::KeyCode::KEY_CODE_KP_9;
+    static constexpr Project001::KeyCode debug_keyboard_pitchCameraUp_keyCode = Project001::KeyCode::KEY_CODE_PAGE_DOWN;
+    static constexpr Project001::KeyCode debug_keyboard_pitchCameraDown_keyCode = Project001::KeyCode::KEY_CODE_PAGE_UP;
+    static constexpr Project001::KeyCode debug_keyboard_moveCameraLeft_keyCode = Project001::KeyCode::KEY_CODE_KP_4;
+    static constexpr Project001::KeyCode debug_keyboard_moveCameraRight_keyCode = Project001::KeyCode::KEY_CODE_KP_6;
+    static constexpr Project001::KeyCode debug_keyboard_moveCameraUp_keyCode = Project001::KeyCode::KEY_CODE_KP_8;
+    static constexpr Project001::KeyCode debug_keyboard_moveCameraDown_keyCode = Project001::KeyCode::KEY_CODE_KP_2;
 
     bool debug_keyboard_toggleDebugCamera_pressed = false;
     bool debug_keyboard_toggleCameraLock_pressed = false;
@@ -200,20 +209,20 @@ struct SharedApplicationData
 
     unsigned int randomNumberSeed = 777;
 
-    const float ground_size = 512.0f;
+    static constexpr float s_ground_size = 512.0f;
 
-    const float deadzone_size = 1024.0f;
+    static constexpr float s_deadzone_size = 1024.0f;
 
-    const float maxStage_size = 1088.0f;
+    static constexpr float s_maxStage_size = 1088.0f;
 
-    const float penguin_collisionRadius = 12.0f;
-    const float penguin_grabOffset = 22.0f;
-    const float penguin_grabRadius = 18.0f;
-    const float penguin_throwSpeed_s = 256.0f;
+    static constexpr float s_penguin_collisionRadius = 12.0f;
+    static constexpr float s_penguin_grabOffset = 22.0f;
+    static constexpr float s_penguin_grabRadius = 18.0f;
+    static constexpr float s_penguin_throwSpeed_s = 256.0f;
 
-    const float snowball_landFriction = 8.0f;
-    const float snowball_waterFriction = 16.0f;
-    const float snowball_angularFriction = glm::pi<float>();
+    static constexpr float s_snowball_landFriction = 8.0f;
+    static constexpr float s_snowball_waterFriction = 16.0f;
+    static constexpr float s_snowball_angularFriction = glm::pi<float>();
 
     // Resources ---------------------------------------------------------------
 
@@ -226,6 +235,20 @@ struct SharedApplicationData
     Project001::MeshData* circle_meshDataPtr = nullptr;
     Project001::MeshData* orientationArrow_meshDataPtr = nullptr;
     Project001::MeshData* hallowCircle_meshDataPtr = nullptr;
+
+    static constexpr float s_maxAimLineLength = 4096.0f;
+    static constexpr float s_aimLineWidth = 2.0f;
+    Project001::MeshData* player1_aimRay1_meshDataPtr = nullptr;
+    Project001::MeshData* player1_aimRay2_meshDataPtr = nullptr;
+    Project001::MeshData* player2_aimRay1_meshDataPtr = nullptr;
+    Project001::MeshData* player2_aimRay2_meshDataPtr = nullptr;
+    Project001::MeshData* player3_aimRay1_meshDataPtr = nullptr;
+    Project001::MeshData* player3_aimRay2_meshDataPtr = nullptr;
+    Project001::MeshData* player4_aimRay1_meshDataPtr = nullptr;
+    Project001::MeshData* player4_aimRay2_meshDataPtr = nullptr;
+
+    Project001::TextureData* dotted_textureDataPtr = nullptr;
+    unsigned int dotted_textureId = static_cast<unsigned int>(-1);
 
     // Main Menu Resources
     Project001::MeshData* authorText_meshDataPtr = nullptr;

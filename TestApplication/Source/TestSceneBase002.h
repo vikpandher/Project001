@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-10-20
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -78,6 +78,8 @@ protected:
 
     void UpdateCollisionMarkerCollectionMesh();
 
+    void UpdateRaycastMarkerCollectionMesh();
+
     void UpdateCollisionBodyTexture();
 
     // Texture Data ------------------------------------------------------------
@@ -108,6 +110,7 @@ protected:
     Project001::MeshData* collisionBodyBorderMeshDataPtr_;
     Project001::MeshData* collisionBodyQuadTreeMeshDataPtr_;
     Project001::MeshData* collisionMarkerCollectionMeshDataPtr_;
+    Project001::MeshData* raycastMarkerCollectionMeshDataPtr_;
 
     std::vector<Project001::MeshData*> meshDataPtrArray_;
 
@@ -129,6 +132,7 @@ protected:
     unsigned int collisionBodyBorderEntityId_;
     unsigned int collisionBodyQuadTreeEntityId_;
     unsigned int collisionMarkerCollectionEntityId_;
+    unsigned int raycastMarkerCollectionEntityId_;
 
     std::vector<unsigned int> entityIds_;
 

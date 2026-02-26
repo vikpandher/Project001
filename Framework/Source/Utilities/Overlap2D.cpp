@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-02-25
 
 #include "Overlap2D.h"
 
@@ -127,7 +127,6 @@ namespace Project001
 
         // Don't use an axis alinged rays. If they are aligned to the
         // x or y axis, they tend to dodge corners.
-        // glm::vec2 ray_direction(0.78965f, 0.613558);
         glm::vec2 ray_perpendicular(-0.613558, 0.78965f);
         const glm::vec2& ray_position = point_position;
 
@@ -219,20 +218,8 @@ namespace Project001
                 (ray_direction.x < 0.0f && line_position.x < ray_position.x);
         }
 
-        glm::vec2 perpendicular(-ray_direction.y, ray_direction.x);
-        glm::vec2 lineToRay = ray_position - line_position;
-
-        glm::vec2 line_direction = Get2D_DirectionFromSlope(line_slope);
-        float denominator = glm::dot(line_direction, perpendicular);
-        if (denominator == 0.0f)
-        {
-            // lineSegment and ray are parallel
-            return false;
-        }
-
-        float t = (line_direction.x * lineToRay.y - lineToRay.x * line_direction.y) / denominator;
-
-        return t > 0.0f;
+        float intersection_scalar;
+        return Check2D_Raycast_Line(ray_position, ray_direction, line_position, line_slope, intersection_scalar);
     }
 
     bool Check2D_Line_LineSegment_Overlap(
@@ -548,20 +535,9 @@ namespace Project001
         const glm::vec2& rayB_position,
         const glm::vec2& rayB_direction)
     {
-        glm::vec2 perpendicular(-rayA_direction.y, rayA_direction.x);
-        glm::vec2 b_to_a = rayA_position - rayB_position;
-
-        float denominator = glm::dot(rayB_direction, perpendicular);
-        if (denominator == 0.0f)
-        {
-            // rays are parallel
-            return false;
-        }
-
-        float t1 = (rayB_direction.x * b_to_a.y - b_to_a.x * rayB_direction.y) / denominator;
-        float t2 = glm::dot(b_to_a, perpendicular) / denominator;
-
-        return t2 > 0.0f && t1 > 0.0f;
+        float intersection_scalarA;
+        float intersection_scalarB;
+        return Check2D_Raycast_Ray(rayA_position, rayA_direction, rayB_position, rayB_direction, intersection_scalarA, intersection_scalarB);
     }
 
     bool Check2D_Ray_LineSegment_Overlap(
@@ -570,21 +546,8 @@ namespace Project001
         const glm::vec2& lineSegment_start,
         const glm::vec2& lineSegment_end)
     {
-        glm::vec2 perpendicular(-ray_direction.y, ray_direction.x);
-        glm::vec2 startToRay = ray_position - lineSegment_start;
-        glm::vec2 startToEnd = lineSegment_end - lineSegment_start;
-
-        float denominator = glm::dot(startToEnd, perpendicular);
-        if (denominator == 0.0f)
-        {
-            // lineSegment and ray are parallel
-            return false;
-        }
-
-        float t1 = (startToEnd.x * startToRay.y - startToRay.x * startToEnd.y) / denominator;
-        float t2 = glm::dot(startToRay, perpendicular) / denominator;
-
-        return t2 > 0.0f &&t2 < 1.0f && t1 > 0.0f;
+        float intersection_scalar;
+        return Check2D_Raycast_LineSegment(ray_position, ray_direction, lineSegment_start, lineSegment_end, intersection_scalar);
     }
 
     bool Check2D_Ray_Rectangle_Overlap(
@@ -686,7 +649,7 @@ namespace Project001
         const glm::vec2* const& polygon_corners,
         const size_t& polygon_cornerCount)
     {
-        if (polygon_cornerCount < 3)
+        if (polygon_cornerCount < 2)
         {
             return false;
         }
@@ -2213,6 +2176,335 @@ namespace Project001
                 convexPolygonA_cornerCount);
     }
 
+    // Raycast Functions -------------------------------------------------------
+
+    bool Check2D_Raycast_Line(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        float& intersection_scalar)
+    {
+        glm::vec2 perpendicular(-ray_direction.y, ray_direction.x);
+
+        glm::vec2 line_direction = Get2D_DirectionFromSlope(line_slope);
+        float denominator = glm::dot(line_direction, perpendicular);
+        if (denominator == 0.0f)
+        {
+            // lineSegment and ray are parallel
+            return false;
+        }
+
+        glm::vec2 lineToRay = ray_position - line_position;
+
+        intersection_scalar = (line_direction.x * lineToRay.y - lineToRay.x * line_direction.y) / denominator;
+
+        return intersection_scalar > 0.0f;
+    }
+
+    bool Check2D_Raycast_Ray(
+        const glm::vec2& rayA_position,
+        const glm::vec2& rayA_direction,
+        const glm::vec2& rayB_position,
+        const glm::vec2& rayB_direction,
+        float& intersection_scalarA,
+        float& intersection_scalarB)
+    {
+        glm::vec2 perpendicular(-rayA_direction.y, rayA_direction.x);
+
+        float denominator = glm::dot(rayB_direction, perpendicular);
+        if (denominator == 0.0f)
+        {
+            // rays are parallel
+            return false;
+        }
+
+        glm::vec2 b_to_a = rayA_position - rayB_position;
+
+        intersection_scalarA = (rayB_direction.x * b_to_a.y - b_to_a.x * rayB_direction.y) / denominator;
+        intersection_scalarB = glm::dot(b_to_a, perpendicular) / denominator;
+
+        return intersection_scalarA > 0.0f && intersection_scalarB > 0.0f;
+    }
+
+    bool Check2D_Raycast_LineSegment(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        float& intersection_scalar)
+    {
+        glm::vec2 perpendicular(-ray_direction.y, ray_direction.x);
+        glm::vec2 startToEnd = lineSegment_end - lineSegment_start;
+
+        float denominator = glm::dot(startToEnd, perpendicular);
+        if (denominator == 0.0f)
+        {
+            // lineSegment and ray are parallel (or the lineSegment is a point (lineSegment_start == lineSegment_end))
+            return false;
+        }
+
+        glm::vec2 startToRay = ray_position - lineSegment_start;
+
+        intersection_scalar = (startToEnd.x * startToRay.y - startToRay.x * startToEnd.y) / denominator;
+        float t2 = glm::dot(startToRay, perpendicular) / denominator;
+
+        return intersection_scalar > 0.0f && t2 > 0.0f && t2 < 1.0f;
+    }
+
+    bool Check2D_Raycast_Rectangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        float& intersection_scalar)
+    {
+        if (Check2D_Point_Rectangle_Overlap(ray_position, rectangle_bottomLeft, rectangle_topRight))
+        {
+            intersection_scalar = 0.0f;
+            return true;
+        }
+
+        // Note: Dividing by 0.0f not undefined behavior in IEEE-754 floating
+        // point, but dividing 0.0f by 0.0f results in NaN which messes up the
+        // comparisons.
+
+        float t_near_x = (rectangle_bottomLeft.x - ray_position.x) / ray_direction.x;
+        float t_far_x = (rectangle_topRight.x - ray_position.x) / ray_direction.x;
+
+        // swap if ray_direction.x is negative
+        if (t_near_x > t_far_x)
+        {
+            std::swap(t_near_x, t_far_x);
+        }
+
+        float t_near_y = (rectangle_bottomLeft.y - ray_position.y) / ray_direction.y;
+        float t_far_y = (rectangle_topRight.y - ray_position.y) / ray_direction.y;
+
+        // swap if ray_direction.y is negative
+        if (t_near_y > t_far_y)
+        {
+            std::swap(t_near_y, t_far_y);
+        }
+
+        // find the maximum of the near intersections and the minimum of the far intersections
+        intersection_scalar = std::max(t_near_x, t_near_y);
+        float t_far = std::min(t_far_x, t_far_y);
+
+        // if (std::isnan(intersection_scalar) || std::isnan(t_far))
+        // {
+        //     // The ray positoin was EXACTLY on a rectangle corner
+        //     intersection_scalar = 0.0f;
+        //     return true;
+        // }
+
+        return intersection_scalar > 0.0f && intersection_scalar < t_far;
+    }
+
+    bool Check2D_Raycast_OrientedRectangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        float& intersection_scalar)
+    {
+        glm::vec2 transformed_position = ray_position - orientedRectangle_position;
+        transformed_position = Math::Rotate2DVector(transformed_position, -orientedRectangle_rotation);
+        glm::vec2 transformed_direction = Math::Rotate2DVector(ray_direction, -orientedRectangle_rotation);
+        return Check2D_Raycast_Rectangle(
+            transformed_position,
+            transformed_direction,
+            -1.0f * orientedRectangle_halfSize,
+            orientedRectangle_halfSize,
+            intersection_scalar);
+    }
+
+    bool Check2D_Raycast_Circle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        float& intersection_scalar)
+    {
+        glm::vec2 rayToCircle = circle_position - ray_position;
+        float circleToRayDistanceSquared = glm::dot(rayToCircle, rayToCircle);
+        float circleRadiusSquared = circle_radius * circle_radius;
+        if (circleToRayDistanceSquared < circleRadiusSquared)
+        {
+            intersection_scalar = 0.0f;
+            return true; // inside the circle
+        }
+
+        // float a = glm::dot(ray_direction, ray_direction); // a == 1.0 when ray_direction is a unit vector
+        float b = 2.0f * glm::dot(rayToCircle, ray_direction);
+        float c = circleToRayDistanceSquared - circleRadiusSquared;
+
+        // float discriminant = b * b - 4.0f * a * c; // a == 1.0
+        float discriminant = b * b - 4.0f * c;
+        if (discriminant < 0.0f)
+        {
+            return false; // no overlap
+        }
+
+        // intersection_scalar = (b - glm::sqrt(discriminant)) / (2.0f * a); // a == 1.0
+
+        intersection_scalar = (b - glm::sqrt(discriminant)) / 2.0f;
+        return intersection_scalar > 0.0f;
+    }
+
+    bool Check2D_Raycast_Capsule(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        float& intersection_scalar)
+    {
+        glm::vec2 capsuleLine = capsule_end - capsule_start;
+        float capsuleLineLength = glm::length(capsuleLine);
+        if (capsuleLineLength == 0.0f)
+        {
+            return Check2D_Raycast_Circle(ray_position, ray_direction, capsule_start, capsule_radius, intersection_scalar);
+        }
+
+        intersection_scalar = std::numeric_limits<float>::infinity();
+        bool success = false;
+
+        float newIntersectionScalar = std::numeric_limits<float>::infinity();
+        bool newSuccess = false;
+
+        glm::vec2 capsule_direction = capsuleLine / capsuleLineLength;
+        glm::vec2 orientedRectangle_halfSize(capsuleLineLength * 0.5f, capsule_radius);
+        glm::vec2 orientedRectangle_position = (capsule_start + capsule_end) * 0.5f;
+        float orientedRectangle_rotation = Math::Get2DVectorAngle(capsule_direction);
+
+        newSuccess = Check2D_Raycast_OrientedRectangle(ray_position, ray_direction, orientedRectangle_halfSize, orientedRectangle_position, orientedRectangle_rotation, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        newSuccess = Check2D_Raycast_Circle(ray_position, ray_direction, capsule_start, capsule_radius, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        newSuccess = Check2D_Raycast_Circle(ray_position, ray_direction, capsule_end, capsule_radius, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        return success;
+    }
+
+    bool Check2D_Raycast_Triangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        float& intersection_scalar)
+    {
+        if (Check2D_Point_Triangle_Overlap(ray_position, triangle_corner1, triangle_corner2, triangle_corner3))
+        {
+            intersection_scalar = 0.0f;
+            return true;
+        }
+
+        intersection_scalar = std::numeric_limits<float>::infinity();
+        bool success = false;
+
+        float newIntersectionScalar = std::numeric_limits<float>::infinity();
+        bool newSuccess = false;
+
+        newSuccess = Check2D_Raycast_LineSegment(ray_position, ray_direction, triangle_corner1, triangle_corner2, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        newSuccess = Check2D_Raycast_LineSegment(ray_position, ray_direction, triangle_corner2, triangle_corner3, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        newSuccess = Check2D_Raycast_LineSegment(ray_position, ray_direction, triangle_corner3, triangle_corner1, newIntersectionScalar);
+        if (newSuccess && newIntersectionScalar < intersection_scalar)
+        {
+            intersection_scalar = newIntersectionScalar;
+            success = true;
+        }
+
+        return success;
+    }
+
+    bool Check2D_Raycast_Polygon(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        float& intersection_scalar)
+    {
+        if (polygon_cornerCount < 2)
+        {
+            return false;
+        }
+
+        intersection_scalar = std::numeric_limits<float>::infinity();
+        bool success = false;
+
+        float newIntersectionScalar = std::numeric_limits<float>::infinity();
+
+        // Check how many times a ray intersects the polygon's line segments.
+        // This will determine if the ray position is inside the polygon.
+        unsigned int intersectionCount = 0;
+
+        size_t start_index = polygon_cornerCount - 1;
+        for (size_t end_index = 0; end_index < polygon_cornerCount; ++end_index)
+        {
+            const glm::vec2& lineSegment_start = polygon_corners[start_index];
+            const glm::vec2& lineSegment_end = polygon_corners[end_index];
+
+            if (Check2D_Raycast_LineSegment(ray_position, ray_direction, lineSegment_start, lineSegment_end, newIntersectionScalar))
+            {
+                intersectionCount++;
+                if (newIntersectionScalar < intersection_scalar)
+                {
+                    intersection_scalar = newIntersectionScalar;
+                    success = true;
+                }
+            }
+
+            start_index = end_index;
+        }
+
+        if (intersectionCount % 2 != 0)
+        {
+            intersection_scalar = 0; // ray position is inside the polygon
+        }
+
+        return success;
+    }
+
+    bool Check2D_Raycast_ConvexPolygon(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        float& intersection_scalar)
+    {
+        return Check2D_Raycast_Polygon(ray_position, ray_direction, convexPolygon_corners, convexPolygon_cornerCount, intersection_scalar);
+    }
+
     // Closest Point Functions -------------------------------------------------
 
     void Get2D_Point_Line_ClosestPoint(
@@ -2251,8 +2543,11 @@ namespace Project001
             return;
         }
 
-        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
-        closestPoint_position = ray_position + projection * ray_direction;
+        // glm::dot(ray_direction, ray_direction) == 1.0 when ray_direction is a unit vector
+        // float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+        // closestPoint_position = ray_position + projection * ray_direction;
+
+        closestPoint_position = ray_position + dotProduct * ray_direction;
     }
 
     void Get2D_Point_LineSegment_ClosestPoint(
@@ -2400,8 +2695,10 @@ namespace Project001
             return glm::dot(rayToPoint, rayToPoint);
         }
 
-        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
-        return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
+        // glm::dot(ray_direction, ray_direction) == 1.0 when ray_direction is a unit vector
+        // float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+
+        return glm::dot(rayToPoint, rayToPoint) - dotProduct * dotProduct;
     }
 
     float Get2D_Point_LineSegment_DistanceSquared(
@@ -2502,9 +2799,12 @@ namespace Project001
             return glm::dot(rayToPoint, rayToPoint);
         }
 
-        float projection = dotProduct / glm::dot(ray_direction, ray_direction);
-        closestPoint_position = ray_position + projection * ray_direction;
-        return glm::dot(rayToPoint, rayToPoint) - dotProduct * projection;
+        // glm::dot(ray_direction, ray_direction) == 1.0 when ray_direction is a unit vector
+        // float projection = dotProduct / glm::dot(ray_direction, ray_direction);
+        // closestPoint_position = ray_position + projection * ray_direction;
+
+        closestPoint_position = ray_position + dotProduct * ray_direction;
+        return glm::dot(rayToPoint, rayToPoint) - dotProduct * dotProduct;
     }
 
     float Get2D_Point_LineSegment_ClosestPointAndDistanceSquared(
@@ -5384,23 +5684,29 @@ namespace Project001
     {
         // Calculate coefficients for the quadratic equation of the line and circle intersection
         // a * x^2 + b * x + c = 0
-        float a = glm::dot(line_direction, line_direction);
+        // float a = glm::dot(line_direction, line_direction); // a == 1.0 when line_direction is a unit vector
         float b = 2 * glm::dot(line_direction, line_position - circle_position);
         float c = glm::dot(line_position - circle_position, line_position - circle_position) - circle_radius * circle_radius;
 
         // Calculate the discriminant to determine the number of intersections
-        float discriminant = b * b - 4 * a * c;
-
-        if (discriminant > 0) {
+        // float discriminant = b * b - 4.0f * a * c; // a == 1.0
+        
+        float discriminant = b * b - 4.0f * c;
+        if (discriminant > 0.0f) {
             // Two distinct intersection points
-            intersection_directionScalar1 = (-b + glm::sqrt(discriminant)) / (2 * a);
-            intersection_directionScalar2 = (-b - glm::sqrt(discriminant)) / (2 * a);
+            // intersection_directionScalar1 = (-b + glm::sqrt(discriminant)) / (2.0f * a); // a == 1.0
+            // intersection_directionScalar2 = (-b - glm::sqrt(discriminant)) / (2.0f * a); // a == 1.0
+
+            intersection_directionScalar1 = (-b + glm::sqrt(discriminant)) / 2.0f; // a == 1.0
+            intersection_directionScalar2 = (-b - glm::sqrt(discriminant)) / 2.0f; // a == 1.0
 
             return 2;
         }
-        else if (discriminant == 0) {
+        else if (discriminant == 0.0f) {
             // One intersection point (tangent)
-            intersection_directionScalar1 = -b / (2 * a);
+            // intersection_directionScalar1 = -b / (2.0f * a); // a == 1.0
+
+            intersection_directionScalar1 = -b / 2.0f; // a == 1.0
 
             return 1;
         }
@@ -5418,8 +5724,8 @@ namespace Project001
     {
         // Calculate coefficients for the quadratic equation of the line and circle intersection
         // a * x^2 + b * x + c = 0
-        float a = 1 + line_slope * line_slope;
-        float b = -2 * (line_position.x - circle_position.x + line_slope * (line_position.y - circle_position.y));
+        float a = 1.0f + line_slope * line_slope;
+        float b = -2.0f * (line_position.x - circle_position.x + line_slope * (line_position.y - circle_position.y));
         float c = (line_position.x - circle_position.x) * (line_position.x - circle_position.x) +
             (line_position.y - circle_position.y) * (line_position.y - circle_position.y) -
             circle_radius * circle_radius;
@@ -5427,10 +5733,10 @@ namespace Project001
         // Calculate the discriminant to determine the number of intersections
         float discriminant = b * b - 4 * a * c;
 
-        if (discriminant > 0) {
+        if (discriminant > 0.0f) {
             // Two distinct intersection points
-            float t1 = (-b + glm::sqrt(discriminant)) / (2 * a);
-            float t2 = (-b - glm::sqrt(discriminant)) / (2 * a);
+            float t1 = (-b + glm::sqrt(discriminant)) / (2.0f * a);
+            float t2 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
 
             // Calculate the intersection points using t
             intersection_position1.x = line_position.x + t1;
@@ -5440,9 +5746,9 @@ namespace Project001
 
             return 2;
         }
-        else if (discriminant == 0) {
+        else if (discriminant == 0.0f) {
             // One intersection point (tangent)
-            float t = -b / (2 * a);
+            float t = -b / (2.0f * a);
 
             // Calculate the tangent intersection point
             intersection_position1.x = line_position.x + t;

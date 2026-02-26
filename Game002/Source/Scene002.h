@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-18
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -106,8 +106,9 @@ protected:
     static constexpr unsigned int s_player_collisionShapeTag_ = 1;
     static constexpr unsigned int s_grab_collisionShapeTag_ = 2;
     static constexpr unsigned int s_grabAttractor_collisionShapeTag_ = 3;
-    static constexpr unsigned int s_snowball_collisionShapeTag_ = 4;
-    static constexpr unsigned int s_ground_collisionShapeTag_ = 5;
+    static constexpr unsigned int s_aimRay_collisionShapeTag_ = 4;
+    static constexpr unsigned int s_snowball_collisionShapeTag_ = 5;
+    static constexpr unsigned int s_ground_collisionShapeTag_ = 6;
 
     static constexpr float s_waterHeight = -8.0f;
 };

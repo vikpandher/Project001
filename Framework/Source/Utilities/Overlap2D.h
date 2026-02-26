@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -43,6 +43,21 @@
 // * polygon shapes without at least 3 corners will not overlap with anything
 // * polygon shapes with 2 or more corners at the same point will give stange
 //   results
+// 
+// Raycast Functions: (TODO)
+// 
+// Line           |  \  |
+// Ray            |  \  |
+// LineSegment    |  \  |
+// Rectangle      |  \  |
+// O. Rectangle   |  \  |
+// Circle         |  \  |
+// Capsule        |  \  |
+// Triangle       |  \  |
+// Polygon        |  \  |
+// Convex Polygon |  \  |
+// 
+// * Again, ray_direction needs to be a unit vector
 // 
 // Closest Point Functions:
 //                      | Lin | Ray | LiS | Rec | OrR | Cir | Cap |
@@ -856,6 +871,82 @@ namespace Project001
         const size_t& convexPolygonA_cornerCount,
         const glm::vec2* const& convexPolygonB_corners,
         const size_t& convexPolygonB_cornerCount);
+
+    // Raycast Functions -------------------------------------------------------
+
+    bool Check2D_Raycast_Line(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& line_position,
+        const float& line_slope,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Ray(
+        const glm::vec2& rayA_position,
+        const glm::vec2& rayA_direction,
+        const glm::vec2& rayB_position,
+        const glm::vec2& rayB_direction,
+        float& intersection_scalarA,
+        float& intersection_scalarB);
+
+    bool Check2D_Raycast_LineSegment(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& lineSegment_start,
+        const glm::vec2& lineSegment_end,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Rectangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& rectangle_bottomLeft,
+        const glm::vec2& rectangle_topRight,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_OrientedRectangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& orientedRectangle_halfSize,
+        const glm::vec2& orientedRectangle_position,
+        const float& orientedRectangle_rotation,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Circle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& circle_position,
+        const float& circle_radius,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Capsule(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& capsule_start,
+        const glm::vec2& capsule_end,
+        const float& capsule_radius,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Triangle(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2& triangle_corner1,
+        const glm::vec2& triangle_corner2,
+        const glm::vec2& triangle_corner3,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_Polygon(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2* const& polygon_corners,
+        const size_t& polygon_cornerCount,
+        float& intersection_scalar);
+
+    bool Check2D_Raycast_ConvexPolygon(
+        const glm::vec2& ray_position,
+        const glm::vec2& ray_direction,
+        const glm::vec2* const& convexPolygon_corners,
+        const size_t& convexPolygon_cornerCount,
+        float& intersection_scalar);
 
     // Closest Point Functions -------------------------------------------------
 

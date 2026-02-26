@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-18
+// @DATE 2026-02-25
 
 #include "Scene002.h"
 
@@ -59,27 +59,32 @@ struct PenguinInfo
     static constexpr float s_initialGrabAttractionRadius = 12.0f + 8.0f; // penguinRadius + snowballRadius
     float grabAttractionRadius = s_initialGrabAttractionRadius;
 
-    static const size_t s_body_renderedMeshIndex = 0;
-    static const size_t s_flipper_right_renderedMeshIndex = 1;
-    static const size_t s_flipper_left_renderedMeshIndex = 2;
-    static const size_t s_foot_right_renderedMeshIndex = 3;
-    static const size_t s_foot_left_renderedMeshIndex = 4;
-    static const size_t s_head_renderedMeshIndex = 5;
-    static const size_t s_eyes_renderedMeshIndex = 6;
-    static const size_t s_beak_renderedMeshIndex = 7;
-    static const size_t s_glasses_renderedMeshIndex = 8;
-    static const size_t s_shadow_renderedMeshIndex = 9;
-    static const size_t s_grabZone_renderedMeshIndex = 10;
-    static const size_t s_orientationArrow_renderedMeshIndex = 11;
-    static const size_t s_grabAttractorCollision_renderedMeshIndex = 12;
-    static const size_t s_renderedMeshIndices = 13;
+    static constexpr size_t s_body_renderedMeshIndex = 0;
+    static constexpr size_t s_flipper_right_renderedMeshIndex = 1;
+    static constexpr size_t s_flipper_left_renderedMeshIndex = 2;
+    static constexpr size_t s_foot_right_renderedMeshIndex = 3;
+    static constexpr size_t s_foot_left_renderedMeshIndex = 4;
+    static constexpr size_t s_head_renderedMeshIndex = 5;
+    static constexpr size_t s_eyes_renderedMeshIndex = 6;
+    static constexpr size_t s_beak_renderedMeshIndex = 7;
+    static constexpr size_t s_glasses_renderedMeshIndex = 8;
+    static constexpr size_t s_shadow_renderedMeshIndex = 9;
+    static constexpr size_t s_grabZone_renderedMeshIndex = 10;
+    static constexpr size_t s_aimRay1_renderedMeshIndex = 11;
+    static constexpr size_t s_aimRay2_renderedMeshIndex = 12;
+    static constexpr size_t s_orientationArrow_renderedMeshIndex = 13;
+    static constexpr size_t s_grabAttractorCollision_renderedMeshIndex = 14;
+    static constexpr size_t s_renderedMeshIndices = 15;
 
-    static const size_t s_body_collisionCircleIndex = 0;
-    static const size_t s_grabZone_collisionCircleIndex = 1;
-    static const size_t s_collisionCircleCount = 2;
+    static constexpr size_t s_aimRay_collisionRayIndex = 0;
+    static constexpr size_t s_collisionRayCount = 1;
 
-    static const size_t s_grabAttractor_collisionPointIndex = 0;
-    static const size_t s_collisionPointCount = 1;
+    static constexpr size_t s_body_collisionCircleIndex = 0;
+    static constexpr size_t s_grabZone_collisionCircleIndex = 1;
+    static constexpr size_t s_collisionCircleCount = 2;
+
+    static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
+    static constexpr size_t s_collisionPointCount = 1;
 };
 
 struct SnowballInfo
@@ -417,8 +422,8 @@ void Scene002::CreateUiPauseTextEntity()
 void Scene002::CreateStageEntity()
 {
     GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
-        glm::vec2(-(sharedDataPtr_->maxStage_size + 8.0f), -(sharedDataPtr_->maxStage_size + 8.0f)),
-        glm::vec2(sharedDataPtr_->maxStage_size + 8.0f, sharedDataPtr_->maxStage_size + 8.0f),
+        glm::vec2(-(SharedApplicationData::s_maxStage_size + 8.0f), -(SharedApplicationData::s_maxStage_size + 8.0f)),
+        glm::vec2(SharedApplicationData::s_maxStage_size + 8.0f, SharedApplicationData::s_maxStage_size + 8.0f),
         3,
         16
     );
@@ -517,17 +522,17 @@ void Scene002::CreateStageEntity()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stage_entityId_));
     if (collisionBodyPtr != nullptr)
     {
-        const float groundCorner = sharedDataPtr_->ground_size * 0.41421357f; // sqrt(2) - 1
+        const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
         std::vector<glm::vec2> groundCollisionCorners;
         groundCollisionCorners.reserve(8);
-        groundCollisionCorners.emplace_back(sharedDataPtr_->ground_size, groundCorner);
-        groundCollisionCorners.emplace_back(groundCorner, sharedDataPtr_->ground_size);
-        groundCollisionCorners.emplace_back(-groundCorner, sharedDataPtr_->ground_size);
-        groundCollisionCorners.emplace_back(-sharedDataPtr_->ground_size, groundCorner);
-        groundCollisionCorners.emplace_back(-sharedDataPtr_->ground_size, -groundCorner);
-        groundCollisionCorners.emplace_back(-groundCorner, -sharedDataPtr_->ground_size);
-        groundCollisionCorners.emplace_back(groundCorner, -sharedDataPtr_->ground_size);
-        groundCollisionCorners.emplace_back(sharedDataPtr_->ground_size, -groundCorner);
+        groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, groundCorner);
+        groundCollisionCorners.emplace_back(groundCorner, SharedApplicationData::s_ground_size);
+        groundCollisionCorners.emplace_back(-groundCorner, SharedApplicationData::s_ground_size);
+        groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, groundCorner);
+        groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, -groundCorner);
+        groundCollisionCorners.emplace_back(-groundCorner, -SharedApplicationData::s_ground_size);
+        groundCollisionCorners.emplace_back(groundCorner, -SharedApplicationData::s_ground_size);
+        groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, -groundCorner);
         std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
         collisionConvexPolygons.emplace_back(groundCollisionCorners, s_ground_collisionShapeTag_);
     }
@@ -673,7 +678,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_shadow_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
-            mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_collisionRadius));
+            mesh.SetScale(glm::vec3(SharedApplicationData::s_penguin_collisionRadius));
             mesh.SetPositionZ(0.5f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
@@ -684,10 +689,63 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabZone_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->hallowCircle_meshDataPtr);
-            mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_grabRadius));
-            mesh.SetPositionY(sharedDataPtr_->penguin_grabOffset);
+            mesh.SetScale(glm::vec3(SharedApplicationData::s_penguin_grabRadius));
+            mesh.SetPositionY(SharedApplicationData::s_penguin_grabOffset);
             mesh.SetPositionZ(0.6f);
-            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.1f);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay1_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            if (playerInfo.playerNumber == 0)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player1_aimRay1_meshDataPtr);
+            }
+            else if (playerInfo.playerNumber == 1)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player2_aimRay1_meshDataPtr);
+
+            }
+            else if (playerInfo.playerNumber == 2)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player3_aimRay1_meshDataPtr);
+            }
+            else if (playerInfo.playerNumber == 3)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay1_meshDataPtr);
+            }
+            mesh.SetPositionZ(0.6f);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay2_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetTextureId(sharedDataPtr_->dotted_textureId);
+            if (playerInfo.playerNumber == 0)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player1_aimRay2_meshDataPtr);
+            }
+            else if (playerInfo.playerNumber == 1)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player2_aimRay2_meshDataPtr);
+
+            }
+            else if (playerInfo.playerNumber == 2)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player3_aimRay2_meshDataPtr);
+            }
+            else if (playerInfo.playerNumber == 3)
+            {
+                mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay2_meshDataPtr);
+            }
+            mesh.SetPositionZ(0.6f);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
         }
@@ -696,7 +754,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_orientationArrow_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->orientationArrow_meshDataPtr);
-            mesh.SetScale(glm::vec3(sharedDataPtr_->penguin_collisionRadius));
+            mesh.SetScale(glm::vec3(SharedApplicationData::s_penguin_collisionRadius));
             mesh.SetPositionZ(0.1f);
             mesh.SetColor(0.2f, 0.6f, 0.6f, 0.4f);
             mesh.SetTranslucent(true);
@@ -719,6 +777,19 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetRotation(rotation);
 
+        std::vector<Project001::CollisionRay2D>& collisionRays = collisionBodyPtr->GetCollisionRays();
+        collisionRays.resize(PenguinInfo::s_collisionRayCount);
+
+        {
+            Project001::CollisionRay2D& collisionRay = collisionRays[PenguinInfo::s_aimRay_collisionRayIndex];
+            collisionRay = Project001::CollisionRay2D(
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                s_aimRay_collisionShapeTag_
+            );
+        }
+        
+
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
         collisionCircles.resize(PenguinInfo::s_collisionCircleCount);
 
@@ -726,7 +797,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_body_collisionCircleIndex];
             collisionCircle = Project001::CollisionCircle2D(
                 glm::vec2(0.0f, 0.0f),
-                sharedDataPtr_->penguin_collisionRadius,
+                SharedApplicationData::s_penguin_collisionRadius,
                 s_player_collisionShapeTag_
             );
         }
@@ -734,8 +805,8 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         {
             Project001::CollisionCircle2D& collisionCircle = collisionCircles[PenguinInfo::s_grabZone_collisionCircleIndex];
             collisionCircle = Project001::CollisionCircle2D(
-                glm::vec2(0.0f, sharedDataPtr_->penguin_grabOffset),
-                sharedDataPtr_->penguin_grabRadius,
+                glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset),
+                SharedApplicationData::s_penguin_grabRadius,
                 s_grab_collisionShapeTag_,
                 true,
                 Project001::CollisionShape2D::PhysicsType::PHYSICS_TYPE_SIMPLE_SENSOR
@@ -965,7 +1036,13 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
                 }
             }
 
-            glm::vec2 centerPlayerPosition = (maxPlayerPosition + minPlayerPosition) * 0.5f;
+            // glm::vec2 centerPlayerPosition = (maxPlayerPosition + minPlayerPosition) * 0.5f;
+
+            glm::vec3 cameraForward = cameraPtr->GetForwardVector();
+            float currentCameraAngle = Project001::Math::Get3DVectorAngle(glm::vec3(0.0f, 0.0f, -1.0f), cameraForward);
+            currentCameraAngle = glm::mod(currentCameraAngle, glm::half_pi<float>());
+            float cameraMaxPositionInclusionRatio = 1.0f - currentCameraAngle / glm::half_pi<float>();
+            glm::vec2 centerPlayerPosition = (glm::vec2(maxPlayerPosition.x, maxPlayerPosition.y * cameraMaxPositionInclusionRatio) + minPlayerPosition) * 0.5f;
 
             mainCamera_lookAtPoint_.x = centerPlayerPosition.x;
             mainCamera_lookAtPoint_.y = centerPlayerPosition.y;
@@ -1255,10 +1332,91 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         //     }
         // }
 
+        // Update aim ray
+        // ---------------------------------------------------------------------
+
+        float minIntersectionScalar = std::numeric_limits<float>::infinity();
+
+        const std::vector<Project001::CollisionRaycastData2D>& penguinCollisionRaycasts = penguinCollisionBodyPtr->GetCollisionRaycasts();
+        for (size_t i = 0; i < penguinCollisionRaycasts.size(); ++i)
+        {
+            const Project001::CollisionRaycastData2D& penguinCollisionRaycastData = penguinCollisionRaycasts[i];
+
+            if (penguinCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_ &&
+                (penguinCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ || penguinCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_) &&
+                penguinCollisionRaycastData.intersectionScalar < minIntersectionScalar)
+            {
+                minIntersectionScalar = penguinCollisionRaycastData.intersectionScalar;
+            }
+        }
+
+        Project001::MeshData* aimRay1_MeshDataPtr = nullptr;
+        Project001::MeshData* aimRay2_MeshDataPtr = nullptr;
+        if (playerInfo.playerNumber == 0)
+        {
+            aimRay1_MeshDataPtr = sharedDataPtr_->player1_aimRay1_meshDataPtr;
+            aimRay2_MeshDataPtr = sharedDataPtr_->player1_aimRay2_meshDataPtr;
+        }
+        else if (playerInfo.playerNumber == 1)
+        {
+            aimRay1_MeshDataPtr = sharedDataPtr_->player2_aimRay1_meshDataPtr;
+            aimRay2_MeshDataPtr = sharedDataPtr_->player2_aimRay2_meshDataPtr;
+
+        }
+        else if (playerInfo.playerNumber == 2)
+        {
+            aimRay1_MeshDataPtr = sharedDataPtr_->player3_aimRay1_meshDataPtr;
+            aimRay2_MeshDataPtr = sharedDataPtr_->player3_aimRay2_meshDataPtr;
+        }
+        else if (playerInfo.playerNumber == 3)
+        {
+            aimRay1_MeshDataPtr = sharedDataPtr_->player4_aimRay1_meshDataPtr;
+            aimRay2_MeshDataPtr = sharedDataPtr_->player4_aimRay2_meshDataPtr;
+        }
+
+        if (aimRay1_MeshDataPtr != nullptr && aimRay2_MeshDataPtr != nullptr)
+        {
+            aimRay1_MeshDataPtr->Clear();
+            aimRay2_MeshDataPtr->Clear();
+
+            if (minIntersectionScalar > SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius)
+            {
+                if (minIntersectionScalar > SharedApplicationData::s_maxAimLineLength)
+                {
+                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                        *aimRay1_MeshDataPtr,
+                        glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
+                        glm::vec2(0.0f, SharedApplicationData::s_maxAimLineLength),
+                        SharedApplicationData::s_aimLineWidth
+                    ));
+                }
+                else
+                {
+                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                        *aimRay1_MeshDataPtr,
+                        glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
+                        glm::vec2(0.0f, minIntersectionScalar),
+                        SharedApplicationData::s_aimLineWidth
+                    ));
+
+                    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
+                        *aimRay2_MeshDataPtr,
+                        glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
+                        glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
+                        glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
+                        glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
+                        0.0f, 1.0f,
+                        0.0f, (SharedApplicationData::s_maxAimLineLength - minIntersectionScalar) * 0.125f
+                    ));
+                }
+            }
+        }
+
         // Gathering input
         // ---------------------------------------------------------------------
 
-        const bool& grabPressed = playerInfo.snowball_pressCount > 0;
+        const bool& grabPressed = playerInfo.grab_pressCount > 0;
+        const bool& throwPressed = playerInfo.throw_pressCount == 1; // TODO
 
         glm::vec2 moveDirection(0.0f, 0.0);
         if (playerInfo.left_pressCount > 0)
@@ -1581,15 +1739,15 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
 
             if (penguinInfoPtr->onLand)
             {
-                friction = sharedDataPtr_->snowball_landFriction;
+                friction = SharedApplicationData::s_snowball_landFriction;
             }
             else
             {
-                friction = sharedDataPtr_->snowball_waterFriction;
+                friction = SharedApplicationData::s_snowball_waterFriction;
             }
 
             angularAcceleration = 0.0f;
-            angularFriction = sharedDataPtr_->snowball_angularFriction;
+            angularFriction = SharedApplicationData::s_snowball_angularFriction;
         }
 
         constexpr float turnAngleMovementThreshold = glm::pi<float>() * 0.25f;
@@ -1775,7 +1933,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
                 {
                     snowballCollisionBodyPtr->SetVelocity(
                         snowballCollisionBodyPtr->GetVelocity() +
-                        penguinCollisionBodyDirection * sharedDataPtr_->penguin_throwSpeed_s
+                        penguinCollisionBodyDirection * SharedApplicationData::s_penguin_throwSpeed_s
                     );
                 }
             }
@@ -1792,7 +1950,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         {
             const glm::vec2& penguinPosition = penguinCollisionBodyPtr->GetPosition();
             const float& penguinRotation = penguinCollisionBodyPtr->GetRotation();
-            const float& penguinRadius = sharedDataPtr_->penguin_collisionRadius;
+            const float& penguinRadius = SharedApplicationData::s_penguin_collisionRadius;
             const glm::vec2& snowballPosition = snowballCollisionBodyPtr->GetPosition();
             const float& snowballRadius = snowballInfoPtr->radius;
 
@@ -1883,7 +2041,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             snowballInfoPtr->penguin_EntityId = entityId;
 
             const glm::vec2& penguinPosition = penguinCollisionBodyPtr->GetPosition();
-            const float& penguinRadius = sharedDataPtr_->penguin_collisionRadius;
+            const float& penguinRadius = SharedApplicationData::s_penguin_collisionRadius;
             const float& snowballRadius = snowballInfoPtr->radius;
 
             penguinInfoPtr->grabAttractionRadius = penguinRadius + snowballRadius;
@@ -1935,10 +2093,10 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 impulseMagntidueSum += glm::length(snowballCollisionImpulseData.impulse);
             }
 
-            float friction = sharedDataPtr_->snowball_landFriction;
+            float friction = SharedApplicationData::s_snowball_landFriction;
             if (!snowballInfo.onLand)
             {
-                friction = sharedDataPtr_->snowball_waterFriction;
+                friction = SharedApplicationData::s_snowball_waterFriction;
             }
 
             const glm::vec2& velocity = snowballCollisionBodyPtr->GetVelocity();
@@ -1959,7 +2117,7 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 }
             }
 
-            float angularFriction = sharedDataPtr_->snowball_angularFriction;
+            float angularFriction = SharedApplicationData::s_snowball_angularFriction;
 
             const float& angularVelocity = snowballCollisionBodyPtr->GetAngularVelocity();
             float angularVelocityMagnitude = glm::abs(angularVelocity);
@@ -2663,6 +2821,32 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabZone_renderedMeshIndex];
 
                 if (penguinInfo.onLand)
+                {
+                    mesh.SetVisible(true);
+                }
+                else
+                {
+                    mesh.SetVisible(false);
+                }
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay1_renderedMeshIndex];
+
+                if (penguinInfo.snowball_EntityId != static_cast<unsigned int>(-1))
+                {
+                    mesh.SetVisible(true);
+                }
+                else
+                {
+                    mesh.SetVisible(false);
+                }
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay2_renderedMeshIndex];
+
+                if (penguinInfo.snowball_EntityId != static_cast<unsigned int>(-1))
                 {
                     mesh.SetVisible(true);
                 }

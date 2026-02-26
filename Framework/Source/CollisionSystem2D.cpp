@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-24
+// @DATE 2026-02-25
 
 #include "CollisionSystem2D.h"
 
@@ -102,6 +102,7 @@ namespace Project001
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
             currentCollisionBody.ClearCollisionOverlaps();
+            currentCollisionBody.ClearCollisionRaycasts();
             currentCollisionBody.ClearCollisionImpulses();
         }
 
@@ -179,6 +180,7 @@ namespace Project001
             CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
 
             currentCollisionBody.ClearCollisionOverlaps();
+            currentCollisionBody.ClearCollisionRaycasts();
             currentCollisionBody.ClearCollisionImpulses();
         }
 
@@ -356,6 +358,7 @@ namespace Project001
 
         // Clear primary entity's collision overlaps
         primaryCollisionBodyPtr->ClearCollisionOverlaps();
+        primaryCollisionBodyPtr->ClearCollisionRaycasts();
 
         // Gather together all enabled collision bodies
         enabledCollisionBodyPtrs_.clear();
@@ -926,15 +929,27 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Line_Ray_Overlap(
+                float intersectionScalar = 0.0f;
+                bool collisionFound = Check2D_Raycast_Line(
+                    rayB.position,
+                    rayB.direction,
                     lineA.position,
                     lineA.slope,
-                    rayB.position,
-                    rayB.direction);
+                    intersectionScalar);
 
                 if (collisionFound)
                 {
                     AddCollisionOverlapData(lineA.tag, rayB.tag);
+
+                    if (rayB.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = lineA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -1119,15 +1134,27 @@ namespace Project001
             {
                 const CollisionLine2D& lineB = transformedCollisionLinesB[j];
 
-                bool collisionFound = Check2D_Ray_Line_Overlap(
+                float intersectionScalar = 0.0f;
+                bool collisionFound = Check2D_Raycast_Line(
                     rayA.position,
                     rayA.direction,
                     lineB.position,
-                    lineB.slope);
+                    lineB.slope,
+                    intersectionScalar);
 
                 if (collisionFound)
                 {
                     AddCollisionOverlapData(rayA.tag, lineB.tag);
+
+                    if (rayA.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = lineB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1140,15 +1167,39 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Ray_Ray_Overlap(
+                float intersectionScalarA = 0.0f;
+                float intersectionScalarB = 0.0f;
+                bool collisionFound = Check2D_Raycast_Ray(
                     rayA.position,
                     rayA.direction,
                     rayB.position,
-                    rayB.direction);
+                    rayB.direction,
+                    intersectionScalarA,
+                    intersectionScalarB);
 
                 if (collisionFound)
                 {
                     AddCollisionOverlapData(rayA.tag, rayB.tag);
+
+                    if (rayA.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = rayB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalarA;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
+
+                    if (rayB.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = rayA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalarB;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -1161,15 +1212,27 @@ namespace Project001
             {
                 const CollisionLineSegment2D& lineSegmentB = transformedCollisionLineSegmentsB[j];
 
-                bool collisionFound = Check2D_Ray_LineSegment_Overlap(
+                float intersectionScalar = 0.0f;
+                bool collisionFound = Check2D_Raycast_LineSegment(
                     rayA.position,
                     rayA.direction,
                     lineSegmentB.start,
-                    lineSegmentB.end);
+                    lineSegmentB.end,
+                    intersectionScalar);
 
                 if (collisionFound)
                 {
                     AddCollisionOverlapData(rayA.tag, lineSegmentB.tag);
+
+                    if (rayA.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = lineSegmentB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1182,15 +1245,40 @@ namespace Project001
             {
                 const CollisionRectangle2D& rectangleB = transformedCollisionRectanglesB[j];
 
-                bool collisionFound = Check2D_Ray_Rectangle_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    rectangleB.bottomLeft,
-                    rectangleB.topRight);
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, rectangleB.tag);
+                    bool collisionFound = Check2D_Ray_Rectangle_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, rectangleB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Rectangle(
+                        rayA.position,
+                        rayA.direction,
+                        rectangleB.bottomLeft,
+                        rectangleB.topRight,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, rectangleB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = rectangleB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1203,16 +1291,42 @@ namespace Project001
             {
                 const CollisionOrientedRectangle2D& orientedRectangleB = transformedCollisionOrientedRectanglesB[j];
 
-                bool collisionFound = Check2D_Ray_OrientedRectangle_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    orientedRectangleB.halfSize,
-                    orientedRectangleB.position,
-                    orientedRectangleB.rotation);
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, orientedRectangleB.tag);
+                    bool collisionFound = Check2D_Ray_OrientedRectangle_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, orientedRectangleB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_OrientedRectangle(
+                        rayA.position,
+                        rayA.direction,
+                        orientedRectangleB.halfSize,
+                        orientedRectangleB.position,
+                        orientedRectangleB.rotation,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, orientedRectangleB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = orientedRectangleB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1225,15 +1339,40 @@ namespace Project001
             {
                 const CollisionCircle2D& circleB = transformedCollisionCirclesB[j];
 
-                bool collisionFound = Check2D_Ray_Circle_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    circleB.position,
-                    circleB.radius);
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, circleB.tag);
+                    bool collisionFound = Check2D_Ray_Circle_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        circleB.position,
+                        circleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, circleB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Circle(
+                        rayA.position,
+                        rayA.direction,
+                        circleB.position,
+                        circleB.radius,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, circleB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = circleB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1246,16 +1385,42 @@ namespace Project001
             {
                 const CollisionCapsule2D& capsuleB = transformedCollisionCapsulesB[j];
 
-                bool collisionFound = Check2D_Ray_Capsule_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    capsuleB.start,
-                    capsuleB.end,
-                    capsuleB.radius);
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, capsuleB.tag);
+                    bool collisionFound = Check2D_Ray_Capsule_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, capsuleB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Capsule(
+                        rayA.position,
+                        rayA.direction,
+                        capsuleB.start,
+                        capsuleB.end,
+                        capsuleB.radius,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, capsuleB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = capsuleB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1268,16 +1433,42 @@ namespace Project001
             {
                 const CollisionTriangle2D& triangleB = transformedCollisionTrianglesB[j];
 
-                bool collisionFound = Check2D_Ray_Triangle_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    triangleB.corner1,
-                    triangleB.corner2,
-                    triangleB.corner3);
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, triangleB.tag);
+                    bool collisionFound = Check2D_Ray_Triangle_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, triangleB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Triangle(
+                        rayA.position,
+                        rayA.direction,
+                        triangleB.corner1,
+                        triangleB.corner2,
+                        triangleB.corner3,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, triangleB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = triangleB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1290,15 +1481,40 @@ namespace Project001
             {
                 const CollisionPolygon2D& polygonB = transformedCollisionPolygonsB[j];
 
-                bool collisionFound = Check2D_Ray_Polygon_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    polygonB.corners.data(),
-                    polygonB.corners.size());
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, polygonB.tag);
+                    bool collisionFound = Check2D_Ray_Polygon_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        polygonB.corners.data(),
+                        polygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, polygonB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Polygon(
+                        rayA.position,
+                        rayA.direction,
+                        polygonB.corners.data(),
+                        polygonB.corners.size(),
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, polygonB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = polygonB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1311,15 +1527,41 @@ namespace Project001
             {
                 const CollisionConvexPolygon2D& convexPolygonB = transformedCollisionConvexPolygonsB[j];
 
-                bool collisionFound = Check2D_Ray_ConvexPolygon_Overlap(
-                    rayA.position,
-                    rayA.direction,
-                    convexPolygonB.corners.data(),
-                    convexPolygonB.corners.size());
-
-                if (collisionFound)
+                if (!rayA.recordRaycast)
                 {
-                    AddCollisionOverlapData(rayA.tag, convexPolygonB.tag);
+                    bool collisionFound = Check2D_Ray_ConvexPolygon_Overlap(
+                        rayA.position,
+                        rayA.direction,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size());
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, convexPolygonB.tag);
+                    }
+                }
+
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_ConvexPolygon(
+                        rayA.position,
+                        rayA.direction,
+                        convexPolygonB.corners.data(),
+                        convexPolygonB.corners.size(),
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rayA.tag, convexPolygonB.tag);
+
+                        CollisionRaycastData2D collisionRaycastA;
+                        collisionRaycastA.myShapeTag = rayA.tag;
+                        collisionRaycastA.otherEntityId = entityIdB;
+                        collisionRaycastA.otherShapeTag = convexPolygonB.tag;
+                        collisionRaycastA.intersectionScalar = intersectionScalar;
+                        collisionBodyA.AddCollisionRaycast(collisionRaycastA);
+                    }
                 }
             }
         }
@@ -1354,15 +1596,27 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_LineSegment_Ray_Overlap(
+                float intersectionScalar = 0.0f;
+                bool collisionFound = Check2D_Raycast_LineSegment(
+                    rayB.position,
+                    rayB.direction,
                     lineSegmentA.start,
                     lineSegmentA.end,
-                    rayB.position,
-                    rayB.direction);
+                    intersectionScalar);
 
                 if (collisionFound)
                 {
                     AddCollisionOverlapData(lineSegmentA.tag, rayB.tag);
+
+                    if (rayB.recordRaycast)
+                    {
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = lineSegmentA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -1588,15 +1842,40 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Rectangle_Ray_Overlap(
-                    rectangleA.bottomLeft,
-                    rectangleA.topRight,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(rectangleA.tag, rayB.tag);
+                    bool collisionFound = Check2D_Rectangle_Ray_Overlap(
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rectangleA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Rectangle(
+                        rayB.position,
+                        rayB.direction,
+                        rectangleA.bottomLeft,
+                        rectangleA.topRight,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(rectangleA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = rectangleA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -1995,16 +2274,42 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_OrientedRectangle_Ray_Overlap(
-                    orientedRectangleA.halfSize,
-                    orientedRectangleA.position,
-                    orientedRectangleA.rotation,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(orientedRectangleA.tag, rayB.tag);
+                    bool collisionFound = Check2D_OrientedRectangle_Ray_Overlap(
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(orientedRectangleA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_OrientedRectangle(
+                        rayB.position,
+                        rayB.direction,
+                        orientedRectangleA.halfSize,
+                        orientedRectangleA.position,
+                        orientedRectangleA.rotation,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(orientedRectangleA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = orientedRectangleA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -2415,15 +2720,40 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Circle_Ray_Overlap(
-                    circleA.position,
-                    circleA.radius,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(circleA.tag, rayB.tag);
+                    bool collisionFound = Check2D_Circle_Ray_Overlap(
+                        circleA.position,
+                        circleA.radius,
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(circleA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Circle(
+                        rayB.position,
+                        rayB.direction,
+                        circleA.position,
+                        circleA.radius,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(circleA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = circleA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -2822,16 +3152,42 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Capsule_Ray_Overlap(
-                    capsuleA.start,
-                    capsuleA.end,
-                    capsuleA.radius,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(capsuleA.tag, rayB.tag);
+                    bool collisionFound = Check2D_Capsule_Ray_Overlap(
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(capsuleA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Capsule(
+                        rayB.position,
+                        rayB.direction,
+                        capsuleA.start,
+                        capsuleA.end,
+                        capsuleA.radius,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(capsuleA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = capsuleA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -3244,16 +3600,42 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Triangle_Ray_Overlap(
-                    triangleA.corner1,
-                    triangleA.corner2,
-                    triangleA.corner3,
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(triangleA.tag, rayB.tag);
+                    bool collisionFound = Check2D_Triangle_Ray_Overlap(
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(triangleA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Triangle(
+                        rayB.position,
+                        rayB.direction,
+                        triangleA.corner1,
+                        triangleA.corner2,
+                        triangleA.corner3,
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(triangleA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = triangleA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -3664,15 +4046,40 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_Polygon_Ray_Overlap(
-                    polygonA.corners.data(),
-                    polygonA.corners.size(),
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (!rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(polygonA.tag, rayB.tag);
+                    bool collisionFound = Check2D_Polygon_Ray_Overlap(
+                        polygonA.corners.data(),
+                        polygonA.corners.size(),
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(polygonA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_Polygon(
+                        rayB.position,
+                        rayB.direction,
+                        polygonA.corners.data(),
+                        polygonA.corners.size(),
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(polygonA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = polygonA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }
@@ -3898,15 +4305,40 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
-                    convexPolygonA.corners.data(),
-                    convexPolygonA.corners.size(),
-                    rayB.position,
-                    rayB.direction);
-
-                if (collisionFound)
+                if (rayB.recordRaycast)
                 {
-                    AddCollisionOverlapData(convexPolygonA.tag, rayB.tag);
+                    bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        rayB.position,
+                        rayB.direction);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(convexPolygonA.tag, rayB.tag);
+                    }
+                }
+                else
+                {
+                    float intersectionScalar = 0.0f;
+                    bool collisionFound = Check2D_Raycast_ConvexPolygon(
+                        rayB.position,
+                        rayB.direction,
+                        convexPolygonA.corners.data(),
+                        convexPolygonA.corners.size(),
+                        intersectionScalar);
+
+                    if (collisionFound)
+                    {
+                        AddCollisionOverlapData(convexPolygonA.tag, rayB.tag);
+
+                        CollisionRaycastData2D collisionRaycastB;
+                        collisionRaycastB.myShapeTag = rayB.tag;
+                        collisionRaycastB.otherEntityId = entityIdA;
+                        collisionRaycastB.otherShapeTag = convexPolygonA.tag;
+                        collisionRaycastB.intersectionScalar = intersectionScalar;
+                        collisionBodyB.AddCollisionRaycast(collisionRaycastB);
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-26
+// @DATE 2026-02-25
 
 #include "MeshUtility.h"
 
@@ -848,6 +848,13 @@ namespace Mesh
             end + scaled
         };
 
+        glm::vec2 textureCoordinates[positionsSize] = {
+            {0.0f, 1.0f},
+            {0.0f, 0.0f},
+            {1.0f, 0.0f},
+            {1.0f, 1.0f}
+        };
+
         if (!triangulate)
         {
             size_t currentVertexCount = meshVertexArray.size();
@@ -856,6 +863,7 @@ namespace Mesh
             {
                 MeshVertex meshVertex;
                 meshVertex.position = glm::vec3(positions[i], 0.0f);
+                meshVertex.textureCoordinate = textureCoordinates[i];
                 meshVertex.normal = normal;
                 meshVertexArray.push_back(meshVertex);
             }
@@ -873,14 +881,17 @@ namespace Mesh
             {
                 MeshVertex centerMeshVertex;
                 centerMeshVertex.position = glm::vec3(positions[0], 0.0f);
+                centerMeshVertex.textureCoordinate = textureCoordinates[0];
                 centerMeshVertex.normal = normal;
 
                 MeshVertex meshVertexA;
                 meshVertexA.position = glm::vec3(positions[i], 0.0f);
+                meshVertexA.textureCoordinate = textureCoordinates[i];
                 meshVertexA.normal = normal;
 
                 MeshVertex meshVertexB;
                 meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
+                meshVertexB.textureCoordinate = textureCoordinates[i + 1];
                 meshVertexB.normal = normal;
 
                 meshIndexArray.push_back(static_cast<unsigned int>(meshVertexArray.size()));
@@ -2344,10 +2355,10 @@ namespace Mesh
 
     bool Generate2DSprite(
         MeshData& meshData,
-        const glm::vec3& topLeft,
-        const glm::vec3& topRight,
-        const glm::vec3& bottomRight,
         const glm::vec3& bottomLeft,
+        const glm::vec3& bottomRight,
+        const glm::vec3& topRight,
+        const glm::vec3& topLeft,
         float textureLeft,
         float textureRight,
         float textureBottom,
@@ -2374,18 +2385,6 @@ namespace Mesh
         float minVertexRadius = glm::length(minVertexPosition);
         if (maxBoundingRadius < minVertexRadius) maxBoundingRadius = minVertexRadius;
 
-        MeshVertex topLeftVertex;
-        topLeftVertex.position = topLeft;
-        topLeftVertex.textureCoordinate.x = textureLeft;
-        topLeftVertex.textureCoordinate.y = textureTop;
-        topLeftVertex.normal.z = 1.0f;
-
-        MeshVertex topRightVertex;
-        topRightVertex.position = topRight;
-        topRightVertex.textureCoordinate.x = textureRight;
-        topRightVertex.textureCoordinate.y = textureTop;
-        topRightVertex.normal.z = 1.0f;
-
         MeshVertex bottomLeftVertex;
         bottomLeftVertex.position = bottomLeft;
         bottomLeftVertex.textureCoordinate.x = textureLeft;
@@ -2398,14 +2397,26 @@ namespace Mesh
         bottomRightVertex.textureCoordinate.y = textureBottom;
         bottomRightVertex.normal.z = 1.0f;
 
+        MeshVertex topRightVertex;
+        topRightVertex.position = topRight;
+        topRightVertex.textureCoordinate.x = textureRight;
+        topRightVertex.textureCoordinate.y = textureTop;
+        topRightVertex.normal.z = 1.0f;
+
+        MeshVertex topLeftVertex;
+        topLeftVertex.position = topLeft;
+        topLeftVertex.textureCoordinate.x = textureLeft;
+        topLeftVertex.textureCoordinate.y = textureTop;
+        topLeftVertex.normal.z = 1.0f;
+
         unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
         if (triangulate)
         {
-            meshVertexArray.push_back(topLeftVertex);
             meshVertexArray.push_back(bottomLeftVertex);
-            meshVertexArray.push_back(topRightVertex);
             meshVertexArray.push_back(bottomRightVertex);
             meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(topLeftVertex);
             meshVertexArray.push_back(bottomLeftVertex);
 
             meshIndexArray.push_back(currentVertexCount++);
@@ -2417,17 +2428,17 @@ namespace Mesh
         }
         else
         {
-            meshVertexArray.push_back(topLeftVertex);
             meshVertexArray.push_back(bottomLeftVertex);
             meshVertexArray.push_back(bottomRightVertex);
             meshVertexArray.push_back(topRightVertex);
+            meshVertexArray.push_back(topLeftVertex);
 
             meshIndexArray.push_back(currentVertexCount);
             meshIndexArray.push_back(currentVertexCount + 1);
-            meshIndexArray.push_back(currentVertexCount + 3);
+            meshIndexArray.push_back(currentVertexCount + 2);
             meshIndexArray.push_back(currentVertexCount + 2);
             meshIndexArray.push_back(currentVertexCount + 3);
-            meshIndexArray.push_back(currentVertexCount + 1);
+            meshIndexArray.push_back(currentVertexCount + 0);
         }
 
         return true;

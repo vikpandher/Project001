@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-02-25
 
 #include "Components/Camera.h"
 
@@ -78,14 +78,14 @@ namespace Project001
         float fh = tan_half * farCutoff_;
         float fw = fh * aspectRatio_;
 
-        corners[0] = glm::vec3(-nw, nh, nearCutoff_);  // top left
-        corners[1] = glm::vec3(nw, nh, nearCutoff_);   // top right
-        corners[2] = glm::vec3(nw, -nh, nearCutoff_);  // bottom right
-        corners[3] = glm::vec3(-nw, -nh, nearCutoff_); // bottom left
-        corners[4] = glm::vec3(-fw, fh, farCutoff_);   // top left
-        corners[5] = glm::vec3(fw, fh, farCutoff_);    // top right
-        corners[6] = glm::vec3(fw, -fh, farCutoff_);   // bottom right
-        corners[7] = glm::vec3(-fw, -fh, farCutoff_);  // bottom left
+        corners[0] = glm::vec3(-nw, -nh, nearCutoff_); // bottom left
+        corners[1] = glm::vec3(nw, -nh, nearCutoff_);  // bottom right
+        corners[2] = glm::vec3(nw, nh, nearCutoff_);   // top right
+        corners[3] = glm::vec3(-nw, nh, nearCutoff_);  // top left
+        corners[4] = glm::vec3(-fw, -fh, farCutoff_);  // bottom left
+        corners[5] = glm::vec3(fw, -fh, farCutoff_);   // bottom right
+        corners[6] = glm::vec3(fw, fh, farCutoff_);    // top right
+        corners[7] = glm::vec3(-fw, fh, farCutoff_);   // top left
     }
 
     void Camera::GetProjectionFrustumPlanes(FrustumPlanes& frustumPlanes) const

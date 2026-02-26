@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-02-25
 
 #include "TestScene102.h"
 
@@ -618,13 +618,13 @@ void TestScene102::CreateCameraEntities()
             cameraPtr->GetProjectionFrustumCorners(corners);
             FAIL_CHECK(Project001::Mesh::Generate2DSprite(
                 *mainCameraNearFrustum_MeshDataPtr_,
-                corners[1], corners[0], corners[3], corners[2],
+                corners[3], corners[2], corners[1], corners[0], // intentionally clockwise to flip normals
                 0.0f, 1.0f, 0.0f, 1.0f
             ));
             Project001::Mesh::TranslateMesh(*mainCameraNearFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, 0.001f));
             FAIL_CHECK(Project001::Mesh::Generate2DSprite(
                 *mainCameraFarFrustum_MeshDataPtr_,
-                corners[5], corners[4], corners[7], corners[6],
+                corners[7], corners[6], corners[5], corners[4], // intentionally clockwise to flip normals
                 0.0f, 1.0f, 0.0f, 1.0f
             ));
             Project001::Mesh::TranslateMesh(*mainCameraFarFrustum_MeshDataPtr_, glm::vec3(0.0f, 0.0f, -1.0f));

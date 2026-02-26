@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-26
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -192,10 +192,10 @@ namespace Mesh
     // texture origin is bottom left
     bool Generate2DSprite(
         MeshData& meshData,
-        const glm::vec3& topLeft,
-        const glm::vec3& topRight,
-        const glm::vec3& bottomRight,
         const glm::vec3& bottomLeft,
+        const glm::vec3& bottomRight,
+        const glm::vec3& topRight,
+        const glm::vec3& topLeft,
         float textureLeft,
         float textureRight,
         float textureBottom,

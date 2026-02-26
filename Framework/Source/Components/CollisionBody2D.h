@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-24
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -35,6 +35,23 @@ namespace Project001
         glm::vec2 point;
         glm::vec2 normal;
         float depth;
+    };
+
+    struct CollisionRaycastData2D
+    {
+        CollisionRaycastData2D()
+            : myShapeTag(static_cast<unsigned int>(-1))
+            , otherEntityId(static_cast<unsigned int>(-1))
+            , otherShapeTag(static_cast<unsigned int>(-1))
+            , intersectionScalar(NAN)
+        {}
+
+        unsigned int myShapeTag;
+
+        unsigned int otherEntityId;
+        unsigned int otherShapeTag;
+
+        float intersectionScalar;
     };
 
     struct CollisionImpulseData2D
@@ -137,6 +154,10 @@ namespace Project001
         void AddCollisionOverlap(const CollisionOverlapData2D& collisionOverlap);
         void ClearCollisionOverlaps();
         const std::vector<CollisionOverlapData2D>& GetCollisionOverlaps() const;
+
+        void AddCollisionRaycast(const CollisionRaycastData2D& collisionRaycast);
+        void ClearCollisionRaycasts();
+        const std::vector<CollisionRaycastData2D>& GetCollisionRaycasts() const;
 
         void AddCollisionImpulse(const CollisionImpulseData2D& collisionImpulse);
         void ClearCollisionImpulses();
@@ -282,6 +303,7 @@ namespace Project001
         bool transformedCollisionShapesUpToDate_;
 
         std::vector<CollisionOverlapData2D> collisionOverlaps_;
+        std::vector<CollisionRaycastData2D> collisionRaycasts_;
         std::vector<CollisionImpulseData2D> collisionImpulses_;
 
         CollisionShape2D::PhysicsType physicsType_;
@@ -731,6 +753,21 @@ namespace Project001
     inline const std::vector<CollisionOverlapData2D>& CollisionBody2D::GetCollisionOverlaps() const
     {
         return collisionOverlaps_;
+    }
+
+    inline void CollisionBody2D::AddCollisionRaycast(const CollisionRaycastData2D& collisionRaycast)
+    {
+        collisionRaycasts_.push_back(collisionRaycast);
+    }
+
+    inline void CollisionBody2D::ClearCollisionRaycasts()
+    {
+        collisionRaycasts_.clear();
+    }
+
+    inline const std::vector<CollisionRaycastData2D>& CollisionBody2D::GetCollisionRaycasts() const
+    {
+        return collisionRaycasts_;
     }
 
     inline void CollisionBody2D::AddCollisionImpulse(const CollisionImpulseData2D& collisionImpulse)

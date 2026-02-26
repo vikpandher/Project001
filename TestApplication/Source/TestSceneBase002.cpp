@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-02-25
 
 #include "TestSceneBase002.h"
 
@@ -61,6 +61,7 @@ TestSceneBase002::TestSceneBase002(Project001::Application* applicationPtr)
     , collisionBodyBorderEntityId_(static_cast<unsigned int>(-1))
     , collisionBodyQuadTreeEntityId_(static_cast<unsigned int>(-1))
     , collisionMarkerCollectionEntityId_(static_cast<unsigned int>(-1))
+    , raycastMarkerCollectionEntityId_(static_cast<unsigned int>(-1))
     , entityIds_()
     , cursorGrabbingEntity_(false)
     , previousWorldCursorPosition_()
@@ -195,6 +196,8 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
     collisionBodyQuadTreeMeshDataPtr_ = new Project001::MeshData();
 
     collisionMarkerCollectionMeshDataPtr_ = new Project001::MeshData();
+
+    raycastMarkerCollectionMeshDataPtr_ = new Project001::MeshData();
 
     // Main Camera Entity
     // -------------------------------------------------------------------------
@@ -473,7 +476,24 @@ void TestSceneBase002::ProcessInitializeEvent(Project001::InitializeEvent& initi
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetUseLighting(false);
             renderedMeshPtr->SetMeshDataPtr(collisionMarkerCollectionMeshDataPtr_);
-            renderedMeshPtr->SetColor(0.2f, 0.8f, 0.6f, 0.4f);
+            renderedMeshPtr->SetColor(0.2f, 0.8f, 0.6f, 0.6f);
+            renderedMeshPtr->SetRenderPriorityOverride(2);
+        }
+    }
+
+    // Raycast Marker Collection Entity
+    // -------------------------------------------------------------------------
+    {
+        GetComponentStoresPtr()->CreateEntity(raycastMarkerCollectionEntityId_);
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(raycastMarkerCollectionEntityId_));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, raycastMarkerCollectionEntityId_));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetUseLighting(false);
+            renderedMeshPtr->SetMeshDataPtr(raycastMarkerCollectionMeshDataPtr_);
+            renderedMeshPtr->SetColor(0.2f, 0.6f, 0.8f, 0.6f);
             renderedMeshPtr->SetRenderPriorityOverride(2);
         }
     }
@@ -535,6 +555,9 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     delete collisionMarkerCollectionMeshDataPtr_;
     collisionMarkerCollectionMeshDataPtr_ = nullptr;
 
+    delete raycastMarkerCollectionMeshDataPtr_;
+    raycastMarkerCollectionMeshDataPtr_ = nullptr;
+
     for (size_t i = 0; i < meshDataPtrArray_.size(); ++i)
     {
         delete meshDataPtrArray_[i];
@@ -565,6 +588,8 @@ void TestSceneBase002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& d
     collisionBodyQuadTreeEntityId_ = static_cast<unsigned int>(-1);
 
     collisionMarkerCollectionEntityId_ = static_cast<unsigned int>(-1);
+
+    raycastMarkerCollectionEntityId_ = static_cast<unsigned int>(-1);
 
     entityIds_.clear();
 
@@ -893,6 +918,7 @@ void TestSceneBase002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     if (generateCollisionMarkerCollectionMesh_)
     {
         UpdateCollisionMarkerCollectionMesh();
+        UpdateRaycastMarkerCollectionMesh();
     }
 
     if (updateCollisionBodyTexture_)
@@ -1739,6 +1765,49 @@ void TestSceneBase002::UpdateCollisionMarkerCollectionMesh()
                             0.01f
                         );
                     }
+                }
+            }
+        }
+    }
+}
+
+void TestSceneBase002::UpdateRaycastMarkerCollectionMesh()
+{
+    raycastMarkerCollectionMeshDataPtr_->Clear();
+
+    std::vector<glm::vec2> positions;
+
+    Project001::CollisionBody2D* collisionBodyPtrs = nullptr;
+    size_t collisionBodyCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<Project001::CollisionBody2D>(collisionBodyPtrs, collisionBodyCount);
+    for (size_t i = 0; i < collisionBodyCount; ++i)
+    {
+        Project001::CollisionBody2D& currentCollisionBody = collisionBodyPtrs[i];
+        const std::vector<Project001::CollisionRaycastData2D>& currentCollisionRaycasts = currentCollisionBody.GetCollisionRaycasts();
+        for (size_t j = 0; j < currentCollisionRaycasts.size(); ++j)
+        {
+            const Project001::CollisionRaycastData2D& currentCollisionRaycast = currentCollisionRaycasts[j];
+
+            std::vector<Project001::CollisionRay2D>& collisionRays = currentCollisionBody.GetCollisionRays();
+            for (size_t k = 0; k < collisionRays.size(); ++k)
+            {
+                const Project001::CollisionRay2D& currentCollisionRay = collisionRays[k];
+
+                if (currentCollisionRaycast.myShapeTag == currentCollisionRay.tag)
+                {
+                    glm::vec2 raycastPosition = currentCollisionRay.position;
+                    raycastPosition = Project001::Math::Rotate2DVector(raycastPosition, currentCollisionBody.GetRotation());
+                    raycastPosition += currentCollisionBody.GetPosition();
+                    glm::vec2 raycastOffset = currentCollisionRay.direction * currentCollisionRaycast.intersectionScalar;
+                    raycastOffset = Project001::Math::Rotate2DVector(raycastOffset, currentCollisionBody.GetRotation());
+                    positions.emplace_back(raycastPosition + raycastOffset + glm::vec2(-0.02f, 0.0f));
+                    positions.emplace_back(raycastPosition + raycastOffset + glm::vec2(0.0f, -0.02f));
+                    positions.emplace_back(raycastPosition + raycastOffset + glm::vec2(0.02f, 0.0f));
+                    positions.emplace_back(raycastPosition + raycastOffset + glm::vec2(0.0f, 0.02f));
+                    Project001::Mesh::Generate2DTriangleFan(*raycastMarkerCollectionMeshDataPtr_, positions);
+                    positions.clear();
+
+                    break;
                 }
             }
         }

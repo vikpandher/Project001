@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-03
+// @DATE 2026-02-25
 
 #pragma once
 
@@ -112,20 +112,23 @@ namespace Project001
 
     struct CollisionRay2D
     {
-        CollisionRay2D(const glm::vec2& position = CollisionShape2D::s_origin, const glm::vec2& direction = CollisionShape2D::s_defaultDirection, unsigned int tag = 0, bool enabled = true);
+        CollisionRay2D(const glm::vec2& position = CollisionShape2D::s_origin, const glm::vec2& direction = CollisionShape2D::s_defaultDirection, unsigned int tag = 0, bool enabled = true, bool recordRaycast = true);
 
         glm::vec2 position;
         glm::vec2 direction; // keep this normalized (a unit vector)
 
         unsigned int tag;
         bool enabled;
+
+        bool recordRaycast;
     };
 
-    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool enabled)
+    inline CollisionRay2D::CollisionRay2D(const glm::vec2& position, const glm::vec2& direction, unsigned int tag, bool enabled, bool recordRaycast)
         : position(position)
         , direction(direction)
         , tag(tag)
         , enabled(enabled)
+        , recordRaycast(recordRaycast)
     {}
 
     // -------------------------------------------------------------------------

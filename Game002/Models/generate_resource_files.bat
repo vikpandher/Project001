@@ -7,6 +7,7 @@ set exe=..\..\Vendor\FileToHeaderConverter\Bin\FileToHeaderConverter.exe
 set outputPath=..\Source\Resources\
 
 set files= ^
+dotted_1_3.png ^
 hazard_4x4.png ^
 penguin_beak.obj ^
 penguin_body.obj ^
@@ -20,8 +21,6 @@ penguin_glasses.obj ^
 penguin_glasses_v2.obj ^
 penguin_glasses_v3.obj ^
 penguin_head.obj ^
-penguin_head_v2.obj ^
-penguin_v2.png ^
 penguin_texture.png ^
 penguin_texture_v2.png ^
 penguin_texture_v3.png ^

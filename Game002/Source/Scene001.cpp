@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-18
+// @DATE 2026-02-25
 
 #include "Scene001.h"
 
+#include "Resources/dotted_1_3_png.h"
 #include "Resources/hazard_4x4_png.h"
 #include "Resources/penguin_beak_obj.h"
 #include "Resources/penguin_body_obj.h"
@@ -181,6 +182,31 @@ void Scene001::LoadGeneralResources()
             *sharedDataPtr_->hallowCircle_meshDataPtr, 0.9f, 1.0f, 24, 0.0f, 0.0f
         ));
     }
+
+    sharedDataPtr_->player1_aimRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player1_aimRay2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player2_aimRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player2_aimRay2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player3_aimRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player3_aimRay2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player4_aimRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->player4_aimRay2_meshDataPtr = new Project001::MeshData();
+
+    sharedDataPtr_->dotted_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->dotted_textureDataPtr,
+        g_dotted_1_3_png,
+        sizeof(g_dotted_1_3_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->dotted_textureId,
+        sharedDataPtr_->dotted_textureDataPtr->data,
+        sharedDataPtr_->dotted_textureDataPtr->width,
+        sharedDataPtr_->dotted_textureDataPtr->height,
+        sharedDataPtr_->dotted_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
 }
 
 void Scene001::LoadMainMenuResources()
@@ -194,8 +220,8 @@ void Scene001::LoadMainMenuResources()
 void Scene001::LoadStageResources()
 {
     constexpr float height = 256.0f;
-    const float radius = sharedDataPtr_->ground_size * 1.0829f;
-    const float groundCorner = sharedDataPtr_->ground_size * 0.41421357f; // sqrt(2) - 1
+    const float radius = SharedApplicationData::s_ground_size * 1.0829f;
+    const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
 
     sharedDataPtr_->ground_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::GenerateCylinder(
@@ -208,57 +234,45 @@ void Scene001::LoadStageResources()
     sharedDataPtr_->water_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *sharedDataPtr_->water_meshDataPtr,
-        sharedDataPtr_->ground_size * 24.0f,
-        sharedDataPtr_->ground_size * 24.0f,
+        SharedApplicationData::s_ground_size * 24.0f,
+        SharedApplicationData::s_ground_size * 24.0f,
         0.0f, 1.0f, 0.0f, 1.0f
     ));
 
     std::vector<glm::vec2> groundCollisionCorners;
     groundCollisionCorners.reserve(8);
-    // groundCollisionCorners.emplace_back(groundCorner, groundCorner);
-    groundCollisionCorners.emplace_back(sharedDataPtr_->ground_size, groundCorner);
-    groundCollisionCorners.emplace_back(groundCorner, sharedDataPtr_->ground_size);
-    // groundCollisionCorners.emplace_back(-groundCorner, groundCorner);
-    groundCollisionCorners.emplace_back(-groundCorner, sharedDataPtr_->ground_size);
-    groundCollisionCorners.emplace_back(-sharedDataPtr_->ground_size, groundCorner);
-    // groundCollisionCorners.emplace_back(-groundCorner, -groundCorner);
-    groundCollisionCorners.emplace_back(-sharedDataPtr_->ground_size, -groundCorner);
-    groundCollisionCorners.emplace_back(-groundCorner, -sharedDataPtr_->ground_size);
-    // groundCollisionCorners.emplace_back(groundCorner, -groundCorner);
-    groundCollisionCorners.emplace_back(groundCorner, -sharedDataPtr_->ground_size);
-    groundCollisionCorners.emplace_back(sharedDataPtr_->ground_size, -groundCorner);
+    groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, groundCorner);
+    groundCollisionCorners.emplace_back(groundCorner, SharedApplicationData::s_ground_size);
+    groundCollisionCorners.emplace_back(-groundCorner, SharedApplicationData::s_ground_size);
+    groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, groundCorner);
+    groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, -groundCorner);
+    groundCollisionCorners.emplace_back(-groundCorner, -SharedApplicationData::s_ground_size);
+    groundCollisionCorners.emplace_back(groundCorner, -SharedApplicationData::s_ground_size);
+    groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, -groundCorner);
     sharedDataPtr_->groundCollision_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(
         *sharedDataPtr_->groundCollision_meshDataPtr,
         groundCollisionCorners
     ));
 
-    // sharedDataPtr_->deadZoneCollision_meshDataPtr = new Project001::MeshData();
-    // Project001::Mesh::Generate2DRectangleFrame(
-    //     *sharedDataPtr_->deadZoneCollision_meshDataPtr,
-    //     glm::vec2(-sharedDataPtr_->deadzone_size, -sharedDataPtr_->deadzone_size),
-    //     glm::vec2(sharedDataPtr_->deadzone_size, sharedDataPtr_->deadzone_size),
-    //     4.0f
-    // );
-
     {
-        float rectThickness = (sharedDataPtr_->maxStage_size - sharedDataPtr_->deadzone_size) * 2.0f;
+        float rectThickness = (SharedApplicationData::s_maxStage_size - SharedApplicationData::s_deadzone_size) * 2.0f;
     
         Project001::MeshData tempMeshData0;
-        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, SharedApplicationData::s_deadzone_size * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
     
         Project001::MeshData tempMeshData1;
-        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, SharedApplicationData::s_deadzone_size * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
     
         Project001::MeshData tempMeshData2;
-        Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData2, (SharedApplicationData::s_deadzone_size + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f), 0.0f));
     
         Project001::MeshData tempMeshData3;
-        Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData3, (SharedApplicationData::s_deadzone_size + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, SharedApplicationData::s_deadzone_size + rectThickness * 0.5f, 0.0f));
     
         sharedDataPtr_->deadZone_meshDataPtr = new Project001::MeshData();
         Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData0);
@@ -284,54 +298,6 @@ void Scene001::LoadStageResources()
         false,
         false
     );
-
-    // {
-    //     float rectThickness = sharedDataPtr_->maxStage_size - sharedDataPtr_->deadzone_size;
-    // 
-    //     Project001::MeshData tempMeshData0;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-    //     Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData1;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->deadzone_size * 2.0f);
-    //     Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData2;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-    //     Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->deadzone_size + rectThickness * 0.5f), 0.0f));
-    // 
-    //     Project001::MeshData tempMeshData3;
-    //     Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->deadzone_size + rectThickness) * 2.0f, rectThickness);
-    //     Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->deadzone_size + rectThickness * 0.5f, 0.0f));
-    // 
-    //     sharedDataPtr_->deadZoneCollision_meshDataPtr = new Project001::MeshData();
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData0);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData1);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData2);
-    //     Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZoneCollision_meshDataPtr, tempMeshData3);
-    // }
-
-    // std::vector<glm::vec2> waterCollisionTriangles;
-    // waterCollisionTriangles.reserve(12);
-    // waterCollisionTriangles.emplace_back(sharedDataPtr_->ground_size, groundCorner);
-    // waterCollisionTriangles.emplace_back(sharedDataPtr_->ground_size, sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(groundCorner, sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(-groundCorner, sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(-sharedDataPtr_->ground_size, sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(-sharedDataPtr_->ground_size, groundCorner);
-    // waterCollisionTriangles.emplace_back(-sharedDataPtr_->ground_size, -groundCorner);
-    // waterCollisionTriangles.emplace_back(-sharedDataPtr_->ground_size, -sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(-groundCorner, -sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(groundCorner, -sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(sharedDataPtr_->ground_size, -sharedDataPtr_->ground_size);
-    // waterCollisionTriangles.emplace_back(sharedDataPtr_->ground_size, -groundCorner);
-    // sharedDataPtr_->waterCollision_meshDataPtr = new Project001::MeshData();
-    // FAIL_CHECK(Project001::Mesh::Generate2DTriangles(
-    //     *sharedDataPtr_->waterCollision_meshDataPtr,
-    //     waterCollisionTriangles
-    // ));
-
-    // TODO:
 }
 
 void Scene001::LoadStageGridResources()
@@ -767,6 +733,27 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->hallowCircle_meshDataPtr;
     sharedDataPtr_->hallowCircle_meshDataPtr = nullptr;
 
+    delete sharedDataPtr_->player1_aimRay1_meshDataPtr;
+    sharedDataPtr_->player1_aimRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player1_aimRay2_meshDataPtr;
+    sharedDataPtr_->player1_aimRay2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player2_aimRay1_meshDataPtr;
+    sharedDataPtr_->player2_aimRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player2_aimRay2_meshDataPtr;
+    sharedDataPtr_->player2_aimRay2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player3_aimRay1_meshDataPtr;
+    sharedDataPtr_->player3_aimRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player3_aimRay2_meshDataPtr;
+    sharedDataPtr_->player3_aimRay2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player4_aimRay1_meshDataPtr;
+    sharedDataPtr_->player4_aimRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->player4_aimRay2_meshDataPtr;
+    sharedDataPtr_->player4_aimRay2_meshDataPtr = nullptr;
+
+    delete sharedDataPtr_->dotted_textureDataPtr;
+    sharedDataPtr_->dotted_textureDataPtr = nullptr;
+    sharedDataPtr_->dotted_textureId = static_cast<unsigned int>(-1);
+
     // Main Menu Resources
     delete sharedDataPtr_->authorText_meshDataPtr;
     sharedDataPtr_->authorText_meshDataPtr = nullptr;
@@ -1020,10 +1007,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_1_down_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_1_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_grab_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->keyboard_1_throw_keyCode = Project001::StringToKeyCode(iter2->second);
             }
         }
 
@@ -1072,10 +1065,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_2_down_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_2_snowball_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_grab_keyCode = Project001::StringToKeyCode(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->keyboard_2_throw_keyCode = Project001::StringToKeyCode(iter2->second);
             }
         }
 
@@ -1124,10 +1123,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_1_down_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_1_snowball_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_1_grab_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_1_throw_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1194,10 +1199,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_2_down_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_2_snowball_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_2_grab_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_2_throw_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1264,10 +1275,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_3_down_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_3_snowball_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_3_grab_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_3_throw_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1334,10 +1351,16 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_4_down_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("snowball");
+            iter2 = iter->second.find("grab");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_4_snowball_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_4_grab_buttonIndex = std::stoi(iter2->second);
+            }
+
+            iter2 = iter->second.find("throw");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->controller_4_throw_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
