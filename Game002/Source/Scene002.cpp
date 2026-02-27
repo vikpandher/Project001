@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-02-26
 
 #include "Scene002.h"
 
@@ -28,7 +28,7 @@ struct PenguinInfo
 
     enum class State
     {
-        STATE_STANDING,
+        STATE_STANDING = 0,
         STATE_WALKING,
         STATE_TREADING_WATER,
         STATE_SWIMMING,
@@ -38,11 +38,13 @@ struct PenguinInfo
         STATE_HITSTUN
     };
 
+    static const std::unordered_map<size_t, std::string> s_stateToString;
+
     State state = State::STATE_STANDING;
     float makeSnowballCountDown_s = 0.0f;
     static constexpr float s_makeSnowballTime_s = 0.5f;
     float regrabSnowballCoolDown_s = 0.0f;
-    static constexpr float s_regrabSnowballTime_s = 0.0f;
+    static constexpr float s_regrabSnowballTime_s = 0.5f;
     float hitstunCoolDown_s = 0.0f;
 
     size_t glassesType = 0;
@@ -85,6 +87,18 @@ struct PenguinInfo
 
     static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
     static constexpr size_t s_collisionPointCount = 1;
+};
+
+const std::unordered_map<size_t, std::string> PenguinInfo::s_stateToString =
+{
+    {0, "STATE_STANDING"},
+    {1, "STATE_WALKING"},
+    {2, "STATE_TREADING_WATER"},
+    {3, "STATE_SWIMMING"},
+    {4, "STATE_MAKING_SNOWBALL"},
+    {5, "STATE_STANDING_SNOWBALL"},
+    {6, "STATE_WALKING_SNOWBALL"},
+    {7, "STATE_HITSTUN"}
 };
 
 struct SnowballInfo
@@ -237,7 +251,7 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     // -------------------------------------------------------------------------
 
     mainCamera_lookAtPoint_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    mainCamera_distanceAway_ = mainCamera_initialDistanceAway_;
+    mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
     mainCamera_lockedToPlayers_ = true;
     debugCamera_turnedOn_ = false;
 
@@ -281,6 +295,9 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
         UpdateStageCollisionBodyQuadTreeMesh();
 
+        // Update snowballs before penguins because penguins can spawn snowballs
+        UpdateSnowballEntities(physicsTimestep_s);
+
         if (sharedDataPtr_->playerInfos[0].turnedOn)
         {
             UpdatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerInfos[0], physicsTimestep_s);
@@ -297,8 +314,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             UpdatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], physicsTimestep_s);
         }
-        
-        UpdateSnowballEntities(physicsTimestep_s);
+
         UpdateWorld(physicsTimestep_s);
 
         GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
@@ -1023,16 +1039,19 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
             glm::vec2 minPlayerPosition(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
             for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
             {
-                Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
-                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityIds_[i]));
-                if (playerCollisionBodyPtr != nullptr)
+                if (sharedDataPtr_->playerInfos[i].turnedOn)
                 {
-                    const glm::vec2& playerPosition = playerCollisionBodyPtr->GetPosition();
+                    Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityIds_[i]));
+                    if (playerCollisionBodyPtr != nullptr)
+                    {
+                        const glm::vec2& playerPosition = playerCollisionBodyPtr->GetPosition();
 
-                    if (playerPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = playerPosition.x;
-                    if (playerPosition.x < minPlayerPosition.x) minPlayerPosition.x = playerPosition.x;
-                    if (playerPosition.y > maxPlayerPosition.y) maxPlayerPosition.y = playerPosition.y;
-                    if (playerPosition.y < minPlayerPosition.y) minPlayerPosition.y = playerPosition.y;
+                        if (playerPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = playerPosition.x;
+                        if (playerPosition.x < minPlayerPosition.x) minPlayerPosition.x = playerPosition.x;
+                        if (playerPosition.y > maxPlayerPosition.y) maxPlayerPosition.y = playerPosition.y;
+                        if (playerPosition.y < minPlayerPosition.y) minPlayerPosition.y = playerPosition.y;
+                    }
                 }
             }
 
@@ -1088,10 +1107,15 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
             float angleB = Project001::Math::Get3DVectorAngle(forwardHorizontalVector, forwardVector);
             float angleC = glm::pi<float>() - angleA - angleB;
 
-            float sideA = playerPositionBoundingRaidus + mainCamera_playerToEdgeSpacing_;
+            float sideA = playerPositionBoundingRaidus + s_mainCamera_playerToEdgeSpacing_;
             float sideC = sideA * sin(angleC) / sin(angleA);
 
             mainCamera_distanceAway_ = sideC;
+
+            if (mainCamera_distanceAway_ < s_mainCamera_minimumDistanceAway_)
+            {
+                mainCamera_distanceAway_ = s_mainCamera_minimumDistanceAway_;
+            }
         }
 
         if (sharedDataPtr_->debug_keyboard_setCameraPitch1_pressCount == 1)
@@ -1343,7 +1367,8 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             const Project001::CollisionRaycastData2D& penguinCollisionRaycastData = penguinCollisionRaycasts[i];
 
             if (penguinCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_ &&
-                (penguinCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ || penguinCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_) &&
+                (penguinCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ ||
+                    (penguinCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ && penguinCollisionRaycastData.otherEntityId != penguinInfoPtr->snowball_EntityId)) &&
                 penguinCollisionRaycastData.intersectionScalar < minIntersectionScalar)
             {
                 minIntersectionScalar = penguinCollisionRaycastData.intersectionScalar;
@@ -1489,28 +1514,24 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             {
                 if (grabPressed)
                 {
-                    if (penguinInfoPtr->regrabSnowballCoolDown_s <= 0.0f)
+                    if (grabableInReach && penguinInfoPtr->regrabSnowballCoolDown_s <= 0.0f)
                     {
                         penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                        snowballAciton = SnowballAction::SNOWBALL_ACTION_GRAB;
 
-                        if (grabableInReach)
+                        if (moving)
                         {
-                            snowballAciton = SnowballAction::SNOWBALL_ACTION_GRAB;
-
-                            if (moving)
-                            {
-                                penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING_SNOWBALL;
-                            }
-                            else // !moving
-                            {
-                                penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING_SNOWBALL;
-                            }
+                            penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING_SNOWBALL;
                         }
-                        else if (snowballSpawnPointOnLand) // && !grabableInReach
+                        else // !moving
                         {
-                            penguinInfoPtr->makeSnowballCountDown_s = PenguinInfo::s_makeSnowballTime_s;
-                            penguinInfoPtr->state = PenguinInfo::State::STATE_MAKING_SNOWBALL;
+                            penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING_SNOWBALL;
                         }
+                    }
+                    else if (snowballSpawnPointOnLand) // && !grabableInReach
+                    {
+                        penguinInfoPtr->makeSnowballCountDown_s = PenguinInfo::s_makeSnowballTime_s;
+                        penguinInfoPtr->state = PenguinInfo::State::STATE_MAKING_SNOWBALL;
                     }
                 }
                 else // !grabPressed
@@ -1608,7 +1629,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         
                 penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
-        
+
                 break;
             }
         
@@ -1680,7 +1701,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
                 }
             }
             break;
-            break;
         }
         case PenguinInfo::State::STATE_HITSTUN:
         {
@@ -1693,7 +1713,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             {
                 penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
             }
-        
             break;
         }
         }
@@ -1889,12 +1908,12 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
                     snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() & ~penguinCollisionBodyPtr->GetCollisionGroupMask()
                 );
             }
-
             break;
         }
         case SnowballAction::SNOWBALL_ACTION_SPAWN:
         {
             actionCreateSnowballEntity = true;
+            break;
         }
         case SnowballAction::SNOWBALL_ACTION_DROP:
         {
@@ -1911,7 +1930,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
                     snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() | penguinCollisionBodyPtr->GetCollisionGroupMask()
                 );
             }
-
             break;
         }
         case SnowballAction::SNOWBALL_ACTION_THROW:
@@ -1937,7 +1955,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
                     );
                 }
             }
-
             break;
         }
         }
@@ -2168,6 +2185,13 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
         if (renderedModelPtr != nullptr)
         {
+            // static PenguinInfo::State previousState = PenguinInfo::State::STATE_STANDING;
+            // if (previousState != penguinInfo.state)
+            // {
+            //     LOG_INFO("State: " << PenguinInfo::s_stateToString.at(static_cast<size_t>(penguinInfo.state)));
+            //     previousState = penguinInfo.state;
+            // }
+
             // Some animations can be interrupted
             if ((penguinInfo.animationState == PenguinInfo::State::STATE_STANDING ||
                 penguinInfo.animationState == PenguinInfo::State::STATE_TREADING_WATER ||

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-02-26
 
 #include "MeshUtility.h"
 
@@ -460,6 +460,116 @@ namespace Mesh
         }
 
         for (size_t i = 0; i < positions.size(); ++i)
+        {
+            const glm::vec2& currentPosition = positions[i];
+            float vertexRadius = glm::length(currentPosition);
+            if (maxBoundingRadius < vertexRadius) maxBoundingRadius = vertexRadius;
+
+            if (maxVertexPosition.x < currentPosition.x) maxVertexPosition.x = currentPosition.x;
+            if (maxVertexPosition.y < currentPosition.y) maxVertexPosition.y = currentPosition.y;
+
+            if (minVertexPosition.x > currentPosition.x) minVertexPosition.x = currentPosition.x;
+            if (minVertexPosition.y > currentPosition.y) minVertexPosition.y = currentPosition.y;
+        }
+
+        return true;
+    }
+
+    bool Generate2DTriangleStrip(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& positions,
+        const std::vector<glm::vec2>& textureCoordinates,
+        bool triangulate)
+    {
+        if (positions.size() < 3 && textureCoordinates.size() < 3)
+        {
+            return false;
+        }
+
+        size_t validPositionSize = std::min(positions.size(), textureCoordinates.size());
+
+        std::vector<MeshVertex>& meshVertexArray = meshData.meshVertexArray;
+        std::vector<unsigned int>& meshIndexArray = meshData.meshIndexArray;
+        float& maxBoundingRadius = meshData.maxBoundingRadius;
+        glm::vec3& maxVertexPosition = meshData.maxVertexPosition;
+        glm::vec3& minVertexPosition = meshData.minVertexPosition;
+
+        if (maxVertexPosition.z < 0.0f) maxVertexPosition.z = 0.0f;
+        if (minVertexPosition.z > 0.0f) minVertexPosition.z = 0.0f;
+
+        glm::vec3 normal(0.0f, 0.0f, 1.0f);
+
+        if (!triangulate)
+        {
+            size_t currentVertexCount = meshVertexArray.size();
+
+            for (size_t i = 0; i < validPositionSize; ++i)
+            {
+                MeshVertex meshVertex;
+                meshVertex.position = glm::vec3(positions[i], 0.0f);
+                meshVertex.textureCoordinate = textureCoordinates[i];
+                meshVertex.normal = normal;
+
+                meshVertexArray.push_back(meshVertex);
+            }
+
+            for (size_t i = 0; i < validPositionSize - 2; ++i)
+            {
+                if (i % 2 == 0)
+                {
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
+                }
+                else
+                {
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 2));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i + 1));
+                    meshIndexArray.push_back(static_cast<unsigned int>(currentVertexCount + i));
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < validPositionSize - 2; ++i)
+            {
+                MeshVertex meshVertexA;
+                meshVertexA.position = glm::vec3(positions[i], 0.0f);
+                meshVertexA.textureCoordinate = textureCoordinates[i];
+                meshVertexA.normal = normal;
+
+                MeshVertex meshVertexB;
+                meshVertexB.position = glm::vec3(positions[i + 1], 0.0f);
+                meshVertexB.textureCoordinate = textureCoordinates[i + 1];
+                meshVertexB.normal = normal;
+
+                MeshVertex meshVertexC;
+                meshVertexC.position = glm::vec3(positions[i + 2], 0.0f);
+                meshVertexC.textureCoordinate = textureCoordinates[i + 2];
+                meshVertexC.normal = normal;
+
+                unsigned int currentVertexCount = static_cast<unsigned int>(meshVertexArray.size());
+
+                if (i % 2 == 0)
+                {
+                    meshVertexArray.push_back(meshVertexA);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexC);
+                }
+                else
+                {
+                    meshVertexArray.push_back(meshVertexC);
+                    meshVertexArray.push_back(meshVertexB);
+                    meshVertexArray.push_back(meshVertexA);
+                }
+
+                meshIndexArray.push_back(currentVertexCount++);
+                meshIndexArray.push_back(currentVertexCount++);
+                meshIndexArray.push_back(currentVertexCount);
+            }
+        }
+
+        for (size_t i = 0; i < validPositionSize; ++i)
         {
             const glm::vec2& currentPosition = positions[i];
             float vertexRadius = glm::length(currentPosition);

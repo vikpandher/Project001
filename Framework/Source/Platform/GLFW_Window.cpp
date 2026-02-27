@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-02-26
 
 #include "GLFW_Window.h"
 
@@ -253,10 +253,18 @@ namespace Project001
 
     void GLFW_Window::GetJoystickAxis(unsigned int index, std::vector<float>& values) const
     {
-        int count;
+        values.clear();
+
+        int count = 0;
         const float* axes = glfwGetJoystickAxes(index, &count);
 
-        values.clear();
+        if (!axes || count <= 0)
+        {
+            return;
+        }
+
+        values.reserve(count);
+
         for (int i = 0; i < count; ++i)
         {
             values.push_back(axes[i]);
@@ -265,10 +273,18 @@ namespace Project001
 
     void GLFW_Window::GetJoystickButtons(unsigned int index, std::vector<bool>& values) const
     {
-        int count;
+        values.clear();
+
+        int count = 0;
         const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
 
-        values.clear();
+        if (!buttons || count <= 0)
+        {
+            return;
+        }
+
+        values.reserve(count);
+
         for (int i = 0; i < count; ++i)
         {
             values.push_back(buttons[i] == GLFW_PRESS);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-26
+// @DATE 2026-02-26
 
 #include "TestScene002.h"
 
@@ -148,7 +148,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     std::vector<glm::vec3> meshEntityPositions;
     for (int i = 4; i >= -4; --i)
     {
-        for (int j = -4; j <= 5; ++j)
+        for (int j = -5; j <= 5; ++j)
         {
             meshEntityPositions.emplace_back(static_cast<float>(j), static_cast<float>(i), 0.0f);
         }
@@ -345,6 +345,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetColorRGB(0.2f, 0.2f, 0.8f);
             renderedMeshPtr->SetShininess(4.0f);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
@@ -612,6 +617,54 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             positions[i] += glm::vec2(0.5f, 0.5f);
         }
         FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.04f));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::RecenterMesh(*newMeshDataPtr);
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetColorRGB(0.2f, 0.8f, 0.6f);
+            renderedMeshPtr->SetTranslucent(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        std::vector<glm::vec2> positions;
+        positions.emplace_back(0.08f, 0.0f);
+        positions.emplace_back(0.24f, 0.16f);
+        positions.emplace_back(0.08f, 0.08f);
+        positions.emplace_back(0.08f, 0.24f);
+        positions.emplace_back(0.0f, 0.08f);
+        positions.emplace_back(-0.08f, 0.24f);
+        positions.emplace_back(-0.08f, 0.08f);
+        positions.emplace_back(-0.24f, 0.16f);
+        positions.emplace_back(-0.08f, 0.0f);
+        positions.emplace_back(-0.24f, -0.16f);
+        positions.emplace_back(-0.08f, -0.16f);
+        positions.emplace_back(-0.08f, -0.24f);
+        positions.emplace_back(0.0f, -0.16f);
+        positions.emplace_back(0.08f, -0.24f);
+        positions.emplace_back(0.08f, -0.16f);
+        positions.emplace_back(0.24f, -0.16f);
+        positions.emplace_back(0.16f, -0.08f);
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            positions[i] += glm::vec2(0.5f, 0.5f);
+        }
+        FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, positions, 0.04f, false));
         Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
         Project001::Mesh::RecenterMesh(*newMeshDataPtr);
 
@@ -968,6 +1021,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positionIndex++;
     }
 
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
     // row 4 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -1141,6 +1199,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
@@ -1357,6 +1420,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positionIndex++;
     }
 
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
     // row 6 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -1505,6 +1573,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetTextureId(_100x100_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
@@ -1681,6 +1754,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetTextureId(numbers16x4_TextureId);
             renderedMeshPtr->SetShininess(32.0f);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------
@@ -1887,6 +1965,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         positionIndex++;
     }
 
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
+    }
+
     // row 8 -------------------------------------------------------------------
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
@@ -2054,6 +2137,11 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    {
+        positionIndex++;
     }
 
     // -------------------------------------------------------------------------

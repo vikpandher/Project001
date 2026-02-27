@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-02-26
 
 #pragma once
 
@@ -57,6 +57,12 @@ namespace Mesh
     bool Generate2DTriangleStrip(
         MeshData& meshData,
         const std::vector<glm::vec2>& positions,
+        bool triangulate = g_triangulate);
+
+    bool Generate2DTriangleStrip(
+        MeshData& meshData,
+        const std::vector<glm::vec2>& positions,
+        const std::vector<glm::vec2>& textureCoordinates,
         bool triangulate = g_triangulate);
 
     bool Generate2DArc(

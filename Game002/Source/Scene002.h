@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-02-26
 
 #pragma once
 
@@ -91,9 +91,10 @@ protected:
 
     glm::vec3 mainCamera_lookAtPoint_;
 
-    static constexpr float mainCamera_initialDistanceAway_ = 600.0f;
-    static constexpr float mainCamera_playerToEdgeSpacing_ = 128.0f;
-    float mainCamera_distanceAway_ = mainCamera_initialDistanceAway_;
+    static constexpr float s_mainCamera_initialDistanceAway_ = 600.0f;
+    static constexpr float s_mainCamera_minimumDistanceAway_ = 600.0f;
+    static constexpr float s_mainCamera_playerToEdgeSpacing_ = 128.0f;
+    float mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
     bool mainCamera_lockedToPlayers_ = true;
     bool debugCamera_turnedOn_ = false;
 
