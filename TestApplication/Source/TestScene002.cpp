@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-26
+// @DATE 2026-03-10
 
 #include "TestScene002.h"
 
@@ -79,6 +79,7 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     unsigned int thonkSpecular_TextureId = static_cast<unsigned int>(-1);
     unsigned int numbers16x4_TextureId = static_cast<unsigned int>(-1);
     unsigned int _0123456789abcdefj_TextureId = static_cast<unsigned int>(-1);
+    unsigned int dotted_1_1_TextureId = static_cast<unsigned int>(-1);
 
     {
         Project001::TextureData textureData;
@@ -138,6 +139,12 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::TextureData textureData;
         FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/0123456789abcdefghij_long.png"));
         GetRendererPtr()->CreateTexture(_0123456789abcdefj_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
+    }
+
+    {
+        Project001::TextureData textureData;
+        FAIL_CHECK(Project001::Texture::LoadTexture(textureData, "../Textures/dotted_1_1.png"));
+        GetRendererPtr()->CreateTexture(dotted_1_1_TextureId, textureData.data, textureData.width, textureData.height, textureData.bytesPerPixel, false, false);
     }
 
     // Creating Entities and Meshes
@@ -1031,8 +1038,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 1, 0.0f, 0.5f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1046,7 +1053,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1056,8 +1064,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 2, 0.0f, 1.5f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1071,7 +1079,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1081,8 +1090,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 3, 0.0f, 2.0f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1096,7 +1105,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1106,8 +1116,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 0.0f, 2.0f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1121,7 +1131,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1131,8 +1142,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 4, 1.5f * glm::pi<float>(), 1.0f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1146,7 +1157,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1156,8 +1168,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.08f, 0.32f, 24, 1.25f * glm::pi<float>(), 0.75f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1171,7 +1183,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
@@ -1181,8 +1194,8 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
         FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.16f, 0.32f, 32, 0.0f, 2.0f * glm::pi<float>()));
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
-        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        // Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        // Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -1196,14 +1209,37 @@ void TestScene002::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
             renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
             renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
-            renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            // renderedMeshPtr->SetTextureId(_100x100_TextureId);
+            renderedMeshPtr->SetTextureId(_0123456789abcdefj_TextureId);
             renderedMeshPtr->SetTranslucent(true);
         }
     }
 
     // -------------------------------------------------------------------------
     {
-        positionIndex++;
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        meshDataPtrArray_.push_back(newMeshDataPtr);
+        FAIL_CHECK(Project001::Mesh::Generate2DArc(*newMeshDataPtr, 0.16f, 0.18f, 24, 0.0f, 0.0f));
+        float textureSections = glm::two_pi<float>() * 18.0f / 2.0f;
+        textureSections = std::roundf(textureSections);
+        Project001::Mesh::ScaleTextureCoordinates(*newMeshDataPtr, glm::vec2(textureSections, 1.0f));
+        Project001::Mesh::RotateTextureCoordinates(*newMeshDataPtr, glm::half_pi<float>());
+
+        unsigned int tempEntityId;
+        GetComponentStoresPtr()->CreateEntity(tempEntityId);
+        entityIds_.push_back(tempEntityId);
+
+        FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(tempEntityId));
+        Project001::RenderedMesh* renderedMeshPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, tempEntityId));
+        if (renderedMeshPtr != nullptr)
+        {
+            renderedMeshPtr->SetCameraMask(s_mainCameraMask_);
+            renderedMeshPtr->SetPosition(meshEntityPositions[positionIndex++]);
+            renderedMeshPtr->SetMeshDataPtr(newMeshDataPtr);
+            renderedMeshPtr->SetTextureId(dotted_1_1_TextureId);
+            renderedMeshPtr->SetTranslucent(true);
+        }
     }
 
     // -------------------------------------------------------------------------

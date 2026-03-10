@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-26
+// @DATE 2026-03-10
 
 #include "Scene002.h"
 
@@ -704,8 +704,8 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabZone_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->hallowCircle_meshDataPtr);
-            mesh.SetScale(glm::vec3(SharedApplicationData::s_penguin_grabRadius));
+            mesh.SetTextureId(sharedDataPtr_->dotted_1_1_textureId);
+            mesh.SetMeshDataPtr(sharedDataPtr_->player_grabZone_meshDataPtr);
             mesh.SetPositionY(SharedApplicationData::s_penguin_grabOffset);
             mesh.SetPositionZ(0.6f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
@@ -742,7 +742,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay2_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetTextureId(sharedDataPtr_->dotted_textureId);
+            mesh.SetTextureId(sharedDataPtr_->dotted_1_3_textureId);
             if (playerInfo.playerNumber == 0)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player1_aimRay2_meshDataPtr);
@@ -2851,6 +2851,17 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
                 else
                 {
                     mesh.SetVisible(false);
+                }
+
+                if (penguinInfo.regrabSnowballCoolDown_s > 0.0f ||
+                    penguinInfo.snowball_EntityId != static_cast<unsigned int>(-1) ||
+                    penguinInfo.animationState == PenguinInfo::State::STATE_MAKING_SNOWBALL)
+                {
+                    mesh.SetTextureId(sharedDataPtr_->dotted_1_1_textureId);
+                }
+                else
+                {
+                    mesh.SetTextureId(static_cast<unsigned int>(-1));
                 }
             }
 

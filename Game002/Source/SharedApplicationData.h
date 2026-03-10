@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-03-10
 
 #pragma once
 
@@ -236,6 +236,8 @@ struct SharedApplicationData
     Project001::MeshData* orientationArrow_meshDataPtr = nullptr;
     Project001::MeshData* hallowCircle_meshDataPtr = nullptr;
 
+    Project001::MeshData* player_grabZone_meshDataPtr = nullptr;
+
     static constexpr float s_maxAimLineLength = 4096.0f;
     static constexpr float s_aimLineWidth = 2.0f;
     Project001::MeshData* player1_aimRay1_meshDataPtr = nullptr;
@@ -247,8 +249,11 @@ struct SharedApplicationData
     Project001::MeshData* player4_aimRay1_meshDataPtr = nullptr;
     Project001::MeshData* player4_aimRay2_meshDataPtr = nullptr;
 
-    Project001::TextureData* dotted_textureDataPtr = nullptr;
-    unsigned int dotted_textureId = static_cast<unsigned int>(-1);
+
+    Project001::TextureData* dotted_1_1_textureDataPtr = nullptr;
+    unsigned int dotted_1_1_textureId = static_cast<unsigned int>(-1);
+    Project001::TextureData* dotted_1_3_textureDataPtr = nullptr;
+    unsigned int dotted_1_3_textureId = static_cast<unsigned int>(-1);
 
     // Main Menu Resources
     Project001::MeshData* authorText_meshDataPtr = nullptr;

@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-03-10
 
 #include "Scene001.h"
 
+#include "Resources/dotted_1_1_png.h"
 #include "Resources/dotted_1_3_png.h"
 #include "Resources/hazard_4x4_png.h"
 #include "Resources/penguin_beak_obj.h"
@@ -183,6 +184,18 @@ void Scene001::LoadGeneralResources()
         ));
     }
 
+    {
+        sharedDataPtr_->player_grabZone_meshDataPtr = new Project001::MeshData();
+        FAIL_CHECK(Project001::Mesh::Generate2DArc(
+            *sharedDataPtr_->player_grabZone_meshDataPtr, SharedApplicationData::s_penguin_grabRadius - 2.0f, SharedApplicationData::s_penguin_grabRadius, 24, 0.0f, 0.0f
+        ));
+        float textureSections = glm::two_pi<float>() * SharedApplicationData::s_penguin_grabRadius / 4.0f;
+        textureSections = std::roundf(textureSections);
+        Project001::Mesh::ScaleTextureCoordinates(*sharedDataPtr_->player_grabZone_meshDataPtr, glm::vec2(textureSections, 1.0f));
+        Project001::Mesh::RotateTextureCoordinates(*sharedDataPtr_->player_grabZone_meshDataPtr, glm::half_pi<float>());
+        Project001::Mesh::TranslateTextureCoordinates(*sharedDataPtr_->player_grabZone_meshDataPtr, glm::vec2(0.0f, -0.25f));
+    }
+
     sharedDataPtr_->player1_aimRay1_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->player1_aimRay2_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->player2_aimRay1_meshDataPtr = new Project001::MeshData();
@@ -192,18 +205,34 @@ void Scene001::LoadGeneralResources()
     sharedDataPtr_->player4_aimRay1_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->player4_aimRay2_meshDataPtr = new Project001::MeshData();
 
-    sharedDataPtr_->dotted_textureDataPtr = new Project001::TextureData();
+    sharedDataPtr_->dotted_1_1_textureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
-        *sharedDataPtr_->dotted_textureDataPtr,
+        *sharedDataPtr_->dotted_1_1_textureDataPtr,
+        g_dotted_1_1_png,
+        sizeof(g_dotted_1_1_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->dotted_1_1_textureId,
+        sharedDataPtr_->dotted_1_1_textureDataPtr->data,
+        sharedDataPtr_->dotted_1_1_textureDataPtr->width,
+        sharedDataPtr_->dotted_1_1_textureDataPtr->height,
+        sharedDataPtr_->dotted_1_1_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
+
+    sharedDataPtr_->dotted_1_3_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->dotted_1_3_textureDataPtr,
         g_dotted_1_3_png,
         sizeof(g_dotted_1_3_png) / sizeof(unsigned char)
     ));
     GetRendererPtr()->CreateTexture(
-        sharedDataPtr_->dotted_textureId,
-        sharedDataPtr_->dotted_textureDataPtr->data,
-        sharedDataPtr_->dotted_textureDataPtr->width,
-        sharedDataPtr_->dotted_textureDataPtr->height,
-        sharedDataPtr_->dotted_textureDataPtr->bytesPerPixel,
+        sharedDataPtr_->dotted_1_3_textureId,
+        sharedDataPtr_->dotted_1_3_textureDataPtr->data,
+        sharedDataPtr_->dotted_1_3_textureDataPtr->width,
+        sharedDataPtr_->dotted_1_3_textureDataPtr->height,
+        sharedDataPtr_->dotted_1_3_textureDataPtr->bytesPerPixel,
         false,
         false
     );
@@ -733,6 +762,9 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->hallowCircle_meshDataPtr;
     sharedDataPtr_->hallowCircle_meshDataPtr = nullptr;
 
+    delete sharedDataPtr_->player_grabZone_meshDataPtr;
+    sharedDataPtr_->player_grabZone_meshDataPtr = nullptr;
+
     delete sharedDataPtr_->player1_aimRay1_meshDataPtr;
     sharedDataPtr_->player1_aimRay1_meshDataPtr = nullptr;
     delete sharedDataPtr_->player1_aimRay2_meshDataPtr;
@@ -750,9 +782,12 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->player4_aimRay2_meshDataPtr;
     sharedDataPtr_->player4_aimRay2_meshDataPtr = nullptr;
 
-    delete sharedDataPtr_->dotted_textureDataPtr;
-    sharedDataPtr_->dotted_textureDataPtr = nullptr;
-    sharedDataPtr_->dotted_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->dotted_1_1_textureDataPtr;
+    sharedDataPtr_->dotted_1_1_textureDataPtr = nullptr;
+    sharedDataPtr_->dotted_1_1_textureId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->dotted_1_3_textureDataPtr;
+    sharedDataPtr_->dotted_1_3_textureDataPtr = nullptr;
+    sharedDataPtr_->dotted_1_3_textureId = static_cast<unsigned int>(-1);
 
     // Main Menu Resources
     delete sharedDataPtr_->authorText_meshDataPtr;

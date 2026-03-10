@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-26
+// @DATE 2026-03-10
 
 #include "MeshUtility.h"
 
@@ -608,7 +608,7 @@ namespace Mesh
             startAngle += 2.0f * glm::pi<float>();
         }
 
-        if (endAngle < 0.0f)
+        if (endAngle <= 0.0f)
         {
             endAngle += 2.0f * glm::pi<float>();
         }
@@ -634,25 +634,32 @@ namespace Mesh
         }
 
         std::vector<glm::vec2> positions;
+        std::vector<glm::vec2> textureCoordinates;
 
         glm::vec2 innerRadialVector(0.0f, innerRadius);
         innerRadialVector = Math::Rotate2DVector(innerRadialVector, startAngle);
-        positions.push_back(innerRadialVector);
-
         glm::vec2 outerRadialVector(0.0f, outerRadius);
         outerRadialVector = Math::Rotate2DVector(outerRadialVector, startAngle);
-        positions.push_back(outerRadialVector);
 
         for (size_t i = 0; i < subdivisions; ++i)
         {
-            innerRadialVector = Math::Rotate2DVector(innerRadialVector, sectionAngle);
             positions.push_back(innerRadialVector);
+            textureCoordinates.emplace_back((sectionAngle * static_cast<float>(i)) / (endAngle - startAngle), 0.0f);
 
-            outerRadialVector = Math::Rotate2DVector(outerRadialVector, sectionAngle);
             positions.push_back(outerRadialVector);
+            textureCoordinates.emplace_back((sectionAngle * static_cast<float>(i)) / (endAngle - startAngle), 1.0f);
+
+            innerRadialVector = Math::Rotate2DVector(innerRadialVector, sectionAngle);
+            outerRadialVector = Math::Rotate2DVector(outerRadialVector, sectionAngle);
         }
 
-        return Generate2DTriangleStrip(meshData, positions, triangulate);
+        positions.push_back(innerRadialVector);
+        textureCoordinates.emplace_back(1.0f, 0.0f);
+
+        positions.push_back(outerRadialVector);
+        textureCoordinates.emplace_back(1.0f, 1.0f);
+
+        return Generate2DTriangleStrip(meshData, positions, textureCoordinates, triangulate);
     }
 
     bool Generate2DArc(
