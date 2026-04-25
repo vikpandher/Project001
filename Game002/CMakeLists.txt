@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-03-10
+# @DATE 2026-04-24
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -37,6 +37,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(GAME002_FILES
+    "Source/ActorInfo.h"
     "Source/Main.cpp"
     "Source/Scene001.cpp"
     "Source/Scene001.h"
@@ -68,6 +69,10 @@ set(GAME002_RESOURCE_FILES
     "Source/Resources/penguin_texture_v2_png.h"
     "Source/Resources/penguin_texture_v3_png.h"
     "Source/Resources/penguin_texture_v4_png.h"
+    "Source/Resources/shark_back_obj.h"
+    "Source/Resources/shark_front_obj.h"
+    "Source/Resources/shark_jaw_obj.h"
+    "Source/Resources/shark_texture_png.h"
 )
 
 source_group("Source/Resources" FILES ${GAME002_RESOURCE_FILES})

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-03-10
+// @DATE 2026-04-24
 
 #pragma once
 
@@ -209,7 +209,9 @@ struct SharedApplicationData
 
     unsigned int randomNumberSeed = 777;
 
-    static constexpr float s_ground_size = 512.0f;
+    static constexpr float s_ground_size = 512.0f; // center to top
+
+    static constexpr float s_stageSharkCircle_radius = 768.0f;
 
     static constexpr float s_deadzone_size = 1024.0f;
 
@@ -315,6 +317,15 @@ struct SharedApplicationData
 
     Project001::MeshData* snowball_meshDataPtr = nullptr;
     unsigned int snowball_meshId = static_cast<unsigned int>(-1);
+
+    Project001::MeshData* shark_back_meshDataPtr = nullptr;
+    unsigned int shark_back_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* shark_front_meshDataPtr = nullptr;
+    unsigned int shark_front_meshId = static_cast<unsigned int>(-1);
+    Project001::MeshData* shark_jaw_meshDataPtr = nullptr;
+    unsigned int shark_jaw_meshId = static_cast<unsigned int>(-1);
+    Project001::TextureData* shark_textureDataPtr = nullptr;
+    unsigned int shark_textureId = static_cast<unsigned int>(-1);
 
     // Ui Resources
     Project001::MeshData* uiLeftBackground_meshDataPtr = nullptr;

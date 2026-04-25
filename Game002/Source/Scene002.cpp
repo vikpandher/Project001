@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-03-10
+// @DATE 2026-04-24
 
 #include "Scene002.h"
 
@@ -11,6 +11,7 @@
 #include "Utilities/FontUtility.h"
 #include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
+#include "ActorInfo.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
@@ -21,127 +22,6 @@
 #include <stack>
 
 
-
-struct PenguinInfo
-{
-    unsigned int snowball_EntityId = static_cast<unsigned int>(-1);
-
-    enum class State
-    {
-        STATE_STANDING = 0,
-        STATE_WALKING,
-        STATE_TREADING_WATER,
-        STATE_SWIMMING,
-        STATE_MAKING_SNOWBALL,
-        STATE_STANDING_SNOWBALL,
-        STATE_WALKING_SNOWBALL,
-        STATE_HITSTUN
-    };
-
-    static const std::unordered_map<size_t, std::string> s_stateToString;
-
-    State state = State::STATE_STANDING;
-    float makeSnowballCountDown_s = 0.0f;
-    static constexpr float s_makeSnowballTime_s = 0.5f;
-    float regrabSnowballCoolDown_s = 0.0f;
-    static constexpr float s_regrabSnowballTime_s = 0.5f;
-    float hitstunCoolDown_s = 0.0f;
-
-    size_t glassesType = 0;
-
-    bool onLand = false;
-
-    State animationState = State::STATE_STANDING;
-    float animationStateCountDown_s = 0.0f;
-
-    bool mirrorAnimation = false;
-
-    float positionZ = 0.0f;
-
-    static constexpr float s_initialGrabAttractionRadius = 12.0f + 8.0f; // penguinRadius + snowballRadius
-    float grabAttractionRadius = s_initialGrabAttractionRadius;
-
-    static constexpr size_t s_body_renderedMeshIndex = 0;
-    static constexpr size_t s_flipper_right_renderedMeshIndex = 1;
-    static constexpr size_t s_flipper_left_renderedMeshIndex = 2;
-    static constexpr size_t s_foot_right_renderedMeshIndex = 3;
-    static constexpr size_t s_foot_left_renderedMeshIndex = 4;
-    static constexpr size_t s_head_renderedMeshIndex = 5;
-    static constexpr size_t s_eyes_renderedMeshIndex = 6;
-    static constexpr size_t s_beak_renderedMeshIndex = 7;
-    static constexpr size_t s_glasses_renderedMeshIndex = 8;
-    static constexpr size_t s_shadow_renderedMeshIndex = 9;
-    static constexpr size_t s_grabZone_renderedMeshIndex = 10;
-    static constexpr size_t s_aimRay1_renderedMeshIndex = 11;
-    static constexpr size_t s_aimRay2_renderedMeshIndex = 12;
-    static constexpr size_t s_orientationArrow_renderedMeshIndex = 13;
-    static constexpr size_t s_grabAttractorCollision_renderedMeshIndex = 14;
-    static constexpr size_t s_renderedMeshIndices = 15;
-
-    static constexpr size_t s_aimRay_collisionRayIndex = 0;
-    static constexpr size_t s_collisionRayCount = 1;
-
-    static constexpr size_t s_body_collisionCircleIndex = 0;
-    static constexpr size_t s_grabZone_collisionCircleIndex = 1;
-    static constexpr size_t s_collisionCircleCount = 2;
-
-    static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
-    static constexpr size_t s_collisionPointCount = 1;
-};
-
-const std::unordered_map<size_t, std::string> PenguinInfo::s_stateToString =
-{
-    {0, "STATE_STANDING"},
-    {1, "STATE_WALKING"},
-    {2, "STATE_TREADING_WATER"},
-    {3, "STATE_SWIMMING"},
-    {4, "STATE_MAKING_SNOWBALL"},
-    {5, "STATE_STANDING_SNOWBALL"},
-    {6, "STATE_WALKING_SNOWBALL"},
-    {7, "STATE_HITSTUN"}
-};
-
-struct SnowballInfo
-{
-    unsigned int penguin_EntityId = static_cast<unsigned int>(-1);
-
-    enum class State
-    {
-        STATE_REGULAR,
-        STATE_EXPLODING
-    };
-
-    State state = State::STATE_REGULAR;
-    static constexpr float s_explosionTime_s = 0.75f;
-
-    State animationState = State::STATE_REGULAR;
-    float animationStateCountDown_s = 0.0f;
-
-    float animationRandomRotation = 0.0f;
-
-    bool onLand = false;
-
-    static constexpr float s_initialSnowballRadius = 8.0f;
-    float radius = s_initialSnowballRadius;
-    static constexpr float s_maxRadius = 48.0f;
-    static constexpr float s_renderedMeshRadiusScaler = 1.2f;
-
-    float positionZ = 0.0f;
-
-    static const size_t s_snowball_renderedMeshIndex = 0;
-    static const size_t s_snowball_break_01_renderedMeshIndex = 1;
-    static const size_t s_snowball_break_02_renderedMeshIndex = 2;
-    static const size_t s_snowball_break_03_renderedMeshIndex = 3;
-    static const size_t s_snowball_break_04_renderedMeshIndex = 4;
-    static const size_t s_snowball_break_05_renderedMeshIndex = 5;
-    static const size_t s_snowball_break_06_renderedMeshIndex = 6;
-    static const size_t s_shadow_renderedMeshIndex = 7;
-    static const size_t s_orientationArrow_renderedMeshIndex = 8;
-    static const size_t s_renderedMeshIndices = 9;
-
-    static const size_t s_snowball_collisionCircleIndex = 0;
-    static const size_t s_collisionCircleCount = 1;
-};
 
 // public ----------------------------------------------------------------------
 
@@ -185,6 +65,7 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateStageEntity();
     CreateStageLightEntity();
+    // CreateStageSharkEntity(glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), 0.0f);
 
     if (sharedDataPtr_->playerInfos[0].turnedOn)
     {
@@ -242,6 +123,8 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     stage_entityId_ = static_cast<unsigned int>(-1);
     stageLight_entityId_ = static_cast<unsigned int>(-1);
+
+    stageShark_entityId_ = static_cast<unsigned int>(-1);
 
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
@@ -490,7 +373,7 @@ void Scene002::CreateStageEntity()
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->water_meshDataPtr);
             mesh.SetPositionZ(s_waterHeight);
-            mesh.SetColor(0.6f, 0.6f, 1.0f, 0.6f);
+            mesh.SetColor(0.4f, 0.6f, 1.0f, 0.5f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(1);
         }
@@ -568,6 +451,57 @@ void Scene002::CreateStageLightEntity()
         lightSourcePtr->SetAmbientColor(0.6f, 0.6f, 0.6f);
         lightSourcePtr->SetDiffuseColor(0.4f, 0.4f, 0.4f);
         lightSourcePtr->TurnOn();
+    }
+}
+
+void Scene002::CreateStageSharkEntity(const glm::vec2& position, float rotation)
+{
+    GetComponentStoresPtr()->CreateEntity(stageShark_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<SharkInfo>(stageShark_entityId_));
+    SharkInfo* sharkInfoPtr = nullptr;
+    GetComponentStoresPtr()->GetComponent<SharkInfo>(sharkInfoPtr, stageShark_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(stageShark_entityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, stageShark_entityId_));
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(stageShark_entityId_, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stageShark_entityId_));
+    if (sharkInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(SharkInfo::s_renderedMeshIndices);
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_front_meshId, sharedDataPtr_->shark_front_meshDataPtr->maxBoundingRadius);
+            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_back_meshId, sharedDataPtr_->shark_back_meshDataPtr->maxBoundingRadius);
+            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_jaw_meshId, sharedDataPtr_->shark_jaw_meshDataPtr->maxBoundingRadius);
+            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+        }
+
+        // TODO
     }
 }
 
@@ -2892,6 +2826,27 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
             }
 
             penguinInfo.animationStateCountDown_s -= timestep_s;
+        }
+    }
+}
+
+void Scene002::AnimateSharkEntities(float timestep_s)
+{
+    SharkInfo* sharkInfoPtrs = nullptr;
+    size_t sharkInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<SharkInfo>(sharkInfoPtrs, sharkInfoCount);
+    for (size_t i = 0; i < sharkInfoCount; ++i)
+    {
+        SharkInfo& sharkInfo = sharkInfoPtrs[i];
+
+        unsigned int entityId = static_cast<unsigned int>(-1);
+        GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo);
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+        if (renderedModelPtr != nullptr)
+        {
+            // TODO
         }
     }
 }

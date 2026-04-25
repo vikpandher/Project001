@@ -25,12 +25,16 @@ penguin_head.obj ^
 penguin_texture.png ^
 penguin_texture_v2.png ^
 penguin_texture_v3.png ^
-penguin_texture_v4.png
+penguin_texture_v4.png ^
+shark_back.obj ^
+shark_front.obj ^
+shark_jaw.obj ^
+shark_texture.png
 
 for %%f in (%files%) do (
     set "input_file=%%f"
     set "newName=!input_file:.=_!"
     set "output_file=%outputPath%!newName!.h"
     set "array_name=g_!newName!"
-    "%exe%" !input_file! !output_file! !array_name!
+    "%exe%" /n !input_file! !output_file! !array_name!
 )

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-03-10
+// @DATE 2026-04-24
 
 #include "Scene001.h"
 
@@ -23,6 +23,10 @@
 #include "Resources/penguin_texture_v2_png.h"
 #include "Resources/penguin_texture_v3_png.h"
 #include "Resources/penguin_texture_v4_png.h"
+#include "Resources/shark_back_obj.h"
+#include "Resources/shark_front_obj.h"
+#include "Resources/shark_jaw_obj.h"
+#include "Resources/shark_texture_png.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
@@ -740,6 +744,61 @@ void Scene001::LoadActorResources()
         sharedDataPtr_->snowball_meshDataPtr->meshIndexArray.data(),
         static_cast<unsigned int>(sharedDataPtr_->snowball_meshDataPtr->meshIndexArray.size())
     );
+
+    sharedDataPtr_->shark_back_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->shark_back_meshDataPtr,
+        g_shark_back_obj
+    ));
+    GetRendererPtr()->CreateMesh(
+        sharedDataPtr_->shark_back_meshId,
+        sharedDataPtr_->shark_back_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_back_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->shark_back_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_back_meshDataPtr->meshIndexArray.size())
+    );
+
+    sharedDataPtr_->shark_front_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->shark_front_meshDataPtr,
+        g_shark_front_obj
+    ));
+    GetRendererPtr()->CreateMesh(
+        sharedDataPtr_->shark_front_meshId,
+        sharedDataPtr_->shark_front_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_front_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->shark_front_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_front_meshDataPtr->meshIndexArray.size())
+    );
+
+    sharedDataPtr_->shark_jaw_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::LoadMeshOBJFromMemory(
+        *sharedDataPtr_->shark_jaw_meshDataPtr,
+        g_shark_jaw_obj
+    ));
+    GetRendererPtr()->CreateMesh(
+        sharedDataPtr_->shark_jaw_meshId,
+        sharedDataPtr_->shark_jaw_meshDataPtr->meshVertexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_jaw_meshDataPtr->meshVertexArray.size()),
+        sharedDataPtr_->shark_jaw_meshDataPtr->meshIndexArray.data(),
+        static_cast<unsigned int>(sharedDataPtr_->shark_jaw_meshDataPtr->meshIndexArray.size())
+    );
+
+    sharedDataPtr_->shark_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->shark_textureDataPtr,
+        g_shark_texture_png,
+        sizeof(g_shark_texture_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->shark_textureId,
+        sharedDataPtr_->shark_textureDataPtr->data,
+        sharedDataPtr_->shark_textureDataPtr->width,
+        sharedDataPtr_->shark_textureDataPtr->height,
+        sharedDataPtr_->shark_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
 }
 
 void Scene001::LoadUiResources()
@@ -879,6 +938,19 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->snowball_meshDataPtr;
     sharedDataPtr_->snowball_meshDataPtr = nullptr;
     sharedDataPtr_->snowball_meshId = static_cast<unsigned int>(-1);
+
+    delete sharedDataPtr_->shark_back_meshDataPtr;
+    sharedDataPtr_->shark_back_meshDataPtr = nullptr;
+    sharedDataPtr_->shark_back_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->shark_front_meshDataPtr;
+    sharedDataPtr_->shark_front_meshDataPtr = nullptr;
+    sharedDataPtr_->shark_front_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->shark_jaw_meshDataPtr;
+    sharedDataPtr_->shark_jaw_meshDataPtr = nullptr;
+    sharedDataPtr_->shark_jaw_meshId = static_cast<unsigned int>(-1);
+    delete sharedDataPtr_->shark_textureDataPtr;
+    sharedDataPtr_->shark_textureDataPtr = nullptr;
+    sharedDataPtr_->shark_textureId = static_cast<unsigned int>(-1);
 
     // Ui Resources
     delete sharedDataPtr_->uiLeftBackground_meshDataPtr;

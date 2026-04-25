@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-26
+// @DATE 2026-04-24
 
 #pragma once
 
@@ -42,6 +42,7 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
+    void CreateStageSharkEntity(const glm::vec2& position, float rotation);
     void CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
@@ -54,6 +55,7 @@ protected:
     void UpdateWorld(float timestep_s);
 
     void AnimatePenguinEntities(float timestep_s);
+    void AnimateSharkEntities(float timestep_s);
     void AnimateSnowballEntities(float timestep_s);
 
     void SyncPenguinRenderedModels();
@@ -79,6 +81,8 @@ protected:
 
     unsigned int stage_entityId_ = static_cast<unsigned int>(-1);
     unsigned int stageLight_entityId_ = static_cast<unsigned int>(-1);
+
+    unsigned int stageShark_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int player_entityIds_[SharedApplicationData::s_player_count] = {
         static_cast<unsigned int>(-1),
