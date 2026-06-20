@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-04-24
+// @DATE 2026-06-20
 
 #include <string>
 #include <unordered_map>
@@ -140,6 +140,10 @@ struct SharkInfo
     State state = State::STATE_SWIMMING;
 
     bool onLand = false;
+
+    float backRotationZ = 0.0f;
+
+    bool mirrorAnimation = false;
 
     State animationState = State::STATE_SWIMMING;
     float animationStateCountDown_s = 0.0f;

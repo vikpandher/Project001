@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-06-20
 
 #include "Components/RenderedModel.h"
 
@@ -29,7 +29,7 @@ namespace Project001
                 const RenderedMesh& parentMesh = renderedMeshes_[parentMeshIndex];
                 const glm::vec3& parentPosition = parentMesh.GetPosition();
                 const glm::quat& parentOrientation = parentMesh.GetOrientation();
-                transformedRenderedMesh.SetPosition(parentPosition + parentOrientation * transformedRenderedMesh.GetPosition());
+                transformedRenderedMesh.SetPosition(parentPosition + parentOrientation * transformedRenderedMesh.GetPosition() * scale_);
                 transformedRenderedMesh.SetOrientation(parentOrientation * transformedRenderedMesh.GetOrientation());
                 childMeshIndex = parentMeshIndex;
                 parentMeshIndex = parentMesh.GetParentMeshIndex();

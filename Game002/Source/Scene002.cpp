@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-04-24
+// @DATE 2026-06-20
 
 #include "Scene002.h"
 
@@ -65,7 +65,7 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateStageEntity();
     CreateStageLightEntity();
-    // CreateStageSharkEntity(glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), 0.0f);
+    CreateStageSharkEntity(glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), 0.0f);
 
     if (sharedDataPtr_->playerInfos[0].turnedOn)
     {
@@ -204,12 +204,14 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     }
 
     AnimatePenguinEntities(timestep_s);
+    AnimateSharkEntities(timestep_s);
     AnimateSnowballEntities(timestep_s);
 
     // Sync rendered models
     // -------------------------------------------------------------------------
 
     SyncPenguinRenderedModels();
+    SyncSharkRenderedModels();
     SyncSnowballRenderedModels();
 }
 
@@ -477,28 +479,35 @@ void Scene002::CreateStageSharkEntity(const glm::vec2& position, float rotation)
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         renderedMeshes.resize(SharkInfo::s_renderedMeshIndices);
 
+        renderedModelPtr->AddRelativeRotationZ(glm::half_pi<float>());
+
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_front_meshId, sharedDataPtr_->shark_front_meshDataPtr->maxBoundingRadius);
-            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+            mesh.SetColorAlpha(0.5f);
+            mesh.SetTranslucent(true);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_back_meshId, sharedDataPtr_->shark_back_meshDataPtr->maxBoundingRadius);
-            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+            mesh.SetParentMeshIndex(SharkInfo::s_front_renderedMeshIndex);
+            mesh.SetColorAlpha(0.5f);
+            mesh.SetTranslucent(true);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_jaw_meshId, sharedDataPtr_->shark_jaw_meshDataPtr->maxBoundingRadius);
-            mesh.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+            mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
+            mesh.SetParentMeshIndex(SharkInfo::s_front_renderedMeshIndex);
+            mesh.SetColorAlpha(0.5f);
+            mesh.SetTranslucent(true);
         }
 
         // TODO
@@ -2846,7 +2855,49 @@ void Scene002::AnimateSharkEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
         if (renderedModelPtr != nullptr)
         {
-            // TODO
+            float desiredPositionZ = 0.0f;
+
+            float riseSpeed = timestep_s * 120.0f;
+            float sinkSpeed = timestep_s * 120.0f;
+
+            if (sharkInfo.positionZ < desiredPositionZ - riseSpeed)
+            {
+                sharkInfo.positionZ += riseSpeed;
+            }
+            else if (sharkInfo.positionZ > desiredPositionZ + sinkSpeed)
+            {
+                sharkInfo.positionZ -= sinkSpeed;
+            }
+            else
+            {
+                sharkInfo.positionZ = desiredPositionZ;
+            }
+
+            sharkInfo.positionZ = 128.0f;
+
+            // Reset the mesh to default
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
+                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_front_meshId, sharedDataPtr_->shark_front_meshDataPtr->maxBoundingRadius);
+                mesh.SetPosition(0.0f, 0.0f, sharkInfo.positionZ);
+                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
+                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_back_meshId, sharedDataPtr_->shark_back_meshDataPtr->maxBoundingRadius);
+                mesh.SetPosition(0.0f, 0.0f, 0.0f);
+                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+            }
+
+            {
+                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
+                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_jaw_meshId, sharedDataPtr_->shark_jaw_meshDataPtr->maxBoundingRadius);
+                mesh.SetPosition(0.0f, 96.0f, 10.0f);
+                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+            }
         }
     }
 }
@@ -3216,6 +3267,11 @@ void Scene002::SyncPenguinRenderedModels()
             }
         }
     }
+}
+
+void Scene002::SyncSharkRenderedModels()
+{
+    // TODO:
 }
 
 void Scene002::SyncSnowballRenderedModels()

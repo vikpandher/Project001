@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-04-24
+// @DATE 2026-06-20
 
 #pragma once
 
@@ -59,6 +59,7 @@ protected:
     void AnimateSnowballEntities(float timestep_s);
 
     void SyncPenguinRenderedModels();
+    void SyncSharkRenderedModels();
     void SyncSnowballRenderedModels();
 
     // -------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-09-01
+// @DATE 2026-06-20
 
 #pragma once
 
@@ -26,6 +26,10 @@ namespace Project001
         // Gets applied to the RenderedMeshes
         const glm::vec3& GetScale() const;
         void SetScale(glm::vec3 scale);
+        void SetScale(float x, float y, float z);
+        void SetScaleX(float x);
+        void SetScaleY(float y);
+        void SetScaleZ(float z);
 
         std::vector<RenderedMesh>& GetRenderedMeshes();
         const std::vector<RenderedMesh>& GetRenderedMeshes() const;
@@ -136,6 +140,28 @@ namespace Project001
     inline void RenderedModel::SetScale(glm::vec3 scale)
     {
         scale_ = scale;
+    }
+
+    inline void RenderedModel::SetScale(float x, float y, float z)
+    {
+        scale_.x = x;
+        scale_.y = y;
+        scale_.z = z;
+    }
+
+    inline void RenderedModel::SetScaleX(float x)
+    {
+        scale_.x = x;
+    }
+
+    inline void RenderedModel::SetScaleY(float y)
+    {
+        scale_.y = y;
+    }
+
+    inline void RenderedModel::SetScaleZ(float z)
+    {
+        scale_.z = z;
     }
 
     inline std::vector<RenderedMesh>& RenderedModel::GetRenderedMeshes()
