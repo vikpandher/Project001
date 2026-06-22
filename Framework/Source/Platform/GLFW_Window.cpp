@@ -55,6 +55,9 @@ namespace Project001
             // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 
+            // FOR HIGH-DPI SCREENS:
+            // glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
             glfwSetErrorCallback([](int errorCode, const char* description)
                 {
                     LOG_ERROR_F("GLFW Error: (" << errorCode << ") " << description);

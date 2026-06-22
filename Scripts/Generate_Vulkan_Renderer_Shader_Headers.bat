@@ -18,6 +18,7 @@ SET output_directory=%output_directory:/=\%
 IF EXIST glslc_path.txt (
     SET /p compiler=<glslc_path.txt
 ) ELSE (
+    ECHO "glslc_path.txt not found"
     GOTO :EOF
 )
 
@@ -28,6 +29,7 @@ IF EXIST FileToHeaderConverter_path.txt (
 )
 
 IF NOT EXIST "%input_directory%" (
+    ECHO "Input Directory Does Not Exist"
     GOTO :EOF
 )
 

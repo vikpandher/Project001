@@ -1,7 +1,11 @@
-# Build Folder
+# Folders
+.vs/*
 Binary/*
 Build/*
 Framework/Library/*
+Framework/Source/Platform/Vulkan_Shaders/Temp/*
+Game001/Binary/*
+Game002/Binary/*
 Library/*
 TestApplication/Binary/*
 TestApplication/Build/*

@@ -1,5 +1,9 @@
 #version 450
 
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-23
+
 layout (location = 0) in vec2 in_Position;
 layout (location = 1) in vec2 in_TextureCoordinate;
 

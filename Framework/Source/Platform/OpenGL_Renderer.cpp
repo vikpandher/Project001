@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-06-22
 
 #include "OpenGL_Renderer.h"
 
@@ -411,10 +411,6 @@ namespace Project001
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(borderColor_.r, borderColor_.g, borderColor_.b, borderColor_.a);
-        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void OpenGL_Renderer::Clear()
@@ -711,6 +707,9 @@ namespace Project001
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ZERO, GL_ONE);
 
         RenderTextureToScreen();
+
+        glFlush();
+        glFinish();
     }
 
     void OpenGL_Renderer::SwapBuffers()
@@ -1179,13 +1178,6 @@ namespace Project001
 
     void OpenGL_Renderer::RenderMeshToTexture(OpenGL_Mesh* meshPtr)
     {
-        glViewport(
-            GLint(frameBufferWidth_ * cameraViewportX_),
-            GLint(frameBufferHeight_ * cameraViewportY_),
-            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
-            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
-        );
-
         if (multisampleAntiAliasing_)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
@@ -1194,6 +1186,13 @@ namespace Project001
         {
             glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
         }
+
+        glViewport(
+            GLint(frameBufferWidth_ * cameraViewportX_),
+            GLint(frameBufferHeight_ * cameraViewportY_),
+            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
+            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
+        );
 
         if (depthTesting_)
         {
@@ -1254,13 +1253,6 @@ namespace Project001
 
     void OpenGL_Renderer::RenderBatchToTexture()
     {
-        glViewport(
-            GLint(frameBufferWidth_ * cameraViewportX_),
-            GLint(frameBufferHeight_ * cameraViewportY_),
-            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
-            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
-        );
-
         if (multisampleAntiAliasing_)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, msaaFrameBufferId_);
@@ -1269,6 +1261,13 @@ namespace Project001
         {
             glBindFramebuffer(GL_FRAMEBUFFER, rttFrameBufferId_);
         }
+
+        glViewport(
+            GLint(frameBufferWidth_ * cameraViewportX_),
+            GLint(frameBufferHeight_ * cameraViewportY_),
+            GLsizei(frameBufferWidth_ * cameraViewportWidth_),
+            GLsizei(frameBufferHeight_ * cameraViewportHeight_)
+        );
 
         if (depthTesting_)
         {
@@ -1366,9 +1365,22 @@ namespace Project001
             glBlitFramebuffer(0, 0, frameBufferWidth_, frameBufferHeight_, 0, 0, frameBufferWidth_, frameBufferHeight_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         }
 
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Query the raw window frame size directly from the window
+        int rawWidth = 0;
+        int rawHeight = 0;
+        windowPtr_->GetFramebufferSize(rawWidth, rawHeight);
+
+        // Temporarily expand the viewport to cover 100% of the screen with the
+        // border color. This wakes up the driver swapchain.
+        glViewport(0, 0, rawWidth, rawHeight);
+        glClearColor(borderColor_.r, borderColor_.g, borderColor_.b, borderColor_.a);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Reset the viewport to the aspect-ratio corrected variables
         glViewport(viewportX_, viewportY_, viewportWidth_, viewportHeight_);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
 
         screenShaderPtr_->Use();

@@ -1,4 +1,9 @@
 #version 330 core
+
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-23
+
 #if defined(GL_ARB_separate_shader_objects)
     #extension GL_ARB_separate_shader_objects : enable
 #endif

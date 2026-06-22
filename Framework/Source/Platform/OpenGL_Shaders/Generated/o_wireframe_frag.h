@@ -1,6 +1,11 @@
 #pragma once
 
 static const char g_o_wireframe_frag[] = R"(#version 330 core
+
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-23
+
 #extension GL_ARB_separate_shader_objects : enable
 
 uniform vec4 u_Color;

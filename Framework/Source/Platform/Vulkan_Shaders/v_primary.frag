@@ -1,5 +1,9 @@
 #version 450
 
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-23
+
 const int NUMBER_OF_TEXTURES = 16;
 
 const int NUMBER_OF_POINT_LIGHTS = 8;

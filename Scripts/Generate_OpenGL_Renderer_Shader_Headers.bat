@@ -16,6 +16,7 @@ IF EXIST FileToHeaderConverter_path.txt (
 )
 
 IF NOT EXIST "%input_directory%" (
+    ECHO "Input Directory Does Not Exist"
     GOTO :EOF
 )
 

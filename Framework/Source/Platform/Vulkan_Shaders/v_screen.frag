@@ -1,5 +1,9 @@
 #version 450
 
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2024-12-23
+
 layout (location = 0) in vec2 v_TextureCoordinate;
 
 layout (binding = 0) uniform sampler2D u_ScreenTexture;

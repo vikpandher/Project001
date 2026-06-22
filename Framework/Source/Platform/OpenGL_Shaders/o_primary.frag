@@ -1,4 +1,9 @@
 #version 330 core
+
+// =============================================================================
+// @AUTHOR Vik Pandher
+// @DATE 2026-06-22
+
 #if defined(GL_ARB_separate_shader_objects)
     #extension GL_ARB_separate_shader_objects : enable
 #endif
@@ -65,7 +70,8 @@ uniform sampler2D u_Textures[NUMBER_OF_TEXTURES];
 layout (location = 0) out vec4 f_Color;
 
 vec4 GetTextureColor(float textureSlot);
-vec4 GetTextureColorAlt(float textureSlot);
+// vec4 GetTextureColorAlt(float textureSlot);
+// vec4 GetTextureColorAlt2(float textureSlot);
 float GetDiffuseMultiplier(vec3 normal, vec3 normalizedLightDirection, bool lightingBackFaces);
 
 void main()
@@ -176,43 +182,72 @@ void main()
     // }
 }
 
-vec4 GetTextureColor(float textureSlot)
-{
-    int textureSlotInt = int(textureSlot);
-    if (textureSlotInt < 0)
-    {
+vec4 GetTextureColor(float textureSlot) {
+    int targetSlot = int(textureSlot);
+    
+    if (targetSlot < 0) {
         return vec4(1.0, 1.0, 1.0, 1.0);
     }
-    else if (textureSlotInt >= NUMBER_OF_TEXTURES)
-    {
-        return vec4(0.0, 0.0, 0.0, 1.0);
+    
+    switch (targetSlot) {
+        case 0:  return texture(u_Textures[0],  v_TextureCoordinate);
+        case 1:  return texture(u_Textures[1],  v_TextureCoordinate);
+        case 2:  return texture(u_Textures[2],  v_TextureCoordinate);
+        case 3:  return texture(u_Textures[3],  v_TextureCoordinate);
+        case 4:  return texture(u_Textures[4],  v_TextureCoordinate);
+        case 5:  return texture(u_Textures[5],  v_TextureCoordinate);
+        case 6:  return texture(u_Textures[6],  v_TextureCoordinate);
+        case 7:  return texture(u_Textures[7],  v_TextureCoordinate);
+        case 8:  return texture(u_Textures[8],  v_TextureCoordinate);
+        case 9:  return texture(u_Textures[9],  v_TextureCoordinate);
+        case 10: return texture(u_Textures[10], v_TextureCoordinate);
+        case 11: return texture(u_Textures[11], v_TextureCoordinate);
+        case 12: return texture(u_Textures[12], v_TextureCoordinate);
+        case 13: return texture(u_Textures[13], v_TextureCoordinate);
+        case 14: return texture(u_Textures[14], v_TextureCoordinate);
+        case 15: return texture(u_Textures[15], v_TextureCoordinate);
     }
-    else
-    {
-        return texture(u_Textures[textureSlotInt], v_TextureCoordinate);
-    }
+    
+    return vec4(0.0, 0.0, 0.0, 1.0);
 }
 
-vec4 GetTextureColorAlt(float textureSlot)
-{
-    vec4 textureColor = vec4(0.0, 0.0, 0.0, 1.0);
-    if (textureSlot > -0.5)
-    {
-        for (int i = 0; i < NUMBER_OF_TEXTURES; ++i)
-        {
-            if (textureSlot < float(i) + 0.5)
-            {
-                textureColor = texture(u_Textures[i], v_TextureCoordinate);
-                break;
-            }
-        }
-    }
-    else
-    {
-        textureColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
-    return textureColor;
-}
+// vec4 GetTextureColorAlt(float textureSlot)
+// {
+//     int textureSlotInt = int(textureSlot);
+//     if (textureSlotInt < 0)
+//     {
+//         return vec4(1.0, 1.0, 1.0, 1.0);
+//     }
+//     else if (textureSlotInt >= NUMBER_OF_TEXTURES)
+//     {
+//         return vec4(0.0, 0.0, 0.0, 1.0);
+//     }
+//     else
+//     {
+//         return texture(u_Textures[textureSlotInt], v_TextureCoordinate);
+//     }
+// }
+
+// vec4 GetTextureColorAlt2(float textureSlot)
+// {
+//     int targetSlot = int(textureSlot + 0.5);
+//     
+//     if (targetSlot < 0)
+//     {
+//         return vec4(1.0, 1.0, 1.0, 1.0);
+//     }
+//     
+//     // Explicit, compile-time unrollable matching loop
+//     for (int i = 0; i < NUMBER_OF_TEXTURES; ++i)
+//     {
+//         if (i == targetSlot)
+//         {
+//             return texture(u_Textures[i], v_TextureCoordinate);
+//         }
+//     }
+//     
+//     return vec4(0.0, 0.0, 0.0, 1.0);
+// }
 
 float GetDiffuseMultiplier(vec3 normal, vec3 normalizedLightDirection, bool lightingBackFaces)
 {
