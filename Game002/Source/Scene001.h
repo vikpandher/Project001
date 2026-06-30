@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-18
+// @DATE 2026-06-29
 
 #pragma once
 
@@ -26,12 +26,14 @@ protected:
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
     void LoadPixelFontResources();
     void LoadGeneralResources();
     void LoadMainMenuResources();
+    void LoadCursorResources();
     void LoadStageResources();
     void LoadStageGridResources();
     void LoadActorResources();

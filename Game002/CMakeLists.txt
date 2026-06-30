@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-04-24
+# @DATE 2026-06-29
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -50,6 +50,7 @@ set(GAME002_FILES
 source_group("Source" FILES ${GAME002_FILES})
 
 set(GAME002_RESOURCE_FILES
+    "Source/Resources/cursor_hand_png.h"
     "Source/Resources/dotted_1_1_png.h"
     "Source/Resources/dotted_1_3_png.h"
     "Source/Resources/hazard_4x4_png.h"

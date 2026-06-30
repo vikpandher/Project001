@@ -1,9 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-04-24
+// @DATE 2026-06-29
 
 #include "Scene001.h"
 
+#include "Resources/cursor_hand_png.h"
 #include "Resources/dotted_1_1_png.h"
 #include "Resources/dotted_1_3_png.h"
 #include "Resources/hazard_4x4_png.h"
@@ -59,6 +60,7 @@ Scene001::Scene001(Project001::Application* applicationPtr)
     LoadPixelFontResources();
     LoadGeneralResources();
     LoadMainMenuResources();
+    LoadCursorResources();
     LoadStageResources();
     LoadStageGridResources();
     LoadActorResources();
@@ -76,6 +78,7 @@ void Scene001::HandleEvent(Project001::Event& event)
     Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&Scene001::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene001::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene001::ProcessMouseButtonEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene001::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene001::ProcessUpdateEvent, this, std::placeholders::_1));
 }
@@ -118,6 +121,11 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     sharedDataPtr_->UpdateKeyboardButtonPresses(keyEvent);
+}
+
+void Scene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+{
+    sharedDataPtr_->UpdateMouseButtonPresses(mouseButtonEvent);
 }
 
 void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
@@ -248,6 +256,49 @@ void Scene001::LoadMainMenuResources()
     sharedDataPtr_->introText_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->startText_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->titleText_meshDataPtr = new Project001::MeshData();
+}
+
+void Scene001::LoadCursorResources()
+{
+    sharedDataPtr_->cursorHandOpen_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
+        *sharedDataPtr_->cursorHandOpen_meshDataPtr, 24.0f, 32.0f, 0.0f, 1.0f / 3.0f, 0.0f, 1.0f
+    ));
+
+    sharedDataPtr_->cursorHandPointer_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
+        *sharedDataPtr_->cursorHandPointer_meshDataPtr, 24.0f, 32.0f, 1.0f / 3.0f, 2.0f / 3.0f, 0.0f, 1.0f
+    ));
+
+    sharedDataPtr_->cursorHandGrab_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
+        *sharedDataPtr_->cursorHandGrab_meshDataPtr, 24.0f, 32.0f, 2.0f / 3.0f, 1.0f, 0.0f, 1.0f
+    ));
+
+    sharedDataPtr_->cursor_textureDataPtr = new Project001::TextureData();
+    FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
+        *sharedDataPtr_->cursor_textureDataPtr,
+        g_cursor_hand_png,
+        sizeof(g_cursor_hand_png) / sizeof(unsigned char)
+    ));
+    GetRendererPtr()->CreateTexture(
+        sharedDataPtr_->cursor_textureId,
+        sharedDataPtr_->cursor_textureDataPtr->data,
+        sharedDataPtr_->cursor_textureDataPtr->width,
+        sharedDataPtr_->cursor_textureDataPtr->height,
+        sharedDataPtr_->cursor_textureDataPtr->bytesPerPixel,
+        false,
+        false
+    );
+
+    sharedDataPtr_->cursor_marker_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DArc(
+        *sharedDataPtr_->cursor_marker_meshDataPtr, 2.0f, 4.0f, 8, 0.0f, 0.0f
+    ));
+
+    sharedDataPtr_->cursor_aimRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->cursor_aimRay2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->cursor_aimRay3_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadStageResources()
@@ -857,6 +908,26 @@ void Scene001::FreeResources()
     sharedDataPtr_->startText_meshDataPtr = nullptr;
     delete sharedDataPtr_->titleText_meshDataPtr;
     sharedDataPtr_->titleText_meshDataPtr = nullptr;
+
+    // Cursor Resources
+    delete sharedDataPtr_->cursorHandOpen_meshDataPtr;
+    sharedDataPtr_->cursorHandOpen_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursorHandPointer_meshDataPtr;
+    sharedDataPtr_->cursorHandPointer_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursorHandGrab_meshDataPtr;
+    sharedDataPtr_->cursorHandGrab_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursor_textureDataPtr;
+    sharedDataPtr_->cursor_textureDataPtr = nullptr;
+    sharedDataPtr_->cursor_textureId = static_cast<unsigned int>(-1);
+
+    delete sharedDataPtr_->cursor_marker_meshDataPtr;
+    sharedDataPtr_->cursor_marker_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursor_aimRay1_meshDataPtr;
+    sharedDataPtr_->cursor_aimRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursor_aimRay2_meshDataPtr;
+    sharedDataPtr_->cursor_aimRay2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->cursor_aimRay3_meshDataPtr;
+    sharedDataPtr_->cursor_aimRay3_meshDataPtr = nullptr;
 
     // Stage Resources
     delete sharedDataPtr_->ground_meshDataPtr;

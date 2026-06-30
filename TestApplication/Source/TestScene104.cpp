@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-17
+// @DATE 2026-06-29
 
 #include "TestScene104.h"
 
@@ -15,11 +15,15 @@
 #include "Utilities/FontUtility.h"
 #include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
+#include "Utilities/SortUtility.h"
 #include "Utilities/TextureUtility.h"
 #include "ComponentStores.h"
 #include "Logger.h"
 #include "RenderSystem.h"
 #include "Window.h"
+
+#include <random>
+#include <chrono>
 
 
 
@@ -68,6 +72,8 @@ void TestScene104::ProcessInitializeEvent(Project001::InitializeEvent& initializ
     LOG_INFO("INITIALIZING:   TestScene104:            " << GetId());
 
     // -------------------------------------------------------------------------
+
+    CompareSortingAlgorithms();
 
     GetWindowPtr()->SetCursorVisible(false);
 
@@ -564,5 +570,49 @@ void TestScene104::SyncCursorRenderedModels()
                 }
             }
         }
+    }
+}
+
+// private ---------------------------------------------------------------------
+
+void TestScene104::CompareSortingAlgorithms()
+{
+    const size_t ELEMENT_COUNT = 1'000'000; // 1 million elements
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(1, 10'000'000);
+
+    std::vector<int> original_data(ELEMENT_COUNT);
+    for (size_t i = 0; i < ELEMENT_COUNT; ++i)
+    {
+        original_data[i] = dist(gen);
+    }
+
+    std::vector<int> data_01 = original_data;
+    std::vector<int> data_02 = original_data;
+
+    std::cout << "Benchmarking with " << ELEMENT_COUNT << " elements...\n\n";
+
+    auto start = std::chrono::high_resolution_clock::now();
+    std::sort(data_01.begin(), data_01.end());
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> duration_01 = end - start;
+    std::cout << "Sort 01: " << duration_01.count() << " ms\n";
+
+    start = std::chrono::high_resolution_clock::now();
+    Project001::Sort::MergeSort(data_02);
+    end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> duration_02 = end - start;
+    std::cout << "Sort 02: " << duration_02.count() << " ms\n";
+
+    if (data_01 == data_02)
+    {
+        std::cout << "\nVerification PASSED\n";
+    }
+    else
+    {
+        std::cout << "\nVerification FAILED\n";
     }
 }

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-04-24
+// @DATE 2026-06-29
 
 #pragma once
 
@@ -76,6 +76,7 @@ struct SharedApplicationData
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
+    void UpdateMouseButtonPresses(const Project001::MouseButtonEvent& mouseButtonEvent);
     void UpdateButtonPressCounts(const Project001::Window* windowPtr);
 
     // Player Controls ---------------------------------------------------------
@@ -182,6 +183,7 @@ struct SharedApplicationData
     static constexpr Project001::KeyCode debug_keyboard_moveCameraRight_keyCode = Project001::KeyCode::KEY_CODE_KP_6;
     static constexpr Project001::KeyCode debug_keyboard_moveCameraUp_keyCode = Project001::KeyCode::KEY_CODE_KP_8;
     static constexpr Project001::KeyCode debug_keyboard_moveCameraDown_keyCode = Project001::KeyCode::KEY_CODE_KP_2;
+    static constexpr Project001::MouseButton debug_mouse_grab_mouseButton = Project001::MouseButton::MOUSE_BUTTON_LEFT;
 
     bool debug_keyboard_toggleDebugCamera_pressed = false;
     bool debug_keyboard_toggleCameraLock_pressed = false;
@@ -193,6 +195,8 @@ struct SharedApplicationData
     bool debug_keyboard_moveCameraRight_pressed = false;
     bool debug_keyboard_moveCameraUp_pressed = false;
     bool debug_keyboard_moveCameraDown_pressed = false;
+    bool debug_mouse_grab_pressed = false;
+    bool debug_mouse_grab_released = true;
 
     unsigned int debug_keyboard_toggleDebugCamera_pressCount = 0;
     unsigned int debug_keyboard_toggleCameraLock_pressCount = 0;
@@ -204,6 +208,8 @@ struct SharedApplicationData
     unsigned int debug_keyboard_moveCameraRight_pressCount = 0;
     unsigned int debug_keyboard_moveCameraUp_pressCount = 0;
     unsigned int debug_keyboard_moveCameraDown_pressCount = 0;
+    unsigned int debug_mouse_grab_pressCount = 0;
+    unsigned int debug_mouse_grab_releaseCount = 0;
 
     // Game Constants ----------------------------------------------------------
 
@@ -262,6 +268,17 @@ struct SharedApplicationData
     Project001::MeshData* introText_meshDataPtr = nullptr;
     Project001::MeshData* startText_meshDataPtr = nullptr;
     Project001::MeshData* titleText_meshDataPtr = nullptr;
+
+    // Cursor Resources
+    Project001::MeshData* cursorHandOpen_meshDataPtr = nullptr;
+    Project001::MeshData* cursorHandPointer_meshDataPtr = nullptr;
+    Project001::MeshData* cursorHandGrab_meshDataPtr = nullptr;
+    Project001::TextureData* cursor_textureDataPtr = nullptr;
+    unsigned int cursor_textureId = static_cast<unsigned int>(-1);
+    Project001::MeshData* cursor_marker_meshDataPtr = nullptr;
+    Project001::MeshData* cursor_aimRay1_meshDataPtr = nullptr;
+    Project001::MeshData* cursor_aimRay2_meshDataPtr = nullptr;
+    Project001::MeshData* cursor_aimRay3_meshDataPtr = nullptr;
 
     // Stage Resources
     Project001::MeshData* ground_meshDataPtr = nullptr;

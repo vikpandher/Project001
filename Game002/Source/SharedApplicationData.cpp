@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-06-29
 
 #include "SharedApplicationData.h"
 
@@ -204,6 +204,27 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_moveCameraDown_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_moveCameraDown_pressed = false;
+    }
+}
+
+void SharedApplicationData::UpdateMouseButtonPresses(const Project001::MouseButtonEvent& mouseButtonEvent)
+{
+    const Project001::MouseButton& mouseButton = mouseButtonEvent.mouseButton;
+    const Project001::ButtonAction& buttonAction = mouseButtonEvent.buttonAction;
+    const Project001::KeyModifier& keyModifier = mouseButtonEvent.keyModifier;
+
+    if (mouseButton == debug_mouse_grab_mouseButton)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS)
+        {
+            debug_mouse_grab_pressed = true;
+            debug_mouse_grab_released = false;
+        }
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE)
+        {
+            debug_mouse_grab_pressed = false;
+            debug_mouse_grab_released = true;
+        }
     }
 }
 
@@ -458,4 +479,10 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
 
     if (debug_keyboard_moveCameraDown_pressed) debug_keyboard_moveCameraDown_pressCount++;
     else debug_keyboard_moveCameraDown_pressCount = 0;
+
+    if (debug_mouse_grab_pressed) debug_mouse_grab_pressCount++;
+    else debug_mouse_grab_pressCount = 0;
+
+    if (debug_mouse_grab_released) debug_mouse_grab_releaseCount++;
+    else debug_mouse_grab_releaseCount = 0;
 }

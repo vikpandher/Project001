@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-20
+// @DATE 2026-06-29
 
 #pragma once
 
@@ -32,6 +32,7 @@ protected:
     void ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent);
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
+    void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
     void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
@@ -40,24 +41,31 @@ protected:
     void CreateUiCameraEntity();
     void CreateUiTextEntity();
     void CreateUiPauseTextEntity();
+    void CreateCursorEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreateStageSharkEntity(const glm::vec2& position, float rotation);
     void CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation);
+    void CreateSharkEntity(unsigned int& entityId, const glm::vec2& position, float rotation);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
+
+    void UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition);
 
     void UpdateMainCameraEntity(float timestep_s);
     void UpdateUiTextEntity();
     void UpdateUiPauseTextEntity();
+    void UpdateCursorEntity(float timestep_s);
     void UpdateStageCollisionBodyQuadTreeMesh();
     void UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, float timestep_s);
+    void UpdateSharkEntity(unsigned int& entityId, float timestep_s);
     void UpdateSnowballEntities(float timestep_s);
     void UpdateWorld(float timestep_s);
 
+    void AnimateCursorEntity(float timestep_s);
     void AnimatePenguinEntities(float timestep_s);
     void AnimateSharkEntities(float timestep_s);
     void AnimateSnowballEntities(float timestep_s);
 
+    void SyncCursorRenderedModels();
     void SyncPenguinRenderedModels();
     void SyncSharkRenderedModels();
     void SyncSnowballRenderedModels();
@@ -79,6 +87,8 @@ protected:
 
     unsigned int uiText_entityId_ = static_cast<unsigned int>(-1);
     unsigned int uiPauseText_entityId_ = static_cast<unsigned int>(-1);
+
+    unsigned int cursor_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int stage_entityId_ = static_cast<unsigned int>(-1);
     unsigned int stageLight_entityId_ = static_cast<unsigned int>(-1);
@@ -109,12 +119,18 @@ protected:
 
     static const uint32_t s_player_collisionGroupMasks_[SharedApplicationData::s_player_count];
 
-    static constexpr unsigned int s_player_collisionShapeTag_ = 1;
-    static constexpr unsigned int s_grab_collisionShapeTag_ = 2;
-    static constexpr unsigned int s_grabAttractor_collisionShapeTag_ = 3;
-    static constexpr unsigned int s_aimRay_collisionShapeTag_ = 4;
-    static constexpr unsigned int s_snowball_collisionShapeTag_ = 5;
-    static constexpr unsigned int s_ground_collisionShapeTag_ = 6;
+    static constexpr unsigned int s_ui_CollisionShapeTag_ = 1;
+    static constexpr unsigned int s_player_collisionShapeTag_ = 2;
+    static constexpr unsigned int s_grab_collisionShapeTag_ = 3;
+    static constexpr unsigned int s_grabAttractor_collisionShapeTag_ = 4;
+    static constexpr unsigned int s_aimRay_collisionShapeTag_ = 5;
+    static constexpr unsigned int s_snowball_collisionShapeTag_ = 6;
+    static constexpr unsigned int s_ground_collisionShapeTag_ = 7;
+    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 9;
+    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 10;
+    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 11;
 
     static constexpr float s_waterHeight = -8.0f;
+
+    static constexpr bool s_cursorEnabled = true;
 };

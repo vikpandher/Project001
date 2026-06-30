@@ -1,15 +1,72 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-20
+// @DATE 2026-06-29
 
 #include <string>
 #include <unordered_map>
 
 
 
+struct CursorInfo
+{
+    unsigned int snowball_entityId = static_cast<unsigned int>(-1);
+
+    enum class State
+    {
+        STATE_OPEN = 0,
+        STATE_POINTING,
+        STATE_MAKING,
+        STATE_GRABING
+    };
+
+    static const std::unordered_map<size_t, std::string> s_stateToString;
+
+    State state = State::STATE_OPEN;
+    float makeSnowballCountDown_s = 0.0f;
+    static constexpr float s_makeSnowballTime_s = 0.5f;
+
+    State animationState = State::STATE_OPEN;
+    float animationStateCountDown_s = 0.0f;
+
+    bool animationBool = false;
+
+    static constexpr size_t s_position_renderedMeshIndex = 0;
+    static constexpr size_t s_press_renderedMeshIndex = 1;
+    static constexpr size_t s_release_renderedMeshIndex = 2;
+    static constexpr size_t s_handBase_renderedMeshIndex = 3;
+    static constexpr size_t s_handOpen_renderedMeshIndex = 4;
+    static constexpr size_t s_handPointer_renderedMeshIndex = 5;
+    static constexpr size_t s_handGrab_renderedMeshIndex = 6;
+    static constexpr size_t s_grabZone_renderedMeshIndex = 7;
+    static constexpr size_t s_aimRay1_renderedMeshIndex = 8;
+    static constexpr size_t s_aimRay2_renderedMeshIndex = 9;
+    static constexpr size_t s_aimRay3_renderedMeshIndex = 10;
+    static constexpr size_t s_renderedMeshIndices = 11;
+
+    static constexpr size_t s_position_collisionPointIndex = 0;
+    static constexpr size_t s_press_collisionPointIndex = 1;
+    static constexpr size_t s_release_collisionPointIndex = 2;
+    static constexpr size_t s_onScreen_collisionPointIndex = 3;
+    static constexpr size_t s_collisionPointCount = 4;
+
+    static constexpr size_t s_aimRay_collisionRayIndex = 0;
+    static constexpr size_t s_collisionRayCount = 1;
+
+    static constexpr size_t s_grabZone_collisionCircleIndex = 0;
+    static constexpr size_t s_collisionCircleCount = 1;
+};
+
+const std::unordered_map<size_t, std::string> CursorInfo::s_stateToString =
+{
+    {0, "STATE_OPEN"},
+    {1, "STATE_POINTING"},
+    {2, "STATE_MAKING"},
+    {3, "STATE_GRABING"}
+};
+
 struct PenguinInfo
 {
-    unsigned int snowball_EntityId = static_cast<unsigned int>(-1);
+    unsigned int snowball_entityId = static_cast<unsigned int>(-1);
 
     enum class State
     {
@@ -63,15 +120,15 @@ struct PenguinInfo
     static constexpr size_t s_grabAttractorCollision_renderedMeshIndex = 14;
     static constexpr size_t s_renderedMeshIndices = 15;
 
+    static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
+    static constexpr size_t s_collisionPointCount = 1;
+
     static constexpr size_t s_aimRay_collisionRayIndex = 0;
     static constexpr size_t s_collisionRayCount = 1;
 
     static constexpr size_t s_body_collisionCircleIndex = 0;
     static constexpr size_t s_grabZone_collisionCircleIndex = 1;
     static constexpr size_t s_collisionCircleCount = 2;
-
-    static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
-    static constexpr size_t s_collisionPointCount = 1;
 };
 
 const std::unordered_map<size_t, std::string> PenguinInfo::s_stateToString =
@@ -88,7 +145,7 @@ const std::unordered_map<size_t, std::string> PenguinInfo::s_stateToString =
 
 struct SnowballInfo
 {
-    unsigned int penguin_EntityId = static_cast<unsigned int>(-1);
+    unsigned int owner_entityId = static_cast<unsigned int>(-1);
 
     enum class State
     {

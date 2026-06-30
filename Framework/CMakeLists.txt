@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2025-12-19
+# @DATE 2026-06-29
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -207,6 +207,7 @@ set(UTILITY_FILES
     "Source/Utilities/Overlap3D.h"
     "Source/Utilities/Overlap3D_UnitTests.cpp"
     "Source/Utilities/Overlap3D_UnitTests.h"
+    "Source/Utilities/SortUtility.h"
     "Source/Utilities/SoundUtility.cpp"
     "Source/Utilities/SoundUtility.h"
     "Source/Utilities/StringUtility.cpp"
