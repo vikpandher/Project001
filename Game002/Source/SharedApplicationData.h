@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-01
 
 #pragma once
 
@@ -343,6 +343,10 @@ struct SharedApplicationData
     unsigned int shark_jaw_meshId = static_cast<unsigned int>(-1);
     Project001::TextureData* shark_textureDataPtr = nullptr;
     unsigned int shark_textureId = static_cast<unsigned int>(-1);
+
+    Project001::MeshData* shark_back_collision_meshDataPtr = nullptr;
+    Project001::MeshData* shark_front_collision_meshDataPtr = nullptr;
+    Project001::MeshData* shark_jaw_collision_meshDataPtr = nullptr;
 
     // Ui Resources
     Project001::MeshData* uiLeftBackground_meshDataPtr = nullptr;

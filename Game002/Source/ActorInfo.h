@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-01
 
 #include <string>
 #include <unordered_map>
@@ -28,7 +28,7 @@ struct CursorInfo
     State animationState = State::STATE_OPEN;
     float animationStateCountDown_s = 0.0f;
 
-    bool animationBool = false;
+    bool animaitionFlipper = false;
 
     static constexpr size_t s_position_renderedMeshIndex = 0;
     static constexpr size_t s_press_renderedMeshIndex = 1;
@@ -41,7 +41,7 @@ struct CursorInfo
     static constexpr size_t s_aimRay1_renderedMeshIndex = 8;
     static constexpr size_t s_aimRay2_renderedMeshIndex = 9;
     static constexpr size_t s_aimRay3_renderedMeshIndex = 10;
-    static constexpr size_t s_renderedMeshIndices = 11;
+    static constexpr size_t s_renderedMeshCount = 11;
 
     static constexpr size_t s_position_collisionPointIndex = 0;
     static constexpr size_t s_press_collisionPointIndex = 1;
@@ -118,7 +118,7 @@ struct PenguinInfo
     static constexpr size_t s_aimRay2_renderedMeshIndex = 12;
     static constexpr size_t s_orientationArrow_renderedMeshIndex = 13;
     static constexpr size_t s_grabAttractorCollision_renderedMeshIndex = 14;
-    static constexpr size_t s_renderedMeshIndices = 15;
+    static constexpr size_t s_renderedMeshCount = 15;
 
     static constexpr size_t s_grabAttractor_collisionPointIndex = 0;
     static constexpr size_t s_collisionPointCount = 1;
@@ -179,7 +179,7 @@ struct SnowballInfo
     static const size_t s_snowball_break_06_renderedMeshIndex = 6;
     static const size_t s_shadow_renderedMeshIndex = 7;
     static const size_t s_orientationArrow_renderedMeshIndex = 8;
-    static const size_t s_renderedMeshIndices = 9;
+    static const size_t s_renderedMeshCount = 9;
 
     static const size_t s_snowball_collisionCircleIndex = 0;
     static const size_t s_collisionCircleCount = 1;
@@ -198,17 +198,31 @@ struct SharkInfo
 
     bool onLand = false;
 
-    float backRotationZ = 0.0f;
-
-    bool mirrorAnimation = false;
-
     State animationState = State::STATE_SWIMMING;
     float animationStateCountDown_s = 0.0f;
 
+    bool animaitionFlipper = false;
+
     float positionZ = 0.0f;
+
+    float frontRotationX = 0.0f;
+    float backRotationZ = 0.0f;
+    float jawRotationZ = 0.0f;
 
     static constexpr size_t s_front_renderedMeshIndex = 0;
     static constexpr size_t s_back_renderedMeshIndex = 1;
     static constexpr size_t s_jaw_renderedMeshIndex = 2;
-    static constexpr size_t s_renderedMeshIndices = 3;
+    static constexpr size_t s_frontCollision_renderedMeshIndex = 3;
+    static constexpr size_t s_backCollision_renderedMeshIndex = 4;
+    static constexpr size_t s_jawCollision_renderedMeshIndex = 5;
+    static constexpr size_t s_renderedMeshCount = 6;
+
+    static const size_t s_jaw_collisionCircleIndex = 0;
+    static const size_t s_collisionCircleCount = 1;
+
+    static const size_t s_body_collisionRectangleIndex = 0;
+    static const size_t s_collisionRectangleCount = 1;
+
+    static const size_t s_body_collisionTriangleIndex = 0;
+    static const size_t s_collisionTriangleCount = 1;
 };

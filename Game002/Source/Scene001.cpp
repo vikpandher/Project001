@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-01
 
 #include "Scene001.h"
 
@@ -850,6 +850,37 @@ void Scene001::LoadActorResources()
         false,
         false
     );
+
+    sharedDataPtr_->shark_back_collision_meshDataPtr = new Project001::MeshData();
+    std::vector<glm::vec2> shark_back_collision_positions;
+    shark_back_collision_positions.reserve(3);
+    shark_back_collision_positions.emplace_back(30.0f, 14.0f);
+    shark_back_collision_positions.emplace_back(-30.0f, 14.0f);
+    shark_back_collision_positions.emplace_back(0.0f, -130.0f);
+    FAIL_CHECK(Project001::Mesh::Generate2DTriangles(
+        *sharedDataPtr_->shark_back_collision_meshDataPtr,
+        shark_back_collision_positions
+    ));
+
+    sharedDataPtr_->shark_front_collision_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DRectangle(
+        *sharedDataPtr_->shark_front_collision_meshDataPtr,
+        60.0f, 68.0f
+    ));
+    Project001::Mesh::TranslateMesh(
+        *sharedDataPtr_->shark_front_collision_meshDataPtr,
+        glm::vec3(0.0f, 48.0f, 0.0f)
+    );
+
+    sharedDataPtr_->shark_jaw_collision_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(
+        *sharedDataPtr_->shark_jaw_collision_meshDataPtr,
+        30.0f, 16
+    ));
+    Project001::Mesh::TranslateMesh(
+        *sharedDataPtr_->shark_jaw_collision_meshDataPtr,
+        glm::vec3(0.0f, 80.0f, 0.0f)
+    );
 }
 
 void Scene001::LoadUiResources()
@@ -1022,6 +1053,13 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->shark_textureDataPtr;
     sharedDataPtr_->shark_textureDataPtr = nullptr;
     sharedDataPtr_->shark_textureId = static_cast<unsigned int>(-1);
+
+    delete sharedDataPtr_->shark_back_collision_meshDataPtr;
+    sharedDataPtr_->shark_back_collision_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_front_collision_meshDataPtr;
+    sharedDataPtr_->shark_front_collision_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_jaw_collision_meshDataPtr;
+    sharedDataPtr_->shark_jaw_collision_meshDataPtr = nullptr;
 
     // Ui Resources
     delete sharedDataPtr_->uiLeftBackground_meshDataPtr;

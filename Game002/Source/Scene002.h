@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-01
 
 #pragma once
 
@@ -126,9 +126,11 @@ protected:
     static constexpr unsigned int s_aimRay_collisionShapeTag_ = 5;
     static constexpr unsigned int s_snowball_collisionShapeTag_ = 6;
     static constexpr unsigned int s_ground_collisionShapeTag_ = 7;
-    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 9;
-    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 10;
-    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 11;
+    static constexpr unsigned int s_sharkBody_collisionShapeTag_ = 8;
+    static constexpr unsigned int s_sharkJaw_collisionShapeTag_ = 9;
+    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 10;
+    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 11;
+    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 12;
 
     static constexpr float s_waterHeight = -8.0f;
 

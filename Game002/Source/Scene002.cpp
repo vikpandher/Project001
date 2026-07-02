@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-01
 
 #include "Scene002.h"
 
@@ -86,7 +86,8 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
         CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], glm::vec2(-32.0f, 0.0f), glm::pi<float>());
     }
 
-    CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), 0.0f);
+    CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), -glm::half_pi<float>());
+    // CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, 0.0f), 0.0f);
 
     // unsigned int snowball_entityId = static_cast<unsigned int>(-1);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(0.0f, 0.0f), glm::vec2(-sharedDataPtr_->penguin_throwSpeed_s, 0.0f), 8.0f);
@@ -210,6 +211,8 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         {
             UpdatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], physicsTimestep_s);
         }
+
+        UpdateSharkEntity(stageShark_entityId_, physicsTimestep_s);
 
         UpdateWorld(physicsTimestep_s);
 
@@ -358,7 +361,7 @@ void Scene002::CreateCursorEntity()
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_ | s_uiCamera_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(CursorInfo::s_renderedMeshIndices);
+        renderedMeshes.resize(CursorInfo::s_renderedMeshCount);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[CursorInfo::s_position_renderedMeshIndex];
@@ -710,7 +713,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
 
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(PenguinInfo::s_renderedMeshIndices);
+        renderedMeshes.resize(PenguinInfo::s_renderedMeshCount);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_body_renderedMeshIndex];
@@ -947,42 +950,108 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(SharkInfo::s_renderedMeshIndices);
+        renderedMeshes.resize(SharkInfo::s_renderedMeshCount);
 
-        renderedModelPtr->SetPositionX(position.x);
-        renderedModelPtr->SetPositionY(position.y);
-        renderedModelPtr->AddRelativeRotationZ(glm::half_pi<float>());
+        // renderedModelPtr->SetPositionX(position.x);
+        // renderedModelPtr->SetPositionY(position.y);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_front_meshId, sharedDataPtr_->shark_front_meshDataPtr->maxBoundingRadius);
             mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
-            mesh.SetColorAlpha(0.5f);
-            mesh.SetTranslucent(true);
+            // mesh.SetColorAlpha(0.2f);
+            // mesh.SetRenderPriorityOverride(2);
+            // mesh.SetTranslucent(true);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_back_meshId, sharedDataPtr_->shark_back_meshDataPtr->maxBoundingRadius);
             mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
             mesh.SetParentMeshIndex(SharkInfo::s_front_renderedMeshIndex);
-            mesh.SetColorAlpha(0.5f);
-            mesh.SetTranslucent(true);
+            // mesh.SetColorAlpha(0.2f);
+            // mesh.SetRenderPriorityOverride(2);
+            // mesh.SetTranslucent(true);
         }
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_jaw_meshId, sharedDataPtr_->shark_jaw_meshDataPtr->maxBoundingRadius);
             mesh.SetScale(2.0f, 2.0f, 2.0f);
             mesh.SetTextureId(sharedDataPtr_->shark_textureId);
             mesh.SetParentMeshIndex(SharkInfo::s_front_renderedMeshIndex);
-            mesh.SetColorAlpha(0.5f);
+            // mesh.SetColorAlpha(0.2f);
+            // mesh.SetRenderPriorityOverride(2);
+            // mesh.SetTranslucent(true);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_frontCollision_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_front_collision_meshDataPtr);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
             mesh.SetTranslucent(true);
         }
 
-        // TODO
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_backCollision_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_back_collision_meshDataPtr);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
+            mesh.SetTranslucent(true);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jawCollision_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_jaw_collision_meshDataPtr);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
+            mesh.SetTranslucent(true);
+        }
+
+        collisionBodyPtr->SetPosition(position);
+        collisionBodyPtr->SetRotation(rotation);
+
+        std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
+        collisionCircles.resize(SharkInfo::s_collisionCircleCount);
+
+        {
+            Project001::CollisionCircle2D& collisionCircle = collisionCircles[SharkInfo::s_jaw_collisionCircleIndex];
+            collisionCircle = Project001::CollisionCircle2D(
+                glm::vec2(0.0f, 80.0f),
+                30.0f,
+                s_sharkJaw_collisionShapeTag_
+            );
+        }
+
+        std::vector<Project001::CollisionRectangle2D>& collisionRectangles = collisionBodyPtr->GetCollisionRectangles();
+        collisionRectangles.resize(SharkInfo::s_collisionRectangleCount);
+
+        {
+            Project001::CollisionRectangle2D& collisionRectangle = collisionRectangles[SharkInfo::s_body_collisionRectangleIndex];
+            collisionRectangle = Project001::CollisionRectangle2D(
+                glm::vec2(-30.0f, 14.0f), glm::vec2(30.0f, 82.0f),
+                s_sharkBody_collisionShapeTag_
+            );
+        }
+
+        std::vector<Project001::CollisionTriangle2D>& collisionTriangles = collisionBodyPtr->GetCollisionTriangles();
+        collisionTriangles.resize(SharkInfo::s_collisionTriangleCount);
+
+        {
+            Project001::CollisionTriangle2D& collisionTriangle = collisionTriangles[SharkInfo::s_body_collisionTriangleIndex];
+            collisionTriangle = Project001::CollisionTriangle2D(
+                glm::vec2(30.0f, 14.0f),
+                glm::vec2(-30.0f, 14.0f),
+                glm::vec2(0.0f, -130.0f),
+                s_sharkBody_collisionShapeTag_
+            );
+        }
     }
 }
 
@@ -1016,7 +1085,7 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
 
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(SnowballInfo::s_renderedMeshIndices);
+        renderedMeshes.resize(SnowballInfo::s_renderedMeshCount);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[SnowballInfo::s_snowball_renderedMeshIndex];
@@ -1732,7 +1801,7 @@ void Scene002::UpdateCursorEntity(float timestep_s)
         }
         case CursorInfo::State::STATE_MAKING:
         {
-            if (grabHeld && snowballSpawnPointOnLand)
+            if (grabHeld) // && snowballSpawnPointOnLand)
             {
                 cursorInfoPtr->makeSnowballCountDown_s -= timestep_s;
                 if (cursorInfoPtr->makeSnowballCountDown_s <= 0.0f)
@@ -1857,8 +1926,8 @@ void Scene002::UpdateCursorEntity(float timestep_s)
             snowballInfoPtr->owner_entityId = cursor_entityId_;
 
             std::vector<Project001::CollisionPoint2D>& cursorCollisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
-            Project001::CollisionPoint2D& cursorPosition = cursorCollisionPoints[CursorInfo::s_position_collisionPointIndex];
-            snowballCollisionBodyPtr->SetPosition(cursorPosition.position);
+            Project001::CollisionPoint2D& cursorPress = cursorCollisionPoints[CursorInfo::s_press_collisionPointIndex];
+            snowballCollisionBodyPtr->SetPosition(cursorPress.position);
 
             cursorCollisionBodyPtr->FlagMassToBeRecalculated();
         }
@@ -2777,7 +2846,41 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
 
 void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
 {
-    // TODO:
+    SharkInfo* sharkInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SharkInfo>(sharkInfoPtr, entityId));
+    Project001::CollisionBody2D* sharkCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(sharkCollisionBodyPtr, entityId));
+    if (sharkInfoPtr != nullptr && sharkCollisionBodyPtr != nullptr)
+    {
+        // Analyzing collisions
+        // ---------------------------------------------------------------------
+
+        sharkInfoPtr->onLand = false;
+
+        const std::vector<Project001::CollisionOverlapData2D>& sharkCollisionOverlaps = sharkCollisionBodyPtr->GetCollisionOverlaps();
+        for (size_t i = 0; i < sharkCollisionOverlaps.size(); ++i)
+        {
+            const Project001::CollisionOverlapData2D& sharkCollisionOverlapData = sharkCollisionOverlaps[i];
+
+            if ((sharkCollisionOverlapData.myShapeTag == s_sharkBody_collisionShapeTag_ || sharkCollisionOverlapData.myShapeTag == s_sharkJaw_collisionShapeTag_) &&
+                sharkCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
+            {
+                sharkInfoPtr->onLand = true;
+            }
+        }
+
+        float impulseMagntidueSum = 0.0f;
+
+        const std::vector<Project001::CollisionImpulseData2D>& sharkCollisionImpulses = sharkCollisionBodyPtr->GetCollisionImpulses();
+        for (size_t i = 0; i < sharkCollisionImpulses.size(); ++i)
+        {
+            const Project001::CollisionImpulseData2D& sharkCollisionImpulseData = sharkCollisionImpulses[i];
+
+            impulseMagntidueSum += glm::length(sharkCollisionImpulseData.impulse);
+        }
+
+        // TODO:
+    }
 }
 
 void Scene002::UpdateSnowballEntities(float timestep_s)
@@ -2897,7 +3000,7 @@ void Scene002::AnimateCursorEntity(float timestep_s)
         if (cursorInfoPtr->animationState != cursorInfoPtr->state)
         {
             cursorInfoPtr->animationStateCountDown_s = 0.0f;
-            cursorInfoPtr->animationBool = false;
+            cursorInfoPtr->animaitionFlipper = false;
         }
 
         if (cursorInfoPtr->animationStateCountDown_s <= 0.0f)
@@ -2907,7 +3010,7 @@ void Scene002::AnimateCursorEntity(float timestep_s)
             if (cursorInfoPtr->animationState == CursorInfo::State::STATE_MAKING)
             {
                 cursorInfoPtr->animationStateCountDown_s = 0.125f;
-                cursorInfoPtr->animationBool = !cursorInfoPtr->animationBool;
+                cursorInfoPtr->animaitionFlipper = !cursorInfoPtr->animaitionFlipper;
             }
             else
             {
@@ -2943,7 +3046,7 @@ void Scene002::AnimateCursorEntity(float timestep_s)
         {
             zoneMesh.SetTextureId(sharedDataPtr_->dotted_1_1_textureId);
 
-            if (cursorInfoPtr->animationBool)
+            if (cursorInfoPtr->animaitionFlipper)
             {
                 openMesh.SetVisible(true);
             }
@@ -3062,17 +3165,23 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
 
             // Update positionZ based on the state
             float desiredPositionZ = 0.0f;
+
+            if (!penguinInfo.onLand)
+            {
+                desiredPositionZ += s_waterHeight;
+            }
+
             if (penguinInfo.animationState == PenguinInfo::State::STATE_TREADING_WATER)
             {
-                desiredPositionZ = s_waterHeight - 24.0f;
+                desiredPositionZ -= 24.0f;
             }
             else if (penguinInfo.animationState == PenguinInfo::State::STATE_SWIMMING)
             {
-                desiredPositionZ = s_waterHeight - 20.0f;
+                desiredPositionZ -= 20.0f;
             }
             else if (!penguinInfo.onLand && penguinInfo.animationState == PenguinInfo::State::STATE_HITSTUN)
             {
-                desiredPositionZ = s_waterHeight - 20.0f;
+                desiredPositionZ -= 20.0f;
             }
 
             float riseSpeed = timestep_s * 120.0f;
@@ -3708,6 +3817,28 @@ void Scene002::AnimateSharkEntities(float timestep_s)
         {
             float desiredPositionZ = 0.0f;
 
+            if (sharkInfo.onLand)
+            {
+                desiredPositionZ += 32.0f;
+            }
+            else
+            {
+                desiredPositionZ += s_waterHeight;
+            }
+
+            if (sharkInfo.animationState == SharkInfo::State::STATE_SWIMMING)
+            {
+                desiredPositionZ -= 24.0f;
+            }
+            else if (sharkInfo.animationState == SharkInfo::State::STATE_CHASING)
+            {
+                desiredPositionZ -= 8.0f;
+            }
+            else if (sharkInfo.animationState == SharkInfo::State::STATE_HITSTUN)
+            {
+                desiredPositionZ -= 28.0f;
+            }
+
             float riseSpeed = timestep_s * 120.0f;
             float sinkSpeed = timestep_s * 120.0f;
 
@@ -3724,31 +3855,86 @@ void Scene002::AnimateSharkEntities(float timestep_s)
                 sharkInfo.positionZ = desiredPositionZ;
             }
 
-            sharkInfo.positionZ = 64.0f;
+            // sharkInfo.positionZ = 64.0f;
 
             // Reset the mesh to default
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
+            Project001::RenderedMesh& front_mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
+            front_mesh.SetPosition(0.0f, 0.0f, sharkInfo.positionZ);
+            front_mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+
+            Project001::RenderedMesh& back_mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
+            back_mesh.SetPosition(0.0f, 0.0f, 0.0f);
+            back_mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+
+            Project001::RenderedMesh& jaw_mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
+            jaw_mesh.SetPosition(0.0f, 96.0f, 10.0f);
+            jaw_mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+
+            Project001::RenderedMesh& frontCollision_mesh = renderedMeshes[SharkInfo::s_frontCollision_renderedMeshIndex];
+            frontCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+
+            Project001::RenderedMesh& backCollision_mesh = renderedMeshes[SharkInfo::s_backCollision_renderedMeshIndex];
+            backCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+
+            Project001::RenderedMesh& jawCollision_mesh = renderedMeshes[SharkInfo::s_jawCollision_renderedMeshIndex];
+            jawCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+
+            if (sharkInfo.animationState == SharkInfo::State::STATE_SWIMMING)
             {
-                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
-                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_front_meshId, sharedDataPtr_->shark_front_meshDataPtr->maxBoundingRadius);
-                mesh.SetPosition(0.0f, 0.0f, sharkInfo.positionZ);
-                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+                if (sharkInfo.animaitionFlipper)
+                {
+                    sharkInfo.backRotationZ += glm::pi<float>() / 480.0f;
+                }
+                else
+                {
+                    sharkInfo.backRotationZ -= glm::pi<float>() / 480.0f;
+                }
+
+                back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
+
+                if (glm::abs(sharkInfo.backRotationZ) > glm::pi<float>() / 18.0f)
+                {
+                    sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
+                }
+            }
+            else if (sharkInfo.animationState == SharkInfo::State::STATE_CHASING)
+            {
+                front_mesh.AddRelativeRotationX(glm::pi<float>() / 12.0f);
+                jaw_mesh.AddRelativeRotationX(glm::pi<float>() / -3.0f);
+
+                if (sharkInfo.animaitionFlipper)
+                {
+                    sharkInfo.backRotationZ += glm::pi<float>() / 160.0f;
+                }
+                else
+                {
+                    sharkInfo.backRotationZ -= glm::pi<float>() / 160.0f;
+                }
+
+                back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
+
+                if (glm::abs(sharkInfo.backRotationZ) > glm::pi<float>() / 24.0f)
+                {
+                    sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
+                }
+            }
+            else if (sharkInfo.animationState == SharkInfo::State::STATE_HITSTUN)
+            {
+                front_mesh.AddRelativeRotationX(glm::pi<float>() / 12.0f);
+                back_mesh.AddRelativeRotationX(glm::pi<float>() / -6.0f);
+                jaw_mesh.AddRelativeRotationX(glm::pi<float>() / -6.0f);
             }
 
+            if (!sharkInfo.onLand)
             {
-                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_back_renderedMeshIndex];
-                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_back_meshId, sharedDataPtr_->shark_back_meshDataPtr->maxBoundingRadius);
-                mesh.SetPosition(0.0f, 0.0f, 0.0f);
-                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+                front_mesh.AddTranslationZ(
+                    2.0f * glm::sin(glm::pi<float>() * (sharkInfo.animationStateCountDown_s))
+                );
             }
 
-            {
-                Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_jaw_renderedMeshIndex];
-                mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->shark_jaw_meshId, sharedDataPtr_->shark_jaw_meshDataPtr->maxBoundingRadius);
-                mesh.SetPosition(0.0f, 96.0f, 10.0f);
-                mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
-            }
+            sharkInfo.animationStateCountDown_s -= timestep_s;
         }
 
         // TODO:
@@ -4173,7 +4359,28 @@ void Scene002::SyncPenguinRenderedModels()
 
 void Scene002::SyncSharkRenderedModels()
 {
-    // TODO:
+    SharkInfo* sharkInfoPtrs = nullptr;
+    size_t sharkInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<SharkInfo>(sharkInfoPtrs, sharkInfoCount);
+    for (size_t i = 0; i < sharkInfoCount; ++i)
+    {
+        SharkInfo& sharkInfo = sharkInfoPtrs[i];
+
+        unsigned int entityId = static_cast<unsigned int>(-1);
+        GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo);
+
+        Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+        if (collisionBodyPtr != nullptr && renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetPositionX(collisionBodyPtr->GetPosition().x);
+            renderedModelPtr->SetPositionY(collisionBodyPtr->GetPosition().y);
+            renderedModelPtr->ResetOrientation();
+            renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
+        }
+    }
 }
 
 void Scene002::SyncSnowballRenderedModels()
