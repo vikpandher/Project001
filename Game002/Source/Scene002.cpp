@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-01
+// @DATE 2026-07-02
 
 #include "Scene002.h"
 
@@ -86,7 +86,7 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
         CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], glm::vec2(-32.0f, 0.0f), glm::pi<float>());
     }
 
-    CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircle_radius), -glm::half_pi<float>());
+    CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircleOffset_size), -glm::half_pi<float>());
     // CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, 0.0f), 0.0f);
 
     // unsigned int snowball_entityId = static_cast<unsigned int>(-1);
@@ -190,7 +190,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
         if (s_cursorEnabled) UpdateCursorEntity(physicsTimestep_s);
 
-        UpdateStageCollisionBodyQuadTreeMesh();
+        UpdateStageEntity(physicsTimestep_s);
 
         // Update snowballs before penguins because penguins can spawn snowballs
         UpdateSnowballEntities(physicsTimestep_s);
@@ -535,45 +535,27 @@ void Scene002::CreateStageEntity()
 
     GetComponentStoresPtr()->CreateEntity(stage_entityId_);
 
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<StageInfo>(stage_entityId_));
+    StageInfo* stageInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<StageInfo>(stageInfoPtr, stage_entityId_));
+
     FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(stage_entityId_));
     Project001::RenderedModel* renderedModelPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, stage_entityId_));
-    if (renderedModelPtr != nullptr)
+    if (stageInfoPtr != nullptr && renderedModelPtr != nullptr)
     {
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(StageInfo::s_renderedMeshCount);
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_ground_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->ground_meshDataPtr);
         }
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
-            mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->deadZone_meshDataPtr);
-            mesh.SetColor(0.8f, 0.6f, 0.2f, 1.0f);
-            mesh.SetTextureId(sharedDataPtr_->hazard_textureId);
-            mesh.SetRenderPriorityOverride(3);
-        }
-
-        // {
-        //     renderedMeshes.emplace_back();
-        //     Project001::RenderedMesh& mesh = renderedMeshes.back();
-        //     mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-        //     mesh.SetMeshDataPtr(sharedDataPtr_->groundCollision_meshDataPtr);
-        //     mesh.SetPositionZ(0.1f);
-        //     mesh.SetColor(0.2f, 1.0f, 0.2f, 0.2f);
-        //     mesh.SetTranslucent(true);
-        //     mesh.SetUseLighting(false);
-        // }
-
-        {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_water_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->water_meshDataPtr);
             mesh.SetPositionZ(s_waterHeight);
@@ -582,36 +564,52 @@ void Scene002::CreateStageEntity()
             mesh.SetRenderPriorityOverride(1);
         }
 
-        // {
-        //     renderedMeshes.emplace_back();
-        //     Project001::RenderedMesh& mesh = renderedMeshes.back();
-        //     mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-        //     mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->stageGrid_meshId, sharedDataPtr_->stageGrid_meshDataPtr->maxBoundingRadius);
-        //     mesh.SetPositionZ(0.2f);
-        //     mesh.SetColor(0.2f, 0.2f, 1.0f, 0.2f);
-        //     mesh.SetTranslucent(true);
-        //     mesh.SetUseLighting(false);
-        // }
-
-        // {
-        //     renderedMeshes.emplace_back();
-        //     Project001::RenderedMesh& mesh = renderedMeshes.back();
-        //     mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-        //     mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->stageGridLabels_meshId, sharedDataPtr_->stageGridLabels_meshDataPtr->maxBoundingRadius);
-        //     mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
-        //     mesh.SetPositionZ(0.2f);
-        //     mesh.SetColor(0.2f, 0.2f, 1.0f, 0.2f);
-        //     mesh.SetTranslucent(true);
-        //     mesh.SetUseLighting(false);
-        // }
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_deadZone_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->deadZone_meshDataPtr);
+            mesh.SetColor(0.8f, 0.6f, 0.2f, 1.0f);
+            mesh.SetTextureId(sharedDataPtr_->hazard_textureId);
+            mesh.SetRenderPriorityOverride(3);
+        }
 
         {
-            renderedMeshes.emplace_back();
-            Project001::RenderedMesh& mesh = renderedMeshes.back();
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_pathPoints_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->stageCollisionQuadTree_meshDataPtr);
             mesh.SetPositionZ(0.3f);
             mesh.SetColor(1.0f, 0.4f, 0.2f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_collisionQuadTree_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->stageCollisionQuadTree_meshDataPtr);
+            mesh.SetPositionZ(0.3f);
+            mesh.SetColor(1.0f, 0.4f, 0.2f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_grid_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->stageGrid_meshId, sharedDataPtr_->stageGrid_meshDataPtr->maxBoundingRadius);
+            mesh.SetPositionZ(0.2f);
+            mesh.SetColor(0.2f, 0.2f, 0.4f, 0.2f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_gridLabels_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshIdAndMaxBoundingRadius(sharedDataPtr_->stageGridLabels_meshId, sharedDataPtr_->stageGridLabels_meshDataPtr->maxBoundingRadius);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetPositionZ(0.2f);
+            mesh.SetColor(0.2f, 0.2f, 0.4f, 0.2f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
         }
@@ -625,19 +623,19 @@ void Scene002::CreateStageEntity()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stage_entityId_));
     if (collisionBodyPtr != nullptr)
     {
-        const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
-        std::vector<glm::vec2> groundCollisionCorners;
-        groundCollisionCorners.reserve(8);
-        groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, groundCorner);
-        groundCollisionCorners.emplace_back(groundCorner, SharedApplicationData::s_ground_size);
-        groundCollisionCorners.emplace_back(-groundCorner, SharedApplicationData::s_ground_size);
-        groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, groundCorner);
-        groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, -groundCorner);
-        groundCollisionCorners.emplace_back(-groundCorner, -SharedApplicationData::s_ground_size);
-        groundCollisionCorners.emplace_back(groundCorner, -SharedApplicationData::s_ground_size);
-        groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, -groundCorner);
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+        collisionPoints.resize(StageInfo::s_collisionPointCount);
+        for (size_t i = 0; i < StageInfo::s_collisionPointCount; ++i)
+        {
+            collisionPoints[i].tag = s_path_collisionShapeTag_;
+        }
+
         std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
-        collisionConvexPolygons.emplace_back(groundCollisionCorners, s_ground_collisionShapeTag_);
+        collisionConvexPolygons.resize(StageInfo::s_collisionConvexPolygonCount);
+
+        // convex polygon corners will be added durring the update because it resizes
+        collisionConvexPolygons[StageInfo::s_ground_collisionConvexPolygonIndex].corners.reserve(8);
+        collisionConvexPolygons[StageInfo::s_ground_collisionConvexPolygonIndex].tag = s_ground_collisionShapeTag_;
     }
 }
 
@@ -1932,6 +1930,72 @@ void Scene002::UpdateCursorEntity(float timestep_s)
             cursorCollisionBodyPtr->FlagMassToBeRecalculated();
         }
     }
+}
+
+void Scene002::UpdateStageEntity(float timestep_s)
+{
+    StageInfo* stageInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<StageInfo>(stageInfoPtr, stage_entityId_));
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stage_entityId_));
+    if (stageInfoPtr != nullptr && collisionBodyPtr != nullptr)
+    {
+        stageInfoPtr->groundSize -= stageInfoPtr->groundSkrinkRate_s * timestep_s;
+        if (stageInfoPtr->groundSize < 0.0f)
+        {
+            stageInfoPtr->groundSize = 0.0f;
+        }
+
+        // Update Ground Rendered Mesh
+
+        sharedDataPtr_->ground_meshDataPtr->Clear();
+
+        if (stageInfoPtr->groundSize > 0.0f)
+        {
+            constexpr float height = 256.0f;
+            const float groundRadius = stageInfoPtr->groundSize * 1.0829f;
+            const float groundCorner = stageInfoPtr->groundSize * 0.41421357f; // sqrt(2) - 1
+
+            FAIL_CHECK(Project001::Mesh::GenerateCylinder(
+                *sharedDataPtr_->ground_meshDataPtr, height, groundRadius, 8, false
+            ));
+            Project001::Mesh::RotateMeshX(*sharedDataPtr_->ground_meshDataPtr, glm::half_pi<float>());
+            Project001::Mesh::RotateMeshZ(*sharedDataPtr_->ground_meshDataPtr, glm::pi<float>() / 8.0f);
+            Project001::Mesh::TranslateMesh(*sharedDataPtr_->ground_meshDataPtr, glm::vec3(0.0f, 0.0f, -0.5f * height));
+        }
+
+        // Update Path Points Mesh
+
+        sharedDataPtr_->pathPoints_meshDataPtr->Clear();
+
+        // TODO:
+
+        // Update Ground Collision
+
+        std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
+        std::vector<glm::vec2>& corners = collisionConvexPolygons[StageInfo::s_ground_collisionConvexPolygonIndex].corners;
+        corners.clear();
+
+        if (stageInfoPtr->groundSize > 0.0f)
+        {
+            const float groundCorner = stageInfoPtr->groundSize * 0.41421357f; // sqrt(2) - 1
+
+            corners.emplace_back(stageInfoPtr->groundSize, groundCorner);
+            corners.emplace_back(groundCorner, stageInfoPtr->groundSize);
+            corners.emplace_back(-groundCorner, stageInfoPtr->groundSize);
+            corners.emplace_back(-stageInfoPtr->groundSize, groundCorner);
+            corners.emplace_back(-stageInfoPtr->groundSize, -groundCorner);
+            corners.emplace_back(-groundCorner, -stageInfoPtr->groundSize);
+            corners.emplace_back(groundCorner, -stageInfoPtr->groundSize);
+            corners.emplace_back(stageInfoPtr->groundSize, -groundCorner);
+        }
+
+        // Update Path Points Collision
+
+        // TODO
+    }
+
+    UpdateStageCollisionBodyQuadTreeMesh();
 }
 
 void Scene002::UpdateStageCollisionBodyQuadTreeMesh()

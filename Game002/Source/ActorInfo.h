@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-01
+// @DATE 2026-07-02
 
 #include <string>
 #include <unordered_map>
@@ -225,4 +225,25 @@ struct SharkInfo
 
     static const size_t s_body_collisionTriangleIndex = 0;
     static const size_t s_collisionTriangleCount = 1;
+};
+
+struct StageInfo
+{
+    float groundSize = SharedApplicationData::s_ground_size;
+
+    float groundSkrinkRate_s = 8.0f;
+
+    static constexpr size_t s_ground_renderedMeshIndex = 0;
+    static constexpr size_t s_water_renderedMeshIndex = 1;
+    static constexpr size_t s_deadZone_renderedMeshIndex = 2;
+    static constexpr size_t s_pathPoints_renderedMeshIndex = 3;
+    static constexpr size_t s_collisionQuadTree_renderedMeshIndex = 4;
+    static constexpr size_t s_grid_renderedMeshIndex = 5;
+    static constexpr size_t s_gridLabels_renderedMeshIndex = 6;
+    static constexpr size_t s_renderedMeshCount = 7;
+
+    static constexpr size_t s_collisionPointCount = 8;
+
+    static constexpr size_t s_ground_collisionConvexPolygonIndex = 0;
+    static constexpr size_t s_collisionConvexPolygonCount = 1;
 };

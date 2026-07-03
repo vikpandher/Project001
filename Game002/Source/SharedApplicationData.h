@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-01
+// @DATE 2026-07-02
 
 #pragma once
 
@@ -217,7 +217,7 @@ struct SharedApplicationData
 
     static constexpr float s_ground_size = 512.0f; // center to top
 
-    static constexpr float s_stageSharkCircle_radius = 768.0f;
+    static constexpr float s_stageSharkCircleOffset_size = 128.0f;
 
     static constexpr float s_deadzone_size = 1024.0f;
 
@@ -282,13 +282,13 @@ struct SharedApplicationData
 
     // Stage Resources
     Project001::MeshData* ground_meshDataPtr = nullptr;
-    Project001::MeshData* groundCollision_meshDataPtr = nullptr;
-
     Project001::MeshData* water_meshDataPtr = nullptr;
 
     Project001::MeshData* deadZone_meshDataPtr = nullptr;
     Project001::TextureData* hazard_textureDataPtr = nullptr;
     unsigned int hazard_textureId = static_cast<unsigned int>(-1);
+
+    Project001::MeshData* pathPoints_meshDataPtr = nullptr;
 
     // Stage Grid Resources
     Project001::MeshData* stageGrid_meshDataPtr = nullptr;

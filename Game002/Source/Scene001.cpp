@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-01
+// @DATE 2026-07-02
 
 #include "Scene001.h"
 
@@ -303,17 +303,16 @@ void Scene001::LoadCursorResources()
 
 void Scene001::LoadStageResources()
 {
-    constexpr float height = 256.0f;
-    const float radius = SharedApplicationData::s_ground_size * 1.0829f;
-    const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
-
     sharedDataPtr_->ground_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::GenerateCylinder(
-        *sharedDataPtr_->ground_meshDataPtr, height, radius, 8, false
-    ));
-    Project001::Mesh::RotateMeshX(*sharedDataPtr_->ground_meshDataPtr, glm::half_pi<float>());
-    Project001::Mesh::RotateMeshZ(*sharedDataPtr_->ground_meshDataPtr, glm::pi<float>() / 8.0f);
-    Project001::Mesh::TranslateMesh(*sharedDataPtr_->ground_meshDataPtr, glm::vec3(0.0f, 0.0f, -0.5f * height));
+    // constexpr float height = 256.0f;
+    // const float radius = SharedApplicationData::s_ground_size * 1.0829f;
+    // const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
+    // FAIL_CHECK(Project001::Mesh::GenerateCylinder(
+    //     *sharedDataPtr_->ground_meshDataPtr, height, radius, 8, false
+    // ));
+    // Project001::Mesh::RotateMeshX(*sharedDataPtr_->ground_meshDataPtr, glm::half_pi<float>());
+    // Project001::Mesh::RotateMeshZ(*sharedDataPtr_->ground_meshDataPtr, glm::pi<float>() / 8.0f);
+    // Project001::Mesh::TranslateMesh(*sharedDataPtr_->ground_meshDataPtr, glm::vec3(0.0f, 0.0f, -0.5f * height));
 
     sharedDataPtr_->water_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DSprite(
@@ -323,21 +322,21 @@ void Scene001::LoadStageResources()
         0.0f, 1.0f, 0.0f, 1.0f
     ));
 
-    std::vector<glm::vec2> groundCollisionCorners;
-    groundCollisionCorners.reserve(8);
-    groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, groundCorner);
-    groundCollisionCorners.emplace_back(groundCorner, SharedApplicationData::s_ground_size);
-    groundCollisionCorners.emplace_back(-groundCorner, SharedApplicationData::s_ground_size);
-    groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, groundCorner);
-    groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, -groundCorner);
-    groundCollisionCorners.emplace_back(-groundCorner, -SharedApplicationData::s_ground_size);
-    groundCollisionCorners.emplace_back(groundCorner, -SharedApplicationData::s_ground_size);
-    groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, -groundCorner);
-    sharedDataPtr_->groundCollision_meshDataPtr = new Project001::MeshData();
-    FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(
-        *sharedDataPtr_->groundCollision_meshDataPtr,
-        groundCollisionCorners
-    ));
+    // std::vector<glm::vec2> groundCollisionCorners;
+    // groundCollisionCorners.reserve(8);
+    // groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, groundCorner);
+    // groundCollisionCorners.emplace_back(groundCorner, SharedApplicationData::s_ground_size);
+    // groundCollisionCorners.emplace_back(-groundCorner, SharedApplicationData::s_ground_size);
+    // groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, groundCorner);
+    // groundCollisionCorners.emplace_back(-SharedApplicationData::s_ground_size, -groundCorner);
+    // groundCollisionCorners.emplace_back(-groundCorner, -SharedApplicationData::s_ground_size);
+    // groundCollisionCorners.emplace_back(groundCorner, -SharedApplicationData::s_ground_size);
+    // groundCollisionCorners.emplace_back(SharedApplicationData::s_ground_size, -groundCorner);
+    // sharedDataPtr_->groundCollision_meshDataPtr = new Project001::MeshData();
+    // FAIL_CHECK(Project001::Mesh::Generate2DTriangleFan(
+    //     *sharedDataPtr_->groundCollision_meshDataPtr,
+    //     groundCollisionCorners
+    // ));
 
     {
         float rectThickness = (SharedApplicationData::s_maxStage_size - SharedApplicationData::s_deadzone_size) * 2.0f;
@@ -382,6 +381,8 @@ void Scene001::LoadStageResources()
         false,
         false
     );
+
+    sharedDataPtr_->pathPoints_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadStageGridResources()
@@ -445,7 +446,7 @@ void Scene001::LoadStageGridResources()
     // positive x-axis -----------------------------------------------------
 
     const float pixelFont_pixelSize = 2.0f;
-    float gridLabel_offsetY = pixelFont_pixelSize * 7.0f + 0.5f * lineWidth;
+    float gridLabel_offsetY = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
     float gridLabel_offsetX = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
 
     for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -471,7 +472,7 @@ void Scene001::LoadStageGridResources()
 
     // positive y-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * 7.0f + 0.5f * lineWidth + gridSpacing;
+    gridLabel_offsetY = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth + gridSpacing;
     gridLabel_offsetX = pixelFont_pixelSize * 1.0f + 0.5f * lineWidth;
 
     for (size_t i = 1; i < gridLabels.size(); ++i)
@@ -497,7 +498,7 @@ void Scene001::LoadStageGridResources()
 
     // negative x-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * -1.0f - 0.5f * lineWidth;
+    gridLabel_offsetY = pixelFont_pixelSize * -7.0f - 0.5f * lineWidth;
     gridLabel_offsetX = pixelFont_pixelSize * -6.0f - 0.5f * lineWidth;
 
     for (size_t i = 0; i < gridLabels.size(); ++i)
@@ -525,7 +526,7 @@ void Scene001::LoadStageGridResources()
 
     // negative y-axis -----------------------------------------------------
 
-    gridLabel_offsetY = pixelFont_pixelSize * -1.0f - 0.5f * lineWidth - gridSpacing;
+    gridLabel_offsetY = pixelFont_pixelSize * -7.0f - 0.5f * lineWidth - gridSpacing;
     gridLabel_offsetX = pixelFont_pixelSize * -6.0f - 0.5f * lineWidth;
 
     for (size_t i = 1; i < gridLabels.size(); ++i)
@@ -963,14 +964,15 @@ void Scene001::FreeResources()
     // Stage Resources
     delete sharedDataPtr_->ground_meshDataPtr;
     sharedDataPtr_->ground_meshDataPtr = nullptr;
-    delete sharedDataPtr_->groundCollision_meshDataPtr;
-    sharedDataPtr_->groundCollision_meshDataPtr = nullptr;
 
     delete sharedDataPtr_->water_meshDataPtr;
     sharedDataPtr_->water_meshDataPtr = nullptr;
 
     delete sharedDataPtr_->deadZone_meshDataPtr;
     sharedDataPtr_->deadZone_meshDataPtr = nullptr;
+
+    delete sharedDataPtr_->pathPoints_meshDataPtr;
+    sharedDataPtr_->pathPoints_meshDataPtr = nullptr;
 
     delete sharedDataPtr_->hazard_textureDataPtr;
     sharedDataPtr_->hazard_textureDataPtr = nullptr;
