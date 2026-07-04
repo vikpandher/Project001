@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-03-10
+// @DATE 2026-07-03
 
 #include "MeshUtility.h"
 
@@ -2280,6 +2280,34 @@ namespace Mesh
         {
             radialVector = Math::Rotate2DVector(radialVector, sectionAngle);
             positions.push_back(radialVector);
+        }
+
+        return Generate2DTriangleFan(meshData, positions, triangulate);
+    }
+
+    bool Generate2DRegularPolygon(
+        MeshData& meshData,
+        float radius,
+        size_t sides,
+        glm::vec2& position,
+        bool triangulate)
+    {
+        if (sides < 3 || radius == 0.0f)
+        {
+            return false;
+        }
+
+        std::vector<glm::vec2> positions;
+
+        float sectionAngle = 2.0f * glm::pi<float>() / static_cast<float>(sides);
+
+        glm::vec2 radialVector(0.0f, radius);
+        positions.push_back(radialVector + position);
+
+        for (size_t i = 0; i < sides - 1; ++i)
+        {
+            radialVector = Math::Rotate2DVector(radialVector, sectionAngle);
+            positions.push_back(radialVector + position);
         }
 
         return Generate2DTriangleFan(meshData, positions, triangulate);

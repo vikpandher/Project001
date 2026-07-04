@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-26
+// @DATE 2026-07-03
 
 #pragma once
 
@@ -167,6 +167,13 @@ namespace Mesh
         MeshData& meshData,
         float radius,
         size_t sides,
+        bool triangulate = g_triangulate);
+
+    bool Generate2DRegularPolygon(
+        MeshData& meshData,
+        float radius,
+        size_t sides,
+        glm::vec2& position,
         bool triangulate = g_triangulate);
 
     bool Generate2DBezeledRectangle(

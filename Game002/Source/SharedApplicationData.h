@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-02
+// @DATE 2026-07-03
 
 #pragma once
 
@@ -217,7 +217,7 @@ struct SharedApplicationData
 
     static constexpr float s_ground_size = 512.0f; // center to top
 
-    static constexpr float s_stageSharkCircleOffset_size = 128.0f;
+    static constexpr float s_stageSharkCircleOffset_size = 256.0f;
 
     static constexpr float s_deadzone_size = 1024.0f;
 

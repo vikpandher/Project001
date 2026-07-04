@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-02
+// @DATE 2026-07-03
 
 #include "Scene002.h"
 
@@ -576,7 +576,7 @@ void Scene002::CreateStageEntity()
         {
             Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_pathPoints_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->stageCollisionQuadTree_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->pathPoints_meshDataPtr);
             mesh.SetPositionZ(0.3f);
             mesh.SetColor(1.0f, 0.4f, 0.2f, 0.2f);
             mesh.SetTranslucent(true);
@@ -1964,12 +1964,6 @@ void Scene002::UpdateStageEntity(float timestep_s)
             Project001::Mesh::TranslateMesh(*sharedDataPtr_->ground_meshDataPtr, glm::vec3(0.0f, 0.0f, -0.5f * height));
         }
 
-        // Update Path Points Mesh
-
-        sharedDataPtr_->pathPoints_meshDataPtr->Clear();
-
-        // TODO:
-
         // Update Ground Collision
 
         std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
@@ -1990,9 +1984,20 @@ void Scene002::UpdateStageEntity(float timestep_s)
             corners.emplace_back(stageInfoPtr->groundSize, -groundCorner);
         }
 
-        // Update Path Points Collision
+        // Update Path Points Mesh & Collision
 
-        // TODO
+        sharedDataPtr_->pathPoints_meshDataPtr->Clear();
+
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+
+        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundSize + SharedApplicationData::s_stageSharkCircleOffset_size);
+        pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / 8.0f);
+
+        for (size_t i = 0; i < 8; ++i)
+        {
+            FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*sharedDataPtr_->pathPoints_meshDataPtr, 8.0f, 4, pathOffsetVector));
+            pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -4.0f);
+        }
     }
 
     UpdateStageCollisionBodyQuadTreeMesh();
