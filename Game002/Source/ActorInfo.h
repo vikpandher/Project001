@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-02
+// @DATE 2026-07-12
 
 #include <string>
 #include <unordered_map>
@@ -29,6 +29,8 @@ struct CursorInfo
     float animationStateCountDown_s = 0.0f;
 
     bool animaitionFlipper = false;
+
+    bool hoveringOverAlreadyGrabbedEntity = false;
 
     static constexpr size_t s_position_renderedMeshIndex = 0;
     static constexpr size_t s_press_renderedMeshIndex = 1;
@@ -66,6 +68,8 @@ const std::unordered_map<size_t, std::string> CursorInfo::s_stateToString =
 
 struct PenguinInfo
 {
+    size_t playerNumber = 0;
+
     unsigned int snowball_entityId = static_cast<unsigned int>(-1);
 
     enum class State
@@ -209,13 +213,32 @@ struct SharkInfo
     float backRotationZ = 0.0f;
     float jawRotationZ = 0.0f;
 
+    float minAttackIntersectionScalar1 = std::numeric_limits<float>::infinity();
+    bool minAttackIntersectionWithPenguin1 = false;
+    float minAttackIntersectionScalar2 = std::numeric_limits<float>::infinity();
+    bool minAttackIntersectionWithPenguin2 = false;
+    float minAttackIntersectionScalar3 = std::numeric_limits<float>::infinity();
+    bool minAttackIntersectionWithPenguin3 = false;
+    float minAttackIntersectionScalar4 = std::numeric_limits<float>::infinity();
+    bool minAttackIntersectionWithPenguin4 = false;
+
     static constexpr size_t s_front_renderedMeshIndex = 0;
     static constexpr size_t s_back_renderedMeshIndex = 1;
     static constexpr size_t s_jaw_renderedMeshIndex = 2;
     static constexpr size_t s_frontCollision_renderedMeshIndex = 3;
     static constexpr size_t s_backCollision_renderedMeshIndex = 4;
     static constexpr size_t s_jawCollision_renderedMeshIndex = 5;
-    static constexpr size_t s_renderedMeshCount = 6;
+    static constexpr size_t s_attackRay1_renderedMeshIndex = 6;
+    static constexpr size_t s_attackRay2_renderedMeshIndex = 7;
+    static constexpr size_t s_attackRay3_renderedMeshIndex = 8;
+    static constexpr size_t s_attackRay4_renderedMeshIndex = 9;
+    static constexpr size_t s_renderedMeshCount = 10;
+
+    static constexpr size_t s_attackRay1_collisionRayIndex = 0;
+    static constexpr size_t s_attackRay2_collisionRayIndex = 1;
+    static constexpr size_t s_attackRay3_collisionRayIndex = 2;
+    static constexpr size_t s_attackRay4_collisionRayIndex = 3;
+    static constexpr size_t s_collisionRayCount = 4;
 
     static const size_t s_jaw_collisionCircleIndex = 0;
     static const size_t s_collisionCircleCount = 1;
@@ -231,7 +254,7 @@ struct StageInfo
 {
     float groundSize = SharedApplicationData::s_ground_size;
 
-    float groundSkrinkRate_s = 8.0f;
+    float groundSkrinkRate_s = 40.0f;
 
     static constexpr size_t s_ground_renderedMeshIndex = 0;
     static constexpr size_t s_water_renderedMeshIndex = 1;

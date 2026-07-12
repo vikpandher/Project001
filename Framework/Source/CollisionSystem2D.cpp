@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-02-25
+// @DATE 2026-07-12
 
 #include "CollisionSystem2D.h"
 
@@ -694,7 +694,7 @@ namespace Project001
             0.0f
         };
 
-        std::function<void(unsigned int tagA, unsigned int tagB)> AddCollisionOverlapData =
+        std::function<void(unsigned int, unsigned int)> AddCollisionOverlapData =
             [&](unsigned int tagA, unsigned int tagB)
             {
                 CollisionOverlapData2D collisionOverlapA;
@@ -717,7 +717,7 @@ namespace Project001
                 }
             };
 
-        std::function<void(CollisionOverlapData2D& collisionOverlapA, unsigned int tagA, unsigned int tagB)> AddCollisionOverlapData_v2 =
+        std::function<void(CollisionOverlapData2D&, unsigned int, unsigned int)> AddCollisionOverlapData_v2 =
             [&](CollisionOverlapData2D& collisionOverlapA, unsigned int tagA, unsigned int tagB)
             {
                 collisionOverlapA.overlapId = overlapIdCounter_++;
@@ -742,7 +742,7 @@ namespace Project001
                 }
             };
 
-        std::function<void(CollisionOverlapData2D& collisionOverlap)> UpdateCollisionManifold =
+        std::function<void(CollisionOverlapData2D&)> UpdateCollisionManifold =
             [&](CollisionOverlapData2D& collisionOverlap)
             {
                 if (collisionOverlap.depth > newCollisionManifold.collisionDepth)
@@ -1540,7 +1540,6 @@ namespace Project001
                         AddCollisionOverlapData(rayA.tag, convexPolygonB.tag);
                     }
                 }
-
                 else
                 {
                     float intersectionScalar = 0.0f;
@@ -4305,7 +4304,7 @@ namespace Project001
             {
                 const CollisionRay2D& rayB = transformedCollisionRaysB[j];
 
-                if (rayB.recordRaycast)
+                if (!rayB.recordRaycast)
                 {
                     bool collisionFound = Check2D_ConvexPolygon_Ray_Overlap(
                         convexPolygonA.corners.data(),

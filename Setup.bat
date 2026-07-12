@@ -1,8 +1,8 @@
 @ECHO off
 
 SET "cmake_generator=Visual Studio 18 2026"
-REM SET "cmake_architecture=x64"
-SET "cmake_architecture=ARM64"
+SET "cmake_architecture=x64"
+REM SET "cmake_architecture=ARM64"
 
 REM Initialize and update all submodules
 git submodule update --init --recursive

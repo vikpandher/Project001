@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-19
+// @DATE 2026-07-12
 
 #include "TestScene022.h"
 
@@ -141,7 +141,7 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         }
     }
 
-    // Ray 1
+    // Ray 1 (Offset)
     {
         Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
         meshDataPtrArray_.push_back(newMeshDataPtr);
@@ -149,6 +149,8 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
         shapePoints.emplace_back(0.0f, 0.0f);
         shapePoints.emplace_back(100.0f, 0.0f);
         FAIL_CHECK(Project001::Mesh::Generate2DLine(*newMeshDataPtr, shapePoints, 0.01f, true));
+        Project001::Mesh::TranslateMesh(*newMeshDataPtr, glm::vec3(-0.08f, 0.16f, 0.0f));
+        FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*newMeshDataPtr, 0.01f, 10));
 
         unsigned int tempEntityId;
         GetComponentStoresPtr()->CreateEntity(tempEntityId);
@@ -175,6 +177,8 @@ void TestScene022::ProcessInitializeEvent(Project001::InitializeEvent& initializ
             collisionBody2DPtr->SetPosition(currentPosition);
             std::vector<Project001::CollisionRay2D>& collisionRays = collisionBody2DPtr->GetCollisionRays();
             collisionRays.emplace_back();
+            collisionRays.back().position.x = -0.08f;
+            collisionRays.back().position.y = 0.16f;
         }
     }
 

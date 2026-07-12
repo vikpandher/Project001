@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-07-12
 
 #pragma once
 
@@ -94,6 +94,8 @@ namespace Math
     glm::vec2 Get2DVectorProjection(const glm::vec2& vector1, const glm::vec2& vector2);
 
     float Get3DVectorAngle(const glm::vec3& vector1, const glm::vec3& vector2);
+
+    glm::vec2 Pivot2DPoint(const glm::vec2& point, const glm::vec2& pivot, float rotationInRadians);
 
     glm::vec2 Rotate2DVector(const glm::vec2& vector, float rotationInRadians);
 

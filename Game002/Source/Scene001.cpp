@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-02
+// @DATE 2026-07-12
 
 #include "Scene001.h"
 
@@ -140,7 +140,7 @@ void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     bool startPressed = false;
     for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
     {
-        startPressed |= sharedDataPtr_->playerInfos[i].turnedOn && (sharedDataPtr_->playerInfos[i].start_pressCount > 0);
+        startPressed |= sharedDataPtr_->playerCreationInfos[i].turnedOn && (sharedDataPtr_->playerCreationInfos[i].start_pressCount > 0);
     }
     if (startPressed)
     {
@@ -882,6 +882,11 @@ void Scene001::LoadActorResources()
         *sharedDataPtr_->shark_jaw_collision_meshDataPtr,
         glm::vec3(0.0f, 80.0f, 0.0f)
     );
+
+    sharedDataPtr_->shark_attackRay1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->shark_attackRay2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->shark_attackRay3_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->shark_attackRay4_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadUiResources()
@@ -1062,6 +1067,14 @@ void Scene001::FreeResources()
     sharedDataPtr_->shark_front_collision_meshDataPtr = nullptr;
     delete sharedDataPtr_->shark_jaw_collision_meshDataPtr;
     sharedDataPtr_->shark_jaw_collision_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_attackRay1_meshDataPtr;
+    sharedDataPtr_->shark_attackRay1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_attackRay2_meshDataPtr;
+    sharedDataPtr_->shark_attackRay2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_attackRay3_meshDataPtr;
+    sharedDataPtr_->shark_attackRay3_meshDataPtr = nullptr;
+    delete sharedDataPtr_->shark_attackRay4_meshDataPtr;
+    sharedDataPtr_->shark_attackRay4_meshDataPtr = nullptr;
 
     // Ui Resources
     delete sharedDataPtr_->uiLeftBackground_meshDataPtr;
@@ -1109,14 +1122,14 @@ void Scene001::ReadConfigFile()
                 bool result = false;
                 if (Project001::String::StringToBool(iter2->second, result))
                 {
-                    sharedDataPtr_->playerInfos[0].turnedOn = result;
+                    sharedDataPtr_->playerCreationInfos[0].turnedOn = result;
                 }
             }
 
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerInfos[0].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[0].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
         }
 
@@ -1129,14 +1142,14 @@ void Scene001::ReadConfigFile()
                 bool result = false;
                 if (Project001::String::StringToBool(iter2->second, result))
                 {
-                    sharedDataPtr_->playerInfos[1].turnedOn = result;
+                    sharedDataPtr_->playerCreationInfos[1].turnedOn = result;
                 }
             }
 
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerInfos[1].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[1].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
         }
 
@@ -1149,14 +1162,14 @@ void Scene001::ReadConfigFile()
                 bool result = false;
                 if (Project001::String::StringToBool(iter2->second, result))
                 {
-                    sharedDataPtr_->playerInfos[2].turnedOn = result;
+                    sharedDataPtr_->playerCreationInfos[2].turnedOn = result;
                 }
             }
 
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerInfos[2].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[2].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
         }
 
@@ -1169,14 +1182,14 @@ void Scene001::ReadConfigFile()
                 bool result = false;
                 if (Project001::String::StringToBool(iter2->second, result))
                 {
-                    sharedDataPtr_->playerInfos[3].turnedOn = result;
+                    sharedDataPtr_->playerCreationInfos[3].turnedOn = result;
                 }
             }
 
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerInfos[3].controlScheme = PlayerInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[3].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
         }
 

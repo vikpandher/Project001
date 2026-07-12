@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-03
+// @DATE 2026-07-12
 
 #pragma once
 
@@ -20,7 +20,7 @@ namespace Project001
     class Window;
 }
 
-struct PlayerInfo
+struct PlayerCreationInfo
 {
     size_t playerNumber = 0;
     bool turnedOn = true;
@@ -36,7 +36,7 @@ struct PlayerInfo
         CONTROL_SCHEME_CONTROLLER_4
     };
 
-    static PlayerInfo::ControlScheme PlayerInfo::StringToControlScheme(const std::string& str);
+    static PlayerCreationInfo::ControlScheme PlayerCreationInfo::StringToControlScheme(const std::string& str);
 
     ControlScheme controlScheme = ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
 
@@ -68,11 +68,11 @@ struct SharedApplicationData
     float gameTime_s = 0.0f;
 
     static constexpr size_t s_player_count = 4;
-    PlayerInfo playerInfos[s_player_count] = {
-        {0, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
-        {1, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
-        {2, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
-        {3, true, PlayerInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
+    PlayerCreationInfo playerCreationInfos[s_player_count] = {
+        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
+        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
+        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
+        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
@@ -257,7 +257,6 @@ struct SharedApplicationData
     Project001::MeshData* player4_aimRay1_meshDataPtr = nullptr;
     Project001::MeshData* player4_aimRay2_meshDataPtr = nullptr;
 
-
     Project001::TextureData* dotted_1_1_textureDataPtr = nullptr;
     unsigned int dotted_1_1_textureId = static_cast<unsigned int>(-1);
     Project001::TextureData* dotted_1_3_textureDataPtr = nullptr;
@@ -347,6 +346,10 @@ struct SharedApplicationData
     Project001::MeshData* shark_back_collision_meshDataPtr = nullptr;
     Project001::MeshData* shark_front_collision_meshDataPtr = nullptr;
     Project001::MeshData* shark_jaw_collision_meshDataPtr = nullptr;
+    Project001::MeshData* shark_attackRay1_meshDataPtr = nullptr;
+    Project001::MeshData* shark_attackRay2_meshDataPtr = nullptr;
+    Project001::MeshData* shark_attackRay3_meshDataPtr = nullptr;
+    Project001::MeshData* shark_attackRay4_meshDataPtr = nullptr;
 
     // Ui Resources
     Project001::MeshData* uiLeftBackground_meshDataPtr = nullptr;

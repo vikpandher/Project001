@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-12
+// @DATE 2026-07-12
 
 #include "CollisionBody2D.h"
 
@@ -1104,7 +1104,7 @@ namespace Project001
                 continue;
             }
 
-            glm::vec2 newPosition = currentCollisionRay.position + position_;
+            glm::vec2 newPosition = Math::Rotate2DVector(currentCollisionRay.position, rotation_) + position_;
             glm::vec2 newDirectoin = Math::Rotate2DVector(currentCollisionRay.direction, rotation_);
             transformedCollisionRays_.emplace_back(
                 newPosition,

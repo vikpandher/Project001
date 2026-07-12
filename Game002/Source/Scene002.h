@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-02
+// @DATE 2026-07-12
 
 #pragma once
 
@@ -44,7 +44,7 @@ protected:
     void CreateCursorEntity();
     void CreateStageEntity();
     void CreateStageLightEntity();
-    void CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation);
+    void CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation);
     void CreateSharkEntity(unsigned int& entityId, const glm::vec2& position, float rotation);
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
@@ -54,9 +54,9 @@ protected:
     void UpdateUiTextEntity();
     void UpdateUiPauseTextEntity();
     void UpdateCursorEntity(float timestep_s);
-    void UpdateStageEntity(float timestep_s);
-    void UpdateStageCollisionBodyQuadTreeMesh();
-    void UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, float timestep_s);
+    void UpdateStageEntity(float timestep_s); // modifies meshes
+    void UpdateStageCollisionBodyQuadTreeMesh(); // modifies meshes
+    void UpdatePenguinEntity(unsigned int& entityId,  float timestep_s);
     void UpdateSharkEntity(unsigned int& entityId, float timestep_s);
     void UpdateSnowballEntities(float timestep_s);
     void UpdateWorld(float timestep_s);
@@ -130,9 +130,13 @@ protected:
     static constexpr unsigned int s_path_collisionShapeTag_ = 8;
     static constexpr unsigned int s_sharkBody_collisionShapeTag_ = 9;
     static constexpr unsigned int s_sharkJaw_collisionShapeTag_ = 10;
-    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 11;
-    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 12;
-    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 13;
+    static constexpr unsigned int s_attackRay1_collisionShapeTag_ = 11;
+    static constexpr unsigned int s_attackRay2_collisionShapeTag_ = 12;
+    static constexpr unsigned int s_attackRay3_collisionShapeTag_ = 13;
+    static constexpr unsigned int s_attackRay4_collisionShapeTag_ = 14;
+    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 15;
+    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 16;
+    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 17;
 
     static constexpr float s_waterHeight = -8.0f;
 

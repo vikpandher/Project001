@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-01-22
+// @DATE 2026-07-12
 
 #include "MathUtility.h"
 
@@ -610,6 +610,11 @@ namespace Math
         }
 
         return angle;
+    }
+
+    glm::vec2 Pivot2DPoint(const glm::vec2& point, const glm::vec2& pivot, float rotationInRadians)
+    {
+        return Rotate2DVector(point - pivot, rotationInRadians) + pivot;
     }
 
     glm::vec2 Rotate2DVector(const glm::vec2& vector, float rotationInRadians)

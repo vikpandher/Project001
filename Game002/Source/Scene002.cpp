@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-03
+// @DATE 2026-07-12
 
 #include "Scene002.h"
 
@@ -69,21 +69,21 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     CreateStageEntity();
     CreateStageLightEntity();
 
-    if (sharedDataPtr_->playerInfos[0].turnedOn)
+    if (sharedDataPtr_->playerCreationInfos[0].turnedOn)
     {
-        CreatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerInfos[0], glm::vec2(-128.0f, 0.0f), glm::pi<float>());
+        CreatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerCreationInfos[0].playerNumber, glm::vec2(-128.0f, 0.0f), glm::pi<float>());
     }
-    if (sharedDataPtr_->playerInfos[1].turnedOn)
+    if (sharedDataPtr_->playerCreationInfos[1].turnedOn)
     {
-        CreatePenguinEntity(player_entityIds_[1], sharedDataPtr_->playerInfos[1], glm::vec2(-96.0f, 0.0f), glm::pi<float>());
+        CreatePenguinEntity(player_entityIds_[1], sharedDataPtr_->playerCreationInfos[1].playerNumber, glm::vec2(-96.0f, 0.0f), glm::pi<float>());
     }
-    if (sharedDataPtr_->playerInfos[2].turnedOn)
+    if (sharedDataPtr_->playerCreationInfos[2].turnedOn)
     {
-        CreatePenguinEntity(player_entityIds_[2], sharedDataPtr_->playerInfos[2], glm::vec2(-64.0f, 0.0f), glm::pi<float>());
+        CreatePenguinEntity(player_entityIds_[2], sharedDataPtr_->playerCreationInfos[2].playerNumber, glm::vec2(-64.0f, 0.0f), glm::pi<float>());
     }
-    if (sharedDataPtr_->playerInfos[3].turnedOn)
+    if (sharedDataPtr_->playerCreationInfos[3].turnedOn)
     {
-        CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], glm::vec2(-32.0f, 0.0f), glm::pi<float>());
+        CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerCreationInfos[3].playerNumber, glm::vec2(-32.0f, 0.0f), glm::pi<float>());
     }
 
     CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircleOffset_size), -glm::half_pi<float>());
@@ -195,21 +195,21 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         // Update snowballs before penguins because penguins can spawn snowballs
         UpdateSnowballEntities(physicsTimestep_s);
 
-        if (sharedDataPtr_->playerInfos[0].turnedOn)
+        if (sharedDataPtr_->playerCreationInfos[0].turnedOn)
         {
-            UpdatePenguinEntity(player_entityIds_[0], sharedDataPtr_->playerInfos[0], physicsTimestep_s);
+            UpdatePenguinEntity(player_entityIds_[0], physicsTimestep_s);
         }
-        if (sharedDataPtr_->playerInfos[1].turnedOn)
+        if (sharedDataPtr_->playerCreationInfos[1].turnedOn)
         {
-            UpdatePenguinEntity(player_entityIds_[1], sharedDataPtr_->playerInfos[1], physicsTimestep_s);
+            UpdatePenguinEntity(player_entityIds_[1], physicsTimestep_s);
         }
-        if (sharedDataPtr_->playerInfos[2].turnedOn)
+        if (sharedDataPtr_->playerCreationInfos[2].turnedOn)
         {
-            UpdatePenguinEntity(player_entityIds_[2], sharedDataPtr_->playerInfos[2], physicsTimestep_s);
+            UpdatePenguinEntity(player_entityIds_[2], physicsTimestep_s);
         }
-        if (sharedDataPtr_->playerInfos[3].turnedOn)
+        if (sharedDataPtr_->playerCreationInfos[3].turnedOn)
         {
-            UpdatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerInfos[3], physicsTimestep_s);
+            UpdatePenguinEntity(player_entityIds_[3], physicsTimestep_s);
         }
 
         UpdateSharkEntity(stageShark_entityId_, physicsTimestep_s);
@@ -656,7 +656,7 @@ void Scene002::CreateStageLightEntity()
     }
 }
 
-void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, const glm::vec2& position, float rotation)
+void Scene002::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
@@ -675,36 +675,38 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
     if (penguinInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
     {
+        penguinInfoPtr->playerNumber = playerNumber;
+
         unsigned int textureId = static_cast<unsigned int>(-1);
-        if (playerInfo.playerNumber == 0)
+        if (penguinInfoPtr->playerNumber == 0)
         {
             penguinInfoPtr->glassesType = 0;
 
-            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_textureId;
         }
-        else if (playerInfo.playerNumber == 1)
+        else if (penguinInfoPtr->playerNumber == 1)
         {
             penguinInfoPtr->glassesType = 1;
 
-            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v2_textureId;
         }
-        else if (playerInfo.playerNumber == 2)
+        else if (penguinInfoPtr->playerNumber == 2)
         {
             penguinInfoPtr->glassesType = 1;
 
-            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v3_textureId;
         }
-        else if (playerInfo.playerNumber == 3)
+        else if (penguinInfoPtr->playerNumber == 3)
         {
             penguinInfoPtr->glassesType = 1;
 
-            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[playerInfo.playerNumber]);
+            collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v4_textureId;
         }
@@ -801,20 +803,20 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         {
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay1_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
-            if (playerInfo.playerNumber == 0)
+            if (penguinInfoPtr->playerNumber == 0)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player1_aimRay1_meshDataPtr);
             }
-            else if (playerInfo.playerNumber == 1)
+            else if (penguinInfoPtr->playerNumber == 1)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player2_aimRay1_meshDataPtr);
 
             }
-            else if (playerInfo.playerNumber == 2)
+            else if (penguinInfoPtr->playerNumber == 2)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player3_aimRay1_meshDataPtr);
             }
-            else if (playerInfo.playerNumber == 3)
+            else if (penguinInfoPtr->playerNumber == 3)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay1_meshDataPtr);
             }
@@ -828,20 +830,20 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
             Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_aimRay2_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetTextureId(sharedDataPtr_->dotted_1_3_textureId);
-            if (playerInfo.playerNumber == 0)
+            if (penguinInfoPtr->playerNumber == 0)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player1_aimRay2_meshDataPtr);
             }
-            else if (playerInfo.playerNumber == 1)
+            else if (penguinInfoPtr->playerNumber == 1)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player2_aimRay2_meshDataPtr);
 
             }
-            else if (playerInfo.playerNumber == 2)
+            else if (penguinInfoPtr->playerNumber == 2)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player3_aimRay2_meshDataPtr);
             }
-            else if (playerInfo.playerNumber == 3)
+            else if (penguinInfoPtr->playerNumber == 3)
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay2_meshDataPtr);
             }
@@ -994,6 +996,7 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
             mesh.SetMeshDataPtr(sharedDataPtr_->shark_front_collision_meshDataPtr);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
             mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -1002,6 +1005,7 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
             mesh.SetMeshDataPtr(sharedDataPtr_->shark_back_collision_meshDataPtr);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
             mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
         }
 
         {
@@ -1010,6 +1014,47 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
             mesh.SetMeshDataPtr(sharedDataPtr_->shark_jaw_collision_meshDataPtr);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.25f);
             mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_attackRay1_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_attackRay1_meshDataPtr);
+            mesh.SetPositionZ(0.6f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_attackRay2_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_attackRay2_meshDataPtr);
+            mesh.SetPositionZ(0.6f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_attackRay3_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_attackRay3_meshDataPtr);
+            mesh.SetPositionZ(0.6f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[SharkInfo::s_attackRay4_renderedMeshIndex];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->shark_attackRay4_meshDataPtr);
+            mesh.SetPositionZ(0.6f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
         }
 
         collisionBodyPtr->SetPosition(position);
@@ -1017,6 +1062,46 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
 
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
         collisionCircles.resize(SharkInfo::s_collisionCircleCount);
+
+
+        std::vector<Project001::CollisionRay2D>& collisionRays = collisionBodyPtr->GetCollisionRays();
+        collisionRays.resize(SharkInfo::s_collisionRayCount);
+
+        {
+            Project001::CollisionRay2D& collisionRay = collisionRays[SharkInfo::s_attackRay1_collisionRayIndex];
+            collisionRay = Project001::CollisionRay2D(
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                s_attackRay1_collisionShapeTag_
+            );
+        }
+
+        {
+            Project001::CollisionRay2D& collisionRay = collisionRays[SharkInfo::s_attackRay2_collisionRayIndex];
+            collisionRay = Project001::CollisionRay2D(
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                s_attackRay2_collisionShapeTag_
+            );
+        }
+
+        {
+            Project001::CollisionRay2D& collisionRay = collisionRays[SharkInfo::s_attackRay3_collisionRayIndex];
+            collisionRay = Project001::CollisionRay2D(
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                s_attackRay3_collisionShapeTag_
+            );
+        }
+
+        {
+            Project001::CollisionRay2D& collisionRay = collisionRays[SharkInfo::s_attackRay4_collisionRayIndex];
+            collisionRay = Project001::CollisionRay2D(
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                s_attackRay4_collisionShapeTag_
+            );
+        }
 
         {
             Project001::CollisionCircle2D& collisionCircle = collisionCircles[SharkInfo::s_jaw_collisionCircleIndex];
@@ -1336,7 +1421,7 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
             glm::vec2 minPlayerPosition(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
             for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
             {
-                if (sharedDataPtr_->playerInfos[i].turnedOn)
+                if (sharedDataPtr_->playerCreationInfos[i].turnedOn)
                 {
                     Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
                     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityIds_[i]));
@@ -1476,7 +1561,7 @@ void Scene002::UpdateCursorEntity(float timestep_s)
         unsigned int grabable_entityId = static_cast<unsigned int>(-1);
         float grabable_entityDistance = std::numeric_limits<float>::infinity();
         bool snowballSpawnPointOnLand = false;
-        bool hoveringOverAlreadyGrabbedEntity = false;
+        cursorInfoPtr->hoveringOverAlreadyGrabbedEntity = false;
 
         const std::vector<Project001::CollisionOverlapData2D>& cursorCollisionOverlaps = cursorCollisionBodyPtr->GetCollisionOverlaps();
         for (size_t i = 0; i < cursorCollisionOverlaps.size(); ++i)
@@ -1492,7 +1577,7 @@ void Scene002::UpdateCursorEntity(float timestep_s)
             if (cursorCollisionOverlapData.myShapeTag == s_grab_collisionShapeTag_ &&
                 cursorInfoPtr->snowball_entityId == cursorCollisionOverlapData.otherEntityId)
             {
-                hoveringOverAlreadyGrabbedEntity = true;
+                cursorInfoPtr->hoveringOverAlreadyGrabbedEntity = true;
             }
 
             if (cursorInfoPtr->snowball_entityId == static_cast<unsigned int>(-1) &&
@@ -1563,99 +1648,6 @@ void Scene002::UpdateCursorEntity(float timestep_s)
         if (impulseMagntidueSum > 128.0f)
         {
             hitHard = true;
-        }
-
-        // Update aim ray
-        // ---------------------------------------------------------------------
-
-        const std::vector<Project001::CollisionRaycastData2D>& cursorCollisionRaycasts = cursorCollisionBodyPtr->GetCollisionRaycasts();
-
-        float pullIntersectionScalar = std::numeric_limits<float>::infinity();
-        for (size_t i = 0; i < cursorCollisionRaycasts.size(); ++i)
-        {
-            const Project001::CollisionRaycastData2D& cursorCollisionRaycastData = cursorCollisionRaycasts[i];
-
-            if (cursorCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_)
-            {
-                if (cursorCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ &&
-                    cursorCollisionRaycastData.otherEntityId == cursorInfoPtr->snowball_entityId)
-                {
-                    pullIntersectionScalar = cursorCollisionRaycastData.intersectionScalar;
-                }
-            }
-        }
-
-        float minAimIntersectionScalar = std::numeric_limits<float>::infinity();
-        for (size_t i = 0; i < cursorCollisionRaycasts.size(); ++i)
-        {
-            const Project001::CollisionRaycastData2D& cursorCollisionRaycastData = cursorCollisionRaycasts[i];
-
-            if (cursorCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_)
-            {
-                if ((cursorCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ ||
-                    (cursorCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ && cursorCollisionRaycastData.otherEntityId != cursorInfoPtr->snowball_entityId)) &&
-                    cursorCollisionRaycastData.intersectionScalar < minAimIntersectionScalar &&
-                    cursorCollisionRaycastData.intersectionScalar > pullIntersectionScalar)
-                {
-                    minAimIntersectionScalar = cursorCollisionRaycastData.intersectionScalar;
-                }
-            }
-        }
-
-        // LOG_INFO("pullIntersectionScalar = " << pullIntersectionScalar);
-        // LOG_INFO("minAimIntersectionScalar = " << minAimIntersectionScalar);
-
-        sharedDataPtr_->cursor_aimRay1_meshDataPtr->Clear();
-        sharedDataPtr_->cursor_aimRay2_meshDataPtr->Clear();
-        sharedDataPtr_->cursor_aimRay3_meshDataPtr->Clear();
-
-        if (pullIntersectionScalar > 0.0f && !hoveringOverAlreadyGrabbedEntity)
-        {
-            const std::vector<Project001::CollisionRay2D>& cursorCollisionRays = cursorCollisionBodyPtr->GetCollisionRays();
-            const Project001::CollisionRay2D& aimRay = cursorCollisionRays[CursorInfo::s_aimRay_collisionRayIndex];
-
-            if (minAimIntersectionScalar > SharedApplicationData::s_maxAimLineLength)
-            {
-                FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                    *sharedDataPtr_->cursor_aimRay1_meshDataPtr,
-                    aimRay.position + aimRay.direction * pullIntersectionScalar,
-                    aimRay.position + aimRay.direction * SharedApplicationData::s_maxAimLineLength,
-                    SharedApplicationData::s_aimLineWidth
-                ));
-            }
-            else
-            {
-                FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                    *sharedDataPtr_->cursor_aimRay1_meshDataPtr,
-                    aimRay.position + aimRay.direction * pullIntersectionScalar,
-                    aimRay.position + aimRay.direction * minAimIntersectionScalar,
-                    SharedApplicationData::s_aimLineWidth
-                ));
-
-                FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                    *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
-                    aimRay.position + aimRay.direction * minAimIntersectionScalar,
-                    aimRay.position + aimRay.direction * (minAimIntersectionScalar + SharedApplicationData::s_maxAimLineLength),
-                    SharedApplicationData::s_aimLineWidth
-                ));
-                Project001::Mesh::RotateTextureCoordinates(
-                    *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
-                    -glm::half_pi<float>()
-                );
-                Project001::Mesh::ScaleTextureCoordinates(
-                    *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
-                    glm::vec2(1.0f, SharedApplicationData::s_maxAimLineLength * 0.125f)
-                );
-            }
-
-            FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                *sharedDataPtr_->cursor_aimRay3_meshDataPtr,
-                aimRay.position,
-                aimRay.position + aimRay.direction * pullIntersectionScalar,
-                SharedApplicationData::s_aimLineWidth * 2.0f
-            ));
-
-            // TODO: Update aim ray meshes
         }
 
         // Gathering input
@@ -1818,7 +1810,7 @@ void Scene002::UpdateCursorEntity(float timestep_s)
         {
             if (!grabHeld)
             {
-                if (hoveringOverAlreadyGrabbedEntity)
+                if (cursorInfoPtr->hoveringOverAlreadyGrabbedEntity)
                 {
                     snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
                     cursorInfoPtr->state = CursorInfo::State::STATE_POINTING;
@@ -2048,7 +2040,7 @@ void Scene002::UpdateStageCollisionBodyQuadTreeMesh()
     }
 }
 
-void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInfo, float timestep_s)
+void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 {
     // Creating new components will cause old pointers from the ECS to become,
     // invalid. Flags will be used to preform these actions at the end.
@@ -2198,117 +2190,55 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, PlayerInfo& playerInf
         //     }
         // }
 
-        // Update aim ray
-        // ---------------------------------------------------------------------
-
-        float minIntersectionScalar = std::numeric_limits<float>::infinity();
-
-        const std::vector<Project001::CollisionRaycastData2D>& penguinCollisionRaycasts = penguinCollisionBodyPtr->GetCollisionRaycasts();
-        for (size_t i = 0; i < penguinCollisionRaycasts.size(); ++i)
-        {
-            const Project001::CollisionRaycastData2D& penguinCollisionRaycastData = penguinCollisionRaycasts[i];
-
-            if (penguinCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_ &&
-                (penguinCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ ||
-                    (penguinCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ && penguinCollisionRaycastData.otherEntityId != penguinInfoPtr->snowball_entityId)) &&
-                penguinCollisionRaycastData.intersectionScalar < minIntersectionScalar)
-            {
-                minIntersectionScalar = penguinCollisionRaycastData.intersectionScalar;
-            }
-        }
-
-        Project001::MeshData* aimRay1_MeshDataPtr = nullptr;
-        Project001::MeshData* aimRay2_MeshDataPtr = nullptr;
-        if (playerInfo.playerNumber == 0)
-        {
-            aimRay1_MeshDataPtr = sharedDataPtr_->player1_aimRay1_meshDataPtr;
-            aimRay2_MeshDataPtr = sharedDataPtr_->player1_aimRay2_meshDataPtr;
-        }
-        else if (playerInfo.playerNumber == 1)
-        {
-            aimRay1_MeshDataPtr = sharedDataPtr_->player2_aimRay1_meshDataPtr;
-            aimRay2_MeshDataPtr = sharedDataPtr_->player2_aimRay2_meshDataPtr;
-
-        }
-        else if (playerInfo.playerNumber == 2)
-        {
-            aimRay1_MeshDataPtr = sharedDataPtr_->player3_aimRay1_meshDataPtr;
-            aimRay2_MeshDataPtr = sharedDataPtr_->player3_aimRay2_meshDataPtr;
-        }
-        else if (playerInfo.playerNumber == 3)
-        {
-            aimRay1_MeshDataPtr = sharedDataPtr_->player4_aimRay1_meshDataPtr;
-            aimRay2_MeshDataPtr = sharedDataPtr_->player4_aimRay2_meshDataPtr;
-        }
-
-        if (aimRay1_MeshDataPtr != nullptr && aimRay2_MeshDataPtr != nullptr)
-        {
-            aimRay1_MeshDataPtr->Clear();
-            aimRay2_MeshDataPtr->Clear();
-
-            if (minIntersectionScalar > SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius)
-            {
-                if (minIntersectionScalar > SharedApplicationData::s_maxAimLineLength)
-                {
-                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                        *aimRay1_MeshDataPtr,
-                        glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
-                        glm::vec2(0.0f, SharedApplicationData::s_maxAimLineLength),
-                        SharedApplicationData::s_aimLineWidth
-                    ));
-                }
-                else
-                {
-                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
-                        *aimRay1_MeshDataPtr,
-                        glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
-                        glm::vec2(0.0f, minIntersectionScalar),
-                        SharedApplicationData::s_aimLineWidth
-                    ));
-
-                    FAIL_CHECK(Project001::Mesh::Generate2DSprite(
-                        *aimRay2_MeshDataPtr,
-                        glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
-                        glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
-                        glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
-                        glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
-                        0.0f, 1.0f,
-                        0.0f, (SharedApplicationData::s_maxAimLineLength - minIntersectionScalar) * 0.125f
-                    ));
-                }
-            }
-        }
-
         // Gathering input
         // ---------------------------------------------------------------------
 
-        const bool& grabPressed = playerInfo.grab_pressCount > 0;
-        const bool& throwPressed = playerInfo.throw_pressCount == 1; // TODO
+        const PlayerCreationInfo* playerInfoPtr = nullptr;
+
+        if (penguinInfoPtr->playerNumber == 0)
+        {
+            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[0];
+        }
+        else if (penguinInfoPtr->playerNumber == 1)
+        {
+            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[1];
+        }
+        else if (penguinInfoPtr->playerNumber == 2)
+        {
+            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[2];
+        }
+        else if (penguinInfoPtr->playerNumber == 3)
+        {
+            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[3];
+        }
+
+        const bool& grabPressed = playerInfoPtr->grab_pressCount > 0;
+        const bool& throwPressed = playerInfoPtr->throw_pressCount == 1; // TODO
 
         glm::vec2 moveDirection(0.0f, 0.0);
-        if (playerInfo.left_pressCount > 0)
+        if (playerInfoPtr->left_pressCount > 0)
         {
             moveDirection.x -= 1.0f;
         }
-        if (playerInfo.right_pressCount > 0)
+        if (playerInfoPtr->right_pressCount > 0)
         {
             moveDirection.x += 1.0f;
         }
-        if (playerInfo.up_pressCount > 0)
+        if (playerInfoPtr->up_pressCount > 0)
         {
             moveDirection.y += 1.0f;
         }
-        if (playerInfo.down_pressCount > 0)
+        if (playerInfoPtr->down_pressCount > 0)
         {
             moveDirection.y -= 1.0f;
         }
-        if (glm::abs(playerInfo.leftRightAxisValue) > playerInfo.axisDeadzone)
+        if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
         {
-            moveDirection.x += playerInfo.leftRightAxisValue;
+            moveDirection.x += playerInfoPtr->leftRightAxisValue;
         }
-        if (glm::abs(playerInfo.upDownAxisValue) > playerInfo.axisDeadzone)
+        if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
         {
-            moveDirection.y += playerInfo.upDownAxisValue;
+            moveDirection.y += playerInfoPtr->upDownAxisValue;
         }
 
         float moveMagnitude = glm::length(moveDirection);
@@ -2946,6 +2876,12 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
             const Project001::CollisionImpulseData2D& sharkCollisionImpulseData = sharkCollisionImpulses[i];
 
             impulseMagntidueSum += glm::length(sharkCollisionImpulseData.impulse);
+        }
+
+        bool hitHard = false;
+        if (impulseMagntidueSum > 256.0f)
+        {
+            hitHard = true;
         }
 
         // TODO:
@@ -3950,6 +3886,46 @@ void Scene002::AnimateSharkEntities(float timestep_s)
             Project001::RenderedMesh& jawCollision_mesh = renderedMeshes[SharkInfo::s_jawCollision_renderedMeshIndex];
             jawCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
 
+            Project001::RenderedMesh& attackRay1_mesh = renderedMeshes[SharkInfo::s_attackRay1_renderedMeshIndex];
+            if (sharkInfo.minAttackIntersectionWithPenguin1)
+            {
+                attackRay1_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
+            }
+            else
+            {
+                attackRay1_mesh.SetColor(0.8f, 0.0f, 0.0f, 0.2f);
+            }
+
+            Project001::RenderedMesh& attackRay2_mesh = renderedMeshes[SharkInfo::s_attackRay2_renderedMeshIndex];
+            if (sharkInfo.minAttackIntersectionWithPenguin2)
+            {
+                attackRay2_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
+            }
+            else
+            {
+                attackRay2_mesh.SetColor(0.8f, 0.0f, 0.0f, 0.2f);
+            }
+
+            Project001::RenderedMesh& attackRay3_mesh = renderedMeshes[SharkInfo::s_attackRay3_renderedMeshIndex];
+            if (sharkInfo.minAttackIntersectionWithPenguin3)
+            {
+                attackRay3_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
+            }
+            else
+            {
+                attackRay3_mesh.SetColor(0.8f, 0.0f, 0.0f, 0.2f);
+            }
+
+            Project001::RenderedMesh& attackRay4_mesh = renderedMeshes[SharkInfo::s_attackRay4_renderedMeshIndex];
+            if (sharkInfo.minAttackIntersectionWithPenguin4)
+            {
+                attackRay4_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
+            }
+            else
+            {
+                attackRay4_mesh.SetColor(0.8f, 0.0f, 0.0f, 0.2f);
+            }
+
             if (sharkInfo.animationState == SharkInfo::State::STATE_SWIMMING)
             {
                 if (sharkInfo.animaitionFlipper)
@@ -4389,6 +4365,94 @@ void Scene002::SyncCursorRenderedModels()
             handBaseMesh.SetPositionX(onScreenPoint.position.x);
             handBaseMesh.SetPositionY(onScreenPoint.position.y);
             handBaseMesh.SetVisible(onScreenPoint.enabled);
+
+            // Update aim ray meshes
+            // ---------------------------------------------------------------------
+
+            const std::vector<Project001::CollisionRaycastData2D>& cursorCollisionRaycasts = collisionBodyPtr->GetCollisionRaycasts();
+
+            float pullIntersectionScalar = std::numeric_limits<float>::infinity();
+            for (size_t i = 0; i < cursorCollisionRaycasts.size(); ++i)
+            {
+                const Project001::CollisionRaycastData2D& cursorCollisionRaycastData = cursorCollisionRaycasts[i];
+
+                if (cursorCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_)
+                {
+                    if (cursorCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ &&
+                        cursorCollisionRaycastData.otherEntityId == cursorInfo.snowball_entityId)
+                    {
+                        pullIntersectionScalar = cursorCollisionRaycastData.intersectionScalar;
+                    }
+                }
+            }
+
+            float minAimIntersectionScalar = std::numeric_limits<float>::infinity();
+            for (size_t i = 0; i < cursorCollisionRaycasts.size(); ++i)
+            {
+                const Project001::CollisionRaycastData2D& cursorCollisionRaycastData = cursorCollisionRaycasts[i];
+
+                if (cursorCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_)
+                {
+                    if ((cursorCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ ||
+                        (cursorCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ && cursorCollisionRaycastData.otherEntityId != cursorInfo.snowball_entityId)) &&
+                        cursorCollisionRaycastData.intersectionScalar < minAimIntersectionScalar &&
+                        cursorCollisionRaycastData.intersectionScalar > pullIntersectionScalar)
+                    {
+                        minAimIntersectionScalar = cursorCollisionRaycastData.intersectionScalar;
+                    }
+                }
+            }
+
+            sharedDataPtr_->cursor_aimRay1_meshDataPtr->Clear();
+            sharedDataPtr_->cursor_aimRay2_meshDataPtr->Clear();
+            sharedDataPtr_->cursor_aimRay3_meshDataPtr->Clear();
+
+            if (pullIntersectionScalar > 0.0f && !cursorInfo.hoveringOverAlreadyGrabbedEntity)
+            {
+                const std::vector<Project001::CollisionRay2D>& cursorCollisionRays = collisionBodyPtr->GetCollisionRays();
+                const Project001::CollisionRay2D& aimRay = cursorCollisionRays[CursorInfo::s_aimRay_collisionRayIndex];
+
+                if (minAimIntersectionScalar > SharedApplicationData::s_maxAimLineLength)
+                {
+                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                        *sharedDataPtr_->cursor_aimRay1_meshDataPtr,
+                        aimRay.position + aimRay.direction * pullIntersectionScalar,
+                        aimRay.position + aimRay.direction * SharedApplicationData::s_maxAimLineLength,
+                        SharedApplicationData::s_aimLineWidth
+                    ));
+                }
+                else
+                {
+                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                        *sharedDataPtr_->cursor_aimRay1_meshDataPtr,
+                        aimRay.position + aimRay.direction * pullIntersectionScalar,
+                        aimRay.position + aimRay.direction * minAimIntersectionScalar,
+                        SharedApplicationData::s_aimLineWidth
+                    ));
+
+                    FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                        *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
+                        aimRay.position + aimRay.direction * minAimIntersectionScalar,
+                        aimRay.position + aimRay.direction * (minAimIntersectionScalar + SharedApplicationData::s_maxAimLineLength),
+                        SharedApplicationData::s_aimLineWidth
+                    ));
+                    Project001::Mesh::RotateTextureCoordinates(
+                        *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
+                        -glm::half_pi<float>()
+                    );
+                    Project001::Mesh::ScaleTextureCoordinates(
+                        *sharedDataPtr_->cursor_aimRay2_meshDataPtr,
+                        glm::vec2(1.0f, SharedApplicationData::s_maxAimLineLength * 0.125f)
+                    );
+                }
+
+                FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                    *sharedDataPtr_->cursor_aimRay3_meshDataPtr,
+                    aimRay.position,
+                    aimRay.position + aimRay.direction * pullIntersectionScalar,
+                    SharedApplicationData::s_aimLineWidth * 2.0f
+                ));
+            }
         }
     }
 }
@@ -4422,6 +4486,87 @@ void Scene002::SyncPenguinRenderedModels()
                 Project001::RenderedMesh& mesh = renderedMeshes[PenguinInfo::s_grabAttractorCollision_renderedMeshIndex];
                 mesh.SetPositionY(penguinInfo.grabAttractionRadius);
             }
+
+            // Update aim ray
+            // ---------------------------------------------------------------------
+
+            float minIntersectionScalar = std::numeric_limits<float>::infinity();
+
+            const std::vector<Project001::CollisionRaycastData2D>& penguinCollisionRaycasts = collisionBodyPtr->GetCollisionRaycasts();
+            for (size_t i = 0; i < penguinCollisionRaycasts.size(); ++i)
+            {
+                const Project001::CollisionRaycastData2D& penguinCollisionRaycastData = penguinCollisionRaycasts[i];
+
+                if (penguinCollisionRaycastData.myShapeTag == s_aimRay_collisionShapeTag_ &&
+                    (penguinCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_ ||
+                        (penguinCollisionRaycastData.otherShapeTag == s_snowball_collisionShapeTag_ && penguinCollisionRaycastData.otherEntityId != penguinInfo.snowball_entityId)) &&
+                    penguinCollisionRaycastData.intersectionScalar < minIntersectionScalar)
+                {
+                    minIntersectionScalar = penguinCollisionRaycastData.intersectionScalar;
+                }
+            }
+
+            Project001::MeshData* aimRay1_MeshDataPtr = nullptr;
+            Project001::MeshData* aimRay2_MeshDataPtr = nullptr;
+            if (penguinInfo.playerNumber == 0)
+            {
+                aimRay1_MeshDataPtr = sharedDataPtr_->player1_aimRay1_meshDataPtr;
+                aimRay2_MeshDataPtr = sharedDataPtr_->player1_aimRay2_meshDataPtr;
+            }
+            else if (penguinInfo.playerNumber == 1)
+            {
+                aimRay1_MeshDataPtr = sharedDataPtr_->player2_aimRay1_meshDataPtr;
+                aimRay2_MeshDataPtr = sharedDataPtr_->player2_aimRay2_meshDataPtr;
+
+            }
+            else if (penguinInfo.playerNumber == 2)
+            {
+                aimRay1_MeshDataPtr = sharedDataPtr_->player3_aimRay1_meshDataPtr;
+                aimRay2_MeshDataPtr = sharedDataPtr_->player3_aimRay2_meshDataPtr;
+            }
+            else if (penguinInfo.playerNumber == 3)
+            {
+                aimRay1_MeshDataPtr = sharedDataPtr_->player4_aimRay1_meshDataPtr;
+                aimRay2_MeshDataPtr = sharedDataPtr_->player4_aimRay2_meshDataPtr;
+            }
+
+            if (aimRay1_MeshDataPtr != nullptr && aimRay2_MeshDataPtr != nullptr)
+            {
+                aimRay1_MeshDataPtr->Clear();
+                aimRay2_MeshDataPtr->Clear();
+
+                if (minIntersectionScalar > SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius)
+                {
+                    if (minIntersectionScalar > SharedApplicationData::s_maxAimLineLength)
+                    {
+                        FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                            *aimRay1_MeshDataPtr,
+                            glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
+                            glm::vec2(0.0f, SharedApplicationData::s_maxAimLineLength),
+                            SharedApplicationData::s_aimLineWidth
+                        ));
+                    }
+                    else
+                    {
+                        FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                            *aimRay1_MeshDataPtr,
+                            glm::vec2(0.0f, SharedApplicationData::s_penguin_grabOffset + SharedApplicationData::s_penguin_grabRadius),
+                            glm::vec2(0.0f, minIntersectionScalar),
+                            SharedApplicationData::s_aimLineWidth
+                        ));
+
+                        FAIL_CHECK(Project001::Mesh::Generate2DSprite(
+                            *aimRay2_MeshDataPtr,
+                            glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
+                            glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, minIntersectionScalar, 0.0f),
+                            glm::vec3(0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
+                            glm::vec3(-0.5f * SharedApplicationData::s_aimLineWidth, SharedApplicationData::s_maxAimLineLength, 0.0f),
+                            0.0f, 1.0f,
+                            0.0f, (SharedApplicationData::s_maxAimLineLength - minIntersectionScalar) * 0.125f
+                        ));
+                    }
+                }
+            }
         }
     }
 }
@@ -4449,6 +4594,169 @@ void Scene002::SyncSharkRenderedModels()
             renderedModelPtr->ResetOrientation();
             renderedModelPtr->AddRelativeRotationZ(collisionBodyPtr->GetRotation());
         }
+
+        // Update attack rays
+        // ---------------------------------------------------------------------
+
+        const glm::vec2& sharkPosition = collisionBodyPtr->GetPosition();
+        const float& sharkRotation = collisionBodyPtr->GetRotation();
+
+        std::vector<Project001::CollisionRay2D>& sharkCollisionRays = collisionBodyPtr->GetCollisionRays();
+        std::vector<Project001::CollisionCircle2D>& sharkCollisionCircles = collisionBodyPtr->GetCollisionCircles();
+
+        const glm::vec2& localJawPosition = sharkCollisionCircles[SharkInfo::s_jaw_collisionCircleIndex].position;
+
+        std::function<void(bool, size_t, unsigned int)> UpdateAttackCollisionRayDirection =
+            [&](bool turnedOn, size_t collisionRayIndex, unsigned int player_etityId)
+            {
+                if (turnedOn)
+                {
+                    Project001::CollisionRay2D& attackCollisionRay = sharkCollisionRays[collisionRayIndex];
+
+                    Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, player_etityId));
+                    if (penguinCollisionBodyPtr != nullptr)
+                    {
+                        const std::vector<Project001::CollisionCircle2D>& penguinCollisionCircles = penguinCollisionBodyPtr->GetCollisionCircles();
+                        const Project001::CollisionCircle2D& penguinCollisionCircle = penguinCollisionCircles[PenguinInfo::s_body_collisionCircleIndex];
+
+                        const glm::vec2& penguinPosition = penguinCollisionBodyPtr->GetPosition();
+                        glm::vec2 relativePenguinPosition = penguinPosition - sharkPosition;
+                        relativePenguinPosition = Project001::Math::Rotate2DVector(relativePenguinPosition, -sharkRotation);
+
+                        glm::vec2 rayDirection = relativePenguinPosition - localJawPosition;
+                        float rayMagnitude = glm::length(rayDirection);
+                        if (rayMagnitude > 0.0f)
+                        {
+                            attackCollisionRay.position = localJawPosition;
+                            attackCollisionRay.direction = rayDirection / rayMagnitude;
+                        }
+                    }
+                }
+            };
+
+        UpdateAttackCollisionRayDirection(
+            sharedDataPtr_->playerCreationInfos[0].turnedOn,
+            SharkInfo::s_attackRay1_collisionRayIndex,
+            player_entityIds_[0]);
+
+        UpdateAttackCollisionRayDirection(
+            sharedDataPtr_->playerCreationInfos[1].turnedOn,
+            SharkInfo::s_attackRay2_collisionRayIndex,
+            player_entityIds_[1]);
+
+        UpdateAttackCollisionRayDirection(
+            sharedDataPtr_->playerCreationInfos[2].turnedOn,
+            SharkInfo::s_attackRay3_collisionRayIndex,
+            player_entityIds_[2]);
+
+        UpdateAttackCollisionRayDirection(
+            sharedDataPtr_->playerCreationInfos[3].turnedOn,
+            SharkInfo::s_attackRay4_collisionRayIndex,
+            player_entityIds_[3]);
+
+        sharkInfo.minAttackIntersectionScalar1 = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionWithPenguin1 = false;
+        sharkInfo.minAttackIntersectionScalar2 = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionWithPenguin2 = false;
+        sharkInfo.minAttackIntersectionScalar3 = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionWithPenguin3 = false;
+        sharkInfo.minAttackIntersectionScalar4 = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionWithPenguin4 = false;
+
+        const std::vector<Project001::CollisionRaycastData2D>& sharkCollisionRaycasts = collisionBodyPtr->GetCollisionRaycasts();
+        for (size_t i = 0; i < sharkCollisionRaycasts.size(); ++i)
+        {
+            const Project001::CollisionRaycastData2D& attackCollisionRaycastData = sharkCollisionRaycasts[i];
+
+            std::function<void(unsigned int, float&, bool&)> UpdateAttackIntersectionScalar =
+                [&](unsigned int attackRay_collisionShapeTag, float& minAttackIntersectionScalar, bool& minAttackIntersectionWithPenguin)
+                {
+                    if (attackCollisionRaycastData.myShapeTag == attackRay_collisionShapeTag &&
+                        attackCollisionRaycastData.intersectionScalar < minAttackIntersectionScalar)
+                    {
+                        if (attackCollisionRaycastData.otherShapeTag == s_ground_collisionShapeTag_)
+                        {
+                            minAttackIntersectionScalar = attackCollisionRaycastData.intersectionScalar;
+                            minAttackIntersectionWithPenguin = false;
+                        }
+                        else if (attackCollisionRaycastData.otherShapeTag == s_player_collisionShapeTag_)
+                        {
+                            minAttackIntersectionScalar = attackCollisionRaycastData.intersectionScalar;
+                            minAttackIntersectionWithPenguin = true;
+                        }
+                    }
+                };
+
+            UpdateAttackIntersectionScalar(
+                s_attackRay1_collisionShapeTag_,
+                sharkInfo.minAttackIntersectionScalar1,
+                sharkInfo.minAttackIntersectionWithPenguin1);
+
+            UpdateAttackIntersectionScalar(
+                s_attackRay2_collisionShapeTag_,
+                sharkInfo.minAttackIntersectionScalar2,
+                sharkInfo.minAttackIntersectionWithPenguin2);
+
+            UpdateAttackIntersectionScalar(
+                s_attackRay3_collisionShapeTag_,
+                sharkInfo.minAttackIntersectionScalar3,
+                sharkInfo.minAttackIntersectionWithPenguin3);
+
+            UpdateAttackIntersectionScalar(
+                s_attackRay4_collisionShapeTag_,
+                sharkInfo.minAttackIntersectionScalar4,
+                sharkInfo.minAttackIntersectionWithPenguin4);
+        }
+
+        std::function<void(Project001::MeshData*, float, size_t)> UpdateAttackRayMesh =
+            [&](Project001::MeshData* shark_attackRay_meshDataPtr, float minAttackIntersectoinWithPenguin, size_t attackRay_collisionRayIndex)
+            {
+                shark_attackRay_meshDataPtr->Clear();
+                if (minAttackIntersectoinWithPenguin > 0.0f)
+                {
+                    const Project001::CollisionRay2D attackCollisionRay = sharkCollisionRays[attackRay_collisionRayIndex];
+
+                    if (minAttackIntersectoinWithPenguin > SharedApplicationData::s_maxAimLineLength)
+                    {
+                        FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                            *shark_attackRay_meshDataPtr,
+                            attackCollisionRay.position,
+                            attackCollisionRay.position + attackCollisionRay.direction * SharedApplicationData::s_maxAimLineLength,
+                            SharedApplicationData::s_aimLineWidth
+                        ));
+                    }
+                    else
+                    {
+                        FAIL_CHECK(Project001::Mesh::Generate2DLine(
+                            *shark_attackRay_meshDataPtr,
+                            attackCollisionRay.position,
+                            attackCollisionRay.position + attackCollisionRay.direction * minAttackIntersectoinWithPenguin,
+                            SharedApplicationData::s_aimLineWidth
+                        ));
+                    }
+                }
+            };
+
+        UpdateAttackRayMesh(
+            sharedDataPtr_->shark_attackRay1_meshDataPtr,
+            sharkInfo.minAttackIntersectionScalar1,
+            SharkInfo::s_attackRay1_collisionRayIndex);
+
+        UpdateAttackRayMesh(
+            sharedDataPtr_->shark_attackRay2_meshDataPtr,
+            sharkInfo.minAttackIntersectionScalar2,
+            SharkInfo::s_attackRay2_collisionRayIndex);
+
+        UpdateAttackRayMesh(
+            sharedDataPtr_->shark_attackRay3_meshDataPtr,
+            sharkInfo.minAttackIntersectionScalar3,
+            SharkInfo::s_attackRay3_collisionRayIndex);
+
+        UpdateAttackRayMesh(
+            sharedDataPtr_->shark_attackRay4_meshDataPtr,
+            sharkInfo.minAttackIntersectionScalar4,
+            SharkInfo::s_attackRay4_collisionRayIndex);
     }
 }
 
