@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-13
 
 #include <string>
 #include <unordered_map>
@@ -204,6 +204,7 @@ struct SharkInfo
 
     State animationState = State::STATE_SWIMMING;
     float animationStateCountDown_s = 0.0f;
+    float hitstunCoolDown_s = 0.0f;
 
     bool animaitionFlipper = false;
 
@@ -254,7 +255,7 @@ struct StageInfo
 {
     float groundSize = SharedApplicationData::s_ground_size;
 
-    float groundSkrinkRate_s = 40.0f;
+    float groundSkrinkRate_s = 8.0f;
 
     static constexpr size_t s_ground_renderedMeshIndex = 0;
     static constexpr size_t s_water_renderedMeshIndex = 1;

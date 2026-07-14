@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-13
 
 #pragma once
 
@@ -127,16 +127,16 @@ protected:
     static constexpr unsigned int s_aimRay_collisionShapeTag_ = 5;
     static constexpr unsigned int s_snowball_collisionShapeTag_ = 6;
     static constexpr unsigned int s_ground_collisionShapeTag_ = 7;
-    static constexpr unsigned int s_path_collisionShapeTag_ = 8;
-    static constexpr unsigned int s_sharkBody_collisionShapeTag_ = 9;
-    static constexpr unsigned int s_sharkJaw_collisionShapeTag_ = 10;
-    static constexpr unsigned int s_attackRay1_collisionShapeTag_ = 11;
-    static constexpr unsigned int s_attackRay2_collisionShapeTag_ = 12;
-    static constexpr unsigned int s_attackRay3_collisionShapeTag_ = 13;
-    static constexpr unsigned int s_attackRay4_collisionShapeTag_ = 14;
-    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 15;
-    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 16;
-    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 17;
+    static constexpr unsigned int s_sharkBody_collisionShapeTag_ = 8;
+    static constexpr unsigned int s_sharkJaw_collisionShapeTag_ = 9;
+    static constexpr unsigned int s_attackRay1_collisionShapeTag_ = 10;
+    static constexpr unsigned int s_attackRay2_collisionShapeTag_ = 11;
+    static constexpr unsigned int s_attackRay3_collisionShapeTag_ = 12;
+    static constexpr unsigned int s_attackRay4_collisionShapeTag_ = 13;
+    static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 14;
+    static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 15;
+    static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 16;
+    static constexpr unsigned int s_pathStart_collisionShapeTag_ = 100;
 
     static constexpr float s_waterHeight = -8.0f;
 

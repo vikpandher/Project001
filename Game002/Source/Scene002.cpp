@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-13
 
 #include "Scene002.h"
 
@@ -627,7 +627,7 @@ void Scene002::CreateStageEntity()
         collisionPoints.resize(StageInfo::s_collisionPointCount);
         for (size_t i = 0; i < StageInfo::s_collisionPointCount; ++i)
         {
-            collisionPoints[i].tag = s_path_collisionShapeTag_;
+            collisionPoints[i].tag = s_pathStart_collisionShapeTag_ + static_cast<unsigned int>(i);
         }
 
         std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
@@ -1059,6 +1059,7 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
 
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetRotation(rotation);
+        collisionBodyPtr->SetDensity(0.4f);
 
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
         collisionCircles.resize(SharkInfo::s_collisionCircleCount);
@@ -2156,6 +2157,9 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             }
         }
 
+        float area = penguinCollisionBodyPtr->GetArea();
+        float mass = penguinCollisionBodyPtr->GetMass();
+
         // if (impulseMagntidueSum > 0.0f)
         // {
         //     LOG_INFO(entityId << " impulse: " << impulseMagntidueSum);
@@ -2166,6 +2170,8 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         {
             hitHard = true;
         }
+
+        float potentialHitstunCoolDown_s = impulseMagntidueSum / 1024.0f;
 
         // if (snowballSpawnPointOnLand)
         // {
@@ -2212,33 +2218,39 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             playerInfoPtr = &sharedDataPtr_->playerCreationInfos[3];
         }
 
-        const bool& grabPressed = playerInfoPtr->grab_pressCount > 0;
-        const bool& throwPressed = playerInfoPtr->throw_pressCount == 1; // TODO
-
+        bool grabPressed = false;
+        bool throwPressed = false;
         glm::vec2 moveDirection(0.0f, 0.0);
-        if (playerInfoPtr->left_pressCount > 0)
+
+        if (playerInfoPtr != nullptr)
         {
-            moveDirection.x -= 1.0f;
-        }
-        if (playerInfoPtr->right_pressCount > 0)
-        {
-            moveDirection.x += 1.0f;
-        }
-        if (playerInfoPtr->up_pressCount > 0)
-        {
-            moveDirection.y += 1.0f;
-        }
-        if (playerInfoPtr->down_pressCount > 0)
-        {
-            moveDirection.y -= 1.0f;
-        }
-        if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
-        {
-            moveDirection.x += playerInfoPtr->leftRightAxisValue;
-        }
-        if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
-        {
-            moveDirection.y += playerInfoPtr->upDownAxisValue;
+            grabPressed = playerInfoPtr->grab_pressCount > 0;
+            throwPressed = playerInfoPtr->throw_pressCount == 1; // TODO
+
+            if (playerInfoPtr->left_pressCount > 0)
+            {
+                moveDirection.x -= 1.0f;
+            }
+            if (playerInfoPtr->right_pressCount > 0)
+            {
+                moveDirection.x += 1.0f;
+            }
+            if (playerInfoPtr->up_pressCount > 0)
+            {
+                moveDirection.y += 1.0f;
+            }
+            if (playerInfoPtr->down_pressCount > 0)
+            {
+                moveDirection.y -= 1.0f;
+            }
+            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.x += playerInfoPtr->leftRightAxisValue;
+            }
+            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.y += playerInfoPtr->upDownAxisValue;
+            }
         }
 
         float moveMagnitude = glm::length(moveDirection);
@@ -2246,8 +2258,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         {
             moveDirection /= moveMagnitude;
         }
-
-        glm::vec2 penguinCollisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector();
 
         // Changing state
         // ---------------------------------------------------------------------
@@ -2277,7 +2287,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 moveMagnitude = 0.0f;
                 penguinInfoPtr->state = PenguinInfo::State::STATE_HITSTUN;
-                penguinInfoPtr->hitstunCoolDown_s = impulseMagntidueSum / 512.0f;
+                penguinInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
 
                 break;
             }
@@ -2337,7 +2347,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 moveMagnitude = 0.0f;
                 penguinInfoPtr->state = PenguinInfo::State::STATE_HITSTUN;
-                penguinInfoPtr->hitstunCoolDown_s = impulseMagntidueSum / 512.0f;
+                penguinInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
 
                 break;
             }
@@ -2397,7 +2407,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 moveMagnitude = 0.0f;
                 penguinInfoPtr->state = PenguinInfo::State::STATE_HITSTUN;
-                penguinInfoPtr->hitstunCoolDown_s = impulseMagntidueSum / 512.0f;
+                penguinInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
         
                 penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
@@ -2526,8 +2536,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         if (penguinInfoPtr->state == PenguinInfo::State::STATE_HITSTUN)
         {
-            angularAcceleration = 0.0f;
-
             if (penguinInfoPtr->onLand)
             {
                 friction = SharedApplicationData::s_snowball_landFriction;
@@ -2541,6 +2549,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             angularFriction = SharedApplicationData::s_snowball_angularFriction;
         }
 
+        glm::vec2 penguinCollisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector();
         constexpr float turnAngleMovementThreshold = glm::pi<float>() * 0.25f;
 
         float turnAngle = 0.0f;
@@ -2878,10 +2887,229 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
             impulseMagntidueSum += glm::length(sharkCollisionImpulseData.impulse);
         }
 
+        float area = sharkCollisionBodyPtr->GetArea();
+        float mass = sharkCollisionBodyPtr->GetMass();
+
+        if (impulseMagntidueSum > 0.0f)
+        {
+            LOG_INFO(entityId << " impulse: " << impulseMagntidueSum);
+        }
+
         bool hitHard = false;
-        if (impulseMagntidueSum > 256.0f)
+        if (impulseMagntidueSum > 128.0f)
         {
             hitHard = true;
+        }
+
+        float potentialHitstunCoolDown_s = impulseMagntidueSum / 256.0f;
+
+        // Gathering input
+        // ---------------------------------------------------------------------
+
+        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[1];
+
+        glm::vec2 moveDirection(0.0f, 0.0);
+
+        if (playerInfoPtr != nullptr)
+        {
+            if (playerInfoPtr->left_pressCount > 0)
+            {
+                moveDirection.x -= 1.0f;
+            }
+            if (playerInfoPtr->right_pressCount > 0)
+            {
+                moveDirection.x += 1.0f;
+            }
+            if (playerInfoPtr->up_pressCount > 0)
+            {
+                moveDirection.y += 1.0f;
+            }
+            if (playerInfoPtr->down_pressCount > 0)
+            {
+                moveDirection.y -= 1.0f;
+            }
+            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.x += playerInfoPtr->leftRightAxisValue;
+            }
+            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.y += playerInfoPtr->upDownAxisValue;
+            }
+        }
+
+        float moveMagnitude = glm::length(moveDirection);
+        if (moveMagnitude > 0.0f)
+        {
+            moveDirection /= moveMagnitude;
+        }
+
+        // Changing state
+        // ---------------------------------------------------------------------
+
+        switch (sharkInfoPtr->state)
+        {
+        case SharkInfo::State::STATE_SWIMMING:
+        {
+            if (hitHard)
+            {
+                moveMagnitude = 0.0f;
+                sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
+                sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
+            }
+
+            break;
+        }
+        case SharkInfo::State::STATE_CHASING:
+        {
+            if (hitHard)
+            {
+                moveMagnitude = 0.0f;
+                sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
+                sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
+            }
+
+            break;
+        }
+        case SharkInfo::State::STATE_HITSTUN:
+        {
+            if (sharkInfoPtr->hitstunCoolDown_s > 0.0f)
+            {
+                moveMagnitude = 0.0f;
+                sharkInfoPtr->hitstunCoolDown_s -= timestep_s;
+            }
+            else
+            {
+                sharkInfoPtr->state = SharkInfo::State::STATE_SWIMMING;
+            }
+            break;
+        }
+        }
+
+        // Apply physics
+        // ---------------------------------------------------------------------
+
+        float maxSpeed = 256.0f;
+        float acceleration = 612.0f;
+        float friction = 192.0f;
+
+        constexpr float maxAngularSpeed = glm::pi<float>() * 2.0f;
+        float angularAcceleration = glm::pi<float>() * 4.0f;
+        float angularFriction = glm::pi<float>() * 32.0f;
+
+        if (sharkInfoPtr->state == SharkInfo::State::STATE_HITSTUN)
+        {
+            if (sharkInfoPtr->onLand)
+            {
+                friction = SharedApplicationData::s_snowball_landFriction;
+            }
+            else
+            {
+                friction = SharedApplicationData::s_snowball_waterFriction;
+            }
+
+            angularAcceleration = 0.0f;
+            angularFriction = SharedApplicationData::s_snowball_angularFriction;
+        }
+
+        const glm::vec2& sharkCollisionBodyDirection = sharkCollisionBodyPtr->GetForwardVector();
+        constexpr float turnAngleMovementThreshold = glm::pi<float>() * 0.25f;
+
+        float turnAngle = 0.0f;
+        if (moveMagnitude > 0.0f)
+        {
+            turnAngle = Project001::Math::Get2DVectorAngle(sharkCollisionBodyDirection, moveDirection);
+        }
+        float turnAngleMagnitude = glm::abs(turnAngle);
+        float turnAngleDirection = glm::sign(turnAngle);
+
+        const glm::vec2& velocity = sharkCollisionBodyPtr->GetVelocity();
+        float velocityMagnitude = glm::length(velocity);
+        glm::vec2 velocityDirection(1.0f, 0.0f);
+        if (velocityMagnitude > 0.0f)
+        {
+            velocityDirection = velocity / velocityMagnitude;
+        }
+
+        const float& angularVelocity = sharkCollisionBodyPtr->GetAngularVelocity();
+        float angularVelocityMagnitude = glm::abs(angularVelocity);
+        float angularVelocityDirection = glm::sign(angularVelocity);
+
+        if (turnAngleDirection == angularVelocityDirection || angularVelocityDirection == 0.0f) // apply angular acceleration
+        {
+            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed;
+            float neededAngularVelocity = targetAngularVelocity - angularVelocity;
+            float neededAngularVelocityMagnitude = std::abs(neededAngularVelocity);
+            if (neededAngularVelocityMagnitude > 0.0f)
+            {
+                float neededAngularVelocityDirection = glm::sign(neededAngularVelocity);
+                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration * timestep_s;
+                float angularAccelerationStepMagnitude = glm::abs(angularAccelerationStep);
+                if (angularAccelerationStepMagnitude > neededAngularVelocityMagnitude)
+                {
+                    angularAccelerationStep = neededAngularVelocity; // prevent angular acceleration from overshooting max angular speed
+                }
+
+                float angularDifference = turnAngle - angularVelocity * timestep_s;
+                float angularDifferenceMagnitude = glm::abs(angularDifference);
+                if (angularAccelerationStepMagnitude > angularDifferenceMagnitude)
+                {
+                    angularAccelerationStep = angularDifference; // prevent angular acceleration from jittering when low
+                }
+
+                sharkCollisionBodyPtr->SetAngularVelocity(angularVelocity + angularAccelerationStep);
+            }
+        }
+        else // apply angular deceleration
+        {
+            float angularVelocityMagnitude = glm::abs(angularVelocity);
+            if (angularVelocityMagnitude > 0.0f)
+            {
+                float angularDecelerationStep = angularFriction * timestep_s;
+                float angularDecelerationStepMagnitude = std::abs(angularFriction);
+                if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
+                {
+                    sharkCollisionBodyPtr->SetAngularVelocity(0.0f);
+                }
+                else
+                {
+                    sharkCollisionBodyPtr->SetAngularVelocity(angularVelocity - angularVelocityDirection * angularDecelerationStep);
+                }
+            }
+        }
+
+        if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f) // apply acceleration
+        {
+            glm::vec2 targetVelocity = moveDirection * maxSpeed;
+            glm::vec2 neededVelocity = targetVelocity - velocity;
+            float neededVelocityMagnitude = glm::length(neededVelocity);
+            if (neededVelocityMagnitude > 0.0f)
+            {
+                glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
+                glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
+                float accelerationStepMagnitude = glm::length(accelerationStep);
+                if (accelerationStepMagnitude > neededVelocityMagnitude)
+                {
+                    accelerationStep = neededVelocity; // prevent acceleration from overshooting max speed
+                }
+                sharkCollisionBodyPtr->SetVelocity(velocity + accelerationStep);
+            }
+        }
+        else // apply deceleration
+        {
+            if (velocityMagnitude > 0.0f)
+            {
+                float decelerationStep = friction * timestep_s;
+                float decelerationStepMagnitude = std::abs(decelerationStep);
+                if (velocityMagnitude < decelerationStepMagnitude)
+                {
+                    sharkCollisionBodyPtr->SetVelocity(glm::vec2(0.0f, 0.0f));
+                }
+                else
+                {
+                    sharkCollisionBodyPtr->SetVelocity(velocity - velocityDirection * decelerationStep);
+                }
+            }
         }
 
         // TODO:
@@ -2977,6 +3205,9 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
                 Project001::CollisionCircle2D& collisionCircle = collisionCircles[SnowballInfo::s_snowball_collisionCircleIndex];
                 collisionCircle.radius = snowballInfo.radius;
             }
+
+            float area = snowballCollisionBodyPtr->GetArea();
+            float mass = snowballCollisionBodyPtr->GetMass();
         }
     }
 }
@@ -3820,6 +4051,11 @@ void Scene002::AnimateSharkEntities(float timestep_s)
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
         if (renderedModelPtr != nullptr)
         {
+            if (sharkInfo.animationStateCountDown_s <= 0.0f)
+            {
+                sharkInfo.animationState = sharkInfo.state;
+            }
+
             float desiredPositionZ = 0.0f;
 
             if (sharkInfo.onLand)

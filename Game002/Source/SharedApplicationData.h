@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-13
 
 #pragma once
 
@@ -228,8 +228,8 @@ struct SharedApplicationData
     static constexpr float s_penguin_grabRadius = 18.0f;
     static constexpr float s_penguin_throwSpeed_s = 256.0f;
 
-    static constexpr float s_snowball_landFriction = 8.0f;
-    static constexpr float s_snowball_waterFriction = 16.0f;
+    static constexpr float s_snowball_landFriction = 16.0f;
+    static constexpr float s_snowball_waterFriction = 32.0f;
     static constexpr float s_snowball_angularFriction = glm::pi<float>();
 
     // Resources ---------------------------------------------------------------
