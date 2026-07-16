@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-13
+// @DATE 2026-07-15
 
 #include "Scene002.h"
 
@@ -2906,36 +2906,23 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         // Gathering input
         // ---------------------------------------------------------------------
 
-        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[1];
-
         glm::vec2 moveDirection(0.0f, 0.0);
 
-        if (playerInfoPtr != nullptr)
+        if (sharedDataPtr_->debug_keyboard_left_pressCount > 0)
         {
-            if (playerInfoPtr->left_pressCount > 0)
-            {
-                moveDirection.x -= 1.0f;
-            }
-            if (playerInfoPtr->right_pressCount > 0)
-            {
-                moveDirection.x += 1.0f;
-            }
-            if (playerInfoPtr->up_pressCount > 0)
-            {
-                moveDirection.y += 1.0f;
-            }
-            if (playerInfoPtr->down_pressCount > 0)
-            {
-                moveDirection.y -= 1.0f;
-            }
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
-            {
-                moveDirection.x += playerInfoPtr->leftRightAxisValue;
-            }
-            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
-            {
-                moveDirection.y += playerInfoPtr->upDownAxisValue;
-            }
+            moveDirection.x -= 1.0f;
+        }
+        if (sharedDataPtr_->debug_keyboard_right_pressCount > 0)
+        {
+            moveDirection.x += 1.0f;
+        }
+        if (sharedDataPtr_->debug_keyboard_up_pressCount > 0)
+        {
+            moveDirection.y += 1.0f;
+        }
+        if (sharedDataPtr_->debug_keyboard_down_pressCount > 0)
+        {
+            moveDirection.y -= 1.0f;
         }
 
         float moveMagnitude = glm::length(moveDirection);
@@ -2957,6 +2944,13 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
                 sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
                 sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
             }
+            else if (sharkInfoPtr->minAttackIntersectionWithPenguin1 ||
+                sharkInfoPtr->minAttackIntersectionWithPenguin2 ||
+                sharkInfoPtr->minAttackIntersectionWithPenguin3 ||
+                sharkInfoPtr->minAttackIntersectionWithPenguin4)
+            {
+                sharkInfoPtr->state = SharkInfo::State::STATE_CHASING;
+            }
 
             break;
         }
@@ -2967,6 +2961,13 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
                 moveMagnitude = 0.0f;
                 sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
                 sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
+            }
+            else if (!sharkInfoPtr->minAttackIntersectionWithPenguin1 &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguin2 &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguin3 &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguin4)
+            {
+                sharkInfoPtr->state = SharkInfo::State::STATE_SWIMMING;
             }
 
             break;
@@ -2989,15 +2990,20 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         // Apply physics
         // ---------------------------------------------------------------------
 
-        float maxSpeed = 256.0f;
-        float acceleration = 612.0f;
+        float maxSpeed = 128.0f;
+        float acceleration = 256.0f;
         float friction = 192.0f;
 
         constexpr float maxAngularSpeed = glm::pi<float>() * 2.0f;
         float angularAcceleration = glm::pi<float>() * 4.0f;
-        float angularFriction = glm::pi<float>() * 32.0f;
+        float angularFriction = glm::pi<float>() * 16.0f;
 
-        if (sharkInfoPtr->state == SharkInfo::State::STATE_HITSTUN)
+        if (sharkInfoPtr->state == SharkInfo::State::STATE_CHASING)
+        {
+            maxSpeed = 256.0f;
+            acceleration = 512.0f;
+        }
+        else if (sharkInfoPtr->state == SharkInfo::State::STATE_HITSTUN)
         {
             if (sharkInfoPtr->onLand)
             {
@@ -4096,9 +4102,9 @@ void Scene002::AnimateSharkEntities(float timestep_s)
                 sharkInfo.positionZ = desiredPositionZ;
             }
 
-            // sharkInfo.positionZ = 64.0f;
-
             // Reset the mesh to default
+            // -----------------------------------------------------------------
+
             std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
 
             Project001::RenderedMesh& front_mesh = renderedMeshes[SharkInfo::s_front_renderedMeshIndex];
@@ -4175,8 +4181,15 @@ void Scene002::AnimateSharkEntities(float timestep_s)
 
                 back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
 
-                if (glm::abs(sharkInfo.backRotationZ) > glm::pi<float>() / 18.0f)
+                const float maxFlipperAngle = glm::pi<float>() / 18.0f;
+                if (sharkInfo.backRotationZ > maxFlipperAngle)
                 {
+                    sharkInfo.backRotationZ = maxFlipperAngle;
+                    sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
+                }
+                else if (sharkInfo.backRotationZ < -maxFlipperAngle)
+                {
+                    sharkInfo.backRotationZ = -maxFlipperAngle;
                     sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
                 }
             }
@@ -4196,8 +4209,15 @@ void Scene002::AnimateSharkEntities(float timestep_s)
 
                 back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
 
-                if (glm::abs(sharkInfo.backRotationZ) > glm::pi<float>() / 24.0f)
+                const float maxFlipperAngle = glm::pi<float>() / 24.0f;
+                if (sharkInfo.backRotationZ > maxFlipperAngle)
                 {
+                    sharkInfo.backRotationZ = maxFlipperAngle;
+                    sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
+                }
+                else if (sharkInfo.backRotationZ < -maxFlipperAngle)
+                {
+                    sharkInfo.backRotationZ = -maxFlipperAngle;
                     sharkInfo.animaitionFlipper = !sharkInfo.animaitionFlipper;
                 }
             }

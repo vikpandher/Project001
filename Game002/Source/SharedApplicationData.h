@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-13
+// @DATE 2026-07-15
 
 #pragma once
 
@@ -183,6 +183,10 @@ struct SharedApplicationData
     static constexpr Project001::KeyCode debug_keyboard_moveCameraRight_keyCode = Project001::KeyCode::KEY_CODE_KP_6;
     static constexpr Project001::KeyCode debug_keyboard_moveCameraUp_keyCode = Project001::KeyCode::KEY_CODE_KP_8;
     static constexpr Project001::KeyCode debug_keyboard_moveCameraDown_keyCode = Project001::KeyCode::KEY_CODE_KP_2;
+    static constexpr Project001::KeyCode debug_keyboard_left_keyCode = Project001::KeyCode::KEY_CODE_L;
+    static constexpr Project001::KeyCode debug_keyboard_right_keyCode = Project001::KeyCode::KEY_CODE_APOSTROPHE;
+    static constexpr Project001::KeyCode debug_keyboard_up_keyCode = Project001::KeyCode::KEY_CODE_P;
+    static constexpr Project001::KeyCode debug_keyboard_down_keyCode = Project001::KeyCode::KEY_CODE_SEMICOLON;
     static constexpr Project001::MouseButton debug_mouse_grab_mouseButton = Project001::MouseButton::MOUSE_BUTTON_LEFT;
 
     bool debug_keyboard_toggleDebugCamera_pressed = false;
@@ -195,6 +199,10 @@ struct SharedApplicationData
     bool debug_keyboard_moveCameraRight_pressed = false;
     bool debug_keyboard_moveCameraUp_pressed = false;
     bool debug_keyboard_moveCameraDown_pressed = false;
+    bool debug_keyboard_left_pressed = false;
+    bool debug_keyboard_right_pressed = false;
+    bool debug_keyboard_up_pressed = false;
+    bool debug_keyboard_down_pressed = false;
     bool debug_mouse_grab_pressed = false;
     bool debug_mouse_grab_released = true;
 
@@ -208,6 +216,10 @@ struct SharedApplicationData
     unsigned int debug_keyboard_moveCameraRight_pressCount = 0;
     unsigned int debug_keyboard_moveCameraUp_pressCount = 0;
     unsigned int debug_keyboard_moveCameraDown_pressCount = 0;
+    unsigned int debug_keyboard_left_pressCount = 0;
+    unsigned int debug_keyboard_right_pressCount = 0;
+    unsigned int debug_keyboard_up_pressCount = 0;
+    unsigned int debug_keyboard_down_pressCount = 0;
     unsigned int debug_mouse_grab_pressCount = 0;
     unsigned int debug_mouse_grab_releaseCount = 0;
 

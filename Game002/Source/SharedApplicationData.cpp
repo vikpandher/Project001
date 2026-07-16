@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-15
 
 #include "SharedApplicationData.h"
 
@@ -64,42 +64,42 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_start_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_start_pressed = false;
             }
-            if (keyCode == keyboard_1_pause_keyCode)
+            else if (keyCode == keyboard_1_pause_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_pause_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_pause_pressed = false;
             }
-            if (keyCode == keyboard_1_quit_keyCode)
+            else if (keyCode == keyboard_1_quit_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_quit_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_quit_pressed = false;
             }
-            if (keyCode == keyboard_1_left_keyCode)
+            else if (keyCode == keyboard_1_left_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_left_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_left_pressed = false;
             }
-            if (keyCode == keyboard_1_right_keyCode)
+            else if (keyCode == keyboard_1_right_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_right_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_right_pressed = false;
             }
-            if (keyCode == keyboard_1_up_keyCode)
+            else if (keyCode == keyboard_1_up_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_up_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_up_pressed = false;
             }
-            if (keyCode == keyboard_1_down_keyCode)
+            else if (keyCode == keyboard_1_down_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_down_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_down_pressed = false;
             }
-            if (keyCode == keyboard_1_grab_keyCode)
+            else if (keyCode == keyboard_1_grab_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_grab_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_grab_pressed = false;
             }
-            if (keyCode == keyboard_1_throw_keyCode)
+            else if (keyCode == keyboard_1_throw_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_throw_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_throw_pressed = false;
@@ -112,42 +112,42 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_start_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_start_pressed = false;
             }
-            if (keyCode == keyboard_2_pause_keyCode)
+            else if (keyCode == keyboard_2_pause_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_pause_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_pause_pressed = false;
             }
-            if (keyCode == keyboard_2_quit_keyCode)
+            else if (keyCode == keyboard_2_quit_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_quit_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_quit_pressed = false;
             }
-            if (keyCode == keyboard_2_left_keyCode)
+            else if (keyCode == keyboard_2_left_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_left_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_left_pressed = false;
             }
-            if (keyCode == keyboard_2_right_keyCode)
+            else if (keyCode == keyboard_2_right_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_right_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_right_pressed = false;
             }
-            if (keyCode == keyboard_2_up_keyCode)
+            else if (keyCode == keyboard_2_up_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_up_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_up_pressed = false;
             }
-            if (keyCode == keyboard_2_down_keyCode)
+            else if (keyCode == keyboard_2_down_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_down_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_down_pressed = false;
             }
-            if (keyCode == keyboard_2_grab_keyCode)
+            else if (keyCode == keyboard_2_grab_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_grab_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_grab_pressed = false;
             }
-            if (keyCode == keyboard_2_throw_keyCode)
+            else if (keyCode == keyboard_2_throw_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_throw_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_throw_pressed = false;
@@ -160,50 +160,70 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_toggleDebugCamera_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_toggleDebugCamera_pressed = false;
     }
-    if (keyCode == debug_keyboard_toggleCameraLock_keyCode)
+    else if (keyCode == debug_keyboard_toggleCameraLock_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_toggleCameraLock_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_toggleCameraLock_pressed = false;
     }
-    if (keyCode == debug_keyboard_pitchCameraUp_keyCode)
+    else if (keyCode == debug_keyboard_pitchCameraUp_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_pitchCameraUp_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_pitchCameraUp_pressed = false;
     }
-    if (keyCode == debug_keyboard_setCameraPitch1_keyCode)
+    else if (keyCode == debug_keyboard_setCameraPitch1_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_setCameraPitch1_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_setCameraPitch1_pressed = false;
     }
-    if (keyCode == debug_keyboard_setCameraPitch2_keyCode)
+    else if (keyCode == debug_keyboard_setCameraPitch2_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_setCameraPitch2_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_setCameraPitch2_pressed = false;
     }
-    if (keyCode == debug_keyboard_pitchCameraDown_keyCode)
+    else if (keyCode == debug_keyboard_pitchCameraDown_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_pitchCameraDown_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_pitchCameraDown_pressed = false;
     }
-    if (keyCode == debug_keyboard_moveCameraLeft_keyCode)
+    else if (keyCode == debug_keyboard_moveCameraLeft_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_moveCameraLeft_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_moveCameraLeft_pressed = false;
     }
-    if (keyCode == debug_keyboard_moveCameraRight_keyCode)
+    else if (keyCode == debug_keyboard_moveCameraRight_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_moveCameraRight_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_moveCameraRight_pressed = false;
     }
-    if (keyCode == debug_keyboard_moveCameraUp_keyCode)
+    else if (keyCode == debug_keyboard_moveCameraUp_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_moveCameraUp_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_moveCameraUp_pressed = false;
     }
-    if (keyCode == debug_keyboard_moveCameraDown_keyCode)
+    else if (keyCode == debug_keyboard_moveCameraDown_keyCode)
     {
         if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_moveCameraDown_pressed = true;
         else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_moveCameraDown_pressed = false;
+    }
+    else if (keyCode == debug_keyboard_left_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_left_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_left_pressed = false;
+    }
+    else if (keyCode == debug_keyboard_right_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_right_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_right_pressed = false;
+    }
+    else if (keyCode == debug_keyboard_up_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_up_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_up_pressed = false;
+    }
+    else if (keyCode == debug_keyboard_down_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) debug_keyboard_down_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) debug_keyboard_down_pressed = false;
     }
 }
 
@@ -479,6 +499,18 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
 
     if (debug_keyboard_moveCameraDown_pressed) debug_keyboard_moveCameraDown_pressCount++;
     else debug_keyboard_moveCameraDown_pressCount = 0;
+
+    if (debug_keyboard_left_pressed) debug_keyboard_left_pressCount++;
+    else debug_keyboard_left_pressCount = 0;
+
+    if (debug_keyboard_right_pressed) debug_keyboard_right_pressCount++;
+    else debug_keyboard_right_pressCount = 0;
+
+    if (debug_keyboard_up_pressed) debug_keyboard_up_pressCount++;
+    else debug_keyboard_up_pressCount = 0;
+
+    if (debug_keyboard_down_pressed) debug_keyboard_down_pressCount++;
+    else debug_keyboard_down_pressCount = 0;
 
     if (debug_mouse_grab_pressed) debug_mouse_grab_pressCount++;
     else debug_mouse_grab_pressCount = 0;
