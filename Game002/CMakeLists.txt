@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-06-29
+# @DATE 2026-07-17
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -37,6 +37,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(GAME002_FILES
+    "Source/ActorInfo.cpp"
     "Source/ActorInfo.h"
     "Source/Main.cpp"
     "Source/Scene001.cpp"

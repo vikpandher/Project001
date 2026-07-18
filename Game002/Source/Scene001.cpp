@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-12
+// @DATE 2026-07-17
 
 #include "Scene001.h"
 
@@ -61,6 +61,7 @@ Scene001::Scene001(Project001::Application* applicationPtr)
     LoadGeneralResources();
     LoadMainMenuResources();
     LoadCursorResources();
+    LoadImpactResources();
     LoadStageResources();
     LoadStageGridResources();
     LoadActorResources();
@@ -301,6 +302,74 @@ void Scene001::LoadCursorResources()
     sharedDataPtr_->cursor_aimRay3_meshDataPtr = new Project001::MeshData();
 }
 
+void Scene001::LoadImpactResources()
+{
+    for (size_t i = 0; i < 4; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
+            *newMeshDataPtr, 8,
+            0.3f, 0.0f, 0.2f, 0.0f,
+            i,
+            0.2f, 0.0f, 0.1f, 0.0f
+        ));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        sharedDataPtr_->impactFrame_meshDataPtrs[0][i] = newMeshDataPtr;
+    }
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
+            *newMeshDataPtr, 10,
+            0.6f, 0.2f, 0.4f, 0.2f,
+            i,
+            0.4f, 0.1f, 0.3f, 0.1f
+        ));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        sharedDataPtr_->impactFrame_meshDataPtrs[1][i] = newMeshDataPtr;
+    }
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        FAIL_CHECK(Project001::Mesh::Generate2DStarRing(
+            *newMeshDataPtr, 10,
+            0.8f, 0.4f, 0.7f, 0.3f,
+            i,
+            0.2f, 0.1f, 0.3f, 0.1f
+        ));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        sharedDataPtr_->impactFrame_meshDataPtrs[2][i] = newMeshDataPtr;
+    }
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        Project001::MeshData* newMeshDataPtr = new Project001::MeshData();
+        FAIL_CHECK(Project001::Mesh::Generate2DStarBurst(
+            *newMeshDataPtr, 10,
+            0.8f, 0.5f, 1.0f, 0.8f,
+            glm::pi<float>() * 0.1f,
+            i,
+            0.4f, 0.1f, 0.4f, 0.4f
+        ));
+        Project001::Mesh::ApplyPositionalTextureCoordinates(*newMeshDataPtr);
+        Project001::Mesh::TranslateTextureCoordinates(*newMeshDataPtr, glm::vec2(0.5f, 0.5f));
+        Project001::Mesh::ScaleMesh(*newMeshDataPtr, glm::vec3(0.32f));
+
+        sharedDataPtr_->impactFrame_meshDataPtrs[3][i] = newMeshDataPtr;
+    }
+}
+
 void Scene001::LoadStageResources()
 {
     sharedDataPtr_->ground_meshDataPtr = new Project001::MeshData();
@@ -381,8 +450,6 @@ void Scene001::LoadStageResources()
         false,
         false
     );
-
-    sharedDataPtr_->pathPoints_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadStageGridResources()
@@ -876,7 +943,7 @@ void Scene001::LoadActorResources()
     sharedDataPtr_->shark_jaw_collision_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(
         *sharedDataPtr_->shark_jaw_collision_meshDataPtr,
-        30.0f, 16
+        32.0f, 16
     ));
     Project001::Mesh::TranslateMesh(
         *sharedDataPtr_->shark_jaw_collision_meshDataPtr,
@@ -966,6 +1033,16 @@ void Scene001::FreeResources()
     delete sharedDataPtr_->cursor_aimRay3_meshDataPtr;
     sharedDataPtr_->cursor_aimRay3_meshDataPtr = nullptr;
 
+    // Impact Resources
+    for (size_t j = 0; j < 4; ++j)
+    {
+        for (size_t i = 0; i < 4; ++i)
+        {
+            delete sharedDataPtr_->impactFrame_meshDataPtrs[i][j];
+            sharedDataPtr_->impactFrame_meshDataPtrs[i][j] = nullptr;
+        }
+    }
+
     // Stage Resources
     delete sharedDataPtr_->ground_meshDataPtr;
     sharedDataPtr_->ground_meshDataPtr = nullptr;
@@ -975,9 +1052,6 @@ void Scene001::FreeResources()
 
     delete sharedDataPtr_->deadZone_meshDataPtr;
     sharedDataPtr_->deadZone_meshDataPtr = nullptr;
-
-    delete sharedDataPtr_->pathPoints_meshDataPtr;
-    sharedDataPtr_->pathPoints_meshDataPtr = nullptr;
 
     delete sharedDataPtr_->hazard_textureDataPtr;
     sharedDataPtr_->hazard_textureDataPtr = nullptr;

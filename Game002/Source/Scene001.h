@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-07-17
 
 #pragma once
 
@@ -34,6 +34,7 @@ protected:
     void LoadGeneralResources();
     void LoadMainMenuResources();
     void LoadCursorResources();
+    void LoadImpactResources();
     void LoadStageResources();
     void LoadStageGridResources();
     void LoadActorResources();

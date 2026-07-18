@@ -1,6 +1,11 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-13
+// @DATE 2026-07-17
+
+
+#include "SharedApplicationData.h"
+
+#include "glm/gtc/quaternion.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -32,6 +37,9 @@ struct CursorInfo
 
     bool hoveringOverAlreadyGrabbedEntity = false;
 
+    glm::vec2 cursorWindowPosition;
+    glm::vec2 prevCursorWindowPosition;
+
     static constexpr size_t s_position_renderedMeshIndex = 0;
     static constexpr size_t s_press_renderedMeshIndex = 1;
     static constexpr size_t s_release_renderedMeshIndex = 2;
@@ -56,14 +64,6 @@ struct CursorInfo
 
     static constexpr size_t s_grabZone_collisionCircleIndex = 0;
     static constexpr size_t s_collisionCircleCount = 1;
-};
-
-const std::unordered_map<size_t, std::string> CursorInfo::s_stateToString =
-{
-    {0, "STATE_OPEN"},
-    {1, "STATE_POINTING"},
-    {2, "STATE_MAKING"},
-    {3, "STATE_GRABING"}
 };
 
 struct PenguinInfo
@@ -135,18 +135,6 @@ struct PenguinInfo
     static constexpr size_t s_collisionCircleCount = 2;
 };
 
-const std::unordered_map<size_t, std::string> PenguinInfo::s_stateToString =
-{
-    {0, "STATE_STANDING"},
-    {1, "STATE_WALKING"},
-    {2, "STATE_TREADING_WATER"},
-    {3, "STATE_SWIMMING"},
-    {4, "STATE_MAKING_SNOWBALL"},
-    {5, "STATE_STANDING_SNOWBALL"},
-    {6, "STATE_WALKING_SNOWBALL"},
-    {7, "STATE_HITSTUN"}
-};
-
 struct SnowballInfo
 {
     unsigned int owner_entityId = static_cast<unsigned int>(-1);
@@ -191,6 +179,8 @@ struct SnowballInfo
 
 struct SharkInfo
 {
+    static constexpr glm::vec2 s_spawnPoint = glm::vec2(0.0f, 800.0f);
+
     enum class State
     {
         STATE_SWIMMING = 0,
@@ -214,14 +204,16 @@ struct SharkInfo
     float backRotationZ = 0.0f;
     float jawRotationZ = 0.0f;
 
-    float minAttackIntersectionScalar1 = std::numeric_limits<float>::infinity();
-    bool minAttackIntersectionWithPenguin1 = false;
-    float minAttackIntersectionScalar2 = std::numeric_limits<float>::infinity();
-    bool minAttackIntersectionWithPenguin2 = false;
-    float minAttackIntersectionScalar3 = std::numeric_limits<float>::infinity();
-    bool minAttackIntersectionWithPenguin3 = false;
-    float minAttackIntersectionScalar4 = std::numeric_limits<float>::infinity();
-    bool minAttackIntersectionWithPenguin4 = false;
+    float minAttackIntersectionScalars[4] = {
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity()
+    };
+
+    bool minAttackIntersectionWithPenguins[4] = {
+        false, false, false, false
+    };
 
     static constexpr size_t s_front_renderedMeshIndex = 0;
     static constexpr size_t s_back_renderedMeshIndex = 1;
@@ -251,23 +243,48 @@ struct SharkInfo
     static const size_t s_collisionTriangleCount = 1;
 };
 
+struct SharkPathInfo
+{
+    unsigned int nextPathPoint = 0;
+
+    static constexpr size_t s_renderedMeshCount = 8;
+
+    static constexpr size_t s_collisionPointCount = 8;
+};
+
 struct StageInfo
 {
     float groundSize = SharedApplicationData::s_ground_size;
 
-    float groundSkrinkRate_s = 8.0f;
+    float groundSkrinkRate_s = 0.0f;
 
     static constexpr size_t s_ground_renderedMeshIndex = 0;
     static constexpr size_t s_water_renderedMeshIndex = 1;
     static constexpr size_t s_deadZone_renderedMeshIndex = 2;
-    static constexpr size_t s_pathPoints_renderedMeshIndex = 3;
     static constexpr size_t s_collisionQuadTree_renderedMeshIndex = 4;
     static constexpr size_t s_grid_renderedMeshIndex = 5;
     static constexpr size_t s_gridLabels_renderedMeshIndex = 6;
     static constexpr size_t s_renderedMeshCount = 7;
 
-    static constexpr size_t s_collisionPointCount = 8;
-
     static constexpr size_t s_ground_collisionConvexPolygonIndex = 0;
     static constexpr size_t s_collisionConvexPolygonCount = 1;
+};
+
+struct ImpactEffectInfo
+{
+    static constexpr size_t s_frameCount = 4;
+    size_t currentFrame = 0;
+
+    static constexpr float s_frameDuration_s = 0.0625f;
+    float animationTime_s = 0.0f;
+
+    bool deadFlag = false;
+};
+
+struct ImpactEffectCreationInfo
+{
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 scale = glm::vec3(64.0f, 64.0f, 64.0f);
+    glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 };

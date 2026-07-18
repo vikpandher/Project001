@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-15
+// @DATE 2026-07-17
 
 #pragma once
 
@@ -291,6 +291,9 @@ struct SharedApplicationData
     Project001::MeshData* cursor_aimRay2_meshDataPtr = nullptr;
     Project001::MeshData* cursor_aimRay3_meshDataPtr = nullptr;
 
+    // Impact Resources
+    Project001::MeshData* impactFrame_meshDataPtrs[4][4] = {};
+
     // Stage Resources
     Project001::MeshData* ground_meshDataPtr = nullptr;
     Project001::MeshData* water_meshDataPtr = nullptr;
@@ -298,8 +301,6 @@ struct SharedApplicationData
     Project001::MeshData* deadZone_meshDataPtr = nullptr;
     Project001::TextureData* hazard_textureDataPtr = nullptr;
     unsigned int hazard_textureId = static_cast<unsigned int>(-1);
-
-    Project001::MeshData* pathPoints_meshDataPtr = nullptr;
 
     // Stage Grid Resources
     Project001::MeshData* stageGrid_meshDataPtr = nullptr;

@@ -1,15 +1,14 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-13
+// @DATE 2026-07-17
 
 #pragma once
 
 #include "Scene.h"
 
-#include "SharedApplicationData.h"
+#include "ActorInfo.h"
 
-#include "glm/glm.hpp"
-
+#include <queue>
 #include <random>
 #include <stack>
 #include <vector>
@@ -42,10 +41,12 @@ protected:
     void CreateUiTextEntity();
     void CreateUiPauseTextEntity();
     void CreateCursorEntity();
+    void CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo);
     void CreateStageEntity();
     void CreateStageLightEntity();
     void CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation);
     void CreateSharkEntity(unsigned int& entityId, const glm::vec2& position, float rotation);
+    void CreateSharkPathEntity();
     void CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius);
 
     void UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition);
@@ -58,10 +59,12 @@ protected:
     void UpdateStageCollisionBodyQuadTreeMesh(); // modifies meshes
     void UpdatePenguinEntity(unsigned int& entityId,  float timestep_s);
     void UpdateSharkEntity(unsigned int& entityId, float timestep_s);
+    void UpdateSharkPathEntity();
     void UpdateSnowballEntities(float timestep_s);
     void UpdateWorld(float timestep_s);
 
     void AnimateCursorEntity(float timestep_s);
+    void AnimateImpactEffectEntities(float timestep_s);
     void AnimatePenguinEntities(float timestep_s);
     void AnimateSharkEntities(float timestep_s);
     void AnimateSnowballEntities(float timestep_s);
@@ -69,7 +72,10 @@ protected:
     void SyncCursorRenderedModels();
     void SyncPenguinRenderedModels();
     void SyncSharkRenderedModels();
+    void SyncSharkPathRenderedModels();
     void SyncSnowballRenderedModels();
+
+    void KillDeadImpactEffectEntities();
 
     // -------------------------------------------------------------------------
 
@@ -95,6 +101,7 @@ protected:
     unsigned int stageLight_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int stageShark_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int stageSharkPath_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int player_entityIds_[SharedApplicationData::s_player_count] = {
         static_cast<unsigned int>(-1),
@@ -118,6 +125,8 @@ protected:
 
     std::mt19937 randomNumberEngine_;
 
+    std::queue<ImpactEffectCreationInfo> impectEffectCreationQueue_;
+
     static const uint32_t s_player_collisionGroupMasks_[SharedApplicationData::s_player_count];
 
     static constexpr unsigned int s_ui_CollisionShapeTag_ = 1;
@@ -136,7 +145,7 @@ protected:
     static constexpr unsigned int s_cursorPosition_collisionShapeTag_ = 14;
     static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 15;
     static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 16;
-    static constexpr unsigned int s_pathStart_collisionShapeTag_ = 100;
+    static constexpr unsigned int s_sharkPathStart_collisionShapeTag_ = 100;
 
     static constexpr float s_waterHeight = -8.0f;
 

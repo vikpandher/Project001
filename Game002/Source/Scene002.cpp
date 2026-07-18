@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-15
+// @DATE 2026-07-17
 
 #include "Scene002.h"
 
@@ -11,7 +11,6 @@
 #include "Utilities/FontUtility.h"
 #include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
-#include "ActorInfo.h"
 #include "CollisionSystem2D.h"
 #include "ComponentStores.h"
 #include "Logger.h"
@@ -86,8 +85,10 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
         CreatePenguinEntity(player_entityIds_[3], sharedDataPtr_->playerCreationInfos[3].playerNumber, glm::vec2(-32.0f, 0.0f), glm::pi<float>());
     }
 
-    CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, SharedApplicationData::s_stageSharkCircleOffset_size), -glm::half_pi<float>());
+    CreateSharkEntity(stageShark_entityId_, SharkInfo::s_spawnPoint, -glm::half_pi<float>());
     // CreateSharkEntity(stageShark_entityId_, glm::vec2(0.0f, 0.0f), 0.0f);
+
+    CreateSharkPathEntity();
 
     // unsigned int snowball_entityId = static_cast<unsigned int>(-1);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(0.0f, 0.0f), glm::vec2(-sharedDataPtr_->penguin_throwSpeed_s, 0.0f), 8.0f);
@@ -132,6 +133,7 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     stageLight_entityId_ = static_cast<unsigned int>(-1);
 
     stageShark_entityId_ = static_cast<unsigned int>(-1);
+    stageSharkPath_entityId_ = static_cast<unsigned int>(-1);
 
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
@@ -146,6 +148,8 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     debugCamera_turnedOn_ = false;
 
     paused_ = false;
+
+    impectEffectCreationQueue_ = std::queue<ImpactEffectCreationInfo>(); // empty queue
 }
 
 void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -213,14 +217,23 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         }
 
         UpdateSharkEntity(stageShark_entityId_, physicsTimestep_s);
+        UpdateSharkPathEntity();
 
         UpdateWorld(physicsTimestep_s);
 
         GetCollisionSystemPtr()->ApplyMovement(physicsTimestep_s);
     }
 
+    while (!impectEffectCreationQueue_.empty())
+    {
+        const ImpactEffectCreationInfo& impactEffectCreationInfo = impectEffectCreationQueue_.front();
+        CreateImpactEffectEntity(impactEffectCreationInfo);
+        impectEffectCreationQueue_.pop();
+    }
+
     if (s_cursorEnabled) AnimateCursorEntity(timestep_s);
 
+    AnimateImpactEffectEntities(timestep_s);
     AnimatePenguinEntities(timestep_s);
     AnimateSharkEntities(timestep_s);
     AnimateSnowballEntities(timestep_s);
@@ -232,7 +245,10 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     SyncPenguinRenderedModels();
     SyncSharkRenderedModels();
+    SyncSharkPathRenderedModels();
     SyncSnowballRenderedModels();
+
+    KillDeadImpactEffectEntities();
 }
 
 void Scene002::CreateMainCameraEntities()
@@ -522,6 +538,49 @@ void Scene002::CreateCursorEntity()
     }
 }
 
+void Scene002::CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo)
+{
+    unsigned int entityId;
+    GetComponentStoresPtr()->CreateEntity(entityId);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<ImpactEffectInfo>(entityId));
+    ImpactEffectInfo* impactEffectInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<ImpactEffectInfo>(impactEffectInfoPtr, entityId));
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(entityId));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+    if (impactEffectInfoPtr != nullptr && renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetPosition(creationInfo.position);
+        renderedModelPtr->SetOrientation(creationInfo.orientation);
+
+        renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(ImpactEffectInfo::s_frameCount);
+
+        std::uniform_int_distribution<unsigned int> randomIndex(0, 3);
+        unsigned int index = randomIndex(randomNumberEngine_);
+
+        for (size_t i = 0; i < ImpactEffectInfo::s_frameCount; ++i)
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[i];
+            mesh.SetCameraMask(s_mainCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->impactFrame_meshDataPtrs[i][index]);
+            mesh.SetScale(creationInfo.scale);
+            mesh.SetColor(creationInfo.color);
+            mesh.SetRenderPriorityOverride(3);
+            mesh.SetTranslucent(true);
+            mesh.SetVisible(false);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[0];
+            mesh.SetVisible(true);
+        }
+    }
+}
+
 void Scene002::CreateStageEntity()
 {
     GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
@@ -574,16 +633,6 @@ void Scene002::CreateStageEntity()
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_pathPoints_renderedMeshIndex];
-            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->pathPoints_meshDataPtr);
-            mesh.SetPositionZ(0.3f);
-            mesh.SetColor(1.0f, 0.4f, 0.2f, 0.2f);
-            mesh.SetTranslucent(true);
-            mesh.SetUseLighting(false);
-        }
-
-        {
             Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_collisionQuadTree_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->stageCollisionQuadTree_meshDataPtr);
@@ -623,13 +672,6 @@ void Scene002::CreateStageEntity()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stage_entityId_));
     if (collisionBodyPtr != nullptr)
     {
-        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
-        collisionPoints.resize(StageInfo::s_collisionPointCount);
-        for (size_t i = 0; i < StageInfo::s_collisionPointCount; ++i)
-        {
-            collisionPoints[i].tag = s_pathStart_collisionShapeTag_ + static_cast<unsigned int>(i);
-        }
-
         std::vector<Project001::CollisionConvexPolygon2D>& collisionConvexPolygons = collisionBodyPtr->GetCollisionConvexPolygons();
         collisionConvexPolygons.resize(StageInfo::s_collisionConvexPolygonCount);
 
@@ -1108,7 +1150,7 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
             Project001::CollisionCircle2D& collisionCircle = collisionCircles[SharkInfo::s_jaw_collisionCircleIndex];
             collisionCircle = Project001::CollisionCircle2D(
                 glm::vec2(0.0f, 80.0f),
-                30.0f,
+                32.0f,
                 s_sharkJaw_collisionShapeTag_
             );
         }
@@ -1135,6 +1177,49 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
                 glm::vec2(0.0f, -130.0f),
                 s_sharkBody_collisionShapeTag_
             );
+        }
+    }
+}
+
+void Scene002::CreateSharkPathEntity()
+{
+    GetComponentStoresPtr()->CreateEntity(stageSharkPath_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<SharkPathInfo>(stageSharkPath_entityId_));
+    SharkPathInfo* sharkPathInfoPtr = nullptr;
+    GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(stageSharkPath_entityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, stageSharkPath_entityId_));
+
+    Project001::CollisionBody2DCreationInfo collisionBody2DCreationInfo;
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::CollisionBody2D>(stageSharkPath_entityId_, collisionBody2DCreationInfo));
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stageSharkPath_entityId_));
+    if (sharkPathInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(SharkPathInfo::s_renderedMeshCount);
+        for (size_t i = 0; i < SharkPathInfo::s_renderedMeshCount; ++i)
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[i];
+            mesh.SetCameraMask(s_mainCameraDebug_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
+            mesh.SetScale(8.0f, 8.0f, 8.0f);
+            mesh.SetPositionZ(0.61f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(-1);
+        }
+
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+        collisionPoints.resize(SharkPathInfo::s_collisionPointCount);
+        for (size_t i = 0; i < SharkPathInfo::s_collisionPointCount; ++i)
+        {
+            collisionPoints[i].tag = s_sharkPathStart_collisionShapeTag_ + static_cast<unsigned int>(i);
         }
     }
 }
@@ -1297,6 +1382,10 @@ void Scene002::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId,
             FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(cursorCollisionBodyPtr, entityId));
             if (cursorInfoPtr != nullptr && cursorCollisionBodyPtr != nullptr)
             {
+                cursorInfoPtr->prevCursorWindowPosition = cursorInfoPtr->cursorWindowPosition;
+                cursorInfoPtr->cursorWindowPosition.x = xPosition;
+                cursorInfoPtr->cursorWindowPosition.y = yPosition;
+
                 std::vector<Project001::CollisionPoint2D>& cursorCollisionPoints = cursorCollisionBodyPtr->GetCollisionPoints();
                 glm::vec2& cursorPosition = cursorCollisionPoints[CursorInfo::s_position_collisionPointIndex].position;
                 cursorPosition = worldCursorPosition;
@@ -1668,6 +1757,13 @@ void Scene002::UpdateCursorEntity(float timestep_s)
                 collisionPoints[CursorInfo::s_press_collisionPointIndex].position = collisionPoints[CursorInfo::s_position_collisionPointIndex].position;
                 collisionPoints[CursorInfo::s_press_collisionPointIndex].enabled = true;
                 collisionPoints[CursorInfo::s_release_collisionPointIndex].enabled = false;
+
+                impectEffectCreationQueue_.push({
+                    glm::vec3(collisionPoints[CursorInfo::s_position_collisionPointIndex].position, 8.0f),
+                    glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+                    glm::vec3(64.0f, 64.0f, 64.0f),
+                    glm::vec4(0.4f, 0.4f, 0.4f, 0.8f)
+                    });
             }
         }
         else if (releasePressed)
@@ -1895,6 +1991,29 @@ void Scene002::UpdateCursorEntity(float timestep_s)
             break;
         }
         }
+
+        SnowballInfo* snowballInfoPtr = nullptr;
+        GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, cursorInfoPtr->snowball_entityId);
+        Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
+        GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, cursorInfoPtr->snowball_entityId);
+        if (snowballInfoPtr != nullptr && snowballCollisionBodyPtr != nullptr)
+        {
+            float cursorWorldMoveDistance = glm::length(cursorInfoPtr->prevCursorWindowPosition - cursorInfoPtr->cursorWindowPosition);
+
+            if (grabHeld && !cursorInfoPtr->hoveringOverAlreadyGrabbedEntity && cursorWorldMoveDistance > 0.0f)
+            {
+                constexpr float snowballGrowthRate_s = 2.4f;
+
+                snowballInfoPtr->radius += snowballGrowthRate_s * timestep_s;
+
+                if (snowballInfoPtr->radius > SnowballInfo::s_maxRadius)
+                {
+                    snowballInfoPtr->radius = SnowballInfo::s_maxRadius;
+                }
+
+                snowballCollisionBodyPtr->FlagMassToBeRecalculated();
+            }
+        }
     }
 
     if (actionCreateSnowballEntity)
@@ -1975,21 +2094,6 @@ void Scene002::UpdateStageEntity(float timestep_s)
             corners.emplace_back(-groundCorner, -stageInfoPtr->groundSize);
             corners.emplace_back(groundCorner, -stageInfoPtr->groundSize);
             corners.emplace_back(stageInfoPtr->groundSize, -groundCorner);
-        }
-
-        // Update Path Points Mesh & Collision
-
-        sharedDataPtr_->pathPoints_meshDataPtr->Clear();
-
-        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
-
-        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundSize + SharedApplicationData::s_stageSharkCircleOffset_size);
-        pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / 8.0f);
-
-        for (size_t i = 0; i < 8; ++i)
-        {
-            FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(*sharedDataPtr_->pathPoints_meshDataPtr, 8.0f, 4, pathOffsetVector));
-            pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -4.0f);
         }
     }
 
@@ -2858,7 +2962,11 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SharkInfo>(sharkInfoPtr, entityId));
     Project001::CollisionBody2D* sharkCollisionBodyPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(sharkCollisionBodyPtr, entityId));
-    if (sharkInfoPtr != nullptr && sharkCollisionBodyPtr != nullptr)
+    SharkPathInfo* sharkPathInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_));
+    Project001::CollisionBody2D* sharkPathCollisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(sharkPathCollisionBodyPtr, stageSharkPath_entityId_));
+    if (sharkInfoPtr != nullptr && sharkCollisionBodyPtr != nullptr && sharkPathInfoPtr != nullptr && sharkPathCollisionBodyPtr != nullptr)
     {
         // Analyzing collisions
         // ---------------------------------------------------------------------
@@ -2870,10 +2978,21 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         {
             const Project001::CollisionOverlapData2D& sharkCollisionOverlapData = sharkCollisionOverlaps[i];
 
-            if ((sharkCollisionOverlapData.myShapeTag == s_sharkBody_collisionShapeTag_ || sharkCollisionOverlapData.myShapeTag == s_sharkJaw_collisionShapeTag_) &&
-                sharkCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
+            if (sharkCollisionOverlapData.myShapeTag == s_sharkBody_collisionShapeTag_ || sharkCollisionOverlapData.myShapeTag == s_sharkJaw_collisionShapeTag_)
             {
-                sharkInfoPtr->onLand = true;
+                if (sharkCollisionOverlapData.otherShapeTag == s_ground_collisionShapeTag_)
+                {
+                    sharkInfoPtr->onLand = true;
+                }
+                else if (sharkCollisionOverlapData.otherShapeTag >= s_sharkPathStart_collisionShapeTag_ &&
+                    sharkCollisionOverlapData.otherShapeTag < s_sharkPathStart_collisionShapeTag_ + static_cast<unsigned int>(SharkPathInfo::s_collisionPointCount))
+                {
+                    sharkPathInfoPtr->nextPathPoint = sharkCollisionOverlapData.otherShapeTag - s_sharkPathStart_collisionShapeTag_ + 1;
+                    if (sharkPathInfoPtr->nextPathPoint >= static_cast<unsigned int>(SharkPathInfo::s_collisionPointCount))
+                    {
+                        sharkPathInfoPtr->nextPathPoint = 0;
+                    }
+                }
             }
         }
 
@@ -2907,32 +3026,46 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         // ---------------------------------------------------------------------
 
         glm::vec2 moveDirection(0.0f, 0.0);
+        float moveMagnitude = 0.0f;
 
-        if (sharedDataPtr_->debug_keyboard_left_pressCount > 0)
-        {
-            moveDirection.x -= 1.0f;
-        }
-        if (sharedDataPtr_->debug_keyboard_right_pressCount > 0)
-        {
-            moveDirection.x += 1.0f;
-        }
-        if (sharedDataPtr_->debug_keyboard_up_pressCount > 0)
-        {
-            moveDirection.y += 1.0f;
-        }
-        if (sharedDataPtr_->debug_keyboard_down_pressCount > 0)
-        {
-            moveDirection.y -= 1.0f;
-        }
-
-        float moveMagnitude = glm::length(moveDirection);
-        if (moveMagnitude > 0.0f)
-        {
-            moveDirection /= moveMagnitude;
-        }
+        // if (sharedDataPtr_->debug_keyboard_left_pressCount > 0)
+        // {
+        //     moveDirection.x -= 1.0f;
+        // }
+        // if (sharedDataPtr_->debug_keyboard_right_pressCount > 0)
+        // {
+        //     moveDirection.x += 1.0f;
+        // }
+        // if (sharedDataPtr_->debug_keyboard_up_pressCount > 0)
+        // {
+        //     moveDirection.y += 1.0f;
+        // }
+        // if (sharedDataPtr_->debug_keyboard_down_pressCount > 0)
+        // {
+        //     moveDirection.y -= 1.0f;
+        // }
 
         // Changing state
         // ---------------------------------------------------------------------
+
+        std::function<unsigned int()> NextPathPoint =
+            [&]() -> unsigned int
+            {
+                const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
+
+                glm::vec2 angleStartVector(0.0f, 1.0f);
+                angleStartVector = Project001::Math::Rotate2DVector(angleStartVector, glm::pi<float>() / -16.0f);
+                float sharkPositionAngle = -Project001::Math::Get2DVectorAngle(angleStartVector, sharkPosition);
+                if (sharkPositionAngle < 0.0f)
+                {
+                    sharkPositionAngle += glm::two_pi<float>();
+                }
+                unsigned int nextPathPoint = static_cast<unsigned int>(sharkPositionAngle / glm::quarter_pi<float>());
+                nextPathPoint = (nextPathPoint + 1) % 8;
+
+                // LOG_INFO("nextPathPoint = " << nextPathPoint);
+                return nextPathPoint;
+            };
 
         switch (sharkInfoPtr->state)
         {
@@ -2940,16 +3073,29 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         {
             if (hitHard)
             {
-                moveMagnitude = 0.0f;
                 sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
                 sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
             }
-            else if (sharkInfoPtr->minAttackIntersectionWithPenguin1 ||
-                sharkInfoPtr->minAttackIntersectionWithPenguin2 ||
-                sharkInfoPtr->minAttackIntersectionWithPenguin3 ||
-                sharkInfoPtr->minAttackIntersectionWithPenguin4)
+            else if (sharkInfoPtr->minAttackIntersectionWithPenguins[0] ||
+                sharkInfoPtr->minAttackIntersectionWithPenguins[1] ||
+                sharkInfoPtr->minAttackIntersectionWithPenguins[2] ||
+                sharkInfoPtr->minAttackIntersectionWithPenguins[3])
             {
                 sharkInfoPtr->state = SharkInfo::State::STATE_CHASING;
+            }
+            else
+            {
+                const std::vector<Project001::CollisionPoint2D>& sharkPathCollisionPoints = sharkPathCollisionBodyPtr->GetCollisionPoints();
+                const size_t& nextPathPoint = sharkPathInfoPtr->nextPathPoint;
+                const glm::vec2& destinationPoint = sharkPathCollisionPoints[nextPathPoint].position;
+                const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
+                moveDirection = destinationPoint - sharkPosition;
+
+                moveMagnitude = glm::length(moveDirection);
+                if (moveMagnitude > 0.0f)
+                {
+                    moveDirection /= moveMagnitude;
+                }
             }
 
             break;
@@ -2958,16 +3104,45 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         {
             if (hitHard)
             {
-                moveMagnitude = 0.0f;
                 sharkInfoPtr->state = SharkInfo::State::STATE_HITSTUN;
                 sharkInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
             }
-            else if (!sharkInfoPtr->minAttackIntersectionWithPenguin1 &&
-                !sharkInfoPtr->minAttackIntersectionWithPenguin2 &&
-                !sharkInfoPtr->minAttackIntersectionWithPenguin3 &&
-                !sharkInfoPtr->minAttackIntersectionWithPenguin4)
+            else if (!sharkInfoPtr->minAttackIntersectionWithPenguins[0] &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguins[1] &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguins[2] &&
+                !sharkInfoPtr->minAttackIntersectionWithPenguins[3])
             {
                 sharkInfoPtr->state = SharkInfo::State::STATE_SWIMMING;
+                sharkPathInfoPtr->nextPathPoint = NextPathPoint();
+            }
+            else
+            {
+                size_t closestPlayer = 0;
+                float closestIntersection = std::numeric_limits<float>::infinity();
+                for (size_t i = 0; i < 4; ++i)
+                {
+                    if (sharkInfoPtr->minAttackIntersectionWithPenguins[i] &&
+                        sharkInfoPtr->minAttackIntersectionScalars[i] < closestIntersection)
+                    {
+                        closestIntersection = sharkInfoPtr->minAttackIntersectionScalars[i];
+                        closestPlayer = i;
+                    }
+                }
+
+                Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, player_entityIds_[closestPlayer]));
+                if (penguinCollisionBodyPtr != nullptr)
+                {
+                    const glm::vec2& destinationPoint = penguinCollisionBodyPtr->GetPosition();
+                    const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
+                    moveDirection = destinationPoint - sharkPosition;
+
+                    moveMagnitude = glm::length(moveDirection);
+                    if (moveMagnitude > 0.0f)
+                    {
+                        moveDirection /= moveMagnitude;
+                    }
+                }
             }
 
             break;
@@ -2976,12 +3151,12 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         {
             if (sharkInfoPtr->hitstunCoolDown_s > 0.0f)
             {
-                moveMagnitude = 0.0f;
                 sharkInfoPtr->hitstunCoolDown_s -= timestep_s;
             }
             else
             {
                 sharkInfoPtr->state = SharkInfo::State::STATE_SWIMMING;
+                sharkPathInfoPtr->nextPathPoint = NextPathPoint();
             }
             break;
         }
@@ -3118,7 +3293,32 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
             }
         }
 
-        // TODO:
+        // TODO: if shark goes too far out of bounds, teleport it back to spawn
+    }
+}
+
+void Scene002::UpdateSharkPathEntity()
+{
+    SharkPathInfo* sharkPathInfoPtr = nullptr;
+    GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_);
+
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stageSharkPath_entityId_));
+
+    StageInfo* stageInfoPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<StageInfo>(stageInfoPtr, stage_entityId_));
+    if (sharkPathInfoPtr != nullptr && collisionBodyPtr != nullptr && stageInfoPtr != nullptr)
+    {
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+
+        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundSize + SharedApplicationData::s_stageSharkCircleOffset_size);
+        pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -8.0f);
+
+        for (size_t i = 0; i < SharkPathInfo::s_collisionPointCount; ++i)
+        {
+            collisionPoints[i].position = pathOffsetVector;
+            pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -4.0f);
+        }
     }
 }
 
@@ -3132,7 +3332,7 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
         SnowballInfo& snowballInfo = snowballInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo));
 
         Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, entityId));
@@ -3308,6 +3508,42 @@ void Scene002::AnimateCursorEntity(float timestep_s)
     }
 }
 
+void Scene002::AnimateImpactEffectEntities(float timestep_s)
+{
+    ImpactEffectInfo* impactEffectInfoPtrs = nullptr;
+    size_t impactEffectInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<ImpactEffectInfo>(impactEffectInfoPtrs, impactEffectInfoCount);
+    for (size_t i = 0; i < impactEffectInfoCount; ++i)
+    {
+        ImpactEffectInfo& impactEffectInfo = impactEffectInfoPtrs[i];
+
+        unsigned int entityId = static_cast<unsigned int>(-1);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<ImpactEffectInfo>(entityId, &impactEffectInfo));
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
+        if (renderedModelPtr != nullptr)
+        {
+            impactEffectInfo.animationTime_s += timestep_s;
+
+            std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+
+            if (impactEffectInfo.animationTime_s > ImpactEffectInfo::s_frameDuration_s)
+            {
+                impactEffectInfo.animationTime_s -= ImpactEffectInfo::s_frameDuration_s;
+                renderedMeshes[impactEffectInfo.currentFrame].SetVisible(false);
+                impactEffectInfo.currentFrame++;
+                if (impactEffectInfo.currentFrame >= ImpactEffectInfo::s_frameCount)
+                {
+                    impactEffectInfo.currentFrame = 0;
+                    impactEffectInfo.deadFlag = true;
+                }
+                renderedMeshes[impactEffectInfo.currentFrame].SetVisible(true);
+            }
+        }
+    }
+}
+
 void Scene002::AnimatePenguinEntities(float timestep_s)
 {
     PenguinInfo* penguinInfoPtrs = nullptr;
@@ -3318,7 +3554,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
         PenguinInfo& penguinInfo = penguinInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<PenguinInfo>(entityId, &penguinInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<PenguinInfo>(entityId, &penguinInfo));
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
@@ -4051,7 +4287,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
         SharkInfo& sharkInfo = sharkInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo));
 
         Project001::RenderedModel* renderedModelPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, entityId));
@@ -4129,7 +4365,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
             jawCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
 
             Project001::RenderedMesh& attackRay1_mesh = renderedMeshes[SharkInfo::s_attackRay1_renderedMeshIndex];
-            if (sharkInfo.minAttackIntersectionWithPenguin1)
+            if (sharkInfo.minAttackIntersectionWithPenguins[0])
             {
                 attackRay1_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
             }
@@ -4139,7 +4375,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
             }
 
             Project001::RenderedMesh& attackRay2_mesh = renderedMeshes[SharkInfo::s_attackRay2_renderedMeshIndex];
-            if (sharkInfo.minAttackIntersectionWithPenguin2)
+            if (sharkInfo.minAttackIntersectionWithPenguins[1])
             {
                 attackRay2_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
             }
@@ -4149,7 +4385,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
             }
 
             Project001::RenderedMesh& attackRay3_mesh = renderedMeshes[SharkInfo::s_attackRay3_renderedMeshIndex];
-            if (sharkInfo.minAttackIntersectionWithPenguin3)
+            if (sharkInfo.minAttackIntersectionWithPenguins[2])
             {
                 attackRay3_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
             }
@@ -4159,7 +4395,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
             }
 
             Project001::RenderedMesh& attackRay4_mesh = renderedMeshes[SharkInfo::s_attackRay4_renderedMeshIndex];
-            if (sharkInfo.minAttackIntersectionWithPenguin4)
+            if (sharkInfo.minAttackIntersectionWithPenguins[3])
             {
                 attackRay4_mesh.SetColor(0.0f, 0.8f, 0.0f, 0.2f);
             }
@@ -4237,8 +4473,6 @@ void Scene002::AnimateSharkEntities(float timestep_s)
 
             sharkInfo.animationStateCountDown_s -= timestep_s;
         }
-
-        // TODO:
     }
 }
 
@@ -4252,7 +4486,7 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
         SnowballInfo& snowballInfo = snowballInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo));
 
         Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(snowballCollisionBodyPtr, entityId));
@@ -4586,7 +4820,7 @@ void Scene002::SyncCursorRenderedModels()
         CursorInfo& cursorInfo = cursorInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<CursorInfo>(entityId, &cursorInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<CursorInfo>(entityId, &cursorInfo));
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
@@ -4723,7 +4957,7 @@ void Scene002::SyncPenguinRenderedModels()
         PenguinInfo& penguinInfo = penguinInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<PenguinInfo>(entityId, &penguinInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<PenguinInfo>(entityId, &penguinInfo));
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
@@ -4837,7 +5071,7 @@ void Scene002::SyncSharkRenderedModels()
         SharkInfo& sharkInfo = sharkInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<SharkInfo>(entityId, &sharkInfo));
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
@@ -4860,7 +5094,8 @@ void Scene002::SyncSharkRenderedModels()
         std::vector<Project001::CollisionRay2D>& sharkCollisionRays = collisionBodyPtr->GetCollisionRays();
         std::vector<Project001::CollisionCircle2D>& sharkCollisionCircles = collisionBodyPtr->GetCollisionCircles();
 
-        const glm::vec2& localJawPosition = sharkCollisionCircles[SharkInfo::s_jaw_collisionCircleIndex].position;
+        // const glm::vec2& offsetY = sharkCollisionCircles[SharkInfo::s_jaw_collisionCircleIndex].position;
+        constexpr glm::vec2 offsetY(0.0f, 0.0f);
 
         std::function<void(bool, size_t, unsigned int)> UpdateAttackCollisionRayDirection =
             [&](bool turnedOn, size_t collisionRayIndex, unsigned int player_etityId)
@@ -4880,11 +5115,11 @@ void Scene002::SyncSharkRenderedModels()
                         glm::vec2 relativePenguinPosition = penguinPosition - sharkPosition;
                         relativePenguinPosition = Project001::Math::Rotate2DVector(relativePenguinPosition, -sharkRotation);
 
-                        glm::vec2 rayDirection = relativePenguinPosition - localJawPosition;
+                        glm::vec2 rayDirection = relativePenguinPosition - offsetY;
                         float rayMagnitude = glm::length(rayDirection);
                         if (rayMagnitude > 0.0f)
                         {
-                            attackCollisionRay.position = localJawPosition;
+                            attackCollisionRay.position = offsetY;
                             attackCollisionRay.direction = rayDirection / rayMagnitude;
                         }
                     }
@@ -4911,14 +5146,15 @@ void Scene002::SyncSharkRenderedModels()
             SharkInfo::s_attackRay4_collisionRayIndex,
             player_entityIds_[3]);
 
-        sharkInfo.minAttackIntersectionScalar1 = std::numeric_limits<float>::infinity();
-        sharkInfo.minAttackIntersectionWithPenguin1 = false;
-        sharkInfo.minAttackIntersectionScalar2 = std::numeric_limits<float>::infinity();
-        sharkInfo.minAttackIntersectionWithPenguin2 = false;
-        sharkInfo.minAttackIntersectionScalar3 = std::numeric_limits<float>::infinity();
-        sharkInfo.minAttackIntersectionWithPenguin3 = false;
-        sharkInfo.minAttackIntersectionScalar4 = std::numeric_limits<float>::infinity();
-        sharkInfo.minAttackIntersectionWithPenguin4 = false;
+        sharkInfo.minAttackIntersectionScalars[0] = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionScalars[1] = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionScalars[2] = std::numeric_limits<float>::infinity();
+        sharkInfo.minAttackIntersectionScalars[3] = std::numeric_limits<float>::infinity();
+
+        sharkInfo.minAttackIntersectionWithPenguins[0] = false;
+        sharkInfo.minAttackIntersectionWithPenguins[1] = false;
+        sharkInfo.minAttackIntersectionWithPenguins[2] = false;
+        sharkInfo.minAttackIntersectionWithPenguins[3] = false;
 
         const std::vector<Project001::CollisionRaycastData2D>& sharkCollisionRaycasts = collisionBodyPtr->GetCollisionRaycasts();
         for (size_t i = 0; i < sharkCollisionRaycasts.size(); ++i)
@@ -4946,23 +5182,23 @@ void Scene002::SyncSharkRenderedModels()
 
             UpdateAttackIntersectionScalar(
                 s_attackRay1_collisionShapeTag_,
-                sharkInfo.minAttackIntersectionScalar1,
-                sharkInfo.minAttackIntersectionWithPenguin1);
+                sharkInfo.minAttackIntersectionScalars[0],
+                sharkInfo.minAttackIntersectionWithPenguins[0]);
 
             UpdateAttackIntersectionScalar(
                 s_attackRay2_collisionShapeTag_,
-                sharkInfo.minAttackIntersectionScalar2,
-                sharkInfo.minAttackIntersectionWithPenguin2);
+                sharkInfo.minAttackIntersectionScalars[1],
+                sharkInfo.minAttackIntersectionWithPenguins[1]);
 
             UpdateAttackIntersectionScalar(
                 s_attackRay3_collisionShapeTag_,
-                sharkInfo.minAttackIntersectionScalar3,
-                sharkInfo.minAttackIntersectionWithPenguin3);
+                sharkInfo.minAttackIntersectionScalars[2],
+                sharkInfo.minAttackIntersectionWithPenguins[2]);
 
             UpdateAttackIntersectionScalar(
                 s_attackRay4_collisionShapeTag_,
-                sharkInfo.minAttackIntersectionScalar4,
-                sharkInfo.minAttackIntersectionWithPenguin4);
+                sharkInfo.minAttackIntersectionScalars[3],
+                sharkInfo.minAttackIntersectionWithPenguins[3]);
         }
 
         std::function<void(Project001::MeshData*, float, size_t)> UpdateAttackRayMesh =
@@ -4996,23 +5232,56 @@ void Scene002::SyncSharkRenderedModels()
 
         UpdateAttackRayMesh(
             sharedDataPtr_->shark_attackRay1_meshDataPtr,
-            sharkInfo.minAttackIntersectionScalar1,
+            sharkInfo.minAttackIntersectionScalars[0],
             SharkInfo::s_attackRay1_collisionRayIndex);
 
         UpdateAttackRayMesh(
             sharedDataPtr_->shark_attackRay2_meshDataPtr,
-            sharkInfo.minAttackIntersectionScalar2,
+            sharkInfo.minAttackIntersectionScalars[1],
             SharkInfo::s_attackRay2_collisionRayIndex);
 
         UpdateAttackRayMesh(
             sharedDataPtr_->shark_attackRay3_meshDataPtr,
-            sharkInfo.minAttackIntersectionScalar3,
+            sharkInfo.minAttackIntersectionScalars[2],
             SharkInfo::s_attackRay3_collisionRayIndex);
 
         UpdateAttackRayMesh(
             sharedDataPtr_->shark_attackRay4_meshDataPtr,
-            sharkInfo.minAttackIntersectionScalar4,
+            sharkInfo.minAttackIntersectionScalars[3],
             SharkInfo::s_attackRay4_collisionRayIndex);
+    }
+}
+
+void Scene002::SyncSharkPathRenderedModels()
+{
+    SharkPathInfo* sharkPathInfoPtr = nullptr;
+    GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_);
+
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, stageSharkPath_entityId_));
+
+    Project001::CollisionBody2D* collisionBodyPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stageSharkPath_entityId_));
+
+    if (sharkPathInfoPtr != nullptr && renderedModelPtr != nullptr && collisionBodyPtr != nullptr)
+    {
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
+
+        for (size_t i = 0; i < SharkPathInfo::s_collisionPointCount && i < SharkPathInfo::s_renderedMeshCount; ++i)
+        {
+            renderedMeshes[i].SetPositionX(collisionPoints[i].position.x);
+            renderedMeshes[i].SetPositionY(collisionPoints[i].position.y);
+
+            if (i == sharkPathInfoPtr->nextPathPoint)
+            {
+                renderedMeshes[i].SetColor(1.0f, 0.4f, 0.4f, 0.6f);
+            }
+            else
+            {
+                renderedMeshes[i].SetColor(0.8f, 0.6f, 0.4f, 0.6f);
+            }
+        }
     }
 }
 
@@ -5026,7 +5295,7 @@ void Scene002::SyncSnowballRenderedModels()
         SnowballInfo& snowballInfo = snowballInfoPtrs[i];
 
         unsigned int entityId = static_cast<unsigned int>(-1);
-        GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo);
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<SnowballInfo>(entityId, &snowballInfo));
 
         Project001::CollisionBody2D* collisionBodyPtr = nullptr;
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, entityId));
@@ -5050,6 +5319,32 @@ void Scene002::SyncSnowballRenderedModels()
                 mesh.SetScale(collisionCircle.radius, collisionCircle.radius, collisionCircle.radius);
             }
         }
+    }
+}
+
+void Scene002::KillDeadImpactEffectEntities()
+{
+    std::vector<unsigned int> killList;
+
+    ImpactEffectInfo* impactEffectInfoPtrs = nullptr;
+    size_t impactEffectInfoCount = 0;
+    GetComponentStoresPtr()->GetAllComponents<ImpactEffectInfo>(impactEffectInfoPtrs, impactEffectInfoCount);
+    for (size_t i = 0; i < impactEffectInfoCount; ++i)
+    {
+        ImpactEffectInfo& impactEffectInfo = impactEffectInfoPtrs[i];
+
+        if (impactEffectInfo.deadFlag)
+        {
+            unsigned int entityId = static_cast<unsigned int>(-1);
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponentEntityId<ImpactEffectInfo>(entityId, &impactEffectInfo));
+
+            killList.push_back(entityId);
+        }
+    }
+
+    for (size_t i = 0; i < killList.size(); ++i)
+    {
+        FAIL_CHECK(GetComponentStoresPtr()->DeleteEntity(killList[i]));
     }
 }
 
