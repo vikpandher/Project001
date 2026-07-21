@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-20
 
 #include "Scene002.h"
 
@@ -56,14 +56,14 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     sharedDataPtr_->score = 0;
 
-    randomNumberEngine_.seed(sharedDataPtr_->randomNumberSeed);
+    randomNumberEngine_.seed(sharedDataPtr_->s_randomNumberSeed);
 
     CreateMainCameraEntities();
     CreateUiCameraEntity();
     CreateUiTextEntity();
     CreateUiPauseTextEntity();
 
-    if (s_cursorEnabled) CreateCursorEntity();
+    if (sharedDataPtr_->cursorEnabled) CreateCursorEntity();
 
     CreateStageEntity();
     CreateStageLightEntity();
@@ -192,7 +192,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
         UpdateMainCameraEntity(physicsTimestep_s);
 
-        if (s_cursorEnabled) UpdateCursorEntity(physicsTimestep_s);
+        if (sharedDataPtr_->cursorEnabled) UpdateCursorEntity(physicsTimestep_s);
 
         UpdateStageEntity(physicsTimestep_s);
 
@@ -231,7 +231,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
         impectEffectCreationQueue_.pop();
     }
 
-    if (s_cursorEnabled) AnimateCursorEntity(timestep_s);
+    if (sharedDataPtr_->cursorEnabled) AnimateCursorEntity(timestep_s);
 
     AnimateImpactEffectEntities(timestep_s);
     AnimatePenguinEntities(timestep_s);
@@ -241,7 +241,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     // Sync rendered models
     // -------------------------------------------------------------------------
 
-    if (s_cursorEnabled) SyncCursorRenderedModels();
+    if (sharedDataPtr_->cursorEnabled) SyncCursorRenderedModels();
 
     SyncPenguinRenderedModels();
     SyncSharkRenderedModels();
@@ -583,9 +583,11 @@ void Scene002::CreateImpactEffectEntity(const ImpactEffectCreationInfo& creation
 
 void Scene002::CreateStageEntity()
 {
+    float quadTreeApothem = sharedDataPtr_->killzoneApothem + SharedApplicationData::s_quadtreeOffset;
+
     GetCollisionSystemPtr()->ResetCollisionBodyQuadTree2D(
-        glm::vec2(-(SharedApplicationData::s_maxStage_size + 8.0f), -(SharedApplicationData::s_maxStage_size + 8.0f)),
-        glm::vec2(SharedApplicationData::s_maxStage_size + 8.0f, SharedApplicationData::s_maxStage_size + 8.0f),
+        glm::vec2(-quadTreeApothem, -quadTreeApothem),
+        glm::vec2(quadTreeApothem, quadTreeApothem),
         3,
         16
     );
@@ -603,6 +605,9 @@ void Scene002::CreateStageEntity()
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, stage_entityId_));
     if (stageInfoPtr != nullptr && renderedModelPtr != nullptr)
     {
+        stageInfoPtr->groundApothem = sharedDataPtr_->groundApothem;
+        stageInfoPtr->groundApothemRate_s = sharedDataPtr_->groundApothemShrinkRate;
+
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
         renderedMeshes.resize(StageInfo::s_renderedMeshCount);
@@ -2000,7 +2005,8 @@ void Scene002::UpdateCursorEntity(float timestep_s)
         {
             float cursorWorldMoveDistance = glm::length(cursorInfoPtr->prevCursorWindowPosition - cursorInfoPtr->cursorWindowPosition);
 
-            if (grabHeld && !cursorInfoPtr->hoveringOverAlreadyGrabbedEntity && cursorWorldMoveDistance > 0.0f)
+            if (grabHeld && !cursorInfoPtr->hoveringOverAlreadyGrabbedEntity &&
+                snowballInfoPtr->onLand && cursorWorldMoveDistance > 0.0f)
             {
                 constexpr float snowballGrowthRate_s = 2.4f;
 
@@ -2052,21 +2058,21 @@ void Scene002::UpdateStageEntity(float timestep_s)
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(collisionBodyPtr, stage_entityId_));
     if (stageInfoPtr != nullptr && collisionBodyPtr != nullptr)
     {
-        stageInfoPtr->groundSize -= stageInfoPtr->groundSkrinkRate_s * timestep_s;
-        if (stageInfoPtr->groundSize < 0.0f)
+        stageInfoPtr->groundApothem -= stageInfoPtr->groundApothemRate_s * timestep_s;
+        if (stageInfoPtr->groundApothem < 0.0f)
         {
-            stageInfoPtr->groundSize = 0.0f;
+            stageInfoPtr->groundApothem = 0.0f;
         }
 
         // Update Ground Rendered Mesh
 
         sharedDataPtr_->ground_meshDataPtr->Clear();
 
-        if (stageInfoPtr->groundSize > 0.0f)
+        if (stageInfoPtr->groundApothem > 0.0f)
         {
             constexpr float height = 256.0f;
-            const float groundRadius = stageInfoPtr->groundSize * 1.0829f;
-            const float groundCorner = stageInfoPtr->groundSize * 0.41421357f; // sqrt(2) - 1
+            const float groundRadius = stageInfoPtr->groundApothem * 1.0829f;
+            const float groundCorner = stageInfoPtr->groundApothem * 0.41421357f; // sqrt(2) - 1
 
             FAIL_CHECK(Project001::Mesh::GenerateCylinder(
                 *sharedDataPtr_->ground_meshDataPtr, height, groundRadius, 8, false
@@ -2082,18 +2088,18 @@ void Scene002::UpdateStageEntity(float timestep_s)
         std::vector<glm::vec2>& corners = collisionConvexPolygons[StageInfo::s_ground_collisionConvexPolygonIndex].corners;
         corners.clear();
 
-        if (stageInfoPtr->groundSize > 0.0f)
+        if (stageInfoPtr->groundApothem > 0.0f)
         {
-            const float groundCorner = stageInfoPtr->groundSize * 0.41421357f; // sqrt(2) - 1
+            const float halfSideLength = stageInfoPtr->groundApothem * 0.41421357f; // sqrt(2) - 1
 
-            corners.emplace_back(stageInfoPtr->groundSize, groundCorner);
-            corners.emplace_back(groundCorner, stageInfoPtr->groundSize);
-            corners.emplace_back(-groundCorner, stageInfoPtr->groundSize);
-            corners.emplace_back(-stageInfoPtr->groundSize, groundCorner);
-            corners.emplace_back(-stageInfoPtr->groundSize, -groundCorner);
-            corners.emplace_back(-groundCorner, -stageInfoPtr->groundSize);
-            corners.emplace_back(groundCorner, -stageInfoPtr->groundSize);
-            corners.emplace_back(stageInfoPtr->groundSize, -groundCorner);
+            corners.emplace_back(stageInfoPtr->groundApothem, halfSideLength);
+            corners.emplace_back(halfSideLength, stageInfoPtr->groundApothem);
+            corners.emplace_back(-halfSideLength, stageInfoPtr->groundApothem);
+            corners.emplace_back(-stageInfoPtr->groundApothem, halfSideLength);
+            corners.emplace_back(-stageInfoPtr->groundApothem, -halfSideLength);
+            corners.emplace_back(-halfSideLength, -stageInfoPtr->groundApothem);
+            corners.emplace_back(halfSideLength, -stageInfoPtr->groundApothem);
+            corners.emplace_back(stageInfoPtr->groundApothem, -halfSideLength);
         }
     }
 
@@ -3311,7 +3317,7 @@ void Scene002::UpdateSharkPathEntity()
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
 
-        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundSize + SharedApplicationData::s_stageSharkCircleOffset_size);
+        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundApothem + sharedDataPtr_->sharkCircleOffset);
         pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -8.0f);
 
         for (size_t i = 0; i < SharkPathInfo::s_collisionPointCount; ++i)

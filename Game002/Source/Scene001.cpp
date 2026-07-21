@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-20
 
 #include "Scene001.h"
 
@@ -71,6 +71,8 @@ Scene001::Scene001(Project001::Application* applicationPtr)
 Scene001::~Scene001()
 {
     FreeResources();
+
+    LOG_INFO("Goodbye World.");
 }
 
 void Scene001::HandleEvent(Project001::Event& event)
@@ -386,8 +388,8 @@ void Scene001::LoadStageResources()
     sharedDataPtr_->water_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DSprite(
         *sharedDataPtr_->water_meshDataPtr,
-        SharedApplicationData::s_ground_size * 24.0f,
-        SharedApplicationData::s_ground_size * 24.0f,
+        sharedDataPtr_->groundApothem * 24.0f,
+        sharedDataPtr_->groundApothem * 24.0f,
         0.0f, 1.0f, 0.0f, 1.0f
     ));
 
@@ -408,23 +410,23 @@ void Scene001::LoadStageResources()
     // ));
 
     {
-        float rectThickness = (SharedApplicationData::s_maxStage_size - SharedApplicationData::s_deadzone_size) * 2.0f;
+        constexpr float rectThickness = SharedApplicationData::s_quadtreeOffset;
     
         Project001::MeshData tempMeshData0;
-        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, SharedApplicationData::s_deadzone_size * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f), 0.0f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f, 0.0f));
     
         Project001::MeshData tempMeshData1;
-        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, SharedApplicationData::s_deadzone_size * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f, 0.0f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
+        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f, 0.0f));
     
         Project001::MeshData tempMeshData2;
-        Project001::Mesh::Generate2DRectangle(tempMeshData2, (SharedApplicationData::s_deadzone_size + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(SharedApplicationData::s_deadzone_size + rectThickness * 0.5f), 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f));
     
         Project001::MeshData tempMeshData3;
-        Project001::Mesh::Generate2DRectangle(tempMeshData3, (SharedApplicationData::s_deadzone_size + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, SharedApplicationData::s_deadzone_size + rectThickness * 0.5f, 0.0f));
+        Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
+        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f));
     
         sharedDataPtr_->deadZone_meshDataPtr = new Project001::MeshData();
         Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData0);
@@ -1690,10 +1692,34 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Game_Constants");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("randomNumberSeed");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("cursorEnabled");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->randomNumberSeed = std::stoi(iter2->second);
+                sharedDataPtr_->cursorEnabled = static_cast<bool>(std::stoi(iter2->second));
+            }
+
+            iter2 = iter->second.find("groundApothem");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->groundApothem = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("groundApothemShrinkRate");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->groundApothemShrinkRate = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkCircleOffset");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkCircleOffset = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("killzoneApothem");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->killzoneApothem = std::stof(iter2->second);
             }
         }
     }

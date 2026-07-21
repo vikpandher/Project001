@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-20
 
 #pragma once
 
@@ -148,6 +148,4 @@ protected:
     static constexpr unsigned int s_sharkPathStart_collisionShapeTag_ = 100;
 
     static constexpr float s_waterHeight = -8.0f;
-
-    static constexpr bool s_cursorEnabled = true;
 };

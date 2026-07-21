@@ -1,7 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-20
 
+#pragma once
 
 #include "SharedApplicationData.h"
 
@@ -254,9 +255,9 @@ struct SharkPathInfo
 
 struct StageInfo
 {
-    float groundSize = SharedApplicationData::s_ground_size;
+    float groundApothem = 128.0f;
 
-    float groundSkrinkRate_s = 0.0f;
+    float groundApothemRate_s = 0.0f;
 
     static constexpr size_t s_ground_renderedMeshIndex = 0;
     static constexpr size_t s_water_renderedMeshIndex = 1;

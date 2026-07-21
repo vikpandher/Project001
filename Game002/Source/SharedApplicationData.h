@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-20
 
 #pragma once
 
@@ -225,15 +225,14 @@ struct SharedApplicationData
 
     // Game Constants ----------------------------------------------------------
 
-    unsigned int randomNumberSeed = 777;
+    bool cursorEnabled = false;
+    float groundApothem = 512.0f;
+    float groundApothemShrinkRate = 8.0f;
+    float sharkCircleOffset = 256.0f;
+    float killzoneApothem = 1024.0f;
 
-    static constexpr float s_ground_size = 512.0f; // center to top
-
-    static constexpr float s_stageSharkCircleOffset_size = 256.0f;
-
-    static constexpr float s_deadzone_size = 1024.0f;
-
-    static constexpr float s_maxStage_size = 1088.0f;
+    static constexpr float s_quadtreeOffset = 128.0f;
+    static constexpr unsigned int s_randomNumberSeed = 777;
 
     static constexpr float s_penguin_collisionRadius = 12.0f;
     static constexpr float s_penguin_grabOffset = 22.0f;
