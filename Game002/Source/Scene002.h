@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-20
+// @DATE 2026-07-23
 
 #pragma once
 
@@ -42,6 +42,7 @@ protected:
     void CreateUiPauseTextEntity();
     void CreateCursorEntity();
     void CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo);
+    void CreateSnowburstEffectEntity(const SnowburstEffectCreationInfo& creationInfo);
     void CreateStageEntity();
     void CreateStageLightEntity();
     void CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation);
@@ -65,6 +66,7 @@ protected:
 
     void AnimateCursorEntity(float timestep_s);
     void AnimateImpactEffectEntities(float timestep_s);
+    void AnimateSnowburstEffectEntities(float timestep_s);
     void AnimatePenguinEntities(float timestep_s);
     void AnimateSharkEntities(float timestep_s);
     void AnimateSnowballEntities(float timestep_s);
@@ -76,6 +78,9 @@ protected:
     void SyncSnowballRenderedModels();
 
     void KillDeadImpactEffectEntities();
+    void KillDeadSnowburstEffectEntities();
+    void KillDeadPenguinEntities();
+    void KillDeadSnowballEntities();
 
     // -------------------------------------------------------------------------
 
@@ -114,8 +119,8 @@ protected:
 
     glm::vec3 mainCamera_lookAtPoint_;
 
-    static constexpr float s_mainCamera_initialDistanceAway_ = 600.0f;
-    static constexpr float s_mainCamera_minimumDistanceAway_ = 600.0f;
+    static constexpr float s_mainCamera_initialDistanceAway_ = 960.0f;
+    static constexpr float s_mainCamera_minimumPlayerSpread_ = 240.0f;
     static constexpr float s_mainCamera_playerToEdgeSpacing_ = 128.0f;
     float mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
     bool mainCamera_lockedToPlayers_ = true;
@@ -126,6 +131,7 @@ protected:
     std::mt19937 randomNumberEngine_;
 
     std::queue<ImpactEffectCreationInfo> impectEffectCreationQueue_;
+    std::queue<SnowburstEffectCreationInfo> snowburstEffectCreationQueue_;
 
     static const uint32_t s_player_collisionGroupMasks_[SharedApplicationData::s_player_count];
 

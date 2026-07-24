@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-20
+// @DATE 2026-07-23
 
 #pragma once
 
@@ -96,6 +96,8 @@ struct PenguinInfo
 
     size_t glassesType = 0;
 
+    bool deadFlag = false;
+
     bool onLand = false;
 
     State animationState = State::STATE_STANDING;
@@ -140,19 +142,7 @@ struct SnowballInfo
 {
     unsigned int owner_entityId = static_cast<unsigned int>(-1);
 
-    enum class State
-    {
-        STATE_REGULAR,
-        STATE_EXPLODING
-    };
-
-    State state = State::STATE_REGULAR;
-    static constexpr float s_explosionTime_s = 0.75f;
-
-    State animationState = State::STATE_REGULAR;
-    float animationStateCountDown_s = 0.0f;
-
-    float animationRandomRotation = 0.0f;
+    bool deadFlag = false;
 
     bool onLand = false;
 
@@ -163,19 +153,16 @@ struct SnowballInfo
 
     float positionZ = 0.0f;
 
-    static const size_t s_snowball_renderedMeshIndex = 0;
-    static const size_t s_snowball_break_01_renderedMeshIndex = 1;
-    static const size_t s_snowball_break_02_renderedMeshIndex = 2;
-    static const size_t s_snowball_break_03_renderedMeshIndex = 3;
-    static const size_t s_snowball_break_04_renderedMeshIndex = 4;
-    static const size_t s_snowball_break_05_renderedMeshIndex = 5;
-    static const size_t s_snowball_break_06_renderedMeshIndex = 6;
-    static const size_t s_shadow_renderedMeshIndex = 7;
-    static const size_t s_orientationArrow_renderedMeshIndex = 8;
-    static const size_t s_renderedMeshCount = 9;
+    static constexpr glm::vec3 s_maxRadiusColor = glm::vec3(0.8f, 0.9f, 1.0f);
+    static constexpr glm::vec3 s_regularColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    static const size_t s_snowball_collisionCircleIndex = 0;
-    static const size_t s_collisionCircleCount = 1;
+    static constexpr size_t s_snowball_renderedMeshIndex = 0;
+    static constexpr size_t s_shadow_renderedMeshIndex = 1;
+    static constexpr size_t s_orientationArrow_renderedMeshIndex = 2;
+    static constexpr size_t s_renderedMeshCount = 3;
+
+    static constexpr size_t s_snowball_collisionCircleIndex = 0;
+    static constexpr size_t s_collisionCircleCount = 1;
 };
 
 struct SharkInfo
@@ -271,12 +258,14 @@ struct StageInfo
     static constexpr size_t s_collisionConvexPolygonCount = 1;
 };
 
+// Effects ---------------------------------------------------------------------
+
 struct ImpactEffectInfo
 {
     static constexpr size_t s_frameCount = 4;
     size_t currentFrame = 0;
 
-    static constexpr float s_frameDuration_s = 0.0625f;
+    float frameDuration_s = 0.0625f;
     float animationTime_s = 0.0f;
 
     bool deadFlag = false;
@@ -284,8 +273,32 @@ struct ImpactEffectInfo
 
 struct ImpactEffectCreationInfo
 {
+    float frameDuration_s = 0.0625f;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     glm::vec3 scale = glm::vec3(64.0f, 64.0f, 64.0f);
     glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+struct SnowburstEffectInfo
+{
+    bool onLand = false;
+    float snowballRadius = 48.0f;
+    glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    float animationTime_s = 0.0f;
+
+    bool deadFlag = false;
+
+    static constexpr float s_burstTime_s = 0.75f;
+    static constexpr size_t s_renderedMeshCount = 6;
+};
+
+struct SnowburstEffectCreationInfo
+{
+    bool onLand = false;
+    float snowballRadius = 48.0f;
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 colorRGB = glm::vec3(1.0f, 1.0f, 1.0f);
 };

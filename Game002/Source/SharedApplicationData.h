@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-20
+// @DATE 2026-07-23
 
 #pragma once
 
@@ -24,6 +24,7 @@ struct PlayerCreationInfo
 {
     size_t playerNumber = 0;
     bool turnedOn = true;
+    bool dead = false;
 
     enum class ControlScheme
     {
@@ -69,10 +70,10 @@ struct SharedApplicationData
 
     static constexpr size_t s_player_count = 4;
     PlayerCreationInfo playerCreationInfos[s_player_count] = {
-        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
-        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
-        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
-        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
+        {0, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
+        {1, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
+        {2, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
+        {3, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
