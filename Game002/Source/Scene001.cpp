@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-20
+// @DATE 2026-07-26
 
 #include "Scene001.h"
 
@@ -97,7 +97,7 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     ReadConfigFile();
 
     CreateUiCameraEntity();
-    CreateIntroTextEntity();
+    CreateLoadingTextEntity();
 }
 
 void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
@@ -111,14 +111,8 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     GetComponentStoresPtr()->DeleteEntity(uiCamera_entityId_);
     uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
-    GetComponentStoresPtr()->DeleteEntity(autorText_entityId_);
-    autorText_entityId_ = static_cast<unsigned int>(-1);
-
-    GetComponentStoresPtr()->DeleteEntity(introText_entityId_);
-    introText_entityId_ = static_cast<unsigned int>(-1);
-
-    GetComponentStoresPtr()->DeleteEntity(startText_entityId_);
-    startText_entityId_ = static_cast<unsigned int>(-1);
+    GetComponentStoresPtr()->DeleteEntity(loadingText_entityId_);
+    loadingText_entityId_ = static_cast<unsigned int>(-1);
 }
 
 void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
@@ -147,8 +141,8 @@ void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     }
     if (startPressed)
     {
-        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
-        if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene003Id));
+        if (GetActiveScene()->GetId() == sharedDataPtr_->scene003Id)
         {
             SendEventToScene(GetId(), Project001::DeinitializeEvent());
             SendEventToApplication(Project001::InitializeEvent());
@@ -174,6 +168,8 @@ void Scene001::LoadPixelFontResources()
 
 void Scene001::LoadGeneralResources()
 {
+    sharedDataPtr_->loadingText_meshDataPtr = new Project001::MeshData();
+
     {
         sharedDataPtr_->circle_meshDataPtr = new Project001::MeshData();
         FAIL_CHECK(Project001::Mesh::Generate2DRegularPolygon(
@@ -971,6 +967,8 @@ void Scene001::FreeResources()
     GetSoundPlayerPtr()->DeleteAllSoundSources();
 
     // General Resources
+    delete sharedDataPtr_->loadingText_meshDataPtr;
+    sharedDataPtr_->loadingText_meshDataPtr = nullptr;
     delete sharedDataPtr_->circle_meshDataPtr;
     sharedDataPtr_->circle_meshDataPtr = nullptr;
     delete sharedDataPtr_->orientationArrow_meshDataPtr;
@@ -1320,10 +1318,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_1_grab_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_1_throw_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_drop_keyCode = Project001::StringToKeyCode(iter2->second);
             }
         }
 
@@ -1378,10 +1376,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_2_grab_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_2_throw_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_drop_keyCode = Project001::StringToKeyCode(iter2->second);
             }
         }
 
@@ -1436,10 +1434,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_1_grab_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_1_throw_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_1_drop_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1512,10 +1510,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_2_grab_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_2_throw_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_2_drop_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1588,10 +1586,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_3_grab_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_3_throw_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_3_drop_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1664,10 +1662,10 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_4_grab_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("throw");
+            iter2 = iter->second.find("drop");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_4_throw_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_4_drop_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("moveRightLeftAxis");
@@ -1758,10 +1756,38 @@ void Scene001::CreateUiCameraEntity()
     }
 }
 
-void Scene001::CreateIntroTextEntity()
+void Scene001::CreateLoadingTextEntity()
 {
+    constexpr float loadingPixelSize = 2.0f;
+
+    sharedDataPtr_->loadingText_meshDataPtr->Clear();
+
+    std::string loadingString = "LOADING...";
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->loadingText_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        loadingString,
+        loadingPixelSize,
+        1
+    ));
+
+    GetComponentStoresPtr()->CreateEntity(loadingText_entityId_);
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(loadingText_entityId_));
+    Project001::RenderedMesh* renderedMeshPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, loadingText_entityId_));
+    if (renderedMeshPtr != nullptr)
+    {
+        renderedMeshPtr->SetCameraMask(s_uiCamera_cameraMask_);
+        renderedMeshPtr->SetMeshDataPtr(sharedDataPtr_->loadingText_meshDataPtr);
+        renderedMeshPtr->SetTextureId(sharedDataPtr_->pixelFont_textureId);
+        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 1.0f);
+        renderedMeshPtr->SetUseLighting(false);
+    }
+
     // -------------------------------------------------------------------------
 
+    /*
     constexpr float introPixelSize = 2.0f;
 
     sharedDataPtr_->introText_meshDataPtr->Clear();
@@ -1843,4 +1869,5 @@ void Scene001::CreateIntroTextEntity()
         renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 1.0f);
         renderedMeshPtr->SetUseLighting(false);
     }
+    */
 }

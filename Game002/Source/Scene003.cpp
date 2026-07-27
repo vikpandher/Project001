@@ -1,8 +1,8 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-23
+// @DATE 2026-07-26
 
-#include "Scene002.h"
+#include "Scene003.h"
 
 #include "Components/Camera.h"
 #include "Components/CollisionBody2D.h"
@@ -24,35 +24,35 @@
 
 // public ----------------------------------------------------------------------
 
-Scene002::Scene002(Project001::Application* applicationPtr)
+Scene003::Scene003(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
     , mainCamera_lookAtPoint_(0.0f, 0.0f, 0.0f)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
-    sharedDataPtr_->scene002Id = GetId();
+    sharedDataPtr_->scene003Id = GetId();
 }
 
-Scene002::~Scene002()
+Scene003::~Scene003()
 {
 }
 
-void Scene002::HandleEvent(Project001::Event& event)
+void Scene003::HandleEvent(Project001::Event& event)
 {
-    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&Scene002::ProcessInitializeEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&Scene002::ProcessDeinitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::InitializeEvent>(event, std::bind(&Scene003::ProcessInitializeEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::DeinitializeEvent>(event, std::bind(&Scene003::ProcessDeinitializeEvent, this, std::placeholders::_1));
 
-    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene002::ProcessKeyEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene002::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene002::ProcessRenderEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&Scene002::ProcessScrollEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene002::ProcessUpdateEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene003::ProcessKeyEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene003::ProcessMouseButtonEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene003::ProcessRenderEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&Scene003::ProcessScrollEvent, this, std::placeholders::_1));
+    Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene003::ProcessUpdateEvent, this, std::placeholders::_1));
 }
 
 // protected -------------------------------------------------------------------
 
-void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
+void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEvent)
 {
-    LOG_INFO("INITIALIZING:   Scene002:            " << GetId());
+    LOG_INFO("INITIALIZING:   Scene003:            " << GetId());
 
     sharedDataPtr_->score = 0;
 
@@ -109,9 +109,9 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     // CreateSnowballEntity(snowball_entityId, glm::vec2(32.0f, 128.0f), 8.0f);
 }
 
-void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
+void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
 {
-    LOG_INFO("DEINITIALIZING: Scene002:            " << GetId());
+    LOG_INFO("DEINITIALIZING: Scene003:            " << GetId());
 
     // -------------------------------------------------------------------------
 
@@ -153,29 +153,29 @@ void Scene002::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     snowburstEffectCreationQueue_ = std::queue<SnowburstEffectCreationInfo>(); // empty queue
 }
 
-void Scene002::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
+void Scene003::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 {
     sharedDataPtr_->UpdateKeyboardButtonPresses(keyEvent);
 }
 
-void Scene002::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
+void Scene003::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     sharedDataPtr_->UpdateMouseButtonPresses(mouseButtonEvent);
 }
 
-void Scene002::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
+void Scene003::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
     GetRenderSystemPtr()->Render();
 }
 
-void Scene002::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
+void Scene003::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
     constexpr float speedConstant = 20.0f;
     mainCamera_distanceAway_ += yOffset * speedConstant;
 }
 
-void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
+void Scene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     sharedDataPtr_->UpdateButtonPressCounts(GetWindowPtr());
 
@@ -264,7 +264,7 @@ void Scene002::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     KillDeadPenguinEntities();
 }
 
-void Scene002::CreateMainCameraEntities()
+void Scene003::CreateMainCameraEntities()
 {
     int aspectRatioNumerator;
     int aspectRatioDenominator;
@@ -326,7 +326,7 @@ void Scene002::CreateMainCameraEntities()
     };
 }
 
-void Scene002::CreateUiCameraEntity()
+void Scene003::CreateUiCameraEntity()
 {
     GetComponentStoresPtr()->CreateEntity(uiCamera_entityId_);
 
@@ -359,17 +359,17 @@ void Scene002::CreateUiCameraEntity()
     }
 }
 
-void Scene002::CreateUiTextEntity()
+void Scene003::CreateUiTextEntity()
 {
     // TODO:
 }
 
-void Scene002::CreateUiPauseTextEntity()
+void Scene003::CreateUiPauseTextEntity()
 {
     // TODO:
 }
 
-void Scene002::CreateCursorEntity()
+void Scene003::CreateCursorEntity()
 {
     GetComponentStoresPtr()->CreateEntity(cursor_entityId_);
 
@@ -551,7 +551,7 @@ void Scene002::CreateCursorEntity()
     }
 }
 
-void Scene002::CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo)
+void Scene003::CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo)
 {
     unsigned int entityId;
     GetComponentStoresPtr()->CreateEntity(entityId);
@@ -595,7 +595,7 @@ void Scene002::CreateImpactEffectEntity(const ImpactEffectCreationInfo& creation
     }
 }
 
-void Scene002::CreateSnowburstEffectEntity(const SnowburstEffectCreationInfo& creationInfo)
+void Scene003::CreateSnowburstEffectEntity(const SnowburstEffectCreationInfo& creationInfo)
 {
     unsigned int entityId;
     GetComponentStoresPtr()->CreateEntity(entityId);
@@ -636,7 +636,7 @@ void Scene002::CreateSnowburstEffectEntity(const SnowburstEffectCreationInfo& cr
     }
 }
 
-void Scene002::CreateStageEntity()
+void Scene003::CreateStageEntity()
 {
     float quadTreeApothem = sharedDataPtr_->killzoneApothem + SharedApplicationData::s_quadtreeOffset;
 
@@ -741,7 +741,7 @@ void Scene002::CreateStageEntity()
     }
 }
 
-void Scene002::CreateStageLightEntity()
+void Scene003::CreateStageLightEntity()
 {
     GetComponentStoresPtr()->CreateEntity(stageLight_entityId_);
 
@@ -758,7 +758,7 @@ void Scene002::CreateStageLightEntity()
     }
 }
 
-void Scene002::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation)
+void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, const glm::vec2& position, float rotation)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
@@ -1031,7 +1031,7 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
     }
 }
 
-void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& position, float rotation)
+void Scene003::CreateSharkEntity(unsigned int& entityId, const glm::vec2& position, float rotation)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
@@ -1241,7 +1241,7 @@ void Scene002::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
     }
 }
 
-void Scene002::CreateSharkPathEntity()
+void Scene003::CreateSharkPathEntity()
 {
     GetComponentStoresPtr()->CreateEntity(stageSharkPath_entityId_);
 
@@ -1284,7 +1284,7 @@ void Scene002::CreateSharkPathEntity()
     }
 }
 
-void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius)
+void Scene003::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& position, const glm::vec2& velocity, float radius)
 {
     GetComponentStoresPtr()->CreateEntity(entityId);
 
@@ -1352,7 +1352,7 @@ void Scene002::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
     }
 }
 
-void Scene002::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition)
+void Scene003::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition)
 {
     int windowWidth, windowHeight;
     GetWindowPtr()->GetWindowSize(windowWidth, windowHeight);
@@ -1442,7 +1442,7 @@ void Scene002::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId,
     }
 }
 
-void Scene002::UpdateMainCameraEntity(float timestep_s)
+void Scene003::UpdateMainCameraEntity(float timestep_s)
 {
     if (sharedDataPtr_->debug_keyboard_toggleDebugCamera_pressCount == 1)
     {
@@ -1693,17 +1693,17 @@ void Scene002::UpdateMainCameraEntity(float timestep_s)
     }
 }
 
-void Scene002::UpdateUiTextEntity()
+void Scene003::UpdateUiTextEntity()
 {
     // TODO:
 }
 
-void Scene002::UpdateUiPauseTextEntity()
+void Scene003::UpdateUiPauseTextEntity()
 {
     // TODO:
 }
 
-void Scene002::UpdateCursorEntity(float timestep_s)
+void Scene003::UpdateCursorEntity(float timestep_s)
 {
     glm::vec2 cursorPosition;
     GetWindowPtr()->GetCursorPosition(cursorPosition.x, cursorPosition.y);
@@ -2133,7 +2133,7 @@ void Scene002::UpdateCursorEntity(float timestep_s)
     }
 }
 
-void Scene002::UpdateStageEntity(float timestep_s)
+void Scene003::UpdateStageEntity(float timestep_s)
 {
     StageInfo* stageInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<StageInfo>(stageInfoPtr, stage_entityId_));
@@ -2189,7 +2189,7 @@ void Scene002::UpdateStageEntity(float timestep_s)
     UpdateStageCollisionBodyQuadTreeMesh();
 }
 
-void Scene002::UpdateStageCollisionBodyQuadTreeMesh()
+void Scene003::UpdateStageCollisionBodyQuadTreeMesh()
 {
     const Project001::CollisionBodyQuadTreeNode2D* rootNodePtr = GetCollisionSystemPtr()->GetCollisionBodyQuadTree2D().GetRootNode();
 
@@ -2234,7 +2234,7 @@ void Scene002::UpdateStageCollisionBodyQuadTreeMesh()
     }
 }
 
-void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
+void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 {
     // Creating new components will cause old pointers from the ECS to become,
     // invalid. Flags will be used to preform these actions at the end.
@@ -2436,13 +2436,15 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         }
 
         bool grabPressed = false;
-        bool throwPressed = false;
+        bool grabHeld = false;
+        bool dropPressed = false;
         glm::vec2 moveDirection(0.0f, 0.0);
 
         if (playerInfoPtr != nullptr)
         {
-            grabPressed = playerInfoPtr->grab_pressCount > 0;
-            throwPressed = playerInfoPtr->throw_pressCount == 1; // TODO
+            grabPressed = playerInfoPtr->grab_pressCount == 1;
+            grabHeld = playerInfoPtr->grab_pressCount > 0;
+            dropPressed = playerInfoPtr->drop_pressCount == 1;
 
             if (playerInfoPtr->left_pressCount > 0)
             {
@@ -2571,7 +2573,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
             if (penguinOnLand)
             {
-                if (grabPressed)
+                if (grabHeld)
                 {
                     penguinInfoPtr->makeSnowballCountDown_s -= timestep_s;
                     if (penguinInfoPtr->makeSnowballCountDown_s <= 0.0f)
@@ -2592,7 +2594,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                         moveMagnitude = 0.0f;
                     }
                 }
-                else // !grabPressed
+                else // !grabHeld
                 {
                     if (moving)
                     {
@@ -2634,7 +2636,35 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         
             if (penguinOnLand)
             {
-                if (grabPressed)
+                if (dropPressed)
+                {
+                    penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                    snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
+
+                    if (moving)
+                    {
+                        penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING;
+                    }
+                    else // !moving
+                    {
+                        penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
+                    }
+                }
+                else if (grabPressed)
+                {
+                    penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                    snowballAciton = SnowballAction::SNOWBALL_ACTION_THROW;
+
+                    if (moving)
+                    {
+                        penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING;
+                    }
+                    else // !moving
+                    {
+                        penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
+                    }
+                }
+                else // !dropPressed && !grabPressed
                 {
                     bool snowballGrabbable = false;
                     SnowballInfo* snowballInfoPtr = nullptr;
@@ -2668,20 +2698,6 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                         {
                             penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
                         }
-                    }
-                }
-                else // !grabPressed
-                {
-                    penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
-                    snowballAciton = SnowballAction::SNOWBALL_ACTION_THROW;
-                
-                    if (moving)
-                    {
-                        penguinInfoPtr->state = PenguinInfo::State::STATE_WALKING;
-                    }
-                    else // !moving
-                    {
-                        penguinInfoPtr->state = PenguinInfo::State::STATE_STANDING;
                     }
                 }
             }
@@ -2945,13 +2961,11 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                     snowballCollisionBodyPtr->GetAllowedCollisionFilterMask() | penguinCollisionBodyPtr->GetCollisionGroupMask()
                 );
 
-                if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f)
-                {
-                    snowballCollisionBodyPtr->SetVelocity(
-                        snowballCollisionBodyPtr->GetVelocity() +
-                        penguinCollisionBodyDirection * SharedApplicationData::s_penguin_throwSpeed_s
-                    );
-                }
+                // if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f)
+                snowballCollisionBodyPtr->SetVelocity(
+                    snowballCollisionBodyPtr->GetVelocity() +
+                    penguinCollisionBodyDirection * SharedApplicationData::s_penguin_throwSpeed_s
+                );
             }
             break;
         }
@@ -3068,7 +3082,7 @@ void Scene002::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
     }
 }
 
-void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
+void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
 {
     SharkInfo* sharkInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SharkInfo>(sharkInfoPtr, entityId));
@@ -3413,7 +3427,7 @@ void Scene002::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
     }
 }
 
-void Scene002::UpdateSharkPathEntity()
+void Scene003::UpdateSharkPathEntity()
 {
     SharkPathInfo* sharkPathInfoPtr = nullptr;
     GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_);
@@ -3438,7 +3452,7 @@ void Scene002::UpdateSharkPathEntity()
     }
 }
 
-void Scene002::UpdateSnowballEntities(float timestep_s)
+void Scene003::UpdateSnowballEntities(float timestep_s)
 {
     SnowballInfo* snowballInfoPtrs = nullptr;
     size_t snowballInfoCount = 0;
@@ -3557,12 +3571,12 @@ void Scene002::UpdateSnowballEntities(float timestep_s)
     }
 }
 
-void Scene002::UpdateWorld(float timestep_s)
+void Scene003::UpdateWorld(float timestep_s)
 {
     sharedDataPtr_->gameTime_s += timestep_s;
 }
 
-void Scene002::AnimateCursorEntity(float timestep_s)
+void Scene003::AnimateCursorEntity(float timestep_s)
 {
     CursorInfo* cursorInfoPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<CursorInfo>(cursorInfoPtr, cursor_entityId_));
@@ -3647,7 +3661,7 @@ void Scene002::AnimateCursorEntity(float timestep_s)
     }
 }
 
-void Scene002::AnimateImpactEffectEntities(float timestep_s)
+void Scene003::AnimateImpactEffectEntities(float timestep_s)
 {
     ImpactEffectInfo* impactEffectInfoPtrs = nullptr;
     size_t impactEffectInfoCount = 0;
@@ -3683,7 +3697,7 @@ void Scene002::AnimateImpactEffectEntities(float timestep_s)
     }
 }
 
-void Scene002::AnimateSnowburstEffectEntities(float timestep_s)
+void Scene003::AnimateSnowburstEffectEntities(float timestep_s)
 {
     SnowburstEffectInfo* snowburstEffectInfoPtrs = nullptr;
     size_t snowburstEffectInfoCount = 0;
@@ -3755,7 +3769,7 @@ void Scene002::AnimateSnowburstEffectEntities(float timestep_s)
     }
 }
 
-void Scene002::AnimatePenguinEntities(float timestep_s)
+void Scene003::AnimatePenguinEntities(float timestep_s)
 {
     PenguinInfo* penguinInfoPtrs = nullptr;
     size_t penguinInfoCount = 0;
@@ -4488,7 +4502,7 @@ void Scene002::AnimatePenguinEntities(float timestep_s)
     }
 }
 
-void Scene002::AnimateSharkEntities(float timestep_s)
+void Scene003::AnimateSharkEntities(float timestep_s)
 {
     SharkInfo* sharkInfoPtrs = nullptr;
     size_t sharkInfoCount = 0;
@@ -4687,7 +4701,7 @@ void Scene002::AnimateSharkEntities(float timestep_s)
     }
 }
 
-void Scene002::AnimateSnowballEntities(float timestep_s)
+void Scene003::AnimateSnowballEntities(float timestep_s)
 {
     SnowballInfo* snowballInfoPtrs = nullptr;
     size_t snowballInfoCount = 0;
@@ -4783,7 +4797,7 @@ void Scene002::AnimateSnowballEntities(float timestep_s)
     }
 }
 
-void Scene002::SyncCursorRenderedModels()
+void Scene003::SyncCursorRenderedModels()
 {
     CursorInfo* cursorInfoPtrs = nullptr;
     size_t cursorInfoCount = 0;
@@ -4920,7 +4934,7 @@ void Scene002::SyncCursorRenderedModels()
     }
 }
 
-void Scene002::SyncPenguinRenderedModels()
+void Scene003::SyncPenguinRenderedModels()
 {
     PenguinInfo* penguinInfoPtrs = nullptr;
     size_t penguinInfoCount = 0;
@@ -5034,7 +5048,7 @@ void Scene002::SyncPenguinRenderedModels()
     }
 }
 
-void Scene002::SyncSharkRenderedModels()
+void Scene003::SyncSharkRenderedModels()
 {
     SharkInfo* sharkInfoPtrs = nullptr;
     size_t sharkInfoCount = 0;
@@ -5205,7 +5219,7 @@ void Scene002::SyncSharkRenderedModels()
     }
 }
 
-void Scene002::SyncSharkPathRenderedModels()
+void Scene003::SyncSharkPathRenderedModels()
 {
     SharkPathInfo* sharkPathInfoPtr = nullptr;
     GetComponentStoresPtr()->GetComponent<SharkPathInfo>(sharkPathInfoPtr, stageSharkPath_entityId_);
@@ -5238,7 +5252,7 @@ void Scene002::SyncSharkPathRenderedModels()
     }
 }
 
-void Scene002::SyncSnowballRenderedModels()
+void Scene003::SyncSnowballRenderedModels()
 {
     SnowballInfo* snowballInfoPtrs = nullptr;
     size_t snowballInfoCount = 0;
@@ -5282,7 +5296,7 @@ void Scene002::SyncSnowballRenderedModels()
     }
 }
 
-void Scene002::KillDeadImpactEffectEntities()
+void Scene003::KillDeadImpactEffectEntities()
 {
     std::vector<unsigned int> killList;
 
@@ -5308,7 +5322,7 @@ void Scene002::KillDeadImpactEffectEntities()
     }
 }
 
-void Scene002::KillDeadSnowburstEffectEntities()
+void Scene003::KillDeadSnowburstEffectEntities()
 {
     std::vector<unsigned int> killList;
 
@@ -5334,7 +5348,7 @@ void Scene002::KillDeadSnowburstEffectEntities()
     }
 }
 
-void Scene002::KillDeadPenguinEntities()
+void Scene003::KillDeadPenguinEntities()
 {
     std::vector<unsigned int> killList;
 
@@ -5369,7 +5383,7 @@ void Scene002::KillDeadPenguinEntities()
     }
 }
 
-void Scene002::KillDeadSnowballEntities()
+void Scene003::KillDeadSnowballEntities()
 {
     std::vector<unsigned int> killList;
 
@@ -5395,7 +5409,7 @@ void Scene002::KillDeadSnowballEntities()
     }
 }
 
-const uint32_t Scene002::s_player_collisionGroupMasks_[SharedApplicationData::s_player_count] = {
+const uint32_t Scene003::s_player_collisionGroupMasks_[SharedApplicationData::s_player_count] = {
         0b00000000000000000000000000000010,
         0b00000000000000000000000000000100,
         0b00000000000000000000000000001000,

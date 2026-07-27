@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-23
+// @DATE 2026-07-26
 
 #pragma once
 
@@ -15,14 +15,14 @@
 
 
 
-class Scene002 : public Project001::Scene
+class Scene003 : public Project001::Scene
 {
 public:
-    Scene002(Project001::Application* applicationPtr);
-    ~Scene002();
+    Scene003(Project001::Application* applicationPtr);
+    ~Scene003();
 
-    Scene002(Scene002& other) = delete;
-    void operator=(const Scene002&) = delete;
+    Scene003(Scene003& other) = delete;
+    void operator=(const Scene003&) = delete;
 
     void HandleEvent(Project001::Event& event) override;
 

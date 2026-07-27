@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-23
+// @DATE 2026-07-26
 
 #pragma once
 
@@ -51,7 +51,7 @@ struct PlayerCreationInfo
     unsigned int up_pressCount = 0;
     unsigned int down_pressCount = 0;
     unsigned int grab_pressCount = 0;
-    unsigned int throw_pressCount = 0;
+    unsigned int drop_pressCount = 0;
     float leftRightAxisValue = 0.0f;
     float upDownAxisValue = 0.0f;
 };
@@ -61,7 +61,7 @@ struct SharedApplicationData
     // Scene Ids ---------------------------------------------------------------
 
     unsigned int scene001Id = static_cast<unsigned int>(-1);
-    unsigned int scene002Id = static_cast<unsigned int>(-1);
+    unsigned int scene003Id = static_cast<unsigned int>(-1);
 
     // Game Info ---------------------------------------------------------------
 
@@ -90,7 +90,7 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
     Project001::KeyCode keyboard_1_down_keyCode = Project001::KeyCode::KEY_CODE_S;
     Project001::KeyCode keyboard_1_grab_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
-    Project001::KeyCode keyboard_1_throw_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_ALT;
+    Project001::KeyCode keyboard_1_drop_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_ALT;
 
     bool keyboard_1_start_pressed = false;
     bool keyboard_1_pause_pressed = false;
@@ -100,7 +100,7 @@ struct SharedApplicationData
     bool keyboard_1_up_pressed = false;
     bool keyboard_1_down_pressed = false;
     bool keyboard_1_grab_pressed = false;
-    bool keyboard_1_throw_pressed = false;
+    bool keyboard_1_drop_pressed = false;
 
     Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
     Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
@@ -110,7 +110,7 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
     Project001::KeyCode keyboard_2_down_keyCode = Project001::KeyCode::KEY_CODE_DOWN;
     Project001::KeyCode keyboard_2_grab_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
-    Project001::KeyCode keyboard_2_throw_keyCode = Project001::KeyCode::KEY_CODE_KP_DECIMAL;
+    Project001::KeyCode keyboard_2_drop_keyCode = Project001::KeyCode::KEY_CODE_KP_DECIMAL;
 
     bool keyboard_2_start_pressed = false;
     bool keyboard_2_pause_pressed = false;
@@ -120,7 +120,7 @@ struct SharedApplicationData
     bool keyboard_2_up_pressed = false;
     bool keyboard_2_down_pressed = false;
     bool keyboard_2_grab_pressed = false;
-    bool keyboard_2_throw_pressed = false;
+    bool keyboard_2_drop_pressed = false;
 
     unsigned int controller_1_start_buttonIndex = 0;
     unsigned int controller_1_pause_buttonIndex = 7;
@@ -130,7 +130,7 @@ struct SharedApplicationData
     unsigned int controller_1_up_buttonIndex = 10;
     unsigned int controller_1_down_buttonIndex = 12;
     unsigned int controller_1_grab_buttonIndex = 0;
-    unsigned int controller_1_throw_buttonIndex = 5;
+    unsigned int controller_1_drop_buttonIndex = 5;
     unsigned int controller_1_moveRightLeft_axisIndex = 0;
     unsigned int controller_1_moveDownUp_axisIndex = 1;
     float controller_1_axisDeadzone = 0.2f;
@@ -143,7 +143,7 @@ struct SharedApplicationData
     unsigned int controller_2_up_buttonIndex = 10;
     unsigned int controller_2_down_buttonIndex = 12;
     unsigned int controller_2_grab_buttonIndex = 0;
-    unsigned int controller_2_throw_buttonIndex = 5;
+    unsigned int controller_2_drop_buttonIndex = 5;
     unsigned int controller_2_moveRightLeft_axisIndex = 0;
     unsigned int controller_2_moveDownUp_axisIndex = 1;
     float controller_2_axisDeadzone = 0.2f;
@@ -156,7 +156,7 @@ struct SharedApplicationData
     unsigned int controller_3_up_buttonIndex = 10;
     unsigned int controller_3_down_buttonIndex = 12;
     unsigned int controller_3_grab_buttonIndex = 0;
-    unsigned int controller_3_throw_buttonIndex = 5;
+    unsigned int controller_3_drop_buttonIndex = 5;
     unsigned int controller_3_moveRightLeft_axisIndex = 0;
     unsigned int controller_3_moveDownUp_axisIndex = 1;
     float controller_3_axisDeadzone = 0.2f;
@@ -169,7 +169,7 @@ struct SharedApplicationData
     unsigned int controller_4_up_buttonIndex = 10;
     unsigned int controller_4_down_buttonIndex = 12;
     unsigned int controller_4_grab_buttonIndex = 0;
-    unsigned int controller_4_throw_buttonIndex = 5;
+    unsigned int controller_4_drop_buttonIndex = 5;
     unsigned int controller_4_moveRightLeft_axisIndex = 0;
     unsigned int controller_4_moveDownUp_axisIndex = 1;
     float controller_4_axisDeadzone = 0.2f;
@@ -252,6 +252,8 @@ struct SharedApplicationData
     unsigned int pixelFont_textureId = static_cast<unsigned int>(-1);
 
     // General Resources
+    Project001::MeshData* loadingText_meshDataPtr = nullptr;
+
     Project001::MeshData* circle_meshDataPtr = nullptr;
     Project001::MeshData* orientationArrow_meshDataPtr = nullptr;
     Project001::MeshData* hallowCircle_meshDataPtr = nullptr;

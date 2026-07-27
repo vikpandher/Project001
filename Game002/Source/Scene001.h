@@ -46,7 +46,7 @@ protected:
 
     void CreateUiCameraEntity();
 
-    void CreateIntroTextEntity();
+    void CreateLoadingTextEntity();
 
     // -------------------------------------------------------------------------
 
@@ -59,7 +59,9 @@ protected:
     static const uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
-    unsigned int autorText_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int introText_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int startText_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int loadingText_entityId_ = static_cast<unsigned int>(-1);
+
+    // unsigned int autorText_entityId_ = static_cast<unsigned int>(-1);
+    // unsigned int introText_entityId_ = static_cast<unsigned int>(-1);
+    // unsigned int startText_entityId_ = static_cast<unsigned int>(-1);
 };

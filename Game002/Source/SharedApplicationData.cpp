@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-26
 
 #include "SharedApplicationData.h"
 
@@ -99,10 +99,10 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_grab_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_grab_pressed = false;
             }
-            if (keyCode == keyboard_1_throw_keyCode)
+            if (keyCode == keyboard_1_drop_keyCode)
             {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_throw_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_throw_pressed = false;
+                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_drop_pressed = true;
+                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_drop_pressed = false;
             }
         }
         else if (PlayerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2)
@@ -147,10 +147,10 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_grab_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_grab_pressed = false;
             }
-            if (keyCode == keyboard_2_throw_keyCode)
+            if (keyCode == keyboard_2_drop_keyCode)
             {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_throw_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_throw_pressed = false;
+                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_drop_pressed = true;
+                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_drop_pressed = false;
             }
         }
     }
@@ -280,8 +280,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (keyboard_1_grab_pressed) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (keyboard_1_throw_pressed) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (keyboard_1_drop_pressed) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
         }
         else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2)
         {
@@ -309,8 +309,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (keyboard_2_grab_pressed) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (keyboard_2_throw_pressed) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (keyboard_2_drop_pressed) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
         }
         else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1)
         {
@@ -341,8 +341,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_1_grab_buttonIndex && buttonValues[controller_1_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_1_throw_buttonIndex && buttonValues[controller_1_throw_buttonIndex]) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (buttonValues.size() > controller_1_drop_buttonIndex && buttonValues[controller_1_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
 
             std::vector<float> axisValues;
             windowPtr->GetJoystickAxis(0, axisValues);
@@ -380,8 +380,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_2_grab_buttonIndex && buttonValues[controller_2_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_2_throw_buttonIndex && buttonValues[controller_2_throw_buttonIndex]) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (buttonValues.size() > controller_2_drop_buttonIndex && buttonValues[controller_2_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
 
             std::vector<float> axisValues;
             windowPtr->GetJoystickAxis(1, axisValues);
@@ -419,8 +419,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_3_grab_buttonIndex && buttonValues[controller_3_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_throw_buttonIndex && buttonValues[controller_3_throw_buttonIndex]) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (buttonValues.size() > controller_3_drop_buttonIndex && buttonValues[controller_3_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
 
             std::vector<float> axisValues;
             windowPtr->GetJoystickAxis(2, axisValues);
@@ -458,8 +458,8 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_4_grab_buttonIndex && buttonValues[controller_4_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
             else playerCreationInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_throw_buttonIndex && buttonValues[controller_4_throw_buttonIndex]) playerCreationInfo.throw_pressCount++;
-            else playerCreationInfo.throw_pressCount = 0;
+            if (buttonValues.size() > controller_4_drop_buttonIndex && buttonValues[controller_4_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
+            else playerCreationInfo.drop_pressCount = 0;
 
             std::vector<float> axisValues;
             windowPtr->GetJoystickAxis(3, axisValues);
