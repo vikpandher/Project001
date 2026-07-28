@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-26
+// @DATE 2026-07-27
 
 #ifdef _WIN32
 #ifdef WINDOWS_MEMORY_LEAK_CHECK
@@ -20,6 +20,7 @@
 #include "Application.h"
 
 #include "Scene001.h"
+#include "Scene002.h"
 #include "Scene003.h"
 #include "SharedApplicationData.h"
 
@@ -55,8 +56,11 @@ int main(int argc, char** argv)
     SharedApplicationData sharedApplicationData = {};
     applicationPtr->SetSharedDataPtr<SharedApplicationData>(&sharedApplicationData);
 
-    // loading screen
+    // loading
     Scene001* scene001Ptr = new Scene001(applicationPtr);
+
+    // menu
+    Scene002* scene002Ptr = new Scene002(applicationPtr);
 
     // game
     Scene003* scene003Ptr = new Scene003(applicationPtr);
@@ -64,6 +68,7 @@ int main(int argc, char** argv)
     applicationPtr->Run();
 
     delete scene001Ptr;
+    delete scene002Ptr;
     delete scene003Ptr;
     delete applicationPtr;
 

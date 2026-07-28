@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-26
+// @DATE 2026-07-27
 
 #include "Scene003.h"
 
@@ -2091,9 +2091,7 @@ void Scene003::UpdateCursorEntity(float timestep_s)
             if (grabHeld && !cursorInfoPtr->hoveringOverAlreadyGrabbedEntity &&
                 snowballInfoPtr->onLand && cursorWorldMoveDistance > 0.0f)
             {
-                constexpr float snowballGrowthRate_s = 3.2f;
-
-                snowballInfoPtr->radius += snowballGrowthRate_s * timestep_s;
+                snowballInfoPtr->radius += sharedDataPtr_->s_cursor_snowball_growthRate_s * timestep_s;
 
                 if (snowballInfoPtr->radius > SnowballInfo::s_maxRadius)
                 {
@@ -3031,9 +3029,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
             if (moveMagnitude > 0.0f)
             {
-                constexpr float snowballGrowthRate_s = 2.0f;
-
-                snowballInfoPtr->radius += snowballGrowthRate_s * timestep_s;
+                snowballInfoPtr->radius += sharedDataPtr_->s_penguin_snowball_growthRate_s * timestep_s;
 
                 if (snowballInfoPtr->radius > SnowballInfo::s_maxRadius)
                 {
@@ -3423,7 +3419,12 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
             }
         }
 
-        // TODO: if shark goes too far out of bounds, teleport it back to spawn
+        const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
+        if (std::abs(sharkPosition.x) > sharedDataPtr_->killzoneApothem * 2.0f ||
+            std::abs(sharkPosition.y) > sharedDataPtr_->killzoneApothem * 2.0f)
+        {
+            sharkPathCollisionBodyPtr->SetPosition(SharkInfo::s_spawnPoint);
+        }
     }
 }
 

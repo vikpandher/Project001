@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-26
+// @DATE 2026-07-27
 
 #include "Scene001.h"
 
@@ -137,12 +137,12 @@ void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     bool startPressed = false;
     for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
     {
-        startPressed |= sharedDataPtr_->playerCreationInfos[i].turnedOn && (sharedDataPtr_->playerCreationInfos[i].start_pressCount > 0);
+        startPressed |= sharedDataPtr_->playerCreationInfos[i].turnedOn && (sharedDataPtr_->playerCreationInfos[i].start_pressCount == 1);
     }
     if (startPressed)
     {
-        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene003Id));
-        if (GetActiveScene()->GetId() == sharedDataPtr_->scene003Id)
+        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+        if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
         {
             SendEventToScene(GetId(), Project001::DeinitializeEvent());
             SendEventToApplication(Project001::InitializeEvent());

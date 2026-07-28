@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-26
+// @DATE 2026-07-27
 
 #pragma once
 
@@ -61,6 +61,7 @@ struct SharedApplicationData
     // Scene Ids ---------------------------------------------------------------
 
     unsigned int scene001Id = static_cast<unsigned int>(-1);
+    unsigned int scene002Id = static_cast<unsigned int>(-1);
     unsigned int scene003Id = static_cast<unsigned int>(-1);
 
     // Game Info ---------------------------------------------------------------
@@ -239,6 +240,9 @@ struct SharedApplicationData
     static constexpr float s_penguin_grabOffset = 22.0f;
     static constexpr float s_penguin_grabRadius = 18.0f;
     static constexpr float s_penguin_throwSpeed_s = 256.0f;
+
+    static constexpr float s_penguin_snowball_growthRate_s = 4.0f;
+    static constexpr float s_cursor_snowball_growthRate_s = 6.0f;
 
     static constexpr float s_snowball_landFriction = 16.0f;
     static constexpr float s_snowball_waterFriction = 32.0f;
