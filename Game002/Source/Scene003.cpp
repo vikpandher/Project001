@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-27
+// @DATE 2026-07-30
 
 #include "Scene003.h"
 
@@ -60,7 +60,6 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateMainCameraEntities();
     CreateUiCameraEntity();
-    CreateUiTextEntity();
     CreateUiPauseTextEntity();
 
     if (sharedDataPtr_->cursorEnabled) CreateCursorEntity();
@@ -107,6 +106,8 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     // CreateSnowballEntity(snowball_entityId, glm::vec2(-32.0f, 128.0f), 8.0f);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(0.0f, 128.0f), 8.0f);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(32.0f, 128.0f), 8.0f);
+
+    skipRendering_ = true;
 }
 
 void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
@@ -124,8 +125,7 @@ void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
-    uiText_entityId_ = static_cast<unsigned int>(-1);
-    uiPauseText_entityId_ = static_cast<unsigned int>(-1);
+    uiPauseMenu_entityId_ = static_cast<unsigned int>(-1);
 
     cursor_entityId_ = static_cast<unsigned int>(-1);
 
@@ -165,7 +165,14 @@ void Scene003::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
 
 void Scene003::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    GetRenderSystemPtr()->Render();
+    if (skipRendering_)
+    {
+        skipRendering_ = false;
+    }
+    else
+    {
+        GetRenderSystemPtr()->Render();
+    }
 }
 
 void Scene003::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
@@ -179,11 +186,15 @@ void Scene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     sharedDataPtr_->UpdateButtonPressCounts(GetWindowPtr());
 
-    UpdateUiTextEntity();
-    UpdateUiPauseTextEntity();
-
     unsigned long long timestep_ns = updateEvent.timestep_ns;
     float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
+
+    bool quit = false;
+    UpdateUiPauseTextEntity(timestep_s, quit);
+    if (quit || paused_)
+    {
+        return;
+    }
 
     constexpr size_t physicsStepsPerUpdate = 1;
     float physicsTimestep_s = timestep_s / static_cast<float>(physicsStepsPerUpdate);
@@ -359,14 +370,70 @@ void Scene003::CreateUiCameraEntity()
     }
 }
 
-void Scene003::CreateUiTextEntity()
-{
-    // TODO:
-}
-
 void Scene003::CreateUiPauseTextEntity()
 {
-    // TODO:
+    GetComponentStoresPtr()->CreateEntity(uiPauseMenu_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(uiPauseMenu_entityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_cameraMask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(4);
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[0];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseBackground_meshDataPtr);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(1);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[1];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseTitle_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetPositionY(64.0f);
+            mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetParentMeshIndex(0);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[2];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseText01_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetPositionY(0.0f);
+            mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetParentMeshIndex(0);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[3];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseText02_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetPositionY(-32.0f);
+            mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(2);
+            mesh.SetParentMeshIndex(0);
+        }
+
+        renderedModelPtr->SetVisible(false);
+    }
 }
 
 void Scene003::CreateCursorEntity()
@@ -1444,64 +1511,23 @@ void Scene003::UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId,
 
 void Scene003::UpdateMainCameraEntity(float timestep_s)
 {
-    if (sharedDataPtr_->debug_keyboard_toggleDebugCamera_pressCount == 1)
+    if (SharedApplicationData::s_debugControlEnabled)
     {
-        debugCamera_turnedOn_ = !debugCamera_turnedOn_;
-    }
+        if (sharedDataPtr_->debug_keyboard_toggleDebugCamera_pressCount == 1)
+        {
+            debugCamera_turnedOn_ = !debugCamera_turnedOn_;
+        }
 
-    if (sharedDataPtr_->debug_keyboard_toggleCameraLock_pressCount == 1)
-    {
-        mainCamera_lockedToPlayers_ = !mainCamera_lockedToPlayers_;
+        if (sharedDataPtr_->debug_keyboard_toggleCameraLock_pressCount == 1)
+        {
+            mainCamera_lockedToPlayers_ = !mainCamera_lockedToPlayers_;
+        }
     }
 
     Project001::Camera* cameraPtr = nullptr;
     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_entityId_));
     if (cameraPtr != nullptr)
     {
-        constexpr float orbitSpeed = 0.1f * glm::pi<float>();
-        float cameraPitchDelta = orbitSpeed * timestep_s;
-
-        bool pitchingUp = sharedDataPtr_->debug_keyboard_pitchCameraDown_pressCount > 0;
-        bool pitchingDown = sharedDataPtr_->debug_keyboard_pitchCameraUp_pressCount > 0;
-
-        const float moveSpeed = 128.0f;
-        float moveSpeedDelta = moveSpeed * timestep_s;
-
-        bool movingLeft = sharedDataPtr_->debug_keyboard_moveCameraLeft_pressCount > 0;
-        bool movingRight = sharedDataPtr_->debug_keyboard_moveCameraRight_pressCount > 0;
-        bool movingUp = sharedDataPtr_->debug_keyboard_moveCameraUp_pressCount > 0;
-        bool movingDown = sharedDataPtr_->debug_keyboard_moveCameraDown_pressCount > 0;
-
-        if (pitchingUp)
-        {
-            cameraPtr->AddRelativeRotationX(-cameraPitchDelta);
-        }
-
-        if (pitchingDown)
-        {
-            cameraPtr->AddRelativeRotationX(cameraPitchDelta);
-        }
-
-        if (movingLeft)
-        {
-            mainCamera_lookAtPoint_.x -= moveSpeedDelta;
-        }
-
-        if (movingRight)
-        {
-            mainCamera_lookAtPoint_.x += moveSpeedDelta;
-        }
-
-        if (movingUp)
-        {
-            mainCamera_lookAtPoint_.y += moveSpeedDelta;
-        }
-
-        if (movingDown)
-        {
-            mainCamera_lookAtPoint_.y -= moveSpeedDelta;
-        }
-
         const float& cameraFieldOfView = cameraPtr->GetFieldOfView();
         float cameraFieldOfViewRemainder = glm::mod(cameraFieldOfView, glm::pi<float>());
         if (mainCamera_lockedToPlayers_ && sharedDataPtr_->s_player_count > 0 && cameraFieldOfViewRemainder != 0.0f)
@@ -1664,18 +1690,65 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
             // }
         }
 
-        if (sharedDataPtr_->debug_keyboard_setCameraPitch1_pressCount == 1)
+        if (SharedApplicationData::s_debugControlEnabled)
         {
-            cameraPtr->ResetOrientation();
+            constexpr float orbitSpeed = 0.1f * glm::pi<float>();
+            float cameraPitchDelta = orbitSpeed * timestep_s;
 
-            cameraPtr->AddYaw(glm::pi<float>());
-            cameraPtr->AddPitch(-glm::quarter_pi<float>());
-        }
-        else if (sharedDataPtr_->debug_keyboard_setCameraPitch2_pressCount == 1)
-        {
-            cameraPtr->ResetOrientation();
+            bool pitchingUp = sharedDataPtr_->debug_keyboard_pitchCameraDown_pressCount > 0;
+            bool pitchingDown = sharedDataPtr_->debug_keyboard_pitchCameraUp_pressCount > 0;
 
-            cameraPtr->AddYaw(glm::pi<float>());
+            const float moveSpeed = 128.0f;
+            float moveSpeedDelta = moveSpeed * timestep_s;
+
+            bool movingLeft = sharedDataPtr_->debug_keyboard_moveCameraLeft_pressCount > 0;
+            bool movingRight = sharedDataPtr_->debug_keyboard_moveCameraRight_pressCount > 0;
+            bool movingUp = sharedDataPtr_->debug_keyboard_moveCameraUp_pressCount > 0;
+            bool movingDown = sharedDataPtr_->debug_keyboard_moveCameraDown_pressCount > 0;
+
+            if (pitchingUp)
+            {
+                cameraPtr->AddRelativeRotationX(-cameraPitchDelta);
+            }
+
+            if (pitchingDown)
+            {
+                cameraPtr->AddRelativeRotationX(cameraPitchDelta);
+            }
+
+            if (movingLeft)
+            {
+                mainCamera_lookAtPoint_.x -= moveSpeedDelta;
+            }
+
+            if (movingRight)
+            {
+                mainCamera_lookAtPoint_.x += moveSpeedDelta;
+            }
+
+            if (movingUp)
+            {
+                mainCamera_lookAtPoint_.y += moveSpeedDelta;
+            }
+
+            if (movingDown)
+            {
+                mainCamera_lookAtPoint_.y -= moveSpeedDelta;
+            }
+
+            if (sharedDataPtr_->debug_keyboard_setCameraPitch1_pressCount == 1)
+            {
+                cameraPtr->ResetOrientation();
+
+                cameraPtr->AddYaw(glm::pi<float>());
+                cameraPtr->AddPitch(-glm::quarter_pi<float>());
+            }
+            else if (sharedDataPtr_->debug_keyboard_setCameraPitch2_pressCount == 1)
+            {
+                cameraPtr->ResetOrientation();
+
+                cameraPtr->AddYaw(glm::pi<float>());
+            }
         }
 
         glm::vec3 offsetLookAtPoint = mainCamera_lookAtPoint_;
@@ -1693,14 +1766,207 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
     }
 }
 
-void Scene003::UpdateUiTextEntity()
+void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 {
-    // TODO:
+    for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
+    {
+        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+        if (playerInfoPtr->turnedOn)
+        {
+            if (playerInfoPtr->pause_pressCount == 1)
+            {
+                if (paused_)
+                {
+                    paused_ = false;
+                    pausingPlayerIndex_ = static_cast<size_t>(-1);
+                    pauseAxisMoveTime_s = 0.0f;
+
+                    Project001::RenderedModel* renderedModelPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+                    if (renderedModelPtr != nullptr)
+                    {
+                        renderedModelPtr->SetVisible(false);
+                    }
+                }
+                else
+                {
+                    paused_ = true;
+                    pausingPlayerIndex_ = i;
+                    pauseCursorPosition_ = 0;
+                    pauseAxisMoveTime_s = 0.0f;
+
+                    Project001::RenderedModel* renderedModelPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+                    if (renderedModelPtr != nullptr)
+                    {
+                        renderedModelPtr->SetVisible(!sharedDataPtr_->invisiblePauseScreen);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    if (paused_ && pausingPlayerIndex_ < SharedApplicationData::s_player_count)
+    {
+        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[pausingPlayerIndex_];
+
+        if (playerInfoPtr->grab_pressCount == 1)
+        {
+            if (pauseCursorPosition_ == 0)
+            {
+                paused_ = false;
+                pausingPlayerIndex_ = static_cast<size_t>(-1);
+                pauseAxisMoveTime_s = 0.0f;
+
+                Project001::RenderedModel* renderedModelPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+                if (renderedModelPtr != nullptr)
+                {
+                    renderedModelPtr->SetVisible(false);
+                }
+            }
+            else if (pauseCursorPosition_ == 1)
+            {
+                SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+                if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+                {
+                    SendEventToScene(GetId(), Project001::DeinitializeEvent());
+                    SendEventToApplication(Project001::InitializeEvent());
+                }
+                quit = true;
+                return;
+            }
+        }
+    }
+
+    if (paused_ && pausingPlayerIndex_ < SharedApplicationData::s_player_count)
+    {
+        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[pausingPlayerIndex_];
+
+        glm::vec2 moveDirection(0.0f, 0.0);
+
+        if (playerInfoPtr->left_pressCount == 1)
+        {
+            moveDirection.x -= 1.0f;
+        }
+        if (playerInfoPtr->right_pressCount == 1)
+        {
+            moveDirection.x += 1.0f;
+        }
+        if (playerInfoPtr->up_pressCount == 1)
+        {
+            moveDirection.y += 1.0f;
+        }
+        if (playerInfoPtr->down_pressCount == 1)
+        {
+            moveDirection.y -= 1.0f;
+        }
+
+        if (pauseAxisMoveTime_s > 0.0f)
+        {
+            if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
+                glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
+            {
+                pauseAxisMoveTime_s = 0.0f;
+            }
+            else
+            {
+                pauseAxisMoveTime_s -= timestep_s;
+            }
+        }
+        else
+        {
+            pauseAxisMoveTime_s = 0.0f;
+
+            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.x += playerInfoPtr->leftRightAxisValue;
+                pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
+            }
+            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+            {
+                moveDirection.y += playerInfoPtr->upDownAxisValue;
+                pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
+            }
+
+        }
+
+        if (moveDirection.y > 0.0f && pauseCursorPosition_ > 0)
+        {
+            pauseCursorPosition_ -= 1;
+        }
+        else if (moveDirection.y < 0.0f && pauseCursorPosition_ < 1)
+        {
+            pauseCursorPosition_ += 1;
+        }
+
+        // pauseCursorPosition_ = pauseCursorPosition_ % 2;
+    }
+
+    if (paused_)
+    {
+        UpdateUiPauseTextMeshes();
+    }
 }
 
-void Scene003::UpdateUiPauseTextEntity()
+void Scene003::UpdateUiPauseTextMeshes()
 {
-    // TODO:
+    sharedDataPtr_->uiPauseTitle_meshDataPtr->Clear();
+    sharedDataPtr_->uiPauseText01_meshDataPtr->Clear();
+    sharedDataPtr_->uiPauseText02_meshDataPtr->Clear();
+
+    constexpr float pauseTitlePixelSize = 4.0f;
+    constexpr float pauseTextPixelSize = 2.0f;
+
+    std::string pauseTitleString;
+
+    if (pausingPlayerIndex_ == 0) pauseTitleString += "P1 ";
+    else if (pausingPlayerIndex_ == 1) pauseTitleString += "P2 ";
+    else if (pausingPlayerIndex_ == 2) pauseTitleString += "P3 ";
+    else if (pausingPlayerIndex_ == 3) pauseTitleString += "P4 ";
+
+    pauseTitleString += "PAUSED";
+
+    std::string pauseTextString01;
+
+    if (pauseCursorPosition_ == 0) pauseTextString01 += "> ";
+
+    pauseTextString01 += "CONTINUE";
+
+    if (pauseCursorPosition_ == 0) pauseTextString01 += " <";
+
+    std::string pauseTextString02;
+
+    if (pauseCursorPosition_ == 1) pauseTextString02 += "> ";
+
+    pauseTextString02 += "QUIT";
+
+    if (pauseCursorPosition_ == 1) pauseTextString02 += " <";
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseTitle_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        pauseTitleString,
+        pauseTitlePixelSize,
+        1
+    ));
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseText01_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        pauseTextString01,
+        pauseTextPixelSize,
+        1
+    ));
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiPauseText02_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        pauseTextString02,
+        pauseTextPixelSize,
+        1
+    ));
 }
 
 void Scene003::UpdateCursorEntity(float timestep_s)
@@ -2416,21 +2682,9 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         const PlayerCreationInfo* playerInfoPtr = nullptr;
 
-        if (penguinInfoPtr->playerNumber == 0)
+        if (penguinInfoPtr->playerNumber < 4)
         {
-            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[0];
-        }
-        else if (penguinInfoPtr->playerNumber == 1)
-        {
-            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[1];
-        }
-        else if (penguinInfoPtr->playerNumber == 2)
-        {
-            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[2];
-        }
-        else if (penguinInfoPtr->playerNumber == 3)
-        {
-            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[3];
+            playerInfoPtr = &sharedDataPtr_->playerCreationInfos[penguinInfoPtr->playerNumber];
         }
 
         bool grabPressed = false;

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-27
+// @DATE 2026-07-30
 
 #pragma once
 
@@ -24,7 +24,6 @@ struct PlayerCreationInfo
 {
     size_t playerNumber = 0;
     bool turnedOn = true;
-    bool dead = false;
 
     enum class ControlScheme
     {
@@ -41,11 +40,12 @@ struct PlayerCreationInfo
 
     ControlScheme controlScheme = ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
 
+    bool dead = false;
+
     float axisDeadzone = 0.2f;
 
     unsigned int start_pressCount = 0;
     unsigned int pause_pressCount = 0;
-    unsigned int quit_pressCount = 0;
     unsigned int left_pressCount = 0;
     unsigned int right_pressCount = 0;
     unsigned int up_pressCount = 0;
@@ -71,10 +71,10 @@ struct SharedApplicationData
 
     static constexpr size_t s_player_count = 4;
     PlayerCreationInfo playerCreationInfos[s_player_count] = {
-        {0, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
-        {1, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
-        {2, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
-        {3, true, false, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
+        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
+        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
+        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
+        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
@@ -83,9 +83,8 @@ struct SharedApplicationData
 
     // Player Controls ---------------------------------------------------------
 
-    Project001::KeyCode keyboard_1_start_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
+    Project001::KeyCode keyboard_1_start_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
     Project001::KeyCode keyboard_1_pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
-    Project001::KeyCode keyboard_1_quit_keyCode = Project001::KeyCode::KEY_CODE_ESCAPE;
     Project001::KeyCode keyboard_1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
     Project001::KeyCode keyboard_1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
@@ -95,7 +94,6 @@ struct SharedApplicationData
 
     bool keyboard_1_start_pressed = false;
     bool keyboard_1_pause_pressed = false;
-    bool keyboard_1_quit_pressed = false;
     bool keyboard_1_left_pressed = false;
     bool keyboard_1_right_pressed = false;
     bool keyboard_1_up_pressed = false;
@@ -103,9 +101,8 @@ struct SharedApplicationData
     bool keyboard_1_grab_pressed = false;
     bool keyboard_1_drop_pressed = false;
 
-    Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
+    Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
     Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
-    Project001::KeyCode keyboard_2_quit_keyCode = Project001::KeyCode::KEY_CODE_KP_SUBTRACT;
     Project001::KeyCode keyboard_2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
     Project001::KeyCode keyboard_2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
     Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
@@ -115,7 +112,6 @@ struct SharedApplicationData
 
     bool keyboard_2_start_pressed = false;
     bool keyboard_2_pause_pressed = false;
-    bool keyboard_2_quit_pressed = false;
     bool keyboard_2_left_pressed = false;
     bool keyboard_2_right_pressed = false;
     bool keyboard_2_up_pressed = false;
@@ -123,54 +119,50 @@ struct SharedApplicationData
     bool keyboard_2_grab_pressed = false;
     bool keyboard_2_drop_pressed = false;
 
-    unsigned int controller_1_start_buttonIndex = 0;
+    unsigned int controller_1_start_buttonIndex = 7;
     unsigned int controller_1_pause_buttonIndex = 7;
-    unsigned int controller_1_quit_buttonIndex = 1;
     unsigned int controller_1_left_buttonIndex = 13;
     unsigned int controller_1_right_buttonIndex = 11;
     unsigned int controller_1_up_buttonIndex = 10;
     unsigned int controller_1_down_buttonIndex = 12;
     unsigned int controller_1_grab_buttonIndex = 0;
-    unsigned int controller_1_drop_buttonIndex = 5;
+    unsigned int controller_1_drop_buttonIndex = 1;
     unsigned int controller_1_moveRightLeft_axisIndex = 0;
     unsigned int controller_1_moveDownUp_axisIndex = 1;
     float controller_1_axisDeadzone = 0.2f;
 
-    unsigned int controller_2_start_buttonIndex = 0;
+    unsigned int controller_2_start_buttonIndex = 7;
     unsigned int controller_2_pause_buttonIndex = 7;
-    unsigned int controller_2_quit_buttonIndex = 1;
     unsigned int controller_2_left_buttonIndex = 13;
     unsigned int controller_2_right_buttonIndex = 11;
     unsigned int controller_2_up_buttonIndex = 10;
     unsigned int controller_2_down_buttonIndex = 12;
     unsigned int controller_2_grab_buttonIndex = 0;
-    unsigned int controller_2_drop_buttonIndex = 5;
+    unsigned int controller_2_drop_buttonIndex = 1;
     unsigned int controller_2_moveRightLeft_axisIndex = 0;
     unsigned int controller_2_moveDownUp_axisIndex = 1;
     float controller_2_axisDeadzone = 0.2f;
 
-    unsigned int controller_3_start_buttonIndex = 0;
+    unsigned int controller_3_start_buttonIndex = 7;
     unsigned int controller_3_pause_buttonIndex = 7;
-    unsigned int controller_3_quit_buttonIndex = 1;
     unsigned int controller_3_left_buttonIndex = 13;
     unsigned int controller_3_right_buttonIndex = 11;
     unsigned int controller_3_up_buttonIndex = 10;
     unsigned int controller_3_down_buttonIndex = 12;
     unsigned int controller_3_grab_buttonIndex = 0;
-    unsigned int controller_3_drop_buttonIndex = 5;
+    unsigned int controller_3_drop_buttonIndex = 1;
     unsigned int controller_3_moveRightLeft_axisIndex = 0;
     unsigned int controller_3_moveDownUp_axisIndex = 1;
     float controller_3_axisDeadzone = 0.2f;
 
-    unsigned int controller_4_start_buttonIndex = 0;
+    unsigned int controller_4_start_buttonIndex = 7;
     unsigned int controller_4_pause_buttonIndex = 7;
-    unsigned int controller_4_quit_buttonIndex = 1;
     unsigned int controller_4_left_buttonIndex = 13;
     unsigned int controller_4_right_buttonIndex = 11;
     unsigned int controller_4_up_buttonIndex = 10;
     unsigned int controller_4_down_buttonIndex = 12;
     unsigned int controller_4_grab_buttonIndex = 0;
-    unsigned int controller_4_drop_buttonIndex = 5;
+    unsigned int controller_4_drop_buttonIndex = 1;
     unsigned int controller_4_moveRightLeft_axisIndex = 0;
     unsigned int controller_4_moveDownUp_axisIndex = 1;
     float controller_4_axisDeadzone = 0.2f;
@@ -228,6 +220,7 @@ struct SharedApplicationData
     // Game Constants ----------------------------------------------------------
 
     bool cursorEnabled = false;
+    bool invisiblePauseScreen = false;
     float groundApothem = 512.0f;
     float groundApothemShrinkRate = 8.0f;
     float sharkCircleOffset = 256.0f;
@@ -247,6 +240,8 @@ struct SharedApplicationData
     static constexpr float s_snowball_landFriction = 16.0f;
     static constexpr float s_snowball_waterFriction = 32.0f;
     static constexpr float s_snowball_angularFriction = glm::pi<float>();
+
+    static constexpr float s_debugControlEnabled = false;
 
     // Resources ---------------------------------------------------------------
 
@@ -371,17 +366,8 @@ struct SharedApplicationData
     Project001::MeshData* shark_attackRay4_meshDataPtr = nullptr;
 
     // Ui Resources
-    Project001::MeshData* uiLeftBackground_meshDataPtr = nullptr;
-    Project001::MeshData* uiLeftText01_meshDataPtr = nullptr;
-
-    Project001::MeshData* uiMiddleBackground_meshDataPtr = nullptr;
-    Project001::MeshData* uiMiddleText01_meshDataPtr = nullptr;
-
-    Project001::MeshData* uiRightBackground_meshDataPtr = nullptr;
-    Project001::MeshData* uiRightText01_meshDataPtr = nullptr;
-
     Project001::MeshData* uiPauseBackground_meshDataPtr = nullptr;
+    Project001::MeshData* uiPauseTitle_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText01_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText02_meshDataPtr = nullptr;
-    Project001::MeshData* uiPauseText03_meshDataPtr = nullptr;
 };

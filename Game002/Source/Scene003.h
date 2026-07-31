@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-26
+// @DATE 2026-07-30
 
 #pragma once
 
@@ -38,7 +38,6 @@ protected:
 
     void CreateMainCameraEntities();
     void CreateUiCameraEntity();
-    void CreateUiTextEntity();
     void CreateUiPauseTextEntity();
     void CreateCursorEntity();
     void CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo);
@@ -53,8 +52,8 @@ protected:
     void UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition);
 
     void UpdateMainCameraEntity(float timestep_s);
-    void UpdateUiTextEntity();
-    void UpdateUiPauseTextEntity();
+    void UpdateUiPauseTextEntity(float timestep_s, bool& quit); // modifies meshes
+    void UpdateUiPauseTextMeshes(); // modifies meshes
     void UpdateCursorEntity(float timestep_s);
     void UpdateStageEntity(float timestep_s); // modifies meshes
     void UpdateStageCollisionBodyQuadTreeMesh(); // modifies meshes
@@ -97,8 +96,7 @@ protected:
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
     static const uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
 
-    unsigned int uiText_entityId_ = static_cast<unsigned int>(-1);
-    unsigned int uiPauseText_entityId_ = static_cast<unsigned int>(-1);
+    unsigned int uiPauseMenu_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int cursor_entityId_ = static_cast<unsigned int>(-1);
 
@@ -117,6 +115,8 @@ protected:
 
     // -------------------------------------------------------------------------
 
+    bool skipRendering_ = false;
+
     glm::vec3 mainCamera_lookAtPoint_;
 
     static constexpr float s_mainCamera_initialDistanceAway_ = 960.0f;
@@ -127,6 +127,10 @@ protected:
     bool debugCamera_turnedOn_ = false;
 
     bool paused_ = false;
+    size_t pausingPlayerIndex_ = static_cast<unsigned int>(-1);
+    size_t pauseCursorPosition_ = 0;
+    static constexpr float s_pauseAxisMoveDelay_s_ = 0.25f;
+    float pauseAxisMoveTime_s = 0.0f;
 
     std::mt19937 randomNumberEngine_;
 

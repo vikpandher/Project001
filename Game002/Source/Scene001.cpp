@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-27
+// @DATE 2026-07-30
 
 #include "Scene001.h"
 
@@ -134,12 +134,6 @@ void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 {
     sharedDataPtr_->UpdateButtonPressCounts(GetWindowPtr());
 
-    bool startPressed = false;
-    for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
-    {
-        startPressed |= sharedDataPtr_->playerCreationInfos[i].turnedOn && (sharedDataPtr_->playerCreationInfos[i].start_pressCount == 1);
-    }
-    if (startPressed)
     {
         SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
         if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
@@ -956,7 +950,15 @@ void Scene001::LoadActorResources()
 
 void Scene001::LoadUiResources()
 {
-    // TODO:
+    sharedDataPtr_->uiPauseBackground_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DRectangle(
+        *sharedDataPtr_->uiPauseBackground_meshDataPtr,
+        480.0f, 480.0f
+    ));
+
+    sharedDataPtr_->uiPauseTitle_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiPauseText01_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiPauseText02_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::FreeResources()
@@ -1151,29 +1153,14 @@ void Scene001::FreeResources()
     sharedDataPtr_->shark_attackRay4_meshDataPtr = nullptr;
 
     // Ui Resources
-    delete sharedDataPtr_->uiLeftBackground_meshDataPtr;
-    sharedDataPtr_->uiLeftBackground_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiLeftText01_meshDataPtr;
-    sharedDataPtr_->uiLeftText01_meshDataPtr = nullptr;
-
-    delete sharedDataPtr_->uiMiddleBackground_meshDataPtr;
-    sharedDataPtr_->uiMiddleBackground_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiMiddleText01_meshDataPtr;
-    sharedDataPtr_->uiMiddleText01_meshDataPtr = nullptr;
-
-    delete sharedDataPtr_->uiRightBackground_meshDataPtr;
-    sharedDataPtr_->uiRightBackground_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiRightText01_meshDataPtr;
-    sharedDataPtr_->uiRightText01_meshDataPtr = nullptr;
-
     delete sharedDataPtr_->uiPauseBackground_meshDataPtr;
     sharedDataPtr_->uiPauseBackground_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseTitle_meshDataPtr;
+    sharedDataPtr_->uiPauseTitle_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiPauseText01_meshDataPtr;
     sharedDataPtr_->uiPauseText01_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiPauseText02_meshDataPtr;
     sharedDataPtr_->uiPauseText02_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiPauseText03_meshDataPtr;
-    sharedDataPtr_->uiPauseText03_meshDataPtr = nullptr;
 }
 
 void Scene001::ReadConfigFile()
@@ -1282,12 +1269,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_1_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->keyboard_1_quit_keyCode = Project001::StringToKeyCode(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1340,12 +1321,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_2_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->keyboard_2_quit_keyCode = Project001::StringToKeyCode(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1396,12 +1371,6 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->controller_1_pause_buttonIndex = std::stoi(iter2->second);
-            }
-
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_1_quit_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1474,12 +1443,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_2_pause_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_2_quit_buttonIndex = std::stoi(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1548,12 +1511,6 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->controller_3_pause_buttonIndex = std::stoi(iter2->second);
-            }
-
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_3_quit_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1626,12 +1583,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_4_pause_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("quit");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_4_quit_buttonIndex = std::stoi(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1694,6 +1645,12 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->cursorEnabled = static_cast<bool>(std::stoi(iter2->second));
+            }
+
+            iter2 = iter->second.find("invisiblePauseScreen");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->invisiblePauseScreen = static_cast<bool>(std::stoi(iter2->second));
             }
 
             iter2 = iter->second.find("groundApothem");

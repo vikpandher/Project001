@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-17
+// @DATE 2026-07-30
 
 #pragma once
 
@@ -60,8 +60,4 @@ protected:
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int loadingText_entityId_ = static_cast<unsigned int>(-1);
-
-    // unsigned int autorText_entityId_ = static_cast<unsigned int>(-1);
-    // unsigned int introText_entityId_ = static_cast<unsigned int>(-1);
-    // unsigned int startText_entityId_ = static_cast<unsigned int>(-1);
 };
