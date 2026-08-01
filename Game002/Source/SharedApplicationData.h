@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-07-31
 
 #pragma once
 
@@ -45,7 +45,6 @@ struct PlayerCreationInfo
     float axisDeadzone = 0.2f;
 
     unsigned int start_pressCount = 0;
-    unsigned int pause_pressCount = 0;
     unsigned int left_pressCount = 0;
     unsigned int right_pressCount = 0;
     unsigned int up_pressCount = 0;
@@ -84,7 +83,6 @@ struct SharedApplicationData
     // Player Controls ---------------------------------------------------------
 
     Project001::KeyCode keyboard_1_start_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
-    Project001::KeyCode keyboard_1_pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
     Project001::KeyCode keyboard_1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
     Project001::KeyCode keyboard_1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
@@ -93,7 +91,6 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_1_drop_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_ALT;
 
     bool keyboard_1_start_pressed = false;
-    bool keyboard_1_pause_pressed = false;
     bool keyboard_1_left_pressed = false;
     bool keyboard_1_right_pressed = false;
     bool keyboard_1_up_pressed = false;
@@ -102,7 +99,6 @@ struct SharedApplicationData
     bool keyboard_1_drop_pressed = false;
 
     Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
-    Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
     Project001::KeyCode keyboard_2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
     Project001::KeyCode keyboard_2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
     Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
@@ -111,7 +107,6 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_2_drop_keyCode = Project001::KeyCode::KEY_CODE_KP_DECIMAL;
 
     bool keyboard_2_start_pressed = false;
-    bool keyboard_2_pause_pressed = false;
     bool keyboard_2_left_pressed = false;
     bool keyboard_2_right_pressed = false;
     bool keyboard_2_up_pressed = false;
@@ -120,7 +115,6 @@ struct SharedApplicationData
     bool keyboard_2_drop_pressed = false;
 
     unsigned int controller_1_start_buttonIndex = 7;
-    unsigned int controller_1_pause_buttonIndex = 7;
     unsigned int controller_1_left_buttonIndex = 13;
     unsigned int controller_1_right_buttonIndex = 11;
     unsigned int controller_1_up_buttonIndex = 10;
@@ -132,7 +126,6 @@ struct SharedApplicationData
     float controller_1_axisDeadzone = 0.2f;
 
     unsigned int controller_2_start_buttonIndex = 7;
-    unsigned int controller_2_pause_buttonIndex = 7;
     unsigned int controller_2_left_buttonIndex = 13;
     unsigned int controller_2_right_buttonIndex = 11;
     unsigned int controller_2_up_buttonIndex = 10;
@@ -144,7 +137,6 @@ struct SharedApplicationData
     float controller_2_axisDeadzone = 0.2f;
 
     unsigned int controller_3_start_buttonIndex = 7;
-    unsigned int controller_3_pause_buttonIndex = 7;
     unsigned int controller_3_left_buttonIndex = 13;
     unsigned int controller_3_right_buttonIndex = 11;
     unsigned int controller_3_up_buttonIndex = 10;
@@ -156,7 +148,6 @@ struct SharedApplicationData
     float controller_3_axisDeadzone = 0.2f;
 
     unsigned int controller_4_start_buttonIndex = 7;
-    unsigned int controller_4_pause_buttonIndex = 7;
     unsigned int controller_4_left_buttonIndex = 13;
     unsigned int controller_4_right_buttonIndex = 11;
     unsigned int controller_4_up_buttonIndex = 10;
@@ -370,4 +361,5 @@ struct SharedApplicationData
     Project001::MeshData* uiPauseTitle_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText01_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText02_meshDataPtr = nullptr;
+    Project001::MeshData* uiGameOverTitle_meshDataPtr = nullptr;
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-07-31
 
 #pragma once
 
@@ -10,7 +10,6 @@
 
 #include <queue>
 #include <random>
-#include <stack>
 #include <vector>
 
 
@@ -38,6 +37,7 @@ protected:
 
     void CreateMainCameraEntities();
     void CreateUiCameraEntity();
+    void CreateUiGameOverTextEntity();
     void CreateUiPauseTextEntity();
     void CreateCursorEntity();
     void CreateImpactEffectEntity(const ImpactEffectCreationInfo& creationInfo);
@@ -52,6 +52,8 @@ protected:
     void UpdateCursorPositionUsingWindowCoordinates(unsigned int entityId, float xPosition, float yPosition);
 
     void UpdateMainCameraEntity(float timestep_s);
+    void UpdateUiGameOverTextEntity(float timestep_s); // modifies meshes
+    void UpdateUiGameOverTextMeshes(); // modifies meshes
     void UpdateUiPauseTextEntity(float timestep_s, bool& quit); // modifies meshes
     void UpdateUiPauseTextMeshes(); // modifies meshes
     void UpdateCursorEntity(float timestep_s);
@@ -96,6 +98,7 @@ protected:
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
     static const uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
 
+    unsigned int uiGameOver_entityId_ = static_cast<unsigned int>(-1);
     unsigned int uiPauseMenu_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int cursor_entityId_ = static_cast<unsigned int>(-1);
@@ -115,7 +118,7 @@ protected:
 
     // -------------------------------------------------------------------------
 
-    bool skipRendering_ = false;
+    bool skipRenderingOnce_ = true;
 
     glm::vec3 mainCamera_lookAtPoint_;
 
@@ -125,6 +128,11 @@ protected:
     float mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
     bool mainCamera_lockedToPlayers_ = true;
     bool debugCamera_turnedOn_ = false;
+
+    bool toggleGameOverPause_ = true;
+    size_t winningPlayerIndex_ = static_cast<unsigned int>(-1);
+    static constexpr float s_gameOverPauseDelay_s_ = 3.0f;
+    float gameOverPauseTime_s = 0.0f;
 
     bool paused_ = false;
     size_t pausingPlayerIndex_ = static_cast<unsigned int>(-1);

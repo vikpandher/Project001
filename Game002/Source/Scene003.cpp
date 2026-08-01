@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-07-31
 
 #include "Scene003.h"
 
@@ -60,6 +60,7 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     CreateMainCameraEntities();
     CreateUiCameraEntity();
+    CreateUiGameOverTextEntity();
     CreateUiPauseTextEntity();
 
     if (sharedDataPtr_->cursorEnabled) CreateCursorEntity();
@@ -106,8 +107,6 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     // CreateSnowballEntity(snowball_entityId, glm::vec2(-32.0f, 128.0f), 8.0f);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(0.0f, 128.0f), 8.0f);
     // CreateSnowballEntity(snowball_entityId, glm::vec2(32.0f, 128.0f), 8.0f);
-
-    skipRendering_ = true;
 }
 
 void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitializeEvent)
@@ -125,6 +124,7 @@ void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
+    uiGameOver_entityId_ = static_cast<unsigned int>(-1);
     uiPauseMenu_entityId_ = static_cast<unsigned int>(-1);
 
     cursor_entityId_ = static_cast<unsigned int>(-1);
@@ -142,12 +142,18 @@ void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     // -------------------------------------------------------------------------
 
+    skipRenderingOnce_ = true;
+
     mainCamera_lookAtPoint_ = glm::vec3(0.0f, 0.0f, 0.0f);
     mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
     mainCamera_lockedToPlayers_ = true;
     debugCamera_turnedOn_ = false;
 
+    toggleGameOverPause_ = true;
+    winningPlayerIndex_ = static_cast<unsigned int>(-1);
+
     paused_ = false;
+    pausingPlayerIndex_ = static_cast<unsigned int>(-1);
 
     impectEffectCreationQueue_ = std::queue<ImpactEffectCreationInfo>(); // empty queue
     snowburstEffectCreationQueue_ = std::queue<SnowburstEffectCreationInfo>(); // empty queue
@@ -165,9 +171,9 @@ void Scene003::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
 
 void Scene003::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
 {
-    if (skipRendering_)
+    if (skipRenderingOnce_)
     {
-        skipRendering_ = false;
+        skipRenderingOnce_ = false;
     }
     else
     {
@@ -188,6 +194,8 @@ void Scene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
 
     unsigned long long timestep_ns = updateEvent.timestep_ns;
     float timestep_s = static_cast<float>(timestep_ns) / 1e9f;
+
+    UpdateUiGameOverTextEntity(timestep_s);
 
     bool quit = false;
     UpdateUiPauseTextEntity(timestep_s, quit);
@@ -370,6 +378,35 @@ void Scene003::CreateUiCameraEntity()
     }
 }
 
+void Scene003::CreateUiGameOverTextEntity()
+{
+    GetComponentStoresPtr()->CreateEntity(uiGameOver_entityId_);
+
+    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedModel>(uiGameOver_entityId_));
+    Project001::RenderedModel* renderedModelPtr = nullptr;
+    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiGameOver_entityId_));
+    if (renderedModelPtr != nullptr)
+    {
+        renderedModelPtr->SetCameraMask(s_uiCamera_cameraMask_);
+        std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
+        renderedMeshes.resize(1);
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[0];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiGameOverTitle_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetPositionY(216.0f);
+            mesh.SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(1);
+        }
+
+        renderedModelPtr->SetVisible(false);
+    }
+}
+
 void Scene003::CreateUiPauseTextEntity()
 {
     GetComponentStoresPtr()->CreateEntity(uiPauseMenu_entityId_);
@@ -390,7 +427,7 @@ void Scene003::CreateUiPauseTextEntity()
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(1);
+            mesh.SetRenderPriorityOverride(2);
         }
 
         {
@@ -402,7 +439,7 @@ void Scene003::CreateUiPauseTextEntity()
             mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(2);
+            mesh.SetRenderPriorityOverride(3);
             mesh.SetParentMeshIndex(0);
         }
 
@@ -415,7 +452,7 @@ void Scene003::CreateUiPauseTextEntity()
             mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(2);
+            mesh.SetRenderPriorityOverride(3);
             mesh.SetParentMeshIndex(0);
         }
 
@@ -428,7 +465,7 @@ void Scene003::CreateUiPauseTextEntity()
             mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
-            mesh.SetRenderPriorityOverride(2);
+            mesh.SetRenderPriorityOverride(3);
             mesh.SetParentMeshIndex(0);
         }
 
@@ -1766,6 +1803,106 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
     }
 }
 
+void Scene003::UpdateUiGameOverTextEntity(float timestep_s)
+{
+    size_t alivePlayerCount = 0;
+
+    for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
+    {
+        PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
+        if (playerCreationInfo.turnedOn && !playerCreationInfo.dead)
+        {
+            alivePlayerCount++;
+            winningPlayerIndex_ = i;
+        }
+    }
+
+    if (alivePlayerCount < 2)
+    {
+        // Game Over
+
+        UpdateUiGameOverTextMeshes();
+
+        if (toggleGameOverPause_ && gameOverPauseTime_s > s_gameOverPauseDelay_s_)
+        {
+            toggleGameOverPause_ = false;
+            paused_ = true;
+            pauseCursorPosition_ = 1;
+
+            Project001::RenderedModel* renderedModelPtr = nullptr;
+            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+            if (renderedModelPtr != nullptr)
+            {
+                renderedModelPtr->SetVisible(true);
+
+                Project001::RenderedMesh& titleMesh = renderedModelPtr->GetRenderedMeshes()[1];
+                titleMesh.SetColorRGB(1.0f, 1.0f, 1.0f);
+            }
+        }
+
+        Project001::RenderedModel* renderedModelPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiGameOver_entityId_));
+        if (renderedModelPtr != nullptr)
+        {
+            renderedModelPtr->SetVisible(true);
+
+            Project001::RenderedMesh& titleMesh = renderedModelPtr->GetRenderedMeshes()[0];
+
+            if (winningPlayerIndex_ == 0)
+            {
+                titleMesh.SetColorRGB(0.7f, 0.7f, 1.0f);
+            }
+            else if (winningPlayerIndex_ == 1)
+            {
+                titleMesh.SetColorRGB(1.0f, 0.7f, 0.7f);
+            }
+            else if (winningPlayerIndex_ == 2)
+            {
+                titleMesh.SetColorRGB(0.7f, 1.0f, 0.7f);
+            }
+            else if (winningPlayerIndex_ == 3)
+            {
+                titleMesh.SetColorRGB(1.0f, 0.7f, 1.0f);
+            }
+            else
+            {
+                titleMesh.SetColorRGB(1.0f, 1.0f, 1.0f);
+            }
+        }
+
+        gameOverPauseTime_s += timestep_s;
+    }
+    else
+    {
+        gameOverPauseTime_s = 0.0f;
+    }
+}
+
+void Scene003::UpdateUiGameOverTextMeshes()
+{
+    sharedDataPtr_->uiGameOverTitle_meshDataPtr->Clear();
+
+    constexpr float gameOverTitlePixelSize = 8.0f;
+
+    std::string gameOverTitleString;
+
+    if (winningPlayerIndex_ == 0) gameOverTitleString += "P1 ";
+    else if (winningPlayerIndex_ == 1) gameOverTitleString += "P2 ";
+    else if (winningPlayerIndex_ == 2) gameOverTitleString += "P3 ";
+    else if (winningPlayerIndex_ == 3) gameOverTitleString += "P4 ";
+    else gameOverTitleString += "EVERYONE ";
+
+    gameOverTitleString += "WINS";
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiGameOverTitle_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        gameOverTitleString,
+        gameOverTitlePixelSize,
+        1
+    ));
+}
+
 void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 {
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
@@ -1773,19 +1910,22 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
         const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
         if (playerInfoPtr->turnedOn)
         {
-            if (playerInfoPtr->pause_pressCount == 1)
+            if (playerInfoPtr->start_pressCount == 1)
             {
                 if (paused_)
                 {
-                    paused_ = false;
-                    pausingPlayerIndex_ = static_cast<size_t>(-1);
-                    pauseAxisMoveTime_s = 0.0f;
-
-                    Project001::RenderedModel* renderedModelPtr = nullptr;
-                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
-                    if (renderedModelPtr != nullptr)
+                    if (i == pausingPlayerIndex_)
                     {
-                        renderedModelPtr->SetVisible(false);
+                        paused_ = false;
+                        pausingPlayerIndex_ = static_cast<size_t>(-1);
+                        pauseAxisMoveTime_s = 0.0f;
+
+                        Project001::RenderedModel* renderedModelPtr = nullptr;
+                        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+                        if (renderedModelPtr != nullptr)
+                        {
+                            renderedModelPtr->SetVisible(false);
+                        }
                     }
                 }
                 else
@@ -1800,6 +1940,25 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
                     if (renderedModelPtr != nullptr)
                     {
                         renderedModelPtr->SetVisible(!sharedDataPtr_->invisiblePauseScreen);
+
+                        Project001::RenderedMesh& titleMesh = renderedModelPtr->GetRenderedMeshes()[1];
+
+                        if (i == 0)
+                        {
+                            titleMesh.SetColorRGB(0.7f, 0.7f, 1.0f);
+                        }
+                        else if (i == 1)
+                        {
+                            titleMesh.SetColorRGB(1.0f, 0.7f, 0.7f);
+                        }
+                        else if (i == 2)
+                        {
+                            titleMesh.SetColorRGB(0.7f, 1.0f, 0.7f);
+                        }
+                        else if (i == 3)
+                        {
+                            titleMesh.SetColorRGB(1.0f, 0.7f, 1.0f);
+                        }
                     }
                 }
                 break;
@@ -1807,101 +1966,102 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
         }
     }
 
-    if (paused_ && pausingPlayerIndex_ < SharedApplicationData::s_player_count)
+    if (paused_)
     {
-        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[pausingPlayerIndex_];
-
-        if (playerInfoPtr->grab_pressCount == 1)
+        for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
         {
-            if (pauseCursorPosition_ == 0)
-            {
-                paused_ = false;
-                pausingPlayerIndex_ = static_cast<size_t>(-1);
-                pauseAxisMoveTime_s = 0.0f;
+            const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
 
-                Project001::RenderedModel* renderedModelPtr = nullptr;
-                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
-                if (renderedModelPtr != nullptr)
+            if (pausingPlayerIndex_ == i || pausingPlayerIndex_ >= SharedApplicationData::s_player_count)
+            {
+                if (playerInfoPtr->grab_pressCount == 1)
                 {
-                    renderedModelPtr->SetVisible(false);
+                    if (pauseCursorPosition_ == 0)
+                    {
+                        paused_ = false;
+                        pausingPlayerIndex_ = static_cast<size_t>(-1);
+                        pauseAxisMoveTime_s = 0.0f;
+
+                        Project001::RenderedModel* renderedModelPtr = nullptr;
+                        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedModel>(renderedModelPtr, uiPauseMenu_entityId_));
+                        if (renderedModelPtr != nullptr)
+                        {
+                            renderedModelPtr->SetVisible(false);
+                        }
+                    }
+                    else if (pauseCursorPosition_ == 1)
+                    {
+                        SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
+                        if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+                        {
+                            SendEventToScene(GetId(), Project001::DeinitializeEvent());
+                            SendEventToApplication(Project001::InitializeEvent());
+                        }
+                        quit = true;
+                        return;
+                    }
                 }
-            }
-            else if (pauseCursorPosition_ == 1)
-            {
-                SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene002Id));
-                if (GetActiveScene()->GetId() == sharedDataPtr_->scene002Id)
+
+                glm::vec2 moveDirection(0.0f, 0.0);
+
+                if (playerInfoPtr->left_pressCount == 1)
                 {
-                    SendEventToScene(GetId(), Project001::DeinitializeEvent());
-                    SendEventToApplication(Project001::InitializeEvent());
+                    moveDirection.x -= 1.0f;
                 }
-                quit = true;
-                return;
+                if (playerInfoPtr->right_pressCount == 1)
+                {
+                    moveDirection.x += 1.0f;
+                }
+                if (playerInfoPtr->up_pressCount == 1)
+                {
+                    moveDirection.y += 1.0f;
+                }
+                if (playerInfoPtr->down_pressCount == 1)
+                {
+                    moveDirection.y -= 1.0f;
+                }
+
+                if (pauseAxisMoveTime_s > 0.0f)
+                {
+                    if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
+                        glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
+                    {
+                        pauseAxisMoveTime_s = 0.0f;
+                    }
+                    else
+                    {
+                        pauseAxisMoveTime_s -= timestep_s;
+                    }
+                }
+                else
+                {
+                    pauseAxisMoveTime_s = 0.0f;
+
+                    if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+                    {
+                        moveDirection.x += playerInfoPtr->leftRightAxisValue;
+                        pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
+                    }
+                    if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+                    {
+                        moveDirection.y += playerInfoPtr->upDownAxisValue;
+                        pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
+                    }
+
+                }
+
+                if (moveDirection.y > 0.0f && pauseCursorPosition_ > 0)
+                {
+                    pauseCursorPosition_ -= 1;
+                }
+                else if (moveDirection.y < 0.0f && pauseCursorPosition_ < 1)
+                {
+                    pauseCursorPosition_ += 1;
+                }
+
+                // pauseCursorPosition_ = pauseCursorPosition_ % 2;
             }
         }
-    }
-
-    if (paused_ && pausingPlayerIndex_ < SharedApplicationData::s_player_count)
-    {
-        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[pausingPlayerIndex_];
-
-        glm::vec2 moveDirection(0.0f, 0.0);
-
-        if (playerInfoPtr->left_pressCount == 1)
-        {
-            moveDirection.x -= 1.0f;
-        }
-        if (playerInfoPtr->right_pressCount == 1)
-        {
-            moveDirection.x += 1.0f;
-        }
-        if (playerInfoPtr->up_pressCount == 1)
-        {
-            moveDirection.y += 1.0f;
-        }
-        if (playerInfoPtr->down_pressCount == 1)
-        {
-            moveDirection.y -= 1.0f;
-        }
-
-        if (pauseAxisMoveTime_s > 0.0f)
-        {
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
-                glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
-            {
-                pauseAxisMoveTime_s = 0.0f;
-            }
-            else
-            {
-                pauseAxisMoveTime_s -= timestep_s;
-            }
-        }
-        else
-        {
-            pauseAxisMoveTime_s = 0.0f;
-
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
-            {
-                moveDirection.x += playerInfoPtr->leftRightAxisValue;
-                pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
-            }
-            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
-            {
-                moveDirection.y += playerInfoPtr->upDownAxisValue;
-                pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
-            }
-
-        }
-
-        if (moveDirection.y > 0.0f && pauseCursorPosition_ > 0)
-        {
-            pauseCursorPosition_ -= 1;
-        }
-        else if (moveDirection.y < 0.0f && pauseCursorPosition_ < 1)
-        {
-            pauseCursorPosition_ += 1;
-        }
-
-        // pauseCursorPosition_ = pauseCursorPosition_ % 2;
     }
 
     if (paused_)

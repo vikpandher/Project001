@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-07-31
 
 #include "Scene001.h"
 
@@ -953,12 +953,13 @@ void Scene001::LoadUiResources()
     sharedDataPtr_->uiPauseBackground_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DRectangle(
         *sharedDataPtr_->uiPauseBackground_meshDataPtr,
-        480.0f, 480.0f
+        360.0f, 360.0f
     ));
 
     sharedDataPtr_->uiPauseTitle_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiPauseText01_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiPauseText02_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiGameOverTitle_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::FreeResources()
@@ -1161,6 +1162,8 @@ void Scene001::FreeResources()
     sharedDataPtr_->uiPauseText01_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiPauseText02_meshDataPtr;
     sharedDataPtr_->uiPauseText02_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiGameOverTitle_meshDataPtr;
+    sharedDataPtr_->uiGameOverTitle_meshDataPtr = nullptr;
 }
 
 void Scene001::ReadConfigFile()
@@ -1263,12 +1266,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_1_start_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->keyboard_1_pause_keyCode = Project001::StringToKeyCode(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1315,12 +1312,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->keyboard_2_start_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->keyboard_2_pause_keyCode = Project001::StringToKeyCode(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1365,12 +1356,6 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->controller_1_start_buttonIndex = std::stoi(iter2->second);
-            }
-
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_1_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1437,12 +1422,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_2_start_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_2_pause_buttonIndex = std::stoi(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1507,12 +1486,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->controller_3_start_buttonIndex = std::stoi(iter2->second);
             }
 
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_3_pause_buttonIndex = std::stoi(iter2->second);
-            }
-
             iter2 = iter->second.find("left");
             if (iter2 != iter->second.end())
             {
@@ -1575,12 +1548,6 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->controller_4_start_buttonIndex = std::stoi(iter2->second);
-            }
-
-            iter2 = iter->second.find("pause");
-            if (iter2 != iter->second.end())
-            {
-                sharedDataPtr_->controller_4_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");

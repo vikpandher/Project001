@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-07-31
 
 #include "SharedApplicationData.h"
 
@@ -64,11 +64,6 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_start_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_start_pressed = false;
             }
-            if (keyCode == keyboard_1_pause_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_pause_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_pause_pressed = false;
-            }
             if (keyCode == keyboard_1_left_keyCode)
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_left_pressed = true;
@@ -106,11 +101,6 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
             {
                 if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_start_pressed = true;
                 else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_start_pressed = false;
-            }
-            if (keyCode == keyboard_2_pause_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_pause_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_pause_pressed = false;
             }
             if (keyCode == keyboard_2_left_keyCode)
             {
@@ -249,9 +239,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (keyboard_1_start_pressed) playerCreationInfo.start_pressCount++;
             else playerCreationInfo.start_pressCount = 0;
 
-            if (keyboard_1_pause_pressed) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
-
             if (keyboard_1_left_pressed) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
 
@@ -274,9 +261,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
         {
             if (keyboard_2_start_pressed) playerCreationInfo.start_pressCount++;
             else playerCreationInfo.start_pressCount = 0;
-
-            if (keyboard_2_pause_pressed) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
 
             if (keyboard_2_left_pressed) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
@@ -303,9 +287,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
 
             if (buttonValues.size() > controller_1_start_buttonIndex && buttonValues[controller_1_start_buttonIndex]) playerCreationInfo.start_pressCount++;
             else  playerCreationInfo.start_pressCount = 0;
-
-            if (buttonValues.size() > controller_1_pause_buttonIndex && buttonValues[controller_1_pause_buttonIndex]) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
 
             if (buttonValues.size() > controller_1_left_buttonIndex && buttonValues[controller_1_left_buttonIndex]) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
@@ -340,9 +321,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_2_start_buttonIndex && buttonValues[controller_2_start_buttonIndex]) playerCreationInfo.start_pressCount++;
             else  playerCreationInfo.start_pressCount = 0;
 
-            if (buttonValues.size() > controller_2_pause_buttonIndex && buttonValues[controller_2_pause_buttonIndex]) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
-
             if (buttonValues.size() > controller_2_left_buttonIndex && buttonValues[controller_2_left_buttonIndex]) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
 
@@ -376,9 +354,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
             if (buttonValues.size() > controller_3_start_buttonIndex && buttonValues[controller_3_start_buttonIndex]) playerCreationInfo.start_pressCount++;
             else  playerCreationInfo.start_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_pause_buttonIndex && buttonValues[controller_3_pause_buttonIndex]) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
-
             if (buttonValues.size() > controller_3_left_buttonIndex && buttonValues[controller_3_left_buttonIndex]) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
 
@@ -411,9 +386,6 @@ void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* wi
 
             if (buttonValues.size() > controller_4_start_buttonIndex && buttonValues[controller_4_start_buttonIndex]) playerCreationInfo.start_pressCount++;
             else  playerCreationInfo.start_pressCount = 0;
-
-            if (buttonValues.size() > controller_4_pause_buttonIndex && buttonValues[controller_4_pause_buttonIndex]) playerCreationInfo.pause_pressCount++;
-            else playerCreationInfo.pause_pressCount = 0;
 
             if (buttonValues.size() > controller_4_left_buttonIndex && buttonValues[controller_4_left_buttonIndex]) playerCreationInfo.left_pressCount++;
             else playerCreationInfo.left_pressCount = 0;
