@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-31
+// @DATE 2026-08-05
 
 #include "Scene003.h"
 
@@ -25,7 +25,7 @@
 // public ----------------------------------------------------------------------
 
 Scene003::Scene003(Project001::Application* applicationPtr)
-    : Scene(applicationPtr)
+    : BaseScene001(applicationPtr)
     , mainCamera_lookAtPoint_(0.0f, 0.0f, 0.0f)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
@@ -43,9 +43,10 @@ void Scene003::HandleEvent(Project001::Event& event)
 
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene003::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene003::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene003::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::ScrollEvent>(event, std::bind(&Scene003::ProcessScrollEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene003::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    BaseScene001::HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
@@ -58,8 +59,19 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     randomNumberEngine_.seed(sharedDataPtr_->s_randomNumberSeed);
 
-    CreateMainCameraEntities();
-    CreateUiCameraEntity();
+    CreateMainCameraEntity(mainCamera_entityId_, s_mainCamera_cameraMask_, 0);
+    CreateMainCameraEntity(mainCameraDebug_entityId_, s_mainCameraDebug_cameraMask_, 100);
+
+    {
+        Project001::Camera* cameraPtr = nullptr;
+        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_entityId_));
+        if (cameraPtr != nullptr)
+        {
+            cameraPtr->SetTurnedOn(debugCamera_turnedOn_);
+        }
+    };
+
+    CreateUiCameraEntity(uiCamera_entityId_, s_uiCamera_cameraMask_, 1000);
     CreateUiGameOverTextEntity();
     CreateUiPauseTextEntity();
 
@@ -169,18 +181,6 @@ void Scene003::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
     sharedDataPtr_->UpdateMouseButtonPresses(mouseButtonEvent);
 }
 
-void Scene003::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
-{
-    if (skipRenderingOnce_)
-    {
-        skipRenderingOnce_ = false;
-    }
-    else
-    {
-        GetRenderSystemPtr()->Render();
-    }
-}
-
 void Scene003::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
     float& yOffset = scrollEvent.yOffset;
@@ -283,101 +283,6 @@ void Scene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
     KillDeadPenguinEntities();
 }
 
-void Scene003::CreateMainCameraEntities()
-{
-    int aspectRatioNumerator;
-    int aspectRatioDenominator;
-    GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-
-    float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
-    constexpr float mainCameraHalfHeight = 320.0f;
-    float mainCameraHalfWidth = aspectRatio * mainCameraHalfHeight;
-
-    constexpr float mainCameraNearCutoff = mainCameraHalfHeight * 0.1f;
-    constexpr float mainCameraFarCutoff = mainCameraHalfHeight * 24.0f;
-
-    constexpr float mainCameraPitch = glm::quarter_pi<float>();
-    constexpr float mainCameraYaw = glm::pi<float>();
-
-    constexpr Project001::Camera::CameraProjection mainCameraProjection =
-        Project001::Camera::CameraProjection::CAMERA_PROJECTION_PERSPECTIVE;
-
-    auto CreateMainCamera = [&](unsigned int& camera_EntityId, const uint32_t camera_Mask, int priorityValue)
-        {
-            GetComponentStoresPtr()->CreateEntity(camera_EntityId);
-
-            FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(camera_EntityId));
-            Project001::Camera* cameraPtr = nullptr;
-            FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, camera_EntityId));
-            if (cameraPtr != nullptr)
-            {
-                if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
-                {
-                    cameraPtr->SetAspectRatio(aspectRatio);
-                    cameraPtr->SetTopCutoff(mainCameraHalfHeight);
-                    cameraPtr->SetBottomCutoff(-mainCameraHalfHeight);
-                    cameraPtr->SetLeftCutoff(-mainCameraHalfWidth);
-                    cameraPtr->SetRightCutoff(mainCameraHalfWidth);
-                    cameraPtr->SetNearCutoff(mainCameraNearCutoff);
-                    cameraPtr->SetFarCutoff(mainCameraFarCutoff);
-                }
-
-                cameraPtr->AddPitch(mainCameraPitch);
-                cameraPtr->AddYaw(mainCameraYaw);
-                cameraPtr->SetProjection(mainCameraProjection);
-                cameraPtr->SetCameraMask(camera_Mask);
-                cameraPtr->SetPriorityValue(priorityValue);
-
-                cameraPtr->FollowFocalPoint(glm::vec3(0.0f, 0.0f, 0.0f), mainCamera_distanceAway_);
-            }
-        };
-
-    CreateMainCamera(mainCamera_entityId_, s_mainCamera_cameraMask_, 0);
-    CreateMainCamera(mainCameraDebug_entityId_, s_mainCameraDebug_cameraMask_, 100);
-
-    {
-        Project001::Camera* cameraPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCameraDebug_entityId_));
-        if (cameraPtr != nullptr)
-        {
-            cameraPtr->SetTurnedOn(debugCamera_turnedOn_);
-        }
-    };
-}
-
-void Scene003::CreateUiCameraEntity()
-{
-    GetComponentStoresPtr()->CreateEntity(uiCamera_entityId_);
-
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_entityId_));
-    Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCamera_entityId_));
-    if (cameraPtr != nullptr)
-    {
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
-        {
-            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
-            float uiCameraHalfHeight = 320.0f;
-            float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
-            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-32.0f);
-            cameraPtr->SetFarCutoff(32.0f);
-        }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->SetCameraMask(s_uiCamera_cameraMask_);
-        cameraPtr->SetPriorityValue(1000);
-    }
-}
-
 void Scene003::CreateUiGameOverTextEntity()
 {
     GetComponentStoresPtr()->CreateEntity(uiGameOver_entityId_);
@@ -394,7 +299,7 @@ void Scene003::CreateUiGameOverTextEntity()
         {
             Project001::RenderedMesh& mesh = renderedMeshes[0];
             mesh.SetCameraMask(s_uiCamera_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiGameOverTitle_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiGameOverTitleText_meshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
             mesh.SetPositionY(216.0f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -433,7 +338,7 @@ void Scene003::CreateUiPauseTextEntity()
         {
             Project001::RenderedMesh& mesh = renderedMeshes[1];
             mesh.SetCameraMask(s_uiCamera_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseTitle_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiPauseTitleText_meshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
             mesh.SetPositionY(64.0f);
             mesh.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -781,7 +686,7 @@ void Scene003::CreateStageEntity()
             Project001::RenderedMesh& mesh = renderedMeshes[StageInfo::s_water_renderedMeshIndex];
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->water_meshDataPtr);
-            mesh.SetPositionZ(s_waterHeight);
+            mesh.SetPositionZ(SharedApplicationData::s_waterHeight);
             mesh.SetColor(0.4f, 0.6f, 1.0f, 0.5f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(1);
@@ -988,7 +893,7 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->circle_meshDataPtr);
             mesh.SetScale(glm::vec3(SharedApplicationData::s_penguin_collisionRadius));
-            mesh.SetPositionZ(0.5f);
+            mesh.SetPositionZ(0.1f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.8f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -1000,7 +905,7 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
             mesh.SetTextureId(sharedDataPtr_->dotted_1_1_textureId);
             mesh.SetMeshDataPtr(sharedDataPtr_->player_grabZone_meshDataPtr);
             mesh.SetPositionY(SharedApplicationData::s_penguin_grabOffset);
-            mesh.SetPositionZ(0.6f);
+            mesh.SetPositionZ(0.2f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -1026,7 +931,7 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay1_meshDataPtr);
             }
-            mesh.SetPositionZ(0.6f);
+            mesh.SetPositionZ(0.2f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -1053,7 +958,7 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
             {
                 mesh.SetMeshDataPtr(sharedDataPtr_->player4_aimRay2_meshDataPtr);
             }
-            mesh.SetPositionZ(0.6f);
+            mesh.SetPositionZ(0.2f);
             mesh.SetColor(0.0f, 0.0f, 0.0f, 0.2f);
             mesh.SetTranslucent(true);
             mesh.SetRenderPriorityOverride(2);
@@ -1880,7 +1785,7 @@ void Scene003::UpdateUiGameOverTextEntity(float timestep_s)
 
 void Scene003::UpdateUiGameOverTextMeshes()
 {
-    sharedDataPtr_->uiGameOverTitle_meshDataPtr->Clear();
+    sharedDataPtr_->uiGameOverTitleText_meshDataPtr->Clear();
 
     constexpr float gameOverTitlePixelSize = 8.0f;
 
@@ -1895,7 +1800,7 @@ void Scene003::UpdateUiGameOverTextMeshes()
     gameOverTitleString += "WINS";
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiGameOverTitle_meshDataPtr,
+        *sharedDataPtr_->uiGameOverTitleText_meshDataPtr,
         *sharedDataPtr_->pixelFont_fontDataPtr,
         gameOverTitleString,
         gameOverTitlePixelSize,
@@ -2072,7 +1977,7 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 
 void Scene003::UpdateUiPauseTextMeshes()
 {
-    sharedDataPtr_->uiPauseTitle_meshDataPtr->Clear();
+    sharedDataPtr_->uiPauseTitleText_meshDataPtr->Clear();
     sharedDataPtr_->uiPauseText01_meshDataPtr->Clear();
     sharedDataPtr_->uiPauseText02_meshDataPtr->Clear();
 
@@ -2105,7 +2010,7 @@ void Scene003::UpdateUiPauseTextMeshes()
     if (pauseCursorPosition_ == 1) pauseTextString02 += " <";
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiPauseTitle_meshDataPtr,
+        *sharedDataPtr_->uiPauseTitleText_meshDataPtr,
         *sharedDataPtr_->pixelFont_fontDataPtr,
         pauseTitleString,
         pauseTitlePixelSize,
@@ -4286,7 +4191,7 @@ void Scene003::AnimatePenguinEntities(float timestep_s)
 
             if (!penguinInfo.onLand)
             {
-                desiredPositionZ += s_waterHeight;
+                desiredPositionZ += SharedApplicationData::s_waterHeight;
             }
 
             if (penguinInfo.animationState == PenguinInfo::State::STATE_TREADING_WATER)
@@ -4858,7 +4763,7 @@ void Scene003::AnimatePenguinEntities(float timestep_s)
                 }
                 else
                 {
-                    mesh.SetPositionZ(s_waterHeight + 0.01f);
+                    mesh.SetPositionZ(SharedApplicationData::s_waterHeight + 0.01f);
                 }
             }
 
@@ -4946,7 +4851,7 @@ void Scene003::AnimateSharkEntities(float timestep_s)
             }
             else
             {
-                desiredPositionZ += s_waterHeight;
+                desiredPositionZ += SharedApplicationData::s_waterHeight;
             }
 
             if (sharkInfo.animationState == SharkInfo::State::STATE_SWIMMING)
@@ -4996,13 +4901,13 @@ void Scene003::AnimateSharkEntities(float timestep_s)
             jaw_mesh.SetOrientation(1.0f, 0.0f, 0.0f, 0.0f);
 
             Project001::RenderedMesh& frontCollision_mesh = renderedMeshes[SharkInfo::s_frontCollision_renderedMeshIndex];
-            frontCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+            frontCollision_mesh.SetPosition(0.0f, 0.0f, SharedApplicationData::s_waterHeight);
 
             Project001::RenderedMesh& backCollision_mesh = renderedMeshes[SharkInfo::s_backCollision_renderedMeshIndex];
-            backCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+            backCollision_mesh.SetPosition(0.0f, 0.0f, SharedApplicationData::s_waterHeight);
 
             Project001::RenderedMesh& jawCollision_mesh = renderedMeshes[SharkInfo::s_jawCollision_renderedMeshIndex];
-            jawCollision_mesh.SetPosition(0.0f, 0.0f, s_waterHeight);
+            jawCollision_mesh.SetPosition(0.0f, 0.0f, SharedApplicationData::s_waterHeight);
 
             Project001::RenderedMesh& attackRay1_mesh = renderedMeshes[SharkInfo::s_attackRay1_renderedMeshIndex];
             if (sharkInfo.minAttackIntersectionWithPenguins[0])
@@ -5057,7 +4962,7 @@ void Scene003::AnimateSharkEntities(float timestep_s)
 
                 back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
 
-                const float maxFlipperAngle = glm::pi<float>() / 18.0f;
+                constexpr float maxFlipperAngle = glm::pi<float>() / 18.0f;
                 if (sharkInfo.backRotationZ > maxFlipperAngle)
                 {
                     sharkInfo.backRotationZ = maxFlipperAngle;
@@ -5085,7 +4990,7 @@ void Scene003::AnimateSharkEntities(float timestep_s)
 
                 back_mesh.AddRelativeRotationZ(sharkInfo.backRotationZ);
 
-                const float maxFlipperAngle = glm::pi<float>() / 24.0f;
+                constexpr float maxFlipperAngle = glm::pi<float>() / 24.0f;
                 if (sharkInfo.backRotationZ > maxFlipperAngle)
                 {
                     sharkInfo.backRotationZ = maxFlipperAngle;
@@ -5162,7 +5067,7 @@ void Scene003::AnimateSnowballEntities(float timestep_s)
                 }
                 else
                 {
-                    desiredPositionZ = -0.8f * snowballInfo.radius + s_waterHeight;
+                    desiredPositionZ = -0.8f * snowballInfo.radius + SharedApplicationData::s_waterHeight;
                 }
 
                 float riseSpeed = timestep_s * 120.0f;

@@ -1,16 +1,16 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-30
+// @DATE 2026-08-05
 
 #pragma once
 
-#include "Scene.h"
+#include "BaseScene001.h"
 
 #include "SharedApplicationData.h"
 
 
 
-class Scene001 : public Project001::Scene
+class Scene001 : public BaseScene001
 {
 public:
     Scene001(Project001::Application* applicationPtr);
@@ -27,7 +27,6 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
-    void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
     void LoadPixelFontResources();
@@ -44,19 +43,15 @@ protected:
 
     void ReadConfigFile();
 
-    void CreateUiCameraEntity();
-
     void CreateLoadingTextEntity();
 
     // -------------------------------------------------------------------------
 
     SharedApplicationData* sharedDataPtr_ = nullptr;
 
-    bool configFileFound_ = false;
-
     // Entity Ids --------------------------------------------------------------
 
-    static const uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
+    static constexpr uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
 
     unsigned int loadingText_entityId_ = static_cast<unsigned int>(-1);

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-23
+// @DATE 2026-08-05
 
 #pragma once
 
@@ -38,8 +38,8 @@ struct CursorInfo
 
     bool hoveringOverAlreadyGrabbedEntity = false;
 
-    glm::vec2 cursorWindowPosition;
-    glm::vec2 prevCursorWindowPosition;
+    glm::vec2 cursorWindowPosition = glm::vec2(0.0f, 0.0f);
+    glm::vec2 prevCursorWindowPosition = glm::vec2(0.0f, 0.0f);
 
     static constexpr size_t s_position_renderedMeshIndex = 0;
     static constexpr size_t s_press_renderedMeshIndex = 1;

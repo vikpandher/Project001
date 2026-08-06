@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-31
+// @DATE 2026-08-05
 
 #pragma once
 
@@ -25,9 +25,10 @@ struct PlayerCreationInfo
     size_t playerNumber = 0;
     bool turnedOn = true;
 
+    static constexpr size_t s_controlSchemeCount = 7;
     enum class ControlScheme
     {
-        CONTROL_SCHEME_UNKNOWN,
+        CONTROL_SCHEME_UNKNOWN = 0,
         CONTROL_SCHEME_KEYBOARD_1,
         CONTROL_SCHEME_KEYBOARD_2,
         CONTROL_SCHEME_CONTROLLER_1,
@@ -35,6 +36,11 @@ struct PlayerCreationInfo
         CONTROL_SCHEME_CONTROLLER_3,
         CONTROL_SCHEME_CONTROLLER_4
     };
+
+    static void DecrementControlScheme(ControlScheme& controlScheme);
+    static void IncrementControlScheme(ControlScheme& controlScheme);
+
+    static const char* PlayerCreationInfo::ControlSchemeToString(ControlScheme& controlScheme);
 
     static PlayerCreationInfo::ControlScheme PlayerCreationInfo::StringToControlScheme(const std::string& str);
 
@@ -210,6 +216,8 @@ struct SharedApplicationData
 
     // Game Constants ----------------------------------------------------------
 
+    bool configFileFound_ = false;
+
     bool cursorEnabled = false;
     bool invisiblePauseScreen = false;
     float groundApothem = 512.0f;
@@ -231,6 +239,8 @@ struct SharedApplicationData
     static constexpr float s_snowball_landFriction = 16.0f;
     static constexpr float s_snowball_waterFriction = 32.0f;
     static constexpr float s_snowball_angularFriction = glm::pi<float>();
+
+    static constexpr float s_waterHeight = -8.0f;
 
     static constexpr float s_debugControlEnabled = false;
 
@@ -267,10 +277,15 @@ struct SharedApplicationData
     unsigned int dotted_1_3_textureId = static_cast<unsigned int>(-1);
 
     // Main Menu Resources
-    Project001::MeshData* authorText_meshDataPtr = nullptr;
-    Project001::MeshData* introText_meshDataPtr = nullptr;
-    Project001::MeshData* startText_meshDataPtr = nullptr;
-    Project001::MeshData* titleText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuBackground_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuAuthorText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuConfigFileText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuPlayerText1_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuPlayerText2_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuPlayerText3_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuPlayerText4_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuStartText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuTitleText_meshDataPtr = nullptr;
 
     // Cursor Resources
     Project001::MeshData* cursorHandOpen_meshDataPtr = nullptr;
@@ -358,8 +373,8 @@ struct SharedApplicationData
 
     // Ui Resources
     Project001::MeshData* uiPauseBackground_meshDataPtr = nullptr;
-    Project001::MeshData* uiPauseTitle_meshDataPtr = nullptr;
+    Project001::MeshData* uiPauseTitleText_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText01_meshDataPtr = nullptr;
     Project001::MeshData* uiPauseText02_meshDataPtr = nullptr;
-    Project001::MeshData* uiGameOverTitle_meshDataPtr = nullptr;
+    Project001::MeshData* uiGameOverTitleText_meshDataPtr = nullptr;
 };

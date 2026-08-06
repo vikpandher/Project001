@@ -1,10 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-31
+// @DATE 2026-08-05
 
 #pragma once
 
-#include "Scene.h"
+#include "BaseScene001.h"
 
 #include "ActorInfo.h"
 
@@ -14,7 +14,7 @@
 
 
 
-class Scene003 : public Project001::Scene
+class Scene003 : public BaseScene001
 {
 public:
     Scene003(Project001::Application* applicationPtr);
@@ -31,12 +31,9 @@ protected:
 
     void ProcessKeyEvent(Project001::KeyEvent& keyEvent);
     void ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent);
-    void ProcessRenderEvent(Project001::RenderEvent& renderEvent);
     void ProcessScrollEvent(Project001::ScrollEvent& scrollEvent);
     void ProcessUpdateEvent(Project001::UpdateEvent& updateEvent);
 
-    void CreateMainCameraEntities();
-    void CreateUiCameraEntity();
     void CreateUiGameOverTextEntity();
     void CreateUiPauseTextEntity();
     void CreateCursorEntity();
@@ -91,12 +88,12 @@ protected:
 
     unsigned int mainCamera_entityId_ = static_cast<unsigned int>(-1);
     unsigned int mainCameraDebug_entityId_ = static_cast<unsigned int>(-1);
-    static const uint32_t s_mainCamera_cameraMask_ = 0b00000000000000000000000000000001;
-    static const uint32_t s_mainCameraDebug_cameraMask_ = 0b00000000000000000000000000000010;
-    static const uint32_t s_mainCameraGroup_cameraMask_ = s_mainCamera_cameraMask_ | s_mainCameraDebug_cameraMask_;
+    static constexpr uint32_t s_mainCamera_cameraMask_ = 0b00000000000000000000000000000001;
+    static constexpr uint32_t s_mainCameraDebug_cameraMask_ = 0b00000000000000000000000000000010;
+    static constexpr uint32_t s_mainCameraGroup_cameraMask_ = s_mainCamera_cameraMask_ | s_mainCameraDebug_cameraMask_;
 
     unsigned int uiCamera_entityId_ = static_cast<unsigned int>(-1);
-    static const uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
+    static constexpr uint32_t s_uiCamera_cameraMask_ = 0b10000000000000000000000000000000;
 
     unsigned int uiGameOver_entityId_ = static_cast<unsigned int>(-1);
     unsigned int uiPauseMenu_entityId_ = static_cast<unsigned int>(-1);
@@ -118,8 +115,6 @@ protected:
 
     // -------------------------------------------------------------------------
 
-    bool skipRenderingOnce_ = true;
-
     glm::vec3 mainCamera_lookAtPoint_;
 
     static constexpr float s_mainCamera_initialDistanceAway_ = 960.0f;
@@ -131,7 +126,7 @@ protected:
 
     bool toggleGameOverPause_ = true;
     size_t winningPlayerIndex_ = static_cast<unsigned int>(-1);
-    static constexpr float s_gameOverPauseDelay_s_ = 3.0f;
+    static constexpr float s_gameOverPauseDelay_s_ = 2.0f;
     float gameOverPauseTime_s = 0.0f;
 
     bool paused_ = false;
@@ -164,6 +159,4 @@ protected:
     static constexpr unsigned int s_cursorPress_collisionShapeTag_ = 15;
     static constexpr unsigned int s_cursorRelease_collisionShapeTag_ = 16;
     static constexpr unsigned int s_sharkPathStart_collisionShapeTag_ = 100;
-
-    static constexpr float s_waterHeight = -8.0f;
 };

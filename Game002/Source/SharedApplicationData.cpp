@@ -1,12 +1,64 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-31
+// @DATE 2026-08-05
 
 #include "SharedApplicationData.h"
 
 #include "Window.h"
 
 
+
+void PlayerCreationInfo::DecrementControlScheme(PlayerCreationInfo::ControlScheme& controlScheme)
+{
+    size_t c = static_cast<size_t>(controlScheme);
+    size_t p = (c + s_controlSchemeCount - 1) % s_controlSchemeCount;
+    controlScheme = static_cast<PlayerCreationInfo::ControlScheme>(p);
+}
+
+void PlayerCreationInfo::IncrementControlScheme(PlayerCreationInfo::ControlScheme& controlScheme)
+{
+    size_t c = static_cast<size_t>(controlScheme);
+    size_t n = (c + 1) % s_controlSchemeCount;
+    controlScheme = static_cast<PlayerCreationInfo::ControlScheme>(n);
+}
+
+const char* PlayerCreationInfo::ControlSchemeToString(PlayerCreationInfo::ControlScheme& controlScheme)
+{
+    switch (controlScheme)
+    {
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1:
+        {
+            return "KEYBOARD 1";
+            break;
+        }
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2:
+        {
+            return "KEYBOARD 2";
+            break;
+        }
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1:
+        {
+            return "CONTROLLER 1";
+            break;
+        }
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2:
+        {
+            return "CONTROLLER 2";
+            break;
+        }
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_3:
+        {
+            return "CONTROLLER 3";
+            break;
+        }
+        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_4:
+        {
+            return "CONTROLLER 4";
+            break;
+        }
+    }
+    return "OFF";
+}
 
 PlayerCreationInfo::ControlScheme PlayerCreationInfo::StringToControlScheme(const std::string& str)
 {

@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-07-27
+# @DATE 2026-08-05
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -39,6 +39,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(GAME002_FILES
     "Source/ActorInfo.cpp"
     "Source/ActorInfo.h"
+    "Source/BaseScene001.cpp"
+    "Source/BaseScene001.h"
     "Source/Main.cpp"
     "Source/Scene001.cpp"
     "Source/Scene001.h"

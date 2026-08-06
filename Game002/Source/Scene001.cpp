@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-07-31
+// @DATE 2026-08-05
 
 #include "Scene001.h"
 
@@ -28,6 +28,7 @@
 #include "Resources/shark_front_obj.h"
 #include "Resources/shark_jaw_obj.h"
 #include "Resources/shark_texture_png.h"
+#include "Scene003.h"
 
 #include "Components/Camera.h"
 #include "Components/RenderedModel.h"
@@ -52,7 +53,7 @@
 // public ----------------------------------------------------------------------
 
 Scene001::Scene001(Project001::Application* applicationPtr)
-    : Scene(applicationPtr)
+    : BaseScene001(applicationPtr)
 {
     sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene001Id = GetId();
@@ -82,8 +83,9 @@ void Scene001::HandleEvent(Project001::Event& event)
 
     Project001::DispatchEvent<Project001::KeyEvent>(event, std::bind(&Scene001::ProcessKeyEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::MouseButtonEvent>(event, std::bind(&Scene001::ProcessMouseButtonEvent, this, std::placeholders::_1));
-    Project001::DispatchEvent<Project001::RenderEvent>(event, std::bind(&Scene001::ProcessRenderEvent, this, std::placeholders::_1));
     Project001::DispatchEvent<Project001::UpdateEvent>(event, std::bind(&Scene001::ProcessUpdateEvent, this, std::placeholders::_1));
+
+    BaseScene001::HandleEvent(event);
 }
 
 // protected -------------------------------------------------------------------
@@ -96,7 +98,7 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     ReadConfigFile();
 
-    CreateUiCameraEntity();
+    CreateUiCameraEntity(uiCamera_entityId_, s_uiCamera_cameraMask_, 1000);
     CreateLoadingTextEntity();
 }
 
@@ -105,8 +107,6 @@ void Scene001::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     LOG_INFO("DEINITIALIZING: Scene001:            " << GetId());
 
     // -------------------------------------------------------------------------
-
-    configFileFound_ = false;
 
     GetComponentStoresPtr()->DeleteEntity(uiCamera_entityId_);
     uiCamera_entityId_ = static_cast<unsigned int>(-1);
@@ -123,11 +123,6 @@ void Scene001::ProcessKeyEvent(Project001::KeyEvent& keyEvent)
 void Scene001::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButtonEvent)
 {
     sharedDataPtr_->UpdateMouseButtonPresses(mouseButtonEvent);
-}
-
-void Scene001::ProcessRenderEvent(Project001::RenderEvent& renderEvent)
-{
-    GetRenderSystemPtr()->Render();
 }
 
 void Scene001::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -245,10 +240,19 @@ void Scene001::LoadGeneralResources()
 
 void Scene001::LoadMainMenuResources()
 {
-    sharedDataPtr_->authorText_meshDataPtr = new Project001::MeshData();
-    sharedDataPtr_->introText_meshDataPtr = new Project001::MeshData();
-    sharedDataPtr_->startText_meshDataPtr = new Project001::MeshData();
-    sharedDataPtr_->titleText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuBackground_meshDataPtr = new Project001::MeshData();
+    FAIL_CHECK(Project001::Mesh::Generate2DRectangle(
+        *sharedDataPtr_->uiMenuBackground_meshDataPtr, 192.0f, 192.0f
+    ));
+
+    sharedDataPtr_->uiMenuAuthorText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuConfigFileText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuPlayerText1_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuPlayerText2_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuPlayerText3_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuPlayerText4_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuStartText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuTitleText_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadCursorResources()
@@ -956,10 +960,10 @@ void Scene001::LoadUiResources()
         360.0f, 360.0f
     ));
 
-    sharedDataPtr_->uiPauseTitle_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiPauseTitleText_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiPauseText01_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiPauseText02_meshDataPtr = new Project001::MeshData();
-    sharedDataPtr_->uiGameOverTitle_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiGameOverTitleText_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::FreeResources()
@@ -1007,14 +1011,24 @@ void Scene001::FreeResources()
     sharedDataPtr_->dotted_1_3_textureId = static_cast<unsigned int>(-1);
 
     // Main Menu Resources
-    delete sharedDataPtr_->authorText_meshDataPtr;
-    sharedDataPtr_->authorText_meshDataPtr = nullptr;
-    delete sharedDataPtr_->introText_meshDataPtr;
-    sharedDataPtr_->introText_meshDataPtr = nullptr;
-    delete sharedDataPtr_->startText_meshDataPtr;
-    sharedDataPtr_->startText_meshDataPtr = nullptr;
-    delete sharedDataPtr_->titleText_meshDataPtr;
-    sharedDataPtr_->titleText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuBackground_meshDataPtr;
+    sharedDataPtr_->uiMenuBackground_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuAuthorText_meshDataPtr;
+    sharedDataPtr_->uiMenuAuthorText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuConfigFileText_meshDataPtr;
+    sharedDataPtr_->uiMenuConfigFileText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuPlayerText1_meshDataPtr;
+    sharedDataPtr_->uiMenuPlayerText1_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuPlayerText2_meshDataPtr;
+    sharedDataPtr_->uiMenuPlayerText2_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuPlayerText3_meshDataPtr;
+    sharedDataPtr_->uiMenuPlayerText3_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuPlayerText4_meshDataPtr;
+    sharedDataPtr_->uiMenuPlayerText4_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuStartText_meshDataPtr;
+    sharedDataPtr_->uiMenuStartText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuTitleText_meshDataPtr;
+    sharedDataPtr_->uiMenuTitleText_meshDataPtr = nullptr;
 
     // Cursor Resources
     delete sharedDataPtr_->cursorHandOpen_meshDataPtr;
@@ -1156,23 +1170,24 @@ void Scene001::FreeResources()
     // Ui Resources
     delete sharedDataPtr_->uiPauseBackground_meshDataPtr;
     sharedDataPtr_->uiPauseBackground_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiPauseTitle_meshDataPtr;
-    sharedDataPtr_->uiPauseTitle_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiPauseTitleText_meshDataPtr;
+    sharedDataPtr_->uiPauseTitleText_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiPauseText01_meshDataPtr;
     sharedDataPtr_->uiPauseText01_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiPauseText02_meshDataPtr;
     sharedDataPtr_->uiPauseText02_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiGameOverTitle_meshDataPtr;
-    sharedDataPtr_->uiGameOverTitle_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiGameOverTitleText_meshDataPtr;
+    sharedDataPtr_->uiGameOverTitleText_meshDataPtr = nullptr;
 }
 
 void Scene001::ReadConfigFile()
 {
     std::ifstream inputStream("CoolPenguinSnowball.ini");
 
+    sharedDataPtr_->configFileFound_ = false;
     if (inputStream.is_open())
     {
-        configFileFound_ = true;
+        sharedDataPtr_->configFileFound_ = true;
 
         std::map<std::string, std::map<std::string, std::string>> sections;
         Project001::ReadIniStream(sections, inputStream);
@@ -1644,39 +1659,6 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->killzoneApothem = std::stof(iter2->second);
             }
         }
-    }
-}
-
-void Scene001::CreateUiCameraEntity()
-{
-    GetComponentStoresPtr()->CreateEntity(uiCamera_entityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::Camera>(uiCamera_entityId_));
-
-    Project001::Camera* cameraPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, uiCamera_entityId_));
-    if (cameraPtr != nullptr)
-    {
-        int aspectRatioNumerator;
-        int aspectRatioDenominator;
-        GetWindowPtr()->GetAspectRatio(aspectRatioNumerator, aspectRatioDenominator);
-        if (aspectRatioNumerator > 0 && aspectRatioDenominator > 0)
-        {
-            float aspectRatio = static_cast<float>(aspectRatioNumerator) / static_cast<float>(aspectRatioDenominator);
-            float uiCameraHalfHeight = 320.0f;
-            float uiCameraHalfWidth = aspectRatio * uiCameraHalfHeight;
-            cameraPtr->SetAspectRatio(aspectRatio);
-            cameraPtr->SetTopCutoff(uiCameraHalfHeight);
-            cameraPtr->SetBottomCutoff(-uiCameraHalfHeight);
-            cameraPtr->SetLeftCutoff(-uiCameraHalfWidth);
-            cameraPtr->SetRightCutoff(uiCameraHalfWidth);
-            cameraPtr->SetNearCutoff(-32.0f);
-            cameraPtr->SetFarCutoff(32.0f);
-        }
-        cameraPtr->AddYaw(glm::pi<float>());
-        cameraPtr->SetProjection(Project001::Camera::CameraProjection::CAMERA_PROJECTION_ORTHOGRAPHIC);
-        cameraPtr->SetDepthTestEnabled(false);
-        cameraPtr->SetCameraMask(s_uiCamera_cameraMask_);
-        cameraPtr->SetPriorityValue(1000);
     }
 }
 
