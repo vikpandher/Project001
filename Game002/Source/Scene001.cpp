@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #include "Scene001.h"
 
@@ -253,6 +253,7 @@ void Scene001::LoadMainMenuResources()
     sharedDataPtr_->uiMenuPlayerText4_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiMenuStartText_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiMenuTitleText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuVersionText_meshDataPtr = new Project001::MeshData();
 }
 
 void Scene001::LoadCursorResources()
@@ -1029,6 +1030,8 @@ void Scene001::FreeResources()
     sharedDataPtr_->uiMenuStartText_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiMenuTitleText_meshDataPtr;
     sharedDataPtr_->uiMenuTitleText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuVersionText_meshDataPtr;
+    sharedDataPtr_->uiMenuVersionText_meshDataPtr = nullptr;
 
     // Cursor Resources
     delete sharedDataPtr_->cursorHandOpen_meshDataPtr;
@@ -1210,6 +1213,24 @@ void Scene001::ReadConfigFile()
             {
                 sharedDataPtr_->playerCreationInfos[0].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
+
+            iter2 = iter->second.find("spawnPositionX");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[0].spawnPositionX = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionY");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[0].spawnPositionY = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnRotation");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[0].spawnRotation = std::stof(iter2->second);
+            }
         }
 
         iter = sections.find("Player_2");
@@ -1229,6 +1250,24 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->playerCreationInfos[1].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionX");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[1].spawnPositionX = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionY");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[1].spawnPositionY = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnRotation");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[1].spawnRotation = std::stof(iter2->second);
             }
         }
 
@@ -1250,6 +1289,24 @@ void Scene001::ReadConfigFile()
             {
                 sharedDataPtr_->playerCreationInfos[2].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
             }
+
+            iter2 = iter->second.find("spawnPositionX");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[2].spawnPositionX = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionY");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[2].spawnPositionY = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnRotation");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[2].spawnRotation = std::stof(iter2->second);
+            }
         }
 
         iter = sections.find("Player_4");
@@ -1269,6 +1326,24 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->playerCreationInfos[3].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionX");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[3].spawnPositionX = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnPositionY");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[3].spawnPositionY = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("spawnRotation");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->playerCreationInfos[3].spawnRotation = std::stof(iter2->second);
             }
         }
 
@@ -1641,22 +1716,250 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->groundApothem = std::stof(iter2->second);
             }
 
-            iter2 = iter->second.find("groundApothemShrinkRate");
+            iter2 = iter->second.find("groundApothemShrinkRate_s");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->groundApothemShrinkRate = std::stof(iter2->second);
+                sharedDataPtr_->groundApothemShrinkRate_s = std::stof(iter2->second);
             }
 
-            iter2 = iter->second.find("sharkCircleOffset");
+            iter2 = iter->second.find("sharkPathOffset");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->sharkCircleOffset = std::stof(iter2->second);
+                sharedDataPtr_->sharkPathOffset = std::stof(iter2->second);
             }
 
             iter2 = iter->second.find("killzoneApothem");
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->killzoneApothem = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("coolGlassesPlayerIndex");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->coolGlassesPlayerIndex = static_cast<size_t>(std::stoi(iter2->second));
+            }
+
+            iter2 = iter->second.find("mainCameraInitialDistanceAway");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraInitialDistanceAway = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("mainCameraMinimumPlayerSpread");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraMinimumPlayerSpread = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("mainCameraPlayerToEdgeSpacing");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraPlayerToEdgeSpacing = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("cursorSnowballCreationDelay_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->cursorSnowballCreationDelay_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("cursorSnowballGrowthRate_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->cursorSnowballGrowthRate_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("cursorSnowballThrowSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->cursorSnowballThrowSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinDensity");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinDensity = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinHitHardThreshold");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinHitHardThreshold = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinHitstunCooldownDivisor");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinHitstunCooldownDivisor = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinSnowballCreationDelay_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinSnowballCreationDelay_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinSnowballGrowthRate_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinSnowballGrowthRate_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinSnowballThrowSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinSnowballThrowSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinRegrabDelay_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinRegrabDelay_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinMaxSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinMaxSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinAcceleration_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinAcceleration_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinMaxAngularSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinMaxAngularSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinAngularAcceleration_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinAngularAcceleration_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinAngularFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinAngularFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinHitstunFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinHitstunFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinHitstunAngularFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinHitstunAngularFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkDensity");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkDensity = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkHitHardThreshold");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkHitHardThreshold = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkHitstunCooldownDivisor");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkHitstunCooldownDivisor = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkMaxSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkMaxSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkAcceleration_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkAcceleration_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkMaxAngularSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkMaxAngularSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkAngularAcceleration_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkAngularAcceleration_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkAngularFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkAngularFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkChasingMaxSpeed_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkChasingMaxSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkChasingAcceleration_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkChasingAcceleration_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkHitstunFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkHitstunFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("sharkHitstunAngularFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->sharkHitstunAngularFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowballDensity");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->snowballDensity = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowballFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->snowballFriction_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("snowballAngularFriction_s");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->snowballAngularFriction_s = std::stof(iter2->second);
             }
         }
     }

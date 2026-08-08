@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #pragma once
 
@@ -29,7 +29,6 @@ struct CursorInfo
 
     State state = State::STATE_OPEN;
     float makeSnowballCountDown_s = 0.0f;
-    static constexpr float s_makeSnowballTime_s = 0.5f;
 
     State animationState = State::STATE_OPEN;
     float animationStateCountDown_s = 0.0f;
@@ -89,9 +88,7 @@ struct PenguinInfo
 
     State state = State::STATE_STANDING;
     float makeSnowballCountDown_s = 0.0f;
-    static constexpr float s_makeSnowballTime_s = 0.5f;
     float regrabSnowballCoolDown_s = 0.0f;
-    static constexpr float s_regrabSnowballTime_s = 0.5f;
     float hitstunCoolDown_s = 0.0f;
 
     size_t glassesType = 0;

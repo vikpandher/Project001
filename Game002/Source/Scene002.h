@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #pragma once
 
@@ -77,5 +77,5 @@ protected:
 
     size_t menuCursorPosition_ = 4;
     static constexpr float s_menuAxisMoveDelay_s_ = 0.25f;
-    float menuAxisMoveTime_s = 0.0f;
+    float menuAxisMoveTimes_s[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #pragma once
 
@@ -46,6 +46,10 @@ struct PlayerCreationInfo
 
     ControlScheme controlScheme = ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
 
+    float spawnPositionX = 0.0f;
+    float spawnPositionY = 0.0f;
+    float spawnRotation = 0.0f;
+
     bool dead = false;
 
     float axisDeadzone = 0.2f;
@@ -76,10 +80,10 @@ struct SharedApplicationData
 
     static constexpr size_t s_player_count = 4;
     PlayerCreationInfo playerCreationInfos[s_player_count] = {
-        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1},
-        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2},
-        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1},
-        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2}
+        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1, -64.0f, 64.0f, -0.75f * glm::pi<float>()},
+        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2, 64.0f, 64.0f, -1.25f * glm::pi<float>()},
+        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1, 64.0f, -64.0f, -1.75f * glm::pi<float>()},
+        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2, -64.0f, -64.0f, -2.25f * glm::pi<float>()}
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
@@ -221,9 +225,52 @@ struct SharedApplicationData
     bool cursorEnabled = false;
     bool invisiblePauseScreen = false;
     float groundApothem = 512.0f;
-    float groundApothemShrinkRate = 8.0f;
-    float sharkCircleOffset = 256.0f;
+    float groundApothemShrinkRate_s = 8.0f;
+    float sharkPathOffset = 256.0f;
     float killzoneApothem = 1024.0f;
+    size_t coolGlassesPlayerIndex = 4;
+
+    float mainCameraInitialDistanceAway = 960.0f;
+    float mainCameraMinimumPlayerSpread = 240.0f;
+    float mainCameraPlayerToEdgeSpacing = 128.0f;
+
+    float cursorSnowballCreationDelay_s = 0.5f;
+    float cursorSnowballGrowthRate_s = 6.0f;
+    float cursorSnowballThrowSpeed_s = 256.0f;
+
+    float penguinDensity = 1.0f;
+    float penguinHitHardThreshold = 128.0f;
+    float penguinHitstunCooldownDivisor = 1024.0f;
+    float penguinSnowballCreationDelay_s = 0.5f;
+    float penguinSnowballGrowthRate_s = 4.0f;
+    float penguinSnowballThrowSpeed_s = 256.0f;
+    float penguinRegrabDelay_s = 0.5f;
+    float penguinMaxSpeed_s = 128.0f;
+    float penguinAcceleration_s = 256.0f;
+    float penguinFriction_s = 192.0f;
+    float penguinMaxAngularSpeed_s = glm::pi<float>() * 8.0f;
+    float penguinAngularAcceleration_s = glm::pi<float>() * 16.0f;
+    float penguinAngularFriction_s = glm::pi<float>() * 32.0f;
+    float penguinHitstunFriction_s = 16.0f;
+    float penguinHitstunAngularFriction_s = glm::pi<float>();
+
+    float sharkDensity = 0.25f;
+    float sharkHitHardThreshold = 128.0f;
+    float sharkHitstunCooldownDivisor = 1024.0f;
+    float sharkMaxSpeed_s = 128.0f;
+    float sharkAcceleration_s = 256.0f;
+    float sharkFriction_s = 192.0f;
+    float sharkMaxAngularSpeed_s = glm::pi<float>();
+    float sharkAngularAcceleration_s = glm::pi<float>() * 2.0f;
+    float sharkAngularFriction_s = glm::pi<float>() * 8.0f;
+    float sharkChasingMaxSpeed_s = 256.0f;
+    float sharkChasingAcceleration_s = 512.0f;
+    float sharkHitstunFriction_s = 16.0f;
+    float sharkHitstunAngularFriction_s = glm::pi<float>();
+
+    float snowballDensity = 1.0f;
+    float snowballFriction_s = 16.0f;
+    float snowballAngularFriction_s = glm::pi<float>();
 
     static constexpr float s_quadtreeOffset = 128.0f;
     static constexpr unsigned int s_randomNumberSeed = 777;
@@ -231,14 +278,6 @@ struct SharedApplicationData
     static constexpr float s_penguin_collisionRadius = 12.0f;
     static constexpr float s_penguin_grabOffset = 22.0f;
     static constexpr float s_penguin_grabRadius = 18.0f;
-    static constexpr float s_penguin_throwSpeed_s = 256.0f;
-
-    static constexpr float s_penguin_snowball_growthRate_s = 4.0f;
-    static constexpr float s_cursor_snowball_growthRate_s = 6.0f;
-
-    static constexpr float s_snowball_landFriction = 16.0f;
-    static constexpr float s_snowball_waterFriction = 32.0f;
-    static constexpr float s_snowball_angularFriction = glm::pi<float>();
 
     static constexpr float s_waterHeight = -8.0f;
 
@@ -286,6 +325,7 @@ struct SharedApplicationData
     Project001::MeshData* uiMenuPlayerText4_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuStartText_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuTitleText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuVersionText_meshDataPtr = nullptr;
 
     // Cursor Resources
     Project001::MeshData* cursorHandOpen_meshDataPtr = nullptr;

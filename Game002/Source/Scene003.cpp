@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #include "Scene003.h"
 
@@ -8,6 +8,7 @@
 #include "Components/CollisionBody2D.h"
 #include "Components/LightSource.h"
 #include "Components/RenderedModel.h"
+#include "Utilities/FindUtility.h"
 #include "Utilities/FontUtility.h"
 #include "Utilities/MathUtility.h"
 #include "Utilities/MeshUtility.h"
@@ -59,6 +60,7 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     randomNumberEngine_.seed(sharedDataPtr_->s_randomNumberSeed);
 
+    mainCamera_distanceAway_ = sharedDataPtr_->mainCameraInitialDistanceAway;
     CreateMainCameraEntity(mainCamera_entityId_, s_mainCamera_cameraMask_, 0);
     CreateMainCameraEntity(mainCameraDebug_entityId_, s_mainCameraDebug_cameraMask_, 100);
 
@@ -80,20 +82,17 @@ void Scene003::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     CreateStageEntity();
     CreateStageLightEntity();
 
-    std::vector<glm::vec2> spawnPoints;
-    spawnPoints.reserve(4);
-    spawnPoints.emplace_back(-96.0f, 0.0f);
-    spawnPoints.emplace_back(-32.0f, 0.0f);
-    spawnPoints.emplace_back(32.0f, 0.0f);
-    spawnPoints.emplace_back(96.0f, 0.0f);
-
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
         PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
         if (playerCreationInfo.turnedOn)
         {
             playerCreationInfo.dead = false;
-            CreatePenguinEntity(player_entityIds_[i], playerCreationInfo.playerNumber, spawnPoints[i], glm::pi<float>());
+            CreatePenguinEntity(
+                player_entityIds_[i],
+                playerCreationInfo.playerNumber,
+                glm::vec2(playerCreationInfo.spawnPositionX, playerCreationInfo.spawnPositionY),
+                playerCreationInfo.spawnRotation);
         }
     }
 
@@ -157,7 +156,7 @@ void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
     skipRenderingOnce_ = true;
 
     mainCamera_lookAtPoint_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    mainCamera_distanceAway_ = s_mainCamera_initialDistanceAway_;
+    mainCamera_distanceAway_ = 0.0f;
     mainCamera_lockedToPlayers_ = true;
     debugCamera_turnedOn_ = false;
 
@@ -670,7 +669,7 @@ void Scene003::CreateStageEntity()
     if (stageInfoPtr != nullptr && renderedModelPtr != nullptr)
     {
         stageInfoPtr->groundApothem = sharedDataPtr_->groundApothem;
-        stageInfoPtr->groundApothemRate_s = sharedDataPtr_->groundApothemShrinkRate;
+        stageInfoPtr->groundApothemRate_s = sharedDataPtr_->groundApothemShrinkRate_s;
 
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
@@ -791,35 +790,36 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
         unsigned int textureId = static_cast<unsigned int>(-1);
         if (penguinInfoPtr->playerNumber == 0)
         {
-            penguinInfoPtr->glassesType = 0;
-
             collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 1)
         {
-            penguinInfoPtr->glassesType = 1;
-
             collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v2_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 2)
         {
-            penguinInfoPtr->glassesType = 1;
-
             collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v3_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 3)
         {
-            penguinInfoPtr->glassesType = 1;
-
             collisionBodyPtr->SetCollisionGroupMask(s_player_collisionGroupMasks_[penguinInfoPtr->playerNumber]);
 
             textureId = sharedDataPtr_->penguin_v4_textureId;
+        }
+
+        if (penguinInfoPtr->playerNumber == sharedDataPtr_->coolGlassesPlayerIndex)
+        {
+            penguinInfoPtr->glassesType = 0;
+        }
+        else
+        {
+            penguinInfoPtr->glassesType = 1;
         }
 
         renderedModelPtr->SetCameraMask(s_mainCameraGroup_cameraMask_);
@@ -990,6 +990,7 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
 
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetRotation(rotation);
+        collisionBodyPtr->SetDensity(sharedDataPtr_->penguinDensity);
 
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
         collisionPoints.resize(PenguinInfo::s_collisionPointCount);
@@ -1170,7 +1171,7 @@ void Scene003::CreateSharkEntity(unsigned int& entityId, const glm::vec2& positi
 
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetRotation(rotation);
-        collisionBodyPtr->SetDensity(0.4f);
+        collisionBodyPtr->SetDensity(sharedDataPtr_->sharkDensity);
 
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
         collisionCircles.resize(SharkInfo::s_collisionCircleCount);
@@ -1346,6 +1347,7 @@ void Scene003::CreateSnowballEntity(unsigned int& entityId, const glm::vec2& pos
 
         collisionBodyPtr->SetPosition(position);
         collisionBodyPtr->SetVelocity(velocity);
+        collisionBodyPtr->SetDensity(sharedDataPtr_->snowballDensity);
 
         std::vector<Project001::CollisionCircle2D>& collisionCircles = collisionBodyPtr->GetCollisionCircles();
         collisionCircles.resize(SnowballInfo::s_collisionCircleCount);
@@ -1575,10 +1577,10 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 float angleB = Project001::Math::Get3DVectorAngle(forwardHorizontalVector, forwardVector);
                 float angleC = glm::pi<float>() - angleA - angleB;
 
-                float sideA = playerPositionBoundingRaidus + s_mainCamera_playerToEdgeSpacing_;
-                if (sideA < s_mainCamera_minimumPlayerSpread_)
+                float sideA = playerPositionBoundingRaidus + sharedDataPtr_->mainCameraPlayerToEdgeSpacing;
+                if (sideA < sharedDataPtr_->mainCameraMinimumPlayerSpread)
                 {
-                    sideA = s_mainCamera_minimumPlayerSpread_;
+                    sideA = sharedDataPtr_->mainCameraMinimumPlayerSpread;
                 }
                 float sideC = sideA * sin(angleC) / sin(angleA);
 
@@ -1612,7 +1614,7 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 mainCamera_lookAtPoint_.y += lookatPoint_to_centerPlayerPosition.y;
                 mainCamera_lookAtPoint_.z = 0.0f;
 
-                float cameraDistanceAwayDifference = s_mainCamera_initialDistanceAway_ - mainCamera_distanceAway_;
+                float cameraDistanceAwayDifference = sharedDataPtr_->mainCameraInitialDistanceAway - mainCamera_distanceAway_;
                 float cameraDistanceAwayMagnitude = glm::abs(cameraDistanceAwayDifference);
 
                 constexpr float cameraZoomSpeed = 64.0f;
@@ -1726,6 +1728,8 @@ void Scene003::UpdateUiGameOverTextEntity(float timestep_s)
     {
         // Game Over
 
+        sharedDataPtr_->coolGlassesPlayerIndex = winningPlayerIndex_;
+
         UpdateUiGameOverTextMeshes();
 
         if (toggleGameOverPause_ && gameOverPauseTime_s > s_gameOverPauseDelay_s_)
@@ -1810,9 +1814,23 @@ void Scene003::UpdateUiGameOverTextMeshes()
 
 void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 {
+    std::vector<PlayerCreationInfo::ControlScheme> usedControlSchemes;
+
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
         const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+
+        const PlayerCreationInfo::ControlScheme& currentControlScheme = playerInfoPtr->controlScheme;
+
+        if (Project001::Find::Contains(usedControlSchemes, currentControlScheme))
+        {
+            continue; // avoid the duplication of presses when two players have the same control scheme
+        }
+        else
+        {
+            usedControlSchemes.push_back(currentControlScheme);
+        }
+
         if (playerInfoPtr->turnedOn)
         {
             if (playerInfoPtr->start_pressCount == 1)
@@ -2270,7 +2288,7 @@ void Scene003::UpdateCursorEntity(float timestep_s)
             {
                 if (grabPressed)
                 {
-                    cursorInfoPtr->makeSnowballCountDown_s = CursorInfo::s_makeSnowballTime_s;
+                    cursorInfoPtr->makeSnowballCountDown_s = sharedDataPtr_->cursorSnowballCreationDelay_s;
                     cursorInfoPtr->state = CursorInfo::State::STATE_MAKING;
                 }
             }
@@ -2404,7 +2422,7 @@ void Scene003::UpdateCursorEntity(float timestep_s)
 
                 snowballCollisionBodyPtr->SetVelocity(
                     snowballCollisionBodyPtr->GetVelocity() +
-                    collisionRay.direction * SharedApplicationData::s_penguin_throwSpeed_s
+                    collisionRay.direction * sharedDataPtr_->cursorSnowballThrowSpeed_s
                 );
             }
             break;
@@ -2422,7 +2440,7 @@ void Scene003::UpdateCursorEntity(float timestep_s)
             if (grabHeld && !cursorInfoPtr->hoveringOverAlreadyGrabbedEntity &&
                 snowballInfoPtr->onLand && cursorWorldMoveDistance > 0.0f)
             {
-                snowballInfoPtr->radius += sharedDataPtr_->s_cursor_snowball_growthRate_s * timestep_s;
+                snowballInfoPtr->radius += sharedDataPtr_->cursorSnowballGrowthRate_s * timestep_s;
 
                 if (snowballInfoPtr->radius > SnowballInfo::s_maxRadius)
                 {
@@ -2712,12 +2730,12 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         // }
 
         bool hitHard = false;
-        if (impulseMagntidueSum > 128.0f)
+        if (impulseMagntidueSum > sharedDataPtr_->penguinHitHardThreshold)
         {
             hitHard = true;
         }
 
-        float potentialHitstunCoolDown_s = impulseMagntidueSum / 1024.0f;
+        float potentialHitstunCoolDown_s = impulseMagntidueSum / sharedDataPtr_->penguinHitstunCooldownDivisor;
 
         // if (snowballSpawnPointOnLand)
         // {
@@ -2834,7 +2852,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 {
                     if (grabableInReach && penguinInfoPtr->regrabSnowballCoolDown_s <= 0.0f)
                     {
-                        penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                        penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                         snowballAciton = SnowballAction::SNOWBALL_ACTION_GRAB;
 
                         if (moving)
@@ -2848,7 +2866,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                     }
                     else if (snowballSpawnPointOnLand) // && !grabableInReach
                     {
-                        penguinInfoPtr->makeSnowballCountDown_s = PenguinInfo::s_makeSnowballTime_s;
+                        penguinInfoPtr->makeSnowballCountDown_s = sharedDataPtr_->penguinSnowballCreationDelay_s;
                         penguinInfoPtr->state = PenguinInfo::State::STATE_MAKING_SNOWBALL;
                     }
                 }
@@ -2945,7 +2963,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 penguinInfoPtr->state = PenguinInfo::State::STATE_HITSTUN;
                 penguinInfoPtr->hitstunCoolDown_s = potentialHitstunCoolDown_s;
         
-                penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
 
                 break;
@@ -2955,7 +2973,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             {
                 if (dropPressed)
                 {
-                    penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                    penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                     snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
 
                     if (moving)
@@ -2969,7 +2987,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 }
                 else if (grabPressed)
                 {
-                    penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                    penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                     snowballAciton = SnowballAction::SNOWBALL_ACTION_THROW;
 
                     if (moving)
@@ -3004,7 +3022,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                     }
                     else // !snowballGrabbable
                     {
-                        penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                        penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                         snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
         
                         if (moving)
@@ -3020,7 +3038,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             }
             else // !penguinOnLand
             {
-                penguinInfoPtr->regrabSnowballCoolDown_s = PenguinInfo::s_regrabSnowballTime_s;
+                penguinInfoPtr->regrabSnowballCoolDown_s = sharedDataPtr_->penguinRegrabDelay_s;
                 snowballAciton = SnowballAction::SNOWBALL_ACTION_DROP;
         
                 if (moving)
@@ -3054,13 +3072,13 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         // Applying physics
         // ---------------------------------------------------------------------
 
-        float maxSpeed = 128.0f;
-        float acceleration = 256.0f;
-        float friction = 192.0f;
+        float maxSpeed_s = sharedDataPtr_->penguinMaxSpeed_s;
+        float acceleration_s = sharedDataPtr_->penguinAcceleration_s;
+        float friction_s = sharedDataPtr_->penguinFriction_s;
 
-        float maxAngularSpeed = glm::pi<float>() * 8.0f;
-        float angularAcceleration = glm::pi<float>() * 16.0f;
-        float angularFriction = glm::pi<float>() * 32.0f;
+        float maxAngularSpeed_s = sharedDataPtr_->penguinMaxAngularSpeed_s;;
+        float angularAcceleration_s = sharedDataPtr_->penguinAngularAcceleration_s;
+        float angularFriction_s = sharedDataPtr_->penguinAngularFriction_s;
 
         if (penguinInfoPtr->snowball_entityId != static_cast<unsigned int>(-1))
         {
@@ -3075,28 +3093,19 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
             float penguinMassRatio = penguinMass / (penguinMass + 0.25f * snowballMass);
 
-            maxSpeed = 0.8f * maxSpeed * penguinMassRatio;
-            acceleration = 0.8f * acceleration * penguinMassRatio;
-            friction = 0.8f * friction * penguinMassRatio;
+            maxSpeed_s = 0.8f * maxSpeed_s * penguinMassRatio;
+            acceleration_s = 0.8f * acceleration_s * penguinMassRatio;
+            friction_s = 0.8f * friction_s * penguinMassRatio;
 
-            maxAngularSpeed = 0.4f * maxAngularSpeed * penguinMassRatio * penguinMassRatio;
-            angularAcceleration = 0.4f * angularAcceleration * penguinMassRatio * penguinMassRatio;
-            angularFriction = angularFriction * penguinMassRatio * penguinMassRatio;
+            maxAngularSpeed_s = 0.4f * maxAngularSpeed_s * penguinMassRatio * penguinMassRatio;
+            angularAcceleration_s = 0.4f * angularAcceleration_s * penguinMassRatio * penguinMassRatio;
+            angularFriction_s = angularFriction_s * penguinMassRatio * penguinMassRatio;
         }
 
         if (penguinInfoPtr->state == PenguinInfo::State::STATE_HITSTUN)
         {
-            if (penguinInfoPtr->onLand)
-            {
-                friction = SharedApplicationData::s_snowball_landFriction;
-            }
-            else
-            {
-                friction = SharedApplicationData::s_snowball_waterFriction;
-            }
-
-            angularAcceleration = 0.0f;
-            angularFriction = SharedApplicationData::s_snowball_angularFriction;
+            friction_s = sharedDataPtr_->penguinHitstunFriction_s;
+            angularFriction_s = sharedDataPtr_->penguinHitstunAngularFriction_s;
         }
 
         glm::vec2 penguinCollisionBodyDirection = penguinCollisionBodyPtr->GetForwardVector();
@@ -3124,13 +3133,13 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         if (turnAngleDirection == angularVelocityDirection || angularVelocityDirection == 0.0f) // apply angular acceleration
         {
-            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed;
+            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed_s;
             float neededAngularVelocity = targetAngularVelocity - angularVelocity;
             float neededAngularVelocityMagnitude = std::abs(neededAngularVelocity);
             if (neededAngularVelocityMagnitude > 0.0f)
             {
                 float neededAngularVelocityDirection = glm::sign(neededAngularVelocity);
-                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration * timestep_s;
+                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration_s * timestep_s;
                 float angularAccelerationStepMagnitude = glm::abs(angularAccelerationStep);
                 if (angularAccelerationStepMagnitude > neededAngularVelocityMagnitude)
                 {
@@ -3152,8 +3161,8 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             float angularVelocityMagnitude = glm::abs(angularVelocity);
             if (angularVelocityMagnitude > 0.0f)
             {
-                float angularDecelerationStep = angularFriction * timestep_s;
-                float angularDecelerationStepMagnitude = std::abs(angularFriction);
+                float angularDecelerationStep = angularFriction_s * timestep_s;
+                float angularDecelerationStepMagnitude = std::abs(angularFriction_s);
                 if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
                 {
                     penguinCollisionBodyPtr->SetAngularVelocity(0.0f);
@@ -3167,13 +3176,13 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f) // apply acceleration
         {
-            glm::vec2 targetVelocity = moveDirection * maxSpeed;
+            glm::vec2 targetVelocity = moveDirection * maxSpeed_s;
             glm::vec2 neededVelocity = targetVelocity - velocity;
             float neededVelocityMagnitude = glm::length(neededVelocity);
             if (neededVelocityMagnitude > 0.0f)
             {
                 glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
-                glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
+                glm::vec2 accelerationStep = neededVelocityDirection * acceleration_s * timestep_s;
                 float accelerationStepMagnitude = glm::length(accelerationStep);
                 if (accelerationStepMagnitude > neededVelocityMagnitude)
                 {
@@ -3186,7 +3195,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         {
             if (velocityMagnitude > 0.0f)
             {
-                float decelerationStep = friction * timestep_s;
+                float decelerationStep = friction_s * timestep_s;
                 float decelerationStepMagnitude = std::abs(decelerationStep);
                 if (velocityMagnitude < decelerationStepMagnitude)
                 {
@@ -3281,7 +3290,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
                 // if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f)
                 snowballCollisionBodyPtr->SetVelocity(
                     snowballCollisionBodyPtr->GetVelocity() +
-                    penguinCollisionBodyDirection * SharedApplicationData::s_penguin_throwSpeed_s
+                    penguinCollisionBodyDirection * sharedDataPtr_->penguinSnowballThrowSpeed_s
                 );
             }
             break;
@@ -3304,8 +3313,8 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             // Snowball attraction logic:
             // -----------------------------------------------------------------
 
-            constexpr float penguinRotationSpeed = glm::pi<float>() * 16.0f;
-            const float penguinRotationStep = penguinRotationSpeed * timestep_s;
+            constexpr float penguinRotationSpeed_s = glm::pi<float>() * 16.0f;
+            const float penguinRotationStep = penguinRotationSpeed_s * timestep_s;
 
             glm::vec2 penguinToSnowball = snowballPosition - penguinPosition;
             float penguinToSnowballMagnitude = glm::length(penguinToSnowball);
@@ -3348,7 +3357,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
             if (moveMagnitude > 0.0f)
             {
-                snowballInfoPtr->radius += sharedDataPtr_->s_penguin_snowball_growthRate_s * timestep_s;
+                snowballInfoPtr->radius += sharedDataPtr_->penguinSnowballGrowthRate_s * timestep_s;
 
                 if (snowballInfoPtr->radius > SnowballInfo::s_maxRadius)
                 {
@@ -3374,7 +3383,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
         );
 
         Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;
-        FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, entityId));
+        GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(penguinCollisionBodyPtr, entityId);
         SnowballInfo* snowballInfoPtr = nullptr;
         GetComponentStoresPtr()->GetComponent<SnowballInfo>(snowballInfoPtr, penguinInfoPtr->snowball_entityId);
         Project001::CollisionBody2D* snowballCollisionBodyPtr = nullptr;
@@ -3456,12 +3465,12 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         // }
 
         bool hitHard = false;
-        if (impulseMagntidueSum > 128.0f)
+        if (impulseMagntidueSum > sharedDataPtr_->sharkHitHardThreshold)
         {
             hitHard = true;
         }
 
-        float potentialHitstunCoolDown_s = impulseMagntidueSum / 256.0f;
+        float potentialHitstunCoolDown_s = impulseMagntidueSum / sharedDataPtr_->sharkHitstunCooldownDivisor;
 
         // Gathering input
         // ---------------------------------------------------------------------
@@ -3610,32 +3619,23 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         // Apply physics
         // ---------------------------------------------------------------------
 
-        float maxSpeed = 128.0f;
-        float acceleration = 256.0f;
-        float friction = 192.0f;
+        float maxSpeed_s = sharedDataPtr_->sharkMaxSpeed_s;
+        float acceleration_s = sharedDataPtr_->sharkAcceleration_s;
+        float friction_s = sharedDataPtr_->sharkFriction_s;
 
-        constexpr float maxAngularSpeed = glm::pi<float>() * 2.0f;
-        float angularAcceleration = glm::pi<float>() * 4.0f;
-        float angularFriction = glm::pi<float>() * 16.0f;
+        float maxAngularSpeed_s = sharedDataPtr_->sharkMaxAngularSpeed_s;
+        float angularAcceleration_s = sharedDataPtr_->sharkMaxAngularSpeed_s;
+        float angularFriction_s = sharedDataPtr_->sharkAngularFriction_s;
 
         if (sharkInfoPtr->state == SharkInfo::State::STATE_CHASING)
         {
-            maxSpeed = 256.0f;
-            acceleration = 512.0f;
+            maxSpeed_s = sharedDataPtr_->sharkChasingMaxSpeed_s;
+            acceleration_s = sharedDataPtr_->sharkChasingAcceleration_s;
         }
         else if (sharkInfoPtr->state == SharkInfo::State::STATE_HITSTUN)
         {
-            if (sharkInfoPtr->onLand)
-            {
-                friction = SharedApplicationData::s_snowball_landFriction;
-            }
-            else
-            {
-                friction = SharedApplicationData::s_snowball_waterFriction;
-            }
-
-            angularAcceleration = 0.0f;
-            angularFriction = SharedApplicationData::s_snowball_angularFriction;
+            friction_s = sharedDataPtr_->sharkHitstunFriction_s;
+            angularFriction_s = sharedDataPtr_->sharkHitstunAngularFriction_s;
         }
 
         const glm::vec2& sharkCollisionBodyDirection = sharkCollisionBodyPtr->GetForwardVector();
@@ -3663,13 +3663,13 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
 
         if (turnAngleDirection == angularVelocityDirection || angularVelocityDirection == 0.0f) // apply angular acceleration
         {
-            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed;
+            float targetAngularVelocity = turnAngleDirection * maxAngularSpeed_s;
             float neededAngularVelocity = targetAngularVelocity - angularVelocity;
             float neededAngularVelocityMagnitude = std::abs(neededAngularVelocity);
             if (neededAngularVelocityMagnitude > 0.0f)
             {
                 float neededAngularVelocityDirection = glm::sign(neededAngularVelocity);
-                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration * timestep_s;
+                float angularAccelerationStep = neededAngularVelocityDirection * angularAcceleration_s * timestep_s;
                 float angularAccelerationStepMagnitude = glm::abs(angularAccelerationStep);
                 if (angularAccelerationStepMagnitude > neededAngularVelocityMagnitude)
                 {
@@ -3691,8 +3691,8 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
             float angularVelocityMagnitude = glm::abs(angularVelocity);
             if (angularVelocityMagnitude > 0.0f)
             {
-                float angularDecelerationStep = angularFriction * timestep_s;
-                float angularDecelerationStepMagnitude = std::abs(angularFriction);
+                float angularDecelerationStep = angularFriction_s * timestep_s;
+                float angularDecelerationStepMagnitude = std::abs(angularFriction_s);
                 if (angularVelocityMagnitude < angularDecelerationStepMagnitude)
                 {
                     sharkCollisionBodyPtr->SetAngularVelocity(0.0f);
@@ -3706,13 +3706,13 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
 
         if (glm::abs(turnAngle) < turnAngleMovementThreshold && moveMagnitude > 0.0f) // apply acceleration
         {
-            glm::vec2 targetVelocity = moveDirection * maxSpeed;
+            glm::vec2 targetVelocity = moveDirection * maxSpeed_s;
             glm::vec2 neededVelocity = targetVelocity - velocity;
             float neededVelocityMagnitude = glm::length(neededVelocity);
             if (neededVelocityMagnitude > 0.0f)
             {
                 glm::vec2 neededVelocityDirection = neededVelocity / neededVelocityMagnitude;
-                glm::vec2 accelerationStep = neededVelocityDirection * acceleration * timestep_s;
+                glm::vec2 accelerationStep = neededVelocityDirection * acceleration_s * timestep_s;
                 float accelerationStepMagnitude = glm::length(accelerationStep);
                 if (accelerationStepMagnitude > neededVelocityMagnitude)
                 {
@@ -3725,7 +3725,7 @@ void Scene003::UpdateSharkEntity(unsigned int& entityId, float timestep_s)
         {
             if (velocityMagnitude > 0.0f)
             {
-                float decelerationStep = friction * timestep_s;
+                float decelerationStep = friction_s * timestep_s;
                 float decelerationStepMagnitude = std::abs(decelerationStep);
                 if (velocityMagnitude < decelerationStepMagnitude)
                 {
@@ -3761,7 +3761,7 @@ void Scene003::UpdateSharkPathEntity()
     {
         std::vector<Project001::CollisionPoint2D>& collisionPoints = collisionBodyPtr->GetCollisionPoints();
 
-        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundApothem + sharedDataPtr_->sharkCircleOffset);
+        glm::vec2 pathOffsetVector(0.0f, stageInfoPtr->groundApothem + sharedDataPtr_->sharkPathOffset);
         pathOffsetVector = Project001::Math::Rotate2DVector(pathOffsetVector, glm::pi<float>() / -8.0f);
 
         for (size_t i = 0; i < SharkPathInfo::s_collisionPointCount; ++i)
@@ -3811,11 +3811,7 @@ void Scene003::UpdateSnowballEntities(float timestep_s)
                 impulseMagntidueSum += glm::length(snowballCollisionImpulseData.impulse);
             }
 
-            float friction = SharedApplicationData::s_snowball_landFriction;
-            if (!snowballInfo.onLand)
-            {
-                friction = SharedApplicationData::s_snowball_waterFriction;
-            }
+            float friction_s = sharedDataPtr_->snowballFriction_s;
 
             const glm::vec2& velocity = snowballCollisionBodyPtr->GetVelocity();
             float velocityMagnitude = glm::length(velocity);
@@ -3823,7 +3819,7 @@ void Scene003::UpdateSnowballEntities(float timestep_s)
             {
                 glm::vec2 velocityDirection = velocity / velocityMagnitude;
 
-                float decelerationStep = friction * timestep_s;
+                float decelerationStep = friction_s * timestep_s;
                 float decelerationStepMagnitude = std::abs(decelerationStep);
                 if (velocityMagnitude < decelerationStepMagnitude)
                 {
@@ -3835,7 +3831,7 @@ void Scene003::UpdateSnowballEntities(float timestep_s)
                 }
             }
 
-            float angularFriction = SharedApplicationData::s_snowball_angularFriction;
+            float angularFriction = sharedDataPtr_->snowballAngularFriction_s;
 
             const float& angularVelocity = snowballCollisionBodyPtr->GetAngularVelocity();
             float angularVelocityMagnitude = glm::abs(angularVelocity);

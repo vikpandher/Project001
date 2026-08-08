@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-07
 
 #include "Scene002.h"
 
@@ -10,6 +10,7 @@
 #include "Components/LightSource.h"
 #include "Components/RenderedModel.h"
 #include "ComponentStores.h"
+#include "Utilities/FindUtility.h"
 #include "Utilities/FontUtility.h"
 #include "Logger.h"
 #include "Window.h"
@@ -181,7 +182,7 @@ void Scene002::CreateMenuEntity()
     {
         renderedModelPtr->SetCameraMask(s_uiCamera_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(9);
+        renderedMeshes.resize(10);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[0];
@@ -293,6 +294,20 @@ void Scene002::CreateMenuEntity()
             mesh.SetRenderPriorityOverride(1);
 
             mesh.SetPositionX(-480.0f + 8.0f);
+            mesh.SetPositionY(320.0f - 8.0f - 16.0f);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[9];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuVersionText_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(1);
+
+            mesh.SetPositionX(-480.0f + 8.0f);
             mesh.SetPositionY(-320.0f + 8.0f);
         }
     }
@@ -316,27 +331,28 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber)
         unsigned int textureId = static_cast<unsigned int>(-1);
         if (penguinInfoPtr->playerNumber == 0)
         {
-            penguinInfoPtr->glassesType = 0;
-
             textureId = sharedDataPtr_->penguin_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 1)
         {
-            penguinInfoPtr->glassesType = 1;
-
             textureId = sharedDataPtr_->penguin_v2_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 2)
         {
-            penguinInfoPtr->glassesType = 1;
-
             textureId = sharedDataPtr_->penguin_v3_textureId;
         }
         else if (penguinInfoPtr->playerNumber == 3)
         {
-            penguinInfoPtr->glassesType = 1;
-
             textureId = sharedDataPtr_->penguin_v4_textureId;
+        }
+
+        if (penguinInfoPtr->playerNumber == sharedDataPtr_->coolGlassesPlayerIndex)
+        {
+            penguinInfoPtr->glassesType = 0;
+        }
+        else
+        {
+            penguinInfoPtr->glassesType = 1;
         }
 
         renderedModelPtr->SetCameraMask(s_mainCamera_cameraMask_);
@@ -490,9 +506,22 @@ void Scene002::CreateSharkEntity(unsigned int& entityId)
 
 void Scene002::UpdateMenuTextEntity(float timestep_s, bool& quit)
 {
+    std::vector<PlayerCreationInfo::ControlScheme> usedControlSchemes;
+
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
         PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+
+        const PlayerCreationInfo::ControlScheme& currentControlScheme = playerInfoPtr->controlScheme;
+
+        if (Project001::Find::Contains(usedControlSchemes, currentControlScheme))
+        {
+            continue; // avoid the duplication of presses when two players have the same control scheme
+        }
+        else
+        {
+            usedControlSchemes.push_back(currentControlScheme);
+        }
 
         if (playerInfoPtr->grab_pressCount == 1)
         {
@@ -528,31 +557,31 @@ void Scene002::UpdateMenuTextEntity(float timestep_s, bool& quit)
             moveDirection.y -= 1.0f;
         }
 
-        if (menuAxisMoveTime_s > 0.0f)
+        if (menuAxisMoveTimes_s[i] > 0.0f)
         {
             if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
                 glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
             {
-                menuAxisMoveTime_s = 0.0f;
+                menuAxisMoveTimes_s[i] = 0.0f;
             }
             else
             {
-                menuAxisMoveTime_s -= timestep_s;
+                menuAxisMoveTimes_s[i] -= timestep_s;
             }
         }
         else
         {
-            menuAxisMoveTime_s = 0.0f;
+            menuAxisMoveTimes_s[i] = 0.0f;
 
             if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
             {
                 moveDirection.x += playerInfoPtr->leftRightAxisValue;
-                menuAxisMoveTime_s += s_menuAxisMoveDelay_s_;
+                menuAxisMoveTimes_s[i] += s_menuAxisMoveDelay_s_;
             }
             if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
             {
                 moveDirection.y += playerInfoPtr->upDownAxisValue;
-                menuAxisMoveTime_s += s_menuAxisMoveDelay_s_;
+                menuAxisMoveTimes_s[i] += s_menuAxisMoveDelay_s_;
             }
 
         }
@@ -749,15 +778,15 @@ void Scene002::UpdateMenuTextMeshes()
 
     sharedDataPtr_->uiMenuConfigFileText_meshDataPtr->Clear();
 
-    std::string configString = "CoolPenguinSnowball.ini ";
+    std::string configString = "Config. File ";
     
     if (sharedDataPtr_->configFileFound_)
     {
-        configString += "Config Loaded";
+        configString += "Loaded";
     }
     else
     {
-        configString += "Config Not Found";
+        configString += "Not Found";
     }
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
@@ -765,6 +794,22 @@ void Scene002::UpdateMenuTextMeshes()
         *sharedDataPtr_->pixelFont_fontDataPtr,
         configString,
         configPixelSize,
+        0
+    ));
+
+    // -------------------------------------------------------------------------
+
+    constexpr float versionPixelSize = 2.0f;
+
+    sharedDataPtr_->uiMenuVersionText_meshDataPtr->Clear();
+
+    std::string versionString = "versoin 0.1.0";
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiMenuVersionText_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        versionString,
+        versionPixelSize,
         0
     ));
 }

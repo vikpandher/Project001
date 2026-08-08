@@ -1,6 +1,6 @@
 # ==============================================================================
 # @AUTHOR Vik Pandher
-# @DATE 2026-06-29
+# @DATE 2026-08-07
 
 cmake_minimum_required(VERSION 3.22.0)
 
@@ -193,6 +193,7 @@ set(RESOURCE_FILES
 source_group("Source/Resources" FILES ${RESOURCE_FILES})
 
 set(UTILITY_FILES
+    "Source/Utilities/FindUtility.h"
     "Source/Utilities/FontUtility.cpp"
     "Source/Utilities/FontUtility.h"
     "Source/Utilities/IniReaderWriter.cpp"
