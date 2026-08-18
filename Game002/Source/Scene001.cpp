@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-17
 
 #include "Scene001.h"
 
@@ -1758,6 +1758,24 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->mainCameraPlayerToEdgeSpacing = std::stof(iter2->second);
             }
 
+            iter2 = iter->second.find("mainCameraMoveSpeed");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraMoveSpeed = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("mainCameraZoomSpeed");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraZoomSpeed = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("mainCameraSharkInclusionMode");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraSharkInclusionMode = static_cast<size_t>(std::stoi(iter2->second));
+            }
+
             iter2 = iter->second.find("cursorSnowballCreationDelay_s");
             if (iter2 != iter->second.end())
             {
@@ -1993,90 +2011,4 @@ void Scene001::CreateLoadingTextEntity()
         renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 1.0f);
         renderedMeshPtr->SetUseLighting(false);
     }
-
-    // -------------------------------------------------------------------------
-
-    /*
-    constexpr float introPixelSize = 2.0f;
-
-    sharedDataPtr_->introText_meshDataPtr->Clear();
-
-    std::string introString = "PLACEHOLDER INTRO STRING"; // TODO:
-
-    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->introText_meshDataPtr,
-        *sharedDataPtr_->pixelFont_fontDataPtr,
-        introString,
-        introPixelSize
-    ));
-
-    GetComponentStoresPtr()->CreateEntity(introText_entityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(introText_entityId_));
-    Project001::RenderedMesh* renderedMeshPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, introText_entityId_));
-    if (renderedMeshPtr != nullptr)
-    {
-        renderedMeshPtr->SetCameraMask(s_uiCamera_cameraMask_);
-        renderedMeshPtr->SetMeshDataPtr(sharedDataPtr_->introText_meshDataPtr);
-        renderedMeshPtr->SetTextureId(sharedDataPtr_->pixelFont_textureId);
-        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 1.0f);
-        renderedMeshPtr->SetUseLighting(false);
-    }
-
-    // -------------------------------------------------------------------------
-
-    constexpr float authorPixelSize = 2.0f;
-
-    sharedDataPtr_->authorText_meshDataPtr->Clear();
-
-    std::string authorString = "PLACEHOLDER AUTHOR STRING"; // TODO:
-
-    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->authorText_meshDataPtr,
-        *sharedDataPtr_->pixelFont_fontDataPtr,
-        authorString,
-        authorPixelSize
-    ));
-
-    GetComponentStoresPtr()->CreateEntity(autorText_entityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(autorText_entityId_));
-    renderedMeshPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, autorText_entityId_));
-    if (renderedMeshPtr != nullptr)
-    {
-        renderedMeshPtr->SetCameraMask(s_uiCamera_cameraMask_);
-        renderedMeshPtr->SetMeshDataPtr(sharedDataPtr_->authorText_meshDataPtr);
-        renderedMeshPtr->SetTextureId(sharedDataPtr_->pixelFont_textureId);
-        renderedMeshPtr->SetColor(0.2f, 0.2f, 0.2f, 1.0f);
-        renderedMeshPtr->SetUseLighting(false);
-    }
-
-    // -------------------------------------------------------------------------
-
-    constexpr float startPixelSize = 2.0f;
-
-    sharedDataPtr_->startText_meshDataPtr->Clear();
-
-    std::string startString = "PLACEHOLDER INTRO STRING"; // TODO:
-
-    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->startText_meshDataPtr,
-        *sharedDataPtr_->pixelFont_fontDataPtr,
-        startString,
-        startPixelSize
-    ));
-
-    GetComponentStoresPtr()->CreateEntity(startText_entityId_);
-    FAIL_CHECK(GetComponentStoresPtr()->CreateComponent<Project001::RenderedMesh>(startText_entityId_));
-    renderedMeshPtr = nullptr;
-    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::RenderedMesh>(renderedMeshPtr, startText_entityId_));
-    if (renderedMeshPtr != nullptr)
-    {
-        renderedMeshPtr->SetCameraMask(s_uiCamera_cameraMask_);
-        renderedMeshPtr->SetMeshDataPtr(sharedDataPtr_->startText_meshDataPtr);
-        renderedMeshPtr->SetTextureId(sharedDataPtr_->pixelFont_textureId);
-        renderedMeshPtr->SetColor(0.6f, 0.6f, 0.6f, 1.0f);
-        renderedMeshPtr->SetUseLighting(false);
-    }
-    */
 }

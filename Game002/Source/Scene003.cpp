@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-17
 
 #include "Scene003.h"
 
@@ -162,6 +162,7 @@ void Scene003::ProcessDeinitializeEvent(Project001::DeinitializeEvent& deinitial
 
     toggleGameOverPause_ = true;
     winningPlayerIndex_ = static_cast<unsigned int>(-1);
+    gameOverPauseTime_s = 0.0f;
 
     paused_ = false;
     pausingPlayerIndex_ = static_cast<unsigned int>(-1);
@@ -1477,6 +1478,7 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
         if (mainCamera_lockedToPlayers_ && sharedDataPtr_->s_player_count > 0 && cameraFieldOfViewRemainder != 0.0f)
         {
             bool atleastOnePlayerAlive = false;
+            bool atleastOnePlayerInWater = false;
             glm::vec2 maxPlayerPosition(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity());
             glm::vec2 minPlayerPosition(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
             for (size_t i = 0; i < sharedDataPtr_->s_player_count; ++i)
@@ -1484,11 +1486,16 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 const PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
                 if (playerCreationInfo.turnedOn && !playerCreationInfo.dead)
                 {
+                    PenguinInfo* penguinInfoPtr = nullptr;
+                    FAIL_CHECK(GetComponentStoresPtr()->GetComponent<PenguinInfo>(penguinInfoPtr, player_entityIds_[i]));
                     Project001::CollisionBody2D* playerCollisionBodyPtr = nullptr;
                     FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(playerCollisionBodyPtr, player_entityIds_[i]));
-                    if (playerCollisionBodyPtr != nullptr)
+                    if (penguinInfoPtr != nullptr && playerCollisionBodyPtr != nullptr)
                     {
                         atleastOnePlayerAlive = true;
+
+                        if (!penguinInfoPtr->onLand) atleastOnePlayerInWater = true;
+
                         const glm::vec2& playerPosition = playerCollisionBodyPtr->GetPosition();
 
                         if (playerPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = playerPosition.x;
@@ -1499,17 +1506,44 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 }
             }
 
-            // Project001::CollisionBody2D* sharkCollisionBodyPtr = nullptr;
-            // FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(sharkCollisionBodyPtr, stageShark_entityId_));
-            // if (sharkCollisionBodyPtr != nullptr)
-            // {
-            //     const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
-            // 
-            //     if (sharkPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = sharkPosition.x;
-            //     if (sharkPosition.x < minPlayerPosition.x) minPlayerPosition.x = sharkPosition.x;
-            //     if (sharkPosition.y > maxPlayerPosition.y) maxPlayerPosition.y = sharkPosition.y;
-            //     if (sharkPosition.y < minPlayerPosition.y) minPlayerPosition.y = sharkPosition.y;
-            // }
+            bool includeShark = false;
+
+            if (sharedDataPtr_->mainCameraSharkInclusionMode == 0)
+            {
+                includeShark = false;
+            }
+            else if (sharedDataPtr_->mainCameraSharkInclusionMode == 1)
+            {
+                includeShark = true;
+            }
+            else if (sharedDataPtr_->mainCameraSharkInclusionMode == 2)
+            {
+                includeShark = atleastOnePlayerInWater;
+            }
+            else if (sharedDataPtr_->mainCameraSharkInclusionMode == 3)
+            {
+                SharkInfo* sharkInfoPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<SharkInfo>(sharkInfoPtr, stageShark_entityId_));
+                if (sharkInfoPtr != nullptr)
+                {
+                    includeShark = sharkInfoPtr->state == SharkInfo::State::STATE_CHASING;
+                }
+            }
+
+            if (includeShark)
+            {
+                Project001::CollisionBody2D* sharkCollisionBodyPtr = nullptr;
+                FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::CollisionBody2D>(sharkCollisionBodyPtr, stageShark_entityId_));
+                if (sharkCollisionBodyPtr != nullptr)
+                {
+                    const glm::vec2& sharkPosition = sharkCollisionBodyPtr->GetPosition();
+
+                    if (sharkPosition.x > maxPlayerPosition.x) maxPlayerPosition.x = sharkPosition.x;
+                    if (sharkPosition.x < minPlayerPosition.x) minPlayerPosition.x = sharkPosition.x;
+                    if (sharkPosition.y > maxPlayerPosition.y) maxPlayerPosition.y = sharkPosition.y;
+                    if (sharkPosition.y < minPlayerPosition.y) minPlayerPosition.y = sharkPosition.y;
+                }
+            }
 
             // glm::vec2 centerPlayerPosition = (maxPlayerPosition + minPlayerPosition) * 0.5f;
 
@@ -1587,8 +1621,7 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 float cameraDistanceAwayDifference = sideC - mainCamera_distanceAway_;
                 float cameraDistanceAwayMagnitude = glm::abs(cameraDistanceAwayDifference);
 
-                constexpr float cameraZoomSpeed = 256.0f;
-                float cameraZoomStep_s = cameraZoomSpeed * timestep_s;
+                float cameraZoomStep_s = sharedDataPtr_->mainCameraZoomSpeed * timestep_s;
 
                 if (cameraDistanceAwayMagnitude > cameraZoomStep_s)
                 {
@@ -1602,8 +1635,7 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
                 glm::vec2 lookatPoint_to_centerPlayerPosition = glm::vec2(-mainCamera_lookAtPoint_.x, -mainCamera_lookAtPoint_.y);
                 float lookatPoint_to_centerPlayerPosition_magnitude = glm::length(lookatPoint_to_centerPlayerPosition);
 
-                constexpr float cameraMoveSpeed = 64.0f;
-                float cameraMoveStep_s = cameraMoveSpeed * timestep_s;
+                float cameraMoveStep_s = sharedDataPtr_->mainCameraMoveSpeed * timestep_s;
 
                 if (lookatPoint_to_centerPlayerPosition_magnitude > cameraMoveStep_s)
                 {
@@ -1712,19 +1744,30 @@ void Scene003::UpdateMainCameraEntity(float timestep_s)
 
 void Scene003::UpdateUiGameOverTextEntity(float timestep_s)
 {
+    size_t turnedOnPlayerCount = 0;
     size_t alivePlayerCount = 0;
 
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
         PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
-        if (playerCreationInfo.turnedOn && !playerCreationInfo.dead)
+        if (playerCreationInfo.turnedOn)
         {
-            alivePlayerCount++;
-            winningPlayerIndex_ = i;
+            turnedOnPlayerCount++;
+            if (!playerCreationInfo.dead)
+            {
+                alivePlayerCount++;
+                winningPlayerIndex_ = i;
+            }
         }
     }
 
-    if (alivePlayerCount < 2)
+    if (turnedOnPlayerCount == 1)
+    {
+        winningPlayerIndex_ = static_cast<unsigned int>(-1);
+    }
+
+    if ((turnedOnPlayerCount > 1 && alivePlayerCount < 2) ||
+        (turnedOnPlayerCount == 1 && alivePlayerCount == 0))
     {
         // Game Over
 
@@ -1799,9 +1842,9 @@ void Scene003::UpdateUiGameOverTextMeshes()
     else if (winningPlayerIndex_ == 1) gameOverTitleString += "P2 ";
     else if (winningPlayerIndex_ == 2) gameOverTitleString += "P3 ";
     else if (winningPlayerIndex_ == 3) gameOverTitleString += "P4 ";
-    else gameOverTitleString += "EVERYONE ";
+    else gameOverTitleString += "GAME OVER";
 
-    gameOverTitleString += "WINS";
+    if (winningPlayerIndex_ < 4) gameOverTitleString += "WINS";
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiGameOverTitleText_meshDataPtr,

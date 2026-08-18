@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-17
 
 #pragma once
 
@@ -233,6 +233,14 @@ struct SharedApplicationData
     float mainCameraInitialDistanceAway = 960.0f;
     float mainCameraMinimumPlayerSpread = 240.0f;
     float mainCameraPlayerToEdgeSpacing = 128.0f;
+    float mainCameraMoveSpeed = 32.0f;
+    float mainCameraZoomSpeed = 256.0f;
+
+    // 0 = don't include shark
+    // 1 = include shark always
+    // 2 = include shark when penguin in water
+    // 3 = include shark when chasing
+    size_t mainCameraSharkInclusionMode = 0;
 
     float cursorSnowballCreationDelay_s = 0.5f;
     float cursorSnowballGrowthRate_s = 6.0f;

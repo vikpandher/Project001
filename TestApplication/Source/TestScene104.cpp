@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-06-29
+// @DATE 2026-08-17
 
 #include "TestScene104.h"
 
@@ -591,28 +591,28 @@ void TestScene104::CompareSortingAlgorithms()
     std::vector<int> data_01 = original_data;
     std::vector<int> data_02 = original_data;
 
-    std::cout << "Benchmarking with " << ELEMENT_COUNT << " elements...\n\n";
+    LOG_INFO("Benchmarking with " << ELEMENT_COUNT << " elements...");
 
     auto start = std::chrono::high_resolution_clock::now();
     std::sort(data_01.begin(), data_01.end());
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> duration_01 = end - start;
-    std::cout << "Sort 01: " << duration_01.count() << " ms\n";
+    LOG_INFO("Sort 01: " << duration_01.count() << " ms");
 
     start = std::chrono::high_resolution_clock::now();
     Project001::Sort::MergeSort(data_02);
     end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> duration_02 = end - start;
-    std::cout << "Sort 02: " << duration_02.count() << " ms\n";
+    LOG_INFO("Sort 02: " << duration_02.count() << " ms");
 
     if (data_01 == data_02)
     {
-        std::cout << "\nVerification PASSED\n";
+        LOG_INFO("Verification PASSED");
     }
     else
     {
-        std::cout << "\nVerification FAILED\n";
+        LOG_INFO("Verification FAILED");
     }
 }
