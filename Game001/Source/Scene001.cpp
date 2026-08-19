@@ -1527,7 +1527,7 @@ void Scene001::CreateIntroTextEntity()
         "\n"
         "Trick or Treat on Spooky Street\n"
         "\n"
-        "version 0.2.x\n"
+        "version 0.2.1\n"
         "\n"
         "\n"
         "Knock on the doors of lit-up houses to collect candy.\n"
@@ -1535,25 +1535,28 @@ void Scene001::CreateIntroTextEntity()
         "Watch out for monsters!\n"
         "\n"
         "\n"
-        "Default Controls | Mouse & Keyboard  | Controller\n"
-        "-----------------+-------------------+--------------------\n"
-        "Movement         | W-A-S-D Keys      | D-Pad or Left Stick\n"
-        "Aim              | Mouse Position    | Right Stick\n"
-        "Flash Light      | Left Mouse Button | Right Stick\n"
-        "Sprint           | Space             | L Bumper Button\n"
-        "Pause / Start    | Enter             | Menu Button\n"
-        "Quit             | Esc               | View Button\n"
+        " Default Controls    | Mouse & Keyboard   | Controller\n"
+        "+--------------------+--------------------+--------------------+\n"
+        "  Movement           | W-A-S-D Keys       | D-Pad or Left Stick\n"
+        "  Aim                | Mouse Position     | Right Stick\n"
+        "  Flash Light        | Left Mouse Button  | Right Stick\n"
+        "  Sprint             | Space              | L Bumper Button\n"
+        "  Pause / Start      | Enter              | Menu Button\n"
+        "  Quit               | Esc                | View Button\n"
+        "\n"
+        "*** Optionally, you can modify settings via the config file. ***\n"
         "\n"
         "\n"
+        "\"TrickOrTreatOnSpookyStreet.ini\" "
     );
 
     if (configFileFound_)
     {
-        introString += "Config file was loaded.\n\n\n";
+        introString += "config file was loaded.\n\n\n";
     }
     else
     {
-        introString += "\n\n\n\n";
+        introString += "config file was not loaded.\n\n\n";
     }
 
     introString += "Press Enter or Menu Button to start.";
