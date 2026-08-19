@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-18
 
 #include "SharedApplicationData.h"
 
@@ -8,95 +8,81 @@
 
 
 
-void PlayerCreationInfo::DecrementControlScheme(PlayerCreationInfo::ControlScheme& controlScheme)
+const char* ControlSchemeInfo::ControlSchemeIndexToString(size_t controlSchemeIndex)
 {
-    size_t c = static_cast<size_t>(controlScheme);
-    size_t p = (c + s_controlSchemeCount - 1) % s_controlSchemeCount;
-    controlScheme = static_cast<PlayerCreationInfo::ControlScheme>(p);
-}
-
-void PlayerCreationInfo::IncrementControlScheme(PlayerCreationInfo::ControlScheme& controlScheme)
-{
-    size_t c = static_cast<size_t>(controlScheme);
-    size_t n = (c + 1) % s_controlSchemeCount;
-    controlScheme = static_cast<PlayerCreationInfo::ControlScheme>(n);
-}
-
-const char* PlayerCreationInfo::ControlSchemeToString(PlayerCreationInfo::ControlScheme& controlScheme)
-{
-    switch (controlScheme)
+    switch (controlSchemeIndex)
     {
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1:
+        case ControlSchemeInfo::s_controlSchemeIndex_keyboard1:
         {
-            return "KEYBOARD 1";
+            return "KEYBOARD_1";
             break;
         }
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2:
+        case ControlSchemeInfo::s_controlSchemeIndex_keyboard2:
         {
-            return "KEYBOARD 2";
+            return "KEYBOARD_2";
             break;
         }
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1:
+        case ControlSchemeInfo::s_controlSchemeIndex_controller1:
         {
-            return "CONTROLLER 1";
+            return "CONTROLLER_1";
             break;
         }
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2:
+        case ControlSchemeInfo::s_controlSchemeIndex_controller2:
         {
-            return "CONTROLLER 2";
+            return "CONTROLLER_2";
             break;
         }
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_3:
+        case ControlSchemeInfo::s_controlSchemeIndex_controller3:
         {
-            return "CONTROLLER 3";
+            return "CONTROLLER_3";
             break;
         }
-        case PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_4:
+        case ControlSchemeInfo::s_controlSchemeIndex_controller4:
         {
-            return "CONTROLLER 4";
+            return "CONTROLLER_4";
             break;
         }
     }
     return "OFF";
 }
 
-PlayerCreationInfo::ControlScheme PlayerCreationInfo::StringToControlScheme(const std::string& str)
+size_t ControlSchemeInfo::StringToControlSchemeIndex(const std::string& str)
 {
     const std::string prefix = "CONTROL_SCHEME_";
     if (str.length() < prefix.length() ||
         str.find(prefix, 0) != 0)
     {
-        return ControlScheme::CONTROL_SCHEME_UNKNOWN;
+        return ControlSchemeInfo::s_controlSchemeIndex_unknown;
     }
 
     std::string value = str.substr(prefix.length());
 
     if (value == "KEYBOARD_1")
     {
-        return ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
+        return ControlSchemeInfo::s_controlSchemeIndex_keyboard1;
     }
     else if (value == "KEYBOARD_2")
     {
-        return ControlScheme::CONTROL_SCHEME_KEYBOARD_2;
+        return ControlSchemeInfo::s_controlSchemeIndex_keyboard2;
     }
     else if (value == "CONTROLLER_1")
     {
-        return ControlScheme::CONTROL_SCHEME_CONTROLLER_1;
+        return ControlSchemeInfo::s_controlSchemeIndex_controller1;
     }
     else if (value == "CONTROLLER_2")
     {
-        return ControlScheme::CONTROL_SCHEME_CONTROLLER_2;
+        return ControlSchemeInfo::s_controlSchemeIndex_controller2;
     }
     else if (value == "CONTROLLER_3")
     {
-        return ControlScheme::CONTROL_SCHEME_CONTROLLER_3;
+        return ControlSchemeInfo::s_controlSchemeIndex_controller3;
     }
     else if (value == "CONTROLLER_4")
     {
-        return ControlScheme::CONTROL_SCHEME_CONTROLLER_4;
+        return ControlSchemeInfo::s_controlSchemeIndex_controller4;
     }
 
-    return ControlScheme::CONTROL_SCHEME_UNKNOWN;
+    return ControlSchemeInfo::s_controlSchemeIndex_unknown;
 }
 
 void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent)
@@ -105,86 +91,76 @@ void SharedApplicationData::UpdateKeyboardButtonPresses(const Project001::KeyEve
     const Project001::ButtonAction& buttonAction = keyEvent.buttonAction;
     const Project001::KeyModifier& keyModifier = keyEvent.keyModifier;
 
-    for (size_t i = 0; i < s_player_count; ++i)
+    if (keyCode == keyboard_1_pause_keyCode)
     {
-        PlayerCreationInfo& PlayerCreationInfo = playerCreationInfos[i];
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_pause_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_pause_pressed = false;
+    }
+    if (keyCode == keyboard_1_left_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_left_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_left_pressed = false;
+    }
+    if (keyCode == keyboard_1_right_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_right_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_right_pressed = false;
+    }
+    if (keyCode == keyboard_1_up_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_up_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_up_pressed = false;
+    }
+    if (keyCode == keyboard_1_down_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_down_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_down_pressed = false;
+    }
+    if (keyCode == keyboard_1_grab_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_grab_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_grab_pressed = false;
+    }
+    if (keyCode == keyboard_1_drop_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_drop_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_drop_pressed = false;
+    }
 
-        if (PlayerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1)
-        {
-            if (keyCode == keyboard_1_start_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_start_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_start_pressed = false;
-            }
-            if (keyCode == keyboard_1_left_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_left_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_left_pressed = false;
-            }
-            if (keyCode == keyboard_1_right_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_right_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_right_pressed = false;
-            }
-            if (keyCode == keyboard_1_up_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_up_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_up_pressed = false;
-            }
-            if (keyCode == keyboard_1_down_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_down_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_down_pressed = false;
-            }
-            if (keyCode == keyboard_1_grab_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_grab_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_grab_pressed = false;
-            }
-            if (keyCode == keyboard_1_drop_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_1_drop_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_1_drop_pressed = false;
-            }
-        }
-        else if (PlayerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2)
-        {
-            if (keyCode == keyboard_2_start_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_start_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_start_pressed = false;
-            }
-            if (keyCode == keyboard_2_left_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_left_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_left_pressed = false;
-            }
-            if (keyCode == keyboard_2_right_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_right_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_right_pressed = false;
-            }
-            if (keyCode == keyboard_2_up_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_up_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_up_pressed = false;
-            }
-            if (keyCode == keyboard_2_down_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_down_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_down_pressed = false;
-            }
-            if (keyCode == keyboard_2_grab_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_grab_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_grab_pressed = false;
-            }
-            if (keyCode == keyboard_2_drop_keyCode)
-            {
-                if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_drop_pressed = true;
-                else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_drop_pressed = false;
-            }
-        }
+    if (keyCode == keyboard_2_pause_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_pause_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_pause_pressed = false;
+    }
+    if (keyCode == keyboard_2_left_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_left_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_left_pressed = false;
+    }
+    if (keyCode == keyboard_2_right_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_right_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_right_pressed = false;
+    }
+    if (keyCode == keyboard_2_up_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_up_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_up_pressed = false;
+    }
+    if (keyCode == keyboard_2_down_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_down_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_down_pressed = false;
+    }
+    if (keyCode == keyboard_2_grab_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_grab_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_grab_pressed = false;
+    }
+    if (keyCode == keyboard_2_drop_keyCode)
+    {
+        if (buttonAction == Project001::ButtonAction::KEY_ACTION_PRESS) keyboard_2_drop_pressed = true;
+        else if (buttonAction == Project001::ButtonAction::KEY_ACTION_RELEASE) keyboard_2_drop_pressed = false;
     }
 
     if (keyCode == debug_keyboard_toggleDebugCamera_keyCode)
@@ -282,188 +258,194 @@ void SharedApplicationData::UpdateMouseButtonPresses(const Project001::MouseButt
 
 void SharedApplicationData::UpdateButtonPressCounts(const Project001::Window* windowPtr)
 {
-    for (size_t i = 0; i < s_player_count; ++i)
     {
-        PlayerCreationInfo& playerCreationInfo = playerCreationInfos[i];
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_keyboard1];
 
-        if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1)
-        {
-            if (keyboard_1_start_pressed) playerCreationInfo.start_pressCount++;
-            else playerCreationInfo.start_pressCount = 0;
+        if (keyboard_1_pause_pressed) controlSchemeInfo.pause_pressCount++;
+        else controlSchemeInfo.pause_pressCount = 0;
 
-            if (keyboard_1_left_pressed) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+        if (keyboard_1_left_pressed) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
 
-            if (keyboard_1_right_pressed) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+        if (keyboard_1_right_pressed) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
 
-            if (keyboard_1_up_pressed) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        if (keyboard_1_up_pressed) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
 
-            if (keyboard_1_down_pressed) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+        if (keyboard_1_down_pressed) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
 
-            if (keyboard_1_grab_pressed) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        if (keyboard_1_grab_pressed) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
 
-            if (keyboard_1_drop_pressed) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
-        }
-        else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2)
-        {
-            if (keyboard_2_start_pressed) playerCreationInfo.start_pressCount++;
-            else playerCreationInfo.start_pressCount = 0;
+        if (keyboard_1_drop_pressed) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
+    }
 
-            if (keyboard_2_left_pressed) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+    {
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_keyboard2];
 
-            if (keyboard_2_right_pressed) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+        if (keyboard_2_pause_pressed) controlSchemeInfo.pause_pressCount++;
+        else controlSchemeInfo.pause_pressCount = 0;
 
-            if (keyboard_2_up_pressed) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        if (keyboard_2_left_pressed) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
 
-            if (keyboard_2_down_pressed) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+        if (keyboard_2_right_pressed) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
 
-            if (keyboard_2_grab_pressed) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        if (keyboard_2_up_pressed) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
 
-            if (keyboard_2_drop_pressed) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
-        }
-        else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1)
-        {
-            std::vector<bool> buttonValues;
-            windowPtr->GetJoystickButtons(0, buttonValues);
+        if (keyboard_2_down_pressed) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
 
-            if (buttonValues.size() > controller_1_start_buttonIndex && buttonValues[controller_1_start_buttonIndex]) playerCreationInfo.start_pressCount++;
-            else  playerCreationInfo.start_pressCount = 0;
+        if (keyboard_2_grab_pressed) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_1_left_buttonIndex && buttonValues[controller_1_left_buttonIndex]) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+        if (keyboard_2_drop_pressed) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
+    }
 
-            if (buttonValues.size() > controller_1_right_buttonIndex && buttonValues[controller_1_right_buttonIndex]) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+    {
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_controller1];
 
-            if (buttonValues.size() > controller_1_up_buttonIndex && buttonValues[controller_1_up_buttonIndex]) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        std::vector<bool> buttonValues;
+        windowPtr->GetJoystickButtons(0, buttonValues);
 
-            if (buttonValues.size() > controller_1_down_buttonIndex && buttonValues[controller_1_down_buttonIndex]) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+        if (buttonValues.size() > controller_1_pause_buttonIndex && buttonValues[controller_1_pause_buttonIndex]) controlSchemeInfo.pause_pressCount++;
+        else  controlSchemeInfo.pause_pressCount = 0;
 
-            if (buttonValues.size() > controller_1_grab_buttonIndex && buttonValues[controller_1_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        if (buttonValues.size() > controller_1_left_buttonIndex && buttonValues[controller_1_left_buttonIndex]) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
 
-            if (buttonValues.size() > controller_1_drop_buttonIndex && buttonValues[controller_1_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
+        if (buttonValues.size() > controller_1_right_buttonIndex && buttonValues[controller_1_right_buttonIndex]) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
 
-            std::vector<float> axisValues;
-            windowPtr->GetJoystickAxis(0, axisValues);
+        if (buttonValues.size() > controller_1_up_buttonIndex && buttonValues[controller_1_up_buttonIndex]) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
 
-            if (axisValues.size() > controller_1_moveRightLeft_axisIndex) playerCreationInfo.leftRightAxisValue = axisValues[controller_1_moveRightLeft_axisIndex];
+        if (buttonValues.size() > controller_1_down_buttonIndex && buttonValues[controller_1_down_buttonIndex]) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
 
-            if (axisValues.size() > controller_1_moveDownUp_axisIndex) playerCreationInfo.upDownAxisValue = -axisValues[controller_1_moveDownUp_axisIndex];
-        }
-        else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2)
-        {
-            std::vector<bool> buttonValues;
-            windowPtr->GetJoystickButtons(1, buttonValues);
+        if (buttonValues.size() > controller_1_grab_buttonIndex && buttonValues[controller_1_grab_buttonIndex]) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_2_start_buttonIndex && buttonValues[controller_2_start_buttonIndex]) playerCreationInfo.start_pressCount++;
-            else  playerCreationInfo.start_pressCount = 0;
+        if (buttonValues.size() > controller_1_drop_buttonIndex && buttonValues[controller_1_drop_buttonIndex]) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
 
-            if (buttonValues.size() > controller_2_left_buttonIndex && buttonValues[controller_2_left_buttonIndex]) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+        std::vector<float> axisValues;
+        windowPtr->GetJoystickAxis(0, axisValues);
 
-            if (buttonValues.size() > controller_2_right_buttonIndex && buttonValues[controller_2_right_buttonIndex]) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+        if (axisValues.size() > controller_1_moveRightLeft_axisIndex) controlSchemeInfo.leftRightAxisValue = axisValues[controller_1_moveRightLeft_axisIndex];
 
-            if (buttonValues.size() > controller_2_up_buttonIndex && buttonValues[controller_2_up_buttonIndex]) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        if (axisValues.size() > controller_1_moveDownUp_axisIndex) controlSchemeInfo.upDownAxisValue = -axisValues[controller_1_moveDownUp_axisIndex];
+    }
 
-            if (buttonValues.size() > controller_2_down_buttonIndex && buttonValues[controller_2_down_buttonIndex]) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+    {
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_controller2];
 
-            if (buttonValues.size() > controller_2_grab_buttonIndex && buttonValues[controller_2_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        std::vector<bool> buttonValues;
+        windowPtr->GetJoystickButtons(1, buttonValues);
 
-            if (buttonValues.size() > controller_2_drop_buttonIndex && buttonValues[controller_2_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
+        if (buttonValues.size() > controller_2_pause_buttonIndex && buttonValues[controller_2_pause_buttonIndex]) controlSchemeInfo.pause_pressCount++;
+        else  controlSchemeInfo.pause_pressCount = 0;
 
-            std::vector<float> axisValues;
-            windowPtr->GetJoystickAxis(1, axisValues);
+        if (buttonValues.size() > controller_2_left_buttonIndex && buttonValues[controller_2_left_buttonIndex]) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
 
-            if (axisValues.size() > controller_2_moveRightLeft_axisIndex) playerCreationInfo.leftRightAxisValue = axisValues[controller_2_moveRightLeft_axisIndex];
+        if (buttonValues.size() > controller_2_right_buttonIndex && buttonValues[controller_2_right_buttonIndex]) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
 
-            if (axisValues.size() > controller_2_moveDownUp_axisIndex) playerCreationInfo.upDownAxisValue = -axisValues[controller_2_moveDownUp_axisIndex];
-        }
-        else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_3)
-        {
-            std::vector<bool> buttonValues;
-            windowPtr->GetJoystickButtons(2, buttonValues);
+        if (buttonValues.size() > controller_2_up_buttonIndex && buttonValues[controller_2_up_buttonIndex]) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_start_buttonIndex && buttonValues[controller_3_start_buttonIndex]) playerCreationInfo.start_pressCount++;
-            else  playerCreationInfo.start_pressCount = 0;
+        if (buttonValues.size() > controller_2_down_buttonIndex && buttonValues[controller_2_down_buttonIndex]) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_left_buttonIndex && buttonValues[controller_3_left_buttonIndex]) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+        if (buttonValues.size() > controller_2_grab_buttonIndex && buttonValues[controller_2_grab_buttonIndex]) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_right_buttonIndex && buttonValues[controller_3_right_buttonIndex]) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+        if (buttonValues.size() > controller_2_drop_buttonIndex && buttonValues[controller_2_drop_buttonIndex]) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
 
-            if (buttonValues.size() > controller_3_up_buttonIndex && buttonValues[controller_3_up_buttonIndex]) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        std::vector<float> axisValues;
+        windowPtr->GetJoystickAxis(1, axisValues);
 
-            if (buttonValues.size() > controller_3_down_buttonIndex && buttonValues[controller_3_down_buttonIndex]) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+        if (axisValues.size() > controller_2_moveRightLeft_axisIndex) controlSchemeInfo.leftRightAxisValue = axisValues[controller_2_moveRightLeft_axisIndex];
 
-            if (buttonValues.size() > controller_3_grab_buttonIndex && buttonValues[controller_3_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        if (axisValues.size() > controller_2_moveDownUp_axisIndex) controlSchemeInfo.upDownAxisValue = -axisValues[controller_2_moveDownUp_axisIndex];
+    }
 
-            if (buttonValues.size() > controller_3_drop_buttonIndex && buttonValues[controller_3_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
+    {
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_controller3];
 
-            std::vector<float> axisValues;
-            windowPtr->GetJoystickAxis(2, axisValues);
+        std::vector<bool> buttonValues;
+        windowPtr->GetJoystickButtons(1, buttonValues);
 
-            if (axisValues.size() > controller_3_moveRightLeft_axisIndex) playerCreationInfo.leftRightAxisValue = axisValues[controller_3_moveRightLeft_axisIndex];
+        if (buttonValues.size() > controller_3_pause_buttonIndex && buttonValues[controller_3_pause_buttonIndex]) controlSchemeInfo.pause_pressCount++;
+        else  controlSchemeInfo.pause_pressCount = 0;
 
-            if (axisValues.size() > controller_3_moveDownUp_axisIndex) playerCreationInfo.upDownAxisValue = -axisValues[controller_3_moveDownUp_axisIndex];
-        }
-        else if (playerCreationInfo.controlScheme == PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_4)
-        {
-            std::vector<bool> buttonValues;
-            windowPtr->GetJoystickButtons(3, buttonValues);
+        if (buttonValues.size() > controller_3_left_buttonIndex && buttonValues[controller_3_left_buttonIndex]) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_start_buttonIndex && buttonValues[controller_4_start_buttonIndex]) playerCreationInfo.start_pressCount++;
-            else  playerCreationInfo.start_pressCount = 0;
+        if (buttonValues.size() > controller_3_right_buttonIndex && buttonValues[controller_3_right_buttonIndex]) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_left_buttonIndex && buttonValues[controller_4_left_buttonIndex]) playerCreationInfo.left_pressCount++;
-            else playerCreationInfo.left_pressCount = 0;
+        if (buttonValues.size() > controller_3_up_buttonIndex && buttonValues[controller_3_up_buttonIndex]) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_right_buttonIndex && buttonValues[controller_4_right_buttonIndex]) playerCreationInfo.right_pressCount++;
-            else playerCreationInfo.right_pressCount = 0;
+        if (buttonValues.size() > controller_3_down_buttonIndex && buttonValues[controller_3_down_buttonIndex]) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_up_buttonIndex && buttonValues[controller_4_up_buttonIndex]) playerCreationInfo.up_pressCount++;
-            else playerCreationInfo.up_pressCount = 0;
+        if (buttonValues.size() > controller_3_grab_buttonIndex && buttonValues[controller_3_grab_buttonIndex]) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_down_buttonIndex && buttonValues[controller_4_down_buttonIndex]) playerCreationInfo.down_pressCount++;
-            else playerCreationInfo.down_pressCount = 0;
+        if (buttonValues.size() > controller_3_drop_buttonIndex && buttonValues[controller_3_drop_buttonIndex]) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
 
-            if (buttonValues.size() > controller_4_grab_buttonIndex && buttonValues[controller_4_grab_buttonIndex]) playerCreationInfo.grab_pressCount++;
-            else playerCreationInfo.grab_pressCount = 0;
+        std::vector<float> axisValues;
+        windowPtr->GetJoystickAxis(2, axisValues);
 
-            if (buttonValues.size() > controller_4_drop_buttonIndex && buttonValues[controller_4_drop_buttonIndex]) playerCreationInfo.drop_pressCount++;
-            else playerCreationInfo.drop_pressCount = 0;
+        if (axisValues.size() > controller_3_moveRightLeft_axisIndex) controlSchemeInfo.leftRightAxisValue = axisValues[controller_3_moveRightLeft_axisIndex];
 
-            std::vector<float> axisValues;
-            windowPtr->GetJoystickAxis(3, axisValues);
+        if (axisValues.size() > controller_3_moveDownUp_axisIndex) controlSchemeInfo.upDownAxisValue = -axisValues[controller_3_moveDownUp_axisIndex];
+    }
 
-            if (axisValues.size() > controller_4_moveRightLeft_axisIndex) playerCreationInfo.leftRightAxisValue = axisValues[controller_4_moveRightLeft_axisIndex];
+    {
+        ControlSchemeInfo& controlSchemeInfo = controlSchemeInfos[ControlSchemeInfo::s_controlSchemeIndex_controller4];
 
-            if (axisValues.size() > controller_4_moveDownUp_axisIndex) playerCreationInfo.upDownAxisValue = -axisValues[controller_4_moveDownUp_axisIndex];
-        }
+        std::vector<bool> buttonValues;
+        windowPtr->GetJoystickButtons(3, buttonValues);
+
+        if (buttonValues.size() > controller_4_pause_buttonIndex && buttonValues[controller_4_pause_buttonIndex]) controlSchemeInfo.pause_pressCount++;
+        else  controlSchemeInfo.pause_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_left_buttonIndex && buttonValues[controller_4_left_buttonIndex]) controlSchemeInfo.left_pressCount++;
+        else controlSchemeInfo.left_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_right_buttonIndex && buttonValues[controller_4_right_buttonIndex]) controlSchemeInfo.right_pressCount++;
+        else controlSchemeInfo.right_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_up_buttonIndex && buttonValues[controller_4_up_buttonIndex]) controlSchemeInfo.up_pressCount++;
+        else controlSchemeInfo.up_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_down_buttonIndex && buttonValues[controller_4_down_buttonIndex]) controlSchemeInfo.down_pressCount++;
+        else controlSchemeInfo.down_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_grab_buttonIndex && buttonValues[controller_4_grab_buttonIndex]) controlSchemeInfo.grab_pressCount++;
+        else controlSchemeInfo.grab_pressCount = 0;
+
+        if (buttonValues.size() > controller_4_drop_buttonIndex && buttonValues[controller_4_drop_buttonIndex]) controlSchemeInfo.drop_pressCount++;
+        else controlSchemeInfo.drop_pressCount = 0;
+
+        std::vector<float> axisValues;
+        windowPtr->GetJoystickAxis(3, axisValues);
+
+        if (axisValues.size() > controller_4_moveRightLeft_axisIndex) controlSchemeInfo.leftRightAxisValue = axisValues[controller_4_moveRightLeft_axisIndex];
+
+        if (axisValues.size() > controller_4_moveDownUp_axisIndex) controlSchemeInfo.upDownAxisValue = -axisValues[controller_4_moveDownUp_axisIndex];
     }
 
     if (debug_keyboard_toggleDebugCamera_pressed) debug_keyboard_toggleDebugCamera_pressCount++;

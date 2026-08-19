@@ -1,12 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-18
 
 #pragma once
 
 #include "BaseScene001.h"
-
-#include "SharedApplicationData.h"
 
 #include "glm/glm.hpp"
 
@@ -41,10 +39,6 @@ protected:
     void UpdateMenuTextMeshes(); // modifies meshes
     void UpdateMainCameraEntity(float timestep_s);
 
-    // -------------------------------------------------------------------------
-
-    SharedApplicationData* sharedDataPtr_ = nullptr;
-
     // Entity Ids --------------------------------------------------------------
 
     static constexpr uint32_t s_backUiCamera_cameraMask_ = 0b01000000000000000000000000000000;
@@ -77,5 +71,5 @@ protected:
 
     size_t menuCursorPosition_ = 4;
     static constexpr float s_menuAxisMoveDelay_s_ = 0.25f;
-    float menuAxisMoveTimes_s[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float menuAxisMoveTimes_s[SharedApplicationData::s_controlScheme_count] = { 0.0f };
 };

@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-18
 
 #include "BaseScene001.h"
 
@@ -16,7 +16,9 @@
 
 BaseScene001::BaseScene001(Project001::Application* applicationPtr)
     : Scene(applicationPtr)
-{}
+{
+    sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
+}
 
 BaseScene001::~BaseScene001()
 {}
@@ -60,7 +62,6 @@ void BaseScene001::CreateMainCameraEntity(unsigned int& entityId, const uint32_t
     constexpr float mainCameraNearCutoff = mainCameraHalfHeight * 0.1f;
     constexpr float mainCameraFarCutoff = mainCameraHalfHeight * 24.0f;
 
-    constexpr float mainCameraPitch = 0.25f * glm::pi<float>();
     constexpr float mainCameraYaw = glm::pi<float>();
 
     constexpr Project001::Camera::CameraProjection mainCameraProjection =
@@ -84,7 +85,7 @@ void BaseScene001::CreateMainCameraEntity(unsigned int& entityId, const uint32_t
             cameraPtr->SetFarCutoff(mainCameraFarCutoff);
         }
 
-        cameraPtr->AddPitch(mainCameraPitch);
+        cameraPtr->AddPitch(sharedDataPtr_->mainCameraPitch);
         cameraPtr->AddYaw(mainCameraYaw);
         cameraPtr->SetProjection(mainCameraProjection);
         cameraPtr->SetCameraMask(cameraMask);

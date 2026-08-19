@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-17
+// @DATE 2026-08-18
 
 #include "Scene003.h"
 
@@ -29,7 +29,6 @@ Scene003::Scene003(Project001::Application* applicationPtr)
     : BaseScene001(applicationPtr)
     , mainCamera_lookAtPoint_(0.0f, 0.0f, 0.0f)
 {
-    sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene003Id = GetId();
 }
 
@@ -183,9 +182,12 @@ void Scene003::ProcessMouseButtonEvent(Project001::MouseButtonEvent& mouseButton
 
 void Scene003::ProcessScrollEvent(Project001::ScrollEvent& scrollEvent)
 {
-    float& yOffset = scrollEvent.yOffset;
-    constexpr float speedConstant = 20.0f;
-    mainCamera_distanceAway_ += yOffset * speedConstant;
+    if (SharedApplicationData::s_debugControlEnabled)
+    {
+        float& yOffset = scrollEvent.yOffset;
+        constexpr float speedConstant = 20.0f;
+        mainCamera_distanceAway_ += yOffset * speedConstant;
+    }
 }
 
 void Scene003::ProcessUpdateEvent(Project001::UpdateEvent& updateEvent)
@@ -887,6 +889,8 @@ void Scene003::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber, 
             mesh.SetCameraMask(s_mainCamera_cameraMask_);
             mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_head_renderedMeshIndex);
+            mesh.SetColorAlpha(sharedDataPtr_->penguinGlassesAlpha);
+            mesh.SetTranslucent(true);
         }
 
         {
@@ -1818,7 +1822,7 @@ void Scene003::UpdateUiGameOverTextEntity(float timestep_s)
             }
             else
             {
-                titleMesh.SetColorRGB(1.0f, 1.0f, 1.0f);
+                titleMesh.SetColorRGB(0.7f, 0.7f, 0.7f);
             }
         }
 
@@ -1857,26 +1861,27 @@ void Scene003::UpdateUiGameOverTextMeshes()
 
 void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 {
-    std::vector<PlayerCreationInfo::ControlScheme> usedControlSchemes;
+    std::vector<size_t> usedControlSchemeIndices;
 
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
-        const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+        const PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
+        const size_t& currentControlSchemeIndex = playerCreationInfo.controlSchemeIndex;
 
-        const PlayerCreationInfo::ControlScheme& currentControlScheme = playerInfoPtr->controlScheme;
-
-        if (Project001::Find::Contains(usedControlSchemes, currentControlScheme))
+        if (Project001::Find::Contains(usedControlSchemeIndices, currentControlSchemeIndex))
         {
             continue; // avoid the duplication of presses when two players have the same control scheme
         }
         else
         {
-            usedControlSchemes.push_back(currentControlScheme);
+            usedControlSchemeIndices.push_back(currentControlSchemeIndex);
         }
 
-        if (playerInfoPtr->turnedOn)
+        const ControlSchemeInfo& controlSchemeInfo = sharedDataPtr_->controlSchemeInfos[currentControlSchemeIndex];
+
+        if (playerCreationInfo.turnedOn)
         {
-            if (playerInfoPtr->start_pressCount == 1)
+            if (controlSchemeInfo.pause_pressCount == 1)
             {
                 if (paused_)
                 {
@@ -1936,11 +1941,13 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
     {
         for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
         {
-            const PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+            const PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
+            const size_t& currentControlSchemeIndex = playerCreationInfo.controlSchemeIndex;
+            const ControlSchemeInfo& controlSchemeInfo = sharedDataPtr_->controlSchemeInfos[currentControlSchemeIndex];
 
             if (pausingPlayerIndex_ == i || pausingPlayerIndex_ >= SharedApplicationData::s_player_count)
             {
-                if (playerInfoPtr->grab_pressCount == 1)
+                if (controlSchemeInfo.grab_pressCount == 1)
                 {
                     if (pauseCursorPosition_ == 0)
                     {
@@ -1970,27 +1977,27 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
 
                 glm::vec2 moveDirection(0.0f, 0.0);
 
-                if (playerInfoPtr->left_pressCount == 1)
+                if (controlSchemeInfo.left_pressCount == 1)
                 {
                     moveDirection.x -= 1.0f;
                 }
-                if (playerInfoPtr->right_pressCount == 1)
+                if (controlSchemeInfo.right_pressCount == 1)
                 {
                     moveDirection.x += 1.0f;
                 }
-                if (playerInfoPtr->up_pressCount == 1)
+                if (controlSchemeInfo.up_pressCount == 1)
                 {
                     moveDirection.y += 1.0f;
                 }
-                if (playerInfoPtr->down_pressCount == 1)
+                if (controlSchemeInfo.down_pressCount == 1)
                 {
                     moveDirection.y -= 1.0f;
                 }
 
                 if (pauseAxisMoveTime_s > 0.0f)
                 {
-                    if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
-                        glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
+                    if (glm::abs(controlSchemeInfo.leftRightAxisValue) < controlSchemeInfo.axisDeadzone &&
+                        glm::abs(controlSchemeInfo.upDownAxisValue) < controlSchemeInfo.axisDeadzone)
                     {
                         pauseAxisMoveTime_s = 0.0f;
                     }
@@ -2003,14 +2010,14 @@ void Scene003::UpdateUiPauseTextEntity(float timestep_s, bool& quit)
                 {
                     pauseAxisMoveTime_s = 0.0f;
 
-                    if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+                    if (glm::abs(controlSchemeInfo.leftRightAxisValue) > controlSchemeInfo.axisDeadzone)
                     {
-                        moveDirection.x += playerInfoPtr->leftRightAxisValue;
+                        moveDirection.x += controlSchemeInfo.leftRightAxisValue;
                         pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
                     }
-                    if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+                    if (glm::abs(controlSchemeInfo.upDownAxisValue) > controlSchemeInfo.axisDeadzone)
                     {
-                        moveDirection.y += playerInfoPtr->upDownAxisValue;
+                        moveDirection.y += controlSchemeInfo.upDownAxisValue;
                         pauseAxisMoveTime_s += s_pauseAxisMoveDelay_s_;
                     }
 
@@ -2501,7 +2508,7 @@ void Scene003::UpdateCursorEntity(float timestep_s)
             cursorInfoPtr->snowball_entityId,
             glm::vec2(0.0f, 0.0f),
             glm::vec2(0.0f, 0.0f),
-            SnowballInfo::s_initialSnowballRadius
+            sharedDataPtr_->cursorSnowballInitialRadius
         );
 
         Project001::CollisionBody2D* cursorCollisionBodyPtr = nullptr;
@@ -2820,33 +2827,35 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
 
         if (playerInfoPtr != nullptr)
         {
-            grabPressed = playerInfoPtr->grab_pressCount == 1;
-            grabHeld = playerInfoPtr->grab_pressCount > 0;
-            dropPressed = playerInfoPtr->drop_pressCount == 1;
+            const ControlSchemeInfo& controlSchemeInfo = sharedDataPtr_->controlSchemeInfos[playerInfoPtr->controlSchemeIndex];
 
-            if (playerInfoPtr->left_pressCount > 0)
+            grabPressed = controlSchemeInfo.grab_pressCount == 1;
+            grabHeld = controlSchemeInfo.grab_pressCount > 0;
+            dropPressed = controlSchemeInfo.drop_pressCount == 1;
+
+            if (controlSchemeInfo.left_pressCount > 0)
             {
                 moveDirection.x -= 1.0f;
             }
-            if (playerInfoPtr->right_pressCount > 0)
+            if (controlSchemeInfo.right_pressCount > 0)
             {
                 moveDirection.x += 1.0f;
             }
-            if (playerInfoPtr->up_pressCount > 0)
+            if (controlSchemeInfo.up_pressCount > 0)
             {
                 moveDirection.y += 1.0f;
             }
-            if (playerInfoPtr->down_pressCount > 0)
+            if (controlSchemeInfo.down_pressCount > 0)
             {
                 moveDirection.y -= 1.0f;
             }
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+            if (glm::abs(controlSchemeInfo.leftRightAxisValue) > controlSchemeInfo.axisDeadzone)
             {
-                moveDirection.x += playerInfoPtr->leftRightAxisValue;
+                moveDirection.x += controlSchemeInfo.leftRightAxisValue;
             }
-            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+            if (glm::abs(controlSchemeInfo.upDownAxisValue) > controlSchemeInfo.axisDeadzone)
             {
-                moveDirection.y += playerInfoPtr->upDownAxisValue;
+                moveDirection.y += controlSchemeInfo.upDownAxisValue;
             }
         }
 
@@ -3422,7 +3431,7 @@ void Scene003::UpdatePenguinEntity(unsigned int& entityId, float timestep_s)
             penguinInfoPtr->snowball_entityId,
             glm::vec2(0.0f, 0.0f),
             glm::vec2(0.0f, 0.0f),
-            SnowballInfo::s_initialSnowballRadius
+            sharedDataPtr_->penguinSnowballInitialRadius
         );
 
         Project001::CollisionBody2D* penguinCollisionBodyPtr = nullptr;

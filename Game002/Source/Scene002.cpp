@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-18
 
 #include "Scene002.h"
 
@@ -22,7 +22,6 @@
 Scene002::Scene002(Project001::Application* applicationPtr)
     : BaseScene001(applicationPtr)
 {
-    sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene002Id = GetId();
 }
 
@@ -50,6 +49,15 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
 
     // -------------------------------------------------------------------------
 
+    for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
+    {
+        PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
+        if (!playerCreationInfo.turnedOn)
+        {
+            playerCreationInfo.controlSchemeIndex = 0;
+        }
+    }
+
     CreateUiCameraEntity(uiCamera_entityId_, s_uiCamera_cameraMask_, 1000);
     CreateUiCameraEntity(backUiCamera_entityId_, s_backUiCamera_cameraMask_, -1000);
     CreateMainCameraEntity(mainCamera_entityId_, s_mainCamera_cameraMask_, 0);
@@ -59,7 +67,9 @@ void Scene002::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
         FAIL_CHECK(GetComponentStoresPtr()->GetComponent<Project001::Camera>(cameraPtr, mainCamera_entityId_));
         if (cameraPtr != nullptr)
         {
-            cameraPtr->AddPitch(-0.15f * glm::pi<float>());
+            cameraPtr->ResetOrientation();
+            cameraPtr->AddPitch(0.4f * glm::pi<float>());
+            cameraPtr->AddYaw(glm::pi<float>());
             cameraPtr->FollowFocalPoint(s_lookAtPoint_, s_distanceFromFocalPoint_);
         }
     };
@@ -182,7 +192,7 @@ void Scene002::CreateMenuEntity()
     {
         renderedModelPtr->SetCameraMask(s_uiCamera_cameraMask_);
         std::vector<Project001::RenderedMesh>& renderedMeshes = renderedModelPtr->GetRenderedMeshes();
-        renderedMeshes.resize(10);
+        renderedMeshes.resize(12);
 
         {
             Project001::RenderedMesh& mesh = renderedMeshes[0];
@@ -272,9 +282,37 @@ void Scene002::CreateMenuEntity()
         {
             Project001::RenderedMesh& mesh = renderedMeshes[7];
             mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuLeftText_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(1);
+
+            mesh.SetPositionX(-96.0f - 8.0f);
+            mesh.SetPositionY(128.0f + 18.0f);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[8];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuRightText_meshDataPtr);
+            mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
+            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            mesh.SetTranslucent(true);
+            mesh.SetUseLighting(false);
+            mesh.SetRenderPriorityOverride(1);
+
+            mesh.SetPositionX(96.0f + 8.0f);
+            mesh.SetPositionY(128.0f + 18.0f);
+        }
+
+        {
+            Project001::RenderedMesh& mesh = renderedMeshes[9];
+            mesh.SetCameraMask(s_uiCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuAuthorText_meshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
-            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(1);
@@ -284,11 +322,18 @@ void Scene002::CreateMenuEntity()
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[8];
+            Project001::RenderedMesh& mesh = renderedMeshes[10];
             mesh.SetCameraMask(s_uiCamera_cameraMask_);
-            mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuConfigFileText_meshDataPtr);
+            mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
-            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            if (!sharedDataPtr_->configFileFound_)
+            {
+                mesh.SetColor(0.6f, 0.3f, 0.3f, 1.0f);
+            }
+            else
+            {
+                mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
+            }
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(1);
@@ -298,11 +343,11 @@ void Scene002::CreateMenuEntity()
         }
 
         {
-            Project001::RenderedMesh& mesh = renderedMeshes[9];
+            Project001::RenderedMesh& mesh = renderedMeshes[11];
             mesh.SetCameraMask(s_uiCamera_cameraMask_);
             mesh.SetMeshDataPtr(sharedDataPtr_->uiMenuVersionText_meshDataPtr);
             mesh.SetTextureId(sharedDataPtr_->pixelFont_textureId);
-            mesh.SetColor(0.2f, 0.2f, 0.2f, 1.0f);
+            mesh.SetColor(0.4f, 0.4f, 0.4f, 1.0f);
             mesh.SetTranslucent(true);
             mesh.SetUseLighting(false);
             mesh.SetRenderPriorityOverride(1);
@@ -442,6 +487,8 @@ void Scene002::CreatePenguinEntity(unsigned int& entityId, size_t playerNumber)
             }
             mesh.SetTextureId(textureId);
             mesh.SetParentMeshIndex(PenguinInfo::s_head_renderedMeshIndex);
+            mesh.SetColorAlpha(sharedDataPtr_->penguinGlassesAlpha);
+            mesh.SetTranslucent(true);
         }
 
         {
@@ -506,26 +553,27 @@ void Scene002::CreateSharkEntity(unsigned int& entityId)
 
 void Scene002::UpdateMenuTextEntity(float timestep_s, bool& quit)
 {
-    std::vector<PlayerCreationInfo::ControlScheme> usedControlSchemes;
+    std::vector<size_t> usedControlSchemeIndices;
 
     for (size_t i = 0; i < SharedApplicationData::s_player_count; ++i)
     {
-        PlayerCreationInfo* playerInfoPtr = &sharedDataPtr_->playerCreationInfos[i];
+        const PlayerCreationInfo& playerCreationInfo = sharedDataPtr_->playerCreationInfos[i];
+        const size_t& currentControlSchemeIndex = playerCreationInfo.controlSchemeIndex;
 
-        const PlayerCreationInfo::ControlScheme& currentControlScheme = playerInfoPtr->controlScheme;
-
-        if (Project001::Find::Contains(usedControlSchemes, currentControlScheme))
+        if (Project001::Find::Contains(usedControlSchemeIndices, currentControlSchemeIndex))
         {
             continue; // avoid the duplication of presses when two players have the same control scheme
         }
         else
         {
-            usedControlSchemes.push_back(currentControlScheme);
+            usedControlSchemeIndices.push_back(currentControlSchemeIndex);
         }
 
-        if (playerInfoPtr->grab_pressCount == 1)
+        const ControlSchemeInfo& controlSchemeInfo = sharedDataPtr_->controlSchemeInfos[currentControlSchemeIndex];
+
+        if (controlSchemeInfo.grab_pressCount == 1)
         {
-            if (playerInfoPtr->turnedOn && menuCursorPosition_ == 4)
+            if (playerCreationInfo.turnedOn && menuCursorPosition_ == 4)
             {
                 SendEventToApplication(Project001::SwitchSceneEvent(sharedDataPtr_->scene003Id));
                 if (GetActiveScene()->GetId() == sharedDataPtr_->scene003Id)
@@ -537,30 +585,35 @@ void Scene002::UpdateMenuTextEntity(float timestep_s, bool& quit)
                 return;
             }
         }
+    }
 
-        glm::vec2 moveDirection(0.0f, 0.0);
+    glm::vec2 moveDirection(0.0f, 0.0);
 
-        if (playerInfoPtr->left_pressCount == 1)
+    for (size_t i = 0; i < SharedApplicationData::s_controlScheme_count; ++i)
+    {
+        const ControlSchemeInfo& controlSchemeInfo = sharedDataPtr_->controlSchemeInfos[i];
+
+        if (controlSchemeInfo.left_pressCount == 1)
         {
             moveDirection.x -= 1.0f;
         }
-        if (playerInfoPtr->right_pressCount == 1)
+        if (controlSchemeInfo.right_pressCount == 1)
         {
             moveDirection.x += 1.0f;
         }
-        if (playerInfoPtr->up_pressCount == 1)
+        if (controlSchemeInfo.up_pressCount == 1)
         {
             moveDirection.y += 1.0f;
         }
-        if (playerInfoPtr->down_pressCount == 1)
+        if (controlSchemeInfo.down_pressCount == 1)
         {
             moveDirection.y -= 1.0f;
         }
 
         if (menuAxisMoveTimes_s[i] > 0.0f)
         {
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) < playerInfoPtr->axisDeadzone &&
-                glm::abs(playerInfoPtr->upDownAxisValue) < playerInfoPtr->axisDeadzone)
+            if (glm::abs(controlSchemeInfo.leftRightAxisValue) < controlSchemeInfo.axisDeadzone &&
+                glm::abs(controlSchemeInfo.upDownAxisValue) < controlSchemeInfo.axisDeadzone)
             {
                 menuAxisMoveTimes_s[i] = 0.0f;
             }
@@ -573,33 +626,54 @@ void Scene002::UpdateMenuTextEntity(float timestep_s, bool& quit)
         {
             menuAxisMoveTimes_s[i] = 0.0f;
 
-            if (glm::abs(playerInfoPtr->leftRightAxisValue) > playerInfoPtr->axisDeadzone)
+            if (glm::abs(controlSchemeInfo.leftRightAxisValue) > controlSchemeInfo.axisDeadzone)
             {
-                moveDirection.x += playerInfoPtr->leftRightAxisValue;
+                moveDirection.x += controlSchemeInfo.leftRightAxisValue;
                 menuAxisMoveTimes_s[i] += s_menuAxisMoveDelay_s_;
             }
-            if (glm::abs(playerInfoPtr->upDownAxisValue) > playerInfoPtr->axisDeadzone)
+            if (glm::abs(controlSchemeInfo.upDownAxisValue) > controlSchemeInfo.axisDeadzone)
             {
-                moveDirection.y += playerInfoPtr->upDownAxisValue;
+                moveDirection.y += controlSchemeInfo.upDownAxisValue;
                 menuAxisMoveTimes_s[i] += s_menuAxisMoveDelay_s_;
             }
+        }
+    }
 
+    if (menuCursorPosition_ < SharedApplicationData::s_player_count)
+    {
+        int currentControlSchemeIndex = static_cast<int>(sharedDataPtr_->playerCreationInfos[menuCursorPosition_].controlSchemeIndex);
+
+        if (moveDirection.x > 0.0f)
+        {
+            currentControlSchemeIndex++;
+        }
+        else if (moveDirection.x < 0.0f)
+        {
+            currentControlSchemeIndex--;
         }
 
-        if (menuCursorPosition_ < SharedApplicationData::s_player_count &&
-            (moveDirection.x > 0.0f || moveDirection.x < 0.0f))
+        if (currentControlSchemeIndex >= static_cast<int>(SharedApplicationData::s_controlScheme_count))
         {
-            sharedDataPtr_->playerCreationInfos[menuCursorPosition_].turnedOn = !sharedDataPtr_->playerCreationInfos[menuCursorPosition_].turnedOn;
+            currentControlSchemeIndex = 0;
+        }
+        else if (currentControlSchemeIndex < 0)
+        {
+            currentControlSchemeIndex = static_cast<int>(SharedApplicationData::s_controlScheme_count) - 1;
         }
 
-        if (moveDirection.y > 0.0f && menuCursorPosition_ > 0)
-        {
-            menuCursorPosition_ -= 1;
-        }
-        else if (moveDirection.y < 0.0f && menuCursorPosition_ < 4)
-        {
-            menuCursorPosition_ += 1;
-        }
+        sharedDataPtr_->playerCreationInfos[menuCursorPosition_].controlSchemeIndex = static_cast<size_t>(currentControlSchemeIndex);
+
+        sharedDataPtr_->playerCreationInfos[menuCursorPosition_].turnedOn =
+            sharedDataPtr_->playerCreationInfos[menuCursorPosition_].controlSchemeIndex != ControlSchemeInfo::s_controlSchemeIndex_unknown;
+    }
+
+    if (moveDirection.y > 0.0f && menuCursorPosition_ > 0)
+    {
+        menuCursorPosition_ -= 1;
+    }
+    else if (moveDirection.y < 0.0f && menuCursorPosition_ < 4)
+    {
+        menuCursorPosition_ += 1;
     }
 
     UpdateMenuTextMeshes();
@@ -654,7 +728,7 @@ void Scene002::UpdateMenuTextMeshes()
     playerString1 += "P1: ";
     if (sharedDataPtr_->playerCreationInfos[0].turnedOn)
     {
-        const char* controlSchemeString1 = PlayerCreationInfo::ControlSchemeToString(sharedDataPtr_->playerCreationInfos[0].controlScheme);
+        const char* controlSchemeString1 = ControlSchemeInfo::ControlSchemeIndexToString(sharedDataPtr_->playerCreationInfos[0].controlSchemeIndex);
         playerString1 += controlSchemeString1;
     }
     else
@@ -668,7 +742,7 @@ void Scene002::UpdateMenuTextMeshes()
     playerString2 += "P2: ";
     if (sharedDataPtr_->playerCreationInfos[1].turnedOn)
     {
-        const char* controlSchemeString2 = PlayerCreationInfo::ControlSchemeToString(sharedDataPtr_->playerCreationInfos[1].controlScheme);
+        const char* controlSchemeString2 = ControlSchemeInfo::ControlSchemeIndexToString(sharedDataPtr_->playerCreationInfos[1].controlSchemeIndex);
         playerString2 += controlSchemeString2;
     }
     else
@@ -682,7 +756,7 @@ void Scene002::UpdateMenuTextMeshes()
     playerString3 += "P3: ";
     if (sharedDataPtr_->playerCreationInfos[2].turnedOn)
     {
-        const char* controlSchemeString3 = PlayerCreationInfo::ControlSchemeToString(sharedDataPtr_->playerCreationInfos[2].controlScheme);
+        const char* controlSchemeString3 = ControlSchemeInfo::ControlSchemeIndexToString(sharedDataPtr_->playerCreationInfos[2].controlSchemeIndex);
         playerString3 += controlSchemeString3;
     }
     else
@@ -696,7 +770,7 @@ void Scene002::UpdateMenuTextMeshes()
     playerString4 += "P4: ";
     if (sharedDataPtr_->playerCreationInfos[3].turnedOn)
     {
-        const char* controlSchemeString4 = PlayerCreationInfo::ControlSchemeToString(sharedDataPtr_->playerCreationInfos[3].controlScheme);
+        const char* controlSchemeString4 = ControlSchemeInfo::ControlSchemeIndexToString(sharedDataPtr_->playerCreationInfos[3].controlSchemeIndex);
         playerString4 += controlSchemeString4;
     }
     else
@@ -758,6 +832,194 @@ void Scene002::UpdateMenuTextMeshes()
 
     // -------------------------------------------------------------------------
 
+    constexpr float menuLeftPixelSize = 2.0f;
+
+    sharedDataPtr_->uiMenuLeftText_meshDataPtr->Clear();
+
+    std::string menuLeftString;
+
+    if (menuCursorPosition_ < 4)
+    {
+        std::string groundApothemString = std::to_string(sharedDataPtr_->groundApothem);
+        groundApothemString = groundApothemString.substr(0, groundApothemString.find(".") + 2);
+        std::string groundApothemShrinkRateString = std::to_string(sharedDataPtr_->groundApothemShrinkRate_s);
+        groundApothemShrinkRateString = groundApothemShrinkRateString.substr(0, groundApothemShrinkRateString.find(".") + 2);
+        std::string sharkPathOffsetString = std::to_string(sharedDataPtr_->sharkPathOffset);
+        sharkPathOffsetString = sharkPathOffsetString.substr(0, sharkPathOffsetString.find(".") + 2);
+        std::string killzoneString = std::to_string(sharedDataPtr_->killzoneApothem);
+        killzoneString = killzoneString.substr(0, killzoneString.find(".") + 2);
+
+        menuLeftString += "GAME_CONSTANTS\n";
+        menuLeftString += "------------------------------\n";
+        menuLeftString += groundApothemString +           "      GROUND_APOTHEM" + "\n";
+        menuLeftString += groundApothemShrinkRateString + "  GROUND_SHRINK_RATE" + "\n";
+        menuLeftString += sharkPathOffsetString +         "   SHARK_PATH_OFFSET" + "\n";
+        menuLeftString += killzoneString +                "    KILLZONE_APOTHEM" + "\n";
+        menuLeftString += "\n";
+        menuLeftString += "\n";
+        menuLeftString += "\n";
+        menuLeftString += "\n";
+        menuLeftString += "\n";
+        menuLeftString += "";
+    }
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiMenuLeftText_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        menuLeftString,
+        menuLeftPixelSize,
+        2
+    ));
+
+    // -------------------------------------------------------------------------
+
+    constexpr float menuRightPixelSize = 2.0f;
+
+    sharedDataPtr_->uiMenuRightText_meshDataPtr->Clear();
+
+    std::string menuRightString;
+
+    if (menuCursorPosition_ < 4)
+    {
+        switch (sharedDataPtr_->playerCreationInfos[menuCursorPosition_].controlSchemeIndex)
+        {
+        case ControlSchemeInfo::s_controlSchemeIndex_unknown:
+        {
+            menuRightString += "OFF\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "";
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_keyboard1:
+        {
+            menuRightString += "KEYBOARD_1\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_pause_keyCode, false) + "\n";
+            menuRightString += "LEFT      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_left_keyCode, false) + "\n";
+            menuRightString += "RIGHT     " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_right_keyCode, false) + "\n";
+            menuRightString += "UP        " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_up_keyCode, false) + "\n";
+            menuRightString += "DOWN      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_down_keyCode, false) + "\n";
+            menuRightString += "GRAB      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_grab_keyCode, false) + "\n";
+            menuRightString += "DROP      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_1_drop_keyCode, false) + "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "";
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_keyboard2:
+        {
+            menuRightString += "KEYBOARD_2\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_pause_keyCode, false) + "\n";
+            menuRightString += "LEFT      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_left_keyCode, false) + "\n";
+            menuRightString += "RIGHT     " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_right_keyCode, false) + "\n";
+            menuRightString += "UP        " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_up_keyCode, false) + "\n";
+            menuRightString += "DOWN      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_down_keyCode, false) + "\n";
+            menuRightString += "GRAB      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_grab_keyCode, false) + "\n";
+            menuRightString += "DROP      " + Project001::KeyCodeToString(sharedDataPtr_->keyboard_2_drop_keyCode, false) + "\n";
+            menuRightString += "\n";
+            menuRightString += "\n";
+            menuRightString += "";
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_controller1:
+        {
+            std::string deadzoneString = std::to_string(sharedDataPtr_->controller_1_axisDeadzone);
+            deadzoneString = deadzoneString.substr(0, deadzoneString.find(".") + 2);
+
+            menuRightString += "CONTROLLER_1\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + std::to_string(sharedDataPtr_->controller_1_pause_buttonIndex) + "\n";
+            menuRightString += "LEFT      " + std::to_string(sharedDataPtr_->controller_1_left_buttonIndex) + "\n";
+            menuRightString += "RIGHT     " + std::to_string(sharedDataPtr_->controller_1_right_buttonIndex) + "\n";
+            menuRightString += "UP        " + std::to_string(sharedDataPtr_->controller_1_up_buttonIndex) + "\n";
+            menuRightString += "DOWN      " + std::to_string(sharedDataPtr_->controller_1_down_buttonIndex) + "\n";
+            menuRightString += "GRAB      " + std::to_string(sharedDataPtr_->controller_1_grab_buttonIndex) + "\n";
+            menuRightString += "DROP      " + std::to_string(sharedDataPtr_->controller_1_drop_buttonIndex) + "\n";
+            menuRightString += "H-AXIS    " + std::to_string(sharedDataPtr_->controller_1_moveRightLeft_axisIndex) + "\n";
+            menuRightString += "V-AXIS    " + std::to_string(sharedDataPtr_->controller_1_moveDownUp_axisIndex) + "\n";
+            menuRightString += "DEADZONE  " + deadzoneString;
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_controller2:
+        {
+            std::string deadzoneString = std::to_string(sharedDataPtr_->controller_2_axisDeadzone);
+            deadzoneString = deadzoneString.substr(0, deadzoneString.find(".") + 2);
+
+            menuRightString += "CONTROLLER_2\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + std::to_string(sharedDataPtr_->controller_2_pause_buttonIndex) + "\n";
+            menuRightString += "LEFT      " + std::to_string(sharedDataPtr_->controller_2_left_buttonIndex) + "\n";
+            menuRightString += "RIGHT     " + std::to_string(sharedDataPtr_->controller_2_right_buttonIndex) + "\n";
+            menuRightString += "UP        " + std::to_string(sharedDataPtr_->controller_2_up_buttonIndex) + "\n";
+            menuRightString += "DOWN      " + std::to_string(sharedDataPtr_->controller_2_down_buttonIndex) + "\n";
+            menuRightString += "GRAB      " + std::to_string(sharedDataPtr_->controller_2_grab_buttonIndex) + "\n";
+            menuRightString += "DROP      " + std::to_string(sharedDataPtr_->controller_2_drop_buttonIndex) + "\n";
+            menuRightString += "H-AXIS    " + std::to_string(sharedDataPtr_->controller_2_moveRightLeft_axisIndex) + "\n";
+            menuRightString += "V-AXIS    " + std::to_string(sharedDataPtr_->controller_2_moveDownUp_axisIndex) + "\n";
+            menuRightString += "DEADZONE  " + deadzoneString;
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_controller3:
+        {
+            std::string deadzoneString = std::to_string(sharedDataPtr_->controller_3_axisDeadzone);
+            deadzoneString = deadzoneString.substr(0, deadzoneString.find(".") + 2);
+
+            menuRightString += "CONTROLLER_3\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + std::to_string(sharedDataPtr_->controller_3_pause_buttonIndex) + "\n";
+            menuRightString += "LEFT      " + std::to_string(sharedDataPtr_->controller_3_left_buttonIndex) + "\n";
+            menuRightString += "RIGHT     " + std::to_string(sharedDataPtr_->controller_3_right_buttonIndex) + "\n";
+            menuRightString += "UP        " + std::to_string(sharedDataPtr_->controller_3_up_buttonIndex) + "\n";
+            menuRightString += "DOWN      " + std::to_string(sharedDataPtr_->controller_3_down_buttonIndex) + "\n";
+            menuRightString += "GRAB      " + std::to_string(sharedDataPtr_->controller_3_grab_buttonIndex) + "\n";
+            menuRightString += "DROP      " + std::to_string(sharedDataPtr_->controller_3_drop_buttonIndex) + "\n";
+            menuRightString += "H-AXIS    " + std::to_string(sharedDataPtr_->controller_3_moveRightLeft_axisIndex) + "\n";
+            menuRightString += "V-AXIS    " + std::to_string(sharedDataPtr_->controller_3_moveDownUp_axisIndex) + "\n";
+            menuRightString += "DEADZONE  " + deadzoneString;
+            break;
+        }
+        case ControlSchemeInfo::s_controlSchemeIndex_controller4:
+        {
+            std::string deadzoneString = std::to_string(sharedDataPtr_->controller_4_axisDeadzone);
+            deadzoneString = deadzoneString.substr(0, deadzoneString.find(".") + 2);
+
+            menuRightString += "CONTROLLER_4\n";
+            menuRightString += "------------------------------\n";
+            menuRightString += "PAUSE     " + std::to_string(sharedDataPtr_->controller_4_pause_buttonIndex) + "\n";
+            menuRightString += "LEFT      " + std::to_string(sharedDataPtr_->controller_4_left_buttonIndex) + "\n";
+            menuRightString += "RIGHT     " + std::to_string(sharedDataPtr_->controller_4_right_buttonIndex) + "\n";
+            menuRightString += "UP        " + std::to_string(sharedDataPtr_->controller_4_up_buttonIndex) + "\n";
+            menuRightString += "DOWN      " + std::to_string(sharedDataPtr_->controller_4_down_buttonIndex) + "\n";
+            menuRightString += "GRAB      " + std::to_string(sharedDataPtr_->controller_4_grab_buttonIndex) + "\n";
+            menuRightString += "DROP      " + std::to_string(sharedDataPtr_->controller_4_drop_buttonIndex) + "\n";
+            menuRightString += "H-AXIS    " + std::to_string(sharedDataPtr_->controller_4_moveRightLeft_axisIndex) + "\n";
+            menuRightString += "V-AXIS    " + std::to_string(sharedDataPtr_->controller_4_moveDownUp_axisIndex) + "\n";
+            menuRightString += "DEADZONE  " + deadzoneString;
+            break;
+        }
+        }
+    }
+
+    FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
+        *sharedDataPtr_->uiMenuRightText_meshDataPtr,
+        *sharedDataPtr_->pixelFont_fontDataPtr,
+        menuRightString,
+        menuRightPixelSize,
+        0
+    ));
+
+    // -------------------------------------------------------------------------
+
     constexpr float authorPixelSize = 2.0f;
 
     sharedDataPtr_->uiMenuAuthorText_meshDataPtr->Clear();
@@ -776,7 +1038,7 @@ void Scene002::UpdateMenuTextMeshes()
 
     constexpr float configPixelSize = 2.0f;
 
-    sharedDataPtr_->uiMenuConfigFileText_meshDataPtr->Clear();
+    sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr->Clear();
 
     std::string configString = "Config. File ";
     
@@ -790,7 +1052,7 @@ void Scene002::UpdateMenuTextMeshes()
     }
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
-        *sharedDataPtr_->uiMenuConfigFileText_meshDataPtr,
+        *sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr,
         *sharedDataPtr_->pixelFont_fontDataPtr,
         configString,
         configPixelSize,

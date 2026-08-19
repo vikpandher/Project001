@@ -1,10 +1,12 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-18
 
 #pragma once
 
 #include "Scene.h"
+
+#include "SharedApplicationData.h"
 
 
 
@@ -26,6 +28,10 @@ protected:
 
     void CreateMainCameraEntity(unsigned int& entityId, const uint32_t cameraMask, int priorityValue);
     void CreateUiCameraEntity(unsigned int& entityId, const uint32_t cameraMask, int priorityValue);
+
+    // -------------------------------------------------------------------------
+
+    SharedApplicationData* sharedDataPtr_ = nullptr;
 
     // -------------------------------------------------------------------------
 

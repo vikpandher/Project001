@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-11-30
+// @DATE 2026-08-18
 
 #pragma once
 
@@ -262,496 +262,629 @@ namespace Project001
         KEY_CODE_MENU = 348
     };
 
-    static std::string KeyCodeToString(KeyCode keyCode)
+    static std::string KeyCodeToString(KeyCode keyCode, bool includePrefix = true)
     {
+        std::string returnString;
+        if (includePrefix)
+        {
+            returnString = "KEY_CODE_";
+        }
+
         switch (keyCode)
         {
         case KeyCode::KEY_CODE_UNKNOWN:
         {
-            return std::string("KEY_CODE_UNKNOWN");
+            returnString += "UNKNOWN";
+            break;
         }
         case KeyCode::KEY_CODE_SPACE:
         {
-            return std::string("KEY_CODE_SPACE");
+            returnString += "SPACE";
+            break;
         }
         case KeyCode::KEY_CODE_APOSTROPHE:
         {
-            return std::string("KEY_CODE_APOSTROPHE");
+            returnString += "APOSTROPHE";
+            break;
         }
         case KeyCode::KEY_CODE_COMMA:
         {
-            return std::string("KEY_CODE_COMMA");
+            returnString += "COMMA";
+            break;
         }
         case KeyCode::KEY_CODE_MINUS:
         {
-            return std::string("KEY_CODE_MINUS");
+            returnString += "MINUS";
+            break;
         }
         case KeyCode::KEY_CODE_PERIOD:
         {
-            return std::string("KEY_CODE_PERIOD");
+            returnString += "PERIOD";
+            break;
         }
         case KeyCode::KEY_CODE_SLASH:
         {
-            return std::string("KEY_CODE_SLASH");
+            returnString += "SLASH";
+            break;
         }
         case KeyCode::KEY_CODE_0:
         {
-            return std::string("KEY_CODE_0");
+            returnString += "0";
+            break;
         }
         case KeyCode::KEY_CODE_1:
         {
-            return std::string("KEY_CODE_1");
+            returnString += "1";
+            break;
         }
         case KeyCode::KEY_CODE_2:
         {
-            return std::string("KEY_CODE_2");
+            returnString += "2";
+            break;
         }
         case KeyCode::KEY_CODE_3:
         {
-            return std::string("KEY_CODE_3");
+            returnString += "3";
+            break;
         }
         case KeyCode::KEY_CODE_4:
         {
-            return std::string("KEY_CODE_4");
+            returnString += "4";
+            break;
         }
         case KeyCode::KEY_CODE_5:
         {
-            return std::string("KEY_CODE_5");
+            returnString += "5";
+            break;
         }
         case KeyCode::KEY_CODE_6:
         {
-            return std::string("KEY_CODE_6");
+            returnString += "6";
+            break;
         }
         case KeyCode::KEY_CODE_7:
         {
-            return std::string("KEY_CODE_7");
+            returnString += "7";
+            break;
         }
         case KeyCode::KEY_CODE_8:
         {
-            return std::string("KEY_CODE_8");
+            returnString += "8";
+            break;
         }
         case KeyCode::KEY_CODE_9:
         {
-            return std::string("KEY_CODE_9");
+            returnString += "9";
+            break;
         }
         case KeyCode::KEY_CODE_SEMICOLON:
         {
-            return std::string("KEY_CODE_SEMICOLON");
+            returnString += "SEMICOLON";
+            break;
         }
         case KeyCode::KEY_CODE_EQUAL:
         {
-            return std::string("KEY_CODE_EQUAL");
+            returnString += "EQUAL";
+            break;
         }
         case KeyCode::KEY_CODE_A:
         {
-            return std::string("KEY_CODE_A");
+            returnString += "A";
+            break;
         }
         case KeyCode::KEY_CODE_B:
         {
-            return std::string("KEY_CODE_B");
+            returnString += "B";
+            break;
         }
         case KeyCode::KEY_CODE_C:
         {
-            return std::string("KEY_CODE_C");
+            returnString += "C";
+            break;
         }
         case KeyCode::KEY_CODE_D:
         {
-            return std::string("KEY_CODE_D");
+            returnString += "D";
+            break;
         }
         case KeyCode::KEY_CODE_E:
         {
-            return std::string("KEY_CODE_E");
+            returnString += "E";
+            break;
         }
         case KeyCode::KEY_CODE_F:
         {
-            return std::string("KEY_CODE_F");
+            returnString += "F";
+            break;
         }
         case KeyCode::KEY_CODE_G:
         {
-            return std::string("KEY_CODE_G");
+            returnString += "G";
+            break;
         }
         case KeyCode::KEY_CODE_H:
         {
-            return std::string("KEY_CODE_H");
+            returnString += "H";
+            break;
         }
         case KeyCode::KEY_CODE_I:
         {
-            return std::string("KEY_CODE_I");
+            returnString += "I";
+            break;
         }
         case KeyCode::KEY_CODE_J:
         {
-            return std::string("KEY_CODE_J");
+            returnString += "J";
+            break;
         }
         case KeyCode::KEY_CODE_K:
         {
-            return std::string("KEY_CODE_K");
+            returnString += "K";
+            break;
         }
         case KeyCode::KEY_CODE_L:
         {
-            return std::string("KEY_CODE_L");
+            returnString += "L";
+            break;
         }
         case KeyCode::KEY_CODE_M:
         {
-            return std::string("KEY_CODE_M");
+            returnString += "M";
+            break;
         }
         case KeyCode::KEY_CODE_N:
         {
-            return std::string("KEY_CODE_N");
+            returnString += "N";
+            break;
         }
         case KeyCode::KEY_CODE_O:
         {
-            return std::string("KEY_CODE_O");
+            returnString += "O";
+            break;
         }
         case KeyCode::KEY_CODE_P:
         {
-            return std::string("KEY_CODE_P");
+            returnString += "P";
+            break;
         }
         case KeyCode::KEY_CODE_Q:
         {
-            return std::string("KEY_CODE_Q");
+            returnString += "Q";
+            break;
         }
         case KeyCode::KEY_CODE_R:
         {
-            return std::string("KEY_CODE_R");
+            returnString += "R";
+            break;
         }
         case KeyCode::KEY_CODE_S:
         {
-            return std::string("KEY_CODE_S");
+            returnString += "S";
+            break;
         }
         case KeyCode::KEY_CODE_T:
         {
-            return std::string("KEY_CODE_T");
+            returnString += "T";
+            break;
         }
         case KeyCode::KEY_CODE_U:
         {
-            return std::string("KEY_CODE_U");
+            returnString += "U";
+            break;
         }
         case KeyCode::KEY_CODE_V:
         {
-            return std::string("KEY_CODE_V");
+            returnString += "V";
+            break;
         }
         case KeyCode::KEY_CODE_W:
         {
-            return std::string("KEY_CODE_W");
+            returnString += "W";
+            break;
         }
         case KeyCode::KEY_CODE_X:
         {
-            return std::string("KEY_CODE_X");
+            returnString += "X";
+            break;
         }
         case KeyCode::KEY_CODE_Y:
         {
-            return std::string("KEY_CODE_Y");
+            returnString += "Y";
+            break;
         }
         case KeyCode::KEY_CODE_Z:
         {
-            return std::string("KEY_CODE_Z");
+            returnString += "Z";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT_BRACKET:
         {
-            return std::string("KEY_CODE_LEFT_BRACKET");
+            returnString += "LEFT_BRACKET";
+            break;
         }
         case KeyCode::KEY_CODE_BACKSLASH:
         {
-            return std::string("KEY_CODE_BACKSLASH");
+            returnString += "BACKSLASH";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT_BRACKET:
         {
-            return std::string("KEY_CODE_RIGHT_BRACKET");
+            returnString += "RIGHT_BRACKET";
+            break;
         }
         case KeyCode::KEY_CODE_GRAVE_ACCENT:
         {
-            return std::string("KEY_CODE_GRAVE_ACCENT");
+            returnString += "GRAVE_ACCENT";
+            break;
         }
         case KeyCode::KEY_CODE_WORLD_1:
         {
-            return std::string("KEY_CODE_WORLD_1");
+            returnString += "WORLD_1";
+            break;
         }
         case KeyCode::KEY_CODE_WORLD_2:
         {
-            return std::string("KEY_CODE_WORLD_2");
+            returnString += "WORLD_2";
+            break;
         }
         case KeyCode::KEY_CODE_ESCAPE:
         {
-            return std::string("KEY_CODE_ESCAPE");
+            returnString += "ESCAPE";
+            break;
         }
         case KeyCode::KEY_CODE_ENTER:
         {
-            return std::string("KEY_CODE_ENTER");
+            returnString += "ENTER";
+            break;
         }
         case KeyCode::KEY_CODE_TAB:
         {
-            return std::string("KEY_CODE_TAB");
+            returnString += "TAB";
+            break;
         }
         case KeyCode::KEY_CODE_BACKSPACE:
         {
-            return std::string("KEY_CODE_BACKSPACE");
+            returnString += "BACKSPACE";
+            break;
         }
         case KeyCode::KEY_CODE_INSERT:
         {
-            return std::string("KEY_CODE_INSERT");
+            returnString += "INSERT";
+            break;
         }
         case KeyCode::KEY_CODE_DELETE:
         {
-            return std::string("KEY_CODE_DELETE");
+            returnString += "DELETE";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT:
         {
-            return std::string("KEY_CODE_RIGHT");
+            returnString += "RIGHT";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT:
         {
-            return std::string("KEY_CODE_LEFT");
+            returnString += "LEFT";
+            break;
         }
         case KeyCode::KEY_CODE_DOWN:
         {
-            return std::string("KEY_CODE_DOWN");
+            returnString += "DOWN";
+            break;
         }
         case KeyCode::KEY_CODE_UP:
         {
-            return std::string("KEY_CODE_UP");
+            returnString += "UP";
+            break;
         }
         case KeyCode::KEY_CODE_PAGE_UP:
         {
-            return std::string("KEY_CODE_PAGE_UP");
+            returnString += "PAGE_UP";
+            break;
         }
         case KeyCode::KEY_CODE_PAGE_DOWN:
         {
-            return std::string("KEY_CODE_PAGE_DOWN");
+            returnString += "PAGE_DOWN";
+            break;
         }
         case KeyCode::KEY_CODE_HOME:
         {
-            return std::string("KEY_CODE_HOME");
+            returnString += "HOME";
+            break;
         }
         case KeyCode::KEY_CODE_END:
         {
-            return std::string("KEY_CODE_END");
+            returnString += "END";
+            break;
         }
         case KeyCode::KEY_CODE_CAPS_LOCK:
         {
-            return std::string("KEY_CODE_CAPS_LOCK");
+            returnString += "CAPS_LOCK";
+            break;
         }
         case KeyCode::KEY_CODE_SCROLL_LOCK:
         {
-            return std::string("KEY_CODE_SCROLL_LOCK");
+            returnString += "SCROLL_LOCK";
+            break;
         }
         case KeyCode::KEY_CODE_NUM_LOCK:
         {
-            return std::string("KEY_CODE_NUM_LOCK");
+            returnString += "NUM_LOCK";
+            break;
         }
         case KeyCode::KEY_CODE_PRINT_SCREEN:
         {
-            return std::string("KEY_CODE_PRINT_SCREEN");
+            returnString += "PRINT_SCREEN";
+            break;
         }
         case KeyCode::KEY_CODE_PAUSE:
         {
-            return std::string("KEY_CODE_PAUSE");
+            returnString += "PAUSE";
+            break;
         }
         case KeyCode::KEY_CODE_F1:
         {
-            return std::string("KEY_CODE_F1");
+            returnString += "F1";
+            break;
         }
         case KeyCode::KEY_CODE_F2:
         {
-            return std::string("KEY_CODE_F2");
+            returnString += "F2";
+            break;
         }
         case KeyCode::KEY_CODE_F3:
         {
-            return std::string("KEY_CODE_F3");
+            returnString += "F3";
+            break;
         }
         case KeyCode::KEY_CODE_F4:
         {
-            return std::string("KEY_CODE_F4");
+            returnString += "F4";
+            break;
         }
         case KeyCode::KEY_CODE_F5:
         {
-            return std::string("KEY_CODE_F5");
+            returnString += "F5";
+            break;
         }
         case KeyCode::KEY_CODE_F6:
         {
-            return std::string("KEY_CODE_F6");
+            returnString += "F6";
+            break;
         }
         case KeyCode::KEY_CODE_F7:
         {
-            return std::string("KEY_CODE_F7");
+            returnString += "F7";
+            break;
         }
         case KeyCode::KEY_CODE_F8:
         {
-            return std::string("KEY_CODE_F8");
+            returnString += "F8";
+            break;
         }
         case KeyCode::KEY_CODE_F9:
         {
-            return std::string("KEY_CODE_F9");
+            returnString += "F9";
+            break;
         }
         case KeyCode::KEY_CODE_F10:
         {
-            return std::string("KEY_CODE_F10");
+            returnString += "F10";
+            break;
         }
         case KeyCode::KEY_CODE_F11:
         {
-            return std::string("KEY_CODE_F11");
+            returnString += "F11";
+            break;
         }
         case KeyCode::KEY_CODE_F12:
         {
-            return std::string("KEY_CODE_F12");
+            returnString += "F12";
+            break;
         }
         case KeyCode::KEY_CODE_F13:
         {
-            return std::string("KEY_CODE_F13");
+            returnString += "F13";
+            break;
         }
         case KeyCode::KEY_CODE_F14:
         {
-            return std::string("KEY_CODE_F14");
+            returnString += "F14";
+            break;
         }
         case KeyCode::KEY_CODE_F15:
         {
-            return std::string("KEY_CODE_F15");
+            returnString += "F15";
+            break;
         }
         case KeyCode::KEY_CODE_F16:
         {
-            return std::string("KEY_CODE_F16");
+            returnString += "F16";
+            break;
         }
         case KeyCode::KEY_CODE_F17:
         {
-            return std::string("KEY_CODE_F17");
+            returnString += "F17";
+            break;
         }
         case KeyCode::KEY_CODE_F18:
         {
-            return std::string("KEY_CODE_F18");
+            returnString += "F18";
+            break;
         }
         case KeyCode::KEY_CODE_F19:
         {
-            return std::string("KEY_CODE_F19");
+            returnString += "F19";
+            break;
         }
         case KeyCode::KEY_CODE_F20:
         {
-            return std::string("KEY_CODE_F20");
+            returnString += "F20";
+            break;
         }
         case KeyCode::KEY_CODE_F21:
         {
-            return std::string("KEY_CODE_F21");
+            returnString += "F21";
+            break;
         }
         case KeyCode::KEY_CODE_F22:
         {
-            return std::string("KEY_CODE_F22");
+            returnString += "F22";
+            break;
         }
         case KeyCode::KEY_CODE_F23:
         {
-            return std::string("KEY_CODE_F23");
+            returnString += "F23";
+            break;
         }
         case KeyCode::KEY_CODE_F24:
         {
-            return std::string("KEY_CODE_F24");
+            returnString += "F24";
+            break;
         }
         case KeyCode::KEY_CODE_F25:
         {
-            return std::string("KEY_CODE_F25");
+            returnString += "F25";
+            break;
         }
         case KeyCode::KEY_CODE_KP_0:
         {
-            return std::string("KEY_CODE_KP_0");
+            returnString += "KP_0";
+            break;
         }
         case KeyCode::KEY_CODE_KP_1:
         {
-            return std::string("KEY_CODE_KP_1");
+            returnString += "KP_1";
+            break;
         }
         case KeyCode::KEY_CODE_KP_2:
         {
-            return std::string("KEY_CODE_KP_2");
+            returnString += "KP_2";
+            break;
         }
         case KeyCode::KEY_CODE_KP_3:
         {
-            return std::string("KEY_CODE_KP_3");
+            returnString += "KP_3";
+            break;
         }
         case KeyCode::KEY_CODE_KP_4:
         {
-            return std::string("KEY_CODE_KP_4");
+            returnString += "KP_4";
+            break;
         }
         case KeyCode::KEY_CODE_KP_5:
         {
-            return std::string("KEY_CODE_KP_5");
+            returnString += "KP_5";
+            break;
         }
         case KeyCode::KEY_CODE_KP_6:
         {
-            return std::string("KEY_CODE_KP_6");
+            returnString += "KP_6";
+            break;
         }
         case KeyCode::KEY_CODE_KP_7:
         {
-            return std::string("KEY_CODE_KP_7");
+            returnString += "KP_7";
+            break;
         }
         case KeyCode::KEY_CODE_KP_8:
         {
-            return std::string("KEY_CODE_KP_8");
+            returnString += "KP_8";
+            break;
         }
         case KeyCode::KEY_CODE_KP_9:
         {
-            return std::string("KEY_CODE_KP_9");
+            returnString += "KP_9";
+            break;
         }
         case KeyCode::KEY_CODE_KP_DECIMAL:
         {
-            return std::string("KEY_CODE_KP_DECIMAL");
+            returnString += "KP_DECIMAL";
+            break;
         }
         case KeyCode::KEY_CODE_KP_DIVIDE:
         {
-            return std::string("KEY_CODE_KP_DIVIDE");
+            returnString += "KP_DIVIDE";
+            break;
         }
         case KeyCode::KEY_CODE_KP_MULTIPLY:
         {
-            return std::string("KEY_CODE_KP_MULTIPLY");
+            returnString += "KP_MULTIPLY";
+            break;
         }
         case KeyCode::KEY_CODE_KP_SUBTRACT:
         {
-            return std::string("KEY_CODE_KP_SUBTRACT");
+            returnString += "KP_SUBTRACT";
+            break;
         }
         case KeyCode::KEY_CODE_KP_ADD:
         {
-            return std::string("KEY_CODE_KP_ADD");
+            returnString += "KP_ADD";
+            break;
         }
         case KeyCode::KEY_CODE_KP_ENTER:
         {
-            return std::string("KEY_CODE_KP_ENTER");
+            returnString += "KP_ENTER";
+            break;
         }
         case KeyCode::KEY_CODE_KP_EQUAL:
         {
-            return std::string("KEY_CODE_KP_EQUAL");
+            returnString += "KP_EQUAL";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT_SHIFT:
         {
-            return std::string("KEY_CODE_LEFT_SHIFT");
+            returnString += "LEFT_SHIFT";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT_CONTROL:
         {
-            return std::string("KEY_CODE_LEFT_CONTROL");
+            returnString += "LEFT_CONTROL";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT_ALT:
         {
-            return std::string("KEY_CODE_LEFT_ALT");
+            returnString += "LEFT_ALT";
+            break;
         }
         case KeyCode::KEY_CODE_LEFT_SUPER:
         {
-            return std::string("KEY_CODE_LEFT_SUPER");
+            returnString += "LEFT_SUPER";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT_SHIFT:
         {
-            return std::string("KEY_CODE_RIGHT_SHIFT");
+            returnString += "RIGHT_SHIFT";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT_CONTROL:
         {
-            return std::string("KEY_CODE_RIGHT_CONTROL");
+            returnString += "RIGHT_CONTROL";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT_ALT:
         {
-            return std::string("KEY_CODE_RIGHT_ALT");
+            returnString += "RIGHT_ALT";
+            break;
         }
         case KeyCode::KEY_CODE_RIGHT_SUPER:
         {
-            return std::string("KEY_CODE_RIGHT_SUPER");
+            returnString += "RIGHT_SUPER";
+            break;
         }
         case KeyCode::KEY_CODE_MENU:
         {
-            return std::string("KEY_CODE_MENU");
+            returnString += "MENU";
+            break;
+        }
+        default:
+        {
+            returnString += "UNKNOWN";
+            break;
         }
         }
-        return std::string("UNKNOWN");
+
+        return returnString;
     }
 
     static KeyCode StringToKeyCode(const std::string& keyString)

@@ -1,12 +1,10 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-05
+// @DATE 2026-08-18
 
 #pragma once
 
 #include "BaseScene001.h"
-
-#include "SharedApplicationData.h"
 
 
 
@@ -43,11 +41,8 @@ protected:
 
     void ReadConfigFile();
 
+    void CreateKillZoneMesh();
     void CreateLoadingTextEntity();
-
-    // -------------------------------------------------------------------------
-
-    SharedApplicationData* sharedDataPtr_ = nullptr;
 
     // Entity Ids --------------------------------------------------------------
 

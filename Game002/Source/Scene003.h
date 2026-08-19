@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-18
 
 #pragma once
 
@@ -79,10 +79,6 @@ protected:
     void KillDeadSnowburstEffectEntities();
     void KillDeadPenguinEntities();
     void KillDeadSnowballEntities();
-
-    // -------------------------------------------------------------------------
-
-    SharedApplicationData* sharedDataPtr_ = nullptr;
 
     // Entity Ids --------------------------------------------------------------
 

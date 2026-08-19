@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-17
+// @DATE 2026-08-18
 
 #include "Scene001.h"
 
@@ -55,7 +55,6 @@
 Scene001::Scene001(Project001::Application* applicationPtr)
     : BaseScene001(applicationPtr)
 {
-    sharedDataPtr_ = GetSharedDataPtr<SharedApplicationData>();
     sharedDataPtr_->scene001Id = GetId();
 
     LoadPixelFontResources();
@@ -99,6 +98,7 @@ void Scene001::ProcessInitializeEvent(Project001::InitializeEvent& initializeEve
     ReadConfigFile();
 
     CreateUiCameraEntity(uiCamera_entityId_, s_uiCamera_cameraMask_, 1000);
+    CreateKillZoneMesh();
     CreateLoadingTextEntity();
 }
 
@@ -246,7 +246,9 @@ void Scene001::LoadMainMenuResources()
     ));
 
     sharedDataPtr_->uiMenuAuthorText_meshDataPtr = new Project001::MeshData();
-    sharedDataPtr_->uiMenuConfigFileText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuLeftText_meshDataPtr = new Project001::MeshData();
+    sharedDataPtr_->uiMenuRightText_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiMenuPlayerText1_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiMenuPlayerText2_meshDataPtr = new Project001::MeshData();
     sharedDataPtr_->uiMenuPlayerText3_meshDataPtr = new Project001::MeshData();
@@ -370,15 +372,6 @@ void Scene001::LoadImpactResources()
 void Scene001::LoadStageResources()
 {
     sharedDataPtr_->ground_meshDataPtr = new Project001::MeshData();
-    // constexpr float height = 256.0f;
-    // const float radius = SharedApplicationData::s_ground_size * 1.0829f;
-    // const float groundCorner = SharedApplicationData::s_ground_size * 0.41421357f; // sqrt(2) - 1
-    // FAIL_CHECK(Project001::Mesh::GenerateCylinder(
-    //     *sharedDataPtr_->ground_meshDataPtr, height, radius, 8, false
-    // ));
-    // Project001::Mesh::RotateMeshX(*sharedDataPtr_->ground_meshDataPtr, glm::half_pi<float>());
-    // Project001::Mesh::RotateMeshZ(*sharedDataPtr_->ground_meshDataPtr, glm::pi<float>() / 8.0f);
-    // Project001::Mesh::TranslateMesh(*sharedDataPtr_->ground_meshDataPtr, glm::vec3(0.0f, 0.0f, -0.5f * height));
 
     sharedDataPtr_->water_meshDataPtr = new Project001::MeshData();
     FAIL_CHECK(Project001::Mesh::Generate2DSprite(
@@ -404,33 +397,7 @@ void Scene001::LoadStageResources()
     //     groundCollisionCorners
     // ));
 
-    {
-        constexpr float rectThickness = SharedApplicationData::s_quadtreeOffset;
-    
-        Project001::MeshData tempMeshData0;
-        Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f, 0.0f));
-    
-        Project001::MeshData tempMeshData1;
-        Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
-        Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f, 0.0f));
-    
-        Project001::MeshData tempMeshData2;
-        Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f));
-    
-        Project001::MeshData tempMeshData3;
-        Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
-        Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f));
-    
-        sharedDataPtr_->deadZone_meshDataPtr = new Project001::MeshData();
-        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData0);
-        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData1);
-        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData2);
-        Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData3);
-        Project001::Mesh::ApplyPositionalTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr);
-        Project001::Mesh::ScaleTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr, glm::vec2(1.0f / 32.0f, 1.0f / 32.0f));
-    }
+    sharedDataPtr_->deadZone_meshDataPtr = new Project001::MeshData();
 
     sharedDataPtr_->hazard_textureDataPtr = new Project001::TextureData();
     FAIL_CHECK(Project001::Texture::LoadTextureFromMemory(
@@ -1016,8 +983,12 @@ void Scene001::FreeResources()
     sharedDataPtr_->uiMenuBackground_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiMenuAuthorText_meshDataPtr;
     sharedDataPtr_->uiMenuAuthorText_meshDataPtr = nullptr;
-    delete sharedDataPtr_->uiMenuConfigFileText_meshDataPtr;
-    sharedDataPtr_->uiMenuConfigFileText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr;
+    sharedDataPtr_->uiMenuConfigFileFoundText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuLeftText_meshDataPtr;
+    sharedDataPtr_->uiMenuLeftText_meshDataPtr = nullptr;
+    delete sharedDataPtr_->uiMenuRightText_meshDataPtr;
+    sharedDataPtr_->uiMenuRightText_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiMenuPlayerText1_meshDataPtr;
     sharedDataPtr_->uiMenuPlayerText1_meshDataPtr = nullptr;
     delete sharedDataPtr_->uiMenuPlayerText2_meshDataPtr;
@@ -1211,7 +1182,7 @@ void Scene001::ReadConfigFile()
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerCreationInfos[0].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[0].controlSchemeIndex = ControlSchemeInfo::StringToControlSchemeIndex(iter2->second);
             }
 
             iter2 = iter->second.find("spawnPositionX");
@@ -1249,7 +1220,7 @@ void Scene001::ReadConfigFile()
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerCreationInfos[1].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[1].controlSchemeIndex = ControlSchemeInfo::StringToControlSchemeIndex(iter2->second);
             }
 
             iter2 = iter->second.find("spawnPositionX");
@@ -1287,7 +1258,7 @@ void Scene001::ReadConfigFile()
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerCreationInfos[2].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[2].controlSchemeIndex = ControlSchemeInfo::StringToControlSchemeIndex(iter2->second);
             }
 
             iter2 = iter->second.find("spawnPositionX");
@@ -1325,7 +1296,7 @@ void Scene001::ReadConfigFile()
             iter2 = iter->second.find("controlScheme");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->playerCreationInfos[3].controlScheme = PlayerCreationInfo::StringToControlScheme(iter2->second);
+                sharedDataPtr_->playerCreationInfos[3].controlSchemeIndex = ControlSchemeInfo::StringToControlSchemeIndex(iter2->second);
             }
 
             iter2 = iter->second.find("spawnPositionX");
@@ -1350,10 +1321,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Keyboard_1");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_1_start_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_1_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1396,10 +1367,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Keyboard_2");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->keyboard_2_start_keyCode = Project001::StringToKeyCode(iter2->second);
+                sharedDataPtr_->keyboard_2_pause_keyCode = Project001::StringToKeyCode(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1442,10 +1413,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Controller_1");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_1_start_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_1_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1506,10 +1477,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Controller_2");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_2_start_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_2_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1570,10 +1541,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Controller_3");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_3_start_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_3_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1634,10 +1605,10 @@ void Scene001::ReadConfigFile()
         iter = sections.find("Controller_4");
         if (iter != sections.end())
         {
-            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("start");
+            std::map<std::string, std::string>::const_iterator iter2 = iter->second.find("pause");
             if (iter2 != iter->second.end())
             {
-                sharedDataPtr_->controller_4_start_buttonIndex = std::stoi(iter2->second);
+                sharedDataPtr_->controller_4_pause_buttonIndex = std::stoi(iter2->second);
             }
 
             iter2 = iter->second.find("left");
@@ -1740,6 +1711,12 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->coolGlassesPlayerIndex = static_cast<size_t>(std::stoi(iter2->second));
             }
 
+            iter2 = iter->second.find("mainCameraPitch");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->mainCameraPitch = std::stof(iter2->second);
+            }
+
             iter2 = iter->second.find("mainCameraInitialDistanceAway");
             if (iter2 != iter->second.end())
             {
@@ -1782,6 +1759,12 @@ void Scene001::ReadConfigFile()
                 sharedDataPtr_->cursorSnowballCreationDelay_s = std::stof(iter2->second);
             }
 
+            iter2 = iter->second.find("cursorSnowballInitialRadius");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->cursorSnowballInitialRadius = std::stof(iter2->second);
+            }
+
             iter2 = iter->second.find("cursorSnowballGrowthRate_s");
             if (iter2 != iter->second.end())
             {
@@ -1792,6 +1775,12 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->cursorSnowballThrowSpeed_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinGlassesAlpha");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinGlassesAlpha = std::stof(iter2->second);
             }
 
             iter2 = iter->second.find("penguinDensity");
@@ -1816,6 +1805,12 @@ void Scene001::ReadConfigFile()
             if (iter2 != iter->second.end())
             {
                 sharedDataPtr_->penguinSnowballCreationDelay_s = std::stof(iter2->second);
+            }
+
+            iter2 = iter->second.find("penguinSnowballInitialRadius");
+            if (iter2 != iter->second.end())
+            {
+                sharedDataPtr_->penguinSnowballInitialRadius = std::stof(iter2->second);
             }
 
             iter2 = iter->second.find("penguinSnowballGrowthRate_s");
@@ -1981,6 +1976,36 @@ void Scene001::ReadConfigFile()
             }
         }
     }
+}
+
+void Scene001::CreateKillZoneMesh()
+{
+    sharedDataPtr_->deadZone_meshDataPtr->Clear();
+
+    constexpr float rectThickness = SharedApplicationData::s_quadtreeOffset;
+
+    Project001::MeshData tempMeshData0;
+    Project001::Mesh::Generate2DRectangle(tempMeshData0, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
+    Project001::Mesh::TranslateMesh(tempMeshData0, glm::vec3(-(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f, 0.0f));
+
+    Project001::MeshData tempMeshData1;
+    Project001::Mesh::Generate2DRectangle(tempMeshData1, rectThickness, sharedDataPtr_->killzoneApothem * 2.0f);
+    Project001::Mesh::TranslateMesh(tempMeshData1, glm::vec3(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f, 0.0f));
+
+    Project001::MeshData tempMeshData2;
+    Project001::Mesh::Generate2DRectangle(tempMeshData2, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
+    Project001::Mesh::TranslateMesh(tempMeshData2, glm::vec3(0.0f, -(sharedDataPtr_->killzoneApothem + rectThickness * 0.5f), 0.0f));
+
+    Project001::MeshData tempMeshData3;
+    Project001::Mesh::Generate2DRectangle(tempMeshData3, (sharedDataPtr_->killzoneApothem + rectThickness) * 2.0f, rectThickness);
+    Project001::Mesh::TranslateMesh(tempMeshData3, glm::vec3(0.0f, sharedDataPtr_->killzoneApothem + rectThickness * 0.5f, 0.0f));
+
+    Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData0);
+    Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData1);
+    Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData2);
+    Project001::Mesh::CopyMesh(*sharedDataPtr_->deadZone_meshDataPtr, tempMeshData3);
+    Project001::Mesh::ApplyPositionalTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr);
+    Project001::Mesh::ScaleTextureCoordinates(*sharedDataPtr_->deadZone_meshDataPtr, glm::vec2(1.0f / 32.0f, 1.0f / 32.0f));
 }
 
 void Scene001::CreateLoadingTextEntity()

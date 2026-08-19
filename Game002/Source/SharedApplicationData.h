@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-17
+// @DATE 2026-08-18
 
 #pragma once
 
@@ -20,41 +20,22 @@ namespace Project001
     class Window;
 }
 
-struct PlayerCreationInfo
+struct ControlSchemeInfo
 {
-    size_t playerNumber = 0;
-    bool turnedOn = true;
+    static constexpr size_t s_controlSchemeIndex_unknown = 0;
+    static constexpr size_t s_controlSchemeIndex_keyboard1 = 1;
+    static constexpr size_t s_controlSchemeIndex_keyboard2 = 2;
+    static constexpr size_t s_controlSchemeIndex_controller1 = 3;
+    static constexpr size_t s_controlSchemeIndex_controller2 = 4;
+    static constexpr size_t s_controlSchemeIndex_controller3 = 5;
+    static constexpr size_t s_controlSchemeIndex_controller4 = 6;
 
-    static constexpr size_t s_controlSchemeCount = 7;
-    enum class ControlScheme
-    {
-        CONTROL_SCHEME_UNKNOWN = 0,
-        CONTROL_SCHEME_KEYBOARD_1,
-        CONTROL_SCHEME_KEYBOARD_2,
-        CONTROL_SCHEME_CONTROLLER_1,
-        CONTROL_SCHEME_CONTROLLER_2,
-        CONTROL_SCHEME_CONTROLLER_3,
-        CONTROL_SCHEME_CONTROLLER_4
-    };
-
-    static void DecrementControlScheme(ControlScheme& controlScheme);
-    static void IncrementControlScheme(ControlScheme& controlScheme);
-
-    static const char* PlayerCreationInfo::ControlSchemeToString(ControlScheme& controlScheme);
-
-    static PlayerCreationInfo::ControlScheme PlayerCreationInfo::StringToControlScheme(const std::string& str);
-
-    ControlScheme controlScheme = ControlScheme::CONTROL_SCHEME_KEYBOARD_1;
-
-    float spawnPositionX = 0.0f;
-    float spawnPositionY = 0.0f;
-    float spawnRotation = 0.0f;
-
-    bool dead = false;
+    static const char* ControlSchemeIndexToString(size_t controlSchemeIndex);
+    static size_t StringToControlSchemeIndex(const std::string& str);
 
     float axisDeadzone = 0.2f;
 
-    unsigned int start_pressCount = 0;
+    unsigned int pause_pressCount = 0;
     unsigned int left_pressCount = 0;
     unsigned int right_pressCount = 0;
     unsigned int up_pressCount = 0;
@@ -63,6 +44,20 @@ struct PlayerCreationInfo
     unsigned int drop_pressCount = 0;
     float leftRightAxisValue = 0.0f;
     float upDownAxisValue = 0.0f;
+};
+
+struct PlayerCreationInfo
+{
+    size_t playerNumber = 0;
+    bool turnedOn = true;
+
+    size_t controlSchemeIndex = 0;
+
+    float spawnPositionX = 0.0f;
+    float spawnPositionY = 0.0f;
+    float spawnRotation = 0.0f;
+
+    bool dead = false;
 };
 
 struct SharedApplicationData
@@ -78,12 +73,15 @@ struct SharedApplicationData
     unsigned int score = 0;
     float gameTime_s = 0.0f;
 
+    static constexpr size_t s_controlScheme_count = 7;
+    ControlSchemeInfo controlSchemeInfos[s_controlScheme_count] = {};
+
     static constexpr size_t s_player_count = 4;
     PlayerCreationInfo playerCreationInfos[s_player_count] = {
-        {0, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_1, -64.0f, 64.0f, -0.75f * glm::pi<float>()},
-        {1, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_KEYBOARD_2, 64.0f, 64.0f, -1.25f * glm::pi<float>()},
-        {2, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_1, 64.0f, -64.0f, -1.75f * glm::pi<float>()},
-        {3, true, PlayerCreationInfo::ControlScheme::CONTROL_SCHEME_CONTROLLER_2, -64.0f, -64.0f, -2.25f * glm::pi<float>()}
+        {0, true, ControlSchemeInfo::s_controlSchemeIndex_keyboard1, -64.0f, 64.0f, -0.75f * glm::pi<float>()},
+        {1, true, ControlSchemeInfo::s_controlSchemeIndex_keyboard2, 64.0f, 64.0f, -1.25f * glm::pi<float>()},
+        {2, true, ControlSchemeInfo::s_controlSchemeIndex_controller1, 64.0f, -64.0f, -1.75f * glm::pi<float>()},
+        {3, true, ControlSchemeInfo::s_controlSchemeIndex_controller2, -64.0f, -64.0f, -2.25f * glm::pi<float>()}
     };
 
     void UpdateKeyboardButtonPresses(const Project001::KeyEvent& keyEvent);
@@ -92,7 +90,7 @@ struct SharedApplicationData
 
     // Player Controls ---------------------------------------------------------
 
-    Project001::KeyCode keyboard_1_start_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
+    Project001::KeyCode keyboard_1_pause_keyCode = Project001::KeyCode::KEY_CODE_ENTER;
     Project001::KeyCode keyboard_1_left_keyCode = Project001::KeyCode::KEY_CODE_A;
     Project001::KeyCode keyboard_1_right_keyCode = Project001::KeyCode::KEY_CODE_D;
     Project001::KeyCode keyboard_1_up_keyCode = Project001::KeyCode::KEY_CODE_W;
@@ -100,7 +98,7 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_1_grab_keyCode = Project001::KeyCode::KEY_CODE_SPACE;
     Project001::KeyCode keyboard_1_drop_keyCode = Project001::KeyCode::KEY_CODE_RIGHT_ALT;
 
-    bool keyboard_1_start_pressed = false;
+    bool keyboard_1_pause_pressed = false;
     bool keyboard_1_left_pressed = false;
     bool keyboard_1_right_pressed = false;
     bool keyboard_1_up_pressed = false;
@@ -108,7 +106,7 @@ struct SharedApplicationData
     bool keyboard_1_grab_pressed = false;
     bool keyboard_1_drop_pressed = false;
 
-    Project001::KeyCode keyboard_2_start_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
+    Project001::KeyCode keyboard_2_pause_keyCode = Project001::KeyCode::KEY_CODE_KP_ENTER;
     Project001::KeyCode keyboard_2_left_keyCode = Project001::KeyCode::KEY_CODE_LEFT;
     Project001::KeyCode keyboard_2_right_keyCode = Project001::KeyCode::KEY_CODE_RIGHT;
     Project001::KeyCode keyboard_2_up_keyCode = Project001::KeyCode::KEY_CODE_UP;
@@ -116,7 +114,7 @@ struct SharedApplicationData
     Project001::KeyCode keyboard_2_grab_keyCode = Project001::KeyCode::KEY_CODE_KP_0;
     Project001::KeyCode keyboard_2_drop_keyCode = Project001::KeyCode::KEY_CODE_KP_DECIMAL;
 
-    bool keyboard_2_start_pressed = false;
+    bool keyboard_2_pause_pressed = false;
     bool keyboard_2_left_pressed = false;
     bool keyboard_2_right_pressed = false;
     bool keyboard_2_up_pressed = false;
@@ -124,7 +122,7 @@ struct SharedApplicationData
     bool keyboard_2_grab_pressed = false;
     bool keyboard_2_drop_pressed = false;
 
-    unsigned int controller_1_start_buttonIndex = 7;
+    unsigned int controller_1_pause_buttonIndex = 7;
     unsigned int controller_1_left_buttonIndex = 13;
     unsigned int controller_1_right_buttonIndex = 11;
     unsigned int controller_1_up_buttonIndex = 10;
@@ -135,7 +133,7 @@ struct SharedApplicationData
     unsigned int controller_1_moveDownUp_axisIndex = 1;
     float controller_1_axisDeadzone = 0.2f;
 
-    unsigned int controller_2_start_buttonIndex = 7;
+    unsigned int controller_2_pause_buttonIndex = 7;
     unsigned int controller_2_left_buttonIndex = 13;
     unsigned int controller_2_right_buttonIndex = 11;
     unsigned int controller_2_up_buttonIndex = 10;
@@ -146,7 +144,7 @@ struct SharedApplicationData
     unsigned int controller_2_moveDownUp_axisIndex = 1;
     float controller_2_axisDeadzone = 0.2f;
 
-    unsigned int controller_3_start_buttonIndex = 7;
+    unsigned int controller_3_pause_buttonIndex = 7;
     unsigned int controller_3_left_buttonIndex = 13;
     unsigned int controller_3_right_buttonIndex = 11;
     unsigned int controller_3_up_buttonIndex = 10;
@@ -157,7 +155,7 @@ struct SharedApplicationData
     unsigned int controller_3_moveDownUp_axisIndex = 1;
     float controller_3_axisDeadzone = 0.2f;
 
-    unsigned int controller_4_start_buttonIndex = 7;
+    unsigned int controller_4_pause_buttonIndex = 7;
     unsigned int controller_4_left_buttonIndex = 13;
     unsigned int controller_4_right_buttonIndex = 11;
     unsigned int controller_4_up_buttonIndex = 10;
@@ -230,6 +228,7 @@ struct SharedApplicationData
     float killzoneApothem = 1024.0f;
     size_t coolGlassesPlayerIndex = 4;
 
+    float mainCameraPitch = 0.25f * glm::pi<float>();
     float mainCameraInitialDistanceAway = 960.0f;
     float mainCameraMinimumPlayerSpread = 240.0f;
     float mainCameraPlayerToEdgeSpacing = 128.0f;
@@ -243,13 +242,16 @@ struct SharedApplicationData
     size_t mainCameraSharkInclusionMode = 0;
 
     float cursorSnowballCreationDelay_s = 0.5f;
+    float cursorSnowballInitialRadius = 8.0f;
     float cursorSnowballGrowthRate_s = 6.0f;
     float cursorSnowballThrowSpeed_s = 256.0f;
 
+    float penguinGlassesAlpha = 1.0f;
     float penguinDensity = 1.0f;
     float penguinHitHardThreshold = 128.0f;
     float penguinHitstunCooldownDivisor = 1024.0f;
     float penguinSnowballCreationDelay_s = 0.5f;
+    float penguinSnowballInitialRadius = 8.0f;
     float penguinSnowballGrowthRate_s = 4.0f;
     float penguinSnowballThrowSpeed_s = 256.0f;
     float penguinRegrabDelay_s = 0.5f;
@@ -326,7 +328,9 @@ struct SharedApplicationData
     // Main Menu Resources
     Project001::MeshData* uiMenuBackground_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuAuthorText_meshDataPtr = nullptr;
-    Project001::MeshData* uiMenuConfigFileText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuConfigFileFoundText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuLeftText_meshDataPtr = nullptr;
+    Project001::MeshData* uiMenuRightText_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuPlayerText1_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuPlayerText2_meshDataPtr = nullptr;
     Project001::MeshData* uiMenuPlayerText3_meshDataPtr = nullptr;

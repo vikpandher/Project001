@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2026-08-07
+// @DATE 2026-08-18
 
 #pragma once
 
@@ -143,8 +143,7 @@ struct SnowballInfo
 
     bool onLand = false;
 
-    static constexpr float s_initialSnowballRadius = 8.0f;
-    float radius = s_initialSnowballRadius;
+    float radius = 8.0f;
     static constexpr float s_maxRadius = 48.0f;
     static constexpr float s_renderedMeshRadiusScaler = 1.2f;
 
