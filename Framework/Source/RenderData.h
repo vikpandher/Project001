@@ -1,6 +1,6 @@
 // =============================================================================
 // @AUTHOR Vik Pandher
-// @DATE 2025-12-13
+// @DATE 2026-08-25
 
 #pragma once
 
@@ -12,7 +12,19 @@
 
 namespace Project001
 {
-    struct DirectionalLight
+    // Uniform Buffer Objects need to meet std140.
+    // It is a standardized layout rule set defined by the OpenGL/Vulkan
+    // specifications that dictates exact byte offsets and alignment
+    // requirements for buffer memory.
+    //
+    // float = 4 byte alignment
+    // vec2  = 8 byte alignment
+    // vec3  = 16 byte alignment <--- empty space needed
+    // vec4  = 16 byte alignment
+    //
+    // GLSL expects array elements at offsets 0, 16, 32, 48
+
+    struct alignas(16) DirectionalLight
     {
         DirectionalLight()
             : direction(0.0f, 0.0f, -1.0f)
@@ -36,16 +48,22 @@ namespace Project001
         glm::vec3 direction;
 
         // Ambient light applied to everything from all directions evenly
-        glm::vec3 ambient;
+        alignas(16) glm::vec3 ambient;
 
         // Light comming from a direction
-        glm::vec3 diffuse;
+        alignas(16) glm::vec3 diffuse;
 
         // The color of the shine
-        glm::vec3 specular;
+        alignas(16) glm::vec3 specular;
     };
+    // DirectionalLight memory layout:
+    // > direction, offset = 0 , size = 12
+    // > ambient,   offset = 16, size = 12
+    // > diffuse,   offset = 32, size = 12
+    // > specular,  offset = 48, size = 12
+    // total size = 64
 
-    struct PointLight
+    struct alignas(16) PointLight
     {
         PointLight()
             : position(0.0f, 0.0f, 0.0f)
@@ -91,12 +109,21 @@ namespace Project001
         // Higher equals faster dimming
         float quadratic;
 
-        glm::vec3 ambient;
-        glm::vec3 diffuse;
-        glm::vec3 specular;
+        alignas(16) glm::vec3 ambient;
+        alignas(16) glm::vec3 diffuse;
+        alignas(16) glm::vec3 specular;
     };
+    // PointLight memory layout:
+    // > position,  offset = 0 , size = 12
+    // > constant,  offset = 12, size = 4
+    // > linear,    offset = 16, size = 4
+    // > quadratic, offset = 20, size = 4
+    // > ambient,   offset = 32, size = 12
+    // > diffuse,   offset = 48, size = 12
+    // > specular,  offset = 64, size = 12
+    // total size = 80
 
-    struct SpotLight
+    struct alignas(16) SpotLight
     {
         SpotLight()
             : position(0.0f, 0.0f, 0.0f)
@@ -135,7 +162,7 @@ namespace Project001
         {}
 
         glm::vec3 position;
-        glm::vec3 direction;
+        alignas(16) glm::vec3 direction;
 
         // The cut-offs determine the angle the cone of light spreads from the
         // source:
@@ -157,10 +184,22 @@ namespace Project001
 
         // Amblient light is cutoff as well, but will light the target from
         // behind.
-        glm::vec3 ambient;
-        glm::vec3 diffuse;
-        glm::vec3 specular;
+        alignas(16) glm::vec3 ambient;
+        alignas(16) glm::vec3 diffuse;
+        alignas(16) glm::vec3 specular;
     };
+    // SpotLight memory layout:
+    // > position,    offset = 0 , size = 12
+    // > direction,   offset = 16, size = 12
+    // > cutoff,      offset = 28, size = 4
+    // > outerCutoff, offset = 32, size = 4
+    // > constant,    offset = 36, size = 4
+    // > linear,      offset = 40, size = 4
+    // > quadratic,   offset = 44, size = 4
+    // > ambient,     offset = 48, size = 12
+    // > diffuse,     offset = 64, size = 12
+    // > specular,    offset = 80, size = 12
+    // total size = 96
 
     // Combines VertexData with InstanceData
     struct BatchedVertexData
