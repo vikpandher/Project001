@@ -231,7 +231,7 @@ namespace Project001
                     //     * These are ordered so the closest are drawn first.
                     // 
                     // * Translucent Meshes are drawn last.
-                    //   * These are orderedso the farthest are drawn first.
+                    //   * These are ordered so the farthest are drawn first.
                     // 
                     // * If the camera projection is perspective, distances are
                     //   calculated from the camera position point.

@@ -58,6 +58,45 @@ namespace Project001
 
     // public ------------------------------------------------------------------
 
+    // Notes about this Renderer implementation:
+    // 
+    // This renderer is used by the RenderSystem. It supports batched rendering
+    // and instanced rendering.
+    // 
+    // Batche Rendering:
+    // 
+    // Calls to AddMeshToBatch and then RenderBatch will render meshes to a
+    // screen texture.
+    // 
+    // Instanced Rendering:
+    // 
+    // Calls to RenderMesh (via an id) will result in calls to the internal
+    // function, RenderMeshToTexture, which will render meshes to the before
+    // mentioned screen texture.
+    // 
+    // A call to FinishRendering will render the screen texture to the screen.
+    // 
+    // The RenderSystem uses this renderer to build a frame and then render it
+    // to the screen.
+    // 
+    // Rendering is effectivly single-frame-in-flight:
+    // 
+    // There is a single uniform buffer for the vertex shader and a single
+    // uniform buffer for the fragment shader. The use of the uniform buffers
+    // is gated by the renderingFence_ to prevent overwriting while in use.
+    // 
+    // There are single staging buffers + single device-local
+    // vertex/index/instance buffers that get reused. The reuse is gated by
+    // the batchedDataTransferFence_ and instanceDataTransferFence_ to avoid
+    // overwriting while in use.
+    // 
+    // When AquireNextImage() is called, vkQueueWaitIdle is called to ensure the
+    // previous frame has finished rendering. This is done to prevent
+    // overwriting the uniform buffers while in use.
+    // 
+    // While single-frame-in-flight is not optimal for performance, it is
+    // simpler to implement and is sufficient for now.
+
     Vulkan_Renderer::Vulkan_Renderer(const RendererInfo& rendererInfo)
         : windowPtr_(rendererInfo.windowPtr)
         , frameBufferWidth_(rendererInfo.frameBufferWidth)
