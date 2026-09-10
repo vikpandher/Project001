@@ -1065,7 +1065,7 @@ void Scene002::UpdateMenuTextMeshes()
 
     sharedDataPtr_->uiMenuVersionText_meshDataPtr->Clear();
 
-    std::string versionString = "versoin 0.1.0";
+    std::string versionString = "version 0.1.X";
 
     FAIL_CHECK(Project001::Font::GenerateMeshDataFromFontDataAndString(
         *sharedDataPtr_->uiMenuVersionText_meshDataPtr,
